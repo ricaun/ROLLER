@@ -194,6 +194,9 @@
     <ClCompile Include="PROJECTS\ROLLER\verite.c" />
     <ClCompile Include="PROJECTS\ROLLER\view.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

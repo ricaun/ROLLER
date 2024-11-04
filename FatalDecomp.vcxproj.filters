@@ -238,4 +238,7 @@
       <Filter>DONS\SOSMIDIW\SOSMLIB\SRC</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
 </Project>
