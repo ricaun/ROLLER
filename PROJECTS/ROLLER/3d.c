@@ -3375,7 +3375,7 @@ unsigned int __fastcall malloc2(int a1, unsigned int *a2, _DWORD *a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall sub_15E00(__int16 a1, __int16 a2)
+int __fastcall free2(__int16 a1, __int16 a2)
 {
   int result; // eax
   _WORD v4[14]; // [esp+0h] [ebp-34h] BYREF
