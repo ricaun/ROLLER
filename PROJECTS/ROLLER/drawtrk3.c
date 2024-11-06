@@ -1,3 +1,4 @@
+#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
 int __fastcall CalcVisibleTrack(int a1, unsigned int a2)
@@ -6023,3 +6024,4 @@ unsigned int __fastcall set_starts(unsigned int result)
 }
 
 //-------------------------------------------------------------------------------------------------
+#endif

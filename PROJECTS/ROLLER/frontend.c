@@ -1,4 +1,4 @@
-
+#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
 _DWORD *__usercall title_screens@<eax>(unsigned int a1@<edx>, _WORD *a2@<ebx>, _BYTE *a3@<ecx>, unsigned int a4@<edi>)
@@ -5800,3 +5800,4 @@ int __fastcall restart_net_game(int a1)
 }
 
 //-------------------------------------------------------------------------------------------------
+#endif
