@@ -1,6 +1,7 @@
 #include "types.h"
 #include "carplans.h"
 #include "frontend.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 tCarBox CarBox;
@@ -101,12 +102,12 @@ int CalcCarSizes()
   float fXLow; // [esp+14h] [ebp-14h]
 
   for (nCarDesignsIdx = 0; nCarDesignsIdx < 14; ++nCarDesignsIdx) {
-    fZLow = 1073741800.0;
-    fYLow = 1073741800.0;
-    fXLow = 1073741800.0;
-    fZHigh = -1073741800.0;
-    fYHigh = -1073741800.0;
-    fXHigh = -1073741800.0;
+    fZLow = 1073741800.0f;
+    fYLow = 1073741800.0f;
+    fXLow = 1073741800.0f;
+    fZHigh = -1073741800.0f;
+    fYHigh = -1073741800.0f;
+    fXHigh = -1073741800.0f;
     nCoordsIdx = 0;
     // Go through everything listed in CarDesigns and get the max and min values to generate a hit box for each car
     pCoords = CarDesigns[nCarDesignsIdx].pCoords;
@@ -178,7 +179,7 @@ int CalcCarSizes()
     CarBaseX = CarBaseX * car_c_tinycar_size;
     CarBaseY = CarBaseY * car_c_tinycar_size;
   }
-  CarDiag = sqrt(CarBaseX * CarBaseX + CarBaseY * CarBaseY);
+  CarDiag = (float)sqrt(CarBaseX * CarBaseX + CarBaseY * CarBaseY);
   return result;
 }
 
