@@ -1,3 +1,4 @@
+
 #ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
@@ -65,111 +66,113 @@ int InitCarStructs()
   }
   return CalcCarSizes();
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
 int CalcCarSizes()
 {
-  __int16 i; // cx
-  __int16 v1; // bx
-  float *v2; // edx
-  double v3; // st7
-  float *v4; // edx
-  double v5; // st7
-  float *v6; // edx
-  int v7; // eax
-  int *v8; // edx
-  __int16 j; // bx
+  int16 nCarDesignsIdx; // cx
+  int16 nCoordsIdx; // bx
+  tVec3 *pCoords; // edx
+  double fY; // st7
+  float *p_fY; // edx
+  double dZ; // st7
+  float *p_fZ; // edx
+  int iCarBoxIdx; // eax
+  tVec3 *pAutoCoords; // edx
+  int16 nAutoCoordsIdx; // bx
   int result; // eax
-  int v11; // [esp+0h] [ebp-28h]
-  int v12; // [esp+4h] [ebp-24h]
-  int v13; // [esp+8h] [ebp-20h]
-  int v14; // [esp+Ch] [ebp-1Ch]
-  int v15; // [esp+10h] [ebp-18h]
-  int v16; // [esp+14h] [ebp-14h]
+  float fZLow; // [esp+0h] [ebp-28h]
+  float fZHigh; // [esp+4h] [ebp-24h]
+  float fYHigh; // [esp+8h] [ebp-20h]
+  float fXHigh; // [esp+Ch] [ebp-1Ch]
+  float fYLow; // [esp+10h] [ebp-18h]
+  float fXLow; // [esp+14h] [ebp-14h]
 
-  for (i = 0; i < 14; ++i) {
-    *(float *)&v11 = 1073741800.0;
-    *(float *)&v15 = 1073741800.0;
-    *(float *)&v16 = 1073741800.0;
-    *(float *)&v12 = -1073741800.0;
-    *(float *)&v13 = -1073741800.0;
-    *(float *)&v14 = -1073741800.0;
-    v1 = 0;
-    v2 = (float *)*(&CarDesigns_variable_3 + 7 * i);
-    while (v1 < (unsigned __int8)CarDesigns_variable_1[28 * i]) {
-      if (*v2 < (double)*(float *)&v16)
-        v16 = *(int *)v2;
-      if (*v2 > (double)*(float *)&v14)
-        v14 = *(int *)v2;
-      v3 = v2[1];
-      v4 = v2 + 1;
-      if (v3 < *(float *)&v15)
-        v15 = *(int *)v4;
-      if (*v4 > (double)*(float *)&v13)
-        v13 = *(int *)v4;
-      v5 = v4[1];
-      v6 = v4 + 1;
-      if (v5 < *(float *)&v11)
-        v11 = *(int *)v6;
-      if (*v6 > (double)*(float *)&v12)
-        v12 = *(int *)v6;
-      v2 = v6 + 1;
-      ++v1;
+  for (nCarDesignsIdx = 0; nCarDesignsIdx < 14; ++nCarDesignsIdx) {
+    fZLow = 1073741800.0;
+    fYLow = 1073741800.0;
+    fXLow = 1073741800.0;
+    fZHigh = -1073741800.0;
+    fYHigh = -1073741800.0;
+    fXHigh = -1073741800.0;
+    nCoordsIdx = 0;
+    // Go through everything listed in CarDesigns and get the max and min values to generate a hit box for each car
+    pCoords = CarDesigns[nCarDesignsIdx].pCoords;
+    while (nCoordsIdx < CarDesigns[nCarDesignsIdx].byNumCoords) {
+      if (pCoords->fX < (double)fXLow)
+        fXLow = pCoords->fX;
+      if (pCoords->fX > (double)fXHigh)
+        fXHigh = pCoords->fX;
+      fY = pCoords->fY;
+      p_fY = &pCoords->fY;
+      if (fY < fYLow)
+        fYLow = *p_fY;
+      if (*p_fY > (double)fYHigh)
+        fYHigh = *p_fY;
+      dZ = p_fY[1];                             // why is it like this
+      p_fZ = p_fY + 1;
+      if (dZ < fZLow)
+        fZLow = *p_fZ;
+      if (*p_fZ > (double)fZHigh)
+        fZHigh = *p_fZ;
+      pCoords = (tVec3 *)(p_fZ + 1);            // funny way to get to the next set of coords
+      ++nCoordsIdx;
     }
+    // Multiply by tinycar value if using tinycar cheat
     if ((cheat_mode & 0x8000) != 0) {
-      *(float *)&v16 = *(float *)&v16 * car_c_variable_2;
-      *(float *)&v15 = *(float *)&v15 * car_c_variable_2;
-      *(float *)&v14 = *(float *)&v14 * car_c_variable_2;
-      *(float *)&v13 = *(float *)&v13 * car_c_variable_2;
+      fXLow = fXLow * car_c_tinycar_size;
+      fYLow = fYLow * car_c_tinycar_size;
+      fXHigh = fXHigh * car_c_tinycar_size;
+      fYHigh = fYHigh * car_c_tinycar_size;
     }
-    v7 = 24 * i;
-    CarBox[v7] = v16;
-    CarBox_variable_1[v7] = v15;
-    CarBox_variable_2[v7] = v11;
-    CarBox_variable_3[v7] = v14;
-    CarBox_variable_4[v7] = v15;
-    CarBox_variable_5[v7] = v11;
-    CarBox_variable_6[v7] = v14;
-    CarBox_variable_7[v7] = v13;
-    CarBox_variable_8[v7] = v11;
-    CarBox_variable_9[v7] = v16;
-    CarBox_variable_10[v7] = v13;
-    CarBox_variable_11[v7] = v11;
-    CarBox_variable_12[v7] = v16;
-    CarBox_variable_13[v7] = v15;
-    CarBox_variable_14[v7] = v12;
-    CarBox_variable_15[v7] = v14;
-    CarBox_variable_16[v7] = v15;
-    CarBox_variable_17[v7] = v12;
-    CarBox_variable_18[v7] = v14;
-    CarBox_variable_19[v7] = v13;
-    CarBox_variable_20[v7] = v12;
-    CarBox_variable_21[v7] = v16;
-    CarBox_variable_22[v7] = v13;
-    CarBox_variable_23[v7] = v12;
+    iCarBoxIdx = 8 * nCarDesignsIdx;            // 24 for 8 3-float points defining a hitbox
+    CarBox.hitboxAy[iCarBoxIdx].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx + 1].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 1].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx + 1].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx + 2].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 2].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 2].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx + 3].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx + 3].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 3].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx + 4].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx + 4].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx + 4].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 5].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 5].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx + 5].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 6].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 6].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 6].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 7].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx + 7].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx + 7].fZ = fZHigh;
   }
-  v8 = (int *)CarDesigns_variable_3;
-  CarBaseX = 0;
-  CarBaseY = 0;
-  for (j = 0; j < (unsigned __int8)CarDesigns_variable_1[0]; ++j) {
-    if (*(float *)v8 > (double)*(float *)&CarBaseX)
-      CarBaseX = *v8;
-    if (*((float *)v8 + 1) > (double)*(float *)&CarBaseY)
-      CarBaseY = v8[1];
-    v8 += 3;
+  pAutoCoords = CarDesigns[0].pCoords;          // ptr to xauto_coords
+  CarBaseX = 0.0;
+  CarBaseY = 0.0;
+  for (nAutoCoordsIdx = 0; nAutoCoordsIdx < CarDesigns[0].byNumCoords; ++nAutoCoordsIdx) {
+    if (pAutoCoords->fX > (double)CarBaseX)
+      CarBaseX = pAutoCoords->fX;
+    if (pAutoCoords->fY > (double)CarBaseY)
+      CarBaseY = pAutoCoords->fY;
+    ++pAutoCoords;
   }
   result = cheat_mode;
   if ((cheat_mode & 0x8000) != 0) {
-    *(float *)&CarBaseX = *(float *)&CarBaseX * car_c_variable_2;
-    *(float *)&CarBaseY = *(float *)&CarBaseY * car_c_variable_2;
+    CarBaseX = CarBaseX * car_c_tinycar_size;
+    CarBaseY = CarBaseY * car_c_tinycar_size;
   }
-  CarDiag = sqrt(*(float *)&CarBaseX * *(float *)&CarBaseX + *(float *)&CarBaseY * *(float *)&CarBaseY);
+  CarDiag = sqrt(CarBaseX * CarBaseX + CarBaseY * CarBaseY);
   return result;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+#ifdef ENABLE_PSEUDO
 int InitCars()
 {
   __int16 i; // si
