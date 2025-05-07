@@ -980,10 +980,10 @@ double __fastcall calc_revs(tRev *pRevs, int iGear, float fChg)
       v10 = fChg - fUnk3;
       v6 = fChg - fUnk5;
       v7 = fChg - fUnk7;
-      v9 = v6 * v7 * fUnk4 / ((fUnk3 - fUnk5) * (fUnk3 - fUnk7));
-      v14 = v7 * v10 * v5->fUnk6 / ((fUnk5 - fUnk3) * (fUnk5 - fUnk7))
+      v9 = (float)v6 * (float)v7 * fUnk4 / ((fUnk3 - fUnk5) * (fUnk3 - fUnk7));
+      v14 = (float)v7 * v10 * v5->fUnk6 / ((fUnk5 - fUnk3) * (fUnk5 - fUnk7))
         + v9
-        + v6 * v10 * v5->fUnk8 / ((fUnk7 - fUnk3) * (fUnk7 - fUnk5));
+        + (float)v6 * v10 * v5->fUnk8 / ((fUnk7 - fUnk3) * (fUnk7 - fUnk5));
     }
   } else {
     v14 = (fChg - fUnk3) * fChg * v5->fUnk2 / ((v5->fUnk1 - fUnk3) * v5->fUnk1)

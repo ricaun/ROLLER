@@ -61,9 +61,9 @@ int InitCarStructs()
       do {
         carDesignIndex3 = i;                    // why is this defined a second time
         iRevsOffset = 12 * i;
-        fChg = (float)(CarEngines.engines[carDesignIndex3].pChgs[iChgIdx]);
+        fChg = (float)CarEngines.engines[carDesignIndex3].pChgs[iChgIdx];
         eng_chg_revs[iChgIdx + iRevsOffset] = (float)calc_revs(CarEngines.engines[carDesignIndex3].pRevs, iCurrGear, fChg);
-        fNextChg = (float)(CarEngines.engines[carDesignIndex3].pChgs[iChgIdx + 1]);
+        fNextChg = (float)CarEngines.engines[carDesignIndex3].pChgs[iChgIdx + 1];
         iChgIdx += 2;
         iNextGear = iCurrGear++;
         eng_chg_revs[iChgIdx + iRevsOffset - 1] = (float)calc_revs(

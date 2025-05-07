@@ -110,7 +110,7 @@ typedef struct
   tRev *pRevs;
   float *pSpds;                         ///< maximum speed at each gear
   int iUnk2;
-  float *pChgs;
+  int *pChgs;
   int iUnk3;
   float fUnk4;
   float fUnk5;
