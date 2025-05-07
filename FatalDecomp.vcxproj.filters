@@ -248,5 +248,8 @@
     <ClInclude Include="PROJECTS\ROLLER\carplans.h">
       <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\frontend.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

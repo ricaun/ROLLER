@@ -211,6 +211,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PROJECTS\ROLLER\carplans.h" />
+    <ClInclude Include="PROJECTS\ROLLER\frontend.h" />
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
