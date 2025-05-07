@@ -37,9 +37,6 @@
     <Filter Include="DONS\SOSMIDIW\SOSMLIB\SRC">
       <UniqueIdentifier>{361b18f5-2d1d-49ee-a5cc-12df60fea180}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PROJECTS\ROLLER\data">
-      <UniqueIdentifier>{26d7f7ce-0ddc-46d1-804c-6a7e9d43ab86}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PROJECTS\ROLLER\3d.c">
@@ -245,14 +242,11 @@
     <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PROJECTS\ROLLER\data\AutoPlans.h">
-      <Filter>PROJECTS\ROLLER\data</Filter>
-    </ClInclude>
-    <ClInclude Include="PROJECTS\ROLLER\Types.h">
+    <ClInclude Include="PROJECTS\ROLLER\types.h">
       <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
-    <ClInclude Include="PROJECTS\ROLLER\data\CarDesigns.h">
-      <Filter>PROJECTS\ROLLER\data</Filter>
+    <ClInclude Include="PROJECTS\ROLLER\carplans.h">
+      <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
