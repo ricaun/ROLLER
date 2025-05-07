@@ -1,7 +1,7 @@
 #ifndef _ROLLER_ENGINES_H
 #define _ROLLER_ENGINES_H
 //-------------------------------------------------------------------------------------------------
-#include "Types.h"
+#include "types.h"
 //-------------------------------------------------------------------------------------------------
 
 extern tRev AUTO_A_revs[];
@@ -39,6 +39,8 @@ extern int REISE_W_chgs[];
 extern tRev fast_revs[];
 extern float fast_spds[];
 extern int fast_chgs[];
+
+extern tCarEngines CarEngines;
 
 //-------------------------------------------------------------------------------------------------
 #endif

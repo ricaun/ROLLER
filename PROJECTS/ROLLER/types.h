@@ -92,14 +92,14 @@ typedef struct
 
 typedef struct
 {
-  float f1;
-  float f2;
-  float f3;
-  float f4;
-  float f5;
-  float f6;
-  float f7;
-  float f8;
+  float fUnk1;
+  float fUnk2;
+  float fUnk3;
+  float fUnk4;
+  float fUnk5;
+  float fUnk6;
+  float fUnk7;
+  float fUnk8;
 } tRev;
 
 //-------------------------------------------------------------------------------------------------

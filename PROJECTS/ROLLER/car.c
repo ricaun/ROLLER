@@ -1,6 +1,9 @@
 #include "types.h"
+#include "car.h"
 #include "carplans.h"
 #include "frontend.h"
+#include "engines.h"
+#include "control.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
@@ -8,77 +11,78 @@ tCarBox CarBox;
 float CarBaseX;
 float CarBaseY;
 float CarDiag;
+double car_c_variable_1 = 2.2;
 float tinycar_size = 0.25f;
+float StoreEngines[80];
 
-//-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
 int InitCarStructs()
 {
-  int v0; // ebx
+  eCarDesignIndex carDesignIndex; // ebx
   int v1; // esi
-  int v2; // ecx
-  int v3; // edi
-  float *v4; // ebx
+  eCarDesignIndex carDesignIndex2; // ecx
+  int iNumGears; // edi
+  float *pSpds; // ebx
   int j; // ecx
   double v6; // st7
-  int v7; // ebx
-  int v8; // ecx
-  int v9; // esi
-  int v10; // ebp
-  int v11; // edx
+  int iCurrGear; // ebx
+  int iChgIdx; // ecx
+  eCarDesignIndex carDesignIndex3; // esi
+  int iRevsOffset; // ebp
+  int iNextGear; // edx
   __int16 k; // di
-  int v13; // eax
+  int iNumGears2; // eax
   int m; // ebx
   double v15; // st7
-  float v17; // [esp+0h] [ebp-20h]
-  float v18; // [esp+0h] [ebp-20h]
+  float fChg; // [esp+0h] [ebp-20h]
+  float fNextChg; // [esp+0h] [ebp-20h]
   __int16 i; // [esp+4h] [ebp-1Ch]
 
   for (i = 0; i < 14; ++i) {
-    v0 = 28 * i;
+    carDesignIndex = i;
     v1 = 0;
-    v2 = 0;
-    v3 = CarEngines[v0];
-    v4 = *(float **)((char *)&CarEngines_variable_2 + v0 * 4);
+    carDesignIndex2 = CAR_DESIGN_AUTO;
+    iNumGears = CarEngines.engines[carDesignIndex].iNumGears;
+    pSpds = CarEngines.engines[carDesignIndex].pSpds;
     while (v1 < i) {
-      if (v4 == (float *)*(_UNKNOWN **)((char *)&CarEngines_variable_2 + v2))
-        v3 = -1;
-      v2 += 112;
+      if (pSpds == CarEngines.engines[carDesignIndex2].pSpds)
+        iNumGears = -1;
+      ++carDesignIndex2;
       ++v1;
     }
-    for (j = 0; j < v3; *(v4 - 1) = v6) {
-      v6 = *v4++ * car_c_variable_1;
+    for (j = 0; j < iNumGears; *(pSpds - 1) = (float)v6) {
+      v6 = *pSpds++ * car_c_variable_1;
       ++j;
     }
-    v7 = 0;
-    if (v3 > 0) {
-      v8 = 0;
+    iCurrGear = 0;
+    if (iNumGears > 0) {
+      iChgIdx = 0;
       do {
-        v9 = 112 * i;
-        v10 = 12 * i;
-        v17 = (float)*(int *)(*(char **)((char *)&CarEngines_variable_3 + v9) + v8 * 4);
-        eng_chg_revs[v8 + v10] = calc_revs(*(int *)((char *)&CarEngines_variable_1 + v9), v7, v17);
-        v18 = (float)*(int *)(*(char **)((char *)&CarEngines_variable_3 + v9) + v8 * 4 + 4);
-        v8 += 2;
-        v11 = v7++;
-        trial_times_variable_1[v8 + v10] = calc_revs(*(int *)((char *)&CarEngines_variable_1 + v9), v11, v18);
-      } while (v7 < v3);
+        carDesignIndex3 = i;                    // why is this defined a second time
+        iRevsOffset = 12 * i;
+        fChg = (float)(CarEngines.engines[carDesignIndex3].pChgs[iChgIdx]);
+        eng_chg_revs[iChgIdx + iRevsOffset] = (float)calc_revs(CarEngines.engines[carDesignIndex3].pRevs, iCurrGear, fChg);
+        fNextChg = (float)(CarEngines.engines[carDesignIndex3].pChgs[iChgIdx + 1]);
+        iChgIdx += 2;
+        iNextGear = iCurrGear++;
+        eng_chg_revs[iChgIdx + iRevsOffset - 1] = (float)calc_revs(
+                                                          CarEngines.engines[carDesignIndex3].pRevs,
+                                                          iNextGear,
+                                                          fNextChg);
+      } while (iCurrGear < iNumGears);
     }
   }
   for (k = 0; k < 14; ++k) {
-    v13 = CarEngines[28 * k];
-    if (v13 > 0) {
-      for (m = 0; m < v13; driver_names_variable_1[6 * k + m] = v15) {
-        v15 = *(float *)((char *)*(&CarEngines_variable_2 + 28 * k) + m * 4);
-        ++m;
-      }
+    iNumGears2 = CarEngines.engines[k].iNumGears;
+    if (iNumGears2 > 0) {
+      for (m = 0; m < iNumGears2; StoreEngines[6 * k + m - 1] = (float)v15)
+        v15 = CarEngines.engines[k].pSpds[m++];
     }
   }
   return CalcCarSizes();
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 int CalcCarSizes()

@@ -1,3 +1,9 @@
+#include "control.h"
+//-------------------------------------------------------------------------------------------------
+
+float eng_chg_revs[168];
+
+//-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
@@ -946,38 +952,42 @@ void control()
   }
 }
 
+#endif
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall calc_revs(int a1, int a2, float a3)
+double __fastcall calc_revs(tRev *pRevs, int iGear, float fChg)
 {
-  float *v5; // eax
+  tRev *v5; // eax
   double v6; // st7
   double v7; // st3
   float v9; // [esp+8h] [ebp-40h]
   float v10; // [esp+18h] [ebp-30h]
-  float v11; // [esp+2Ch] [ebp-1Ch]
-  float v12; // [esp+34h] [ebp-14h]
-  float v13; // [esp+38h] [ebp-10h]
+  float fUnk4; // [esp+2Ch] [ebp-1Ch]
+  float fUnk5; // [esp+34h] [ebp-14h]
+  float fUnk7; // [esp+38h] [ebp-10h]
   float v14; // [esp+3Ch] [ebp-Ch]
-  float v15; // [esp+40h] [ebp-8h]
+  float fUnk3; // [esp+40h] [ebp-8h]
 
-  v5 = (float *)(32 * a2 + a1);
-  v15 = v5[2];
-  v12 = v5[4];
-  v13 = v5[6];
-  v11 = v5[3];
-  if (a3 < 0.0 || a3 >= (double)v15) {
-    if (a3 < (double)v15 || a3 >= (double)v13) {
+  v5 = &pRevs[iGear];
+  fUnk3 = v5->fUnk3;
+  fUnk5 = v5->fUnk5;
+  fUnk7 = v5->fUnk7;
+  fUnk4 = v5->fUnk4;
+  if (fChg < 0.0 || fChg >= (double)fUnk3) {
+    if (fChg < (double)fUnk3 || fChg >= (double)fUnk7) {
       v14 = 1.0;
     } else {
-      v10 = a3 - v15;
-      v6 = a3 - v12;
-      v7 = a3 - v13;
-      v9 = v6 * v7 * v11 / ((v15 - v12) * (v15 - v13));
-      v14 = v7 * v10 * v5[5] / ((v12 - v15) * (v12 - v13)) + v9 + v6 * v10 * v5[7] / ((v13 - v15) * (v13 - v12));
+      v10 = fChg - fUnk3;
+      v6 = fChg - fUnk5;
+      v7 = fChg - fUnk7;
+      v9 = v6 * v7 * fUnk4 / ((fUnk3 - fUnk5) * (fUnk3 - fUnk7));
+      v14 = v7 * v10 * v5->fUnk6 / ((fUnk5 - fUnk3) * (fUnk5 - fUnk7))
+        + v9
+        + v6 * v10 * v5->fUnk8 / ((fUnk7 - fUnk3) * (fUnk7 - fUnk5));
     }
   } else {
-    v14 = (a3 - v15) * a3 * v5[1] / ((*v5 - v15) * *v5) + (a3 - *v5) * a3 * v11 / (v15 * (v15 - *v5));
+    v14 = (fChg - fUnk3) * fChg * v5->fUnk2 / ((v5->fUnk1 - fUnk3) * v5->fUnk1)
+      + (fChg - v5->fUnk1) * fChg * fUnk4 / (fUnk3 * (fUnk3 - v5->fUnk1));
   }
   if (v14 < 0.0)
     v14 = 0.0;
@@ -987,6 +997,7 @@ double __fastcall calc_revs(int a1, int a2, float a3)
 }
 
 //-------------------------------------------------------------------------------------------------
+#ifdef ENABLE_PSEUDO
 
 double __fastcall calc_pow(int a1, int a2, float a3)
 {
