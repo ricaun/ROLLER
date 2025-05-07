@@ -8,7 +8,7 @@ tCarBox CarBox;
 float CarBaseX;
 float CarBaseY;
 float CarDiag;
-float car_c_tinycar_size = 0.25;
+float tinycar_size = 0.25f;
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
@@ -133,10 +133,10 @@ int CalcCarSizes()
     }
     // Multiply by tinycar value if using tinycar cheat
     if ((cheat_mode & 0x8000) != 0) {
-      fXLow = fXLow * car_c_tinycar_size;
-      fYLow = fYLow * car_c_tinycar_size;
-      fXHigh = fXHigh * car_c_tinycar_size;
-      fYHigh = fYHigh * car_c_tinycar_size;
+      fXLow = fXLow * tinycar_size;
+      fYLow = fYLow * tinycar_size;
+      fXHigh = fXHigh * tinycar_size;
+      fYHigh = fYHigh * tinycar_size;
     }
     iCarBoxIdx = 8 * nCarDesignsIdx;            // 24 for 8 3-float points defining a hitbox
     CarBox.hitboxAy[iCarBoxIdx].fX = fXLow;
@@ -176,8 +176,8 @@ int CalcCarSizes()
   }
   result = cheat_mode;
   if ((cheat_mode & 0x8000) != 0) {
-    CarBaseX = CarBaseX * car_c_tinycar_size;
-    CarBaseY = CarBaseY * car_c_tinycar_size;
+    CarBaseX = CarBaseX * tinycar_size;
+    CarBaseY = CarBaseY * tinycar_size;
   }
   CarDiag = (float)sqrt(CarBaseX * CarBaseX + CarBaseY * CarBaseY);
   return result;
