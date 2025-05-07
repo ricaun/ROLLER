@@ -393,7 +393,7 @@ tCarEngines CarEngines =
       71,
       -10.0f,
       100.0f,
-      1.45,
+      1.45f,
       150.0f
     },
     {
