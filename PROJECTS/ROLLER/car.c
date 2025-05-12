@@ -4,6 +4,7 @@
 #include "engines.h"
 #include "control.h"
 #include "3d.h"
+#include "graphics.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
@@ -216,7 +217,7 @@ int InitCars()
     nNumGears = CarEngines.engines[i].iNumGears;
     for (j = 0; j < nNumGears; ++j) {
       if ((textures_off & 0x10000) != 0)
-        CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j] * car_c_variable_3;
+        CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j] * (float)car_c_variable_3;
       else
         CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j];
     }
@@ -244,7 +245,7 @@ int InitCars()
       iCarTexLoaded = car_texs_loaded[carType];
       if (iCarTexLoaded == -1) {
         iCurrCarTex = nCarTexIdx;
-        LoadCarTexture(carType, nCarTexIdx++);
+        LoadCarTexture(carType, (uint8)nCarTexIdx++);
         car_texmap[m] = iCurrCarTex;
         car_texs_loaded[carTexsLoadedIndex] = iCurrCarTex;
       } else {
@@ -2134,21 +2135,21 @@ LABEL_117:
   return v249;
 }
 
+#endif
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall carZcmp(int a1, int a2)
+int __fastcall carZcmp(tCar *pCar1, tCar *pCar2)
 {
-  float v3; // [esp+0h] [ebp-8h]
-  float v4; // [esp+4h] [ebp-4h]
+  float fZCmp; // [esp+0h] [ebp-8h]
+  float fZCmp2; // [esp+4h] [ebp-4h]
 
-  v3 = *(float *)(a1 + 8);
-  v4 = *(float *)(a2 + 8);
-  if (v3 == v4)
+  fZCmp = pCar1->fZCmp;
+  fZCmp2 = pCar2->fZCmp;
+  if (fZCmp == fZCmp2)
     return 0;
-  if (v3 >= (double)v4)
+  if (fZCmp >= (double)fZCmp2)
     return -1;
   return 1;
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

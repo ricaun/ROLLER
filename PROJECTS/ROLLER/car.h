@@ -15,7 +15,7 @@ typedef struct
 {
   float fUnk0;
   float fUnk1;
-  float fUnk2;
+  float fZCmp;
   int16 nUnk3;
   int16 nUnk4;
   int16 nUnk5;
