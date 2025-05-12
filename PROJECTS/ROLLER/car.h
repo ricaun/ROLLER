@@ -22,7 +22,7 @@ typedef struct
   int16 nUnk6;
   int16 nUnk7;
   int16 nPadding1;
-  float fUnk8;
+  float fMaxSpeed;
   float fUnk9;
   int iUnk10;
   int iUnk11;
@@ -48,11 +48,11 @@ typedef struct
   uint8 byPadding5;
   int16 nUnk25;
   int iPadding6;
-  int iUnk26;
+  float fUnk26;
   int iUnk27;
   float fUnk28;
-  int iUnk29;
-  uint8 byUnk30;
+  float fPower;
+  uint8 byGearAyMax;
   uint8 byUnk31;
   uint8 byUnk32;
   uint8 byUnk33;
@@ -68,7 +68,7 @@ typedef struct
   int iPadding11;
   int iPadding12;
   int iPadding13;
-  int iUnk39;
+  float fUnk39;
   uint8 byUnk40;
   uint8 byUnk41;
   uint8 byUnk42;
