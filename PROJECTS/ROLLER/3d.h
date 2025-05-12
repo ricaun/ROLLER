@@ -1,13 +1,10 @@
-#ifndef _ROLLER_CONTROL_H
-#define _ROLLER_CONTROL_H
+#ifndef _ROLLER_3D_H
+#define _ROLLER_3D_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
-#include "engines.h"
 //-------------------------------------------------------------------------------------------------
 
-extern float eng_chg_revs[];
-
-extern double __fastcall calc_revs(tRev *pRevs, int iGear, float fChg);
+extern uint32 textures_off;
 
 //-------------------------------------------------------------------------------------------------
 #endif

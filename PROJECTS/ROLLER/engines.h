@@ -4,6 +4,61 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  float fUnk1;
+  float fUnk2;
+  float fUnk3;
+  float fUnk4;
+  float fUnk5;
+  float fUnk6;
+  float fUnk7;
+  float fUnk8;
+} tRev;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int iNumGears;
+  tRev *pRevs;
+  float *pSpds;                         ///< maximum speed at each gear
+  int iUnk2;
+  int *pChgs;
+  int iUnk3;
+  float fUnk4;
+  float fUnk5;
+  int iUnk6;
+  int iUnk7;
+  int iUnk8;
+  int iUnk9;
+  int iUnk10;
+  int iUnk11;
+  int iUnk12;
+  int iUnk13;
+  int iUnk14;
+  int iUnk15;
+  int iUnk16;
+  int iUnk17;
+  int iUnk18;
+  int iUnk19;
+  int iUnk20;
+  int iUnk21;
+  float fUnk22;
+  float fUnk23;
+  float fUnk24;
+  float fUnk25;
+} tCarEngine;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  tCarEngine engines[14];
+} tCarEngines;
+
+//-------------------------------------------------------------------------------------------------
+
 extern tRev AUTO_A_revs[];
 extern float AUTO_A_spds[];
 extern int AUTO_A_chgs[];

@@ -1,19 +1,25 @@
 #include "types.h"
 #include "car.h"
-#include "carplans.h"
 #include "frontend.h"
 #include "engines.h"
 #include "control.h"
+#include "3d.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
-tCarBox CarBox;
-float CarBaseX;
-float CarBaseY;
-float CarDiag;
-double car_c_variable_1 = 2.2;
-float tinycar_size = 0.25f;
-float StoreEngines[80];
+int numcars;                    //000A6114
+float CarBaseX;                 //0018851C
+float CarBaseY;                 //00188520
+float CarDiag;                  //00188524
+double car_c_variable_1 = 2.2;  //000A20F8
+float tinycar_size = 0.25f;     //000A2100
+double car_c_variable_3 = 1.03; //000A2104
+int car_texmap[16];             //0017F2B0
+tCarBox CarBox;                 //0017F2F0
+tCar Car[16];                   //0017F8F0
+int car_texs_loaded[16];        //00181E30
+float StoreEngines[80];         //00188200
+int LoadCarTextures;            //0018852C
 
 //-------------------------------------------------------------------------------------------------
 
@@ -34,7 +40,7 @@ int InitCarStructs()
   __int16 k; // di
   int iNumGears2; // eax
   int m; // ebx
-  double v15; // st7
+  double dSpeed; // st7
   float fChg; // [esp+0h] [ebp-20h]
   float fNextChg; // [esp+0h] [ebp-20h]
   __int16 i; // [esp+4h] [ebp-1Ch]
@@ -76,8 +82,8 @@ int InitCarStructs()
   for (k = 0; k < 14; ++k) {
     iNumGears2 = CarEngines.engines[k].iNumGears;
     if (iNumGears2 > 0) {
-      for (m = 0; m < iNumGears2; StoreEngines[6 * k + m - 1] = (float)v15)
-        v15 = CarEngines.engines[k].pSpds[m++];
+      for (m = 0; m < iNumGears2; StoreEngines[6 * k + m - 1] = (float)dSpeed)
+        dSpeed = CarEngines.engines[k].pSpds[m++];
     }
   }
   return CalcCarSizes();
@@ -188,65 +194,70 @@ int CalcCarSizes()
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
+
 int InitCars()
 {
   __int16 i; // si
-  __int16 v1; // di
+  __int16 nNumGears; // di
   __int16 j; // bx
   __int16 k; // bx
-  int v4; // eax
-  char v5; // dl
-  int v6; // eax
-  int v7; // edx
-  __int16 v8; // di
-  int v9; // eax
-  int v10; // esi
-  int v11; // edx
-  int v12; // ecx
+  int iCurrCar; // eax
+  uint8 byCarDesign; // dl
+  int iCarTexIdxSetUnloaded; // eax
+  int iCurrCarTexIdxSetUnloaded; // edx
+  __int16 nCarTexIdx; // di
+  eCarType carType; // eax
+  eCarType carTexsLoadedIndex; // esi
+  int iCarTexLoaded; // edx
+  int iCurrCarTex; // ecx
   __int16 m; // [esp+0h] [ebp-1Ch]
 
   for (i = 0; i < 14; ++i) {
-    v1 = CarEngines[28 * i];
-    for (j = 0; j < v1; ++j) {
-      if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-        *((float *)*(&CarEngines_variable_2 + 28 * i) + j) = StoreEngines[6 * i + j] * car_c_variable_3;
+    nNumGears = CarEngines.engines[i].iNumGears;
+    for (j = 0; j < nNumGears; ++j) {
+      if ((textures_off & 0x10000) != 0)
+        CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j] * car_c_variable_3;
       else
-        *((float *)*(&CarEngines_variable_2 + 28 * i) + j) = StoreEngines[6 * i + j];
+        CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j];
     }
   }
   for (k = 0; k < numcars; ++k) {
-    v4 = 308 * k;
-    v5 = Drivers_Car[k];
-    Car_variable_22[v4] = v5;
+    iCurrCar = k;
+    byCarDesign = Drivers_Car[k];
+    Car[iCurrCar].byCarDesignIdx = byCarDesign;
   }
-  v6 = 1;
+
+  // set all of car_texs_loaded to -1
+  iCarTexIdxSetUnloaded = 1;
   car_texs_loaded[0] = 0;
   do {
-    v7 = (__int16)v6++;
-    car_texs_loaded[v7] = -1;
-  } while ((__int16)v6 < 16);
-  v8 = 1;
+    iCurrCarTexIdxSetUnloaded = (__int16)iCarTexIdxSetUnloaded++;
+    car_texs_loaded[iCurrCarTexIdxSetUnloaded] = -1;
+  } while ((__int16)iCarTexIdxSetUnloaded < 16);
+
+  // load all car textures
+  nCarTexIdx = 1;
   for (m = 0; m < numcars; ++m) {
     if (!non_competitors[m]) {
-      v9 = CarDesigns_variable_5[7 * (unsigned __int8)Car_variable_22[308 * m]];
-      v10 = v9;
-      v11 = car_texs_loaded[v9];
-      if (v11 == -1) {
-        v12 = v8;
-        LoadCarTexture(v9, v8++, (char *)(4 * m));
-        car_texmap[m] = v12;
-        car_texs_loaded[v10] = v12;
+      carType = CarDesigns[Car[m].byCarDesignIdx].carType;
+      carTexsLoadedIndex = carType;
+      iCarTexLoaded = car_texs_loaded[carType];
+      if (iCarTexLoaded == -1) {
+        iCurrCarTex = nCarTexIdx;
+        LoadCarTexture(carType, nCarTexIdx++);
+        car_texmap[m] = iCurrCarTex;
+        car_texs_loaded[carTexsLoadedIndex] = iCurrCarTex;
       } else {
-        car_texmap[m] = v11;
+        car_texmap[m] = iCarTexLoaded;
       }
     }
   }
-  LoadCarTextures = v8;
+  LoadCarTextures = nCarTexIdx;
   return CalcCarSizes();
 }
 
 //-------------------------------------------------------------------------------------------------
+#ifdef ENABLE_PSEUDO
 
 __int16 placecars()
 {

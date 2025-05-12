@@ -4,6 +4,54 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint32 uiCount;
+  uint32 framesAy[16];
+} tAnimation;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  uint8 byVert1;
+  uint8 byVert2;
+  uint8 byVert3;
+  uint8 byVert4;
+  uint32 uiTex;
+  uint8 byUnknown1;
+  uint8 byUnknown2;
+  uint8 byUnknown3;
+  uint8 byUnknown4;
+} tPolygon;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  float fX;
+  float fY;
+  float fZ;
+} tVec3;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  uint8 byNumPols;
+  uint8 byNumCoords;
+  uint8 byUnk3;
+  uint8 byUnk4;
+  tPolygon *pPols;
+  tVec3 *pCoords;
+  uint32 *pBacks;
+  eCarType carType;
+  int *pPlaces;
+  tAnimation *pAnms;
+} tCarDesign;
+
+//-------------------------------------------------------------------------------------------------
+
 extern tVec3 f1wack_coords[];
 extern tPolygon f1wack_pols[];
 extern unsigned int f1wack_backs[];
@@ -78,5 +126,9 @@ extern tAnimation xreise_anms[];
 
 extern tCarDesign CarDesigns[];
 
+//-------------------------------------------------------------------------------------------------
+ 
+int Drivers_Car[16];
+ 
 //-------------------------------------------------------------------------------------------------
 #endif
