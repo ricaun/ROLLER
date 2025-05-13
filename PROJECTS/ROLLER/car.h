@@ -16,7 +16,7 @@ typedef struct
   float fUnk0;
   float fUnk1;
   float fZCmp;
-  int16 nUnk3;
+  int16 nCurrChunk;
   int16 nUnk4;
   int16 nUnk5;
   int16 nUnk6;
@@ -82,7 +82,7 @@ typedef struct
   int iUnk50;
   int iUnk51;
   int iUnk52;
-  int iUnk53;
+  float fUnk53;
   int iUnk54;
   int iUnk55;
   int16 nUnk56;

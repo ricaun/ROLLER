@@ -1,52 +1,56 @@
-#ifdef ENABLE_PSEUDO
+
 //-------------------------------------------------------------------------------------------------
 
 int initmouse()
 {
   int result; // eax
-  unsigned __int8 v1[36]; // [esp+0h] [ebp-24h] BYREF
+#ifdef IS_WATCOM
+  REGS registers; // [esp+0h] [ebp-24h] BYREF
 
-  *(_WORD *)v1 = 0;
-  result = int386(51, (int)v1, (int)v1);
-  mouse = v1[0];
+  registers.w.ax = 0;
+  result = int386(51, &registers, &registers);
+  mouse = registers.h.al;
+#endif
   return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall mousexy(int a1, int a2, int a3, int a4)
+int __fastcall mousexy()
 {
-  int v4; // ecx
-  int v5; // esi
+  int result;
+#ifdef IS_WATCOM
+  int iMouseX; // ecx
+  int iMouseY; // esi
   int result; // eax
-  _WORD v7[4]; // [esp+0h] [ebp-2Ch] BYREF
-  __int16 v8; // [esp+8h] [ebp-24h]
-  __int16 v9; // [esp+Ch] [ebp-20h]
-  int v10; // [esp+24h] [ebp-8h]
+  REGS registers; // [esp+0h] [ebp-2Ch] BYREF
+  int v8; // [esp+24h] [ebp-8h]
 
-  v10 = a4;
-  v7[0] = 11;
-  int386(51, (int)v7, (int)v7);
-  dxmouse = v8;
-  dymouse = v9;
-  v4 = v8 + mousex;
-  v5 = mousey - v9;
-  if (v4 > XMAX - 1)
-    v4 = XMAX - 1;
+  v8 = a4;
+  registers.w.ax = 11;
+  int386(51, &registers, &registers);
+  dxmouse = (__int16)registers.w.cx;
+  dymouse = (__int16)registers.w.dx;
+  iMouseX = (__int16)registers.w.cx + mousex;
+  iMouseY = mousey - (__int16)registers.w.dx;
+  if (iMouseX > XMAX - 1)
+    iMouseX = XMAX - 1;
   result = YMAX - 1;
-  if (v5 > YMAX - 1)
-    v5 = YMAX - 1;
-  if (v4 < 0)
-    v4 = 0;
-  if (v5 < 0)
-    v5 = 0;
-  mousey = v5;
-  mousex = v4;
+  if (iMouseY > YMAX - 1)
+    iMouseY = YMAX - 1;
+  if (iMouseX < 0)
+    iMouseX = 0;
+  if (iMouseY < 0)
+    iMouseY = 0;
+  mousey = iMouseY;
+  mousex = iMouseX;
+#endif
   return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
+#ifdef ENABLE_PSEUDO
 int __fastcall mousebut(unsigned __int16 a1, int a2, int a3, int a4)
 {
   _WORD v6[16]; // [esp+0h] [ebp-28h] BYREF
