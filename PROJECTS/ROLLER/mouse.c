@@ -3,8 +3,9 @@
 
 int initmouse()
 {
-  int result; // eax
+  int result = 0;
 #ifdef IS_WATCOM
+  int result; // eax
   REGS registers; // [esp+0h] [ebp-24h] BYREF
 
   registers.w.ax = 0;
@@ -18,7 +19,7 @@ int initmouse()
 
 int __fastcall mousexy()
 {
-  int result;
+  int result = 0;
 #ifdef IS_WATCOM
   int iMouseX; // ecx
   int iMouseY; // esi
