@@ -251,5 +251,23 @@
     <ClInclude Include="PROJECTS\ROLLER\frontend.h">
       <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\3d.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\car.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\control.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\engines.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\graphics.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\func2.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,17 +1,10 @@
-#ifndef _ROLLER_CONTROL_H
-#define _ROLLER_CONTROL_H
+#ifndef _ROLLER_FUNC2_H
+#define _ROLLER_FUNC2_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
-#include "engines.h"
 //-------------------------------------------------------------------------------------------------
 
-extern float eng_chg_revs[];
-extern float RecordLaps[];
-extern int RecordCars[];
-extern int RecordKills[];
-extern char RecordNames[];
 
-extern double __fastcall calc_revs(tRev *pRevs, int iGear, float fChg);
 
 //-------------------------------------------------------------------------------------------------
 #endif

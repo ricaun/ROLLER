@@ -1,3 +1,12 @@
+#include "func2.h"
+#include "control.h"
+//-------------------------------------------------------------------------------------------------
+
+char szDgkfcRec[10] = "dgkfc.rec";    //000A0EF8
+double dRecordLapsMultiplier = 0.01;  //000A0F09
+double dRecordLapsMinimum = 0.4;      //000A0F11
+
+//-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
@@ -4112,131 +4121,94 @@ int remove_uncalibrated()
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall LoadRecords(int a1, int a2, int a3)
+int LoadRecords()
 {
-  int v3; // edx
-  int v4; // ebp
-  int v5; // edx
-  int result; // eax
-  int v7; // edx
-  char *v8; // edi
-  char *v9; // edi
-  int v10; // eax
-  int v11; // ecx
-  int v12; // edx
-  int v13; // eax
-  int v14; // edx
-  char *v15; // edi
-  int *v16; // ebx
-  int v17; // ebp
-  int v18; // ecx
-  int v19; // eax
-  int v20; // esi
-  int v21; // eax
-  char v22; // dl
-  unsigned int v23; // [esp+0h] [ebp-24h] BYREF
-  int v24; // [esp+4h] [ebp-20h]
-  int v25; // [esp+8h] [ebp-1Ch]
+  int iFileHandle; // edx
+  int iRecordNamePos; // edx
+  int iRecordIdx3; // eax
+  int iRecordNamePos2; // edx
+  char *szRecordName2; // edi
+  char *szRecordName3; // edi
+  int iFileLength; // eax
+  int iRecordNameIdx2; // edx
+  int iRecordIdx2; // eax
+  int iRecordNameIdx3; // edx
+  char *szRecordName4; // edi
+  int *pIntBuf; // ebx
+  int iRecordNameIdx; // ebp
+  int iRecordIdx; // ecx
+  int iRecordCarVal; // eax
+  int iRecordNamePos4; // esi
+  int iRecordNameCharPos; // eax
+  char byNameChar; // dl
+  uint8 *pBuf; // [esp+0h] [ebp-24h] BYREF
+  int iMaxRecords; // [esp+4h] [ebp-20h]
+  int iRecordNamePos3; // [esp+8h] [ebp-1Ch]
 
-  v3 = open(aDgkfcRec, 512, v23);
-  v4 = v3;
-  if (v3 == -1) {
-    v5 = 9;
-    RecordCars[0] = -1;
-    RecordLaps[0] = 128.0;
-    RecordKills[0] = 0;
-    result = 1;
-    strcpy(RecordNames, "----");
-    do {
-      RecordLaps[result] = 128.0;
-      RecordCars[result] = -1;
-      RecordKills[result] = 0;
-      strcpy(&RecordNames[v5], "----");
-      v7 = v5 + 9;
-      RecordCars_variable_1[result] = -1;
-      RecordLaps_variable_1[result] = 1124073472;
-      v8 = &RecordNames[v7];
-      RecordKills_variable_1[result] = 0;
-      v7 += 9;
-      strcpy(v8, "----");
-      result += 3;
-      v9 = &RecordNames[v7];
-      RecordLaps_variable_3[result] = -1;
-      updates[result] = 1124073472;
-      RecordCars_variable_3[result] = 0;
-      v5 = v7 + 9;
-      strcpy(v9, "----");
-    } while (result != 25);
+  iFileHandle = open(szDgkfcRec, 512);           // 512 = O_BINARY in WATCOM/h/fcntl.h
+  if (iFileHandle == -1) {
+
+    for (int i = 0; i < 25; ++i) {
+      int iRecordNamesPos = 9 * i;
+      strcpy(&RecordNames[iRecordNamesPos], "-----");
+      RecordLaps[i] = 128.0f;
+      RecordCars[i] = -1;
+      RecordKills[i] = 0;
+    }
+
   } else {
-    v23 = getbuffer(0x400u);
-    v10 = filelength(v3, v3, a3);
-    v11 = v10;
-    if (v10 == 336 || v10 == 504) {
-      read(v3, v23, v10);
-      close(v3, v23);
-      v16 = (int *)v23;
-      v17 = 1;
-      v24 = v11 / 21;
-      if (v11 / 21 >= 1) {
-        v18 = 1;
-        v25 = 18;
+    pBuf = (uint8 *)getbuffer(1024u);
+    iFileLength = filelength(iFileHandle);
+    if (iFileLength == 336 || iFileLength == 504) {
+      read(iFileHandle, pBuf, iFileLength);
+      close(iFileHandle, pBuf);
+      pIntBuf = (int *)pBuf;
+      iRecordNameIdx = 1;
+      iMaxRecords = iFileLength / 21;
+      if (iFileLength / 21 >= 1) {
+        iRecordIdx = 1;
+        iRecordNamePos3 = 18;
         do {
-          RecordLaps[v18] = (double)*v16 * func2_c_variable_325;
-          v19 = v16[1];
-          v16 += 3;
-          RecordCars[v18] = v19;
-          v20 = v25;
-          RecordKills[v18] = *(v16 - 1);
-          v21 = 9 * v17;
+          RecordLaps[iRecordIdx] = (double)*pIntBuf * dRecordLapsMultiplier;
+          iRecordCarVal = pIntBuf[1];
+          pIntBuf += 3;
+          RecordCars[iRecordIdx] = iRecordCarVal;
+          iRecordNamePos4 = iRecordNamePos3;
+          RecordKills[iRecordIdx] = *(pIntBuf - 1);
+          iRecordNameCharPos = 9 * iRecordNameIdx;
           do {
-            ++v21;
-            v22 = *(_BYTE *)v16;
-            v16 = (int *)((char *)v16 + 1);
-            *((_BYTE *)&fudge_wait + v21 + 3) = v22;
-          } while (v21 != v20);
-          if (RecordLaps[v18] < func2_c_variable_326) {
-            RecordLaps[v18] = 128.0;
-            RecordCars[v18] = -1;
-            RecordKills[v18] = 0;
-            strcpy(&RecordNames[9 * v17], "----");
+            ++iRecordNameCharPos;
+            byNameChar = *(_BYTE *)pIntBuf;
+            pIntBuf = (int *)((char *)pIntBuf + 1);
+            *((_BYTE *)&fudge_wait + iRecordNameCharPos + 3) = byNameChar;// this is an offset into RecordNames
+          } while (iRecordNameCharPos != iRecordNamePos4);
+          if (RecordLaps[iRecordIdx] < dRecordLapsMinimum) {
+            RecordLaps[iRecordIdx] = 128.0;
+            RecordCars[iRecordIdx] = -1;
+            RecordKills[iRecordIdx] = 0;
+            strcpy(&RecordNames[9 * iRecordNameIdx], "----");
           }
-          ++v18;
-          ++v17;
-          v25 += 9;
-        } while (v17 <= v24);
+          ++iRecordIdx;
+          ++iRecordNameIdx;
+          iRecordNamePos3 += 9;
+        } while (iRecordNameIdx <= iMaxRecords);
       }
-      return (int)fre(&v23);
+      return (int)fre(&pBuf);
     } else {
-      v12 = 9;
-      v13 = 1;
-      RecordKills[0] = 0;
-      RecordLaps[0] = 128.0;
-      RecordCars[0] = -1;
-      strcpy(RecordNames, "----");
-      do {
-        RecordLaps[v13] = 128.0;
-        RecordKills[v13] = 0;
-        RecordCars[v13] = -1;
-        strcpy(&RecordNames[v12], "----");
-        v14 = v12 + 9;
-        RecordLaps_variable_1[v13] = 1124073472;
-        RecordKills_variable_1[v13] = 0;
-        RecordCars_variable_1[v13] = -1;
-        v13 += 3;
-        strcpy(&RecordNames[v14], "----");
-        v14 += 9;
-        updates[v13] = 1124073472;
-        RecordCars_variable_3[v13] = 0;
-        v15 = &RecordNames[v14];
-        RecordLaps_variable_3[v13] = -1;
-        v12 = v14 + 9;
-        strcpy(v15, "----");
-      } while (v13 != 25);
-      close(v4, v12);
-      return (int)fre(&v23);
+
+      for (int i = 0; i < 25; ++i) {
+        int iRecordNamesPos = 9 * i;
+        strcpy(&RecordNames[iRecordNamesPos], "-----");
+        RecordLaps[i] = 128.0f;
+        RecordCars[i] = -1;
+        RecordKills[i] = 0;
+      }
+
+      close(iFileHandle);
+      return (int)fre(&pBuf);
     }
   }
-  return result * 4;
+  return iRecordIdx3 * 4;
 }
 
 //-------------------------------------------------------------------------------------------------

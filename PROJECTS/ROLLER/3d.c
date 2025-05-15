@@ -1,8 +1,10 @@
 #include "3d.h"
 #include <stdio.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-uint32 textures_off; //0013F960
+int hibuffers;        //000A32E0
+uint32 textures_off;  //0013F960
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
@@ -3353,60 +3355,60 @@ int __fastcall test_w95(int a1, int a2, int a3, int a4)
     w95 = -1;
   return result;
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall malloc2(int a1, unsigned int *a2, _DWORD *a3)
+void *__fastcall malloc2(int iSize, void *pPtr, int *pRegsDi)
 {
-  unsigned int result; // eax
-  __int16 v5; // [esp+0h] [ebp-34h] BYREF
-  unsigned __int16 v6; // [esp+4h] [ebp-30h]
-  unsigned __int16 v7; // [esp+8h] [ebp-2Ch]
-  unsigned __int16 v8; // [esp+10h] [ebp-24h]
-  unsigned __int16 v9; // [esp+14h] [ebp-20h]
-  int v10; // [esp+18h] [ebp-1Ch]
-  _BYTE v11[24]; // [esp+1Ch] [ebp-18h] BYREF
-
+  void *result; // eax
+#ifdef IS_WATCOM
+  REGS regs; // [esp+0h] [ebp-34h] BYREF
+  struct SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
+  
   if (w95) {
-    result = malloc(a1);
-    *a2 = result;
+#endif
+  result = malloc(iSize);
+  pPtr = result;
+#ifdef IS_WATCOM
   } else {
-    memset(v11, 0, 12);
-    v5 = 1281;
-    v6 = (a1 - ((unsigned int)__CFSHL__(a1 >> 31, 16) + (a1 >> 31 << 16))) >> 16;
-    v7 = a1 % (int)cstart_branch_1;
-    int386x(49, (int)&v5, (int)&v5, (int)v11);
-    if (v10) {
+    memset(&sregs, 0, sizeof(sregs));
+    regs.w.ax = 1281;
+    regs.w.bx = (iSize - ((unsigned int)__CFSHL__(iSize >> 31, 16) + (iSize >> 31 << 16))) >> 16;
+    regs.w.cx = iSize % 0x10000;
+    int386x(49, &regs, &regs, &sregs);
+    if (regs.x.cflag) {
       return 0;
     } else {
-      *a2 = v8;
-      *a3 = v9;
-      return (v6 << 16) + v7;
+      *(_DWORD *)pPtr = regs.w.si;
+      *pRegsDi = regs.w.di;
+      return (void *)((regs.w.bx << 16) + regs.w.cx);
     }
   }
+#endif
   return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall free2(__int16 a1, __int16 a2)
+void __fastcall free2(void *ptr)
 {
-  int result; // eax
-  _WORD v4[14]; // [esp+0h] [ebp-34h] BYREF
-  _BYTE v5[24]; // [esp+1Ch] [ebp-18h] BYREF
+#ifdef IS_WATCOM
+  unsigned __int16 nDi; // dx
+  REGS regs; // [esp+0h] [ebp-34h] BYREF
+  SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
 
   if (w95) {
-    result = nfree(a1);
+    nfree(ptr);
   } else {
-    memset(v5, 0, 12);
-    v4[8] = a1;
-    v4[0] = 1282;
-    v4[10] = a2;
-    result = int386x(49, (int)v4, (int)v4, (int)v5);
+    memset(&sregs, 0, sizeof(sregs));
+    regs.w.si = (unsigned __int16)ptr;
+    regs.w.ax = 1282;
+    regs.w.di = nDi;
+    int386x(49, &regs, &regs, &sregs);
   }
+#endif
+  free(ptr);
   --hibuffers;
-  return result;
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif
