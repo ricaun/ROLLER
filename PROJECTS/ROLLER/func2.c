@@ -2,9 +2,9 @@
 #include "control.h"
 //-------------------------------------------------------------------------------------------------
 
-char szDgkfcRec[10] = "dgkfc.rec";    //000A0EF8
-double dRecordLapsMultiplier = 0.01;  //000A0F09
-double dRecordLapsMinimum = 0.4;      //000A0F11
+char szDgkfcRec[10] = "dgkfc.rec";    //000A0EF8 Symbol name added by ROLLER
+double dRecordLapsMultiplier = 0.01;  //000A0F09 Symbol name added by ROLLER
+double dRecordLapsMinimum = 0.4;      //000A0F11 Symbol name added by ROLLER
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO

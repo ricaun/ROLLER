@@ -3,7 +3,7 @@
 #include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-char szFailedToFind[32] = "Failed to find allocated block"; //000A018C
+char szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
 int hibuffers;                                              //000A32E0
 uint32 mem_used;                                            //000A32E8
 tMemBlock mem_blocks[128];                                  //0013E058

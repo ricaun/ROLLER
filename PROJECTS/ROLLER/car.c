@@ -13,7 +13,7 @@ float CarBaseX;                 //0018851C
 float CarBaseY;                 //00188520
 float CarDiag;                  //00188524
 double car_c_variable_1 = 2.2;  //000A20F8
-float tinycar_size = 0.25f;     //000A2100
+float tinycar_size = 0.25f;     //000A2100 Symbol name added by ROLLER
 double car_c_variable_3 = 1.03; //000A2104
 int car_texmap[16];             //0017F2B0
 tCarBox CarBox;                 //0017F2F0
