@@ -3,8 +3,10 @@
 #include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-int hibuffers;        //000A32E0
-uint32 textures_off;  //0013F960
+int hibuffers;              //000A32E0
+uint32 mem_used;            //000A32E8
+tMemBlock mem_blocks[128];  //0013E058
+uint32 textures_off;        //0013F960
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
@@ -287,78 +289,78 @@ int init()
   dword_A353C = v14;
   return LoadRecords(v14, SHIDWORD(v14), 0);
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall getbuffer(unsigned int a1)
+void *__fastcall getbuffer(uint32 uiSize)
 {
-  int v2; // esi
-  int v3; // ebx
-  unsigned int result; // eax
-  int v5; // ebp
-  int v6; // ebp
-  int v7; // ebx
-  int v8; // ecx
-  int v9; // ebx
-  int v10; // ecx
-  unsigned __int16 v11; // [esp+0h] [ebp-4Ch] BYREF
-  unsigned __int16 v12; // [esp+4h] [ebp-48h]
-  unsigned __int16 v13; // [esp+Ch] [ebp-40h]
-  _BYTE v14[12]; // [esp+1Ch] [ebp-30h] BYREF
-  int v15; // [esp+28h] [ebp-24h] BYREF
-  int v16; // [esp+2Ch] [ebp-20h] BYREF
-  int v17; // [esp+30h] [ebp-1Ch]
+  int iMemBlocksIdx; // esi
+  void *pBuf; // eax
+#ifdef IS_WATCOM
+  int v6; // edx
+  int ax; // ebp
+  int v8; // ebx
+  int v9; // ecx
+  int v10; // ebx
+  union REGS regs; // [esp+0h] [ebp-4Ch] BYREF
+  struct SREGS sregs; // [esp+1Ch] [ebp-30h] BYREF
+#endif
+  int iRegsDi; // [esp+28h] [ebp-24h] BYREF
+  void *pPtr; // [esp+2Ch] [ebp-20h] BYREF
+#ifdef IS_WATCOM
+  int v16; // [esp+30h] [ebp-1Ch]
+#endif
 
-  v2 = 0;
-  if (mem_blocks[0]) {
-    do {
-      v3 = mem_blocks_variable_4[v2];
-      v2 += 4;
-    } while (v3);
+  iMemBlocksIdx = 0;
+  if (mem_blocks[0].pBuf) {
+    while (mem_blocks[++iMemBlocksIdx].pBuf)
+      ;
   }
-  result = malloc2(a1, (unsigned int *)&v16, &v15);
-  v5 = result;
-  if (result) {
-    mem_blocks[v2] = result;
-    mem_blocks_variable_1[v2] = a1;
-    mem_blocks_variable_2[v2] = v16;
-    v10 = hibuffers;
-    mem_blocks_variable_3[v2] = v15;
-    hibuffers = v10 + 1;
-    mem_used += a1;
-  } else {
-    memset(v14, 0, sizeof(v14));
-    v11 = 256;
-    v12 = -1;
-    int386x(49, (int)&v11, (int)&v11, (int)v14);
-    v17 = (a1 >> 4) + 1;
-    if (v12 - 640 < v17) {
+  pBuf = malloc2(uiSize, &pPtr, &iRegsDi);
+  if (pBuf) {
+    mem_blocks[iMemBlocksIdx].pBuf = pBuf;
+    mem_blocks[iMemBlocksIdx].uiSize = uiSize;
+    mem_blocks[iMemBlocksIdx].pAlsoBuf = pPtr;
+    mem_blocks[iMemBlocksIdx].iRegsDi = iRegsDi;
+    hibuffers++;
+    mem_used += uiSize;
+  } 
+#ifdef IS_WATCOM
+  else {
+    memset(&sregs, 0, sizeof(sregs));
+    regs.w.ax = 256;
+    regs.w.bx = -1;
+    int386x(49, &regs, &regs, &sregs);
+    v6 = (uiSize >> 4) + 1;
+    v16 = v6;
+    if (regs.w.bx - 640 < v6) {
       __asm { int     10h; -VIDEO - SET VIDEO MODE }
       printf(&aDmnotEnoughMem[2]);
-      doexit();
+      doexit(1, v6, (int)&regs);
     } else {
-      memset(v14, 0, sizeof(v14));
-      v11 = 256;
-      v12 = v17;
-      int386x(49, (int)&v11, (int)&v11, (int)v14);
-      v6 = v11;
-      v7 = mem_used_low;
-      mem_blocks_variable_1[v2] = -16 * v17;
-      v8 = lobuffers;
-      v5 = 16 * v6;
-      mem_blocks_variable_2[v2] = v13;
-      lobuffers = v8 + 1;
-      v9 = 16 * v17 + v7;
-      mem_blocks[v2] = v5;
-      mem_used_low = v9;
+      memset(&sregs, 0, sizeof(sregs));
+      regs.w.ax = 256;
+      regs.w.bx = v16;
+      int386x(49, &regs, &regs, &sregs);
+      ax = regs.w.ax;
+      v8 = mem_used_low;
+      mem_blocks[iMemBlocksIdx].uiSize = -16 * v16;
+      v9 = lobuffers;
+      pBuf2 = (void *)(16 * ax);
+      mem_blocks[iMemBlocksIdx].pAlsoBuf = (void *)regs.w.dx;
+      lobuffers = v9 + 1;
+      v10 = 16 * v16 + v8;
+      mem_blocks[iMemBlocksIdx].pBuf = pBuf2;
+      mem_used_low = v10;
     }
-    return v5;
+    return pBuf2;
   }
-  return result;
+#endif
+  return pBuf;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+#ifdef ENABLE_PSEUDOCODE
 int __fastcall trybuffer(unsigned int a1)
 {
   int v2; // esi
