@@ -360,69 +360,67 @@ void *__fastcall getbuffer(uint32 uiSize)
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDOCODE
-int __fastcall trybuffer(unsigned int a1)
-{
-  int v2; // esi
-  int v3; // ebx
-  unsigned int v4; // eax
-  int v5; // ebx
-  int v6; // edi
-  int v7; // ebp
-  unsigned __int16 v8; // bx
-  int v9; // eax
-  int v11; // ecx
-  __int16 v12; // [esp+0h] [ebp-48h] BYREF
-  unsigned __int16 v13; // [esp+4h] [ebp-44h]
-  unsigned __int16 v14; // [esp+Ch] [ebp-3Ch]
-  _BYTE v15[12]; // [esp+1Ch] [ebp-2Ch] BYREF
-  int v16; // [esp+28h] [ebp-20h] BYREF
-  int v17[7]; // [esp+2Ch] [ebp-1Ch] BYREF
 
-  v2 = 0;
-  if (mem_blocks[0]) {
-    do {
-      v3 = mem_blocks_variable_4[v2];
-      v2 += 4;
-    } while (v3);
+void *__fastcall trybuffer(uint32 uiSize)
+{
+  int iMemBlocksIdx; // esi
+  void *pBuf; // eax
+  void *pPtr; // [esp+28h] [ebp-20h] BYREF
+  int iRegsDi; // [esp+2Ch] [ebp-1Ch] BYREF
+  int iMemUsed; // ecx
+#ifdef IS_WATCOM
+  signed int v6; // edi
+  int v7; // ebp
+  unsigned __int16 ax; // bx
+  int v9; // eax
+  union REGS regs; // [esp+0h] [ebp-48h] BYREF
+  struct SREGS sregs; // [esp+1Ch] [ebp-2Ch] BYREF
+#endif
+
+  iMemBlocksIdx = 0;
+  if (mem_blocks[0].pBuf) {
+    while (mem_blocks[++iMemBlocksIdx].pBuf)
+      ;
   }
-  v4 = malloc2(a1, (unsigned int *)&v16, v17);
-  v5 = v4;
-  if (v4) {
-    mem_blocks[v2] = v4;
-    mem_blocks_variable_1[v2] = a1;
-    mem_blocks_variable_2[v2] = v16;
-    v11 = mem_used;
-    mem_blocks_variable_3[v2] = v17[0];
-    mem_used = a1 + v11;
+  pBuf = malloc2(uiSize, &pPtr, &iRegsDi);
+  if (pBuf) {
+    mem_blocks[iMemBlocksIdx].pBuf = pBuf;
+    mem_blocks[iMemBlocksIdx].uiSize = uiSize;
+    mem_blocks[iMemBlocksIdx].pAlsoBuf = pPtr;
+    iMemUsed = mem_used;
+    mem_blocks[iMemBlocksIdx].iRegsDi = iRegsDi;
+    mem_used = uiSize + iMemUsed;
     ++hibuffers;
-  } else {
-    memset(v15, 0, sizeof(v15));
-    v12 = 256;
-    v13 = -1;
-    int386x(49, (int)&v12, (int)&v12, (int)v15);
-    v6 = (a1 >> 4) + 1;
-    if (v6 > v13 - 640)
+  }
+#ifdef IS_WATCOM
+  else {
+    memset(&sregs, 0, sizeof(sregs));
+    regs.w.ax = 256;
+    regs.w.bx = -1;
+    int386x(49, &regs, &regs, &sregs);
+    v6 = (uiSize >> 4) + 1;
+    if (v6 > regs.w.bx - 640)
       return 0;
-    memset(v15, 0, sizeof(v15));
-    v12 = 256;
-    v13 = v6;
-    int386x(49, (int)&v12, (int)&v12, (int)v15);
+    memset(&sregs, 0, sizeof(sregs));
+    regs.w.ax = 256;
+    regs.w.bx = v6;
+    int386x(49, &regs, &regs, &sregs);
     v7 = mem_used_low;
-    v8 = v12;
-    mem_blocks_variable_1[v2] = -16 * v6;
-    v5 = 16 * v8;
-    mem_blocks_variable_2[v2] = v14;
+    ax = regs.w.ax;
+    mem_blocks[iMemBlocksIdx].uiSize = -16 * v6;
+    pBuf2 = (void *)(16 * ax);
+    mem_blocks[iMemBlocksIdx].pAlsoBuf = (void *)regs.w.dx;
     mem_used_low = 16 * v6 + v7;
     v9 = lobuffers + 1;
-    mem_blocks[v2] = v5;
+    mem_blocks[iMemBlocksIdx].pBuf = pBuf2;
     lobuffers = v9;
   }
-  return v5;
+#endif
+  return pBuf;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+#ifdef ENABLE_PSEUDOCODE
 _DWORD *__fastcall fre(_DWORD *result)
 {
   _DWORD *v1; // esi
