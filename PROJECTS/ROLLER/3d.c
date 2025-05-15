@@ -3,10 +3,13 @@
 #include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-int hibuffers;              //000A32E0
-uint32 mem_used;            //000A32E8
-tMemBlock mem_blocks[128];  //0013E058
-uint32 textures_off;        //0013F960
+char szFailedToFind[32] = "Failed to find allocated block"; //000A018C
+int hibuffers;                                              //000A32E0
+uint32 mem_used;                                            //000A32E8
+tMemBlock mem_blocks[128];                                  //0013E058
+uint32 textures_off;                                        //0013F960
+
+void __fastcall doexit(int a1, int a2, void *pBuf) { (void)(a1); (void)(a2); (void)(pBuf); };//todo
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
@@ -420,58 +423,59 @@ void *__fastcall trybuffer(uint32 uiSize)
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDOCODE
-_DWORD *__fastcall fre(_DWORD *result)
-{
-  _DWORD *v1; // esi
-  int v2; // edx
-  int v3; // eax
-  int v4; // ebx
-  int v5; // eax
-  __int16 v6; // ax
-  _WORD v7[14]; // [esp+0h] [ebp-40h] BYREF
-  _BYTE v8[36]; // [esp+1Ch] [ebp-24h] BYREF
 
-  v1 = result;
-  if (*result) {
-    v2 = 0;
-    v3 = 0;
-    if (mem_blocks[0] != *v1) {
-      do {
-        if (v3 >= 512)
-          break;
-        v4 = mem_blocks_variable_4[v3];
-        v3 += 4;
-        ++v2;
-      } while (v4 != *v1);
+void __fastcall fre(void *pData)
+{
+  void *pBuf; // ebx
+  int iMemBlocksIdx; // edx
+  int i; // eax
+  signed int uiSize; // eax
+#ifdef IS_WATCOM
+  unsigned __int16 pAlsoBuf; // ax
+  union REGS regs; // [esp+0h] [ebp-40h] BYREF
+  struct SREGS sregs; // [esp+1Ch] [ebp-24h] BYREF
+#endif
+
+  if (pData) {
+    pBuf = mem_blocks[0].pBuf;
+    iMemBlocksIdx = 0;
+    for (i = 0; pBuf != pData; ++iMemBlocksIdx) {
+      if (i >= 128)
+        break;
+      pBuf = mem_blocks[++i].pBuf;
     }
-    if (v2 >= 128) {
+    if (iMemBlocksIdx >= 128)                 // mem_blocks is 128 tMemBlocks
+    {
+#ifdef IS_WATCOM
       __asm { int     10h; -VIDEO - SET VIDEO MODE }
-      printf(&aNofailedToFind[3], v7[0]);
-      doexit(1);
+#endif
+      printf(szFailedToFind);
+      doexit(1, iMemBlocksIdx, pBuf);
     } else {
-      mem_blocks[4 * v2] = 0;
+      mem_blocks[iMemBlocksIdx].pBuf = 0;
     }
-    v5 = mem_blocks_variable_1[4 * v2];
-    if (v5 >= 0) {
-      mem_used -= v5;
-      result = (_DWORD *)free2(mem_blocks_variable_2[4 * v2], mem_blocks_variable_3[4 * v2]);
+    uiSize = mem_blocks[iMemBlocksIdx].uiSize;
+    if (uiSize >= 0) {
+      mem_used -= uiSize;
+      free2(mem_blocks[iMemBlocksIdx].pAlsoBuf);
     } else {
-      mem_used_low += v5;
-      memset(v8, 0, 12);
-      v6 = mem_blocks_variable_2[4 * v2];
-      v7[0] = 257;
-      v7[6] = v6;
-      result = (_DWORD *)((int(__fastcall *)(int, _WORD *, _WORD *, _BYTE *))int386x)(49, v7, v7, v8);
+#ifdef IS_WATCOM
+      mem_used_low += uiSize;
+      memset(&sregs, 0, sizeof(sregs));
+      pAlsoBuf = (unsigned __int16)mem_blocks[iMemBlocksIdx].pAlsoBuf;
+      regs.w.ax = 257;
+      regs.w.dx = pAlsoBuf;
+      int386x(49, &regs, &regs, &sregs);
       --lobuffers;
+#endif
     }
-    *v1 = 0;
+    pData = 0;
   }
-  return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
+#ifdef ENABLE_PSEUDOCODE
 void doexit()
 {
   int v0; // eax
