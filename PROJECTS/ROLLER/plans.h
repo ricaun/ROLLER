@@ -4,6 +4,18 @@
 #include "carplans.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint8 byNumPols;
+  uint8 byNumCoords;
+  uint8 byPadding1;
+  uint8 byPadding2;
+  tPolygon *pPols;
+  tVec3 *pCoords;
+} tBuildingPlan;
+
+//-------------------------------------------------------------------------------------------------
+
 extern tVec3 tower_coords[];
 extern tPolygon tower_pols[];
 extern unsigned int tower_backs[];
@@ -110,6 +122,11 @@ extern unsigned int quadbld_backs[];
 extern tVec3 bld0_coords[];
 extern tPolygon bld0_pols[];
 extern unsigned int bld0_backs[];
+
+//-------------------------------------------------------------------------------------------------
+
+extern char building_names[17][256];
+extern tBuildingPlan BuildingPlans[];
 
 //-------------------------------------------------------------------------------------------------
 #endif

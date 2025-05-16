@@ -618,3 +618,50 @@ tPolygon bld0_pols[9] =
 unsigned int bld0_backs[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 //-------------------------------------------------------------------------------------------------
+
+//000AEBC8
+char building_names[17][256] = {
+  "TOWER",
+  "TOWER 2",
+  "SIGN 1",
+  "SIGN 2",
+  "BUILD",
+  "BUILD 1",
+  "BUILD 2",
+  "BUILD 3",
+  "HEELBAR",
+  "BALLOON",
+  "TREE",
+  "ADVERT",
+  "ADVERT 2",
+  "QUAD BLD",
+  "BIG BALL",
+  "BIG AD",
+  "B"
+};
+
+//-------------------------------------------------------------------------------------------------
+
+//000AFCC8
+tBuildingPlan BuildingPlans[17] =
+{
+  { 5u, 8u, 0u, 0u, tower_pols, tower_coords },
+  { 5u, 8u, 0u, 0u, tower2_pols, tower2_coords },
+  { 2u, 8u, 0u, 0u, sign01_pols, sign01_coords },
+  { 3u, 12u, 0u, 0u, sign02_pols, sign02_coords },
+  { 5u, 14u, 0u, 0u, build_pols, build_coords },
+  { 10u, 12u, 0u, 0u, build1_pols, build1_coords },
+  { 10u, 12u, 0u, 0u, build2_pols, build2_coords },
+  { 3u, 8u, 0u, 0u, build3_pols, build3_coords },
+  { 5u, 8u, 0u, 0u, heelbar_pols, heelbar_coords },
+  { 1u, 4u, 0u, 0u, balloon_pols, balloon_coords },
+  { 1u, 4u, 0u, 0u, tree_pols, tree_coords },
+  { 6u, 8u, 0u, 0u, advert_pols, advert_coords },
+  { 1u, 4u, 0u, 0u, advert2_pols, advert2_coords },
+  { 20u, 32u, 0u, 0u, quadbld_pols, quadbld_coords },
+  { 9u, 12u, 0u, 0u, bld0_pols, bld0_coords },
+  { 1u, 4u, 0u, 0u, balloon2_pols, balloon2_coords },
+  { 1u, 4u, 0u, 0u, advert3_pols, advert3_coords }
+};
+
+//-------------------------------------------------------------------------------------------------
