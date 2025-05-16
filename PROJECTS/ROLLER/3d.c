@@ -9,7 +9,7 @@ uint32 mem_used;                                            //000A32E8
 tMemBlock mem_blocks[128];                                  //0013E058
 uint32 textures_off;                                        //0013F960
 
-void __fastcall doexit(int a1, int a2, void *pBuf) { (void)(a1); (void)(a2); (void)(pBuf); };//todo
+void doexit(int a1, int a2, void *pBuf) { (void)(a1); (void)(a2); (void)(pBuf); };//todo
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
@@ -295,7 +295,7 @@ int init()
 #endif
 //-------------------------------------------------------------------------------------------------
 
-void *__fastcall getbuffer(uint32 uiSize)
+void *getbuffer(uint32 uiSize)
 {
   int iMemBlocksIdx; // esi
   void *pBuf; // eax
@@ -364,7 +364,7 @@ void *__fastcall getbuffer(uint32 uiSize)
 
 //-------------------------------------------------------------------------------------------------
 
-void *__fastcall trybuffer(uint32 uiSize)
+void *trybuffer(uint32 uiSize)
 {
   int iMemBlocksIdx; // esi
   void *pBuf; // eax
@@ -424,7 +424,7 @@ void *__fastcall trybuffer(uint32 uiSize)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall fre(void *pData)
+void fre(void *pData)
 {
   void *pBuf; // ebx
   int iMemBlocksIdx; // edx
@@ -3362,7 +3362,7 @@ int __fastcall test_w95(int a1, int a2, int a3, int a4)
 #endif
 //-------------------------------------------------------------------------------------------------
 
-void *__fastcall malloc2(int iSize, void *pPtr, int *pRegsDi)
+void *malloc2(int iSize, void *pPtr, int *pRegsDi)
 {
   void *result; // eax
 #ifdef IS_WATCOM
@@ -3394,7 +3394,7 @@ void *__fastcall malloc2(int iSize, void *pPtr, int *pRegsDi)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall free2(void *ptr)
+void free2(void *ptr)
 {
 #ifdef IS_WATCOM
   unsigned __int16 nDi; // dx

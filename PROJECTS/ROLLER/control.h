@@ -11,7 +11,7 @@ extern int RecordCars[];
 extern int RecordKills[];
 extern char RecordNames[];
 
-extern double __fastcall calc_revs(tRev *pRevs, int iGear, float fChg);
+double calc_revs(tRev *pRevs, int iGear, float fChg);
 
 //-------------------------------------------------------------------------------------------------
 #endif

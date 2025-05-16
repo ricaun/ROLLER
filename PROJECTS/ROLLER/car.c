@@ -2138,7 +2138,7 @@ LABEL_117:
 #endif
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall carZcmp(tCar *pCar1, tCar *pCar2)
+int carZcmp(tCar *pCar1, tCar *pCar2)
 {
   float fZCmp; // [esp+0h] [ebp-8h]
   float fZCmp2; // [esp+4h] [ebp-4h]

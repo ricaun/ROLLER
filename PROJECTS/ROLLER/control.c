@@ -959,7 +959,7 @@ void control()
 #endif
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall calc_revs(tRev *pRevs, int iGear, float fChg)
+double calc_revs(tRev *pRevs, int iGear, float fChg)
 {
   tRev *v5; // eax
   double v6; // st7

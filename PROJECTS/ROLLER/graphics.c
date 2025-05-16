@@ -2,7 +2,7 @@
 //-------------------------------------------------------------------------------------------------
 
 //temporarily putting this here so car.c will build
-int __fastcall LoadCarTexture(int a1, char a2)
+int LoadCarTexture(int a1, char a2)
 {
   (void)(a1); (void)(a2);
   return 0;
