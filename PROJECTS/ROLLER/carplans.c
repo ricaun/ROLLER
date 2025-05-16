@@ -1629,6 +1629,46 @@ tAnimation xreise_anms[10] =
 
 //-------------------------------------------------------------------------------------------------
 
+//000ACB84
+char CarNames[14][20] = {
+  "Fouette 270 ZX",
+  "DeSilva 511 GTi",
+  "Errant V8 GT",
+  "Celerity MKII",
+  "Ninjato",
+  "Chimera Turbo SE",
+  "KLR 330",
+  "Merkur GT",
+  "Thunderbolt",
+  "The Rocket",
+  "The Invertor",
+  "The Kangaroo",
+  "LV 1973",
+  "CHRISTINE"
+};
+
+//-------------------------------------------------------------------------------------------------
+
+//000ACC9C
+char CompanyNames[14][20] = {
+  "AUTO ARIEL",
+  "DESILVA",
+  "PULSE ENGINEERING",
+  "GLOBAL",
+  "MILLION PLUS",
+  "MISSION MOTORS",
+  "ZIZIN",
+  "REISE WAGON",
+  "DRH MOTORS",
+  "GODLEY PLC",
+  "GSS AUTOS",
+  "CROSS CARS",
+  "VRANIC",
+  "DEATH MOTORS"
+};
+
+//-------------------------------------------------------------------------------------------------
+
 //000ACDB4
 tCarDesign CarDesigns[] =
 {
@@ -1804,7 +1844,48 @@ tCarDesign CarDesigns[] =
 
 //-------------------------------------------------------------------------------------------------
 
+//000ACF3C
+char car_texture_names[11][256] =
+{
+  "track0.drh",
+  "xauto.bm",
+  "xdesilva.bm",
+  "xpulse.bm",
+  "xglobal.bm",
+  "xmillion.bm",
+  "xmission.bm",
+  "xzizin.bm",
+  "xreise.bm",
+  "red28.bm",
+  "death.bm"
+};
+
+//-------------------------------------------------------------------------------------------------
+
 //000ADA3C
 int Drivers_Car[16] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 };
+
+//-------------------------------------------------------------------------------------------------
+
+//000ADA7C
+tCarColorRemap car_flat_remap[16] =
+{
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0CF, 0x0C3 },
+  { 0x0E7, 0x0AB },
+  { 0x0E7, 0x0FF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0C3, 0x0AB },
+  { 0x8F, 0x0DB },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF },
+  { 0x0FFFFFFFF, 0x0FFFFFFFF }
+};
 
 //-------------------------------------------------------------------------------------------------

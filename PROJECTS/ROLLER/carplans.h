@@ -52,6 +52,14 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint32 uiColorFrom;
+  uint32 uiColorTo;
+} tCarColorRemap;
+
+//-------------------------------------------------------------------------------------------------
+
 extern tVec3 f1wack_coords[];
 extern tPolygon f1wack_pols[];
 extern unsigned int f1wack_backs[];
@@ -124,11 +132,12 @@ extern tAnimation xreise_anms[];
 
 //-------------------------------------------------------------------------------------------------
 
-extern tCarDesign CarDesigns[];
-
-//-------------------------------------------------------------------------------------------------
- 
-int Drivers_Car[16];
+extern char CarNames[14][20];
+extern char CompanyNames[14][20];
+extern tCarDesign CarDesigns[]; 
+extern char car_texture_names[11][256];
+extern int Drivers_Car[16];
+extern tCarColorRemap car_flat_remap[]; //this is used to remap the palette indices used to color the mirrors for the advanced car set
  
 //-------------------------------------------------------------------------------------------------
 #endif
