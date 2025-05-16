@@ -269,5 +269,8 @@
     <ClInclude Include="PROJECTS\ROLLER\func2.h">
       <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\date.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

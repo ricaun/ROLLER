@@ -214,6 +214,7 @@
     <ClInclude Include="PROJECTS\ROLLER\car.h" />
     <ClInclude Include="PROJECTS\ROLLER\carplans.h" />
     <ClInclude Include="PROJECTS\ROLLER\control.h" />
+    <ClInclude Include="PROJECTS\ROLLER\date.h" />
     <ClInclude Include="PROJECTS\ROLLER\engines.h" />
     <ClInclude Include="PROJECTS\ROLLER\frontend.h" />
     <ClInclude Include="PROJECTS\ROLLER\func2.h" />
