@@ -219,6 +219,7 @@
     <ClInclude Include="PROJECTS\ROLLER\frontend.h" />
     <ClInclude Include="PROJECTS\ROLLER\func2.h" />
     <ClInclude Include="PROJECTS\ROLLER\graphics.h" />
+    <ClInclude Include="PROJECTS\ROLLER\plans.h" />
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
