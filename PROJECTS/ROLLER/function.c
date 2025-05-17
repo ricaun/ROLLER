@@ -1,3 +1,5 @@
+#include "function.h"
+//-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
@@ -323,53 +325,61 @@ void finish_race()
     }
   }
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-double __stdcall getbankz(float a1, int a2, float *a3)
+double getbankz(float a1, int iChunkIdx, tData *pData)
 {
-  float *v3; // edx
-  float *v4; // ebx
+  tData *pData2; // edx
+  tGroundPt *pGroundPt; // ebx
   double v5; // st7
-  int v6; // esi
-  int v7; // ecx
-  float *v8; // ebx
-  float *v9; // ecx
+  int iPointIdx; // esi
+  int pPointCounter; // ecx
+  tVec3 *pPoint1; // ebx
+  tGroundPt *pGroundPt2; // ecx
   float v11; // [esp+0h] [ebp-20h]
   float v12; // [esp+4h] [ebp-1Ch]
 
-  v3 = a3;
-  if (!a3)
-    v3 = (float *)((char *)&localdata + 128 * a2);
-  v4 = &GroundPt[18 * a2];
-  v5 = (v4[1] + v3[10]) * v3[4] + (*v4 + v3[9]) * v3[1] + (v4[2] + v3[11]) * v3[7];
-  v6 = 4;
-  v7 = 1;
-  v8 = v4 + 3;
-  v11 = v5;
+  pData2 = pData;
+  if (!pData)
+    pData2 = &localdata[iChunkIdx];
+  pGroundPt = &GroundPt[iChunkIdx];
+  v5 = (pGroundPt->pointAy[0].fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fY
+    + (pGroundPt->pointAy[0].fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fY
+    + (pGroundPt->pointAy[0].fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fY;
+  iPointIdx = 4;
+  pPointCounter = 1;
+  pPoint1 = &pGroundPt->pointAy[1];
+  v11 = (float)v5;
   while (1) {
-    v12 = (v8[1] + v3[10]) * v3[4] + (*v8 + v3[9]) * v3[1] + (v8[2] + v3[11]) * v3[7];
+    v12 = (pPoint1->fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fY
+      + (pPoint1->fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fY
+      + (pPoint1->fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fY;
     if (a1 > (double)v12)
       break;
-    v8 += 3;
-    ++v7;
+    ++pPoint1;
+    ++pPointCounter;
     v11 = v12;
-    if (v7 >= 6)
+    if (pPointCounter >= 6)
       goto LABEL_7;
   }
-  v6 = v7 - 1;
+  iPointIdx = pPointCounter - 1;
 LABEL_7:
-  v9 = &GroundPt[18 * a2];
-  return ((v9[3 * v6 + 1] + v3[10]) * v3[5] + (v9[3 * v6] + v3[9]) * v3[2] + (v9[3 * v6 + 2] + v3[11]) * v3[8])
+  pGroundPt2 = &GroundPt[iChunkIdx];
+  return ((pGroundPt2->pointAy[iPointIdx].fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fZ
+        + (pGroundPt2->pointAy[iPointIdx].fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fZ
+        + (pGroundPt2->pointAy[iPointIdx].fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fZ)
     * (a1 - v12)
     / (v11 - v12)
-    + ((v9[3 * v6 + 4] + v3[10]) * v3[5] + (v9[3 * v6 + 3] + v3[9]) * v3[2] + (v9[3 * v6 + 5] + v3[11]) * v3[8])
+    + ((pGroundPt2->pointAy[iPointIdx + 1].fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fZ
+     + (pGroundPt2->pointAy[iPointIdx + 1].fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fZ
+     + (pGroundPt2->pointAy[iPointIdx + 1].fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fZ)
     * (a1 - v11)
     / (v12 - v11);
 }
 
 //-------------------------------------------------------------------------------------------------
-
+#ifdef ENABLE_PSEUDOCODE
 int __fastcall calculate_aheadbehindtime(int a1, float *a2, float *a3)
 {
   int result; // eax

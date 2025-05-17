@@ -218,6 +218,7 @@
     <ClInclude Include="PROJECTS\ROLLER\engines.h" />
     <ClInclude Include="PROJECTS\ROLLER\frontend.h" />
     <ClInclude Include="PROJECTS\ROLLER\func2.h" />
+    <ClInclude Include="PROJECTS\ROLLER\function.h" />
     <ClInclude Include="PROJECTS\ROLLER\graphics.h" />
     <ClInclude Include="PROJECTS\ROLLER\plans.h" />
     <ClInclude Include="PROJECTS\ROLLER\transfrm.h" />

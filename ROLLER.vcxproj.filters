@@ -278,5 +278,8 @@
     <ClInclude Include="PROJECTS\ROLLER\transfrm.h">
       <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\function.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

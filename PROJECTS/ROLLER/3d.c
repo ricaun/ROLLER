@@ -16,6 +16,8 @@ int hibuffers;                                              //000A32E0
 uint32 mem_used;                                            //000A32E8
 int SVGA_ON;                                                //000A34AC
 void *scrbuf;                                               //000A353C
+tData localdata[500];                                       //000BEA10
+tGroundPt GroundPt[500];                                    //000CE410
 float tsin[16384];                                          //001010F0
 float ptan[16384];                                          //001110F0
 float tcos[16384];                                          //00121128

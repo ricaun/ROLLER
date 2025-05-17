@@ -29,15 +29,6 @@ typedef struct
 
 typedef struct
 {
-  float fX;
-  float fY;
-  float fZ;
-} tVec3;
-
-//-------------------------------------------------------------------------------------------------
-
-typedef struct
-{
   uint8 byNumPols;
   uint8 byNumCoords;
   uint8 byUnk3;
