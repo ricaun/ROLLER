@@ -2143,8 +2143,8 @@ int carZcmp(tCar *pCar1, tCar *pCar2)
   float fZCmp; // [esp+0h] [ebp-8h]
   float fZCmp2; // [esp+4h] [ebp-4h]
 
-  fZCmp = pCar1->fZCmp;
-  fZCmp2 = pCar2->fZCmp;
+  fZCmp = pCar1->pos.fZ;
+  fZCmp2 = pCar2->pos.fZ;
   if (fZCmp == fZCmp2)
     return 0;
   if (fZCmp >= (double)fZCmp2)

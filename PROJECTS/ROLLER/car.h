@@ -13,14 +13,12 @@ typedef struct
 
 typedef struct
 {
-  float fUnk0;
-  float fUnk1;
-  float fZCmp;
+  tVec3 pos;
   int16 nCurrChunk;
   int16 nUnk4;
   int16 nUnk5;
   int16 nUnk6;
-  int16 nUnk7;
+  int16 nDirection;
   int16 nPadding1;
   float fMaxSpeed;
   float fUnk9;

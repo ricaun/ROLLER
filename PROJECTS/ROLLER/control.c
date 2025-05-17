@@ -1,11 +1,14 @@
 #include "control.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
-float eng_chg_revs[168];  //00149978
-float RecordLaps[25];     //00149C5C
-int RecordCars[25];       //00149CC0
-int RecordKills[25];      //00149D24
-char RecordNames[228];    //00149DC8
+double dTrigLookupMax  = 16384.0; //000A1482 Symbol name added by ROLLER
+double dTwoPi = 6.28318530718;    //000A148A Symbol name added by ROLLER
+float eng_chg_revs[168];          //00149978
+float RecordLaps[25];             //00149C5C
+int RecordCars[25];               //00149CC0
+int RecordKills[25];              //00149D24
+char RecordNames[228];            //00149DC8
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
@@ -5544,24 +5547,36 @@ void __fastcall changestrategy(int a1)
     *(_WORD *)(a1 + 238) = 1080;
   }
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall getangle(int a1, int a2, float a3, int a4)
+int getangle(float fX, float fY)
 {
-  double v7; // st7
-  int v8; // eax
+  double dAngle; // st7
 
-  if ((LODWORD(a3) & 0x7FFFFFFF) == 0 && (a4 & 0x7FFFFFFF) == 0)
+  // If floats are both zero, return 0
+  // Masking off most significant bit so -0 == 0
+  // Did this used to be necessary? It doesn't
+  // seem to make a difference now.
+  if (fX == 0 && fY == 0)
     return 0;
-  IF_DATAN2(a3);
-  v7 = a3 * control_c_variable_172 / control_c_variable_173;
-  _CHP(v8, a2);
-  return (int)v7 & 0x3FFF;
+
+  // IF_DATAN2 is atan2 that returns a double
+  // control_c_variable_172 is 16384.0, the count of the trig lookup tables
+  // control_c_variable_173 is 6.28318530718, or 2 * pi
+  dAngle = atan2(fY, fX) * dTrigLookupMax / dTwoPi;
+
+  // round to integer?
+  //_CHP();
+  dAngle = round(dAngle);
+
+  // return value is used as an index into tsin/tcos/ptan lookup tables each with 16384 elements 
+  // masking off all but the 14 least significant bits ensures this value maxes out at 16383
+  return (int)dAngle & 0x3FFF;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+#ifdef ENABLE_PSEUDOCODE
 void __fastcall landontrack(int a1)
 {
   float *v2; // ebp

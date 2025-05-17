@@ -12,6 +12,7 @@ extern int RecordKills[];
 extern char RecordNames[];
 
 double calc_revs(tRev *pRevs, int iGear, float fChg);
+int getangle(float fX, float fY);
 
 //-------------------------------------------------------------------------------------------------
 #endif

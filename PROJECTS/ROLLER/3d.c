@@ -6,6 +6,9 @@
 char szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
 int hibuffers;                                              //000A32E0
 uint32 mem_used;                                            //000A32E8
+float tsin[16384];                                          //001010F0
+float ptan[16384];                                          //001110F0
+float tcos[16384];                                          //00121128
 tMemBlock mem_blocks[128];                                  //0013E058
 uint32 textures_off;                                        //0013F960
 
