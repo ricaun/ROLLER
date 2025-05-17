@@ -5558,6 +5558,7 @@ int getangle(float fX, float fY)
   // Masking off most significant bit so -0 == 0
   // Did this used to be necessary? It doesn't
   // seem to make a difference now.
+  //if ((LODWORD(fX) & 0x7FFFFFFF) == 0 && (LODWORD(fY) & 0x7FFFFFFF) == 0)
   if (fX == 0 && fY == 0)
     return 0;
 
