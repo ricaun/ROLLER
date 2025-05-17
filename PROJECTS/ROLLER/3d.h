@@ -54,6 +54,9 @@ extern float tsin[];
 extern float ptan[];
 extern float tcos[];
 extern uint32 textures_off;
+extern float viewx;
+extern float viewy;
+extern float viewz;
 
 //-------------------------------------------------------------------------------------------------
 

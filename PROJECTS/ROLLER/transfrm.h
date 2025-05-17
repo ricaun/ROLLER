@@ -15,4 +15,18 @@ extern float vk9;
 extern int yp;
 
 //-------------------------------------------------------------------------------------------------
+
+void calculatetransform(
+        int iTrackChunkIdx,
+        int iDirection,
+        int iElevation,
+        int iTilt,
+        float fViewX,
+        float fViewY,
+        float fViewZ,
+        float fPosX,
+        float fPosY,
+        float fPosZ);
+
+//-------------------------------------------------------------------------------------------------
 #endif

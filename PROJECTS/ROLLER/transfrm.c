@@ -1,4 +1,5 @@
 #include "transfrm.h"
+#include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
 float vk1;  //00189950
@@ -14,89 +15,92 @@ float vk9;  //00189974
 int yp;     //00189978
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
-//-------------------------------------------------------------------------------------------------
 
-int __fastcall calculatetransform(
-        int a1,
-        int a2,
-        int a3,
-        int a4,
-        float a5,
-        float a6,
-        int a7,
-        float a8,
-        float a9,
-        float a10)
+void calculatetransform(
+        int iTrackChunkIdx,
+        int iDirection,
+        int iElevation,
+        int iTilt,
+        float fViewX,
+        float fViewY,
+        float fViewZ,
+        float fPosX,
+        float fPosY,
+        float fPosZ)
 {
+  double v10; // st7
   double v11; // st7
-  double v12; // st7
-  double v13; // st7
-  int result; // eax
-  float *v15; // eax
-  double v16; // st6
-  double v17; // st5
-  float v18; // [esp+0h] [ebp-2Ch]
-  float v19; // [esp+4h] [ebp-28h]
-  float v20; // [esp+8h] [ebp-24h]
-  float v21; // [esp+Ch] [ebp-20h]
-  float v22; // [esp+10h] [ebp-1Ch]
-  float v23; // [esp+14h] [ebp-18h]
-  float v24; // [esp+1Ch] [ebp-10h]
-  float v25; // [esp+20h] [ebp-Ch]
-  float v26; // [esp+24h] [ebp-8h]
+  double dVk9; // st7
+  tData *pData; // eax
+  double v14; // st6
+  double dZ; // st5
+  float v16; // [esp+0h] [ebp-2Ch]
+  float v17; // [esp+4h] [ebp-28h]
+  float v18; // [esp+8h] [ebp-24h]
+  float v19; // [esp+Ch] [ebp-20h]
+  float v20; // [esp+10h] [ebp-1Ch]
+  float v21; // [esp+14h] [ebp-18h]
+  float v22; // [esp+1Ch] [ebp-10h]
+  float v23; // [esp+20h] [ebp-Ch]
+  float v24; // [esp+24h] [ebp-8h]
 
-  v11 = tcos[a2] * tsin[a3];
-  vk1 = tsin[a2] * tcos[a4] - v11 * tsin[a4];
-  vk2 = -tsin[a2] * tsin[a4] - v11 * tcos[a4];
-  vk3 = tcos[a2] * tcos[a3];
-  v12 = tsin[a2] * tsin[a3];
-  vk4 = -tcos[a2] * tcos[a4] - v12 * tsin[a4];
-  vk5 = tcos[a2] * tsin[a4] - v12 * tcos[a4];
-  vk6 = tsin[a2] * tcos[a3];
-  vk7 = tcos[a3] * tsin[a4];
-  vk8 = tcos[a3] * tcos[a4];
-  v13 = tsin[a3];
-  viewx = a5;
-  viewy = a6;
-  result = a7;
-  LODWORD(viewz) = a7;
-  vk9 = v13;
-  if (a1 != -1) {
-    v15 = (float *)((char *)&localdata + 128 * a1);
-    viewx = *v15 * a5 - v15[9] + v15[1] * a6 + v15[2] * *(float *)&a7;
-    viewy = v15[3] * a5 - v15[10] + v15[4] * a6 + v15[5] * *(float *)&a7;
-    viewz = a6 * v15[7] + a5 * v15[6] - v15[11] + *(float *)&a7 * v15[8];
-    v23 = v15[1] * vk4 + *v15 * vk1 + v15[2] * vk7;
-    v26 = v15[1] * vk5 + *v15 * vk2 + v15[2] * vk8;
-    v18 = v15[1] * vk6 + *v15 * vk3 + v15[2] * vk9;
-    v22 = v15[3] * vk1 + v15[4] * vk4 + v15[5] * vk7;
-    v20 = v15[3] * vk2 + v15[4] * vk5 + v15[5] * vk8;
-    v21 = v15[3] * vk3 + v15[4] * vk6 + v15[5] * vk9;
-    v19 = v15[6] * vk1 + v15[7] * vk4 + v15[8] * vk7;
-    v24 = vk8 * v15[8] + v15[6] * vk2 + v15[7] * vk5;
-    v16 = v15[6] * vk3 + v15[7] * vk6;
-    v17 = v15[8];
-    vk1 = v23;
-    vk2 = v26;
-    vk3 = v18;
-    vk4 = v22;
-    vk5 = v20;
-    vk6 = v21;
-    vk7 = v19;
-    v25 = vk9 * v17 + v16;
-    vk8 = v24;
-    result = LODWORD(v25);
-    vk9 = v25;
+  v10 = tcos[iDirection] * tsin[iElevation];
+  vk1 = tsin[iDirection] * tcos[iTilt] - (float)v10 * tsin[iTilt];
+  vk2 = -tsin[iDirection] * tsin[iTilt] - (float)v10 * tcos[iTilt];
+  vk3 = tcos[iDirection] * tcos[iElevation];
+  v11 = tsin[iDirection] * tsin[iElevation];
+  vk4 = -tcos[iDirection] * tcos[iTilt] - (float)v11 * tsin[iTilt];
+  vk5 = tcos[iDirection] * tsin[iTilt] - (float)v11 * tcos[iTilt];
+  vk6 = tsin[iDirection] * tcos[iElevation];
+  vk7 = tcos[iElevation] * tsin[iTilt];
+  vk8 = tcos[iElevation] * tcos[iTilt];
+  dVk9 = (double)tsin[iElevation];
+  viewx = fViewX;
+  viewy = fViewY;
+  viewz = fViewZ;
+  vk9 = (float)dVk9;
+  if (iTrackChunkIdx != -1) {
+    pData = &localdata[iTrackChunkIdx];
+    viewx = pData->pointAy[0].fX * fViewX
+      - pData->pointAy[3].fX
+      + pData->pointAy[0].fY * fViewY
+      + pData->pointAy[0].fZ * fViewZ;
+    viewy = pData->pointAy[1].fX * fViewX
+      - pData->pointAy[3].fY
+      + pData->pointAy[1].fY * fViewY
+      + pData->pointAy[1].fZ * fViewZ;
+    viewz = fViewY * pData->pointAy[2].fY
+      + fViewX * pData->pointAy[2].fX
+      - pData->pointAy[3].fZ
+      + fViewZ * pData->pointAy[2].fZ;
+    v21 = pData->pointAy[0].fY * vk4 + pData->pointAy[0].fX * vk1 + pData->pointAy[0].fZ * vk7;
+    v24 = pData->pointAy[0].fY * vk5 + pData->pointAy[0].fX * vk2 + pData->pointAy[0].fZ * vk8;
+    v16 = pData->pointAy[0].fY * vk6 + pData->pointAy[0].fX * vk3 + pData->pointAy[0].fZ * vk9;
+    v20 = pData->pointAy[1].fX * vk1 + pData->pointAy[1].fY * vk4 + pData->pointAy[1].fZ * vk7;
+    v18 = pData->pointAy[1].fX * vk2 + pData->pointAy[1].fY * vk5 + pData->pointAy[1].fZ * vk8;
+    v19 = pData->pointAy[1].fX * vk3 + pData->pointAy[1].fY * vk6 + pData->pointAy[1].fZ * vk9;
+    v17 = pData->pointAy[2].fX * vk1 + pData->pointAy[2].fY * vk4 + pData->pointAy[2].fZ * vk7;
+    v22 = vk8 * pData->pointAy[2].fZ + pData->pointAy[2].fX * vk2 + pData->pointAy[2].fY * vk5;
+    v14 = pData->pointAy[2].fX * vk3 + pData->pointAy[2].fY * vk6;
+    dZ = pData->pointAy[2].fZ;
+    vk1 = v21;
+    vk2 = v24;
+    vk3 = v16;
+    vk4 = v20;
+    vk5 = v18;
+    vk6 = v19;
+    vk7 = v17;
+    v23 = vk9 * (float)dZ + (float)v14;
+    vk8 = v22;
+    vk9 = v23;
   }
-  viewx = vk1 * a8 + vk2 * a9 + vk3 * a10 + viewx;
-  viewy = vk4 * a8 + vk5 * a9 + vk6 * a10 + viewy;
-  viewz = a8 * vk7 + a9 * vk8 + a10 * vk9 + viewz;
-  return result;
+  viewx = vk1 * fPosX + vk2 * fPosY + vk3 * fPosZ + viewx;
+  viewy = vk4 * fPosX + vk5 * fPosY + vk6 * fPosZ + viewy;
+  viewz = fPosX * vk7 + fPosY * vk8 + fPosZ * vk9 + viewz;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+#ifdef ENABLE_PSEUDO
 int initlocaltrack()
 {
   int i; // edx

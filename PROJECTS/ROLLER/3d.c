@@ -32,6 +32,9 @@ int winx;                                                   //0013F994
 int winy;                                                   //0013F998
 float ext_y;                                                //0013F99C
 float ext_z;                                                //0013F9A0
+float viewx;                                                //0013F9A4
+float viewy;                                                //0013F9A8
+float viewz;                                                //0013F9AC
 int clear_borders;                                          //0013FA44
 float DDX;                                                  //0013FA48
 float DDY;                                                  //0013FA4C
