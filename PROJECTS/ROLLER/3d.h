@@ -21,9 +21,10 @@ extern uint32 textures_off;
 
 //-------------------------------------------------------------------------------------------------
 
-void * malloc2(int iSize, void *pPtr, int *pRegsDi);
-void free2(void *ptr);
 void doexit(int a1, int a2, void *pBuf);
+void *getbuffer(uint32 uiSize);
+void *malloc2(int iSize, void *pPtr, int *pRegsDi);
+void free2(void *ptr);
  
 //-------------------------------------------------------------------------------------------------
 #endif

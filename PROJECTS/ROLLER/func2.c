@@ -4118,18 +4118,21 @@ int remove_uncalibrated()
     Joy2used = x2ok;
   return result;
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-int LoadRecords()
+void LoadRecords()
 {
+  /*
   int iFileHandle; // edx
+  int iFileHandle2; // ebp
   int iRecordNamePos; // edx
   int iRecordIdx3; // eax
   int iRecordNamePos2; // edx
   char *szRecordName2; // edi
   char *szRecordName3; // edi
   int iFileLength; // eax
+  int iFileLength2; // ecx
   int iRecordNameIdx2; // edx
   int iRecordIdx2; // eax
   int iRecordNameIdx3; // edx
@@ -4145,7 +4148,8 @@ int LoadRecords()
   int iMaxRecords; // [esp+4h] [ebp-20h]
   int iRecordNamePos3; // [esp+8h] [ebp-1Ch]
 
-  iFileHandle = open(szDgkfcRec, 512);           // 512 = O_BINARY in WATCOM/h/fcntl.h
+  iFileHandle = open(szDgkfcRec, 512);          // 512 = O_BINARY in WATCOM/h/fcntl.h
+  iFileHandle2 = iFileHandle;
   if (iFileHandle == -1) {
 
     for (int i = 0; i < 25; ++i) {
@@ -4159,13 +4163,15 @@ int LoadRecords()
   } else {
     pBuf = (uint8 *)getbuffer(1024u);
     iFileLength = filelength(iFileHandle);
+    iFileLength2 = iFileLength;
     if (iFileLength == 336 || iFileLength == 504) {
+      //TODO: read file
       read(iFileHandle, pBuf, iFileLength);
-      close(iFileHandle, pBuf);
+      close(iFileHandle);
       pIntBuf = (int *)pBuf;
       iRecordNameIdx = 1;
-      iMaxRecords = iFileLength / 21;
-      if (iFileLength / 21 >= 1) {
+      iMaxRecords = iFileLength2 / 21;
+      if (iFileLength2 / 21 >= 1) {
         iRecordIdx = 1;
         iRecordNamePos3 = 18;
         do {
@@ -4193,7 +4199,7 @@ int LoadRecords()
           iRecordNamePos3 += 9;
         } while (iRecordNameIdx <= iMaxRecords);
       }
-      return (int)fre(&pBuf);
+      fre(&pBuf);
     } else {
 
       for (int i = 0; i < 25; ++i) {
@@ -4204,13 +4210,13 @@ int LoadRecords()
         RecordKills[i] = 0;
       }
 
-      close(iFileHandle);
-      return (int)fre(&pBuf);
+      close(iFileHandle2);
+      fre(&pBuf);
     }
-  }
-  return iRecordIdx3 * 4;
+  }*/
 }
 
+#ifdef ENABLE_PSEUDOCODE
 //-------------------------------------------------------------------------------------------------
 
 _DWORD *SaveRecords()

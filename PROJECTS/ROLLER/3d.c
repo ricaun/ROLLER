@@ -1,16 +1,50 @@
 #include "3d.h"
+#include "frontend.h"
+#include "control.h"
+#include "func2.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <string.h>
 //-------------------------------------------------------------------------------------------------
 
+double dOneOverTrigLookupAyCount = 0.00006103515625;        //000A012E Symbol name added by ROLLER
+double dOneOverTatnLookupAyCount = 0.0009765625;            //000A0136 Symbol name added by ROLLER
+double dTwoPi2 = 6.28318530718;                             //000A0156 Symbol name added by ROLLER
 char szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
 int hibuffers;                                              //000A32E0
 uint32 mem_used;                                            //000A32E8
+int SVGA_ON;                                                //000A34AC
+void *scrbuf;                                               //000A353C
 float tsin[16384];                                          //001010F0
 float ptan[16384];                                          //001110F0
 float tcos[16384];                                          //00121128
 tMemBlock mem_blocks[128];                                  //0013E058
+float tatn[1025];                                           //0013E95C
 uint32 textures_off;                                        //0013F960
+int tex_count;                                              //0013F964
+int scr_size;                                               //0013F988
+int ybase;                                                  //0013F98C
+int xbase;                                                  //0013F990
+int winx;                                                   //0013F994
+int winy;                                                   //0013F998
+float ext_y;                                                //0013F99C
+float ext_z;                                                //0013F9A0
+int clear_borders;                                          //0013FA44
+float DDX;                                                  //0013FA48
+float DDY;                                                  //0013FA4C
+float DDZ;                                                  //0013FA50
+float ext_x;                                                //0013FA54
+int test_f1;                                                //0013FA58
+int test_f2;                                                //0013FA5C
+int test_f3;                                                //0013FA60
+int NoOfLaps;                                               //0013FA84
+int VIEWDIST;                                               //0013FB70
+int YMAX;                                                   //0013FB74
+int XMAX;                                                   //0013FB78
+int time_shown;                                             //0013FB7C
+int player2_car;                                            //0013FB7E
+int player1_car;                                            //0013FB80
 
 void doexit(int a1, int a2, void *pBuf) { (void)(a1); (void)(a2); (void)(pBuf); };//todo
 
@@ -154,29 +188,11 @@ int __fastcall init_screen(int a1, int a2, int a3)
     return resetpal();
   return result;
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-int init()
+void init()
 {
-  int v0; // edx
-  int v1; // eax
-  char *v2; // edi
-  int v3; // edx
-  char *v4; // edi
-  char *v5; // edi
-  int v6; // edx
-  int v12; // edx
-  int v13; // eax
-  __int64 v14; // rax
-  double v16; // [esp+0h] [ebp-54h]
-  unsigned __int64 v17; // [esp+8h] [ebp-4Ch]
-  __int64 v18; // [esp+10h] [ebp-44h]
-  unsigned __int64 v19; // [esp+20h] [ebp-34h]
-  int v20; // [esp+30h] [ebp-24h]
-  int v21; // [esp+34h] [ebp-20h]
-  int i; // [esp+38h] [ebp-1Ch]
-
   test_f1 = 0;
   test_f2 = 0;
   switch_sets = 0;
@@ -187,115 +203,50 @@ int init()
     scr_size = 128;
   else
     scr_size = 64;
-  v0 = 9;
-  v1 = 1;
-  RecordLaps[0] = 128.0;
-  RecordCars[0] = -1;
   tex_count = 1;
-  RecordKills[0] = 0;
-  strcpy(RecordNames, "-----");
-  do {
-    v2 = &RecordNames[v0];
-    v3 = v0 + 9;
-    RecordLaps[v1] = 128.0;
-    RecordKills[v1] = 0;
-    RecordCars[v1] = -1;
-    v1 += 3;
-    strcpy(v2, "-----");
-    v4 = &RecordNames[v3];
-    race_started[v1] = 1124073472;
-    RecordLaps_variable_2[v1] = -1;
-    RecordCars_variable_2[v1] = 0;
-    v3 += 9;
-    strcpy(v4, "-----");
-    v5 = &RecordNames[v3];
-    updates[v1] = 1124073472;
-    RecordLaps_variable_3[v1] = -1;
-    RecordCars_variable_3[v1] = 0;
-    v0 = v3 + 9;
-    strcpy(v5, "-----");
-  } while (v1 != 25);
+
+  for (int i = 0; i < 25; ++i) {
+    int iRecordNamesPos = 9 * i;
+    strcpy_s(&RecordNames[iRecordNamesPos], 9, "-----");
+    RecordLaps[i] = 128.0f;
+    RecordCars[i] = -1;
+    RecordKills[i] = 0;
+  }
+
   NoOfLaps = 0;
-  LOWORD(player1_car) = 0;
+  player1_car = 0;
   player_invul[0] = 0;
-  player_invul_variable_1 = 0;
+  player_invul[1] = 0;
   player2_car = 1;
-  _STOSB(blank_line, 1886417008);
+  //_STOSB((int)blank_line, 1886417008, 1, 0x280u);
   DDY = 160.0;
   DDZ = 270.0;
-  v6 = 0;
   clear_borders = 0;
   VIEWDIST = 270;
   DDX = 0.0;
-  v21 = 0;
-  do {
-    __asm
-    {
-      fild[esp + 4Ch + var_20]
-      fmul    dbl_A0126
-      fmul    dbl_A012E
-      fld     st
-      fsincos
-      fstp    flt_121128[edx]
-    }
-    flt_121128[v6] = _ET1;
-    __asm { fstp    flt_1010F0[edx] }
-    flt_1010F0[v6] = _ET1;
-    __asm
-    {
-      fptan
-      fstp1   st
-      fst[esp + 4Ch + var_34]
-      fcomp   dbl_A0146
-      fnstsw  ax
-    }
-    if ((_AX & 0x100) != 0 || (_AX & 0x4000) != 0) {
-      __asm
-      {
-        fld[esp + 4Ch + var_34]
-        fcomp   dbl_A014E
-        fnstsw  ax
-      }
-      if ((_AX & 0x100) != 0)
-        v17 = 0xC0E0000000000000LL;
-      else
-        v17 = v19;
-      v18 = v17;
-    } else {
-      v18 = 0x40DFFFC000000000LL;
-    }
-    __asm { fld[esp + 4Ch + var_44] }
-    ++v6;
-    v21 += 2;
-    __asm { fstp    flt_1110EC[edx] }
-    flt_1110EC[v6] = _ET1;
-  } while (v21 != 0x8000);
-  v12 = 0;
-  dword_13FA54 = 0;
-  dword_13F99C = 0;
-  dword_13F9A0 = 0;
-  for (i = 0; i < 1025; ++i) {
-    __asm
-    {
-      fild[esp + 4Ch + var_1C]
-      fmul    dbl_A0136
-      fld1
-      fpatan
-      fmul    dbl_A013E
-      fdiv    dbl_A0156
-      fadd    dbl_A015E
-      fstp[esp + 54h + var_54]; double
-    }
-    v13 = floor(v16);
-    _CHP(v13, v12 * 4);
-    __asm { fistp[esp + 4Ch + var_24] }
-    dword_13E958[++v12] = v20;
+
+  //load tsin, tcos, and ptan
+  for (int i = 0; i < 16384; ++i) {
+    double dAngle = i * dTwoPi2 * dOneOverTrigLookupAyCount;
+    tsin[i] = (float)sin(dAngle);
+    tcos[i] = (float)cos(dAngle);
+    ptan[i] = (float)tan(dAngle);
   }
-  v14 = getbuffer(256000);
-  dword_A353C = v14;
-  return LoadRecords(v14, SHIDWORD(v14), 0);
+
+  ext_x = 0;
+  ext_y = 0;
+  ext_z = 0;
+
+  //load tatn
+  for (int i = 0; i < 1025; ++i) {
+    double dAngle = i * dTwoPi2 * dOneOverTatnLookupAyCount;
+    tatn[i] = (float)atan(dAngle);
+  }
+
+  scrbuf = getbuffer(256000u);
+  LoadRecords();
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 void *getbuffer(uint32 uiSize)

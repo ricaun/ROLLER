@@ -1,8 +1,36 @@
 #include "frontend.h"
 //-------------------------------------------------------------------------------------------------
 
-int non_competitors[16]; //0016FDE0
-uint32 cheat_mode;       //0016FED8
+int non_competitors[16];  //0016FDE0
+int player_started[16];   //0016FE20
+int player_invul[16];     //0016FE60
+int p_texs_off;           //0016FEA0
+int p_tex_size;           //0016FEA4
+int quit_game;            //0016FEA8
+int players;              //0016FEAC
+int front_fade;           //0016FEB0
+int frontend_on;          //0016FEB4
+int cd_cheat;             //0016FEB8
+//net_test                //0016FEBC
+int my_control;           //0016FEC0
+int my_car;               //0016FEC4
+int my_number;            //0016FEC8
+int my_invul;             //0016FECC
+int FastestLap;           //0016FED0
+int racers;               //0016FED4
+uint32 cheat_mode;        //0016FED8
+int Race;                 //0016FED
+int switch_types;         //0016FEE0
+int players_waiting;      //0016FEE4
+int switch_sets;          //0016FEE8
+int time_to_start;        //0016FEEC
+int I_Quit;               //0016FEF0
+int StartPressed;         //0016FEF4
+int waste;                //0016FEF8
+int switch_same;          //0016FEFC
+int car_request;          //0016FF00
+uint8 oldkeys[14];        //0016FF04
+char my_name[14];         //0016FF12
 
 //-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
