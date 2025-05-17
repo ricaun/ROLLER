@@ -39,6 +39,7 @@ int test_f1;                                                //0013FA58
 int test_f2;                                                //0013FA5C
 int test_f3;                                                //0013FA60
 int NoOfLaps;                                               //0013FA84
+int w95;                                                    //0013FB30
 int VIEWDIST;                                               //0013FB70
 int YMAX;                                                   //0013FB74
 int XMAX;                                                   //0013FB78
@@ -3291,29 +3292,15 @@ LABEL_127:
   if (draw_type != 2)
     copypic(a1, a2);
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall test_w95(int a1, int a2, int a3, int a4)
+void test_w95(int a1, int a2, int a3, int a4)
 {
-  int result; // eax
-  unsigned __int8 v5[28]; // [esp+0h] [ebp-34h] BYREF
-  _BYTE v6[16]; // [esp+1Ch] [ebp-18h] BYREF
-  int v7; // [esp+2Ch] [ebp-8h]
-
-  v7 = a4;
-  memset(v6, 0, 12);
-  *(_WORD *)v5 = 5632;
-  int386x(47, (int)v5, (int)v5, (int)v6);
-  result = v5[0];
-  w95 = v5[0];
-  if (v5[0] < 3u || v5[0] > 4u)
-    w95 = 0;
-  else
-    w95 = -1;
-  return result;
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  w95 = 1;
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 void *malloc2(int iSize, void *pPtr, int *pRegsDi)
