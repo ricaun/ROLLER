@@ -1,12 +1,3 @@
-            GNU GENERAL PUBLIC LICENSE
-
- Roller is Copyright (C) 2025 Zizin Racing
- 
- You may use, distribute and copy Roller under the terms of
- GNU General Public License version 3.
- 
--------------------------------------------------------------------------
-
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
