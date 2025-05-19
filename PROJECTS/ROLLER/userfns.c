@@ -1,13 +1,12 @@
-#ifdef ENABLE_PSEUDO
+#include "userfns.h"
 //-------------------------------------------------------------------------------------------------
 
-double __stdcall getdirection(double a1, double a2)
+double getdirection(double a1, double a2)
 {
-  if ((HIDWORD(a1) & 0x7FFFFFFF) == 0 && !LODWORD(a1) && (HIDWORD(a2) & 0x7FFFFFFF) == 0 && !LODWORD(a2))
+  if (a1 != 0.0 || a2 != 0.0)
+    return atan2(a2, a1);
+  else
     return -1.0;
-  IF_DATAN2(a1);
-  return a1;
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

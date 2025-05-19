@@ -224,6 +224,7 @@
     <ClInclude Include="PROJECTS\ROLLER\sound.h" />
     <ClInclude Include="PROJECTS\ROLLER\transfrm.h" />
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
+    <ClInclude Include="PROJECTS\ROLLER\userfns.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
