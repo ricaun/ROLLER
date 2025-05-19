@@ -221,6 +221,7 @@
     <ClInclude Include="PROJECTS\ROLLER\function.h" />
     <ClInclude Include="PROJECTS\ROLLER\graphics.h" />
     <ClInclude Include="PROJECTS\ROLLER\plans.h" />
+    <ClInclude Include="PROJECTS\ROLLER\sound.h" />
     <ClInclude Include="PROJECTS\ROLLER\transfrm.h" />
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
   </ItemGroup>

@@ -1,3 +1,17 @@
+#include "sound.h"
+#include <stdio.h>
+#include <stdlib.h>
+//-------------------------------------------------------------------------------------------------
+
+char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
+int unmangleinpoff;         //0016F64C
+uint8 *unmangledst;         //0016F650
+int unmangleoverflow;       //0016F654
+FILE *unmanglefile;         //0016F658
+int unmanglebufpos;         //0016F65C
+uint8 unmangleinbuf[1024];  //00149EF0
+
+//-------------------------------------------------------------------------------------------------
 #ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
@@ -3995,31 +4009,30 @@ int __fastcall waitsampledone(int result)
   }
   return result;
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall getcompactedfilelength(int a1, int a2, int a3, int a4)
+int getcompactedfilelength(const char *szFile)
 {
-  int v4; // esi
-  _DWORD v6[5]; // [esp+0h] [ebp-14h] BYREF
+  FILE *pFile; // esi
+  int iLength; // [esp+0h] [ebp-14h] BYREF
 
-  v6[3] = a4;
-  v4 = fopen(a1, aRb_3);
-  fread(v6, 1, 4, v4);
-  fclose(v4);
-  return v6[0];
+  pFile = fopen(szFile, szRb);
+  fread(&iLength, 1u, 4u, pFile);
+  fclose(pFile);
+  return iLength;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall initmangle(int a1)
+int initmangle(const char *szFile)
 {
   unmangleinpoff = 4;
   unmanglebufpos = 4;
   unmangleoverflow = 0;
-  unmanglefile = fopen(a1, aRb_3);
+  unmanglefile = fopen(szFile, szRb);
   fseek(unmanglefile, unmanglebufpos, 0);
-  return fread(&unmangleinbuf, 1, 1024, unmanglefile);
+  return fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4031,192 +4044,144 @@ int uninitmangle()
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loadcompactedfile(int a1, int a2)
+int loadcompactedfile(const char *szFile, uint8 *pBuf)
 {
-  initmangle(a1);
-  loadcompactedfilepart(a2, 1000000000);
+  initmangle(szFile);
+  loadcompactedfilepart(pBuf, 1000000000);
   return fclose(unmanglefile);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall readmangled(int result, int a2)
+void readmangled(uint8 *pBufRet, int iLength)
 {
-  int v2; // ebp
-  char *v3; // ebx
-  const void *v4; // esi
-  int v5; // ecx
-  int v6; // esi
-  int v7; // [esp+0h] [ebp-18h]
+  int iLengthToRead; // ebp
+  uint8 *pBufUnit8; // ebx
+  int iOverflow; // ecx
+  int iDelta; // esi
 
-  v2 = a2;
-  v7 = result;
-  v3 = (char *)(result + 40000);
+  iLengthToRead = iLength;
+  pBufUnit8 = pBufRet + 40000;
   if (unmangleoverflow) {
-    v4 = (const void *)result;
-    result = unmangleoverflow;
-    qmemcpy(v3, v4, unmangleoverflow);
-    v5 = unmangleoverflow;
+    qmemcpy(pBufUnit8, pBufRet, unmangleoverflow);
+    iOverflow = unmangleoverflow;
     unmangleoverflow = 0;
-    v3 += v5;
-    v2 = a2 - v5;
+    pBufUnit8 += iOverflow;
+    iLengthToRead = iLength - iOverflow;
   }
-  if (v2 > 0) {
-    loadcompactedfilepart(v3, v2);
-    v6 = unmangledst - (_DWORD)v3;
-    if (unmangledst - (int)v3 > v2) {
-      unmangleoverflow = v6 - v2;
-      qmemcpy((void *)v7, &v3[v2], v6 - v2);
+  if (iLengthToRead > 0) {
+    loadcompactedfilepart(pBufUnit8, iLengthToRead);
+    iDelta = unmangledst - pBufUnit8;
+    if (unmangledst - pBufUnit8 > iLengthToRead) {
+      unmangleoverflow = iDelta - iLengthToRead;
+      qmemcpy(pBufRet, &pBufUnit8[iLengthToRead], iDelta - iLengthToRead);
     }
-    result = 20000;
-    qmemcpy((void *)(v7 + 20000), &v3[v2 - 20000], 0x4E20u);
+    qmemcpy(pBufRet + 20000, &pBufUnit8[iLengthToRead - 20000], 0x4E20u);
   }
-  return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *__fastcall loadcompactedfilepart(_BYTE *a1, int a2)
+void loadcompactedfilepart(uint8 *pDestination, int iDestLength)
 {
-  int v2; // ebx
-  _BYTE *v3; // ebp
-  _BYTE *result; // eax
-  int v5; // eax
-  unsigned int v6; // ecx
-  int v7; // ecx
-  int v8; // eax
-  int v9; // ecx
-  int v10; // eax
-  char *v11; // ecx
-  int v12; // ebx
-  char v14; // al
-  int v15; // ecx
-  int v16; // eax
-  unsigned __int8 *v17; // eax
-  char *v18; // eax
-  char v20; // cl
-  unsigned int v21; // eax
-  int v22; // eax
-  int v23; // ecx
-  int v24; // eax
-  unsigned __int8 v28; // al
+  // start positions
+  int iInputPos = 4;
+  int iOutputPos = 0;
 
-  v2 = already_quit_variable_3;
-  v3 = a1;
-  while (1) {
-    result = (_BYTE *)(v3 - a1);
-    unmangledst = (int)v3;
-    if (v3 - a1 >= a2)
-      break;
-    v5 = unmangleinpoff;
-    already_quit_variable_3 = v2;
-    ++unmangleinpoff;
-    result = (_BYTE *)unmangleGet(v5, 1);
-    v2 = (unsigned __int8)*result;
-    if (!*result)
-      break;
-    v3 = (_BYTE *)unmangledst;
-    v6 = v2 & 0x3F;
-    if ((v2 & 0x80u) == 0) {
-      if ((v2 & 0x40) != 0) {
-        v22 = v2 & 0xF;
-        v23 = v22 + 2;
-        v24 = v22 + 3;
-        if ((v2 & 0x20) != 0) {
-          if ((v2 & 0x10) != 0) {
-            v2 = v23;
-            for (already_quit_variable_1 = *(__int16 *)(unmangledst - 2);
-                  v2--;
-                  *((_WORD *)v3 - 1) = already_quit_variable_1) {
-              v3 += 2;
-            }
-          } else {
-            v2 = v24;
-            for (already_quit_variable_1 = *(unsigned __int8 *)(unmangledst - 1); v2--; *(v3 - 1) = already_quit_variable_1)
-              ++v3;
-          }
-        } else if ((v2 & 0x10) != 0) {
-          v2 = v23;
-          already_quit_variable_2 = *(__int16 *)(unmangledst - 2);
-          already_quit_variable_1 = already_quit_variable_2 - *(__int16 *)(unmangledst - 4);
-          while (v2--) {
-            already_quit_variable_2 += already_quit_variable_1;
-            v3 += 2;
-            *((_WORD *)v3 - 1) = already_quit_variable_2;
-          }
-        } else {
-          v2 = v24;
-          v28 = *(_BYTE *)(unmangledst - 2);
-          already_quit_variable_2 = *(unsigned __int8 *)(unmangledst - 1);
-          already_quit_variable_1 = already_quit_variable_2 - v28;
-          while (v2--) {
-            already_quit_variable_2 += already_quit_variable_1;
-            *v3++ = already_quit_variable_2;
-          }
-        }
-      } else {
-        already_quit_variable_3 = v2 & 0x3F;
-        qmemcpy((void *)unmangledst, (const void *)unmangleGet(unmangleinpoff, v2 & 0x3F), 4 * (v6 >> 2) + (v2 & 3));
-        v2 = already_quit_variable_3;
-        v3 = (_BYTE *)(already_quit_variable_3 + unmangledst);
-        unmangleinpoff += already_quit_variable_3;
+  while (iOutputPos < iDestLength) {
+    uint8 *pSource = unmangleGet(iInputPos, 1);
+    int iValue = (int)pSource[0];
+
+    if (iValue <= 0x3F) // 0x00 to 0x3F: read bytes from input
+    {
+      uint8 *pSource = unmangleGet(iInputPos + 1, iValue);
+      memcpy(&pDestination[iOutputPos], pSource, iValue);
+      iInputPos += iValue + 1;
+      iOutputPos += iValue;
+    } else if (iValue <= 0x4F) // 0x40 to 0x4F: generate ascending bytes based on last 2 bytes
+    {
+      int iDelta = pDestination[iOutputPos - 1] - pDestination[iOutputPos - 2];
+      for (int i = 0; i < ((iValue & 0x0F) + 3); i++) {
+        pDestination[iOutputPos] = ((pDestination[iOutputPos - 1] + iDelta) & 0xFF);
+        iOutputPos++;
       }
-    } else if ((v2 & 0x40) != 0) {
-      if ((v2 & 0x20) != 0) {
-        v7 = unmangledst - ((v2 & 0x1F) << 8);
-        v8 = unmangleinpoff;
-        already_quit_variable_3 = v2;
-        ++unmangleinpoff;
-        v9 = v7 - *(unsigned __int8 *)unmangleGet(v8, 1);
-        v10 = unmangleinpoff;
-        v11 = (char *)(v9 - 3);
-        ++unmangleinpoff;
-        v12 = *(unsigned __int8 *)unmangleGet(v10, 1);
-        v3 = (_BYTE *)unmangledst;
-        v2 = v12 + 5;
-        while (v2--) {
-          ++v3;
-          v14 = *v11++;
-          *(v3 - 1) = v14;
-        }
-      } else {
-        v15 = unmangledst - ((v2 & 3) << 8);
-        v16 = unmangleinpoff;
-        already_quit_variable_3 = v2;
-        ++unmangleinpoff;
-        v17 = (unsigned __int8 *)unmangleGet(v16, 1);
-        v3 = (_BYTE *)unmangledst;
-        v18 = (char *)(v15 - *v17 - 3);
-        v2 = ((already_quit_variable_3 >> 2) & 7) + 4;
-        while (v2--) {
-          ++v3;
-          v20 = *v18++;
-          *(v3 - 1) = v20;
-        }
+      iInputPos++;
+    } else if (iValue <= 0x5F) // 0x50 to 0x5F: generate ascending words based on last 2 words
+    {
+      short sDelta = *(short *)(pDestination + iOutputPos - 2) - *(short *)(pDestination + iOutputPos - 4);
+      for (int i = 0; i < ((iValue & 0x0F) + 2); i++) {
+        short sNewShort = (*(short *)(pDestination + iOutputPos - 2)) + sDelta;
+        pDestination[iOutputPos] = (uint8)(sNewShort & 0xFF);
+        pDestination[iOutputPos + 1] = (uint8)((sNewShort >> 8) & 0xFF);
+        iOutputPos += 2;
       }
-    } else {
-      v21 = unmangledst - v6;
-      *(_BYTE *)unmangledst = *(_BYTE *)(unmangledst - v6 - 3);
-      v3[1] = v3[-v6 - 2];
-      v3 += 3;
-      *(v3 - 1) = *(_BYTE *)(v21 - 3 + 2);
+      iInputPos++;
+    } else if (iValue <= 0x6F) // 0x60 to 0x6F: clone last byte in output
+    {
+      for (int i = 0; i < ((iValue & 0x0F) + 3); i++) {
+        pDestination[iOutputPos] = pDestination[iOutputPos - 1];
+        iOutputPos++;
+      }
+      iInputPos++;
+    } else if (iValue <= 0x7F) // 0x70 to 0x7F: clone last word in output
+    {
+      for (int i = 0; i < ((iValue & 0x0F) + 2); i++) {
+        pDestination[iOutputPos] = pDestination[iOutputPos - 2];
+        pDestination[iOutputPos + 1] = pDestination[iOutputPos - 1];
+        iOutputPos += 2;
+      }
+      iInputPos++;
+    } else if (iValue <= 0xBF) // 0x80 to 0xBF: clone 3 bytes using offset
+    {
+      int iOffset = (iValue & 0x3F);
+      if (iOutputPos - iOffset - 3 < 0 || iOutputPos - iOffset - 3 >= iDestLength)
+        return;
+      if (iOutputPos - iOffset - 1 < 0 || iOutputPos - iOffset - 1 >= iDestLength)
+        return;
+      pDestination[iOutputPos] = pDestination[iOutputPos - iOffset - 3];
+      pDestination[iOutputPos + 1] = pDestination[iOutputPos - iOffset - 2];
+      pDestination[iOutputPos + 2] = pDestination[iOutputPos - iOffset - 1];
+      iOutputPos += 3;
+      iInputPos++;
+    } else if (iValue <= 0xDF) // 0xC0 to 0xDF: clone using offset and length from next byte
+    {
+      int iOffset = ((iValue & 0x03) << 8) + (int)(pSource[iInputPos + 1]) + 3;
+      int iLength = ((iValue >> 2) & 0x07) + 4;
+      for (int i = 0; i < iLength; i++) {
+        if (iOutputPos - iOffset < 0 || iOutputPos - iOffset >= iDestLength)
+          return;
+        pDestination[iOutputPos] = pDestination[iOutputPos - iOffset];
+        iOutputPos++;
+      }
+      iInputPos += 2;
+    } else // 0xE0 to 0xFF: clone using offset and length from next 2 bytes
+    {
+      int iOffset = ((iValue & 0x1F) << 8) + (int)(pSource[iInputPos + 1]) + 3;
+      int iLength = (int)(pSource[iInputPos + 2]) + 5;
+      for (int i = 0; i < iLength; i++) {
+        if (iOutputPos - iOffset < 0 || iOutputPos - iOffset >= iDestLength)
+          return;
+        pDestination[iOutputPos] = pDestination[iOutputPos - iOffset];
+        iOutputPos++;
+      }
+      iInputPos += 3;
     }
   }
-  already_quit_variable_3 = v2;
-  return result;
+  return iOutputPos == iDestLength;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall unmangleGet(unsigned int a1, int a2)
+uint8 *unmangleGet(unsigned int uiPos, unsigned int uiLookahead)
 {
-  if (a1 < unmanglebufpos || a1 + a2 > unmanglebufpos + 1024) {
-    unmanglebufpos = a1;
-    fseek(unmanglefile, a1, 0);
-    fread(&unmangleinbuf, 1, 1024, unmanglefile);
+  // if what we want to read is not currently in the 
+  // buffer load it into the buffer from the file
+  if (uiPos < unmanglebufpos || uiPos + uiLookahead > unmanglebufpos + 1024) {
+    unmanglebufpos = uiPos;
+    fseek(unmanglefile, uiPos, 0);
+    fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
   }
-  return (char *)&unmangleinbuf + a1 - unmanglebufpos;
+  return &unmangleinbuf[uiPos - unmanglebufpos];// return new pos
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

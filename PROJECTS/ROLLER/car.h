@@ -27,9 +27,7 @@ typedef struct
   int iUnk12;
   int iUnk13;
   int iUnk14;
-  int iPadding18;
-  int iPadding19;
-  int iPadding20;
+  tVec3 pos2; //used in collision detection
   int iUnk15;
   int iUnk16;
   int iUnk17;
