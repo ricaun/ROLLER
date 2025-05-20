@@ -1,8 +1,9 @@
-/*
+#include "comms.h"
 //-------------------------------------------------------------------------------------------------
 
-int __usercall select_comport@<eax>(unsigned __int16 a1@<ax>, char *a2@<ebx>, unsigned int a3@<esi>)
+int select_comport(unsigned __int16 a1, char *a2, unsigned int a3)
 {
+  return 0; /*
   int v3; // edi
   int v4; // eax
   int v5; // eax
@@ -89,13 +90,14 @@ int __usercall select_comport@<eax>(unsigned __int16 a1@<ax>, char *a2@<ebx>, un
     }
   } while (!v11);
   gssCommsSetComPort(serial_port);
-  return (a3 != 13) - 1;
+  return (a3 != 13) - 1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall stringwidth(_BYTE *a1)
+int stringwidth(char *a1)
 {
+  return 0; /*
   int result; // eax
   int v3; // ebx
 
@@ -107,13 +109,14 @@ int __fastcall stringwidth(_BYTE *a1)
     else
       result += *(_DWORD *)(12 * v3 + front_vga_variable_10) + 1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall select_modemstuff(int a1)
+int select_modemstuff(int a1)
 {
+  return 0; /*
   bool v1; // ebp
   int v2; // eax
   int v3; // ebp
@@ -465,13 +468,14 @@ int __fastcall select_modemstuff(int a1)
     return -1;
   v24 = gssModemHangUp(v22);
   close_network(v24, SHIDWORD(v24), v6);
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int loadmodemnames()
 {
+  return 0; /*
   int v0; // ecx
   int v1; // eax
   int v2; // ebp
@@ -563,13 +567,13 @@ int loadmodemnames()
   result = -modems;
   if (-modems > current_modem)
     current_modem = -modems;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void select_modem()
-{
+{/*
   int v0; // eax
   int v1; // esi
   int v2; // edi
@@ -678,13 +682,14 @@ void select_modem()
       }
     }
   }
-  JUMPOUT(0x76174);
+  JUMPOUT(0x76174);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall getprintstring(char *a1, int a2)
+char *getprintstring(char *a1, int a2)
 {
+  return 0; /*
   char *v3; // edi
   char *v4; // esi
   char v5; // al
@@ -752,13 +757,14 @@ char *__fastcall getprintstring(char *a1, int a2)
       modembuffer2_variable_4[v7--] = 0;
     } while (stringwidth(modembuffer2_variable_2) > 240);
   }
-  return modembuffer2_variable_2;
+  return modembuffer2_variable_2;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int64 __fastcall display_essentials(int a1, int a2, int a3)
+__int64 display_essentials(int a1, int a2, int a3)
 {
+  return 0; /*
   int v4; // eax
   int v5; // eax
   int v6; // eax
@@ -865,13 +871,14 @@ __int64 __fastcall display_essentials(int a1, int a2, int a3)
   result = scale_text(400, 243, v16, 1, 200, 640);
   if (no_16550)
     return scale_text(400, 351, 231, 1, 200, 640);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall check16550(int a1, int a2, int a3, int a4)
+int check16550(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
 
   result = gss16550(a1);
@@ -889,8 +896,7 @@ int __fastcall check16550(int a1, int a2, int a3, int a4)
   }
   if (no_16550)
     soundon = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-*/

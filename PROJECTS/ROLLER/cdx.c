@@ -1,8 +1,9 @@
-/*
+#include "cdx.h"
 //-------------------------------------------------------------------------------------------------
 
 int FinishedAudio()
 {
+  return 0; /*
   int result; // eax
   char v1[20]; // [esp+0h] [ebp-14h] BYREF
 
@@ -12,29 +13,31 @@ int FinishedAudio()
     return 0;
   result = -1;
   track_playing = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int OpenDoor()
 {
+  return 0; /*
   _BYTE v1[12]; // [esp+0h] [ebp-Ch] BYREF
 
   v1[0] = 0;
-  return WriteIOCTL(12, 1, v1);
+  return WriteIOCTL(12, 1, v1);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall CloseDoor(int a1, int a2)
+void CloseDoor(int a1, int a2)
 {
+  /*
   char v2[12]; // [esp+0h] [ebp-Ch] BYREF
 
   *(_DWORD *)&v2[4] = a2;
   v2[0] = 5;
   WriteIOCTL(12, 1, v2);
-  ResetDrive();
+  ResetDrive();*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -48,6 +51,7 @@ void ResetDrive()
 
 int GetCDStatus()
 {
+  return 0; /*
   char v1; // [esp+0h] [ebp-10h] BYREF
   int v2; // [esp+1h] [ebp-Fh]
 
@@ -92,13 +96,14 @@ int GetCDStatus()
   else
     printf(&aInSupportsOnly[2]);
   fflush(&__iob_variable_1);
-  return v2;
+  return v2;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall WriteIOCTL(char a1, unsigned int a2, void *a3)
+int WriteIOCTL(char a1, unsigned int a2, void *a3)
 {
+  return 0; /*
   int v3; // edi
   int result; // eax
 
@@ -125,13 +130,14 @@ int __fastcall WriteIOCTL(char a1, unsigned int a2, void *a3)
   result = 26;
   qmemcpy(&io, (const void *)iobuffer, 0x18u);
   qmemcpy(&io + 24, (const void *)(iobuffer + 24), 2u);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall AllocDOSMemory(int a1, _DWORD *a2)
+int AllocDOSMemory(int a1, void *a2)
 {
+  return 0; /*
   memset(&sregs, 0, 12);
   regs = 256;
   regs_variable_1 = ((a1 - (__CFSHL__(a1 >> 31, 4) + 16 * (a1 >> 31))) >> 4) + 1;
@@ -142,13 +148,14 @@ int __fastcall AllocDOSMemory(int a1, _DWORD *a2)
   } else {
     *a2 = (unsigned __int16)regs_variable_4;
     return 16 * (unsigned __int16)regs;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall GetAudioInfo(int a1, int a2, int a3, int a4)
+int GetAudioInfo(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // ecx
   int v5; // esi
   int v6; // ebx
@@ -201,13 +208,14 @@ int __fastcall GetAudioInfo(int a1, int a2, int a3, int a4)
       *(int *)((char *)&sector_size + result) = v11 - v12;
     } while (result <= v10);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall PlayTrack(int a1)
+int PlayTrack(int a1)
 {
+  return 0; /*
   int result; // eax
 
   play_variable_4 = 1;
@@ -218,13 +226,14 @@ int __fastcall PlayTrack(int a1)
   result = tracklengths[a1];
   last_audio_track = a1;
   track_duration = result;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall PlayTrack4(int a1)
+int PlayTrack4(int a1)
 {
+  return 0; /*
   int v2; // ebx
   int v3; // ecx
   int v4; // ecx
@@ -242,13 +251,14 @@ int __fastcall PlayTrack4(int a1)
   result = AudioIOCTL(132, a1);
   track_playing = -1;
   last_audio_track = a1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int RepeatTrack()
 {
+  return 0; /*
   int result; // eax
 
   play_variable_4 = 1;
@@ -256,24 +266,26 @@ int RepeatTrack()
   play_variable_6 = track_duration;
   result = AudioIOCTL(132, -1);
   track_playing = -1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int StopTrack()
 {
+  return 0; /*
   int result; // eax
 
   result = AudioIOCTL(133, 0);
   track_playing = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall SetAudioVolume(int a1)
+int SetAudioVolume(int a1)
 {
+  return 0; /*
   int v1; // eax
   _BYTE v3[20]; // [esp+0h] [ebp-14h] BYREF
 
@@ -291,13 +303,14 @@ int __fastcall SetAudioVolume(int a1)
   v3[3] = 1;
   v3[5] = 2;
   v3[7] = 3;
-  return WriteIOCTL(12, 9u, v3);
+  return WriteIOCTL(12, 9u, v3);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall AudioIOCTL(char a1)
+int AudioIOCTL(char a1)
 {
+  return 0; /*
   int v1; // edi
   int result; // eax
 
@@ -317,36 +330,38 @@ int __fastcall AudioIOCTL(char a1)
   result = 22;
   qmemcpy(&play, (const void *)iobuffer, 0x14u);
   qmemcpy(&play + 20, (const void *)(iobuffer + 20), 2u);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall FreeDOSMemory(__int16 a1)
+int FreeDOSMemory(unsigned __int16 a1)
 {
-  memset(&sregs, 0, 12);
-  regs_variable_4 = a1;
-  regs = 257;
-  return int386x(49, (int)&regs, (int)&regs, (int)&sregs);
+  return 0; /*
+  memset(&sregs, 0, sizeof(sregs));
+  regs.w.dx = a1;
+  regs.w.ax = 257;
+  return int386x(49, &regs, &regs, &sregs);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall intRM(char a1)
+int intRM(unsigned __int8 a1)
 {
-  regs_variable_1 = a1;
-  regs = 768;
-  regs_variable_2 = 0;
-  regs_variable_3 = 0;
-  sregs = __DS__;
-  regs_variable_5 = (int)&RMIcd;
-  return int386x(49, (int)&regs, (int)&regs, (int)&sregs);
+  return 0; /*
+  regs.w.ax = 768;
+  regs.w.bx = a1;
+  regs.w.cx = 0;
+  sregs.es = __DS__;
+  regs.x.edi = (unsigned int)&RMIcd;
+  return int386x(49, &regs, &regs, &sregs);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int GetFirstCDDrive()
 {
+  return 0; /*
   regs = 5376;
   regs_variable_1 = 0;
   int386(47, (int)&regs, (int)&regs);
@@ -355,13 +370,13 @@ int GetFirstCDDrive()
   drive = regs_variable_3;
   firstCDdrive = (unsigned __int8)regs_variable_3;
   numCDdrives = regs_variable_1;
-  return -1;
+  return -1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void cdxinit()
-{
+{/*
   int v0; // edx
   double v1; // st7
   __int16 v2; // fps
@@ -391,13 +406,14 @@ void cdxinit()
       v7 = v1;
       volscale[i] = (int)v7;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int cdxdone()
 {
+  return 0; /*
   __int16 v0; // cx
   __int16 v1; // cx
 
@@ -410,13 +426,14 @@ int cdxdone()
   memset(&sregs, 0, 12);
   regs_variable_4 = v1;
   regs = 257;
-  return int386x(49, (int)&regs, (int)&regs, (int)&sregs);
+  return int386x(49, (int)&regs, (int)&regs, (int)&sregs);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int cdpresent()
 {
+  return 0; /*
   int result; // eax
   int i; // edx
 
@@ -425,13 +442,14 @@ int cdpresent()
     if (!result)
       result = checkCD(i + firstCDdrive);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall checkCD(char a1, int a2, int a3, int a4)
+int checkCD(char a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
   int v5; // esi
   int v6; // edx
@@ -453,17 +471,17 @@ int __fastcall checkCD(char a1, int a2, int a3, int a4)
     else
       return 0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int criticalhandler()
 {
+  return 0; /*
   _BYTE retaddr[8]; // [esp+0h] [ebp+0h]
 
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(3);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(3);*/
 }
 
 //-------------------------------------------------------------------------------------------------
-*/

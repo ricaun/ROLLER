@@ -172,7 +172,6 @@
     <ClCompile Include="NETSRC\SRC\netbios.c" />
     <ClCompile Include="NETSRC\SRC\netnow.c" />
     <ClCompile Include="PROJECTS\ROLLER\3d.c" />
-    <ClCompile Include="PROJECTS\ROLLER\3dblast.c" />
     <ClCompile Include="PROJECTS\ROLLER\building.c" />
     <ClCompile Include="PROJECTS\ROLLER\car.c" />
     <ClCompile Include="PROJECTS\ROLLER\carplans.c" />
@@ -200,10 +199,8 @@
     <ClCompile Include="PROJECTS\ROLLER\sound.c" />
     <ClCompile Include="PROJECTS\ROLLER\svgacpy.c" />
     <ClCompile Include="PROJECTS\ROLLER\tower.c" />
-    <ClCompile Include="PROJECTS\ROLLER\trakedit.c" />
     <ClCompile Include="PROJECTS\ROLLER\transfrm.c" />
     <ClCompile Include="PROJECTS\ROLLER\userfns.c" />
-    <ClCompile Include="PROJECTS\ROLLER\verite.c" />
     <ClCompile Include="PROJECTS\ROLLER\view.c" />
   </ItemGroup>
   <ItemGroup>
@@ -214,19 +211,34 @@
     <ClInclude Include="PROJECTS\ROLLER\building.h" />
     <ClInclude Include="PROJECTS\ROLLER\car.h" />
     <ClInclude Include="PROJECTS\ROLLER\carplans.h" />
+    <ClInclude Include="PROJECTS\ROLLER\cdx.h" />
+    <ClInclude Include="PROJECTS\ROLLER\colision.h" />
+    <ClInclude Include="PROJECTS\ROLLER\comms.h" />
     <ClInclude Include="PROJECTS\ROLLER\control.h" />
     <ClInclude Include="PROJECTS\ROLLER\date.h" />
+    <ClInclude Include="PROJECTS\ROLLER\drawtrk3.h" />
     <ClInclude Include="PROJECTS\ROLLER\engines.h" />
     <ClInclude Include="PROJECTS\ROLLER\frontend.h" />
     <ClInclude Include="PROJECTS\ROLLER\func2.h" />
     <ClInclude Include="PROJECTS\ROLLER\func3.h" />
     <ClInclude Include="PROJECTS\ROLLER\function.h" />
     <ClInclude Include="PROJECTS\ROLLER\graphics.h" />
+    <ClInclude Include="PROJECTS\ROLLER\horizon.h" />
+    <ClInclude Include="PROJECTS\ROLLER\loadtrak.h" />
+    <ClInclude Include="PROJECTS\ROLLER\mouse.h" />
+    <ClInclude Include="PROJECTS\ROLLER\moving.h" />
+    <ClInclude Include="PROJECTS\ROLLER\network.h" />
     <ClInclude Include="PROJECTS\ROLLER\plans.h" />
+    <ClInclude Include="PROJECTS\ROLLER\polyf.h" />
+    <ClInclude Include="PROJECTS\ROLLER\polytex.h" />
+    <ClInclude Include="PROJECTS\ROLLER\replay.h" />
     <ClInclude Include="PROJECTS\ROLLER\sound.h" />
+    <ClInclude Include="PROJECTS\ROLLER\svgacpy.h" />
+    <ClInclude Include="PROJECTS\ROLLER\tower.h" />
     <ClInclude Include="PROJECTS\ROLLER\transfrm.h" />
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
     <ClInclude Include="PROJECTS\ROLLER\userfns.h" />
+    <ClInclude Include="PROJECTS\ROLLER\view.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

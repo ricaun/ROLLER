@@ -35,4 +35,24 @@ extern uint8 oldkeys[];
 extern char my_name[];
 
 //-------------------------------------------------------------------------------------------------
+
+int *title_screens(unsigned int a1, short *a2, char *a3, unsigned int a4);
+void copy_screens(int a1, int a2, int a3, char *a4);
+void select_screen(int a1);
+void select_disk(int a1, int a2, int a3);
+int select_car(int a1, int a2, unsigned int a3, int a4);
+void select_configure(int a1, int a2, int a3, int a4);
+int front_displaycalibrationbar(int result, int a2, int a3);
+int front_volumebar(int a1, int a2, int a3);
+void select_players(int a1, int a2, int a3, int a4);
+void *select_type(int a1, int a2, int a3, int a4);
+void *select_track(int a1, int a2, int a3, int a4);
+int save_params();
+int reset_params();
+int NetworkWait(int a1, int a2, int a3, int a4);
+char *loadcheatnames(int a1, int a2, int a3, int a4);
+int CheckNames(char *a1, int a2);
+int restart_net_game(int a1);
+
+//-------------------------------------------------------------------------------------------------
 #endif

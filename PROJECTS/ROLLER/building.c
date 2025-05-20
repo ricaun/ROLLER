@@ -1,213 +1,208 @@
 #include "building.h"
 //-------------------------------------------------------------------------------------------------
 
-int InitBuildings()
-{
-  return 0;
-  /*
-  int result; // eax
-  int v1; // edi
-  int v2; // esi
-  unsigned int v3; // eax
-  char *v4; // ecx
-  int v5; // ebx
-  int v6; // edx
-  float *v7; // eax
-  float *v8; // edx
-  int v9; // eax
-  int v10; // edx
-  float *v11; // edx
+void InitBuildings()
+{/*
+  int v0; // edi
+  int v1; // esi
+  unsigned int v2; // eax
+  tBuildingPlan *v3; // ecx
+  tPolygon *pPols; // ebx
+  int v5; // edx
+  float *v6; // eax
+  tData *v7; // edx
+  int v8; // eax
+  int byNumPols; // edx
+  float *p_fX; // edx
   int i; // ebx
-  double v13; // st7
-  float *v14; // edx
-  double v15; // st7
-  float *v16; // edx
-  unsigned int v17; // edx
-  double v18; // [esp+0h] [ebp-118h]
-  double v19; // [esp+18h] [ebp-100h]
-  double v20; // [esp+28h] [ebp-F0h]
-  double v21; // [esp+38h] [ebp-E0h]
-  double v22; // [esp+40h] [ebp-D8h]
-  double v23; // [esp+48h] [ebp-D0h]
-  double v24; // [esp+50h] [ebp-C8h]
-  double v25; // [esp+58h] [ebp-C0h]
-  double v26; // [esp+60h] [ebp-B8h]
-  float v27; // [esp+70h] [ebp-A8h]
-  float v28; // [esp+80h] [ebp-98h]
-  float v29; // [esp+84h] [ebp-94h]
-  float v30; // [esp+8Ch] [ebp-8Ch]
-  float v31; // [esp+90h] [ebp-88h]
-  float v32; // [esp+94h] [ebp-84h]
-  float v33; // [esp+98h] [ebp-80h]
-  int v34; // [esp+9Ch] [ebp-7Ch]
-  float v35; // [esp+A0h] [ebp-78h]
-  float v36; // [esp+A4h] [ebp-74h]
-  int v37; // [esp+A8h] [ebp-70h]
-  float v38; // [esp+ACh] [ebp-6Ch]
-  int v39; // [esp+B0h] [ebp-68h]
-  int v40; // [esp+B4h] [ebp-64h]
-  float v41; // [esp+B8h] [ebp-60h]
-  float v42; // [esp+BCh] [ebp-5Ch]
-  float v43; // [esp+C0h] [ebp-58h]
-  float v44; // [esp+C4h] [ebp-54h]
-  float v45; // [esp+C8h] [ebp-50h]
-  float v46; // [esp+CCh] [ebp-4Ch]
-  float v47; // [esp+D0h] [ebp-48h]
-  float v48; // [esp+D4h] [ebp-44h]
-  float v49; // [esp+D8h] [ebp-40h]
-  float v50; // [esp+DCh] [ebp-3Ch]
-  float v51; // [esp+E0h] [ebp-38h]
-  float v52; // [esp+E4h] [ebp-34h]
-  int v53; // [esp+E8h] [ebp-30h]
-  int v54; // [esp+ECh] [ebp-2Ch]
-  int v55; // [esp+F0h] [ebp-28h]
-  int v56; // [esp+F4h] [ebp-24h]
-  int v57; // [esp+F8h] [ebp-20h]
-  int v58; // [esp+FCh] [ebp-1Ch]
+  double v12; // st7
+  float *v13; // edx
+  double v14; // st7
+  float *v15; // edx
+  unsigned int v16; // edx
+  double v17; // [esp+0h] [ebp-118h]
+  double v18; // [esp+18h] [ebp-100h]
+  double v19; // [esp+28h] [ebp-F0h]
+  double v20; // [esp+38h] [ebp-E0h]
+  double v21; // [esp+40h] [ebp-D8h]
+  double v22; // [esp+48h] [ebp-D0h]
+  double v23; // [esp+50h] [ebp-C8h]
+  double v24; // [esp+58h] [ebp-C0h]
+  double v25; // [esp+60h] [ebp-B8h]
+  float v26; // [esp+70h] [ebp-A8h]
+  float v27; // [esp+80h] [ebp-98h]
+  float v28; // [esp+84h] [ebp-94h]
+  float v29; // [esp+8Ch] [ebp-8Ch]
+  float v30; // [esp+90h] [ebp-88h]
+  float v31; // [esp+94h] [ebp-84h]
+  float v32; // [esp+98h] [ebp-80h]
+  int v33; // [esp+9Ch] [ebp-7Ch]
+  float v34; // [esp+A0h] [ebp-78h]
+  float v35; // [esp+A4h] [ebp-74h]
+  int v36; // [esp+A8h] [ebp-70h]
+  float v37; // [esp+ACh] [ebp-6Ch]
+  int v38; // [esp+B0h] [ebp-68h]
+  int v39; // [esp+B4h] [ebp-64h]
+  float v40; // [esp+B8h] [ebp-60h]
+  float v41; // [esp+BCh] [ebp-5Ch]
+  float v42; // [esp+C0h] [ebp-58h]
+  float v43; // [esp+C4h] [ebp-54h]
+  float v44; // [esp+C8h] [ebp-50h]
+  float v45; // [esp+CCh] [ebp-4Ch]
+  float v46; // [esp+D0h] [ebp-48h]
+  float v47; // [esp+D4h] [ebp-44h]
+  float v48; // [esp+D8h] [ebp-40h]
+  float v49; // [esp+DCh] [ebp-3Ch]
+  float v50; // [esp+E0h] [ebp-38h]
+  float v51; // [esp+E4h] [ebp-34h]
+  int v52; // [esp+E8h] [ebp-30h]
+  int v53; // [esp+ECh] [ebp-2Ch]
+  int v54; // [esp+F0h] [ebp-28h]
+  int v55; // [esp+F4h] [ebp-24h]
+  int v56; // [esp+F8h] [ebp-20h]
+  int v57; // [esp+FCh] [ebp-1Ch]
 
-  result = memset(BuildingSect, 255, sizeof(BuildingSect));
-  v40 = 0;
+  memset(BuildingSect, 255, sizeof(BuildingSect));
+  v39 = 0;
   if (NumBuildings > 0) {
-    v39 = 0;
+    v38 = 0;
+    v0 = 0;
     v1 = 0;
-    v2 = 0;
-    v34 = 96;
+    v33 = 96;
     do {
-      v3 = BuildingBase[v1];
-      if (v3 <= 0x10) {
-        v4 = &BuildingPlans[12 * v3];
-        v5 = *((_DWORD *)v4 + 1);
-        v37 = BuildingBase_variable_1[v1];
-        v6 = v37 + 1;
-        v30 = (float)(32 * BuildingBase_variable_2[v1] / 2);
-        if (v37 + 1 >= TRAK_LEN)
-          v6 -= TRAK_LEN;
-        v7 = (float *)((char *)&localdata + 128 * v37);
-        v32 = -v7[9];
-        v31 = -v7[10];
-        v33 = -v7[11];
-        v8 = (float *)((char *)&localdata + 128 * v6);
-        v18 = v7[10] - v8[10];
-        v19 = v7[9] - v8[9];
-        v26 = sqrt(v19 * v19 + v18 * v18);
-        if ((HIDWORD(v19) & 0x7FFFFFFF) != 0 || LODWORD(v19))
-          v19 = (v7[9] - v8[9]) / v26;
+      v2 = BuildingBase[v0];
+      if (v2 <= 0x10) {
+        v3 = &BuildingPlans[v2];
+        pPols = v3->pPols;
+        v36 = BuildingBase_variable_1[v0];
+        v5 = v36 + 1;
+        v29 = (float)(32 * BuildingBase_variable_2[v0] / 2);
+        if (v36 + 1 >= TRAK_LEN)
+          v5 -= TRAK_LEN;
+        v6 = (float *)&localdata[v36];
+        v31 = -v6[9];
+        v30 = -v6[10];
+        v32 = -v6[11];
+        v7 = &localdata[v5];
+        v17 = v6[10] - v7->pointAy[3].fY;
+        v18 = v6[9] - v7->pointAy[3].fX;
+        v25 = sqrt(v18 * v18 + v17 * v17);
         if ((HIDWORD(v18) & 0x7FFFFFFF) != 0 || LODWORD(v18))
-          v18 = v18 / v26;
-        v9 = 32 * BuildingBase_variable_3[v1] / 2;
-        BuildingX[v2] = v32 - v18 * v30;
-        BuildingY[v2] = v30 * v19 + v31;
-        BuildingSect[v37] = v40;
-        v10 = 0;
-        BuildingZ[v2] = (double)v9 + v33;
-        while (v10 < (unsigned __int8)*v4) {
-          if ((*(_BYTE *)(v5 + 5) & 2) != 0)
-            v10 = (unsigned __int8)*v4;
-          v5 += 12;
-          ++v10;
+          v18 = (v6[9] - v7->pointAy[3].fX) / v25;
+        if ((HIDWORD(v17) & 0x7FFFFFFF) != 0 || LODWORD(v17))
+          v17 = v17 / v25;
+        v8 = 32 * BuildingBase_variable_3[v0] / 2;
+        BuildingX[v1] = v31 - v17 * v29;
+        BuildingY[v1] = v29 * v18 + v30;
+        BuildingSect[v36] = v39;
+        byNumPols = 0;
+        BuildingZ[v1] = (double)v8 + v32;
+        while (byNumPols < v3->byNumPols) {
+          if ((pPols->uiTex & 0x200) != 0)
+            byNumPols = v3->byNumPols;
+          ++pPols;
+          ++byNumPols;
         }
-        *(float *)&v57 = 1073741800.0;
-        *(float *)&v53 = 1073741800.0;
-        *(float *)&v55 = 1073741800.0;
-        v11 = (float *)*((_DWORD *)v4 + 2);
-        *(float *)&v54 = -1073741800.0;
-        *(float *)&v56 = -1073741800.0;
-        *(float *)&v58 = -1073741800.0;
-        for (i = 0; i < (unsigned __int8)v4[1]; ++i) {
-          if (*v11 < (double)*(float *)&v55)
-            v55 = *(int *)v11;
-          if (*v11 > (double)*(float *)&v58)
-            v58 = *(int *)v11;
-          v13 = v11[1];
-          v14 = v11 + 1;
-          if (v13 < *(float *)&v53)
-            v53 = *(int *)v14;
-          if (*v14 > (double)*(float *)&v56)
-            v56 = *(int *)v14;
-          v15 = v14[1];
-          v16 = v14 + 1;
-          if (v15 < *(float *)&v57)
-            v57 = *(int *)v16;
-          if (*v16 > (double)*(float *)&v54)
-            v54 = *(int *)v16;
-          v11 = v16 + 1;
+        *(float *)&v56 = 1073741800.0;
+        *(float *)&v52 = 1073741800.0;
+        *(float *)&v54 = 1073741800.0;
+        p_fX = &v3->pCoords->fX;
+        *(float *)&v53 = -1073741800.0;
+        *(float *)&v55 = -1073741800.0;
+        *(float *)&v57 = -1073741800.0;
+        for (i = 0; i < v3->byNumCoords; ++i) {
+          if (*p_fX < (double)*(float *)&v54)
+            v54 = *(int *)p_fX;
+          if (*p_fX > (double)*(float *)&v57)
+            v57 = *(int *)p_fX;
+          v12 = p_fX[1];
+          v13 = p_fX + 1;
+          if (v12 < *(float *)&v52)
+            v52 = *(int *)v13;
+          if (*v13 > (double)*(float *)&v55)
+            v55 = *(int *)v13;
+          v14 = v13[1];
+          v15 = v13 + 1;
+          if (v14 < *(float *)&v56)
+            v56 = *(int *)v15;
+          if (*v15 > (double)*(float *)&v53)
+            v53 = *(int *)v15;
+          p_fX = v15 + 1;
         }
         if ((cheat_mode & 0x1000) != 0) {
+          *(float *)&v54 = *(float *)&v54 * building_c_variable_1;
+          *(float *)&v52 = *(float *)&v52 * building_c_variable_1;
+          *(float *)&v56 = *(float *)&v56 * building_c_variable_1;
+          *(float *)&v57 = *(float *)&v57 * building_c_variable_1;
           *(float *)&v55 = *(float *)&v55 * building_c_variable_1;
           *(float *)&v53 = *(float *)&v53 * building_c_variable_1;
-          *(float *)&v57 = *(float *)&v57 * building_c_variable_1;
-          *(float *)&v58 = *(float *)&v58 * building_c_variable_1;
-          *(float *)&v56 = *(float *)&v56 * building_c_variable_1;
-          *(float *)&v54 = *(float *)&v54 * building_c_variable_1;
         }
-        v38 = *(float *)&BuildingAngles[v39] * building_c_variable_2;
-        v36 = *(float *)&BuildingAngles_variable_1[v39] * building_c_variable_2;
-        v35 = *(float *)&BuildingAngles_variable_2[v39] * building_c_variable_2;
-        v51 = BuildingX[v2];
-        v50 = BuildingY[v2];
-        v52 = BuildingZ[v2];
-        v21 = cos(v38);
-        v20 = cos(v36);
-        v23 = sin(v38);
-        v25 = sin(v36);
+        v37 = *(float *)&BuildingAngles[v38] * building_c_variable_2;
+        v35 = *(float *)&BuildingAngles_variable_1[v38] * building_c_variable_2;
+        v34 = BuildingAngles_variable_2[v38] * building_c_variable_2;
+        v50 = BuildingX[v1];
+        v49 = BuildingY[v1];
+        v51 = BuildingZ[v1];
+        v20 = cos(v37);
+        v19 = cos(v35);
+        v22 = sin(v37);
         v24 = sin(v35);
-        v22 = cos(v35);
-        v17 = 96 * v40;
-        BuildingBox[v17 / 4] = v55;
-        BuildingBox_variable_1[v17 / 4] = v53;
-        BuildingBox_variable_2[v17 / 4] = v57;
-        BuildingBox_variable_3[v17 / 4] = v58;
-        BuildingBox_variable_4[v17 / 4] = v53;
-        BuildingBox_variable_5[v17 / 4] = v57;
-        BuildingBox_variable_6[v17 / 4] = v58;
-        BuildingBox_variable_7[v17 / 4] = v56;
-        BuildingBox_variable_8[v17 / 4] = v57;
-        BuildingBox_variable_9[v17 / 4] = v55;
-        BuildingBox_variable_10[v17 / 4] = v56;
-        BuildingBox_variable_11[v17 / 4] = v57;
-        BuildingBox_variable_12[v17 / 4] = v55;
-        BuildingBox_variable_13[v17 / 4] = v53;
-        BuildingBox_variable_14[v17 / 4] = v54;
-        BuildingBox_variable_15[v17 / 4] = v58;
-        BuildingBox_variable_16[v17 / 4] = v53;
-        BuildingBox_variable_17[v17 / 4] = v54;
-        BuildingBox_variable_18[v17 / 4] = v58;
-        BuildingBox_variable_19[v17 / 4] = v56;
-        BuildingBox_variable_20[v17 / 4] = v54;
-        BuildingBox_variable_21[v17 / 4] = v55;
-        BuildingBox_variable_22[v17 / 4] = v56;
-        BuildingBox_variable_23[v17 / 4] = v54;
+        v23 = sin(v34);
+        v21 = cos(v34);
+        v16 = 96 * v39;
+        BuildingBox[v16 / 4] = v54;
+        BuildingBox_variable_1[v16 / 4] = v52;
+        BuildingBox_variable_2[v16 / 4] = v56;
+        BuildingBox_variable_3[v16 / 4] = v57;
+        BuildingBox_variable_4[v16 / 4] = v52;
+        BuildingBox_variable_5[v16 / 4] = v56;
+        BuildingBox_variable_6[v16 / 4] = v57;
+        BuildingBox_variable_7[v16 / 4] = v55;
+        BuildingBox_variable_8[v16 / 4] = v56;
+        BuildingBox_variable_9[v16 / 4] = v54;
+        BuildingBox_variable_10[v16 / 4] = v55;
+        BuildingBox_variable_11[v16 / 4] = v56;
+        BuildingBox_variable_12[v16 / 4] = v54;
+        BuildingBox_variable_13[v16 / 4] = v52;
+        BuildingBox_variable_14[v16 / 4] = v53;
+        BuildingBox_variable_15[v16 / 4] = v57;
+        BuildingBox_variable_16[v16 / 4] = v52;
+        BuildingBox_variable_17[v16 / 4] = v53;
+        BuildingBox_variable_18[v16 / 4] = v57;
+        BuildingBox_variable_19[v16 / 4] = v55;
+        BuildingBox_variable_20[v16 / 4] = v53;
+        BuildingBox_variable_21[v16 / 4] = v54;
+        BuildingBox_variable_22[v16 / 4] = v55;
+        BuildingBox_variable_23[v16 / 4] = v53;
         do {
-          v29 = *(float *)&BuildingBox[v17 / 4];
-          v28 = *(float *)&BuildingBox_variable_1[v17 / 4];
-          v27 = *(float *)&BuildingBox_variable_2[v17 / 4];
-          v45 = v21 * v20;
-          v46 = -v21 * v25 * v22 - v23 * v24;
-          v49 = v21 * v25 * v24 - v23 * v22;
-          *(float *)&BuildingBox[v17 / 4] = v29 * v45 + v28 * v49 + v27 * v46 + v51;
-          v43 = -v23 * v25 * v22 + v21 * v24;
-          v44 = v23 * v20;
-          v48 = v23 * v25 * v24 + v21 * v22;
-          *(float *)&BuildingBox_variable_1[v17 / 4] = v29 * v44 + v28 * v48 + v27 * v43 + v50;
-          v17 += 12;
-          v41 = v25;
-          v47 = v22 * v20;
-          v42 = -v24 * v20;
-          BuildingBase_variable_4[v17 / 4] = v29 * v41 + v28 * v42 + v27 * v47 + v52;
-        } while (v17 != v34);
-        BuildingBaseX[v2] = LODWORD(BuildingX[v2]);
-        BuildingBaseY[v2] = LODWORD(BuildingY[v2]);
-        BuildingBaseZ[v2] = LODWORD(BuildingZ[v2]);
+          v28 = *(float *)&BuildingBox[v16 / 4];
+          v27 = *(float *)&BuildingBox_variable_1[v16 / 4];
+          v26 = *(float *)&BuildingBox_variable_2[v16 / 4];
+          v44 = v20 * v19;
+          v45 = -v20 * v24 * v21 - v22 * v23;
+          v48 = v20 * v24 * v23 - v22 * v21;
+          *(float *)&BuildingBox[v16 / 4] = v28 * v44 + v27 * v48 + v26 * v45 + v50;
+          v42 = -v22 * v24 * v21 + v20 * v23;
+          v43 = v22 * v19;
+          v47 = v22 * v24 * v23 + v20 * v21;
+          *(float *)&BuildingBox_variable_1[v16 / 4] = v28 * v43 + v27 * v47 + v26 * v42 + v49;
+          v16 += 12;
+          v40 = v24;
+          v46 = v21 * v19;
+          v41 = -v23 * v19;
+          BuildingBase_variable_4[v16 / 4] = v28 * v40 + v27 * v41 + v26 * v46 + v51;
+        } while (v16 != v33);
+        BuildingBaseX[v1] = BuildingX[v1];
+        BuildingBaseY[v1] = BuildingY[v1];
+        BuildingBaseZ[v1] = BuildingZ[v1];
       }
-      v1 += 4;
-      ++v2;
-      result = v40 + 1;
-      v39 += 3;
-      v34 += 96;
-      v40 = result;
-    } while (result < NumBuildings);
-  }
-  return result;*/
+      v0 += 4;
+      ++v1;
+      v38 += 3;
+      v33 += 96;
+      ++v39;
+    } while (v39 < NumBuildings);
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------

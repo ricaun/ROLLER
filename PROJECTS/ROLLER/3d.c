@@ -8,106 +8,117 @@
 #include <string.h>
 //-------------------------------------------------------------------------------------------------
 
-double dOneOverTrigLookupAyCount = 0.00006103515625;        //000A012E Symbol name added by ROLLER
-double dOneOverTatnLookupAyCount = 0.0009765625;            //000A0136 Symbol name added by ROLLER
-double dTwoPi2 = 6.28318530718;                             //000A0156 Symbol name added by ROLLER
-char szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
-int hibuffers;                                              //000A32E0
-uint32 mem_used;                                            //000A32E8
-int SVGA_ON;                                                //000A34AC
-void *scrbuf;                                               //000A353C
-tData localdata[500];                                       //000BEA10
-tGroundPt GroundPt[500];                                    //000CE410
-float tsin[16384];                                          //001010F0
-float ptan[16384];                                          //001110F0
-float tcos[16384];                                          //00121128
-tMemBlock mem_blocks[128];                                  //0013E058
-float tatn[1025];                                           //0013E95C
-uint32 textures_off;                                        //0013F960
-int tex_count;                                              //0013F964
-int scr_size;                                               //0013F988
-int ybase;                                                  //0013F98C
-int xbase;                                                  //0013F990
-int winx;                                                   //0013F994
-int winy;                                                   //0013F998
-float ext_y;                                                //0013F99C
-float ext_z;                                                //0013F9A0
-float viewx;                                                //0013F9A4
-float viewy;                                                //0013F9A8
-float viewz;                                                //0013F9AC
-int clear_borders;                                          //0013FA44
-float DDX;                                                  //0013FA48
-float DDY;                                                  //0013FA4C
-float DDZ;                                                  //0013FA50
-float ext_x;                                                //0013FA54
-int test_f1;                                                //0013FA58
-int test_f2;                                                //0013FA5C
-int test_f3;                                                //0013FA60
-int NoOfLaps;                                               //0013FA84
-int w95;                                                    //0013FB30
-int VIEWDIST;                                               //0013FB70
-int YMAX;                                                   //0013FB74
-int XMAX;                                                   //0013FB78
-int time_shown;                                             //0013FB7C
-int player2_car;                                            //0013FB7E
-int player1_car;                                            //0013FB80
+double g_dOneOverTrigLookupAyCount = 0.00006103515625;        //000A012E Symbol name added by ROLLER
+double g_dOneOverTatnLookupAyCount = 0.0009765625;            //000A0136 Symbol name added by ROLLER
+double g_dTwoPi2 = 6.28318530718;                             //000A0156 Symbol name added by ROLLER
+char g_szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
+int hibuffers;             //000A32E0
+uint32 mem_used;           //000A32E8
+int SVGA_ON;               //000A34AC
+void *scrbuf;              //000A353C
+tData localdata[500];      //000BEA10
+tGroundPt GroundPt[500];   //000CE410
+float tsin[16384];         //001010F0
+float ptan[16384];         //001110F0
+float tcos[16384];         //00121128
+tMemBlock mem_blocks[128]; //0013E058
+float tatn[1025];          //0013E95C
+uint32 textures_off;       //0013F960
+int tex_count;             //0013F964
+int scr_size;              //0013F988
+int ybase;                 //0013F98C
+int xbase;                 //0013F990
+int winx;                  //0013F994
+int winy;                  //0013F998
+float ext_y;               //0013F99C
+float ext_z;               //0013F9A0
+float viewx;               //0013F9A4
+float viewy;               //0013F9A8
+float viewz;               //0013F9AC
+int clear_borders;         //0013FA44
+float DDX;                 //0013FA48
+float DDY;                 //0013FA4C
+float DDZ;                 //0013FA50
+float ext_x;               //0013FA54
+int test_f1;               //0013FA58
+int test_f2;               //0013FA5C
+int test_f3;               //0013FA60
+int NoOfLaps;              //0013FA84
+int w95;                   //0013FB30
+int VIEWDIST;              //0013FB70
+int YMAX;                  //0013FB74
+int XMAX;                  //0013FB78
+int time_shown;            //0013FB7C
+int player2_car;           //0013FB7E
+int player1_car;           //0013FB80
 
 //-------------------------------------------------------------------------------------------------
 
-int copypic(char *a1, int a2)
+void copypic(uint8 *pSrc, uint8 *pDest)
 {
-  (void)(a1); (void)(a2);
-  /*
-  int result; // eax
-  int j; // edx
-  char *v6; // esi
-  char *v7; // edi
-  char *v8; // ecx
+  /*  int j; // edx
+  uint8 *v4; // esi
+  uint8 *v5; // edi
+  uint8 *v6; // ecx
+  uint8 *v7; // eax
   int i; // esi
-  int v10; // edx
-  int v11; // edi
-  char v12; // bl
+  int v9; // edx
+  int v10; // edi
+  uint8 v11; // bl
 
-  if (SVGA_ON) {
-    if (SVGA_ON == 1) {
-      return (int)copyscreenmodex((int)a1, a2);
-    } else if (scrmode == 257) {
-      return svgacopy(a1, winx, winy + 40, (__int16)winw, (__int16)winh);
-    } else {
-      return svgacopy(a1, winx, winy, (__int16)winw, (__int16)winh);
+  if ( SVGA_ON )
+  {
+    if ( SVGA_ON == 1 )
+    {
+      copyscreenmodex(pSrc, pDest);
     }
-  } else if (winw != XMAX || winx || mirror) {
-    if (mirror) {
-      v8 = a1;
-      result = winw + winx + a2 + XMAX * winy - 1;
-      for (i = 0; i < winh; result += XMAX + winw) {
-        v10 = 0;
-        if (winw > 0) {
-          do {
-            v11 = winw;
-            --result;
-            v12 = *v8++;
-            ++v10;
-            *(_BYTE *)(result + 1) = v12;
-          } while (v10 < v11);
+    else if ( scrmode == 257 )
+    {
+      svgacopy(pSrc, winx, winy + 40, (__int16)winw, (__int16)winh);
+    }
+    else
+    {
+      svgacopy(pSrc, winx, winy, (__int16)winw, (__int16)winh);
+    }
+  }
+  else if ( winw != XMAX || winx || mirror )
+  {
+    if ( mirror )
+    {
+      v6 = pSrc;
+      v7 = &pDest[XMAX * winy - 1 + winx + winw];
+      for ( i = 0; i < winh; v7 += XMAX + winw )
+      {
+        v9 = 0;
+        if ( winw > 0 )
+        {
+          do
+          {
+            v10 = winw;
+            --v7;
+            v11 = *v6++;
+            ++v9;
+            v7[1] = v11;
+          }
+          while ( v9 < v10 );
         }
         ++i;
       }
-    } else {
-      result = winh;
-      for (j = 0; j < winh; ++j) {
-        v6 = &a1[winw * j];
-        v7 = (char *)(winx + XMAX * (j + winy) + a2);
-        result = winw;
-        qmemcpy(v7, v6, winw);
+    }
+    else
+    {
+      for ( j = 0; j < winh; ++j )
+      {
+        v4 = &pSrc[winw * j];
+        v5 = &pDest[XMAX * (j + winy) + winx];
+        qmemcpy(v5, v4, winw);
       }
     }
-  } else {
-    result = winh * winw;
-    qmemcpy((void *)(winw * winy + a2), a1, winh * winw);
   }
-  return result;*/
-  return 0;
+  else
+  {
+    qmemcpy(&pDest[winw * winy], pSrc, winh * winw);
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -236,7 +247,7 @@ void init()
 
   //load tsin, tcos, and ptan
   for (int i = 0; i < 16384; ++i) {
-    double dAngle = i * dTwoPi2 * dOneOverTrigLookupAyCount;
+    double dAngle = i * g_dTwoPi2 * g_dOneOverTrigLookupAyCount;
     tsin[i] = (float)sin(dAngle);
     tcos[i] = (float)cos(dAngle);
     ptan[i] = (float)tan(dAngle);
@@ -248,7 +259,7 @@ void init()
 
   //load tatn
   for (int i = 0; i < 1025; ++i) {
-    double dAngle = i * dTwoPi2 * dOneOverTatnLookupAyCount;
+    double dAngle = i * g_dTwoPi2 * g_dOneOverTatnLookupAyCount;
     tatn[i] = (float)atan(dAngle);
   }
 
@@ -330,7 +341,7 @@ void fre(void *pData)
     }
     if (iMemBlocksIdx >= 128)                 // mem_blocks is 128 tMemBlocks
     {
-      printf(szFailedToFind);
+      printf(g_szFailedToFind);
       doexit(1, iMemBlocksIdx, pBuf);
     } else {
       mem_blocks[iMemBlocksIdx].pBuf = 0;
@@ -348,7 +359,7 @@ void fre(void *pData)
 
 //-------------------------------------------------------------------------------------------------
 
-void doexit()
+void doexit(int a1, int a2, void *pBuf)
 {
   /*
   int v0; // eax
@@ -429,11 +440,11 @@ void doexit()
 
 //-------------------------------------------------------------------------------------------------
 
-int firework_screen()
+void firework_screen()
 {
   /*
-  int v0; // esi
-  float *v1; // ebx
+     int v0; // esi
+  tCarSpray *v1; // ebx
   unsigned __int8 v2; // al
   int v3; // ecx
   double v4; // st7
@@ -442,67 +453,80 @@ int firework_screen()
   double v7; // st7
   double v8; // st7
   int v9; // eax
-  int v10; // edx
-  int v12; // [esp+0h] [ebp-30h]
-  int v13; // [esp+4h] [ebp-2Ch]
-  int v14; // [esp+8h] [ebp-28h]
-  int v15; // [esp+Ch] [ebp-24h]
-  char v16; // [esp+10h] [ebp-20h]
+  int v10; // eax
+  int v11; // eax
+  char v12; // dl
+  int v13; // [esp+0h] [ebp-30h]
+  int v14; // [esp+4h] [ebp-2Ch]
+  int v15; // [esp+8h] [ebp-28h]
+  int v16; // [esp+Ch] [ebp-24h]
+  char v17; // [esp+10h] [ebp-20h]
 
   v0 = 0;
   memset(scrbuf, 112, winh * winw);
-  do {
-    v1 = (float *)&CarSpray[v0];
-    v2 = CarSpray[v0 + 40];
-    if (v2) {
-      if (v2 <= 1u) {
+  do
+  {
+    v1 = &CarSpray[v0];
+    v2 = LOBYTE(CarSpray[v0].array[10]);
+    if ( v2 )
+    {
+      if ( v2 <= 1u )
+      {
         v3 = 0;
-        v16 = 0;
-        do {
-          if (*((_BYTE *)v1 + 40)) {
-            v4 = *v1;
+        v17 = 0;
+        do
+        {
+          if ( LOBYTE(v1->array[10]) )
+          {
+            v4 = v1->array[0];
             _CHP();
-            v14 = (int)v4;
-            v5 = v1[1];
+            v15 = (int)v4;
+            v5 = v1->array[1];
             _CHP();
-            v13 = (int)v5;
-            if (v14 >= 0 && v14 < winw && v13 >= 0 && v13 < winh)
-              *(_BYTE *)(winw * v13 + v14 + scrbuf) = *((_BYTE *)v1 + 36) - v16;
+            v14 = (int)v5;
+            if ( v15 >= 0 && v15 < winw && v14 >= 0 && v14 < winh )
+              scrbuf[winw * v14 + v15] = LOBYTE(v1->array[9]) - v17;
           }
-          v1 += 11;
+          v1 = (tCarSpray *)((char *)v1 + 44);
           ++v3;
-          v16 += 3;
-        } while (v3 < 5);
-      } else if (v2 == 2) {
-        for (i = 0; i < 32; ++i) {
-          if (*((int *)v1 + 7) > 0) {
-            v7 = *v1;
+          v17 += 3;
+        }
+        while ( v3 < 5 );
+      }
+      else if ( v2 == 2 )
+      {
+        for ( i = 0; i < 32; ++i )
+        {
+          if ( SLODWORD(v1->array[7]) > 0 )
+          {
+            v7 = v1->array[0];
             _CHP();
-            v15 = (int)v7;
-            v8 = v1[1];
+            v16 = (int)v7;
+            v8 = v1->array[1];
             _CHP();
-            v12 = (int)v8;
-            v9 = rand();
-            v10 = ((16 * v9 - (__CFSHL__((16 * v9) >> 31, 15) + ((16 * v9) >> 31 << 15))) >> 15) - 4;
-            if (v10 < 0)
-              LOBYTE(v10) = 0;
-            if (v15 >= 0 && v15 < winw && v12 >= 0 && v12 < winh)
-              *(_BYTE *)(v15 + winw * v12 + scrbuf) = *((_BYTE *)v1 + 36) - v10;
+            v13 = (int)v8;
+            v10 = rand(v9);
+            v11 = (16 * v10 - (__CFSHL__((16 * v10) >> 31, 15) + ((16 * v10) >> 31 << 15))) >> 15;
+            v12 = v11 - 4;
+            if ( v11 - 4 < 0 )
+              v12 = 0;
+            if ( v16 >= 0 && v16 < winw && v13 >= 0 && v13 < winh )
+              scrbuf[v16 + winw * v13] = LOBYTE(v1->array[9]) - v12;
           }
-          v1 += 11;
+          v1 = (tCarSpray *)((char *)v1 + 44);
         }
       }
     }
-    v0 += 1408;
-  } while (v0 != 25344);
-  return game_copypic(scrbuf, screen, ViewType);
+    ++v0;
+  }
+  while ( v0 != 18 );
+  game_copypic(scrbuf, (int)screen, (char *)ViewType[0]);
   */
-  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int updatescreen()
+void updatescreen()
 {
   /*
   int v0; // esi
@@ -744,18 +768,14 @@ LABEL_30:
   winh = YMAX;
   return init_animate_ads(YMAX);
   */
-  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
-int draw_road(int a1, int a2, unsigned int a3, int a4, int a5)
-{
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  /*
+
+void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5)
+{/*
   double v6; // st7
   double v7; // st7
-  int v8; // eax
-  int result; // eax
 
   if ((textures_off & 0x80000) != 0 || game_track == 13) {
     if (gfx_size == 1)
@@ -780,25 +800,23 @@ int draw_road(int a1, int a2, unsigned int a3, int a4, int a5)
     subscale = v7;
   }
   screen_pointer = a1;
-  calculateview(a3, a2, a5);
-  DrawHorizon(a1);
-  CalcVisibleTrack(a2, a3);
-  v8 = DrawCars(a2, a3, a2, a5);
-  CalcVisibleBuildings(v8);
-  result = DrawTrack3(a1, a5);
+  calculateview((int)a3, (int)a2, a5);
+  DrawHorizon((int)a1);
+  CalcVisibleTrack((int)a2, (unsigned int)a3);
+  DrawCars((int)a2, (int)a3);
+  CalcVisibleBuildings();
+  DrawTrack3((int *)a1, a5, (int)a2, a3, (float *)a1);
   if (a4) {
     if (screenready)
-      return game_copypic(a1, screen, a2);
-  }
-  return result;
-  */
-  return 0;
+      game_copypic(a1, (int)screen, a2);
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl main(int argc, const char **argv, const char **envp)
+int main(int argc, const char **argv, const char **envp)
 {
+  printf("IT'S WHIPLASH\n");
   (void)(argc); (void)(argv); (void)(envp);
   /*
   int v3; // eax
@@ -1091,9 +1109,9 @@ int __cdecl main(int argc, const char **argv, const char **envp)
 
 int play_game_init()
 {
-  /*
-  int v0; // edx
-  int v1; // ebx
+  return 0;/*
+  uint32 uiTexturesOff; // edx
+  uint32 uiCheatMode; // ebx
   int v2; // ebx
   unsigned int v3; // eax
   int v4; // ebp
@@ -1102,40 +1120,28 @@ int play_game_init()
   int i; // eax
   int v8; // edx
   int v9; // eax
-  __int64 v10; // rax
+  int v10; // eax
   int v11; // eax
   int v12; // eax
   int v13; // eax
-  __int64 v14; // rax
-  int v15; // eax
+  int v14; // ebp
+  char *v15; // eax
   int v16; // eax
-  int v17; // eax
-  int v18; // eax
-  int v19; // ebp
-  char *v20; // eax
-  int v21; // eax
-  int v22; // eax
-  int v23; // eax
-  int v24; // eax
+  int v17; // ecx
+  int v18; // edx
+  int v19; // ecx
+  int v20; // edx
+  tData *pLocalDataAy; // edx
+  int iTrackLen; // ecx
+  double dTotalTrackDistance; // st7
+  double dTotalTrackDistance2; // st6
   int v25; // eax
-  int v26; // ecx
-  int v27; // edx
-  int v28; // eax
-  int v29; // edx
-  int v30; // ecx
-  int v31; // edx
-  int v32; // eax
-  int v33; // eax
-  float *v34; // edx
-  int v35; // ecx
-  double v36; // st7
-  double v37; // st6
   int result; // eax
-  int v39; // ebp
-  int v40; // edx
+  int v27; // ebp
+  int v28; // edx
 
   DeathView = -1;
-  DeathView_variable_1 = -1;
+  DeathView_variable_1[0] = -1;
   check_set = 0;
   I_Would_Like_To_Quit = 0;
   Quit_Count = 0;
@@ -1158,8 +1164,8 @@ int play_game_init()
     cd_error = 0;
   send_finished = 0;
   fudge_wait = -1;
-  memset(&player_checks, -1, 0x4000);
-  memset(&player_syncs, 0, 32);
+  memset(player_checks, -1, sizeof(player_checks));
+  memset(&player_syncs, 0, 0x20u);
   read_check = 0;
   write_check = 0;
   if (!svga_possible || no_mem)
@@ -1167,7 +1173,7 @@ int play_game_init()
   SVGA_ON = game_svga;
   if (no_mem) {
     fre(&scrbuf);
-    scrbuf = getbuffer(64000);
+    scrbuf = (uint8 *)getbuffer(0xFA00u);
   }
   if (gfx_size == 1)
     min_sub_size = 4;
@@ -1192,12 +1198,12 @@ int play_game_init()
   if (replaytype == 2) {
     replay_cheat = cheat_mode;
     if ((cheat_mode & 0x40) != 0) {
-      v0 = textures_off;
-      BYTE1(v0) = BYTE1(textures_off) | 0x20;
-      textures_off = v0;
-      v1 = cheat_mode;
-      LOBYTE(v1) = cheat_mode ^ 0x40;
-      cheat_mode = v1;
+      uiTexturesOff = textures_off;
+      BYTE1(uiTexturesOff) = BYTE1(textures_off) | 0x20;
+      textures_off = uiTexturesOff;
+      uiCheatMode = cheat_mode;
+      LOBYTE(uiCheatMode) = cheat_mode ^ 0x40;
+      cheat_mode = uiCheatMode;
     }
     player_type = 0;
     if (numcars > 0) {
@@ -1209,11 +1215,11 @@ int play_game_init()
       } while ((int)v3 < v2);
     }
   }
-  memset(&copy_multiple, 0, 0x8000);
+  memset(copy_multiple, 0, 0x8000u);
   draw_type = player_type;
   local_players = (player_type == 2) + 1;
   if (network_on) {
-    v4 = (player1_car & 1) != 0 ? (__int16)player1_car - 1 : (__int16)player1_car + 1;
+    v4 = (player1_car & 1) != 0 ? player1_car - 1 : player1_car + 1;
     team_mate = v4;
     v5 = non_competitors[v4];
     network_mes_mode = v4;
@@ -1222,7 +1228,7 @@ int play_game_init()
         v6 = -1;
       } else {
         v6 = 0;
-        for (i = 0; !human_control[i] || v6 == (__int16)player1_car; ++i)
+        for (i = 0; !human_control[i] || v6 == player1_car; ++i)
           ++v6;
       }
       network_mes_mode = v6;
@@ -1237,19 +1243,16 @@ int play_game_init()
   dead_humans = 0;
   ticks = 0;
   tick_on = -1;
-  load_language_file(aIngameEng);
-  v8 = 1;
-  v9 = load_language_file(aConfigEng);
+  load_language_file((int)aIngameEng, 0);
+  load_language_file((int)aConfigEng, 1);
   if (frontendspeechptr) {
     printf(&aDfrontEndSpeec[1]);
-    doexit();
+    doexit(1, 1, (void *)0x8000);
   }
   if ((cheat_mode & 2) != 0) {
     game_level = level;
-    v9 = damage_level;
     game_dam = damage_level;
     damage_level = 3;
-    v8 = 0;
     level = 0;
   }
   disable_messages = 0;
@@ -1257,215 +1260,220 @@ int play_game_init()
   Destroyed = 0;
   ahead_sect = -2;
   ahead_time = 0;
-  game_count = -2;
+  game_count[0] = -2;
   game_count_variable_1 = -2;
-  game_scale = 1191182336;
-  game_scale_variable_1 = 1191182336;
+  game_scale[0] = 32768.0;
+  game_scale[1] = 32768.0;
   Joy1used = 0;
   Joy2used = 0;
-  check_joystick_usage(v9, v8);
-  memset(&repsample, 1, 16);
-  qmemcpy(&newrepsample, &repsample, 0x10u);
+  check_joystick_usage();
+  memset(repsample, 1, sizeof(repsample));
+  qmemcpy(newrepsample, repsample, 0x10u);
   autoswitch = -1;
   game_req = 0;
-  v10 = getbuffer(32000);
-  mirbuf = v10;
+  mirbuf = (int)getbuffer(0x7D00u);
   screenready = 0;
-  racing = HIDWORD(v10);
+  racing = -1;
   if (replaytype != 2)
     replayedit = 0;
   if (!winner_mode) {
-    SelectedView = game_view;
+    SelectedView[0] = game_view;
     SelectedView_variable_1 = game_view_variable_1;
   }
   race_started = 0;
-  rud_turn = 0;
+  rud_turn[0] = 0;
   finishers = 0;
   human_finishers = 0;
   setreplaytrack();
-  v11 = loadtrack(game_track, 0);
-  v12 = LoadGenericCarTextures(v11);
-  InitCars(v12);
+  v8 = 0;
+  loadtrack((_DWORD *)game_track, 0);
+  LoadGenericCarTextures(v9, 0, 0, 0);
+  InitCars();
   if (game_type >= 2) {
+    v8 = 5;
     NoOfLaps = 5;
     if (network_on)
       countdown = 144;
     else
       countdown = -72;
   } else {
-    v13 = cur_laps[level];
-    NoOfLaps = v13;
-    if (competitors == 2)
-      NoOfLaps = v13 / 2;
-    if (infinite_laps)
+    v10 = cur_laps[level];
+    NoOfLaps = v10;
+    if (competitors[0] == 2) {
+      v8 = v10 % 2;
+      NoOfLaps = v10 / 2;
+    }
+    if (infinite_laps[0]) {
+      v8 = 0;
       NoOfLaps = 0;
+    }
   }
-  v14 = startreplay();
-  LODWORD(v14) = LoadPanel(v14, HIDWORD(v14));
-  v15 = initclouds(v14);
+  startreplay();
+  LoadPanel();
+  initclouds(v11);
   if (!w95 || MusicCD) {
     if (!winner_mode && !loading_replay) {
       if (replaytype == 2)
-        v16 = titlesong;
+        v12 = titlesong;
       else
-        v16 = TrackLoad;
-      v15 = startmusic(v16);
+        v12 = TrackLoad;
+      startmusic(v12);
     }
     holdmusic = -1;
   }
-  v17 = loadsamples(v15);
-  v18 = initcollisions(v17);
-  initsounds(v18);
-  fade_palette(0);
-  init_screen();
+  loadsamples();
+  initcollisions();
+  initsounds();
+  fade_palette(0, v8, 0, 0);
+  init_screen(v13, v8, 0);
   if (intro || replaytype == 2) {
-    v19 = network_mes_mode;
+    v14 = network_mes_mode;
     if (SVGA_ON)
       scr_size = 128;
     else
       scr_size = 64;
   } else {
-    v19 = network_mes_mode;
+    v14 = network_mes_mode;
     scr_size = game_size;
   }
-  network_mes_mode = v19;
+  network_mes_mode = v14;
   clear_borders = -1;
   if ((((unsigned int)&loc_1FFFD + 3) & cheat_mode) != 0)
-    v20 = aCheatpalPal;
+    v15 = aCheatpalPal;
   else
-    v20 = &aNdPalettePal[3];
-  v21 = setpal(v20);
-  v22 = FindShades(v21);
-  InitRemaps(v22);
+    v15 = &aNdPalettePal[3];
+  setpal((int)v15, -1, 0, 0);
+  FindShades();
+  InitRemaps();
   if (player_type == 2) {
-    if (!DuoViews[SelectedView])
+    if (!DuoViews[SelectedView[0]])
       viewplus(0);
     if (!DuoViews[SelectedView_variable_1])
       viewplus(1);
-  } else if (SelectedView == 7) {
-    v23 = (ViewType & 1) != 0 ? ViewType - 1 : ViewType + 1;
-    if (Car_variable_23[308 * v23] < 0)
-      SelectedView = 0;
+  } else if (SelectedView[0] == 7) {
+    v16 = (ViewType[0] & 1) != 0 ? ViewType[0] - 1 : ViewType[0] + 1;
+    if ((Car[v16].byUnk23 & 0x80u) != 0)
+      SelectedView[0] = 0;
   }
-  v24 = select_view(0);
+  select_view(0);
   if (Play_View == 1)
-    v25 = doteaminit(v24);
+    doteaminit();
   else
-    v25 = initcarview((__int16)player1_car, 0);
+    initcarview(player1_car, 0);
   if (player_type == 2) {
     select_view(1);
-    v25 = initcarview(player2_car, 1);
+    initcarview(player2_car, 1);
   }
-  initnearcars(v25);
+  initnearcars();
   ticks = 0;
-  p_eng = (int)&CarEngines[28 * (unsigned __int8)Car_variable_22[308 * (__int16)player1_car]];
+  p_eng[0] = (int)&CarEngines.engines[Car[player1_car].byCarDesignIdx];
   if (player_type == 2)
-    p_eng_variable_1 = (int)&CarEngines[28 * (unsigned __int8)Car_variable_22[308 * player2_car]];
-  v26 = *(_DWORD *)(p_eng + 72) + 2 * *(_DWORD *)(p_eng + 76);
-  v27 = *(_DWORD *)(p_eng + 92);
-  p_joyk1 = ((v27 * (*(_DWORD *)(p_eng + 72) - *(_DWORD *)(p_eng + 76))) << 8) / v26;
-  v28 = ((3 * v27 * *(_DWORD *)(p_eng + 76)) << 16) / v26;
-  v29 = ((3 * v27 * *(_DWORD *)(p_eng + 76)) << 16) % v26;
-  p_joyk2 = v28;
+    p_eng_variable_1 = (int)&CarEngines.engines[Car[player2_car].byCarDesignIdx];
+  v17 = *(_DWORD *)(p_eng[0] + 72) + 2 * *(_DWORD *)(p_eng[0] + 76);
+  v18 = *(_DWORD *)(p_eng[0] + 92);
+  p_joyk1[0] = ((v18 * (*(_DWORD *)(p_eng[0] + 72) - *(_DWORD *)(p_eng[0] + 76))) << 8) / v17;
+  p_joyk2[0] = ((3 * v18 * *(_DWORD *)(p_eng[0] + 76)) << 16) / v17;
   if (player_type == 2) {
-    v30 = *(_DWORD *)(p_eng_variable_1 + 72) + 2 * *(_DWORD *)(p_eng_variable_1 + 76);
-    v31 = *(_DWORD *)(p_eng_variable_1 + 92);
-    p_joyk1_variable_1 = ((v31 * (*(_DWORD *)(p_eng_variable_1 + 72) - *(_DWORD *)(p_eng_variable_1 + 76))) << 8) / v30;
-    v32 = ((3 * v31 * *(_DWORD *)(p_eng_variable_1 + 76)) << 16) / v30;
-    v29 = ((3 * v31 * *(_DWORD *)(p_eng_variable_1 + 76)) << 16) % v30;
-    p_joyk2_variable_1 = v32;
+    v19 = *(_DWORD *)(p_eng_variable_1 + 72) + 2 * *(_DWORD *)(p_eng_variable_1 + 76);
+    v20 = *(_DWORD *)(p_eng_variable_1 + 92);
+    p_joyk1_variable_1 = ((v20 * (*(_DWORD *)(p_eng_variable_1 + 72) - *(_DWORD *)(p_eng_variable_1 + 76))) << 8) / v19;
+    p_joyk2_variable_1 = ((3 * v20 * *(_DWORD *)(p_eng_variable_1 + 76)) << 16) / v19;
   }
   start_race = -1;
-  set_palette(0, v29);
-  v33 = 0;
+  set_palette(0);
   fadedin = 0;
   totaltrackdistance = 0;
   if (TRAK_LEN > 0) {
-    v34 = (float *)&localdata;
-    v35 = TRAK_LEN;
-    v36 = (double)totaltrackdistance;
+    pLocalDataAy = localdata;
+    iTrackLen = TRAK_LEN;
+    dTotalTrackDistance = (double)totaltrackdistance;
     do {
-      v37 = threed_c_variable_31 * v34[12] + v36;
-      v34 += 32;
-      _CHP(v33 + 1, v34);
-      v36 = v37;
-    } while (v33 < v35);
-    totaltrackdistance = (int)v37;
+      dTotalTrackDistance2 = threed_c_variable_31 * pLocalDataAy->fUnk13 + dTotalTrackDistance;
+      ++pLocalDataAy;
+      _CHP();
+      dTotalTrackDistance = dTotalTrackDistance2;
+    } while (v25 < iTrackLen);
+    totaltrackdistance = (int)dTotalTrackDistance2;
   }
   result = totaltrackdistance / TRAK_LEN;
-  v39 = network_mes_mode;
+  v27 = network_mes_mode;
   averagesectionlen = totaltrackdistance / TRAK_LEN;
   if (winner_mode || game_type == 2) {
     if (numcars > 0) {
       result = 0;
-      v40 = 308 * numcars;
+      v28 = 308 * numcars;
       do {
         result += 308;
         CarBox_variable_25[result] = 0;
         *(int *)((char *)&CarBox_variable_24 + result) = 0;
-      } while (result < v40);
+      } while (result < v28);
     }
     race_started = -1;
   }
-  network_mes_mode = v39;
+  network_mes_mode = v27;
   return result;*/
-  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int play_game_uninit()
-{
-  /*
-  int v0; // edx
-  int v1; // eax
-  int v2; // eax
-  int v3; // eax
-  int v4; // eax
-  int result; // eax
+void play_game_uninit(int a1, int a2, int a3, int a4)
+{/*
+  int v4; // edx
+  int v5; // eax
   int v6; // eax
   int v7; // ebx
+  unsigned int v8; // eax
 
   _disable();
   if (!winner_mode && replaytype != 2 && network_on) {
     name_copy((int)player_names, &player_names[9 * wConsoleNode]);
     manual_control[0] = manual_control[wConsoleNode];
     player_invul[0] = player_invul[wConsoleNode];
-    Players_Cars[0] = Players_Cars[wConsoleNode];
+    a1 = Players_Cars[wConsoleNode];
+    Players_Cars[0] = a1;
     wConsoleNode = 0;
   }
   frontend_on = -1;
   _enable();
-  v0 = replaytype;
-  if (replaytype == 2)
+  v4 = replaytype;
+  if (replaytype == 2) {
+    a1 = replay_cheat;
     cheat_mode = replay_cheat;
+  }
   if ((cheat_mode & 2) != 0) {
     level = game_level;
+    a1 = game_dam;
     damage_level = game_dam;
   }
   if (replaytype != 2 && !winner_mode) {
     game_size = scr_size;
     game_svga = SVGA_ON;
-    v1 = DeathView;
+    v5 = DeathView;
     if (DeathView < 0)
-      v1 = SelectedView[0];
-    game_view = v1;
+      v5 = SelectedView[0];
+    game_view = v5;
+    a3 = DeathView_variable_1[0];
     if (DeathView_variable_1[0] < 0)
       game_view_variable_1 = SelectedView_variable_1;
     else
       game_view_variable_1 = DeathView_variable_1[0];
-    result_p1 = (__int16)player1_car;
-    if (player_type == 2)
+    a1 = player1_car;
+    a4 = player_type;
+    result_p1 = player1_car;
+    if (player_type == 2) {
+      a1 = player2_car;
       result_p2 = player2_car;
+    }
   }
   if (replaytype == 2) {
     if ((textures_off & 0x2000) != 0) {
       textures_off ^= 0x2000u;
       cheat_mode |= 0x40u;
     }
+    a1 = replay_player;
     player_type = replay_player;
   }
-  stopreplay();
+  stopreplay(a1, replaytype, a3, a4);
   tick_on = 0;
   if (network_error == 666) {
     network_buggered = 666;
@@ -1476,35 +1484,31 @@ int play_game_uninit()
   }
   network_error = 0;
   network_sync_error = 0;
-  v2 = fade_palette(0);
+  fade_palette(0, v4, 0, a4);
   if (!loading_replay)
-    v2 = stopmusic(v2);
-  v3 = stopallsamples(v2);
-  v4 = releasesamples(v3);
-  result = free_game_memory(v4);
-  if (v0 == 2) {
+    stopmusic(v6, v4);
+  stopallsamples();
+  releasesamples();
+  free_game_memory();
+  if (v4 == 2) {
     network_buggered = 0;
     if (numcars > 0) {
       v7 = 4 * numcars;
-      result = 0;
+      v8 = 0;
       do {
-        result += 4;
-        *(int *)((char *)TrackArrow_variable_1 + result) = *(int *)((char *)result_best_variable_1 + result);
-      } while (result < v7);
+        v8 += 4;
+        TrackArrow_variable_1[v8 / 4] = result_best_variable_1[v8 / 4];
+      } while ((int)v8 < v7);
     }
   } else {
-    v6 = SaveRecords(result);
-    result = save_fatal_config(v6);
+    SaveRecords();
+    save_fatal_config();
   }
   if (no_mem) {
     fre(&scrbuf);
-    result = getbuffer(0x3E800u);
-    scrbuf = result;
+    scrbuf = (uint8 *)getbuffer(0x3E800u);
   }
-  tick_on = -1;
-  return result;
-  */
-  return 0;
+  tick_on = -1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1684,41 +1688,35 @@ int champion_race()
 
 //-------------------------------------------------------------------------------------------------
 
-int play_game(int a1)
-{
-  /*
-  int v1; // eax
-  int v2; // eax
-  int v3; // ecx
-  int v4; // edx
-  int v5; // eax
+void play_game(int a1, int a2, int a3)
+{/*
+  int v3; // eax
+  int v4; // ecx
+  int v5; // edx
+  int v6; // eax
   __int16 i; // bx
-  int v7; // eax
   int v8; // eax
-  int v9; // eax
-  bool v10; // eax
-  bool v11; // eax
-  bool v12; // eax
-  int v13; // eax
+  int v9; // ebx
+  int v10; // eax
 
   game_track = a1;
   lagdone = 0;
   I_Want_Out = 0;
-  v1 = play_game_init();
-  reset_net_wait(v1);
+  play_game_init();
+  reset_net_wait();
   max_mem = mem_used_low + mem_used;
   enable_keyboard();
-  pend_view_init = ViewType;
+  pend_view_init = ViewType[0];
   _disable();
   network_limit = 4320;
-  v2 = 0;
+  v3 = 0;
   do {
-    v3 = (__int16)v2;
-    v4 = frames;
-    ++v2;
-    net_time[v3] = frames;
-  } while ((__int16)v2 < 16);
-  v5 = frames;
+    v4 = (__int16)v3;
+    v5 = frames;
+    ++v3;
+    net_time[v4] = frames;
+  } while ((__int16)v3 < 16);
+  v6 = frames;
   network_timeout = frames;
   network_error = 0;
   network_sync_error = 0;
@@ -1726,7 +1724,7 @@ int play_game(int a1)
   _enable();
   while (racing || lastsample > 0) {
     if (dostopsamps) {
-      stopallsamples(v5);
+      stopallsamples();
       dostopsamps = 0;
     }
     if (network_on) {
@@ -1735,15 +1733,15 @@ int play_game(int a1)
       if (countdown == 144 && replaytype != 2 && fadedin)
         send_ready();
       if (network_limit == 4320 && countdown < 140) {
-        v4 = 360;
+        v5 = 360;
         _disable();
         network_limit = 360;
         for (i = 0; ; ++i) {
-          v7 = i;
+          v8 = i;
           if (i >= network_on)
             break;
-          v4 = frames;
-          net_time[v7] = frames;
+          v5 = frames;
+          net_time[v8] = frames;
         }
         network_timeout = frames;
         _enable();
@@ -1762,30 +1760,32 @@ int play_game(int a1)
     if (!replayspeed && intro && !game_req)
       racing = replayspeed;
     if (track_playing) {
-      v4 = 36 * track_duration / 75;
-      if (frames - start_cd > v4) {
-        v8 = StopTrack();
-        RepeatTrack(v8);
+      v5 = 36 * track_duration / 75;
+      if (frames - start_cd > v5) {
+        StopTrack();
+        RepeatTrack();
         start_cd = frames;
       }
     }
     if (network_on) {
       if (net_quit) {
-        v4 = intro;
+        v5 = intro;
         if (!intro)
           racing = 0;
       }
     }
+    v4 = player_type;
     if (player_type == 2) {
-      if (Car_variable_23[308 * (__int16)player1_car] < 0
-        && Car_variable_23[308 * player2_car] < 0
+      if ((Car[player1_car].byUnk23 & 0x80u) != 0
+        && (Car[player2_car].byUnk23 & 0x80u) != 0
         && lastsample < -72
         && readsample == writesample
         && player_type != replaytype) {
+        v4 = 0;
         racing = 0;
       }
     } else if (!network_on
-           && Car_variable_23[308 * (__int16)player1_car] < 0
+           && (Car[player1_car].byUnk23 & 0x80u) != 0
            && lastsample < -72
            && readsample == writesample
            && replaytype != 2) {
@@ -1793,46 +1793,54 @@ int play_game(int a1)
     }
     if (winner_mode) {
       if (winner_done && lastsample < -72 && readsample == writesample) {
+        v4 = 0;
         racing = 0;
       } else {
+        v9 = champ_mode;
         racing = -1;
         if (champ_mode) {
           if (champ_mode >= 16 && champ_zoom > 7 && champ_count < 0 && !winner_done) {
-            v4 = 0x8000;
-            speechsample(114, 0x8000, 18, (__int16)player1_car);
+            v9 = 18;
+            v4 = player1_car;
+            v5 = 0x8000;
+            speechsample(114, 0x8000, 18, player1_car);
             winner_done = -1;
           }
           if (!winner_done && champ_mode == 2) {
-            v4 = 0x8000;
-            speechsample(114, 0x8000, 18, (__int16)player1_car);
+            v9 = 18;
+            v4 = player1_car;
+            v5 = 0x8000;
+            speechsample(114, 0x8000, 18, player1_car);
             ++champ_mode;
           }
           if (champ_mode == 3 && lastsample < -72) {
-            v4 = writesample;
+            v5 = writesample;
             if (readsample == writesample) {
               holdmusic = -1;
-              fade_palette(writesample ^ readsample);
+              fade_palette(writesample ^ readsample, writesample, v9, v4);
+              v4 = 16;
               ++champ_mode;
               firework_screen();
-              fade_palette(32);
+              fade_palette(32, 720, 792, 16);
               champ_count = 720;
               champ_zoom = 3;
               champ_mode = 16;
-              memset(CarSpray, 0, 792);
+              memset(CarSpray, 0, 0x318u);
               if (SVGA_ON)
                 scr_size = 128;
               else
                 scr_size = 64;
-              v4 = 0;
+              v5 = 0;
               winw = XMAX;
               winx = 0;
               winy = 0;
               winh = YMAX;
             }
           }
-        } else if (Car_variable_31[308 * ViewType] > 1 && !winner_done) {
-          v4 = 0x8000;
-          speechsample(114, 0x8000, 18, (__int16)player1_car);
+        } else if ((char)Car[ViewType[0]].byUnk31 > 1 && !winner_done) {
+          v4 = player1_car;
+          v5 = 0x8000;
+          speechsample(114, 0x8000, 18, player1_car);
           winner_done = -1;
         }
       }
@@ -1843,29 +1851,29 @@ int play_game(int a1)
       firework_screen();
     if (print_data)
       printf(&threed_c_variable_32);
+    a3 = 0;
     print_data = 0;
     if (pause_request && !intro) {
       if (!pausewindow || !paused) {
         if (network_on && replaytype != 2) {
           if (wConsoleNode == master) {
-            if (!finished_car[(__int16)player1_car]) {
-              v11 = paused == 0;
-              paused = v11;
-              if (v11)
-                stopallsamples(v11);
+            if (!finished_car[player1_car]) {
+              paused = paused == 0;
+              if (paused)
+                stopallsamples();
               if (paused)
                 pauser = wConsoleNode;
               transmitpausetoslaves();
             }
-          } else if (!finished_car[(__int16)player1_car]) {
+          } else if (!finished_car[player1_car]) {
             send_pause();
           }
         } else {
           if (game_req) {
             clear_borders = -1;
             scr_size = req_size;
-            v9 = remove_uncalibrated(req_size);
-            check_joystick_usage(v9, v4);
+            remove_uncalibrated();
+            check_joystick_usage();
           } else {
             req_size = scr_size;
             if (SVGA_ON)
@@ -1875,22 +1883,21 @@ int play_game(int a1)
           }
           control_edit = -1;
           req_edit = 0;
+          a3 = 0;
           game_req = game_req == 0;
           pausewindow = 0;
-          v10 = paused == 0;
-          paused = v10;
-          if (v10)
-            stopallsamples(v10);
+          paused = paused == 0;
+          if (paused)
+            stopallsamples();
         }
       }
-      v4 = 0;
+      v5 = 0;
       pause_request = 0;
     }
     if (network_on && slave_pause && wConsoleNode == master) {
-      v12 = paused == 0;
-      paused = v12;
-      if (v12)
-        stopallsamples(v12);
+      paused = paused == 0;
+      if (paused)
+        stopallsamples();
       transmitpausetoslaves();
       slave_pause = 0;
     }
@@ -1903,69 +1910,73 @@ int play_game(int a1)
         scr_size = 64;
     }
     if (!racing && !winner_done && winner_mode) {
-      v4 = 0x8000;
-      speechsample(114, 0x8000, 18, (__int16)player1_car);
+      a3 = 18;
+      v4 = player1_car;
+      v5 = 0x8000;
+      speechsample(114, 0x8000, 18, player1_car);
       winner_done = -1;
       racing = -1;
     }
-    v5 = keys_variable_3 || keys_variable_4;
-    shifting = v5;
-    if (v5 && keys_variable_8 || keys_variable_2 && controlicon == 8) {
+    v6 = keys_variable_3 || keys_variable_4;
+    shifting = v6;
+    if (v6 && keys_variable_8 || keys_variable_2 && controlicon == 8) {
       if (shifting && keys_variable_8)
         controlicon = 9;
-      v4 = 0;
+      v5 = 0;
+      a3 = rewinding;
       slowing = 0;
       if (!rewinding)
-        v5 = Rrewindstart();
+        v6 = Rrewindstart(v6, 0);
     } else if (rewinding) {
       slowing = -1;
     }
     if (shifting && keys_variable_9 || keys_variable_2 && controlicon == 10) {
       if (shifting && keys_variable_9)
         controlicon = 9;
-      v5 = 0;
-      v4 = forwarding;
+      v6 = 0;
+      v5 = forwarding;
       slowing = 0;
       if (!forwarding)
-        v5 = Rforwardstart();
+        v6 = Rforwardstart(0, 0);
     } else if (forwarding) {
       slowing = -1;
     }
     if (screenready) {
+      v4 = fadedin;
       if (!fadedin) {
-        v5 = fade_palette(32);
-        v4 = w95;
+        fade_palette(32, v5, a3, 0);
+        v5 = w95;
         fadedin = -1;
         holdmusic = 0;
         if (w95) {
           if (!MusicCD && !winner_mode && !loading_replay) {
             if (replaytype == 2)
-              v13 = titlesong;
+              v10 = titlesong;
             else
-              v13 = game_track;
-            v5 = startmusic(v13);
+              v10 = game_track;
+            v6 = startmusic(v10);
           }
         }
       }
     }
     if (!intro && replaytype != 2) {
-      v5 = player_type;
+      v6 = player_type;
       if (player_type && player_type != 2) {
         if (!cdchecked) {
           if (active_nodes == network_on)
             cdchecked = -1;
-          v5 = wConsoleNode;
+          v6 = wConsoleNode;
           if (wConsoleNode == master && !netCD) {
-            v5 = active_nodes;
+            v6 = active_nodes;
             if (active_nodes == network_on) {
-              v5 = send_nocd_error();
+              v6 = send_nocd_error();
               cd_error = -1;
               cdchecked = -1;
             }
           }
         }
       } else {
-        v5 = localCD;
+        v6 = localCD;
         if (!localCD) {
           racing = 0;
           cd_error = -1;
@@ -1973,27 +1984,24 @@ int play_game(int a1)
       }
     }
   }
-  return play_game_uninit();*/
-  return 0;
+  play_game_uninit(v6, v5, a3, v4);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void game_keys()
-{
-  /*
-  unsigned int v0; // eax
-  int v1; // eax
-  int v2; // eax
+void game_keys(__int64 a1)
+{/*
+  unsigned int v1; // eax
+  int v2; // ecx
   int v3; // eax
   int v4; // eax
-  _BOOL1 v5; // zf
-  bool v6; // eax
+  int v5; // eax
+  _BOOL1 v6; // zf
   bool v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // ecx
-  int v11; // eax
+  uint32 v8; // eax
+  uint32 v9; // eax
+  uint32 v10; // ecx
+  uint32 v11; // eax
   bool v12; // eax
 
   if (define_mode)
@@ -2009,19 +2017,20 @@ void game_keys()
               LABEL_2:
                 if (!fatkbhit())
                   goto LABEL_328;
-                v0 = fatgetch();
+                v1 = fatgetch();
+                v2 = intro;
                 if (intro || winner_mode) {
-                  if (v0) {
-                    v0 = -1;
+                  if (v1) {
+                    v1 = -1;
                     racing = 0;
                   } else {
                     fatgetch();
-                    v0 = -1;
+                    v1 = -1;
                   }
                 }
                 if (trying_to_exit) {
-                  if (v0) {
-                    if (v0 == 121 || v0 == 89) {
+                  if (v1) {
+                    if (v1 == 121 || v1 == 89) {
                       racing = 0;
                       quit_game = -1;
                       scr_size = req_size;
@@ -2031,34 +2040,36 @@ void game_keys()
                     trying_to_exit = 0;
                     fatgetch();
                   }
-                  v0 = -1;
+                  v1 = -1;
                 }
-                if (v0)
+                if (v1)
                   break;
-                v1 = fatgetch();
-                if (v1 != 75 && v1 != 77 && v1 != 72 && v1 != 80) {
-                  if (keys_variable_3 || keys_variable_4) {
-                    v1 += 25;
+                v3 = fatgetch();
+                if (v3 != 75 && v3 != 77 && v3 != 72 && v3 != 80) {
+                  LOBYTE(v2) = keys_variable_3;
+                  if (keys_variable_3 || (BYTE1(v2) = keys_variable_4) != 0) {
+                    v3 += 25;
                   } else if (keys_variable_5) {
-                    v1 += 45;
+                    v3 += 45;
                   }
                 }
-                v2 = v1 - 59;
-                switch (v2) {
+                v4 = v3 - 59;
+                switch (v4) {
                   case 0:
                     if (network_on)
-                      v2 = mesminus();
+                      v4 = mesminus();
                     if (replaytype == 2)
-                      carminus(v2);
+                      carminus(v4, 0, 2);
                     break;
                   case 1:
                     if (network_on)
-                      v2 = mesplus();
+                      v4 = mesplus();
                     if (replaytype == 2)
-                      carplus(v2);
+                      carplus(v4, 0, 2, v2);
                     break;
                   case 2:
                     if (view0_cnt < 0) {
+                      LODWORD(a1) = 18;
                       view0_cnt = 18;
                       viewminus(0);
                     }
@@ -2071,6 +2082,7 @@ void game_keys()
                     break;
                   case 6:
                     if (player_type == 2 && view1_cnt < 0) {
+                      LODWORD(a1) = 18;
                       view1_cnt = 18;
                       viewminus(1);
                     }
@@ -2088,22 +2100,31 @@ void game_keys()
                   case 9:
                     if (I_Would_Like_To_Quit && Quit_Count <= 0) {
                       I_Want_Out = -1;
-                      stopallsamples(v2);
+                      stopallsamples();
                     }
                     break;
                   case 11:
                     showversion = showversion == 0;
                     break;
                   case 13:
+                    HIDWORD(a1) = game_req;
                     if (game_req) {
+                      LODWORD(a1) = pausewindow;
                       if (!pausewindow && req_edit > 0)
                         --req_edit;
                       if (pausewindow == 1 && !calibrate_mode && calibrate_select < pausewindow)
                         calibrate_select += pausewindow;
-                      if (pausewindow == 2 && control_select < 2)
-                        ++control_select;
-                      if (pausewindow == 3 && graphic_mode < 16)
-                        ++graphic_mode;
+                      HIDWORD(a1) = pausewindow;
+                      if (pausewindow == 2) {
+                        LODWORD(a1) = control_select;
+                        if (control_select < 2)
+                          ++control_select;
+                      }
+                      if (pausewindow == 3) {
+                        HIDWORD(a1) = graphic_mode;
+                        if (graphic_mode < 16)
+                          LODWORD(a1) = ++graphic_mode;
+                      }
                       if (pausewindow == 4) {
                         if (sound_edit <= 1) {
                           if (!sound_edit)
@@ -2136,6 +2157,7 @@ void game_keys()
                     break;
                   case 16:
                     if (game_req) {
+                      LODWORD(a1) = pausewindow;
                       if (pausewindow == 4) {
                         switch (sound_edit) {
                           case 1:
@@ -2144,8 +2166,9 @@ void game_keys()
                               EngineVolume = 0;
                             continue;
                           case 2:
-                            SFXVolume -= pausewindow;
-                            if (SFXVolume < 0)
+                            HIDWORD(a1) = SFXVolume - pausewindow;
+                            SFXVolume = HIDWORD(a1);
+                            if (a1 < 0)
                               SFXVolume = 0;
                             continue;
                           case 3:
@@ -2158,7 +2181,7 @@ void game_keys()
                             if (MusicVolume < 0)
                               MusicVolume = 0;
                             if (MusicCard)
-                              sosMIDISetMasterVolume((unsigned __int8)MusicVolume);
+                              sosMIDISetMasterVolume(MusicVolume);
                             if (MusicCD)
                               goto LABEL_82;
                             continue;
@@ -2166,16 +2189,14 @@ void game_keys()
                             continue;
                         }
                       }
-                    } else if (replaytype == 2
-                           && game_req != replaypanel
-                           && controlicon != 1
-                           && controlicon != 7
-                           && controlicon != 12) {
-                      --controlicon;
+                    } else if (replaytype == 2 && game_req != replaypanel) {
+                      LODWORD(a1) = controlicon;
+                      if (controlicon != 1 && controlicon != 7 && controlicon != 12)
+                        HIDWORD(a1) = --controlicon;
                     }
                     break;
                   case 18:
-                    v3 = game_req;
+                    v5 = game_req;
                     if (game_req) {
                       if (pausewindow == 4) {
                         switch (sound_edit) {
@@ -2185,21 +2206,24 @@ void game_keys()
                               EngineVolume = 127;
                             break;
                           case 2:
-                            SFXVolume += pausewindow;
-                            if (SFXVolume >= 128)
+                            HIDWORD(a1) = pausewindow + SFXVolume;
+                            SFXVolume = HIDWORD(a1);
+                            if (SHIDWORD(a1) >= 128)
                               SFXVolume = 127;
                             break;
                           case 3:
-                            SpeechVolume += pausewindow;
-                            if (SpeechVolume >= 128)
+                            LODWORD(a1) = pausewindow + SpeechVolume;
+                            SpeechVolume = a1;
+                            if ((int)a1 >= 128)
                               SpeechVolume = 127;
                             break;
                           case 4:
-                            MusicVolume += pausewindow;
-                            if (MusicVolume >= 128)
+                            HIDWORD(a1) = pausewindow + MusicVolume;
+                            MusicVolume = HIDWORD(a1);
+                            if (SHIDWORD(a1) >= 128)
                               MusicVolume = 127;
                             if (MusicCard)
-                              sosMIDISetMasterVolume((unsigned __int8)MusicVolume);
+                              sosMIDISetMasterVolume(MusicVolume);
                             if (MusicCD)
                               LABEL_82:
                             SetAudioVolume(MusicVolume);
@@ -2208,32 +2232,42 @@ void game_keys()
                             continue;
                         }
                       }
-                    } else if (replaytype == 2
-                           && game_req != replaypanel
-                           && controlicon != 6
-                           && controlicon != 11
-                           && controlicon != 25) {
-                      if (controlicon != 17 || game_req != replayedit)
-                        v3 = 1;
-                      if (v3)
-                        ++controlicon;
+                    } else if (replaytype == 2 && game_req != replaypanel) {
+                      LODWORD(a1) = controlicon;
+                      if (controlicon != 6 && controlicon != 11 && controlicon != 25) {
+                        if (controlicon != 17 || game_req != replayedit)
+                          v5 = 1;
+                        if (v5)
+                          ++controlicon;
+                      }
                     }
                     break;
                   case 21:
+                    HIDWORD(a1) = game_req;
                     if (game_req) {
                       if (!pausewindow && req_edit < 6)
                         ++req_edit;
-                      if (pausewindow == 1 && calibrate_select > 0 && !calibrate_mode)
-                        calibrate_select -= pausewindow;
-                      if (pausewindow == 2 && control_select > 0)
-                        --control_select;
-                      if (pausewindow == 3 && graphic_mode > 0)
-                        --graphic_mode;
+                      HIDWORD(a1) = pausewindow;
+                      if (pausewindow == 1) {
+                        LODWORD(a1) = calibrate_select;
+                        if (calibrate_select > 0 && !calibrate_mode)
+                          calibrate_select -= pausewindow;
+                      }
+                      if (pausewindow == 2) {
+                        LODWORD(a1) = control_select;
+                        if (control_select > 0)
+                          --control_select;
+                      }
+                      if (pausewindow == 3) {
+                        HIDWORD(a1) = graphic_mode;
+                        if (graphic_mode > 0)
+                          LODWORD(a1) = --graphic_mode;
+                      }
                       if (pausewindow == 4 && sound_edit > 0) {
                         if (sound_edit >= 7)
                           sound_edit = 0;
                         else
-                          ++sound_edit;
+                          LODWORD(a1) = ++sound_edit;
                       }
                     } else if (replaytype == 2 && game_req != replaypanel) {
                       switch (controlicon) {
@@ -2259,43 +2293,43 @@ void game_keys()
                     break;
                   case 25:
                     controlicon = 9;
-                    Rreverseplay();
+                    Rreverseplay(v4, 0, 2, v2);
                     break;
                   case 26:
                     controlicon = 9;
-                    Rplay();
+                    Rplay(a1);
                     break;
                   case 27:
                     controlicon = 9;
-                    Rspeedminus();
+                    Rspeedminus(a1);
                     break;
                   case 28:
                     controlicon = 9;
-                    Rspeedplus();
+                    Rspeedplus(v4, 0, a1);
                     break;
                   case 29:
                     controlicon = 9;
-                    Rframeminus();
+                    Rframeminus(v4, 0);
                     break;
                   case 30:
                     controlicon = 9;
-                    Rframeplus();
+                    Rframeplus(v4, 0);
                     break;
                   case 33:
                     controlicon = 9;
-                    Rstart();
+                    Rstart(v4, 0, 2, v2);
                     break;
                   case 34:
                     controlicon = 9;
-                    Rend();
+                    Rend(v4, 0, 2, v2);
                     break;
                   case 45:
                     controlicon = 9;
-                    rtoggleedit();
+                    rtoggleedit(v4, 0, 2, v2);
                     break;
                   case 46:
                     controlicon = 9;
-                    rstartblock();
+                    rstartblock(v4, 0, 2, v2);
                     break;
                   case 47:
                     controlicon = 9;
@@ -2303,35 +2337,35 @@ void game_keys()
                     break;
                   case 48:
                     controlicon = 9;
-                    rdeleteblock();
+                    rdeleteblock(a1);
                     break;
                   case 49:
                     controlicon = 9;
-                    rstoreview();
+                    rstoreview(v4, 0, 2, v2);
                     break;
                   case 50:
                     controlicon = 9;
-                    rremoveview();
+                    rremoveview(v4, 0, 2, v2);
                     break;
                   case 51:
                     controlicon = 9;
-                    rpreviouscut();
+                    rpreviouscut(v4, 0, 2, v2);
                     break;
                   case 52:
                     controlicon = 9;
-                    rnextcut();
+                    rnextcut(v4, 0, 2, v2);
                     break;
                   case 53:
                     controlicon = 9;
-                    rstartassemble();
+                    rstartassemble(a1);
                     break;
                   default:
                     continue;
                 }
               }
-              if (v0 < 0x2D)
+              if (v1 < 0x2D)
                 break;
-              if (v0 <= 0x2D) {
+              if (v1 <= 0x2D) {
               LABEL_313:
                 if (replaytype != 2) {
                   if (game_req) {
@@ -2347,8 +2381,9 @@ void game_keys()
                       }
                     }
                   } else if (SVGA_ON) {
-                    scr_size -= 16;
-                    if (scr_size >= 64)
+                    LODWORD(a1) = scr_size - 16;
+                    scr_size = a1;
+                    if ((int)a1 >= 64)
                       goto LABEL_318;
                     scr_size = 64;
                   } else {
@@ -2360,22 +2395,24 @@ void game_keys()
                       scr_size = 32;
                   }
                 }
-              } else if (v0 < 0x4C) {
-                if (v0 >= 0x3D) {
-                  if (v0 <= 0x3D) {
+              } else if (v1 < 0x4C) {
+                if (v1 >= 0x3D) {
+                  if (v1 <= 0x3D) {
                   LABEL_291:
                     if (replaytype != 2) {
                       if (game_req) {
                         if (pausewindow == 3 && graphic_mode == 2) {
                           if (SVGA_ON) {
-                            req_size += 16;
-                            if (req_size > 128)
+                            LODWORD(a1) = req_size + 16;
+                            req_size = a1;
+                            if ((int)a1 > 128)
                               req_size = 128;
                             if (req_size == 128)
                               replaypanel = -1;
                           } else {
-                            req_size += 8;
-                            if (req_size > 64)
+                            LODWORD(a1) = req_size + 8;
+                            req_size = a1;
+                            if ((int)a1 > 64)
                               req_size = 64;
                             if (req_size == 64)
                               replaypanel = -1;
@@ -2395,38 +2432,40 @@ void game_keys()
                           replaypanel = -1;
                       }
                     }
-                  } else if (v0 == 68) {
+                  } else if (v1 == 68) {
                     if (keys_variable_5) {
+                      HIDWORD(a1) = replaytype;
                       controlicon = 9;
                       if (replaytype == 2)
                         filingmenu = 3;
                     }
                   }
                 }
-              } else if (v0 <= 0x4C) {
+              } else if (v1 <= 0x4C) {
                 if (keys_variable_5) {
+                  a1 = (unsigned int)replaytype | 0x900000000LL;
                   controlicon = 9;
                   if (replaytype == 2)
                     filingmenu = 1;
                 }
-              } else if (v0 >= 0x53) {
-                if (v0 <= 0x53) {
+              } else if (v1 >= 0x53) {
+                if (v1 <= 0x53) {
                   if (keys_variable_5) {
                     controlicon = 9;
                     if (replaytype == 2)
                       filingmenu = 2;
                   }
-                } else if (v0 == 95) {
+                } else if (v1 == 95) {
                   goto LABEL_313;
                 }
               }
             }
-            if (v0 < 0x1B)
+            if (v1 < 0x1B)
               break;
-            if (v0 <= 0x1B) {
+            if (v1 <= 0x1B) {
               if (game_req && pausewindow) {
                 if (pausewindow == 1 || pausewindow == 2)
-                  remove_uncalibrated(pausewindow);
+                  remove_uncalibrated();
                 pausewindow = 0;
               } else if (filingmenu) {
                 filingmenu = 0;
@@ -2439,23 +2478,26 @@ void game_keys()
                   if (Quit_Count <= 0)
                     I_Would_Like_To_Quit = 0;
                 } else {
+                  LODWORD(a1) = 18;
                   I_Would_Like_To_Quit = -1;
                   Quit_Count = 18;
                 }
               }
-            } else if (v0 >= 0x20) {
-              if (v0 <= 0x20) {
+            } else if (v1 >= 0x20) {
+              if (v1 <= 0x20) {
                 if (replaytype == 2) {
+                  HIDWORD(a1) = 9;
                   replaypanel = replaypanel == 0;
                   controlicon = 9;
                   rotpoint = currentreplayframe;
                 }
-              } else if (v0 == 43) {
+              } else if (v1 == 43) {
                 goto LABEL_291;
               }
             }
           }
-        } while (v0 != 13);
+        } while (v1 != 13);
+        LODWORD(a1) = game_req;
         if (!game_req)
           break;
         switch (pausewindow) {
@@ -2474,6 +2516,7 @@ void game_keys()
                 pausewindow = 4;
                 goto LABEL_2;
               case 3:
+                LODWORD(a1) = 1;
                 calibrate_select = 0;
                 calibrate_mode = 0;
                 pausewindow = 1;
@@ -2488,6 +2531,7 @@ void game_keys()
                 control_edit = -1;
                 goto LABEL_2;
               case 5:
+                HIDWORD(a1) = 3;
                 graphic_mode = 0;
                 pausewindow = 3;
                 goto LABEL_2;
@@ -2500,18 +2544,17 @@ void game_keys()
           case 1:
             if (calibrate_select) {
               if (calibrate_select == 1) {
-                v6 = calibrate_mode == 0;
-                v5 = calibrate_mode != 0;
-                calibrate_mode = v6;
-                if (v5)
-                  remove_uncalibrated(v6);
+                v6 = calibrate_mode != 0;
+                calibrate_mode = calibrate_mode == 0;
+                if (v6)
+                  remove_uncalibrated();
                 else
                   check_joystickpresence();
               }
             } else {
               pausewindow = 0;
-              v4 = remove_uncalibrated(0);
-              check_joystick_usage(v4, 0);
+              remove_uncalibrated();
+              check_joystick_usage();
               calibrate_mode = 0;
             }
             break;
@@ -2520,17 +2563,21 @@ void game_keys()
               if ((unsigned int)control_select <= 1) {
                 define_mode = -1;
                 control_edit = 0;
-                disable_keyboard(control_select);
+                disable_keyboard();
                 controlrelease = -1;
-                qmemcpy(&oldkeys, &userkey, 0xCu);
-                qmemcpy((char *)&oldkeys + 12, &userkey + 12, 2u);
+                qmemcpy(oldkeys, userkey, 0xCu);
+                qmemcpy(&oldkeys[12], &userkey[12], 2u);
+                HIDWORD(a1) = &userkey[14];
+                LODWORD(a1) = oldkeys;
               } else if (control_select == 2) {
                 define_mode = -1;
                 control_edit = 6;
-                disable_keyboard(6);
+                disable_keyboard();
                 controlrelease = -1;
-                qmemcpy(&oldkeys, &userkey, 0xCu);
-                qmemcpy((char *)&oldkeys + 12, &userkey + 12, 2u);
+                qmemcpy(oldkeys, userkey, 0xCu);
+                qmemcpy(&oldkeys[12], &userkey[12], 2u);
+                HIDWORD(a1) = &userkey[14];
+                LODWORD(a1) = oldkeys;
               }
             } else {
             LABEL_212:
@@ -2583,13 +2630,16 @@ void game_keys()
                 } else if ((((unsigned int)&loc_3FFFC + 4) & textures_off) != 0) {
                   textures_off ^= (unsigned int)&loc_3FFFC + 4;
                 } else {
+                  HIDWORD(a1) = textures_off | 0x20;
                   textures_off |= 0x20u;
                 }
                 goto LABEL_2;
               case 5:
+                LODWORD(a1) = textures_off ^ 8;
                 textures_off ^= 8u;
                 goto LABEL_2;
               case 6:
+                HIDWORD(a1) = textures_off ^ 0x100;
                 textures_off ^= 0x100u;
                 goto LABEL_2;
               case 7:
@@ -2601,9 +2651,11 @@ void game_keys()
                 textures_off = v9;
                 goto LABEL_2;
               case 9:
+                LODWORD(a1) = textures_off ^ 1;
                 textures_off ^= 1u;
                 goto LABEL_2;
               case 10:
+                HIDWORD(a1) = textures_off ^ 4;
                 textures_off ^= 4u;
                 goto LABEL_2;
               case 11:
@@ -2617,9 +2669,11 @@ void game_keys()
                 textures_off = v11;
                 goto LABEL_2;
               case 13:
+                LODWORD(a1) = textures_off ^ 0x800;
                 textures_off ^= 0x800u;
                 goto LABEL_2;
               case 14:
+                HIDWORD(a1) = textures_off ^ 0x200;
                 textures_off ^= 0x200u;
                 goto LABEL_2;
               case 15:
@@ -2640,20 +2694,21 @@ void game_keys()
                 allengines = allengines == 0;
                 goto LABEL_2;
               case 6:
+                LODWORD(a1) = SoundCard;
                 if (SoundCard) {
-                  v12 = soundon == 0;
-                  v5 = soundon != 0;
-                  soundon = v12;
-                  if (!v5)
-                    loadsamples(v12);
+                  v6 = soundon != 0;
+                  soundon = soundon == 0;
+                  if (!v6)
+                    loadsamples();
                 } else {
                   soundon = 0;
                 }
                 goto LABEL_2;
               case 7:
-                if (MusicCard || MusicCD) {
-                  musicon = musicon == 0;
-                  reinitmusic();
+                if (MusicCard || (v2 = MusicCD) != 0) {
+                  v12 = musicon == 0;
+                  musicon = v12;
+                  reinitmusic(v12, 0, 2, v2);
                 } else {
                   musicon = 0;
                 }
@@ -2731,43 +2786,42 @@ int mesplus()
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall carminus(int a1, int a2, int a3)
+int carminus(int a1, int a2, int a3)
 {
   /*
-  int v3; // ebx
+  __int64 v4; // [esp-4h] [ebp-8h]
 
-  LOWORD(a3) = numcars;
-  v3 = a3 - 1;
-  do {
-    if (--ViewType < 0)
-      ViewType = v3;
-  } while (Car_variable_23[308 * ViewType] < 0);
-  if (Play_View == 1)
-    doteaminit(ViewType);
+  LODWORD(v4) = a2;
+  do
+  {
+    if ( --ViewType[0] < 0 )
+      ViewType[0] = numcars - 1;
+  }
+  while ( (Car[ViewType[0]].byUnk23 & 0x80u) != 0 );
+  if ( Play_View == 1 )
+    doteaminit();
   else
-    initcarview(ViewType, 0);
-  return sfxsample(83, 0x8000, v3);
+    initcarview(ViewType[0], 0);
+  return sfxsample(v4);
   */
   return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int carplus()
+int carplus(int a1, unsigned int a2, int a3, unsigned int a4)
 {
-  return 0;/*
-  int v0; // ebx
-
-  v0 = numcars;
+  return 0;
+  /*
   do {
-    if (++ViewType >= numcars)
-      ViewType = 0;
-  } while (Car_variable_23[308 * ViewType] < 0);
+    if (++ViewType[0] >= numcars)
+      ViewType[0] = 0;
+  } while ((Car[ViewType[0]].byUnk23 & 0x80u) != 0);
   if (Play_View == 1)
-    doteaminit(ViewType);
+    doteaminit();
   else
-    initcarview(ViewType, 0);
-  return sfxsample(83, 0x8000, v0);*/
+    initcarview(ViewType[0], 0);
+  return sfxsample(__SPAIR64__(a4, a2));*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2915,7 +2969,7 @@ LABEL_12:
 
 //-------------------------------------------------------------------------------------------------
 
-void game_copypic(char *a1, int a2, char *a3)
+void game_copypic(uint8 *a1, uint8 *a2, char *a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   /*

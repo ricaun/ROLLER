@@ -2,9 +2,9 @@
 #include "control.h"
 //-------------------------------------------------------------------------------------------------
 
-char szDgkfcRec[10] = "dgkfc.rec";    //000A0EF8 Symbol name added by ROLLER
-double dRecordLapsMultiplier = 0.01;  //000A0F09 Symbol name added by ROLLER
-double dRecordLapsMinimum = 0.4;      //000A0F11 Symbol name added by ROLLER
+char g_szDgkfcRec[10] = "dgkfc.rec";    //000A0EF8 Symbol name added by ROLLER
+double g_dRecordLapsMultiplier = 0.01;  //000A0F09 Symbol name added by ROLLER
+double g_dRecordLapsMinimum = 0.4;      //000A0F11 Symbol name added by ROLLER
 
 //-------------------------------------------------------------------------------------------------
 
@@ -762,13 +762,14 @@ int test_panel(int a1, char *a2)
       prt_string(rev_vga_variable_1, &buffer, 2, winh - 12);
     }
   }
-  return showmap(v111, v112);
+  return showmap(v111, v112);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall ZoomString(_BYTE *a1, int a2, int a3, int a4, int a5)
+void __fastcall ZoomString(char *a1, int a2, int a3, int a4, int a5)
 {
+  /*
   int v6; // esi
   int v7; // esi
   int v8; // edx
@@ -855,13 +856,13 @@ void __fastcall ZoomString(_BYTE *a1, int a2, int a3, int a4, int a5)
       }
       ++v14;
     } while (!v22);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall ZoomSub(_BYTE *a1, int a2, int a3, int a4, int a5)
-{
+void __fastcall ZoomSub(char *a1, int a2, int a3, int a4, int a5)
+{/*
   double v6; // st7
   double v7; // st7
   _BYTE *v8; // eax
@@ -1275,11 +1276,14 @@ int print_damage(unsigned __int8 *a1, int *a2, int a3)
     }
   }
   scr_size = v15;
-  return result;
+  return result;*/
 }
+
+//-------------------------------------------------------------------------------------------------
 
 int __fastcall print_pos(int result, int a2, int a3)
 {
+  return 0;/*
   int v3; // ebp
 
   v3 = result;
@@ -1292,9 +1296,8 @@ int __fastcall print_pos(int result, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void *free_game_memory()
+void free_game_memory()
 {
-  return 0;
   /*
   char *v0; // edx
   _DWORD *v1; // eax
@@ -4037,7 +4040,7 @@ int getconfigvalue(int a1, int a2, int *a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-char getconfigvalueuc(int a1, int a2, void *a3, int a4, int a5)
+char getconfigvalueuc(int a1, int a2, char *a3, int a4, int a5)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
   return 0;
@@ -4463,9 +4466,8 @@ int ShowATime(int a1, int a2, float a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-int setmodex()
+void setmodex()
 {
-  return 0;
   /*
   __asm { int     10h; -VIDEO - SET VIDEO MODE }
   modexsethardware(19, 964);
@@ -4511,9 +4513,8 @@ unsigned __int8 modexsethardware()
 
 //-------------------------------------------------------------------------------------------------
 
-int modexclearscreen()
+void modexclearscreen()
 {
-  return 0;
   /*
   __outword(0x3C4u, 0xF02u);
   return memset(screen, 0, cstart_branch_1);
@@ -4522,23 +4523,21 @@ int modexclearscreen()
 
 //-------------------------------------------------------------------------------------------------
 
-char *copyscreenmodex(int a1, int a2)
+void copyscreenmodex(uint8 *pSrc, uint8 *pDest)
 {
-  (void)(a1); (void)(a2);
-  return 0;
   /*
   int v3; // esi
   int v4; // edi
   int v5; // ebx
-  char *result; // eax
-  int v7; // edx
-  int v8; // edx
-  char v9; // cl
-  char *v10; // eax
-  char v11; // cl
-  char v12; // cl
-  char v13; // cl
-  char v14; // cl
+  uint8 *v6; // eax
+  uint8 *v7; // edx
+  uint8 *v8; // edx
+  uint8 v9; // cl
+  uint8 *v10; // eax
+  uint8 v11; // cl
+  uint8 v12; // cl
+  uint8 v13; // cl
+  uint8 v14; // cl
 
   v3 = 0;
   v4 = 0;
@@ -4546,35 +4545,34 @@ char *copyscreenmodex(int a1, int a2)
     __outbyte(0x3C4u, 2u);
     v5 = 0;
     __outbyte(0x3C5u, 1 << (v3 & 3));
-    result = (char *)(v4 + a1);
-    v7 = a2 + (v3 >> 2);
+    v6 = &pSrc[v4];
+    v7 = &pDest[v3 >> 2];
     do {
       v8 = v7 + 80;
-      v9 = *result;
-      v10 = result + 640;
+      v9 = *v6;
+      v10 = v6 + 640;
       v5 += 5;
-      *(_BYTE *)(v8 - 80) = v9;
+      *(v8 - 80) = v9;
       v8 += 80;
       v11 = *v10;
       v10 += 640;
-      *(_BYTE *)(v8 - 80) = v11;
+      *(v8 - 80) = v11;
       v8 += 80;
       v12 = *v10;
       v10 += 640;
-      *(_BYTE *)(v8 - 80) = v12;
+      *(v8 - 80) = v12;
       v8 += 80;
       v13 = *v10;
       v10 += 640;
-      *(_BYTE *)(v8 - 80) = v13;
+      *(v8 - 80) = v13;
       v7 = v8 + 80;
       v14 = *v10;
-      result = v10 + 640;
-      *(_BYTE *)(v7 - 80) = v14;
+      v6 = v10 + 640;
+      *(v7 - 80) = v14;
     } while (v5 < 400);
     ++v3;
     v4 += 2;
-  } while (v3 < 320);
-  return result;*/
+  } while (v3 < 320);*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4831,7 +4829,7 @@ void load_language_file(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int do_blip(int a1)
+int do_blip(int a1, int a2)
 {
   (void)(a1);
   return 0;

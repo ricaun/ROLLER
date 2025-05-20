@@ -61,6 +61,8 @@ extern float viewz;
 
 //-------------------------------------------------------------------------------------------------
 
+void copypic(uint8 *pSrc, uint8 *pDest);
+int init_screen(int a1, int a2, int a3);
 void init();
 void *getbuffer(uint32 uiSize);
 void *trybuffer(uint32 uiSize);
@@ -69,6 +71,26 @@ void doexit(int a1, int a2, void *pBuf);
 void test_w95(int a1, int a2, int a3, int a4);
 void *malloc2(int iSize, void *pPtr, int *pRegsDi);
 void free2(void *ptr);
- 
+void firework_screen();
+void updatescreen();
+void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5);
+int main(int argc, const char **argv, const char **envp);
+int play_game_init();
+void play_game_uninit(int a1, int a2, int a3, int a4);
+int winner_race();
+int champion_race();
+void play_game(int a1, int a2, int a3);
+void game_keys(__int64 a1);
+int mesminus();
+int mesplus();
+int carminus(int a1, int a2, int a3);
+int carplus(int a1, unsigned int a2, int a3, unsigned int a4);
+int viewminus(int a1);
+int viewplus(int a1);
+void game_copypic(uint8 *a1, uint8 *a2, char *a3);
+void test_w95(int a1, int a2, int a3, int a4);
+void *malloc2(int iSize, void *pPtr, int *pRegsDi);
+void free2(void *ptr);
+
 //-------------------------------------------------------------------------------------------------
 #endif

@@ -12,10 +12,8 @@ char RecordNames[228];            //00149DC8
 
 //-------------------------------------------------------------------------------------------------
 
-int humancar(int a1)
-{
-  (void)(a1);
-  return 0;/*
+void humancar(int a1)
+{/*
   int v1; // ebp
   int v2; // ebx
   int v3; // eax
@@ -1009,77 +1007,76 @@ double calc_revs(tRev *pRevs, int iGear, float fChg)
 
 //-------------------------------------------------------------------------------------------------
 
-double calc_pow(int a1, int a2, float a3)
+double calc_pow(int iCarDesignIdx, int iGearAyMax, float a3)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0.0;
-  /*
-  int v5; // eax
-  double v6; // st5
-  double v7; // st4
-  double v8; // st6
-  double v9; // st7
-  double v10; // st5
-  double v11; // st3
-  double v12; // rtt
-  float v14; // [esp+0h] [ebp-4Ch]
-  float v15; // [esp+Ch] [ebp-40h]
-  float v16; // [esp+20h] [ebp-2Ch]
-  float v17; // [esp+24h] [ebp-28h]
-  float v18; // [esp+28h] [ebp-24h]
-  float v19; // [esp+2Ch] [ebp-20h]
-  float v20; // [esp+30h] [ebp-1Ch]
-  float v21; // [esp+34h] [ebp-18h]
-  float v22; // [esp+38h] [ebp-14h]
-  float v23; // [esp+3Ch] [ebp-10h]
-  float v24; // [esp+40h] [ebp-Ch]
-  float v25; // [esp+44h] [ebp-8h]
+  return 0.0;/*
+    tRev *pRevs; // eax
+    double v6; // st5
+    double v7; // st4
+    double v8; // st6
+    double v9; // st7
+    double v10; // st5
+    double v11; // st3
+    double v12; // rtt
+    float v14; // [esp+0h] [ebp-4Ch]
+    float v15; // [esp+Ch] [ebp-40h]
+    float v16; // [esp+20h] [ebp-2Ch]
+    float f2; // [esp+24h] [ebp-28h]
+    float f6; // [esp+28h] [ebp-24h]
+    float f8; // [esp+2Ch] [ebp-20h]
+    float f1; // [esp+30h] [ebp-1Ch]
+    float f4; // [esp+34h] [ebp-18h]
+    float v22; // [esp+38h] [ebp-14h]
+    float f5; // [esp+3Ch] [ebp-10h]
+    float f7; // [esp+40h] [ebp-Ch]
+    float f3; // [esp+44h] [ebp-8h]
 
-  v5 = (int)*(&CarEngines_variable_1 + 28 * a1);
-  v20 = *(float *)(32 * a2 + v5);
-  v25 = *(float *)(32 * a2 + v5 + 8);
-  v23 = *(float *)(32 * a2 + v5 + 16);
-  v24 = *(float *)(32 * a2 + v5 + 24);
-  v17 = *(float *)(32 * a2 + v5 + 4);
-  v21 = *(float *)(32 * a2 + v5 + 12);
-  v18 = *(float *)(32 * a2 + v5 + 20);
-  v19 = *(float *)(32 * a2 + v5 + 28);
-  if (a3 < 0.0 || a3 >= (double)v21) {
-    if (a3 < (double)v21 || a3 >= (double)v19) {
-      v22 = *(float *)(32 * a2 + v5 + 24);
+    pRevs = CarEngines.engines[iCarDesignIdx].pRevs;
+    f1 = pRevs[iGearAyMax].f1;
+    f3 = pRevs[iGearAyMax].f3;
+    f5 = pRevs[iGearAyMax].f5;
+    f7 = pRevs[iGearAyMax].f7;
+    f2 = pRevs[iGearAyMax].f2;
+    f4 = pRevs[iGearAyMax].f4;
+    f6 = pRevs[iGearAyMax].f6;
+    f8 = pRevs[iGearAyMax].f8;
+    if (a3 < 0.0 || a3 >= (double)f4) {
+      if (a3 < (double)f4 || a3 >= (double)f8) {
+        v22 = pRevs[iGearAyMax].f7;
+      } else {
+        v15 = (f7 - f3) * (f7 - f5);
+        v10 = 1.0 / ((f3 - f5) * (f3 - f7));
+        v11 = 1.0 / ((f5 - f3) * (f5 - f7));
+        v16 = 1.0 / v15;
+        v14 = f4 * v10 + f6 * v11 + f8 * v16;
+        v12 = (f5 + f7) * -f4 * v10 - (f3 + f7) * f6 * v11 - (f3 + f5) * f8 * v16;
+        v22 = (sqrt(
+          v12 * v12
+          - (v10 * (f4 * f5 * f7) + v11 * (f7 * (f6 * f3)) + f5 * (f3 * f8) * v16 - a3)
+          * (v14
+             * control_c_variable_16))
+             - v12)
+          / (v14
+           * control_c_variable_17);
+      }
     } else {
-      v15 = (v24 - v25) * (v24 - v23);
-      v10 = 1.0 / ((v25 - v23) * (v25 - v24));
-      v11 = 1.0 / ((v23 - v25) * (v23 - v24));
-      v16 = 1.0 / v15;
-      v14 = v21 * v10 + v18 * v11 + v19 * v16;
-      v12 = (v23 + v24) * -v21 * v10 - (v25 + v24) * v18 * v11 - (v25 + v23) * v19 * v16;
-      v22 = (sqrt(
-        v12 * v12
-        - (v10 * (v21 * v23 * v24) + v11 * (v24 * (v18 * v25)) + v23 * (v25 * v19) * v16 - a3)
-        * (v14
-           * control_c_variable_16))
-           - v12)
-        / (v14
-         * control_c_variable_17);
+      v6 = 1.0 / ((f1 - f3) * f1);
+      v7 = 1.0 / ((f3 - f1) * f3);
+      v8 = f2 * v6 + f4 * v7;
+      v9 = -(v6 * (f3 * f2)) - v7 * (f1 * f4);
+      v22 = (sqrt(v9 * v9 - -a3 * (v8 * control_c_variable_16)) - v9) / (v8 * control_c_variable_17);
     }
-  } else {
-    v6 = 1.0 / ((v20 - v25) * v20);
-    v7 = 1.0 / ((v25 - v20) * v25);
-    v8 = v17 * v6 + v21 * v7;
-    v9 = -(v6 * (v25 * v17)) - v7 * (v20 * v21);
-    v22 = (sqrt(v9 * v9 - -a3 * (v8 * control_c_variable_16)) - v9) / (v8 * control_c_variable_17);
-  }
-  if (v22 < 0.0)
-    v22 = 0.0;
-  if (v22 > (double)control_c_variable_18)
-    return 1024.0;
-  return v22;*/
+    if (v22 < 0.0)
+      v22 = 0.0;
+    if (v22 > (double)control_c_variable_18)
+      return 1024.0;
+    return v22;
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void Accelerate(int a1)
+void Accelerate(float *a1)
 {
   (void)(a1);
   /*
@@ -4176,14 +4173,12 @@ __int16 hitright(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int scansection(int a1)
+int scansection(tCar *pCar)
 {
-  (void)(a1);
-  return 0;
-  /*
+  return 0;/*
   int v1; // edi
-  int v3; // ebx
-  float *v4; // edx
+  int iChunkIdx; // ebx
+  tData *pData; // edx
   int v5; // ecx
   double v6; // st7
   double v7; // st5
@@ -4195,323 +4190,295 @@ int scansection(int a1)
   float v13; // [esp+4h] [ebp-30h]
   float v14; // [esp+8h] [ebp-2Ch]
   float v15; // [esp+Ch] [ebp-28h]
-  float v16; // [esp+10h] [ebp-24h]
-  float v17; // [esp+14h] [ebp-20h]
-  float v18; // [esp+18h] [ebp-1Ch]
+  float fZ; // [esp+10h] [ebp-24h]
+  float fY; // [esp+14h] [ebp-20h]
+  float fX; // [esp+18h] [ebp-1Ch]
 
   v1 = TRAK_LEN;
-  v18 = *(float *)a1;
-  v17 = *(float *)(a1 + 4);
-  v3 = *(__int16 *)(a1 + 12);
-  v16 = *(float *)(a1 + 8);
-  v4 = (float *)((char *)&localdata + 128 * v3);
-  v13 = v4[1] * v17 + *v4 * *(float *)a1 + v4[2] * v16 - v4[9];
-  v14 = v4[4] * v17 + v4[3] * *(float *)a1 + v4[5] * v16 - v4[10];
-  v15 = v4[7] * v17 + v4[6] * *(float *)a1 + v4[8] * v16 - v4[11];
+  fX = pCar->pos.fX;
+  fY = pCar->pos.fY;
+  iChunkIdx = pCar->nCurrChunk;
+  fZ = pCar->pos.fZ;
+  pData = &localdata[iChunkIdx];
+  v13 = pData->pointAy[0].fY * fY
+    + pData->pointAy[0].fX * pCar->pos.fX
+    + pData->pointAy[0].fZ * fZ
+    - pData->pointAy[3].fX;
+  v14 = pData->pointAy[1].fY * fY
+    + pData->pointAy[1].fX * pCar->pos.fX
+    + pData->pointAy[1].fZ * fZ
+    - pData->pointAy[3].fY;
+  v15 = pData->pointAy[2].fY * fY
+    + pData->pointAy[2].fX * pCar->pos.fX
+    + pData->pointAy[2].fZ * fZ
+    - pData->pointAy[3].fZ;
   v5 = 0;
-  if (*(float *)a1 < (double)v4[12]) {
+  if (pCar->pos.fX < (double)pData->fUnk13) {
     do {
-      if (--v3 == -1)
-        v3 = TRAK_LEN - 1;
-      v4 = (float *)((char *)&localdata + 128 * v3);
-      v6 = v14 + v4[10];
-      v7 = v13 + v4[9];
-      v8 = v15 + v4[11];
-      v18 = v4[3] * v6 + *v4 * v7 + v4[6] * v8;
-      v17 = v4[1] * v7 + v4[4] * v6 + v4[7] * v8;
-      v16 = v6 * v4[5] + v7 * v4[2] + v8 * v4[8];
-      v5 -= *((_DWORD *)v4 + 15);
-    } while (v18 < (double)v4[12]);
+      if (--iChunkIdx == -1)
+        iChunkIdx = TRAK_LEN - 1;
+      pData = &localdata[iChunkIdx];
+      v6 = v14 + pData->pointAy[3].fY;
+      v7 = v13 + pData->pointAy[3].fX;
+      v8 = v15 + pData->pointAy[3].fZ;
+      fX = pData->pointAy[1].fX * v6 + pData->pointAy[0].fX * v7 + pData->pointAy[2].fX * v8;
+      fY = pData->pointAy[0].fY * v7 + pData->pointAy[1].fY * v6 + pData->pointAy[2].fY * v8;
+      fZ = v6 * pData->pointAy[1].fZ + v7 * pData->pointAy[0].fZ + v8 * pData->pointAy[2].fZ;
+      v5 -= pData->iUnk16;
+    } while (fX < (double)pData->fUnk13);
   }
-  while (v18 > (double)v4[12]) {
-    ++v3;
-    v5 += *((_DWORD *)v4 + 15);
-    if (v3 == TRAK_LEN)
-      v3 ^= TRAK_LEN;
-    v4 = (float *)((char *)&localdata + 128 * v3);
-    v9 = v14 + v4[10];
-    v10 = v13 + v4[9];
-    v11 = v15 + v4[11];
-    v18 = v4[3] * v9 + *v4 * v10 + v4[6] * v11;
-    v17 = v4[1] * v10 + v4[4] * v9 + v4[7] * v11;
-    v16 = v9 * v4[5] + v10 * v4[2] + v11 * v4[8];
+  while (fX > (double)pData->fUnk13) {
+    ++iChunkIdx;
+    v5 += pData->iUnk16;
+    if (iChunkIdx == TRAK_LEN)
+      iChunkIdx ^= TRAK_LEN;
+    pData = &localdata[iChunkIdx];
+    v9 = v14 + pData->pointAy[3].fY;
+    v10 = v13 + pData->pointAy[3].fX;
+    v11 = v15 + pData->pointAy[3].fZ;
+    fX = pData->pointAy[1].fX * v9 + pData->pointAy[0].fX * v10 + pData->pointAy[2].fX * v11;
+    fY = pData->pointAy[0].fY * v10 + pData->pointAy[1].fY * v9 + pData->pointAy[2].fY * v11;
+    fZ = v9 * pData->pointAy[1].fZ + v10 * pData->pointAy[0].fZ + v11 * pData->pointAy[2].fZ;
   }
-  *(float *)a1 = v18;
-  *(float *)(a1 + 4) = v17;
-  *(float *)(a1 + 8) = v16;
-  *(_WORD *)(a1 + 20) -= v5;
-  *(_BYTE *)(a1 + 21) &= 0x3Fu;
-  result = *(_DWORD *)(a1 + 64) - v5;
-  *(_WORD *)(a1 + 12) = v3;
-  *(_DWORD *)(a1 + 64) = result;
-  *(_DWORD *)(a1 + 64) = result & 0x3FFF;
+  pCar->pos.fX = fX;
+  pCar->pos.fY = fY;
+  pCar->pos.fZ = fZ;
+  pCar->nDirection -= v5;
+  HIBYTE(pCar->nDirection) &= 0x3Fu;
+  result = pCar->iAngleIdx15 - v5;
+  pCar->nCurrChunk = iChunkIdx;
+  pCar->iAngleIdx15 = result;
+  pCar->iAngleIdx15 = result & 0x3FFF;
   TRAK_LEN = v1;
   return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double getgroundz(int a1, float a2, float a3, int a4)
+double getgroundz(float a1, float a2, int iChunkIdx)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0.0;
-  /*
-  int *v7; // edx
+  return 0.0;/*
+  tData *pData; // edx
   double v8; // st7
-  float *v9; // ebx
+  tTrackInfo *pTrackInfo; // ebx
   double v10; // st7
   float v12; // [esp+4h] [ebp-14h]
   float v13; // [esp+8h] [ebp-10h]
 
-  v7 = (int *)((char *)&localdata + 128 * a4);
-  v8 = (double)v7[22] * a2 / (*((float *)v7 + 12) * control_c_variable_128);
-  _CHP(a1, v7);
-  v9 = (float *)&TrackInfo[9 * a4];
-  v13 = -a3 * ptan[(int)v8 & 0x3FFF];
-  if (a3 >= (double)*((float *)v7 + 13))
-    v13 = (a3 - *((float *)v7 + 13)) * v9[1] / *v9 + v13;
-  v10 = -a3;
-  if (v10 >= *((float *)v7 + 13)) {
+  pData = &localdata[iChunkIdx];
+  v8 = (double)SLODWORD(pData->fUnk23) * a1 / (pData->fUnk13 * control_c_variable_128);
+  _CHP();
+  pTrackInfo = &TrackInfo[iChunkIdx];
+  v13 = -a2 * ptan[(int)v8 & 0x3FFF];
+  if (a2 >= (double)pData->fUnk14)
+    v13 = (a2 - pData->fUnk14) * pTrackInfo->center.fY / pTrackInfo->center.fX + v13;
+  v10 = -a2;
+  if (v10 >= pData->fUnk14) {
     v12 = v10;
-    return (float)((v12 - *((float *)v7 + 13)) * v9[3] / v9[2] + v13);
+    return (float)((v12 - pData->fUnk14) * *(float *)&pTrackInfo->iUnk1 / pTrackInfo->center.fZ + v13);
   }
   return v13;*/
+};
+
+//-------------------------------------------------------------------------------------------------
+
+double getroadz(float a1, float a2, int iChunkIdx)
+{
+  return 0.0;/*
+  double v7; // st7
+
+  v7 = (double)SLODWORD(localdata[iChunkIdx].fUnk23) * a1 / (localdata[iChunkIdx].fUnk13 * control_c_variable_129);
+  _CHP();
+  return -a2 * ptan[(int)v7 & 0x3FFF];*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double getroadz(int a1, int a2, float a3, float a4, int a5)
+__int16 putflat(tCar *pCar)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0.0;
-  /*
-  int *v7; // eax
-  double v8; // st7
-
-  v7 = (int *)((char *)&localdata + 128 * a5);
-  v8 = (double)v7[22] * a3 / (*((float *)v7 + 12) * control_c_variable_129);
-  _CHP(v7, a2);
-  return -a4 * ptan[(int)v8 & 0x3FFF];
-  */
-}
-
-//-------------------------------------------------------------------------------------------------
-
-__int16 __fastcall putflat(int a1)
-{
-  (void)(a1);
-  return 0;
-  /*
-  int v2; // esi
-  int *v3; // edi
-  float *v4; // ecx
-  int v5; // eax
-  int v6; // edx
-  _DWORD *v7; // ebp
-  int v8; // eax
+  return 0;/*
+  int nCurrChunk; // esi
+  tTrackInfo *v3; // edi
+  tData *pCurrData; // ecx
+  int iPrevChunkIdx; // eax
+  int iNextChunkIdx2; // edx
+  tData *pPrevData; // ebp
+  int iUnk15; // eax
   int v9; // edx
   __int64 v10; // rax
-  __int16 v11; // fps
-  double v12; // st7
-  _BOOL1 v13; // c0
-  char v14; // c2
-  _BOOL1 v15; // c3
-  double v16; // st7
-  int v17; // esi
+  __int64 v11; // rax
+  __int64 v12; // rax
+  double v13; // st7
+  float fUnk23; // esi
+  double v15; // st7
+  double v16; // st6
+  double v17; // st5
   double v18; // st7
-  double v19; // st7
+  __int16 v19; // fps
   double v20; // st7
-  __int16 v21; // fps
+  double v21; // st7
   double v22; // st7
-  _BOOL1 v23; // c0
-  char v24; // c2
-  _BOOL1 v25; // c3
+  double v23; // st7
+  double v24; // st7
+  double v25; // st7
   double v26; // st7
-  double v27; // st7
-  __int16 v28; // fps
+  double v27; // st5
+  int v28; // eax
   double v29; // st7
-  _BOOL1 v30; // c0
-  char v31; // c2
-  _BOOL1 v32; // c3
-  double v33; // st7
-  double v34; // st7
-  double v35; // st7
-  double v36; // st5
-  double v37; // st7
-  int v38; // eax
-  int v39; // edi
+  int v30; // eax
+  int iUnk48; // edi
   __int16 result; // ax
-  int v41; // [esp+14h] [ebp-40h]
-  float v42; // [esp+1Ch] [ebp-38h]
-  float v43; // [esp+20h] [ebp-34h]
-  int v44; // [esp+24h] [ebp-30h]
-  char *v45; // [esp+28h] [ebp-2Ch]
-  int v46; // [esp+2Ch] [ebp-28h]
-  int v47; // [esp+30h] [ebp-24h]
-  int v48; // [esp+34h] [ebp-20h]
-  int v49; // [esp+34h] [ebp-20h]
+  int nDirection; // [esp+14h] [ebp-40h]
+  float v34; // [esp+1Ch] [ebp-38h]
+  float v35; // [esp+20h] [ebp-34h]
+  int v36; // [esp+24h] [ebp-30h]
+  tData *pNextData; // [esp+28h] [ebp-2Ch]
+  int iNextChunkIdx; // [esp+2Ch] [ebp-28h]
+  int v39; // [esp+30h] [ebp-24h]
+  int v40; // [esp+34h] [ebp-20h]
+  int v41; // [esp+34h] [ebp-20h]
 
-  v2 = *(__int16 *)(a1 + 12);
-  v3 = &TrackInfo[9 * v2];
-  v4 = (float *)((char *)&localdata + 128 * v2);
-  v41 = *(__int16 *)(a1 + 20);
-  if (*(float *)a1 >= 0.0) {
-    v5 = *(__int16 *)(a1 + 12);
-    v46 = v2 + 1;
-    if (v2 + 1 == TRAK_LEN)
-      v46 = TRAK_LEN ^ (v2 + 1);
-    v6 = v46;
+  nCurrChunk = pCar->nCurrChunk;
+  v3 = &TrackInfo[nCurrChunk];
+  pCurrData = &localdata[nCurrChunk];
+  nDirection = pCar->nDirection;
+  if (pCar->pos.fX >= 0.0) {
+    iPrevChunkIdx = pCar->nCurrChunk;
+    iNextChunkIdx = nCurrChunk + 1;
+    if (nCurrChunk + 1 == TRAK_LEN)
+      iNextChunkIdx = TRAK_LEN ^ (nCurrChunk + 1);
+    iNextChunkIdx2 = iNextChunkIdx;
   } else {
-    v5 = v2 - 1;
-    if (v2 - 1 < 0)
-      v5 = TRAK_LEN - 1;
-    v6 = v5;
+    iPrevChunkIdx = nCurrChunk - 1;
+    if (nCurrChunk - 1 < 0)
+      iPrevChunkIdx = TRAK_LEN - 1;
+    iNextChunkIdx2 = iPrevChunkIdx;
   }
-  v45 = (char *)&localdata + 128 * v6;
-  v7 = (_DWORD *)((char *)&localdata + 128 * v5);
-  if (*(float *)(a1 + 4) <= (double)v4[13]) {
-    if (-v4[13] <= *(float *)(a1 + 4)) {
-      v8 = v7[14];
+  pNextData = &localdata[iNextChunkIdx2];
+  pPrevData = &localdata[iPrevChunkIdx];
+  if (pCar->pos.fY <= (double)pCurrData->fUnk14) {
+    if (-pCurrData->fUnk14 <= pCar->pos.fY) {
+      iUnk15 = pPrevData->iUnk15;
       v9 = 1;
     } else {
-      v8 = v7[18];
+      iUnk15 = pPrevData->iUnk19;
       v9 = 2;
     }
   } else {
-    v8 = v7[17];
+    iUnk15 = pPrevData->iUnk18;
     v9 = 0;
   }
-  v48 = v8;
-  if (*(float *)a1 < 0.0) {
-    v10 = *((int *)&TrakColour + 6 * v2 + v9);
-    LODWORD(v10) = (HIDWORD(v10) ^ v10) - HIDWORD(v10);
-    if ((v10 & 0x20000) != 0) {
-      LODWORD(v10) = 0;
-      v48 = 0;
-    }
+  v40 = iUnk15;
+  if (pCar->pos.fX < 0.0) {
+    v12 = *((int *)&TrakColour + 6 * nCurrChunk + v9);
+    if ((((HIDWORD(v12) ^ (unsigned int)v12) - HIDWORD(v12)) & 0x20000) != 0)
+      v40 = 0;
   } else {
-    if (v8 < -512
-      && *(float *)(a1 + 24) >(double)control_c_variable_131
-      && (TrakColour_variable_1[12 * *(__int16 *)(a1 + 12) + 2 * *(_DWORD *)(a1 + 212)] & 8) != 0) {
-      v48 = 0;
+    if (iUnk15 < -512
+      && pCar->fMaxSpeed >(double)control_c_variable_131
+      && (TrakColour_variable_1[12 * pCar->nCurrChunk + 2 * pCar->iUnk50] & 8) != 0) {
+      v40 = 0;
     }
-    v10 = *((int *)&TrakColour + 6 * v2 + v9);
-    LODWORD(v10) = (HIDWORD(v10) ^ v10) - HIDWORD(v10);
-    if ((v10 & 0x20000) != 0) {
-      WORD1(v10) = 0;
-      v48 = 0;
-    }
-    v12 = *(float *)(a1 + 24);
-    v13 = v12 < control_c_variable_131;
-    v14 = 0;
-    v15 = v12 == control_c_variable_131;
-    LOWORD(v10) = v11;
-    if (v12 > control_c_variable_131) {
-      v10 = *((int *)&TrakColour + 6 * v46 + *(_DWORD *)(a1 + 212));
-      LODWORD(v10) = (HIDWORD(v10) ^ v10) - HIDWORD(v10);
-      if ((v10 & 0x20000) != 0) {
-        HIDWORD(v10) = 0;
-        v48 = 0;
-      }
+    v10 = *((int *)&TrakColour + 6 * nCurrChunk + v9);
+    if ((((HIDWORD(v10) ^ (unsigned int)v10) - HIDWORD(v10)) & 0x20000) != 0)
+      v40 = 0;
+    if (pCar->fMaxSpeed > (double)control_c_variable_131) {
+      v11 = *((int *)&TrakColour + 6 * iNextChunkIdx + pCar->iUnk50);
+      if ((((HIDWORD(v11) ^ (unsigned int)v11) - HIDWORD(v11)) & 0x20000) != 0)
+        v40 = 0;
     }
   }
-  v16 = (double)v48 * *(float *)a1 / (v4[12] * control_c_variable_130);
-  _CHP(v10, HIDWORD(v10));
-  v49 = (int)v16;
-  LODWORD(v10) = 3 * v2;
-  if ((TrakColour_variable_5[12 * v2] & 0x4000) != 0) {
-    if (*(float *)a1 < 0.0) {
-      HIDWORD(v10) = (*((_DWORD *)v45 + 22) + *((_DWORD *)v4 + 22)) / 2;
-      *(float *)&v10 = v4[22];
+  v13 = (double)v40 * pCar->pos.fX / (pCurrData->fUnk13 * control_c_variable_130);
+  _CHP();
+  v41 = (int)v13;
+  if ((TrakColour_variable_5[12 * nCurrChunk] & 0x4000) != 0) {
+    if (pCar->pos.fX < 0.0) {
+      v15 = 1.0 / pCurrData->fUnk13;
+      v16 = (pCar->pos.fX + pCurrData->fUnk13) * (double)SLODWORD(pCurrData->fUnk23) * v15;
+      v17 = (double)((LODWORD(pNextData->fUnk23) + LODWORD(pCurrData->fUnk23)) / -2);
     } else {
-      v17 = *((_DWORD *)v4 + 22);
-      v10 = v17 + *((_DWORD *)v45 + 22);
-      LODWORD(v10) = -v17;
+      fUnk23 = pCurrData->fUnk23;
+      v15 = 1.0 / pCurrData->fUnk13;
+      v16 = (pCar->pos.fX - pCurrData->fUnk13) * (double)-LODWORD(fUnk23) * v15;
+      v17 = (double)((LODWORD(fUnk23) + LODWORD(pNextData->fUnk23)) / 2);
     }
-    _CHP(v10, HIDWORD(v10));
-    v18 = v4[12] * control_c_variable_130;
-    IF_DATAN2(v18);
-    v19 = (double)v49 - v18 * control_c_variable_132 / control_c_variable_133;
-    _CHP(v10, HIDWORD(v10));
-    v49 = (int)v19;
+    v18 = v15 * (v17 * pCar->pos.fX) + v16;
+    _CHP();
+    v20 = (double)v41
+      - IF_DATAN2(v19, pCar->pos.fY * tsin[(int)v18 & 0x3FFF], pCurrData->fUnk13 * control_c_variable_130)
+      * control_c_variable_132
+      / control_c_variable_133;
+    _CHP();
+    v41 = (int)v20;
   }
-  v20 = (double)*((int *)v4 + 22) * *(float *)a1 / (v4[12] * control_c_variable_130);
-  _CHP(v10, HIDWORD(v10));
-  v47 = (int)v20;
-  LODWORD(v10) = (int)v20 & 0x3FFF;
-  *(float *)(a1 + 8) = -(*(float *)(a1 + 4) * ptan[(_DWORD)v10]);
-  if (*(float *)(a1 + 4) < 0.0) {
-    v43 = -*(float *)(a1 + 4);
-    if (v4[13] + *(float *)(a1 + 84) > v43) {
-      v29 = v4[13] - *(float *)(a1 + 84);
-      v30 = v29 < v43;
-      v31 = 0;
-      v32 = v29 == v43;
-      LOWORD(v10) = v28;
-      if (v29 <= v43) {
-        v33 = (v43 - v4[13] + *(float *)(a1 + 84)) * (double)v3[5] / (*(float *)(a1 + 84) * control_c_variable_130)
-          + (double)v47;
-        _CHP(v10, HIDWORD(v10));
-        v47 = (int)v33;
+  v21 = (double)SLODWORD(pCurrData->fUnk23) * pCar->pos.fX / (pCurrData->fUnk13 * control_c_variable_130);
+  _CHP();
+  v39 = (int)v21;
+  pCar->pos.fZ = -(pCar->pos.fY * ptan[(int)v21 & 0x3FFF]);
+  if (pCar->pos.fY < 0.0) {
+    v35 = -pCar->pos.fY;
+    if (pCurrData->fUnk14 + pCar->fUnk19 > v35) {
+      if (pCurrData->fUnk14 - pCar->fUnk19 <= v35) {
+        v24 = (v35 - pCurrData->fUnk14 + pCar->fUnk19) * (double)v3->iUnk3 / (pCar->fUnk19 * control_c_variable_130)
+          + (double)v39;
+        _CHP();
+        v39 = (int)v24;
       }
     } else {
-      HIDWORD(v10) = v3[5] + v47;
-      v47 = HIDWORD(v10);
+      v39 += v3->iUnk3;
     }
-    v34 = -*(float *)(a1 + 4);
-    if (v34 >= v4[13]) {
-      v42 = v34;
-      v27 = (v42 - v4[13]) * *((float *)v3 + 3) / *((float *)v3 + 2);
+    v25 = -pCar->pos.fY;
+    if (v25 >= pCurrData->fUnk14) {
+      v34 = v25;
+      v23 = (v34 - pCurrData->fUnk14) * *(float *)&v3->iUnk1 / v3->center.fZ;
       goto LABEL_43;
     }
   } else {
-    if (v4[13] + *(float *)(a1 + 84) > *(float *)(a1 + 4)) {
-      v22 = v4[13] - *(float *)(a1 + 84);
-      v23 = v22 < *(float *)(a1 + 4);
-      v24 = 0;
-      v25 = v22 == *(float *)(a1 + 4);
-      LOWORD(v10) = v21;
-      if (v22 <= *(float *)(a1 + 4)) {
-        v26 = (double)v47
-          - (*(float *)(a1 + 4) - v4[13] + *(float *)(a1 + 84))
-          * (double)v3[4]
-          / (*(float *)(a1 + 84)
+    if (pCurrData->fUnk14 + pCar->fUnk19 > pCar->pos.fY) {
+      if (pCurrData->fUnk14 - pCar->fUnk19 <= pCar->pos.fY) {
+        v22 = (double)v39
+          - (pCar->pos.fY - pCurrData->fUnk14 + pCar->fUnk19)
+          * (double)v3->iUnk2
+          / (pCar->fUnk19
            * control_c_variable_130);
-        _CHP(v10, HIDWORD(v10));
-        v47 = (int)v26;
+        _CHP();
+        v39 = (int)v22;
       }
     } else {
-      v47 -= v3[4];
+      v39 -= v3->iUnk2;
     }
-    if (*(float *)(a1 + 4) >= (double)v4[13]) {
-      v27 = (*(float *)(a1 + 4) - v4[13]) * *((float *)v3 + 1) / *(float *)v3;
+    if (pCar->pos.fY >= (double)pCurrData->fUnk14) {
+      v23 = (pCar->pos.fY - pCurrData->fUnk14) * v3->center.fY / v3->center.fX;
     LABEL_43:
-      *(float *)(a1 + 8) = v27 + *(float *)(a1 + 8);
+      pCar->pos.fZ = v23 + pCar->pos.fZ;
     }
   }
-  v35 = (double)v49;
-  v36 = v35 * tcos[v41] - (double)v47 * tsin[v41];
-  _CHP(v41, HIDWORD(v10));
-  v37 = v35 * tsin[(_DWORD)v10] + (double)v47 * tcos[(_DWORD)v10];
-  _CHP(v10, HIDWORD(v10));
-  v38 = (int)v36;
-  BYTE1(v38) = ((unsigned __int16)(int)v36 >> 8) & 0x3F;
-  v39 = *(_DWORD *)(a1 + 204);
-  *(_WORD *)(a1 + 18) = v38;
-  v44 = (int)v37;
-  if (v39) {
-    LOWORD(v44) = v44 + 0x2000;
-    *(float *)(a1 + 8) = *(float *)&CarBox_variable_14[24 * *(unsigned __int8 *)(a1 + 102)] + *(float *)(a1 + 8);
+  v26 = (double)v41;
+  v27 = v26 * tcos[nDirection] - (double)v39 * tsin[nDirection];
+  _CHP();
+  v29 = v26 * tsin[v28] + (double)v39 * tcos[v28];
+  _CHP();
+  v30 = (int)v27;
+  BYTE1(v30) = ((unsigned __int16)(int)v27 >> 8) & 0x3F;
+  iUnk48 = pCar->iUnk48;
+  pCar->nUnk6 = v30;
+  v36 = (int)v29;
+  if (iUnk48) {
+    LOWORD(v36) = v36 + 0x2000;
+    pCar->pos.fZ = CarBox.hitboxAy[8 * pCar->byCarDesignIdx + 4].fZ + pCar->pos.fZ;
   }
-  result = v44 & 0x3FFF;
-  *(_WORD *)(a1 + 16) = v44 & 0x3FFF;
-  return result;
+  result = v36 & 0x3FFF;
+  pCar->nUnk5 = v36 & 0x3FFF;
+  return result;*/
 }
 
-_DWORD *__fastcall findnearcars(float *a1, float *a2, float *a3, float *a4, _DWORD *a5, float *a6, _DWORD *a7)
+//-------------------------------------------------------------------------------------------------
+
+float *findnearcars(float *a1, float *a2, float *a3, float *a4, float *a5, float *a6, float *a7)
 {
+  return 0;/*
   int v8; // eax
-  _DWORD *result; // eax
+  float *result; // eax
   float v10; // [esp+0h] [ebp-18h]
   float v11; // [esp+4h] [ebp-14h]
 
@@ -4520,21 +4487,21 @@ _DWORD *__fastcall findnearcars(float *a1, float *a2, float *a3, float *a4, _DWO
     || v8 == nearcall_variable_1[4 * nearcarcheck]
     || v8 == nearcall_variable_2[4 * nearcarcheck]
     || v8 == nearcall_variable_3[4 * nearcarcheck]) {
-    findnearcarsforce(a5, a6, a7);
+    findnearcarsforce((int)a1, (int *)a2, a3, (int *)a4, a5, a6, a7);
     a1[62] = *a2;
     a1[63] = *a3;
     a1[64] = *a4;
-    a1[65] = *(float *)a5;
+    a1[65] = *a5;
     a1[66] = *a6;
     result = a7;
-    a1[67] = *(float *)a7;
+    a1[67] = *a7;
   } else {
     *a2 = a1[62];
     v11 = a1[63];
     *a4 = a1[64];
     v10 = a1[65];
     *a6 = a1[66];
-    *(float *)a7 = a1[67];
+    *a7 = a1[67];
     if (*(_DWORD *)a2 != -1) {
       if (v11 < 0.0) {
         v11 = v11 + control_c_variable_134;
@@ -4554,20 +4521,20 @@ _DWORD *__fastcall findnearcars(float *a1, float *a2, float *a3, float *a4, _DWO
       }
     }
     *a3 = v11;
-    *(float *)a5 = v10;
+    *a5 = v10;
     a1[63] = v11;
     a1[65] = v10;
-    if (Car_variable_3[154 * *(_DWORD *)a2] == -1) {
+    if (Car[*(_DWORD *)a2].nCurrChunk == -1) {
       *a2 = NAN;
       *a3 = -10000.0;
       a1[62] = NAN;
       a1[63] = -10000.0;
     }
-    result = (_DWORD *)Car_variable_3[154 * *(_DWORD *)a4];
-    if (result == (_DWORD *)-1) {
+    result = (float *)Car[*(_DWORD *)a4].nCurrChunk;
+    if (result == (float *)-1) {
       *a4 = NAN;
       result = a5;
-      *a5 = -971227136;
+      *a5 = -10000.0;
       a1[64] = NAN;
       a1[65] = -10000.0;
     }
@@ -4577,15 +4544,13 @@ _DWORD *__fastcall findnearcars(float *a1, float *a2, float *a3, float *a4, _DWO
 
 //-------------------------------------------------------------------------------------------------
 
-int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, float *a7)
+int findnearcarsforce(int a1, int *a2, float *a3, int *a4, void *a5, float *a6, float *a7)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
-  return 0;
-  /*
+  return 0;/*
   int v7; // esi
   long double v9; // st7
   int v10; // ebx
-  float *v11; // ecx
+  tData *v11; // ecx
   double v12; // st7
   double v13; // st7
   int v14; // ebx
@@ -4593,8 +4558,8 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
   double v16; // rt0
   double v17; // rt1
   double v18; // st5
-  float *v19; // ecx
-  unsigned int v20; // edi
+  tData *v19; // ecx
+  int v20; // edi
   int v21; // eax
   int v22; // ebx
   double v23; // st7
@@ -4602,7 +4567,7 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
   int v25; // ebx
   int v26; // eax
   double v27; // st7
-  int v28; // ebx
+  int nCurrChunk; // ebx
   double v29; // st7
   signed int i; // ecx
   int v31; // ebx
@@ -4644,19 +4609,19 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
   v41 = -1;
   v42 = -1;
   if (*(_DWORD *)(a1 + 188)) {
-    v48 = *(float *)a1 - localdata_variable_4[32 * v10] - v38;
-    while (control_c_variable_140 * localdata_variable_4[32 * v10] > v48) {
-      v13 = control_c_variable_139 * localdata_variable_4[32 * v10--] + v48;
+    v48 = *(float *)a1 - localdata[v10].fUnk13 - v38;
+    while (control_c_variable_140 * localdata[v10].fUnk13 > v48) {
+      v13 = control_c_variable_139 * localdata[v10--].fUnk13 + v48;
       v48 = v13;
       if (v10 < 0)
         v10 = TRAK_LEN - 1;
     }
-    v11 = (float *)((char *)&localdata + 128 * v10);
-    v12 = v48 + v11[12];
+    v11 = &localdata[v10];
+    v12 = v48 + v11->fUnk13;
   } else {
-    v47 = v38 + *(float *)a1 + localdata_variable_4[32 * v10];
+    v47 = v38 + *(float *)a1 + localdata[v10].fUnk13;
     while (1) {
-      v44 = control_c_variable_139 * localdata_variable_4[32 * v10];
+      v44 = control_c_variable_139 * localdata[v10].fUnk13;
       if (v47 <= (double)v44)
         break;
       ++v10;
@@ -4664,23 +4629,27 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
       if (v10 == TRAK_LEN)
         v10 ^= TRAK_LEN;
     }
-    v11 = (float *)((char *)&localdata + 128 * v10);
-    v12 = v47 - v11[12];
+    v11 = &localdata[v10];
+    v12 = v47 - v11->fUnk13;
   }
   v39 = v12;
   v14 = v10 + 1;
   if (v14 == TRAK_LEN)
     v14 ^= TRAK_LEN;
-  v15 = ((v11[12] - v39) * v11[*(_DWORD *)(a1 + 160) + 24]
-       + (v39 + v11[12]) * *((float *)&localdata + 32 * v14 + *(_DWORD *)(a1 + 160) + 24))
-    / (v11[12]
+  v15 = ((v11->fUnk13 - v39) * *(&v11->fUnk25 + *(_DWORD *)(a1 + 160))
+       + (v39 + v11->fUnk13) * *(&localdata[v14].fUnk25 + *(_DWORD *)(a1 + 160)))
+    / (v11->fUnk13
      * control_c_variable_139);
-  v16 = v11[3] * v39 + v11[4] * v15 - v11[10];
-  v17 = v11[1] * v15 + *v11 * v39 - v11[9];
-  v18 = v39 * v11[6] + v15 * v11[7] - v11[11];
-  v19 = (float *)((char *)&localdata + 128 * *(__int16 *)(a1 + 12));
-  *a6 = (v16 + v19[10]) * v19[3] + (v17 + v19[9]) * *v19 + (v18 + v19[11]) * v19[6];
-  *a7 = (v17 + v19[9]) * v19[1] + (v16 + v19[10]) * v19[4] + (v18 + v19[11]) * v19[7];
+  v16 = v11->pointAy[1].fX * v39 + v11->pointAy[1].fY * v15 - v11->pointAy[3].fY;
+  v17 = v11->pointAy[0].fY * v15 + v11->pointAy[0].fX * v39 - v11->pointAy[3].fX;
+  v18 = v39 * v11->pointAy[2].fX + v15 * v11->pointAy[2].fY - v11->pointAy[3].fZ;
+  v19 = &localdata[*(__int16 *)(a1 + 12)];
+  *a6 = (v16 + v19->pointAy[3].fY) * v19->pointAy[1].fX
+    + (v17 + v19->pointAy[3].fX) * v19->pointAy[0].fX
+    + (v18 + v19->pointAy[3].fZ) * v19->pointAy[2].fX;
+  *a7 = (v17 + v19->pointAy[3].fX) * v19->pointAy[0].fY
+    + (v16 + v19->pointAy[3].fY) * v19->pointAy[1].fY
+    + (v18 + v19->pointAy[3].fZ) * v19->pointAy[2].fY;
   v51 = 0;
   v40 = *(float *)(a1 + 24) * tcos[*(_DWORD *)(a1 + 64) & 0x3FFF];
   if (numcars > 0) {
@@ -4688,58 +4657,58 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
     do {
       v21 = *(_DWORD *)(a1 + 32);
       TRAK_LEN = v7;
-      if (v21 == v51 || Car_variable_23[v20] <= 0)
+      if (v21 == v51 || (char)Car[v20].byUnk23 <= 0)
         goto LABEL_67;
-      v22 = Car_variable_3[v20 / 2] - *(__int16 *)(a1 + 12);
+      v22 = Car[v20].nCurrChunk - *(__int16 *)(a1 + 12);
       v53 = v22;
       if (v22 < 0)
         v53 = v22 + v7;
       if (v7 / 2 < v53)
         v53 -= v7;
-      v23 = Car_variable_8[v20 / 4] * tcos[Car_variable_15[v20 / 4] & 0x3FFF];
+      v23 = Car[v20].fMaxSpeed * tcos[Car[v20].iAngleIdx15 & 0x3FFF];
       TRAK_LEN = v7;
       v46 = v23;
-      if (Car_variable_17[v20 / 4] != 3
+      if (Car[v20].iUnk17 != 3
         || fabs((double)v53 / (v40 - v46)) >= control_c_variable_141
-        || !linevalid(*(float *)(a1 + 4), Car_variable_1[v20 / 4])) {
+        || !linevalid(*(__int16 *)(a1 + 12), *(float *)(a1 + 4), Car[v20].pos.fY)) {
         goto LABEL_67;
       }
       v24 = TRAK_LEN;
       if (v53 <= 0) {
         if (v53 >= 0) {
-          j = Car[v20 / 4] - *(float *)a1;
+          j = Car[v20].pos.fX - *(float *)a1;
         } else {
-          v28 = Car_variable_3[v20 / 2];
-          v56 = -(localdata_variable_4[32 * v28] - Car[v20 / 4]);
-          v29 = v56 - (localdata_variable_4[32 * *(__int16 *)(a1 + 12)] + *(float *)a1);
+          nCurrChunk = Car[v20].nCurrChunk;
+          v56 = -(localdata[nCurrChunk].fUnk13 - Car[v20].pos.fX);
+          v29 = v56 - (localdata[*(__int16 *)(a1 + 12)].fUnk13 + *(float *)a1);
           for (i = 1; ; ++i) {
-            ++v28;
+            ++nCurrChunk;
             j = v29;
             if (i >= (int)abs32(v53))
               break;
-            if (v28 >= TRAK_LEN)
-              v28 -= TRAK_LEN;
-            v29 = j - control_c_variable_139 * localdata_variable_4[32 * v28];
+            if (nCurrChunk >= TRAK_LEN)
+              nCurrChunk -= TRAK_LEN;
+            v29 = j - control_c_variable_139 * localdata[nCurrChunk].fUnk13;
           }
           v24 = TRAK_LEN;
           if (j > 0.0)
             j = 0.0;
         }
       } else {
-        v54 = localdata_variable_4[32 * *(__int16 *)(a1 + 12)] - *(float *)a1;
+        v54 = localdata[*(__int16 *)(a1 + 12)].fUnk13 - *(float *)a1;
         v25 = *(__int16 *)(a1 + 12) + 1;
         v26 = 1;
-        for (j = localdata_variable_4[32 * Car_variable_3[v20 / 2]] + Car[v20 / 4] + v54; v26 < v53; j = v27) {
+        for (j = localdata[Car[v20].nCurrChunk].fUnk13 + Car[v20].pos.fX + v54; v26 < v53; j = v27) {
           if (v25 >= TRAK_LEN)
             v25 -= TRAK_LEN;
-          v27 = control_c_variable_139 * localdata_variable_4[32 * v25] + j;
+          v27 = control_c_variable_139 * localdata[v25].fUnk13 + j;
           ++v26;
           ++v25;
         }
         if (j < 0.0)
           j = 0.0;
       }
-      v43 = control_c_variable_139 * *(float *)&CarBaseX;
+      v43 = control_c_variable_139 * CarBaseX;
       if (j < 0.0) {
         v57 = j + v43;
         v31 = 0;
@@ -4783,7 +4752,7 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
       v49 = v52;
     LABEL_67:
       v7 = TRAK_LEN;
-      v20 += 308;
+      ++v20;
       ++v51;
     } while (v51 < numcars);
   }
@@ -4809,7 +4778,7 @@ int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, f
 
 double interpolatesteer(float a1, float a2, float a3, int a4, int a5)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  return 0.0;
   /*
   long double v5; // st7
   float v8; // [esp+Ch] [ebp+4h]
@@ -4827,11 +4796,9 @@ double interpolatesteer(float a1, float a2, float a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-double avoid(int a1, int a2, float a3, int a4, float a5, float a6, int *a7)
+double avoid(int a1, int a2, float a3, int a4, float a5, float a6, void *a7)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
-  return 0.0;
-  /*
+  return 0.0;/*
   int v10; // eax
   double v11; // st7
   int v13; // [esp+0h] [ebp-30h] BYREF
@@ -4843,24 +4810,23 @@ double avoid(int a1, int a2, float a3, int a4, float a5, float a6, int *a7)
 
   *a7 = 0;
   if (a2 != -1 && a3 < fabs(a5)) {
-    *(float *)&v18 = *(float *)&CarBaseY + Car_variable_19[77 * a2] + control_c_variable_145 + Car_variable_1[77 * a2];
-    *(float *)&v17 = -*(float *)&CarBaseY - Car_variable_19[77 * a2] + control_c_variable_146 + Car_variable_1[77 * a2];
+    *(float *)&v18 = CarBaseY + Car[a2].fUnk19 + control_c_variable_145 + Car[a2].pos.fY;
+    *(float *)&v17 = -CarBaseY - Car[a2].fUnk19 + control_c_variable_146 + Car[a2].pos.fY;
     if (*(float *)&a4 < (double)*(float *)&v18 && *(float *)&a4 >(double) * (float *)&v17) {
-      driverange(&Car[77 * a2], &v13, &v14);
-      v10 = a1 + Car_variable_10[77 * a2];
+      driverange((int)&Car[a2], (float *)&v13, (float *)&v14);
+      v10 = a1 + Car[a2].iUnk10;
       v15 = (*(float *)&v13 + *(float *)&v14) * control_c_variable_147;
       if ((v10 & 1) != 0)
-        v11 = Car_variable_1[77 * a2] + control_c_variable_149;
+        v11 = Car[a2].pos.fY + control_c_variable_149;
       else
-        v11 = Car_variable_1[77 * a2] + control_c_variable_148;
+        v11 = Car[a2].pos.fY + control_c_variable_148;
       v16 = v11;
       if (v16 <= (double)v15) {
         if (*(float *)&v18 > (double)*(float *)&v13) {
           v18 = v13;
           if (a3 > 0.0
-            && Car_variable_8[77 * a1] > (double)control_c_variable_150
-            && Car_variable_8[77 * a1] > Car_variable_8[77 * a2] * tcos[Car_variable_15[77 * a2]]
-                                       + control_c_variable_151) {
+            && Car[a1].fMaxSpeed > (double)control_c_variable_150
+            && Car[a1].fMaxSpeed > Car[a2].fMaxSpeed * tcos[Car[a2].iAngleIdx15] + control_c_variable_151) {
             *a7 = -1;
           }
         }
@@ -4870,9 +4836,8 @@ double avoid(int a1, int a2, float a3, int a4, float a5, float a6, int *a7)
         if (*(float *)&v17 < (double)*(float *)&v14) {
           v17 = v14;
           if (a3 > 0.0
-            && Car_variable_8[77 * a1] > (double)control_c_variable_150
-            && Car_variable_8[77 * a1] > Car_variable_8[77 * a2] * tcos[Car_variable_15[77 * a2]]
-                                       + control_c_variable_151) {
+            && Car[a1].fMaxSpeed > (double)control_c_variable_150
+            && Car[a1].fMaxSpeed > Car[a2].fMaxSpeed * tcos[Car[a2].iAngleIdx15] + control_c_variable_151) {
             *a7 = -1;
           }
         }
@@ -6846,28 +6811,28 @@ unsigned int driverange(int a1, float *a2, float *a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int updatesmokeandflames(int a1)
+int updatesmokeandflames(int a1, unsigned int a2, int a3, unsigned int a4)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int v1; // ecx
-  __int64 v2; // rax
-  int v3; // esi
+  return 0;/*
+  int v4; // ecx
+  int v5; // esi
+  __int64 v7; // [esp-Ch] [ebp-10h]
+  __int64 v8; // [esp-Ch] [ebp-10h]
+  int v10; // [esp-4h] [ebp-8h]
 
-  v1 = a1;
+  v7 = __PAIR64__(a2, a4);
+  v4 = a1;
   if (player_type != 2)
     a1 = ViewType[0];
-  v2 = rand(a1);
-  v3 = v2;
-  dospray(v1, HIDWORD(v2), &CarSpray[1408 * *(_DWORD *)(v1 + 32)]);
+  v5 = rand(a1);
+  dospray(v7, a3);
   if (player_type == 2) {
-    if (ViewType[0] == *(_DWORD *)(v1 + 32))
-      dospray(v1, -1, &CarSpray_variable_13);
-    if (ViewType_variable_1 == *(_DWORD *)(v1 + 32))
-      dospray(v1, -1, &CarSpray_variable_22);
+    if (ViewType[0] == *(_DWORD *)(v4 + 32))
+      dospray(v8, v10);
+    if (ViewType_variable_1 == *(_DWORD *)(v4 + 32))
+      dospray(v8, v10);
   }
-  return srand(v3);*/
+  return srand(v5);*/
 }
 
 //-------------------------------------------------------------------------------------------------

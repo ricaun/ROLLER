@@ -13,7 +13,7 @@ float CarBaseX;                 //0018851C
 float CarBaseY;                 //00188520
 float CarDiag;                  //00188524
 double car_c_variable_1 = 2.2;  //000A20F8
-float fTinycarSize = 0.25f;     //000A2100 Symbol name added by ROLLER
+float g_fTinycarSize = 0.25f;   //000A2100 Symbol name added by ROLLER
 double car_c_variable_3 = 1.03; //000A2104
 int car_texmap[16];             //0017F2B0
 tCarBox CarBox;                 //0017F2F0
@@ -24,7 +24,7 @@ int LoadCarTextures;            //0018852C
 
 //-------------------------------------------------------------------------------------------------
 
-int InitCarStructs()
+void InitCarStructs()
 {
   eCarDesignIndex carDesignIndex; // ebx
   int v1; // esi
@@ -87,12 +87,12 @@ int InitCarStructs()
         dSpeed = CarEngines.engines[k].pSpds[m++];
     }
   }
-  return CalcCarSizes();
+  CalcCarSizes();
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int CalcCarSizes()
+void CalcCarSizes()
 {
   int16 nCarDesignsIdx; // cx
   int16 nCoordsIdx; // bx
@@ -144,10 +144,10 @@ int CalcCarSizes()
     }
     // Multiply by tinycar value if using tinycar cheat
     if ((cheat_mode & 0x8000) != 0) {
-      fXLow = fXLow * fTinycarSize;
-      fYLow = fYLow * fTinycarSize;
-      fXHigh = fXHigh * fTinycarSize;
-      fYHigh = fYHigh * fTinycarSize;
+      fXLow = fXLow * g_fTinycarSize;
+      fYLow = fYLow * g_fTinycarSize;
+      fXHigh = fXHigh * g_fTinycarSize;
+      fYHigh = fYHigh * g_fTinycarSize;
     }
     iCarBoxIdx = 8 * nCarDesignsIdx;            // 24 for 8 3-float points defining a hitbox
     CarBox.hitboxAy[iCarBoxIdx].fX = fXLow;
@@ -187,16 +187,15 @@ int CalcCarSizes()
   }
   result = cheat_mode;
   if ((cheat_mode & 0x8000) != 0) {
-    CarBaseX = CarBaseX * fTinycarSize;
-    CarBaseY = CarBaseY * fTinycarSize;
+    CarBaseX = CarBaseX * g_fTinycarSize;
+    CarBaseY = CarBaseY * g_fTinycarSize;
   }
   CarDiag = (float)sqrt(CarBaseX * CarBaseX + CarBaseY * CarBaseY);
-  return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int InitCars()
+void InitCars()
 {
   __int16 i; // si
   __int16 nNumGears; // di
@@ -254,7 +253,7 @@ int InitCars()
     }
   }
   LoadCarTextures = nCarTexIdx;
-  return CalcCarSizes();
+  CalcCarSizes();
 }
 
 //-------------------------------------------------------------------------------------------------
