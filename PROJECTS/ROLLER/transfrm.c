@@ -101,9 +101,9 @@ void calculatetransform(
 
 //-------------------------------------------------------------------------------------------------
 
-int initlocaltrack()
+void initlocaltrack()
 {
-  return 0; /*
+/*
   int i; // edx
 
   for (i = 0; i < TRAK_LEN; ++i)

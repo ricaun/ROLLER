@@ -27,6 +27,12 @@ void calculatetransform(
         float fPosX,
         float fPosY,
         float fPosZ);
+void initlocaltrack();
+void initlocalsection(int iChunkIdx);
+void dopitchchanges(int a1, int a2);
+int getpitchchange(int a1, int a2, int a3);
+int getworldangles(int a1, int a2, int a3, int iChunkIdx, int *a5, int *a6, int *a7);
+int getlocalangles(int a1, int a2, int a3, int iChunkIdx, int *a5, int *a6, int *a7);
 
 //-------------------------------------------------------------------------------------------------
 #endif

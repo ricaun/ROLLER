@@ -1,9 +1,8 @@
 #include "loadtrak.h"
 //-------------------------------------------------------------------------------------------------
 
-void *loadtrack(void *result, int a2)
-{
-  return 0; /*
+void loadtrack(void *result, int a2)
+{ /*
   int v2; // ebx
   int v3; // ecx
   float *v4; // edi

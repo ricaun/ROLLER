@@ -1,131 +1,110 @@
 #include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
-void plotxyz(int a1, int a2, float a3, float a4, float a5, char a6)
+void __fastcall plotxyz(float a1, float a2, float a3, char a4)
 {/*
-  __int16 v8; // fps
-  _BOOL1 v9; // c0
-  char v10; // c2
-  _BOOL1 v11; // c3
-  double v12; // st6
-  double v13; // st5
-  double v14; // st7
-  __int16 v15; // ax
-  float v16; // [esp+4h] [ebp-24h]
-  float v17; // [esp+8h] [ebp-20h]
-  float v18; // [esp+Ch] [ebp-1Ch]
-  int v19; // [esp+10h] [ebp-18h]
-  float v20; // [esp+14h] [ebp-14h]
+  double v8; // st6
+  double v9; // st5
+  double v10; // st7
+  float v11; // [esp+4h] [ebp-24h]
+  float v12; // [esp+8h] [ebp-20h]
+  float v13; // [esp+Ch] [ebp-1Ch]
+  int v14; // [esp+10h] [ebp-18h]
+  float v15; // [esp+14h] [ebp-14h]
 
-  k1 = a3 - viewx;
-  k2 = a4 - viewy;
-  k3 = a5 - viewz;
+  k1 = a1 - viewx;
+  k2 = a2 - viewy;
+  k3 = a3 - viewz;
   if (fabs(k1) <= graphics_c_variable_1 && fabs(k2) <= graphics_c_variable_1 && fabs(k3) <= graphics_c_variable_1) {
-    v17 = k1 * vk2 + k2 * vk5 + k3 * vk8;
-    v18 = k1 * vk3 + k2 * vk6 + k3 * vk9;
-    v20 = (float)VIEWDIST;
-    v10 = 0;
-    if (v18 >= (double)v20) {
-      v12 = 1.0 / v18;
-      v16 = k1 * vk1 + k2 * vk4 + k3 * vk7;
-      v13 = v20 * v16 * v12 + (double)xbase;
-      v9 = v18 < (double)v20;
-      v11 = v18 == v20;
-      _CHP(v8, a2);
-      v19 = (int)v13;
-      v14 = v12 * (v20 * v17) + (double)ybase;
-      _CHP(v15, a2);
-      if ((int)v13 >= 0 && v19 <= 319 && (unsigned int)(int)v14 < 0xC8)
-        *(_BYTE *)(scrbuf + v19 + winw * (199 - (int)v14)) = a6;
+    v12 = k1 * vk2 + k2 * vk5 + k3 * vk8;
+    v13 = k1 * vk3 + k2 * vk6 + k3 * vk9;
+    v15 = (float)VIEWDIST;
+    if (v13 >= (double)v15) {
+      v8 = 1.0 / v13;
+      v11 = k1 * vk1 + k2 * vk4 + k3 * vk7;
+      v9 = v15 * v11 * v8 + (double)xbase;
+      _CHP();
+      v14 = (int)v9;
+      v10 = v8 * (v15 * v12) + (double)ybase;
+      _CHP();
+      if ((int)v9 >= 0 && v14 <= 319 && (unsigned int)(int)v10 < 0xC8)
+        scrbuf[v14 + winw * (199 - (int)v10)] = a4;
     }
   }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void linexyz(int a1, int a2, float a3, float a4, float a5, float a6, float a7, float a8, char a9)
-{
-  /*
-  double v11; // st7
+void linexyz(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, char a7)
+{/*
+  double dViewDist; // st7
   double v12; // st6
-  __int16 v13; // fps
-  _BOOL1 v14; // c0
-  char v15; // c2
-  _BOOL1 v16; // c3
-  double v17; // st5
-  double v18; // st4
-  double v19; // rt2
-  double v20; // st3
-  double v21; // st4
-  __int16 v22; // ax
-  double v23; // st3
-  double v24; // st7
-  float v25; // [esp+4h] [ebp-3Ch]
-  float v26; // [esp+8h] [ebp-38h]
-  float v27; // [esp+Ch] [ebp-34h]
-  float v28; // [esp+10h] [ebp-30h]
-  float v29; // [esp+14h] [ebp-2Ch]
-  float v30; // [esp+18h] [ebp-28h]
-  float v31; // [esp+1Ch] [ebp-24h]
-  float v32; // [esp+1Ch] [ebp-24h]
-  float v33; // [esp+1Ch] [ebp-24h]
-  float v34; // [esp+20h] [ebp-20h]
-  float v35; // [esp+20h] [ebp-20h]
-  float v36; // [esp+20h] [ebp-20h]
-  int v37; // [esp+28h] [ebp-18h]
+  double dXbase; // st5
+  double dScrSize; // st4
+  double v15; // rt2
+  double dYBase; // st4
+  int v17; // edi
+  int v18; // eax
+  int v19; // ecx
+  double v20; // st7
+  int v21; // eax
+  float v22; // [esp+4h] [ebp-3Ch]
+  float v23; // [esp+8h] [ebp-38h]
+  float v24; // [esp+Ch] [ebp-34h]
+  float v25; // [esp+10h] [ebp-30h]
+  float v26; // [esp+14h] [ebp-2Ch]
+  float fViewDist; // [esp+18h] [ebp-28h]
+  float v28; // [esp+1Ch] [ebp-24h]
+  float v29; // [esp+1Ch] [ebp-24h]
+  float v30; // [esp+1Ch] [ebp-24h]
+  float v31; // [esp+20h] [ebp-20h]
+  float v32; // [esp+20h] [ebp-20h]
+  float v33; // [esp+20h] [ebp-20h]
+  int v34; // [esp+24h] [ebp-1Ch]
 
-  k1 = a3 - viewx;
-  k2 = a4 - viewy;
-  k3 = a5 - viewz;
-  k4 = a6 - viewx;
-  k5 = a7 - viewy;
-  k6 = a8 - viewz;
-  v26 = k1 * vk2 + k2 * vk5 + k3 * vk8;
-  v34 = k1 * vk3 + k2 * vk6 + k3 * vk9;
-  v28 = vk4 * k5 + k4 * vk1 + vk7 * k6;
-  v29 = vk5 * k5 + k4 * vk2 + k6 * vk8;
-  v31 = vk9 * k6 + vk3 * k4 + k5 * vk6;
-  v11 = (double)VIEWDIST;
-  v35 = v34 - v11;
-  v32 = v31 - v11;
-  if (v35 < 0.0 && v32 > 0.0 || v35 > 0.0 && v32 < 0.0) {
-    v12 = 1.0 / (v35 - v32);
-    v25 = v12 * (v29 * v35 - v32 * v26);
-    if (v35 >= 0.0) {
-      a2 = 0;
-      v27 = k1 * vk1 + k2 * vk4 + k3 * vk7;
-      v28 = (v28 * v35 - v27 * v32) * v12;
-      v32 = 0.0;
-      v29 = v25;
+  k1 = fX1 - viewx;
+  k2 = fY1 - viewy;
+  k3 = fZ1 - viewz;
+  k4 = fX2 - viewx;
+  k5 = fY2 - viewy;
+  k6 = fZ2 - viewz;
+  v24 = k1 * vk1 + k2 * vk4 + k3 * vk7;
+  v31 = k1 * vk3 + k2 * vk6 + k3 * vk9;
+  v26 = vk5 * k5 + k4 * vk2 + k6 * vk8;
+  v28 = vk9 * k6 + vk3 * k4 + k5 * vk6;
+  dViewDist = (double)VIEWDIST;
+  v32 = v31 - dViewDist;
+  v29 = v28 - dViewDist;
+  if (v32 < 0.0 && v29 > 0.0 || v32 > 0.0 && v29 < 0.0) {
+    v12 = 1.0 / (v32 - v29);
+    v23 = k1 * vk2 + k2 * vk5 + k3 * vk8;
+    v22 = v12 * (v26 * v32 - v29 * v23);
+    if (v32 >= 0.0) {
+      v29 = 0.0;
+      v26 = v22;
     } else {
-      v35 = 0.0;
-      v26 = v25;
+      v25 = vk4 * k5 + k4 * vk1 + vk7 * k6;
+      v24 = (v25 * v32 - v24 * v29) * v12;
+      v32 = 0.0;
     }
   }
-  v30 = (float)VIEWDIST;
-  v36 = v35 + v30;
-  v33 = v32 + v30;
-  if (v36 >= (double)v30) {
-    v15 = 0;
-    if (v33 >= (double)v30) {
-      v17 = (double)xbase;
-      v18 = (double)scr_size;
-      v14 = v33 < (double)v30;
-      v16 = v33 == v30;
-      _CHP(v13, a2);
-      v19 = v18;
-      v20 = graphics_c_variable_2 - 1.0 / v36 * (v30 * v26);
-      v21 = (double)ybase;
-      _CHP(v22, a2);
-      v37 = (int)((v20 - v21) * v19);
-      v23 = v17 + v30 * v28 * (1.0 / v33);
-      _CHP((unsigned __int16)((v37 - (__CFSHL__(v37 >> 31, 6) + (v37 >> 31 << 6))) >> 6), v37 >> 31 << 6);
-      v24 = (graphics_c_variable_2 - 1.0 / v33 * (v30 * v29) - v21) * v19;
-      _CHP(
-        (unsigned __int16)(((int)(v23 * v19) - (__CFSHL__((int)(v23 * v19) >> 31, 6) + ((int)(v23 * v19) >> 31 << 6))) >> 6),
-        (int)(v23 * v19) >> 31 << 6);
-      compout(((int)v24 - (__CFSHL__((int)v24 >> 31, 6) + ((int)v24 >> 31 << 6))) >> 6, a9);
-    }
+  fViewDist = (float)VIEWDIST;
+  v33 = v32 + fViewDist;
+  v30 = v29 + fViewDist;
+  if (v33 >= (double)fViewDist && v30 >= (double)fViewDist) {
+    dXbase = (double)xbase;
+    dScrSize = (double)scr_size;
+    _CHP();
+    v34 = (int)((fViewDist * v24 * (1.0 / v33) + dXbase) * dScrSize);
+    v15 = dScrSize;
+    dYBase = (double)ybase;
+    _CHP();
+    v17 = (v34 - (__CFSHL__(v34 >> 31, 6) + (v34 >> 31 << 6))) >> 6;
+    _CHP();
+    v19 = v18;
+    v20 = (graphics_c_variable_2 - 1.0 / v30 * (fViewDist * v26) - dYBase) * v15;
+    _CHP();
+    compout(v17, v21, v19, v17, v21, ((int)v20 - (__CFSHL__((int)v20 >> 31, 6) + ((int)v20 >> 31 << 6))) >> 6, a7);
   }*/
 }
 
@@ -360,7 +339,7 @@ char *line(int a1, int a2, int a3, int a4, int a5, char a6)
 
 //-------------------------------------------------------------------------------------------------
 
-void LoadPanel(char a1)
+void LoadPanel()
 {/*
   int v1; // ebx
   char *v2; // ecx

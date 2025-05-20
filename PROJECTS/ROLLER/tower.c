@@ -1,9 +1,8 @@
 #include "tower.h"
 //-------------------------------------------------------------------------------------------------
 
-int InitTowers()
-{
-  return 0; /*
+void InitTowers()
+{/*
   int result; // eax
   int v1; // esi
   int v2; // edx

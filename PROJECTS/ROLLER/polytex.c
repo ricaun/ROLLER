@@ -441,7 +441,7 @@ int twpolym(void *a1, __int16 a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int POLYTEX(int a1, int a2, int *a3, int a4, int a5)
+char POLYTEX(int a1, int a2, int *a3, int a4, int a5)
 {
   return 0; /*
   int result; // eax

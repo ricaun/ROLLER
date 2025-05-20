@@ -165,7 +165,7 @@ int VESAmode(void *a1, int a2, int a3, char *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int svgacopy(char *a1, __int16 a2, __int16 a3, int a4, int a5)
+int svgacopy(uint8 *pBuf, __int16 a2, __int16 a3, int a4, int a5)
 {
   return 0; /*
   int v6; // edx

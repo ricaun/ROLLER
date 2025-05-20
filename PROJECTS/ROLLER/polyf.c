@@ -1,7 +1,7 @@
 #include "polyf.h"
 //-------------------------------------------------------------------------------------------------
 
-int twpoly(__int16 *a1, __int16 a2)
+int twpoly(void *a1, __int16 a2)
 {
   return 0; /*
   __int16 v3; // ax
@@ -179,7 +179,7 @@ int twpoly(__int16 *a1, __int16 a2)
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 POLYFLAT(int a1, void *a2)
+__int16 POLYFLAT(int a1, int *a2)
 {
   return 0; /*
   _DWORD *v3; // eax
@@ -240,9 +240,8 @@ __int16 POLYFLAT(int a1, void *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 poly(int *a1, int a2, __int16 a3)
-{
-  return 0; /*
+void poly(int *a1, int a2, __int16 a3)
+{/*
   unsigned int v3; // ebp
   int v5; // edi
   int v6; // ecx
