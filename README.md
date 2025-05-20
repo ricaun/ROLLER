@@ -1,3 +1,5 @@
+![alt text](https://github.com/Zizin13/ROLLER/blob/master/images/whiplash.gif)
+
 C skeleton that builds, some functions and data decompiled.
 
 Debug symbol dump generated with wdump, part of: https://github.com/open-watcom/open-watcom-v2
