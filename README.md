@@ -1,4 +1,4 @@
-Mostly pseudocode that doesn't build, some functions and data decompiled.
+C skeleton that builds, some functions and data decompiled.
 
 Debug symbol dump generated with wdump, part of: https://github.com/open-watcom/open-watcom-v2
 
