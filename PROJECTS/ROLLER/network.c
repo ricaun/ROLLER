@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Initialise_Network(int a1)
+int Initialise_Network(int a1)
 {
+  return 0; /*
   int v2; // ecx
   int v3; // esi
   int i; // ebx
@@ -93,13 +93,14 @@ int __fastcall Initialise_Network(int a1)
     switch_same = 0;
     switch_types = 0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall close_network(int a1, int a2, int a3)
+int close_network(int a1, int a2, int a3)
 {
+  return 0; /*
   int v3; // edx
   int v4; // eax
   int i; // edx
@@ -169,13 +170,14 @@ int __fastcall close_network(int a1, int a2, int a3)
   result = clear_network_game(v9);
   if (net_type)
     return gssCommsUnInitSystem(result);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int send_net_error()
 {
+  return 0; /*
   int result; // eax
   int i; // esi
 
@@ -191,13 +193,14 @@ int send_net_error()
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_game_error(int result)
+int send_game_error(int result)
 {
+  return 0; /*
   int i; // esi
 
   if (network_on) {
@@ -216,13 +219,14 @@ int __fastcall send_game_error(int result)
         network_error = 666;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int send_network_sync_error()
 {
+  return 0; /*
   int result; // eax
   int i; // esi
 
@@ -240,26 +244,28 @@ int send_network_sync_error()
       return gssCommsSendData(master);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_resync(int result)
+int send_resync(int result)
 {
+  return 0; /*
   if (network_on) {
     resync = result;
     p_header_variable_2 = wConsoleNode;
     p_header_variable_1 = 1751933808;
     return gssCommsSendData(master);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int send_nocd_error()
 {
+  return 0; /*
   int result; // eax
   int i; // esi
 
@@ -277,13 +283,13 @@ int send_nocd_error()
       return gssCommsSendData(master);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void send_quit()
-{
+{/*
   int i; // esi
 
   if (network_on) {
@@ -301,13 +307,13 @@ void send_quit()
       while (!gssCommsSendData(master))
         ;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void send_ready()
-{
+{/*
   int v0; // edi
   int v1; // eax
 
@@ -328,13 +334,14 @@ void send_ready()
       player_ready[master] = -1;
       active_nodes = v0;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_record_to_master(int result)
+int send_record_to_master(int result)
 {
+  return 0; /*
   double v1; // st7
   int *v2; // edx
   int v3; // eax
@@ -359,13 +366,14 @@ int __fastcall send_record_to_master(int result)
       result = gssCommsSendData(master);
     while (!result);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_record_to_slaves(int result)
+int send_record_to_slaves(int result)
 {
+  return 0; /*
   double v1; // st7
   int *v2; // edx
   int v3; // eax
@@ -397,13 +405,14 @@ int __fastcall send_record_to_slaves(int result)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __fastcall send_mes(char *a1, int a2)
+char send_mes(char *a1, int a2)
 {
+  return 0; /*
   char *v2; // esi
   char *v3; // edi
   char *v4; // esi
@@ -456,13 +465,14 @@ char __fastcall send_mes(char *a1, int a2)
       message_sent = 4;
     }
   }
-  return (char)a1;
+  return (char)a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_seed(int result)
+int send_seed(int result)
 {
+  return 0; /*
   int v1; // edi
   int v2; // esi
 
@@ -480,13 +490,14 @@ int __fastcall send_seed(int result)
     result = srand(v1);
     random_seed = v1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_single(int result)
+int send_single(int result)
 {
+  return 0; /*
   if (network_on) {
     p_header_variable_2 = player1_car;
     slave_data = result;
@@ -503,13 +514,14 @@ int __fastcall send_single(int result)
       read_check = result;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int send_pause()
 {
+  return 0; /*
   int result; // eax
 
   if (network_on) {
@@ -517,13 +529,14 @@ int send_pause()
       result = gssCommsSendData(master);
     while (!result);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int send_slot()
 {
+  return 0; /*
   int result; // eax
 
   if (network_on) {
@@ -531,13 +544,13 @@ int send_slot()
       result = gssCommsSendData(21);
     while (!result);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void transmitpausetoslaves()
-{
+{/*
   int v0; // esi
   int v1; // edi
 
@@ -554,13 +567,13 @@ void transmitpausetoslaves()
         ++v0;
       } while (v0 < network_on);
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void send_multiple()
-{
+{/*
   int v0; // eax
   int *v1; // esi
   int v2; // edi
@@ -668,13 +681,13 @@ void send_multiple()
     } else {
       start_multiple = -v3;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void receive_multiple()
-{
+{/*
   int v0; // edx
   int v1; // ebx
   int i; // eax
@@ -920,13 +933,13 @@ void receive_multiple()
           goto LABEL_54;
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void receive_all_singles()
-{
+{/*
   int v0; // ebx
   int Block; // eax
   int v2; // edx
@@ -1097,13 +1110,13 @@ void receive_all_singles()
         gssCommsPostListen(Block, v2, v0);
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void do_sync_stuff()
-{
+{/*
   int v0; // esi
   char v1; // al
   int v2; // edx
@@ -1164,13 +1177,14 @@ void do_sync_stuff()
       }
     }
   }
-  syncptr = v0;
+  syncptr = v0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall TransmitInit(int a1, int a2, int a3, int a4)
+int TransmitInit(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
   int v5; // eax
   int v6; // eax
@@ -1259,13 +1273,14 @@ int __fastcall TransmitInit(int a1, int a2, int a3, int a4)
     } while (v9 != &default_names[144]);
     return gssCommsSendData(21);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall StartNode(int a1)
+int StartNode(int a1)
 {
+  return 0; /*
   int NetworkAddr; // eax
   int result; // eax
 
@@ -1278,13 +1293,14 @@ int __fastcall StartNode(int a1)
   else
     broadcast_mode = -1;
   tick_on = -1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int CheckNewNodes()
 {
+  return 0; /*
   int v0; // ebx
   int result; // eax
   __int64 v2; // rax
@@ -1846,13 +1862,14 @@ int CheckNewNodes()
         gssCommsPostListen(v2, HIDWORD(v2), v0);
         continue;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall FoundNodes(int result)
+int FoundNodes(int result)
 {
+  return 0; /*
   int v1; // eax
   __int16 ConsoleNode; // ax
   int v3; // ecx
@@ -1886,13 +1903,13 @@ int __fastcall FoundNodes(int result)
       } while (v6 < network_on);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void SendPlayerInfo()
-{
+{/*
   int v0; // ecx
   _BYTE v1[12]; // [esp+0h] [ebp-44h] BYREF
   int v2; // [esp+Ch] [ebp-38h]
@@ -1924,22 +1941,23 @@ void SendPlayerInfo()
           ;
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall prepare_net_message(int result, int a2)
+int prepare_net_message(int result, int a2)
 {
+  return 0; /*
   message_node = result;
   message_number = a2;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall SendAMessage(int a1, int a2, int a3, int a4)
-{
+void SendAMessage(int a1, int a2, int a3, int a4)
+{/*
   int i; // eax
   _BYTE v5[4]; // [esp+0h] [ebp-50h]
   int v6; // [esp+4h] [ebp-4Ch]
@@ -1976,13 +1994,13 @@ void __fastcall SendAMessage(int a1, int a2, int a3, int a4)
     else
       send_status = -18;
     send_message_to = -1;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall BroadcastNews(int a1, int a2, int a3, int a4)
-{
+void BroadcastNews(int a1, int a2, int a3, int a4)
+{/*
   int v4; // eax
   int v5; // eax
   int v6; // eax
@@ -2142,13 +2160,14 @@ void __fastcall BroadcastNews(int a1, int a2, int a3, int a4)
         send_record_to_master(TrackLoad);
       broadcast_mode = 0;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall remove_messages(int Header, int a2, _DWORD *a3, int a4)
+int remove_messages(int Header, int a2, void*a3, int a4)
 {
+  return 0; /*
   int v4; // ecx
   _DWORD v6[4]; // [esp-Ch] [ebp-10h] BYREF
 
@@ -2165,13 +2184,14 @@ int __fastcall remove_messages(int Header, int a2, _DWORD *a3, int a4)
       Header = gssCommsPostListen(Header, 12, v6);
     while (Header);
   }
-  return clear_network_game(Header);
+  return clear_network_game(Header);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall reset_network(int a1)
+int reset_network(int a1)
 {
+  return 0; /*
   __int64 v2; // rax
   int i; // edx
   int v4; // eax
@@ -2255,13 +2275,14 @@ int __fastcall reset_network(int a1)
     player_started[0] = -1;
     players_waiting = 1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int clear_network_game()
 {
+  return 0; /*
   int v0; // esi
   int v1; // ebx
   int v2; // ecx
@@ -2281,13 +2302,14 @@ int clear_network_game()
     ++v1;
     ++v2;
   } while (v1 < 16);
-  return memset(copy_multiple, 0, 0x8000);
+  return memset(copy_multiple, 0, 0x8000);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int reset_net_wait()
 {
+  return 0; /*
   int result; // eax
 
   result = 2;
@@ -2304,13 +2326,14 @@ int reset_net_wait()
   } while (result != 16);
   time_to_start = 0;
   players_waiting = 0;
-  return result * 4;
+  return result * 4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall send_broadcast(unsigned int result, int a2, int a3, int a4)
+unsigned int send_broadcast(unsigned int result, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // edx
   int v5; // edx
 
@@ -2341,13 +2364,14 @@ unsigned int __fastcall send_broadcast(unsigned int result, int a2, int a3, int 
         result = TransmitInit(-1, 0, a3, a4);
     } while (!result);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall send_here(int result)
+int send_here(int result)
 {
+  return 0; /*
   int i; // esi
 
   if (network_on) {
@@ -2360,8 +2384,7 @@ int __fastcall send_here(int result)
       return gssCommsSendData(master);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

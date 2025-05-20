@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
 int InitTowers()
 {
+  return 0; /*
   int result; // eax
   int v1; // esi
   int v2; // edx
@@ -56,13 +56,13 @@ int InitTowers()
     } while (v1 < v9);
   }
   TowerPol_variable_1 = 4;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall DrawTower(int a1, int a2)
-{
+void DrawTower(int a1, int a2)
+{/*
   double v2; // st7
   double v3; // st6
   double v4; // st5
@@ -130,8 +130,7 @@ void __fastcall DrawTower(int a1, int a2)
       TowerPol_variable_1 = 4;
       POLYFLAT(a2, &TowerPol);
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

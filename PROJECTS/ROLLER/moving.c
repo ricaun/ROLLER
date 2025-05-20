@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall initramp(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
+void *initramp(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
 {
+  return 0; /*
   _DWORD *result; // eax
   _DWORD *v12; // [esp+0h] [ebp-10h] BYREF
 
@@ -34,13 +34,14 @@ _DWORD *__fastcall initramp(int a1, int a2, int a3, int a4, int a5, int a6, int 
       return 0;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall reinitramp(float *a1)
+int reinitramp(float *a1)
 {
+  return 0; /*
   int v2; // ebx
   int v3; // eax
   int v4; // edi
@@ -189,13 +190,14 @@ int __fastcall reinitramp(float *a1)
     v45 += 32;
     v42 += 72;
   }
-  return updateramp(a1);
+  return updateramp(a1);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall updateramp(int result)
+int updateramp(int result)
 {
+  return 0; /*
   int v1; // edx
   int v2; // ecx
   int v3; // ebx
@@ -420,13 +422,14 @@ int __fastcall updateramp(int result)
     v32[12] = sqrt((v29 - v26) * (v29 - v26) + (v30 - v27) * (v30 - v27) + (v31 - v28) * (v31 - v28))
       * moving_c_variable_6;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int updatestunts()
 {
+  return 0; /*
   int *v0; // edx
   int result; // eax
   int v2; // ecx
@@ -439,13 +442,14 @@ int updatestunts()
       ++v0;
     } while (v2);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int reinitstunts()
 {
+  return 0; /*
   int *v0; // edx
   int result; // eax
   int v2; // ecx
@@ -458,13 +462,14 @@ int reinitstunts()
       ++v0;
     } while (v2);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall freeramp(_DWORD *result)
+void *__fastcall freeramp(void *result)
 {
+  return 0; /*
   _DWORD *v1; // [esp+0h] [ebp-4h] BYREF
 
   v1 = result;
@@ -473,13 +478,14 @@ _DWORD *__fastcall freeramp(_DWORD *result)
       fre(result + 20);
     return fre(&v1);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall freestunts(int a1, int a2, int a3, int a4)
+void freestunts(int a1, int a2, int a3, int a4)
 {
+  /*
   int *v4; // edx
   int v5; // eax
   int v6; // ecx
@@ -500,8 +506,7 @@ void __fastcall freestunts(int a1, int a2, int a3, int a4)
       v6 = v4[1];
       ++v4;
     } while (v6);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

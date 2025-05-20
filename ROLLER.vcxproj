@@ -109,7 +109,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
@@ -211,6 +211,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PROJECTS\ROLLER\3d.h" />
+    <ClInclude Include="PROJECTS\ROLLER\building.h" />
     <ClInclude Include="PROJECTS\ROLLER\car.h" />
     <ClInclude Include="PROJECTS\ROLLER\carplans.h" />
     <ClInclude Include="PROJECTS\ROLLER\control.h" />
@@ -218,6 +219,7 @@
     <ClInclude Include="PROJECTS\ROLLER\engines.h" />
     <ClInclude Include="PROJECTS\ROLLER\frontend.h" />
     <ClInclude Include="PROJECTS\ROLLER\func2.h" />
+    <ClInclude Include="PROJECTS\ROLLER\func3.h" />
     <ClInclude Include="PROJECTS\ROLLER\function.h" />
     <ClInclude Include="PROJECTS\ROLLER\graphics.h" />
     <ClInclude Include="PROJECTS\ROLLER\plans.h" />

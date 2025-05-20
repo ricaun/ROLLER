@@ -1,6 +1,7 @@
 #include "sound.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 //-------------------------------------------------------------------------------------------------
 
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
@@ -10,13 +11,11 @@ int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
 uint8 unmangleinbuf[1024];  //00149EF0
-
-//-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall realmode(char a1, int a2, int a3, int a4)
+int realmode(char a1, int a2, int a3, int a4)
 {
+  return 0; /*
   __int16 v6; // [esp+0h] [ebp-34h] BYREF
   char v7; // [esp+4h] [ebp-30h]
   char v8; // [esp+5h] [ebp-2Fh]
@@ -33,13 +32,14 @@ int __fastcall realmode(char a1, int a2, int a3, int a4)
   v9 = 0;
   v11[0] = __DS__;
   v10 = &RMI;
-  return int386x(49, (int)&v6, (int)&v6, (int)v11);
+  return int386x(49, (int)&v6, (int)&v6, (int)v11);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loadDOS(int a1, _DWORD *a2, int *a3)
+int loadDOS(int a1, void *a2, int *a3)
 {
+  return 0; /*
   int v4; // ecx
   __int64 v5; // rax
   int v6; // esi
@@ -70,13 +70,14 @@ int __fastcall loadDOS(int a1, _DWORD *a2, int *a3)
       close(v6, v4);
     }
   }
-  return v4;
+  return v4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall claimDOS(int a1, _DWORD *a2)
+int claimDOS(int a1, void *a2)
 {
+  return 0; /*
   int v3; // ecx
   unsigned __int16 v5; // dx
   int v6; // [esp+0h] [ebp-34h] BYREF
@@ -97,13 +98,14 @@ int __fastcall claimDOS(int a1, _DWORD *a2)
     v5 = v6;
     *a2 = v8;
     return 16 * v5;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall releaseDOS(__int16 a1, int a2, int a3, int a4)
+int releaseDOS(__int16 a1, int a2, int a3, int a4)
 {
+  return 0; /*
   _WORD v6[14]; // [esp+0h] [ebp-34h] BYREF
   _BYTE v7[16]; // [esp+1Ch] [ebp-18h] BYREF
   int v8; // [esp+2Ch] [ebp-8h]
@@ -112,13 +114,14 @@ int __fastcall releaseDOS(__int16 a1, int a2, int a3, int a4)
   memset(v7, 0, 12);
   v6[6] = a1;
   v6[0] = 257;
-  return int386x(49, (int)v6, (int)v6, (int)v7);
+  return int386x(49, (int)v6, (int)v6, (int)v7);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall setpal(int a1, int a2, _WORD *a3, _BYTE *a4)
+int setpal(int a1, int a2, void *a3, void *a4)
 {
+  return 0; /*
   int v4; // esi
   _WORD *v5; // edx
   __int16 v6; // cx
@@ -166,13 +169,14 @@ int __fastcall setpal(int a1, int a2, _WORD *a3, _BYTE *a4)
   }
   result = 0;
   palette_brightness = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall blankpal(int a1, int a2, int a3, int a4)
+int blankpal(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   unsigned int v4; // ecx
   unsigned __int16 v5; // si
   int result; // eax
@@ -204,25 +208,27 @@ int __fastcall blankpal(int a1, int a2, int a3, int a4)
   int386x(49, (int)v10, (int)v10, (int)v12);
   result = 0;
   palette_brightness = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int resetpal()
 {
+  return 0; /*
   RMI_variable_4 = 4114;
   RMI_variable_1 = 0;
   RMI_variable_3 = 256;
   RMI_variable_5 = (unsigned int)pal_addr >> 4;
   RMI_variable_2 = 0;
-  return realmode(16, 4114, 0, 256);
+  return realmode(16, 4114, 0, 256);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int Initialise_SOS()
 {
+  return 0; /*
   int v0; // eax
   int v1; // eax
 
@@ -258,13 +264,14 @@ int Initialise_SOS()
   select8bitdriver();
   ticks = 0;
   frames = 0;
-  return claim_ticktimer(36);
+  return claim_ticktimer(36);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int updatejoy()
 {
+  return 0; /*
   int result; // eax
   int v1; // eax
   int v2; // eax
@@ -336,13 +343,14 @@ int updatejoy()
       joyvalue_variable_6 = result;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall readuserdata(int result)
+int readuserdata(int result)
 {
+  return 0; /*
   int v1; // ecx
   int v2; // esi
   int v3; // ebx
@@ -591,13 +599,14 @@ LABEL_107:
       BYTE1(v23) |= 4u;
   }
   user_inp_variable_1 = v23;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall tickhandler(int a1, int a2, int a3, int a4)
+int tickhandler(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // eax
   int v5; // eax
   int v6; // eax
@@ -1119,30 +1128,32 @@ int __fastcall tickhandler(int a1, int a2, int a3, int a4)
         v4 = delayread++;
     }
   }
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(v4, a2, a3, a4);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(v4, a2, a3, a4);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void claim_ticktimer()
-{
+{/*
   if (sosTIMERRegisterEvent((char)&tickhandle, (unsigned __int16)__DS__)) {
     printf(aUnableToSetTim);
     doexit();
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int release_ticktimer()
 {
-  return sosTIMERRemoveEvent(tickhandle);
+  return 0; /*
+  return sosTIMERRemoveEvent(tickhandle);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int Uninitialise_SOS()
 {
+  return 0; /*
   int result; // eax
   int inited; // eax
   int v2; // eax
@@ -1159,13 +1170,13 @@ int Uninitialise_SOS()
     v2 = sosMIDIUnInitDriver(MIDIHandle, 1);
     return sosMIDIUnInitSystem(v2);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void loadsamples()
-{
+{/*
   int v0; // edx
   int v1; // ecx
   int v2; // ebx
@@ -1241,13 +1252,14 @@ LABEL_30:
   samplespending = 0;
   writesample = 0;
   readsample = 0;
-  lastsample = -10000;
+  lastsample = -10000;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int loadfatalsample()
 {
+  return 0; /*
   int result; // eax
 
   if (!SamplePtr_variable_13)
@@ -1277,13 +1289,14 @@ _DWORD *freefatalsample()
   fre(&SamplePtr_variable_12);
   fre(&SamplePtr_variable_9);
   fre(&SamplePtr_variable_10);
-  return fre(&SamplePtr_variable_11);
+  return fre(&SamplePtr_variable_11);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *releasesamples()
+void *releasesamples()
 {
+  return 0; /*
   int *v0; // ebx
   int i; // edx
   _DWORD *result; // eax
@@ -1296,13 +1309,14 @@ _DWORD *releasesamples()
       ++v0;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int play()
 {
+  return 0; /*
   int result; // eax
 
   if (musicon) {
@@ -1314,13 +1328,14 @@ int play()
       return sosMIDIStartSong(SongHandle);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall stop(int a1, int a2, int a3, int a4)
+int stop(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
 
   if (MusicCard) {
@@ -1329,13 +1344,14 @@ int __fastcall stop(int a1, int a2, int a3, int a4)
       return sosMIDIResetSong(a4);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall __spoils<> devicespecificinit(int a1, int a2, int a3, int a4)
+int devicespecificinit(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
   int inited; // eax
   int i; // esi
@@ -1398,23 +1414,25 @@ int __fastcall __spoils<> devicespecificinit(int a1, int a2, int a3, int a4)
     default:
       return result;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int initgus()
 {
+  return 0; /*
   printf(&aCedownloadingG[2]);
   fflush(&__iob_variable_1);
   system((int)&aCLoadpatsQIfat[1]);
-  return printf(aDone);
+  return printf(aDone);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__spoils<> devicespecificuninit()
+void *devicespecificuninit()
 {
+  return 0; /*
   _DWORD *result; // eax
   int *v1; // eax
 
@@ -1437,13 +1455,14 @@ _DWORD *__spoils<> devicespecificuninit()
     default:
       return result;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall readsoundconfig@<eax>(int a1@<edi>)
+int readsoundconfig(int a1)
 {
+  return 0; /*
   int result; // eax
   int v2; // ecx
   unsigned int v3; // esi
@@ -1530,13 +1549,14 @@ int __usercall readsoundconfig@<eax>(int a1@<edi>)
     musicon = MusicCard;
   if (!SoundCard)
     soundon = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall FindConfigVar(char *a1, const char *a2)
+char *FindConfigVar(char *a1, const char *a2)
 {
+  return 0; /*
   char *result; // eax
   char *v4; // edx
   char v5; // al
@@ -1554,13 +1574,14 @@ char *__fastcall FindConfigVar(char *a1, const char *a2)
     else
       return 0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loadfile(int a1, _DWORD *a2, unsigned int *a3, int a4)
+int loadfile(int a1, void *a2, unsigned int *a3, int a4)
 {
+  return 0; /*
   __int64 v5; // rax
 
   *a2 = 0;
@@ -1584,13 +1605,14 @@ int __fastcall loadfile(int a1, _DWORD *a2, unsigned int *a3, int a4)
       }
     }
   }
-  return v5;
+  return v5;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall ReadJoys(int *a1)
+int ReadJoys(int *a1)
 {
+  return 0; /*
   unsigned __int8 v2; // al
   int v3; // ebx
   int v4; // eax
@@ -1680,13 +1702,14 @@ int __fastcall ReadJoys(int *a1)
     result = v13;
     a1[7] = v13;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int check_joystickpresence()
 {
+  return 0; /*
   int v0; // ebx
   int v1; // esi
   int v2; // ecx
@@ -1737,13 +1760,14 @@ int check_joystickpresence()
     y2ok = 0;
   result = y2ok;
   bitaccept = y2ok | y1ok | x1ok | x2ok;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int initsounds()
 {
+  return 0; /*
   int v0; // ebx
   int result; // eax
   int i; // ecx
@@ -1787,13 +1811,14 @@ int initsounds()
     } while (result < 4 * v0);
   }
   numcars = v0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int stopallsamples()
 {
+  return 0; /*
   int i; // edx
   int v1; // ebx
   int v2; // ebp
@@ -1854,13 +1879,14 @@ int stopallsamples()
   } while (v8 != 32);
   lastsample = -1000;
   _enable();
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall pannedsample(int result, int a2, int a3)
+int pannedsample(int result, int a2, int a3)
 {
+  return 0; /*
   int v3; // esi
   int v4; // edi
   int v6; // ebp
@@ -1913,22 +1939,24 @@ int __fastcall pannedsample(int result, int a2, int a3)
       HandleCar[v9] = 0;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall speechonly(int result, int a2, int a3, int a4)
+int speechonly(int result, int a2, int a3, int a4)
 {
+  return 0; /*
   if (readsample == writesample && -a3 > lastsample)
     return speechsample(result, a2, a3, a4);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall speechsample(int result, int a2, int a3, int a4)
+int speechsample(int result, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // edi
   int v5; // esi
 
@@ -1952,13 +1980,14 @@ int __fastcall speechsample(int result, int a2, int a3, int a4)
     }
   }
   writesample = v4;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int analysespeechsamples()
 {
+  return 0; /*
   int result; // eax
   int v1; // ecx
   int v2; // esi
@@ -2200,13 +2229,14 @@ int analysespeechsamples()
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall dospeechsample(__int64 a1)
+int dospeechsample(__int64 a1)
 {
+  return 0; /*
   int v1; // ebx
   int v2; // esi
   int v3; // ebx
@@ -2248,13 +2278,14 @@ int __fastcall dospeechsample(__int64 a1)
       }
     }
   }
-  return a1;
+  return a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loadfrontendsample(int result)
+int loadfrontendsample(int result)
 {
+  return 0; /*
   char *v1; // esi
   char *v2; // edi
   char v3; // al
@@ -2331,13 +2362,14 @@ int __fastcall loadfrontendsample(int result)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall frontendsample(int a1)
+int frontendsample(int a1)
 {
+  return 0; /*
   int v1; // edx
   int result; // eax
 
@@ -2356,13 +2388,14 @@ int __fastcall frontendsample(int a1)
     frontendspeechhandle = result;
     _enable();
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *remove_frontendspeech()
+void *remove_frontendspeech()
 {
+  return 0; /*
   _DWORD *result; // eax
 
   if (SoundCard) {
@@ -2375,13 +2408,14 @@ _DWORD *remove_frontendspeech()
     if (frontendspeechptr)
       return fre(&frontendspeechptr);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall sfxplaying(int a1)
+int sfxplaying(int a1)
 {
+  return 0; /*
   int v1; // ecx
   unsigned int v2; // ebx
   int result; // eax
@@ -2395,23 +2429,25 @@ int __fastcall sfxplaying(int a1)
   result = 0;
   *(int *)((char *)SampleHandleCar + v1) = -1;
   HandleSample[v2] = -1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall cheatsampleok(int a1)
+int cheatsampleok(int a1)
 {
+  return 0; /*
   if (a1 == (__int16)player1_car || a1 == player2_car)
     return -1;
   else
-    return 0;
+    return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall sfxsample(__int64 a1)
+int sfxsample(__int64 a1)
 {
+  return 0; /*
   int v1; // ebx
   int v2; // esi
   int v3; // ebx
@@ -2453,21 +2489,22 @@ int __fastcall sfxsample(__int64 a1)
       }
     }
   }
-  return a1;
+  return a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __userpurge sample2@<eax>(
-        __int64 rax0@<edx:eax>,
-        int ecx0@<ecx>,
-        int ebx0@<ebx>,
+int sample2(
+        __int64 rax0,
+        int ecx0,
+        int ebx0,
         __int64 a1,
         int a2,
         int a3,
         int a4,
         int a5)
 {
+  return 0; /*
   int v8; // esi
   int v9; // edi
   int v10; // ecx
@@ -2500,13 +2537,14 @@ int __userpurge sample2@<eax>(
       }
     }
   }
-  return rax0;
+  return rax0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall sfxpend(int a1, int a2, int a3)
+int sfxpend(int a1, int a2, int a3)
 {
+  return 0; /*
   int v5; // edi
   int result; // eax
   int v7; // edi
@@ -2542,13 +2580,14 @@ int __fastcall sfxpend(int a1, int a2, int a3)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall enginesounds2(int result, int a2)
+int enginesounds2(int result, int a2)
 {
+  return 0; /*
   int v2; // ecx
   int v3; // ecx
 
@@ -2566,13 +2605,14 @@ int __fastcall enginesounds2(int result, int a2)
     enginesound(0.0, 0.0, 2000.0, 0x8000);
     return delaywrite++;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall enginesounds(int result)
+int enginesounds(int result)
 {
+  return 0; /*
   int v1; // edi
   unsigned int v2; // eax
   int v3; // ebp
@@ -2791,13 +2831,14 @@ int __fastcall enginesounds(int result)
     }
     return delaywrite++;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loopsample(int result, unsigned int a2, int a3, int a4, int a5)
+int loopsample(int result, unsigned int a2, int a3, int a4, int a5)
 {
+  return 0; /*
   unsigned int v5; // ebp
   unsigned int v7; // ebx
   int v8; // esi
@@ -2856,13 +2897,13 @@ int __fastcall loopsample(int result, unsigned int a2, int a3, int a4, int a5)
       lastpan[v10] = v16;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall enginesound(int a1, float a2, float a3, float a4, int a5)
-{
+void enginesound(int a1, float a2, float a3, float a4, int a5)
+{/*
   int v8; // ebp
   int v9; // edx
   __int16 v10; // fps
@@ -3073,13 +3114,14 @@ void __fastcall enginesound(int a1, float a2, float a3, float a4, int a5)
       } while (v49 < Pending[v48]);
     }
     Pending[v48] = 0;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall startmusic(int result)
+int startmusic(int result)
 {
+  return 0; /*
   int v1; // edx
   int v2; // ebx
   int v3; // edx
@@ -3147,13 +3189,14 @@ int __fastcall startmusic(int result)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall stopmusic(int a1, int a2)
+int stopmusic(int a1, int a2)
 {
+  return 0; /*
   int result; // eax
 
   if (MusicCD && track_playing)
@@ -3169,13 +3212,14 @@ int __fastcall stopmusic(int a1, int a2)
     result = 0;
     SongPtr = 0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int load_language_map()
 {
+  return 0; /*
   int v0; // ebx
   int v1; // edi
   char *v2; // esi
@@ -3199,13 +3243,14 @@ int load_language_map()
       readline(v1, aCcc, v6);
     } while (v0 < languages);
   }
-  return fclose(v1);
+  return fclose(v1);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int initmusic()
 {
+  return 0; /*
   int v0; // ebx
   int v1; // ebp
   char *v2; // edx
@@ -3325,148 +3370,13 @@ int initmusic()
   optionssong = -(nummusictracks + 1);
   winsong = -(nummusictracks + 3);
   winchampsong = -(nummusictracks + 4);
-  return fclose(v0);
+  return fclose(v0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall fade_palette(int a1, int a2, int j, int a4)
-{
-  int v4; // edx
-  int v5; // ebp
-  _BOOL1 k; // cc
-  int m; // eax
-  int v8; // edx
-  unsigned __int8 v9; // al
-  unsigned __int8 v10; // al
-  int n; // ebx
-  unsigned __int8 v12; // al
-  int v13; // ebp
-  int i; // eax
-  int v15; // edx
-  unsigned __int8 v16; // al
-  unsigned __int8 v17; // al
-  unsigned __int8 v18; // al
-  int v19; // [esp+0h] [ebp-34h] BYREF
-  int v20; // [esp+4h] [ebp-30h]
-  int v21; // [esp+8h] [ebp-2Ch]
-  int v22; // [esp+Ch] [ebp-28h]
-  int v23; // [esp+10h] [ebp-24h]
-  int v24; // [esp+14h] [ebp-20h]
-  int v25; // [esp+18h] [ebp-1Ch]
-
-  v20 = a1;
-  if (!a1)
-    disable_keyboard();
-  if (v20 == 32 && soundon)
-    a1 = sosDIGISetMasterVolume(DIGIHandle, 0x7FFF);
-  v4 = palette_brightness;
-  if (palette_brightness != v20) {
-    v22 = tick_on;
-    v23 = ticks;
-    tick_on = 0;
-    s7 = 0;
-    if (current_mode)
-      sosTIMERRegisterEvent((char)&v19, (unsigned __int16)__DS__);
-    j = v20;
-    if (v4 > v20) {
-      v21 = s7;
-      v13 = v4;
-      if (v4 >= v20) {
-        v24 = 0x7FFF * v4;
-        do {
-          if (!v20 && !holdmusic) {
-            if (musicon)
-              sosMIDISetMasterVolume((unsigned __int8)((v13 * MusicVolume
-                                                        - (__CFSHL__((v13 * MusicVolume) >> 31, 5)
-                                                           + 32 * ((v13 * MusicVolume) >> 31))) >> 5));
-            if (soundon)
-              sosDIGISetMasterVolume(DIGIHandle, (v24 - (__CFSHL__(v24 >> 31, 5) + 32 * (v24 >> 31))) >> 5);
-            if (MusicCD)
-              SetAudioVolume((v13 * MusicVolume
-                              - (__CFSHL__((v13 * MusicVolume) >> 31, 5)
-                                 + 32 * ((v13 * MusicVolume) >> 31))) >> 5);
-          }
-          qmemcpy((void *)pal_addr, palette, 0x300u);
-          for (i = 0; i < 768; *(_BYTE *)(pal_addr + i - 1) = v15 >> 5)
-            v15 = v13 * *(unsigned __int8 *)(pal_addr + i++);
-          if (current_mode) {
-            while (v21 == s7)
-              ;
-            v21 = s7;
-          } else {
-            do
-              v16 = __inbyte(0x3DAu);
-            while ((v16 & 8) == 0);
-            do
-              v17 = __inbyte(0x3DAu);
-            while ((v17 & 8) != 0);
-          }
-          __outbyte(0x3C8u, 0);
-          for (j = 0; j < 768; ++j) {
-            v18 = *(_BYTE *)(j + pal_addr);
-            v4 = 969;
-            __outbyte(0x3C9u, v18);
-          }
-          --v13;
-          v24 -= 0x7FFF;
-        } while (v13 >= v20);
-      }
-    } else {
-      v25 = s7;
-      v5 = v4;
-      for (k = v4 <= v20; k; k = v5 <= v20) {
-        qmemcpy((void *)pal_addr, palette, 0x300u);
-        for (m = 0; m < 768; *(_BYTE *)(pal_addr + m - 1) = v8 >> 5)
-          v8 = v5 * *(unsigned __int8 *)(pal_addr + m++);
-        if (current_mode) {
-          while (v25 == s7)
-            ;
-          v25 = s7;
-        } else {
-          do
-            v9 = __inbyte(0x3DAu);
-          while ((v9 & 8) == 0);
-          do
-            v10 = __inbyte(0x3DAu);
-          while ((v10 & 8) != 0);
-        }
-        __outbyte(0x3C8u, 0);
-        for (n = 0; n < 768; ++n) {
-          v12 = *(_BYTE *)(n + pal_addr);
-          v4 = 969;
-          __outbyte(0x3C9u, v12);
-        }
-        j = v20;
-        ++v5;
-      }
-    }
-    if (current_mode)
-      sosTIMERRemoveEvent(v19);
-    qmemcpy((void *)pal_addr, palette, 0x300u);
-    a4 = 0;
-    palette_brightness = v20;
-    tick_on = v22;
-    a1 = v23;
-    ticks = v23;
-  }
-  if (v20 == 32)
-    enable_keyboard();
-  if (!v20 && !holdmusic) {
-    if (MusicCD && track_playing) {
-      StopTrack();
-    } else if (MusicCard && SongPtr) {
-      stop(a1, v4, j, a4);
-      sosMIDIUnInitSong(SongHandle);
-      SongPtr = 0;
-    }
-  }
-}
-
-//-------------------------------------------------------------------------------------------------
-
-void __fastcall fade_palette(int a1, int a2, int j, int a4)
-{
+void fade_palette(int a1, int a2, int j, int a4)
+{/*
   int v4; // edx
   int v5; // ebp
   _BOOL1 k; // cc
@@ -3616,13 +3526,14 @@ void __fastcall fade_palette(int a1, int a2, int j, int a4)
       sosMIDIUnInitSong(SongHandle);
       SongPtr = 0;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall set_palette(int result)
+int set_palette(int result)
 {
+  return 0; /*
   int v1; // ebp
   int i; // ebx
   int v3; // edx
@@ -3645,13 +3556,14 @@ int __fastcall set_palette(int result)
     qmemcpy((void *)pal_addr, palette, 0x300u);
     palette_brightness = v1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int check_joystick_usage()
 {
+  return 0; /*
   int result; // eax
   char v1; // dl
   char v2; // cl
@@ -3666,13 +3578,14 @@ int check_joystick_usage()
     if (v2 == -126 || v2 == -125 || (unsigned __int8)v2 >= 0x88u && (unsigned __int8)v2 <= 0x8Bu)
       Joy2used = -1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __fastcall __spoils<ah> convertname(char *a1)
+char convertname(char *a1)
 {
+  return 0; /*
   char *v2; // edi
   char *v3; // esi
   char result; // al
@@ -3741,13 +3654,14 @@ char __fastcall __spoils<ah> convertname(char *a1)
     v13[1] = result;
     v13 += 2;
   } while (result);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall decode(char *result, int a2, int a3, int a4)
+char *decode(char *result, int a2, int a3, int a4)
 {
+  return 0; /*
   int i; // edx
   char v7; // bh
   char v8; // bl
@@ -3762,13 +3676,14 @@ char *__fastcall decode(char *result, int a2, int a3, int a4)
     a3 = a4;
     a4 = v9;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loadasample(int a1)
+int loadasample(int a1)
 {
+  return 0; /*
   char *v2; // edi
   char *v3; // esi
   char v4; // al
@@ -3867,13 +3782,14 @@ int __fastcall loadasample(int a1)
       SampleLen[v19] = v21;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall select8bitdriver(int result, int a2)
+int select8bitdriver(int result, int a2)
 {
+  return 0; /*
   int v2; // eax
 
   if (SoundCard) {
@@ -3903,13 +3819,14 @@ int __fastcall select8bitdriver(int result, int a2)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int resetsamplearray()
 {
+  return 0; /*
   int v0; // ebx
   int i; // ecx
   int v2; // edx
@@ -3961,13 +3878,14 @@ int resetsamplearray()
     v5 += 64;
   }
   numcars = v0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall reinitmusic(int result, int a2, int a3, int a4)
+int reinitmusic(int result, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // eax
 
   if (musicon) {
@@ -3988,13 +3906,14 @@ int __fastcall reinitmusic(int result, int a2, int a3, int a4)
       SongPtr = 0;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall waitsampledone(int result)
+int waitsampledone(int result)
 {
+  return 0; /*
   int v1; // ebx
 
   if (soundon) {
@@ -4007,9 +3926,9 @@ int __fastcall waitsampledone(int result)
       }
     }
   }
-  return result;
+  return result;*/
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 int getcompactedfilelength(const char *szFile)
@@ -4032,7 +3951,7 @@ int initmangle(const char *szFile)
   unmangleoverflow = 0;
   unmanglefile = fopen(szFile, szRb);
   fseek(unmanglefile, unmanglebufpos, 0);
-  return fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
+  return (int)fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4063,7 +3982,7 @@ void readmangled(uint8 *pBufRet, int iLength)
   iLengthToRead = iLength;
   pBufUnit8 = pBufRet + 40000;
   if (unmangleoverflow) {
-    qmemcpy(pBufUnit8, pBufRet, unmangleoverflow);
+    memcpy(pBufUnit8, pBufRet, unmangleoverflow);
     iOverflow = unmangleoverflow;
     unmangleoverflow = 0;
     pBufUnit8 += iOverflow;
@@ -4071,12 +3990,12 @@ void readmangled(uint8 *pBufRet, int iLength)
   }
   if (iLengthToRead > 0) {
     loadcompactedfilepart(pBufUnit8, iLengthToRead);
-    iDelta = unmangledst - pBufUnit8;
+    iDelta = (int)(unmangledst - pBufUnit8);
     if (unmangledst - pBufUnit8 > iLengthToRead) {
       unmangleoverflow = iDelta - iLengthToRead;
-      qmemcpy(pBufRet, &pBufUnit8[iLengthToRead], iDelta - iLengthToRead);
+      memcpy(pBufRet, &pBufUnit8[iLengthToRead], iDelta - iLengthToRead);
     }
-    qmemcpy(pBufRet + 20000, &pBufUnit8[iLengthToRead - 20000], 0x4E20u);
+    memcpy(pBufRet + 20000, &pBufUnit8[iLengthToRead - 20000], 0x4E20u);
   }
 }
 
@@ -4167,7 +4086,6 @@ void loadcompactedfilepart(uint8 *pDestination, int iDestLength)
       iInputPos += 3;
     }
   }
-  return iOutputPos == iDestLength;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4176,12 +4094,12 @@ uint8 *unmangleGet(unsigned int uiPos, unsigned int uiLookahead)
 {
   // if what we want to read is not currently in the 
   // buffer load it into the buffer from the file
-  if (uiPos < unmanglebufpos || uiPos + uiLookahead > unmanglebufpos + 1024) {
+  if (uiPos < (uint32)unmanglebufpos || uiPos + uiLookahead >(uint32)unmanglebufpos + 1024) {
     unmanglebufpos = uiPos;
     fseek(unmanglefile, uiPos, 0);
     fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
   }
-  return &unmangleinbuf[uiPos - unmanglebufpos];// return new pos
+  return &unmangleinbuf[uiPos - (uint32)unmanglebufpos];// return new pos
 }
 
 //-------------------------------------------------------------------------------------------------

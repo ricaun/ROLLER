@@ -1,8 +1,12 @@
-#ifdef ENABLE_PSEUDO
+#include "3d.h"
+#include <memory.h>
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall winner_screen(int a1, char a2, _WORD *a3)
+int winner_screen(int a1, char a2, void *a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0;
+  /*
   _BYTE *v4; // ecx
   __int64 picture; // rax
   int v6; // ebp
@@ -146,13 +150,15 @@ int __fastcall winner_screen(int a1, char a2, _WORD *a3)
     fade_palette(0, (int)v22, v18, 0);
     front_fade = 0;
   }
-  return v25;
+  return v25;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int StoreResult()
 {
+  return 0;
+  /*
   int v0; // edi
   int v1; // ebx
   unsigned int v2; // eax
@@ -218,13 +224,14 @@ int StoreResult()
   FastestLap = v3;
   result_p2_pos = v0;
   result_p1_pos = v10;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall RaceResult(int a1, int a2, int a3, _BYTE *a4)
+void RaceResult(int a1, int a2, int a3, char *a4)
 {
+  /*
   int v4; // edi
   int v5; // esi
   unsigned int v6; // ecx
@@ -394,13 +401,15 @@ void __fastcall RaceResult(int a1, int a2, int a3, _BYTE *a4)
   fre(&front_vga_variable_3);
   scr_size = v20;
   holdmusic = -1;
-  fade_palette(0, (int)v18, 0, v9);
+  fade_palette(0, (int)v18, 0, v9);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall TimeTrials(int a1, int a2, int a3, _BYTE *a4)
+void TimeTrials(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   int v5; // edi
   int v6; // esi
   unsigned int v7; // ecx
@@ -637,13 +646,14 @@ void __fastcall TimeTrials(int a1, int a2, int a3, _BYTE *a4)
   fre(&front_vga_variable_3);
   fre(&front_vga_variable_2);
   scr_size = v35;
-  fade_palette(0, (int)v33, (int)&font2_ascii, (int)&font2_offsets);
+  fade_palette(0, (int)v33, (int)&font2_ascii, (int)&font2_offsets);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall ChampionshipStandings(int a1, int a2, int a3, _BYTE *a4)
+void ChampionshipStandings(int a1, int a2, int a3, char *a4)
 {
+  /*
   int v4; // ebp
   int v5; // edi
   int v6; // esi
@@ -815,13 +825,15 @@ void __fastcall ChampionshipStandings(int a1, int a2, int a3, _BYTE *a4)
   fre(&front_vga_variable_2);
   scr_size = v4;
   holdmusic = -1;
-  fade_palette(0, (int)v28, v26, -1);
+  fade_palette(0, (int)v28, v26, -1);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall TeamStandings(int a1, int a2, int a3, _BYTE *a4)
+void TeamStandings(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   int v4; // edi
   int v5; // esi
   unsigned int v6; // ecx
@@ -989,11 +1001,13 @@ void __fastcall TeamStandings(int a1, int a2, int a3, _BYTE *a4)
   fre(&front_vga_variable_2);
   scr_size = v22;
   holdmusic = -1;
-  fade_palette(0, (int)v31, -1, v28);
+  fade_palette(0, (int)v31, -1, v28);*/
 }
 
-void __fastcall ShowLapRecords(int a1, int a2, int a3, _BYTE *a4)
+void ShowLapRecords(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   unsigned __int64 picture; // kr00_8
   int v5; // edi
   int v6; // esi
@@ -1224,13 +1238,15 @@ void __fastcall ShowLapRecords(int a1, int a2, int a3, _BYTE *a4)
   holdmusic = (game_type != 4) - 1;
   fade_palette(0, (int)v16, v15, -1);
   if (game_type != 4)
-    holdmusic = 0;
+    holdmusic = 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __stdcall show_3dmap(float a1, int a2, int a3)
+void show_3dmap(float a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  /*
   int v3; // edx
   double v4; // st7
   double v5; // st7
@@ -1866,13 +1882,15 @@ void __stdcall show_3dmap(float a1, int a2, int a3)
   _CHP(v146, v147);
   xbase = (int)v159;
   _CHP(v157, v147);
-  ybase = (int)v158;
+  ybase = (int)v158;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall DrawCar(int a1, int a2, float a3, int a4, char a5)
+void DrawCar(int a1, int a2, float a3, int a4, char a5)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  /*
   int v7; // ecx
   int v8; // eax
   double v9; // st7
@@ -2412,13 +2430,16 @@ void __fastcall DrawCar(int a1, int a2, float a3, int a4, char a5)
       }
       v83 += 12;
     } while (v83 < v147);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall championship_winner(int a1, int a2, int a3, _BYTE *a4)
+void *championship_winner(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v4; // edi
   int v5; // esi
   int v6; // ebp
@@ -2496,22 +2517,27 @@ _DWORD *__fastcall championship_winner(int a1, int a2, int a3, _BYTE *a4)
       } while (v10 < 0);
     }
   } while (ticks < v18);
-  return fre(front_vga);
+  return fre(front_vga);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int print_mem_used()
 {
+  return 0;
+  /*
   printf(&func3_c_variable_34);
   printf(aHiMemUsedI);
-  return printf(aLoMemUsedI);
+  return printf(aLoMemUsedI);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall try_load_picture(int a1, int a2, int a3, int a4)
+int try_load_picture(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v4; // ebx
   __int64 v5; // rax
   unsigned int v6; // eax
@@ -2527,13 +2553,16 @@ int __fastcall try_load_picture(int a1, int a2, int a3, int a4)
     if (v7)
       loadcompactedfile(SHIDWORD(v5), v7);
   }
-  return v4;
+  return v4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall save_champ(int a1)
+void *__fastcall save_champ(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   char *v2; // eax
   _BYTE *v3; // eax
   char v4; // dl
@@ -2684,13 +2713,16 @@ _DWORD *__fastcall save_champ(int a1)
   v47 = fopen(&save_slots[13 * a1 - 13], &func3_c_variable_37);
   fwrite(v49, 1, v44 + 1, v47);
   fclose(v47);
-  return fre(&v49);
+  return fre(&v49);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall load_champ(int a1)
+int load_champ(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v1; // edx
   int v2; // ecx
   __int64 v3; // rax
@@ -3102,39 +3134,45 @@ int __fastcall load_champ(int a1)
     }
     fre(&v94);
   }
-  return v95;
+  return v95;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *__fastcall lod_champ_char(unsigned __int8 *a1, _DWORD *a2)
+unsigned __int8 *lod_champ_char(unsigned __int8 *a1, void *a2)
 {
+  (void)(a1); (void)(a2); return 0;
+  /*
   int v2; // ebx
   unsigned __int8 *result; // eax
 
   v2 = *a1;
   result = a1 + 1;
   *a2 = v2;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall sav_champ_char(int *a1, _DWORD *a2)
+void *sav_champ_char(int *a1, void *a2)
 {
+  (void)(a1); (void)(a2); return 0;
+  /*
   int v2; // ebx
   _DWORD *result; // eax
 
   v2 = *a1;
   result = a1 + 1;
   *a2 = v2;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall sav_champ_int(int a1, int a2)
+int sav_champ_int(int a1, int a2)
 {
+  (void)(a1); (void)(a2); return 0;
+  /*
   int v2; // eax
   int result; // eax
 
@@ -3143,13 +3181,15 @@ int __fastcall sav_champ_int(int a1, int a2)
   result = v2 + 1;
   *(_BYTE *)(result - 2) = BYTE2(a2);
   *(_BYTE *)(result - 1) = HIBYTE(a2);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall check_saves(int a1, int a2, int a3)
+int check_saves(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3); return 0;
+  /*
   char *v3; // esi
   int i; // ecx
   int result; // eax
@@ -3200,13 +3240,15 @@ int __fastcall check_saves(int a1, int a2, int a3)
     }
     v3 += 13;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall ResultRoundUp(int a1, int a2, int a3, _BYTE *a4)
+void ResultRoundUp(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   int v4; // edi
   int v5; // esi
   unsigned int v6; // ecx
@@ -3445,13 +3487,15 @@ void __fastcall ResultRoundUp(int a1, int a2, int a3, _BYTE *a4)
   fre(front_vga);
   scr_size = v32;
   holdmusic = -1;
-  fade_palette(0, -1, (int)&font4_ascii, 0);
+  fade_palette(0, -1, (int)&font4_ascii, 0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall RollCredits@<eax>(_WORD *a1@<ebx>, _BYTE *a2@<ecx>, unsigned int a3@<edi>)
+int RollCredits(void *a1, void *a2, unsigned int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3); return 0;
+  /*
   __int64 picture; // rax
   int v4; // edi
   int v5; // esi
@@ -3517,13 +3561,16 @@ int __usercall RollCredits@<eax>(_WORD *a1@<ebx>, _BYTE *a2@<ecx>, unsigned int 
   fre(&front_vga_variable_1);
   result = 0;
   front_fade = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall ChampionshipOver(int a1, int a2, int a3, _BYTE *a4)
+int ChampionshipOver(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v4; // edx
   int v5; // eax
   int v6; // ebx
@@ -3657,13 +3704,16 @@ int __fastcall ChampionshipOver(int a1, int a2, int a3, _BYTE *a4)
   result = RollCredits(font4_ascii, v16, v14);
   if (TrackLoad >= 17)
     TrackLoad = 1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall EndChampSequence(int a1, int a2, int a3, int a4)
+void *EndChampSequence(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v4; // esi
   int v5; // eax
   int v6; // eax
@@ -3704,13 +3754,15 @@ _DWORD *__fastcall EndChampSequence(int a1, int a2, int a3, int a4)
   } while (v4 < 8);
   result = fre(front_vga);
   front_fade = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall network_fucked(int a1, int a2, int a3)
+void network_fucked(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  /*
   int v3; // ebp
   int v4; // edi
   int v5; // esi
@@ -3799,13 +3851,15 @@ void __fastcall network_fucked(int a1, int a2, int a3)
     while (broadcast_mode)
       ;
     close_network(v12, (int)v9, -1);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall no_cd(int a1, int a2, int a3, _BYTE *a4)
+void no_cd(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   int v4; // ebp
   int v5; // edi
   int v6; // esi
@@ -3853,13 +3907,15 @@ void __fastcall no_cd(int a1, int a2, int a3, _BYTE *a4)
   holdmusic = 0;
   fade_palette(0, (int)v10, (int)font4_ascii, 0);
   __asm { int     10h; -VIDEO - SET VIDEO MODE }
-  doexit();
+  doexit();*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall name_cmp(int a1, int a2)
+int name_cmp(int a1, int a2)
 {
+  (void)(a1); (void)(a2); return 0;
+  /*
   int v4; // edx
   int v5; // eax
   char v6; // cl
@@ -3878,13 +3934,15 @@ int __fastcall name_cmp(int a1, int a2)
       v5 = 9;
     }
   } while (v4);
-  return v4;
+  return v4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall name_copy(int a1, char *a2)
+char *name_copy(int a1, char *a2)
 {
+  (void)(a1); (void)(a2); return 0;
+  /*
   char *result; // eax
   char *v5; // ebx
   char v6; // cl
@@ -3896,13 +3954,16 @@ char *__fastcall name_copy(int a1, char *a2)
     v6 = *result++;
     *(_BYTE *)(a1 - 1) = v6;
   } while (result != v5);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall loadtracksample(int a1)
+int loadtracksample(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   char *v1; // esi
   char *v2; // edi
   char v3; // al
@@ -3922,13 +3983,16 @@ int __fastcall loadtracksample(int a1)
     v2[1] = v4;
     v2 += 2;
   } while (v4);
-  return loadfrontendsample((int)buffer);
+  return loadfrontendsample((int)buffer);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall front_letter(int a1, unsigned __int8 a2, _DWORD *a3, _DWORD *a4, int a5, char a6)
+void *front_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5, char a6)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a6); (void)(a5);
+  return 0;
+  /*
   int v6; // edx
   _DWORD *result; // eax
   int v8; // esi
@@ -3963,13 +4027,16 @@ _DWORD *__fastcall front_letter(int a1, unsigned __int8 a2, _DWORD *a3, _DWORD *
     result = a3;
     *a3 += v8 + 1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall scale_letter(int a1, unsigned __int8 a2, _DWORD *a3, _DWORD *a4, int a5, char a6, int a7)
+int scale_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5, char a6, int a7)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
+  return 0;
+  /*
   int v7; // edx
   int result; // eax
   int v9; // ebp
@@ -4017,13 +4084,16 @@ int __fastcall scale_letter(int a1, unsigned __int8 a2, _DWORD *a3, _DWORD *a4, 
     result = (a7 * (v9 + 1)) >> 6;
     *a3 += result;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall front_text(int a1, unsigned __int8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8)
+int front_text(int a1, unsigned __int8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7); (void)(a8);
+  return 0;
+  /*
   unsigned __int8 *v9; // esi
   int result; // eax
   int v12; // edx
@@ -4080,14 +4150,14 @@ int __fastcall front_text(int a1, unsigned __int8 *a2, int a3, int a4, int a5, i
     }
     ++v9;
   } while (!v19);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 __fastcall scale_text(
+unsigned __int8 scale_text(
         int a1,
-        _BYTE *a2,
+        char *a2,
         int a3,
         int a4,
         int a5,
@@ -4097,6 +4167,18 @@ unsigned __int8 __fastcall scale_text(
         int a9,
         int a10)
 {
+  (void)a1;
+    (void)a2;
+    (void)a3;
+    (void)a4;
+    (void)a5;
+    (void)a6;
+    (void)a7;
+    (void)a8;
+    (void)a9;
+    (void)a10;
+    return 0;
+    /*
   int v11; // esi
   int v12; // eax
   int v13; // eax
@@ -4199,34 +4281,36 @@ LABEL_14:
     }
     ++v19;
   } while (!v29);
-  return result;
+  return result;*/
 }
 
-int __fastcall clear_screen(int a1, int a2)
+int clear_screen(int a1, int a2)
 {
-  return memset(a1, a2, 256000);
+  (void)(a1); (void)(a2);
+  return 0;
+
+  //return memset(a1, a2, 256000);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall display_picture(void *a1, const void *a2)
+void display_picture(void *pDest, const void *pSrc)
 {
-  unsigned int v3; // ecx
-  unsigned int result; // eax
+  unsigned int uiSize; // ecx
 
   if (SVGA_ON)
-    v3 = 256000;
+    uiSize = 256000;
   else
-    v3 = 64000;
-  result = v3;
-  qmemcpy(a1, a2, v3);
-  return result;
+    uiSize = 64000;
+  memcpy(pDest, pSrc, uiSize);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *__fastcall display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6)
+unsigned __int8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); return 0;
+  /*
   int v7; // ebp
   int v8; // edx
   int v9; // ebx
@@ -4255,13 +4339,15 @@ unsigned __int8 *__fastcall display_block(int a1, int a2, int a3, unsigned int a
     }
     result += 640 - v7;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall load_picture(int a1, int a2, int a3, int a4)
+int load_picture(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); return 0;
+  /*
   __int64 v4; // rax
   int v5; // ebx
   unsigned int v6; // ebx
@@ -4277,13 +4363,16 @@ int __fastcall load_picture(int a1, int a2, int a3, int a4)
   v6 = getbuffer(v4);
   loadcompactedfile(SHIDWORD(v4), v6);
   LODWORD(v4) = v6;
-  return v4;
+  return v4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall AllocateCars(int a1)
+int AllocateCars(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int result; // eax
   int v2; // esi
   char *v3; // ebp
@@ -4516,13 +4605,15 @@ int __fastcall AllocateCars(int a1)
       result += 4;
     } while (v36 < v37);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall check_cars(int a1, int a2, int a3)
+int check_cars(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3); return 0;
+  /*
   int result; // eax
   int v4; // edx
   int v5; // edi
@@ -4560,13 +4651,15 @@ LABEL_8:
       ++v4;
     } while (v4 < players);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 char *select_messages()
 {
+  return 0;
+  /*
   char *result; // eax
   int v2; // edi
   int v3; // esi
@@ -5082,13 +5175,14 @@ LABEL_4:
         goto LABEL_52;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void show_received_mesage()
 {
+  /*
   int v0; // ebx
   int v1; // eax
   int v2; // ecx
@@ -5131,13 +5225,15 @@ void show_received_mesage()
       }
     }
     frames = 0;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int select_netslot()
 {
+  return 0;
+  /*
   int v0; // ebx
   int v1; // esi
   int v2; // ebp
@@ -5546,8 +5642,7 @@ int select_netslot()
       }
     }
   }
-  return v35;
+  return v35;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

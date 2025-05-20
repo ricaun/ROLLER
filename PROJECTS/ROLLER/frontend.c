@@ -33,11 +33,12 @@ uint8 oldkeys[14];        //0016FF04
 char my_name[14];         //0016FF12
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
-//-------------------------------------------------------------------------------------------------
 
-_DWORD *__usercall title_screens@<eax>(unsigned int a1@<edx>, _WORD *a2@<ebx>, _BYTE *a3@<ecx>, unsigned int a4@<edi>)
+int *title_screens(unsigned int a1, short *a2, char *a3, unsigned int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int inited; // eax
   _UNKNOWN **v5; // edx
   __int64 v7; // [esp-Ch] [ebp-10h]
@@ -70,13 +71,15 @@ _DWORD *__usercall title_screens@<eax>(unsigned int a1@<edx>, _WORD *a2@<ebx>, _
   if ((cheat_mode & 0x202) != 0)
     waitsampledone(88);
   fre(front_vga);
-  return freefatalsample();
+  return freefatalsample();*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall copy_screens(int a1, int a2, int a3, _BYTE *a4)
+void copy_screens(int a1, int a2, int a3, char *a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   _UNKNOWN **v4; // edx
 
   SVGA_ON = -1;
@@ -97,13 +100,15 @@ void __fastcall copy_screens(int a1, int a2, int a3, _BYTE *a4)
   while (ticks < 180)
     ;
   fre(front_vga);
-  fade_palette(0, (int)v4, 0, (int)a4);
+  fade_palette(0, (int)v4, 0, (int)a4);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __usercall select_screen(int a1@<esi>)
+void select_screen(int a1)
 {
+  (void)(a1);
+  /*
   int v1; // ecx
   int Cars; // eax
   int v3; // ebp
@@ -948,13 +953,15 @@ LABEL_223:
   }
   StartPressed = 0;
   if (game_type != 4 && game_type != 3)
-    stopmusic(Cars, v68);
+    stopmusic(Cars, v68);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __usercall select_disk(int a1@<edx>, int a2@<ebx>, int a3@<esi>)
+void select_disk(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  /*
   unsigned int v3; // edi
   int v4; // eax
   int v5; // eax
@@ -1249,13 +1256,16 @@ void __usercall select_disk(int a1@<edx>, int a2@<ebx>, int a3@<esi>)
     }
   } while (!v27);
   fade_palette(0, 0, 1, v16);
-  front_fade = 0;
+  front_fade = 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall select_car@<eax>(int a1@<edx>, int a2@<ecx>, unsigned int a3@<ebx>, int a4@<ebp>)
+int select_car(int a1, int a2, unsigned int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   unsigned __int64 picture; // kr00_8
   int v5; // edi
   int v6; // eax
@@ -1771,13 +1781,15 @@ int __usercall select_car@<eax>(int a1@<edx>, int a2@<ecx>, unsigned int a3@<ebx
     result = (__int16)player1_car;
     Players_Cars[(__int16)player1_car] = v44;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall select_configure(int a1, int a2, int a3, int a4)
+void select_configure(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   int v4; // ebx
   int i; // ecx
   __int64 v6; // rax
@@ -3955,13 +3967,16 @@ void __fastcall select_configure(int a1, int a2, int a3, int a4)
       default:
         goto LABEL_623;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall front_displaycalibrationbar(int result, int a2, int a3)
+int front_displaycalibrationbar(int result, int a2, int a3)
 {
+  (void)(result); (void)(a2); (void)(a3);
+  return 0;
+  /*
   int v3; // edi
   _BYTE *v4; // ecx
   int v5; // edi
@@ -3996,13 +4011,15 @@ int __fastcall front_displaycalibrationbar(int result, int a2, int a3)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall front_volumebar(int a1, int a2, int a3)
+int front_volumebar(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0;/*
   _BYTE *v3; // ecx
   int i; // esi
   int result; // eax
@@ -4020,13 +4037,15 @@ int __fastcall front_volumebar(int a1, int a2, int a3)
       v3 += winw;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall select_players(int a1, int a2, int a3, int a4)
+void select_players(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  /*
   unsigned int v4; // esi
   int v5; // edi
   int v6; // eax
@@ -4359,13 +4378,16 @@ void __fastcall select_players(int a1, int a2, int a3, int a4)
     player_type = v4;
   }
   fade_palette(0, 0, 3, v18);
-  front_fade = 0;
+  front_fade = 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall select_type(int a1, int a2, int a3, int a4)
+void *select_type(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   __int64 picture; // rax
   int v5; // edi
   int v6; // esi
@@ -4969,13 +4991,16 @@ _DWORD *__fastcall select_type(int a1, int a2, int a3, int a4)
   fade_palette(0, v32, v37, v33);
   result = fre(&front_vga_variable_9);
   front_fade = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall select_track(int a1, int a2, int a3, int a4)
+void *select_track(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v4; // edi
   int v5; // ebp
   int v6; // esi
@@ -5286,35 +5311,42 @@ _DWORD *__fastcall select_track(int a1, int a2, int a3, int a4)
   front_vga_variable_3 = (int)result;
   if (frontendspeechptr)
     return fre(&frontendspeechptr);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int save_params()
 {
+  return 0;
+  /*
   int result; // eax
 
   result = gfx_size;
   p_tex_size = gfx_size;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int reset_params()
 {
+  return 0;
+  /*
   int result; // eax
 
   result = p_tex_size;
   gfx_size = p_tex_size;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall NetworkWait(int a1, int a2, int a3, int a4)
+int NetworkWait(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v4; // ebx
   int v5; // eax
   __int64 picture; // rax
@@ -5589,13 +5621,16 @@ LABEL_85:
   fre(&front_vga_variable_10);
   result = v20;
   scr_size = v20;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall loadcheatnames(int a1, int a2, int a3, int a4)
+char *loadcheatnames(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   __int64 v4; // rax
   int v5; // ebx
   char *result; // eax
@@ -5647,13 +5682,16 @@ char *__fastcall loadcheatnames(int a1, int a2, int a3, int a4)
     result = decode(cheat_names, 288, 43, 87);
     _enable();
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall CheckNames(_BYTE *a1, int a2)
+int CheckNames(char *a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   char *v3; // ebp
   unsigned int v5; // [esp+14h] [ebp-1Ch]
   int v6; // [esp+18h] [ebp-18h]
@@ -5686,13 +5724,16 @@ int __fastcall CheckNames(_BYTE *a1, int a2)
 LABEL_7:
   decode(cheat_names, 288, 43, 87);
   _enable();
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall restart_net_game(int a1)
+int restart_net_game(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v1; // eax
   int v2; // eax
   int v3; // edi
@@ -5831,8 +5872,7 @@ int __fastcall restart_net_game(int a1)
   StartPressed = 0;
   restart_net = 0;
   racers = v3;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

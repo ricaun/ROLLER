@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall vesastart(int a1, int a2)
+int vesastart(int a1, int a2)
 {
+  return 0; /*
   RMI_variable_3 = a1;
   RMI_variable_2 = a2;
   RMI_variable_5 = vmode_inf >> 4;
@@ -12,13 +12,14 @@ int __fastcall vesastart(int a1, int a2)
   if ((unsigned __int8)RMI_variable_4 == 79)
     return BYTE1(RMI_variable_4) != 0;
   puts(aVesaFunctionNo);
-  return 2;
+  return 2;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall tryvesa(int a1, int a2, int a3, int a4)
+int tryvesa(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   RMI_variable_3 = a1;
   RMI_variable_5 = vmode_inf >> 4;
   RMI_variable_4 = 20225;
@@ -27,13 +28,14 @@ int __fastcall tryvesa(int a1, int a2, int a3, int a4)
   if ((unsigned __int8)RMI_variable_4 == 79)
     return BYTE1(RMI_variable_4) != 0;
   puts(aVesaFunctionNo);
-  return 2;
+  return 2;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall VESASource(int a1, int a2, int a3)
+int VESASource(int a1, int a2, int a3)
 {
+  return 0; /*
   int v3; // ecx
   int v4; // esi
   _DWORD v6[11]; // [esp+0h] [ebp-2Ch] BYREF
@@ -47,13 +49,14 @@ int __fastcall VESASource(int a1, int a2, int a3)
     int386(16, (int)v6, (int)v6);
     vmode_inf_variable_1 = v4;
   }
-  return v3 % winrange + VesaSBase;
+  return v3 % winrange + VesaSBase;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall VESADest(int a1, int a2, int a3)
+int VESADest(int a1, int a2, int a3)
 {
+  return 0; /*
   int v3; // ecx
   int v4; // esi
   _DWORD v6[11]; // [esp+0h] [ebp-2Ch] BYREF
@@ -67,13 +70,14 @@ int __fastcall VESADest(int a1, int a2, int a3)
     int386(16, (int)v6, (int)v6);
     vmode_inf_variable_2 = v4;
   }
-  return v3 % winrange + VesaDBase;
+  return v3 % winrange + VesaDBase;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall VESAmode(_DWORD *a1, int a2, int a3, _BYTE *a4)
+int VESAmode(void *a1, int a2, int a3, char *a4)
 {
+  return 0; /*
   int v6; // ebx
   unsigned int v7; // ecx
   __int16 *i; // edx
@@ -155,13 +159,14 @@ int __fastcall VESAmode(_DWORD *a1, int a2, int a3, _BYTE *a4)
   } else {
     puts(aInternalErrorV_1);
     return -1;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall svgacopy(char *a1, __int16 a2, __int16 a3, int a4, int a5)
+int svgacopy(char *a1, __int16 a2, __int16 a3, int a4, int a5)
 {
+  return 0; /*
   int v6; // edx
   int v7; // eax
   int i; // edx
@@ -222,8 +227,7 @@ int __fastcall svgacopy(char *a1, __int16 a2, __int16 a3, int a4, int a5)
   v14 = 20229;
   v15 = 0;
   v16 = 0;
-  return int386(16, (int)&v14, (int)&v14);
+  return int386(16, (int)&v14, (int)&v14);*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

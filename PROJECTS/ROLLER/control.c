@@ -11,11 +11,11 @@ int RecordKills[25];              //00149D24
 char RecordNames[228];            //00149DC8
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
-//-------------------------------------------------------------------------------------------------
 
-int __fastcall humancar(int a1)
+int humancar(int a1)
 {
+  (void)(a1);
+  return 0;/*
   int v1; // ebp
   int v2; // ebx
   int v3; // eax
@@ -339,13 +339,15 @@ int __fastcall humancar(int a1)
       goto LABEL_94;
     default:
       goto LABEL_94;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall GoUpGear(int a1)
+void GoUpGear(int a1)
 {
+  (void)(a1);
+  /*
   int *v2; // edi
   int v3; // ecx
   int v4; // ecx
@@ -399,13 +401,15 @@ void __fastcall GoUpGear(int a1)
       }
       *(float *)(a1 + 116) = *(float *)(a1 + 24) - *(float *)(a1 + 112);
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall GoDownGear(int a1, int a2)
+void GoDownGear(int a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  /*
   int *v4; // edi
   int v5; // eax
   int v6; // eax
@@ -460,13 +464,14 @@ void __fastcall GoDownGear(int a1, int a2)
       }
       *(float *)(a1 + 116) = v10;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void control()
 {
+  /*
   __int64 v0; // rax
   int v1; // ebx
   int v2; // edi
@@ -956,10 +961,9 @@ void control()
   LABEL_184:
     Car_variable_68[v77 * 4] = v80;
     goto LABEL_185;
-  }
+  }*/
 }
 
-#endif
 //-------------------------------------------------------------------------------------------------
 
 double calc_revs(tRev *pRevs, int iGear, float fChg)
@@ -1004,10 +1008,12 @@ double calc_revs(tRev *pRevs, int iGear, float fChg)
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
 
-double __fastcall calc_pow(int a1, int a2, float a3)
+double calc_pow(int a1, int a2, float a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0.0;
+  /*
   int v5; // eax
   double v6; // st5
   double v7; // st4
@@ -1068,13 +1074,15 @@ double __fastcall calc_pow(int a1, int a2, float a3)
     v22 = 0.0;
   if (v22 > (double)control_c_variable_18)
     return 1024.0;
-  return v22;
+  return v22;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall Accelerate(int a1)
+void Accelerate(int a1)
 {
+  (void)(a1);
+  /*
   int v2; // ebp
   int *v3; // edi
   int v4; // eax
@@ -1288,13 +1296,16 @@ void __fastcall Accelerate(int a1)
           *(_DWORD *)(a1 + 132) = v26;
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Decelerate(int a1)
+int Decelerate(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v2; // edi
   int *v3; // esi
   int v4; // ecx
@@ -1437,13 +1448,16 @@ int __fastcall Decelerate(int a1)
     if (v14 < v15)
       *(_DWORD *)(a1 + 132) = v15;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall FreeWheel(int a1)
+int FreeWheel(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v2; // esi
   int v3; // ecx
   int *v4; // edi
@@ -1569,13 +1583,15 @@ int __fastcall FreeWheel(int a1)
       return result;
   }
   *(_DWORD *)(a1 + 132) = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall SetEngine(int a1, float a2)
+void SetEngine(int a1, float a2)
 {
+  (void)(a1); (void)(a2);
+  /*
   int v6; // edi
   float *v7; // edx
   int v8; // ecx
@@ -1675,13 +1691,16 @@ void __fastcall SetEngine(int a1, float a2)
     *(_DWORD *)(a1 + 116) = 0;
     *(_DWORD *)(a1 + 24) = 0;
   }
-  *(float *)(a1 + 24) = *(float *)(a1 + 112) + *(float *)(a1 + 116);
+  *(float *)(a1 + 24) = *(float *)(a1 + 112) + *(float *)(a1 + 116);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall change_gear(int a1, int a2, int a3, int a4)
+double change_gear(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0.0;
+  /*
   float v5; // [esp+4h] [ebp-18h]
   float v6; // [esp+8h] [ebp-14h]
   float v7; // [esp+Ch] [ebp-10h]
@@ -1701,13 +1720,15 @@ double __fastcall change_gear(int a1, int a2, int a3, int a4)
     sfxsample(5, 12000, a3);
   if (player2_car == *(_DWORD *)(a3 + 32) && !DriveView[0])
     sfxsample(5, 12000, a3);
-  return v5;
+  return v5;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void __fastcall updatecar2(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  /*
   int v4; // edi
   int v5; // ecx
   int v6; // edx
@@ -3102,13 +3123,16 @@ LABEL_502:
       if (*(float *)(a1 + 220) > (double)control_c_variable_94 || *(char *)(a1 + 129) <= 1)
         *(_DWORD *)(a1 + 228) = *(_DWORD *)(a1 + 220);
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall check_crossed_line(int a1)
+__int16 check_crossed_line(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v1; // ebp
   __int16 v2; // dx
   int v3; // edx
@@ -3454,13 +3478,16 @@ __int16 __fastcall check_crossed_line(int a1)
         *(_BYTE *)(v1 + 104) = 0;
     }
   }
-  return a1;
+  return a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __fastcall checkplacement(int a1)
+char checkplacement(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v2; // eax
   int v3; // eax
   int v4; // edi
@@ -3804,13 +3831,16 @@ LABEL_113:
     LOBYTE(v3) = 1 - v36;
     *(_BYTE *)(a1 + 273) = 1 - v36;
   }
-  return v3;
+  return v3;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall testteaminit(int a1)
+int testteaminit(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int result; // eax
 
   if ((ViewType[0] & 1) != 0)
@@ -3819,26 +3849,31 @@ int __fastcall testteaminit(int a1)
     result = ViewType[0] + 1;
   if (result == *(_DWORD *)(a1 + 32))
     return initcarview(-result - 1, 0);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int doteaminit()
 {
+  return 0;
+  /*
   int v0; // eax
 
   if ((ViewType[0] & 1) != 0)
     v0 = ViewType[0] - 1;
   else
     v0 = ViewType[0] + 1;
-  return initcarview(-v0 - 1, 0);
+  return initcarview(-v0 - 1, 0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall hitleft(int a1, int a2, int a3)
+__int16 hitleft(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0;
+  /*
   int v3; // ecx
   __int16 v4; // fps
   double v5; // st7
@@ -3981,13 +4016,16 @@ __int16 __fastcall hitleft(int a1, int a2, int a3)
   *(_DWORD *)(v3 + 76) = 0;
   result = putflat(v3);
   *(_BYTE *)(v3 + 272) = 18;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall hitright(int a1, int a2, int a3)
+__int16 hitright(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0;
+  /*
   int v3; // ecx
   __int16 v4; // fps
   double v5; // st7
@@ -4133,13 +4171,16 @@ __int16 __fastcall hitright(int a1, int a2, int a3)
   *(_DWORD *)(v3 + 76) = 0;
   result = putflat(v3);
   *(_BYTE *)(v3 + 272) = 18;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall scansection(int a1)
+int scansection(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v1; // edi
   int v3; // ebx
   float *v4; // edx
@@ -4205,13 +4246,16 @@ int __fastcall scansection(int a1)
   *(_DWORD *)(a1 + 64) = result;
   *(_DWORD *)(a1 + 64) = result & 0x3FFF;
   TRAK_LEN = v1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall getgroundz(int a1, float a2, float a3, int a4)
+double getgroundz(int a1, float a2, float a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0.0;
+  /*
   int *v7; // edx
   double v8; // st7
   float *v9; // ebx
@@ -4231,13 +4275,16 @@ double __fastcall getgroundz(int a1, float a2, float a3, int a4)
     v12 = v10;
     return (float)((v12 - *((float *)v7 + 13)) * v9[3] / v9[2] + v13);
   }
-  return v13;
+  return v13;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall getroadz(int a1, int a2, float a3, float a4, int a5)
+double getroadz(int a1, int a2, float a3, float a4, int a5)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  return 0.0;
+  /*
   int *v7; // eax
   double v8; // st7
 
@@ -4245,12 +4292,16 @@ double __fastcall getroadz(int a1, int a2, float a3, float a4, int a5)
   v8 = (double)v7[22] * a3 / (*((float *)v7 + 12) * control_c_variable_129);
   _CHP(v7, a2);
   return -a4 * ptan[(int)v8 & 0x3FFF];
+  */
 }
 
 //-------------------------------------------------------------------------------------------------
 
 __int16 __fastcall putflat(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v2; // esi
   int *v3; // edi
   float *v4; // ecx
@@ -4521,13 +4572,16 @@ _DWORD *__fastcall findnearcars(float *a1, float *a2, float *a3, float *a4, _DWO
       a1[65] = -10000.0;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall findnearcarsforce(int a1, int *a2, float *a3, int *a4, _DWORD *a5, float *a6, float *a7)
+int findnearcarsforce(int a1, int *a2, float *a3, int *a4, int *a5, float *a6, float *a7)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
+  return 0;
+  /*
   int v7; // esi
   long double v9; // st7
   int v10; // ebx
@@ -4748,13 +4802,15 @@ int __fastcall findnearcarsforce(int a1, int *a2, float *a3, int *a4, _DWORD *a5
   }
   *v33 = result;
   TRAK_LEN = v7;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double __stdcall interpolatesteer(float a1, float a2, float a3, int a4, int a5)
+double interpolatesteer(float a1, float a2, float a3, int a4, int a5)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  /*
   long double v5; // st7
   float v8; // [esp+Ch] [ebp+4h]
 
@@ -4766,13 +4822,16 @@ double __stdcall interpolatesteer(float a1, float a2, float a3, int a4, int a5)
     return (float)(((v8 - a3) * *(float *)&a4 - (v8 - a2) * *(float *)&a5) / (a2 - a3));
   } else {
     return *(float *)&a4;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall avoid(int a1, int a2, float a3, int a4, float a5, float a6, _DWORD *a7)
+double avoid(int a1, int a2, float a3, int a4, float a5, float a6, int *a7)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
+  return 0.0;
+  /*
   int v10; // eax
   double v11; // st7
   int v13; // [esp+0h] [ebp-30h] BYREF
@@ -4822,23 +4881,29 @@ double __fastcall avoid(int a1, int a2, float a3, int a4, float a5, float a6, _D
       }
     }
   }
-  return *(float *)&a4;
+  return *(float *)&a4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double __fastcall block(int a1, float a2, int a3, float a4, float a5)
+double block(int a1, float a2, int a3, float a4, float a5)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  return 0.0;
+  /*
   if (a1 == -1)
     return *(float *)&a3;
   else
     return (float)interpolatesteer(a2, a4, a5, a3, LODWORD(Car_variable_1[77 * a1]));
+    */
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void __fastcall autocar2(int a1)
 {
+  (void)(a1);
+  /*
   float *v2; // ebp
   int v3; // ebx
   double v4; // st7
@@ -5414,13 +5479,15 @@ LABEL_24:
       Decelerate(a1);
   } else {
     Accelerate(a1);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void __fastcall changestrategy(int a1)
 {
+  (void)(a1);
+  /*
   int v2; // eax
   char *v3; // ecx
   __int16 v4; // fps
@@ -5545,9 +5612,9 @@ void __fastcall changestrategy(int a1)
       }
     }
     *(_WORD *)(a1 + 238) = 1080;
-  }
+  }*/
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 int getangle(float fX, float fY)
@@ -5577,9 +5644,11 @@ int getangle(float fX, float fY)
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDOCODE
-void __fastcall landontrack(int a1)
+
+void landontrack(int a1)
 {
+  (void)(a1);
+  /*
   float *v2; // ebp
   int v3; // eax
   float *v4; // esi
@@ -6495,13 +6564,16 @@ void __fastcall landontrack(int a1)
         }
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall converttoair(int a1, int a2, int a3, int a4)
+__int16 converttoair(int a1, int a2, int a3, int a4)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
+  return 0;
+  /*
   int v5; // eax
   int v6; // eax
   double v7; // st7
@@ -6556,13 +6628,14 @@ __int16 __fastcall converttoair(int a1, int a2, int a3, int a4)
   *(_WORD *)(a1 + 12) = -1;
   *(_WORD *)(a1 + 14) = result;
   *(float *)(a1 + 36) = v11;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void ordercars()
 {
+  /*
   int v0; // edi
   unsigned int v1; // edx
   int v2; // esi
@@ -6616,13 +6689,15 @@ void ordercars()
       Car_variable_32[308 * carorder[v10++]] = v12++;
     while (v0 > v12);
   }
-  numcars = v0;
+  numcars = v0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void __fastcall changeline(int a1)
 {
+  (void)(a1);
+  /*
   int v2; // eax
   char *v3; // ecx
   int v4; // eax
@@ -6686,13 +6761,16 @@ LABEL_13:
   if (!v14 && !linevalid(*(float *)(a1 + 4), *(float *)&v3[4 * *(_DWORD *)(a1 + 160) + 96])) {
     v16 = rand(0);
     *(_DWORD *)(a1 + 196) = (v16 - (__CFSHL__(v16 >> 31, 13) + (v16 >> 31 << 13))) >> 13;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall driverange(int a1, float *a2, float *a3)
+unsigned int driverange(int a1, float *a2, float *a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0;
+  /*
   int v6; // eax
   int *v7; // esi
   int v8; // edx
@@ -6763,13 +6841,16 @@ unsigned int __fastcall driverange(int a1, float *a2, float *a3)
     }
     *a2 = v13 - *(float *)(a1 + 84);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall updatesmokeandflames(int a1)
+int updatesmokeandflames(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int v1; // ecx
   __int64 v2; // rax
   int v3; // esi
@@ -6786,13 +6867,15 @@ int __fastcall updatesmokeandflames(int a1)
     if (ViewType_variable_1 == *(_DWORD *)(v1 + 32))
       dospray(v1, -1, &CarSpray_variable_22);
   }
-  return srand(v3);
+  return srand(v3);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall dospray(__int64 a1, int a2)
+void dospray(__int64 a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  /*
   __int64 v2; // kr00_8
   int v4; // ebp
   __int16 v5; // fps
@@ -7415,13 +7498,16 @@ void __fastcall dospray(__int64 a1, int a2)
   LABEL_136:
     ++v4;
     a2 += 44;
-  } while (v4 < 32);
+  } while (v4 < 32);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall calculateseparatedcoordinatesystem(int a1, int a2)
+int calculateseparatedcoordinatesystem(int a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   int v2; // ecx
   int v4; // eax
   float *v5; // ebx
@@ -7458,13 +7544,16 @@ int __fastcall calculateseparatedcoordinatesystem(int a1, int a2)
   *(float *)(a2 + 48) = v5[12];
   result = *((_DWORD *)v5 + 13);
   *(_DWORD *)(a2 + 52) = result;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int *__fastcall findnearsection(int a1, int *a2)
+int *findnearsection(int a1, int *a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   int v2; // ecx
   int v3; // edi
   int v4; // edx
@@ -7732,13 +7821,15 @@ int *__fastcall findnearsection(int a1, int *a2)
   result = a2;
   *a2 = v3;
   TRAK_LEN = v2;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall dozoomstuff(int a1)
+void dozoomstuff(int a1)
 {
+  (void)(a1);
+  /*
   int v1; // ebx
   int v3; // eax
   int v4; // esi
@@ -7788,13 +7879,16 @@ void __fastcall dozoomstuff(int a1)
     if (v4 == 1 && game_scale[v3] == 1115684864)
       game_count[v3] = -1;
   }
-  champ_mode = v1;
+  champ_mode = v1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall findcardistance(int a1, float a2)
+int findcardistance(int a1, float a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   int v5; // esi
   int v6; // ebx
   unsigned int v7; // edx
@@ -7826,8 +7920,7 @@ int __fastcall findcardistance(int a1, float a2)
       v7 += 308;
     } while (v6 < numcars);
   }
-  return v5;
+  return v5;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

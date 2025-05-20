@@ -1,8 +1,10 @@
-#ifdef ENABLE_PSEUDO
+#include "building.h"
 //-------------------------------------------------------------------------------------------------
 
 int InitBuildings()
 {
+  return 0;
+  /*
   int result; // eax
   int v1; // edi
   int v2; // esi
@@ -205,13 +207,14 @@ int InitBuildings()
       v40 = result;
     } while (result < NumBuildings);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int CalcVisibleBuildings()
 {
+  return 0;/*
   int v0; // ebp
   int *v1; // edi
   int v2; // ecx
@@ -306,13 +309,15 @@ int CalcVisibleBuildings()
   }
 LABEL_29:
   TRAK_LEN = v0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall DrawBuilding(int a1, int a2)
+void DrawBuilding(int a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  /*
   int *v2; // esi
   float *v3; // ecx
   unsigned __int8 *v4; // ebx
@@ -708,7 +713,7 @@ void __fastcall DrawBuilding(int a1, int a2)
       } while (v118 > v93 && v110 == *(int *)((char *)BuildingZOrder_variable_1 + v58));
     }
   }
-  init_animate_ads();
+  init_animate_ads();*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -720,8 +725,11 @@ void init_animate_ads()
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall bldZcmp(int a1, int a2)
+int bldZcmp(int a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   int v2; // ecx
   int v3; // ebx
   float v5; // [esp+0h] [ebp-10h]
@@ -739,8 +747,7 @@ int __fastcall bldZcmp(int a1, int a2)
     if (v6 >= (double)v5)
       return -1;
   }
-  return 1;
+  return 1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

@@ -100,21 +100,22 @@ void calculatetransform(
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
+
 int initlocaltrack()
 {
+  return 0; /*
   int i; // edx
 
   for (i = 0; i < TRAK_LEN; ++i)
     initlocalsection(i);
   dopitchchanges(0, 2);
-  return dopitchchanges(3, 4);
+  return dopitchchanges(3, 4);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall initlocalsection(int a1)
-{
+void initlocalsection(int a1)
+{/*
   int v1; // ecx
   int v2; // esi
   int v4; // eax
@@ -466,13 +467,13 @@ void __fastcall initlocalsection(int a1)
     *((_DWORD *)v5 + 16) = v49 - 0x4000;
   *((float *)v5 + 19) = v102 * transfrm_c_variable_5;
   *((float *)v5 + 20) = v106 * transfrm_c_variable_5;
-  *((float *)v5 + 21) = v110 * transfrm_c_variable_5;
+  *((float *)v5 + 21) = v110 * transfrm_c_variable_5;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall dopitchchanges(int a1, int a2)
-{
+void dopitchchanges(int a1, int a2)
+{/*
   int v2; // esi
   int v3; // ebp
   int v4; // edi
@@ -935,13 +936,14 @@ void __fastcall dopitchchanges(int a1, int a2)
       ++v2;
       v3 += 18;
     } while (v2 < TRAK_LEN);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall getpitchchange(int a1, int a2, int a3)
+int getpitchchange(int a1, int a2, int a3)
 {
+  return 0; /*
   int v5; // ecx
   float *v6; // ebx
   int v7; // ebp
@@ -1228,13 +1230,14 @@ int __fastcall getpitchchange(int a1, int a2, int a3)
   v42 = getdirection(v76 - v73, v78 - v75) * transfrm_c_variable_10 / transfrm_c_variable_11 + transfrm_c_variable_9;
   v43 = floor(v42);
   _CHP(v43, 216);
-  return (int)v42;
+  return (int)v42;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall getworldangles(int a1, int a2, int a3, int a4, int *a5, int *a6, int *a7)
+int getworldangles(int a1, int a2, int a3, int a4, int *a5, int *a6, int *a7)
 {
+  return 0; /*
   double v9; // st7
   int v11; // ecx
   double v12; // st7
@@ -1297,13 +1300,14 @@ int __fastcall getworldangles(int a1, int a2, int a3, int a4, int *a5, int *a6, 
   *(float *)&v26 = v21 * tsin[v18] - v25 * tcos[v18];
   result = getangle(v18, (int)a7, v34, v26);
   *a7 = result;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall getlocalangles(int a1, int a2, int a3, int a4, int *a5, int *a6, int *a7)
+int getlocalangles(int a1, int a2, int a3, int a4, int *a5, int *a6, int *a7)
 {
+  return 0; /*
   double v9; // st7
   int v11; // ecx
   double v12; // st7
@@ -1366,8 +1370,7 @@ int __fastcall getlocalangles(int a1, int a2, int a3, int a4, int *a5, int *a6, 
   *(float *)&v26 = v21 * tsin[v18] - v25 * tcos[v18];
   result = getangle(v18, (int)a7, v34, v26);
   *a7 = result;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall twpoly(_WORD *a1, __int16 a2)
+int twpoly(__int16 *a1, __int16 a2)
 {
+  return 0; /*
   __int16 v3; // ax
   __int16 v4; // di
   __int16 v5; // si
@@ -173,13 +173,14 @@ int __fastcall twpoly(_WORD *a1, __int16 a2)
     *((_DWORD *)a1 + 2) = v36;
     *((_DWORD *)a1 + 3) = v39;
   }
-  return poly(a1, 3, v31);
+  return poly(a1, 3, v31);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall POLYFLAT(int a1, _DWORD *a2)
+__int16 POLYFLAT(int a1, void *a2)
 {
+  return 0; /*
   _DWORD *v3; // eax
   int v4; // ebx
   int v5; // edx
@@ -233,13 +234,14 @@ __int16 __fastcall POLYFLAT(int a1, _DWORD *a2)
       LOWORD(v3) = poly(v3 + 2, v3[1], (unsigned __int8)v4);
     }
   }
-  return (__int16)v3;
+  return (__int16)v3;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall poly(int *a1, int a2, __int16 a3)
+__int16 poly(int *a1, int a2, __int16 a3)
 {
+  return 0; /*
   unsigned int v3; // ebp
   int v5; // edi
   int v6; // ecx
@@ -1170,13 +1172,14 @@ LABEL_256:
   v3 = winw;
 LABEL_257:
   winw = v3;
-  return v8;
+  return v8;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall shadow_poly(int *a1, int a2, int a3)
+__int16 shadow_poly(int *a1, int a2, int a3)
 {
+  return 0; /*
   unsigned int v3; // ebp
   int v5; // edi
   int v6; // esi
@@ -1827,8 +1830,7 @@ __int16 __fastcall shadow_poly(int *a1, int a2, int a3)
     ;
   } while (v10 < winh);
   winw = v3;
-  return v7;
+  return v7;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

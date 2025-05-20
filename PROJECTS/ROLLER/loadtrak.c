@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall loadtrack(_DWORD *result, int a2)
+void *loadtrack(void *result, int a2)
 {
+  return 0; /*
   int v2; // ebx
   int v3; // ecx
   float *v4; // edi
@@ -843,13 +843,14 @@ _DWORD *__fastcall loadtrack(_DWORD *result, int a2)
       return (_DWORD *)LoadTextures(v62, SHIDWORD(v62), v2);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall __spoils<> read_backs(int *a1, int a2, int a3, int a4)
+int read_backs(int *a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int v5; // ecx
   int v6; // esi
   int result; // eax
@@ -884,13 +885,14 @@ int __fastcall __spoils<> read_backs(int *a1, int a2, int a3, int a4)
       }
     }
   } while (!v5);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall read_texturemap(int a1)
+char *read_texturemap(int a1)
 {
+  return 0; /*
   char *v2; // eax
   char v3; // dh
   char *result; // eax
@@ -914,13 +916,14 @@ char *__fastcall read_texturemap(int a1)
     ++v5;
   } while (*result != 13 && *result != 10);
   texture_file[v5] = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall read_bldmap(char **a1)
+char *read_bldmap(char **a1)
 {
+  return 0; /*
   char *v2; // ebp
   int v3; // ecx
   char *v4; // esi
@@ -963,13 +966,14 @@ char *__fastcall read_bldmap(char **a1)
     strcpy(&fp_buf, "building.drh");
   }
   *a1 = v2;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall readstuntdata(int a1, int a2, int a3, int a4)
+int readstuntdata(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   _DWORD *v5; // edx
   int result; // eax
   _DWORD *v7; // edx
@@ -1007,13 +1011,13 @@ int __fastcall readstuntdata(int a1, int a2, int a3, int a4)
     }
   } while (v17[0] != -1);
   *v5 = -1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void activatestunts()
-{
+{/*
   int *v0; // esi
   int v1; // ebp
   int v2; // edi
@@ -1059,13 +1063,14 @@ void activatestunts()
       totalramps = v11;
     }
     ++v1;
-  } while (v2 != -1);
+  } while (v2 != -1);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall ReadAnimData(int result, int a2)
+int ReadAnimData(int result, int a2)
 {
+  return 0; /*
   int v2; // [esp+0h] [ebp-14h] BYREF
   int v3[4]; // [esp+4h] [ebp-10h] BYREF
 
@@ -1086,13 +1091,14 @@ int __fastcall ReadAnimData(int result, int a2)
       }
     } while (SLOWORD(v3[0]) >= 0);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl readline(int a1, const char *a2, double *a3)
+int readline(int a1, const char *a2, double *a3)
 {
+  return 0; /*
   int v3; // eax
   char *v4; // esi
   double *v5; // edi
@@ -1168,13 +1174,14 @@ int __cdecl readline(int a1, const char *a2, double *a3)
       *(_BYTE *)a3 = strtol(v15, 0, 10);
     v15 = strtok(0, delims);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *__fastcall memgets(_BYTE *a1, int *a2)
+char *memgets(char *a1, int *a2)
 {
+  return 0; /*
   int v3; // esi
   _BYTE *result; // eax
   char v5; // bl
@@ -1194,13 +1201,14 @@ _BYTE *__fastcall memgets(_BYTE *a1, int *a2)
     } while (*(_BYTE *)(v6 - 1) > 0xDu && !v3);
   } while (*a1 <= 0xDu);
   meof = v3;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *readline2(int *a1, const char *a2, ...)
+char *readline2(int *a1, const char *a2, ...)
 {
+  return 0; /*
   _BYTE *result; // eax
   int v3; // ebp
   double v4; // st7
@@ -1346,12 +1354,12 @@ _BYTE *readline2(int *a1, const char *a2, ...)
       return result;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double *__stdcall rotatepoint(
+double *rotatepoint(
         double a1,
         double a2,
         double a3,
@@ -1362,6 +1370,7 @@ double *__stdcall rotatepoint(
         double *a8,
         double *a9)
 {
+  return 0; /*
   long double v9; // st7
   long double v10; // st6
   long double v11; // st5
@@ -1386,13 +1395,14 @@ double *__stdcall rotatepoint(
   *a8 = (v13 * v10 * v11 + v9 * v14) * a2 + a1 * v13 * v15 + (-v13 * v10 * v14 + v9 * v11) * a3;
   result = a9;
   *a9 = v10 * a1 + v11 * (-v15 * a2) + a3 * v15 * v14;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall setpoint(int a1, int a2, double a3, double a4, double a5)
+int setpoint(int a1, int a2, double a3, double a4, double a5)
 {
+  return 0; /*
   int v7; // ebx
   int result; // eax
 
@@ -1401,13 +1411,14 @@ int __fastcall setpoint(int a1, int a2, double a3, double a4, double a5)
   TrakPt[result + v7] = a3;
   TrakPt_variable_1[result + v7] = a4;
   TrakPt_variable_2[result + v7] = a5;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall setgpoint(int a1, int a2, double a3, double a4, double a5)
+int setgpoint(int a1, int a2, double a3, double a4, double a5)
 {
+  return 0; /*
   int v7; // ebx
   int result; // eax
 
@@ -1416,13 +1427,14 @@ int __fastcall setgpoint(int a1, int a2, double a3, double a4, double a5)
   GroundPt[result + v7] = a3;
   GroundPt_variable_1[result + v7] = a4;
   GroundPt_variable_2[result + v7] = a5;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int resetcars()
 {
+  return 0; /*
   int v0; // esi
   float *v1; // ecx
   int result; // eax
@@ -1436,13 +1448,14 @@ int resetcars()
       v1 += 77;
     } while (v0 < numcars);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *__fastcall min_skip_stuff(int *a1)
+char *__fastcall min_skip_stuff(int *a1)
 {
+  return 0; /*
   _BYTE *result; // eax
   _BYTE v3[256]; // [esp-100h] [ebp-130h] BYREF
   _BYTE v4[4]; // [esp+0h] [ebp-30h] BYREF
@@ -1470,8 +1483,7 @@ _BYTE *__fastcall min_skip_stuff(int *a1)
   do
     result = readline2(a1, "ii", v13, &v12);
   while (v13[0] != -1);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

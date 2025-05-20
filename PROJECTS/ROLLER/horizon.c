@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall DrawHorizon(int a1)
+void DrawHorizon(int a1)
 {
+  /*
   int v1; // edx
   int v2; // ecx
   unsigned __int8 v3; // dl
@@ -243,13 +243,13 @@ void __fastcall DrawHorizon(int a1)
     }
   }
   if ((textures_off & 8) == 0)
-    displayclouds();
+    displayclouds();*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall initclouds(int a1)
-{
+void initclouds(int a1)
+{/*
   int i; // edi
   int v2; // eax
   int v3; // eax
@@ -397,13 +397,13 @@ void __fastcall initclouds(int a1)
       if (v52 < (double)horizon_c_variable_9)
         v52 = 1000000.0;
     } while (!v13);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void displayclouds()
-{
+{/*
   int v0; // eax
   int i; // esi
   double v2; // st7
@@ -682,8 +682,7 @@ void displayclouds()
         }
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

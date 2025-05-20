@@ -52,14 +52,12 @@ int time_shown;                                             //0013FB7C
 int player2_car;                                            //0013FB7E
 int player1_car;                                            //0013FB80
 
-void doexit(int a1, int a2, void *pBuf) { (void)(a1); (void)(a2); (void)(pBuf); };//todo
-
-//-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall copypic(char *a1, int a2)
+int copypic(char *a1, int a2)
 {
+  (void)(a1); (void)(a2);
+  /*
   int result; // eax
   int j; // edx
   char *v6; // esi
@@ -108,13 +106,16 @@ int __fastcall copypic(char *a1, int a2)
     result = winh * winw;
     qmemcpy((void *)(winw * winy + a2), a1, winh * winw);
   }
-  return result;
+  return result;*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall init_screen(int a1, int a2, int a3)
+int init_screen(int a1, int a2, int a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  /*
   int v3; // edx
   int v4; // ebx
   int i; // esi
@@ -193,8 +194,10 @@ int __fastcall init_screen(int a1, int a2, int a3)
   if (palette_brightness > 0)
     return resetpal();
   return result;
+  */
+  return 0;
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 void init()
@@ -259,20 +262,8 @@ void *getbuffer(uint32 uiSize)
 {
   int iMemBlocksIdx; // esi
   void *pBuf; // eax
-#ifdef IS_WATCOM
-  int v6; // edx
-  int ax; // ebp
-  int v8; // ebx
-  int v9; // ecx
-  int v10; // ebx
-  union REGS regs; // [esp+0h] [ebp-4Ch] BYREF
-  struct SREGS sregs; // [esp+1Ch] [ebp-30h] BYREF
-#endif
   int iRegsDi; // [esp+28h] [ebp-24h] BYREF
   void *pPtr; // [esp+2Ch] [ebp-20h] BYREF
-#ifdef IS_WATCOM
-  int v16; // [esp+30h] [ebp-1Ch]
-#endif
 
   iMemBlocksIdx = 0;
   if (mem_blocks[0].pBuf) {
@@ -287,38 +278,7 @@ void *getbuffer(uint32 uiSize)
     mem_blocks[iMemBlocksIdx].iRegsDi = iRegsDi;
     hibuffers++;
     mem_used += uiSize;
-  } 
-#ifdef IS_WATCOM
-  else {
-    memset(&sregs, 0, sizeof(sregs));
-    regs.w.ax = 256;
-    regs.w.bx = -1;
-    int386x(49, &regs, &regs, &sregs);
-    v6 = (uiSize >> 4) + 1;
-    v16 = v6;
-    if (regs.w.bx - 640 < v6) {
-      __asm { int     10h; -VIDEO - SET VIDEO MODE }
-      printf(&aDmnotEnoughMem[2]);
-      doexit(1, v6, (int)&regs);
-    } else {
-      memset(&sregs, 0, sizeof(sregs));
-      regs.w.ax = 256;
-      regs.w.bx = v16;
-      int386x(49, &regs, &regs, &sregs);
-      ax = regs.w.ax;
-      v8 = mem_used_low;
-      mem_blocks[iMemBlocksIdx].uiSize = -16 * v16;
-      v9 = lobuffers;
-      pBuf2 = (void *)(16 * ax);
-      mem_blocks[iMemBlocksIdx].pAlsoBuf = (void *)regs.w.dx;
-      lobuffers = v9 + 1;
-      v10 = 16 * v16 + v8;
-      mem_blocks[iMemBlocksIdx].pBuf = pBuf2;
-      mem_used_low = v10;
-    }
-    return pBuf2;
   }
-#endif
   return pBuf;
 }
 
@@ -331,14 +291,6 @@ void *trybuffer(uint32 uiSize)
   void *pPtr; // [esp+28h] [ebp-20h] BYREF
   int iRegsDi; // [esp+2Ch] [ebp-1Ch] BYREF
   int iMemUsed; // ecx
-#ifdef IS_WATCOM
-  signed int v6; // edi
-  int v7; // ebp
-  unsigned __int16 ax; // bx
-  int v9; // eax
-  union REGS regs; // [esp+0h] [ebp-48h] BYREF
-  struct SREGS sregs; // [esp+1Ch] [ebp-2Ch] BYREF
-#endif
 
   iMemBlocksIdx = 0;
   if (mem_blocks[0].pBuf) {
@@ -355,30 +307,7 @@ void *trybuffer(uint32 uiSize)
     mem_used = uiSize + iMemUsed;
     ++hibuffers;
   }
-#ifdef IS_WATCOM
-  else {
-    memset(&sregs, 0, sizeof(sregs));
-    regs.w.ax = 256;
-    regs.w.bx = -1;
-    int386x(49, &regs, &regs, &sregs);
-    v6 = (uiSize >> 4) + 1;
-    if (v6 > regs.w.bx - 640)
-      return 0;
-    memset(&sregs, 0, sizeof(sregs));
-    regs.w.ax = 256;
-    regs.w.bx = v6;
-    int386x(49, &regs, &regs, &sregs);
-    v7 = mem_used_low;
-    ax = regs.w.ax;
-    mem_blocks[iMemBlocksIdx].uiSize = -16 * v6;
-    pBuf2 = (void *)(16 * ax);
-    mem_blocks[iMemBlocksIdx].pAlsoBuf = (void *)regs.w.dx;
-    mem_used_low = 16 * v6 + v7;
-    v9 = lobuffers + 1;
-    mem_blocks[iMemBlocksIdx].pBuf = pBuf2;
-    lobuffers = v9;
-  }
-#endif
+
   return pBuf;
 }
 
@@ -390,11 +319,6 @@ void fre(void *pData)
   int iMemBlocksIdx; // edx
   int i; // eax
   signed int uiSize; // eax
-#ifdef IS_WATCOM
-  unsigned __int16 pAlsoBuf; // ax
-  union REGS regs; // [esp+0h] [ebp-40h] BYREF
-  struct SREGS sregs; // [esp+1Ch] [ebp-24h] BYREF
-#endif
 
   if (pData) {
     pBuf = mem_blocks[0].pBuf;
@@ -406,9 +330,6 @@ void fre(void *pData)
     }
     if (iMemBlocksIdx >= 128)                 // mem_blocks is 128 tMemBlocks
     {
-#ifdef IS_WATCOM
-      __asm { int     10h; -VIDEO - SET VIDEO MODE }
-#endif
       printf(szFailedToFind);
       doexit(1, iMemBlocksIdx, pBuf);
     } else {
@@ -419,15 +340,7 @@ void fre(void *pData)
       mem_used -= uiSize;
       free2(mem_blocks[iMemBlocksIdx].pAlsoBuf);
     } else {
-#ifdef IS_WATCOM
-      mem_used_low += uiSize;
-      memset(&sregs, 0, sizeof(sregs));
-      pAlsoBuf = (unsigned __int16)mem_blocks[iMemBlocksIdx].pAlsoBuf;
-      regs.w.ax = 257;
-      regs.w.dx = pAlsoBuf;
-      int386x(49, &regs, &regs, &sregs);
-      --lobuffers;
-#endif
+      // is this necessary?
     }
     pData = 0;
   }
@@ -435,9 +348,9 @@ void fre(void *pData)
 
 //-------------------------------------------------------------------------------------------------
 
-#ifdef ENABLE_PSEUDOCODE
 void doexit()
 {
+  /*
   int v0; // eax
   int *v1; // edx
   int *v2; // eax
@@ -511,12 +424,14 @@ void doexit()
   __int23_exit();
   __FPE_handler_exit();
   JUMPOUT(0x7A98F);
+  */
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int firework_screen()
 {
+  /*
   int v0; // esi
   float *v1; // ebx
   unsigned __int8 v2; // al
@@ -581,12 +496,15 @@ int firework_screen()
     v0 += 1408;
   } while (v0 != 25344);
   return game_copypic(scrbuf, screen, ViewType);
+  */
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int updatescreen()
 {
+  /*
   int v0; // esi
   int v1; // edi
   int v2; // ebp
@@ -825,11 +743,15 @@ LABEL_30:
   winw = XMAX;
   winh = YMAX;
   return init_animate_ads(YMAX);
+  */
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
-int __fastcall draw_road(int a1, int a2, unsigned int a3, int a4, int a5)
+int draw_road(int a1, int a2, unsigned int a3, int a4, int a5)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  /*
   double v6; // st7
   double v7; // st7
   int v8; // eax
@@ -869,15 +791,16 @@ int __fastcall draw_road(int a1, int a2, unsigned int a3, int a4, int a5)
       return game_copypic(a1, screen, a2);
   }
   return result;
+  */
+  return 0;
 }
 
-//-------------------------------------------------------------------------------------------------
-#endif
 //-------------------------------------------------------------------------------------------------
 
 int __cdecl main(int argc, const char **argv, const char **envp)
 {
-#ifdef ENABLE_PSEUDO
+  (void)(argc); (void)(argv); (void)(envp);
+  /*
   int v3; // eax
   char **v4; // edx
   int v5; // ecx
@@ -1160,15 +1083,15 @@ int __cdecl main(int argc, const char **argv, const char **envp)
   doexit();
   return result;
 #endif
+*/
   return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
-//-------------------------------------------------------------------------------------------------
 
 int play_game_init()
 {
+  /*
   int v0; // edx
   int v1; // ebx
   int v2; // ebx
@@ -1485,13 +1408,15 @@ int play_game_init()
     race_started = -1;
   }
   network_mes_mode = v39;
-  return result;
+  return result;*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int play_game_uninit()
 {
+  /*
   int v0; // edx
   int v1; // eax
   int v2; // eax
@@ -1578,12 +1503,15 @@ int play_game_uninit()
   }
   tick_on = -1;
   return result;
+  */
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int winner_race()
 {
+  /*
   int v0; // ecx
   int v1; // eax
   int v2; // edx
@@ -1645,13 +1573,15 @@ int winner_race()
     } while (result < v8);
   }
   numcars = v7;
-  return result;
+  return result;*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int champion_race()
 {
+  /*
   int v0; // ebx
   unsigned int v1; // eax
   int v2; // eax
@@ -1748,13 +1678,15 @@ int champion_race()
   }
   result = champ_size;
   scr_size = champ_size;
-  return result;
+  return result;*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall play_game(int a1)
+int play_game(int a1)
 {
+  /*
   int v1; // eax
   int v2; // eax
   int v3; // ecx
@@ -2041,13 +1973,15 @@ int __fastcall play_game(int a1)
       }
     }
   }
-  return play_game_uninit();
+  return play_game_uninit();*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void game_keys()
 {
+  /*
   unsigned int v0; // eax
   int v1; // eax
   int v2; // eax
@@ -2742,13 +2676,14 @@ void game_keys()
         goto LABEL_273;
       viewplus(0);
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int mesminus()
 {
+  /*
   int v0; // ecx
   int result; // eax
   int v2; // edx
@@ -2765,13 +2700,15 @@ int mesminus()
     }
   } while (v2 == v0);
   network_mes_mode = v0;
-  return result;
+  return result;*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int mesplus()
 {
+/*
   int v0; // ecx
   int result; // eax
   int v2; // edx
@@ -2788,13 +2725,15 @@ int mesplus()
     }
   } while (v2 == v0);
   network_mes_mode = v0;
-  return result;
+  return result;*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int __fastcall carminus(int a1, int a2, int a3)
 {
+  /*
   int v3; // ebx
 
   LOWORD(a3) = numcars;
@@ -2808,12 +2747,15 @@ int __fastcall carminus(int a1, int a2, int a3)
   else
     initcarview(ViewType, 0);
   return sfxsample(83, 0x8000, v3);
+  */
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int carplus()
 {
+  return 0;/*
   int v0; // ebx
 
   v0 = numcars;
@@ -2825,13 +2767,16 @@ int carplus()
     doteaminit(ViewType);
   else
     initcarview(ViewType, 0);
-  return sfxsample(83, 0x8000, v0);
+  return sfxsample(83, 0x8000, v0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall viewminus(int a1)
+int viewminus(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int result; // eax
   int v3; // edx
   int v4; // ebx
@@ -2893,13 +2838,16 @@ int __fastcall viewminus(int a1)
     goto LABEL_31;
 LABEL_12:
   initcarview(ViewType[a1], a1);
-  return sfxsample(83, 0x8000, v6);
+  return sfxsample(83, 0x8000, v6);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall viewplus(int a1)
+int viewplus(int a1)
 {
+  (void)(a1);
+  return 0;
+  /*
   int result; // eax
   int v3; // edx
   int v4; // ebx
@@ -2962,12 +2910,15 @@ int __fastcall viewplus(int a1)
 LABEL_12:
   initcarview(ViewType[a1], a1);
   return sfxsample(83, 0x8000, v6);
+  */
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall game_copypic(char *a1, int a2, char *a3)
+void game_copypic(char *a1, int a2, char *a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  /*
   int v6; // eax
   char v7; // dh
   int j; // edx
@@ -3295,9 +3246,9 @@ LABEL_127:
     }
   }
   if (draw_type != 2)
-    copypic(a1, a2);
+    copypic(a1, a2);*/
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 void test_w95(int a1, int a2, int a3, int a4)
@@ -3311,30 +3262,8 @@ void test_w95(int a1, int a2, int a3, int a4)
 void *malloc2(int iSize, void *pPtr, int *pRegsDi)
 {
   void *result; // eax
-#ifdef IS_WATCOM
-  REGS regs; // [esp+0h] [ebp-34h] BYREF
-  struct SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
-  
-  if (w95) {
-#endif
   result = malloc(iSize);
   pPtr = result;
-#ifdef IS_WATCOM
-  } else {
-    memset(&sregs, 0, sizeof(sregs));
-    regs.w.ax = 1281;
-    regs.w.bx = (iSize - ((unsigned int)__CFSHL__(iSize >> 31, 16) + (iSize >> 31 << 16))) >> 16;
-    regs.w.cx = iSize % 0x10000;
-    int386x(49, &regs, &regs, &sregs);
-    if (regs.x.cflag) {
-      return 0;
-    } else {
-      *(_DWORD *)pPtr = regs.w.si;
-      *pRegsDi = regs.w.di;
-      return (void *)((regs.w.bx << 16) + regs.w.cx);
-    }
-  }
-#endif
   return result;
 }
 
@@ -3342,21 +3271,6 @@ void *malloc2(int iSize, void *pPtr, int *pRegsDi)
 
 void free2(void *ptr)
 {
-#ifdef IS_WATCOM
-  unsigned __int16 nDi; // dx
-  REGS regs; // [esp+0h] [ebp-34h] BYREF
-  SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
-
-  if (w95) {
-    nfree(ptr);
-  } else {
-    memset(&sregs, 0, sizeof(sregs));
-    regs.w.si = (unsigned __int16)ptr;
-    regs.w.ax = 1282;
-    regs.w.di = nDi;
-    int386x(49, &regs, &regs, &sregs);
-  }
-#endif
   free(ptr);
   --hibuffers;
 }

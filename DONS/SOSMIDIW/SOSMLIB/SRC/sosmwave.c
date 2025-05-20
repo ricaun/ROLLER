@@ -1,4 +1,4 @@
-#ifdef ENABLE_SOSMLIB_PSEUDO
+/*
 //-------------------------------------------------------------------------------------------------
 
 int __cdecl waveSendData(unsigned int a1, int a2, int a3, int a4)
@@ -454,4 +454,4 @@ __int64 __cdecl waveGetBestSample(int a1, unsigned __int8 a2)
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif
+*/

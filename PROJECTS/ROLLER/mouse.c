@@ -17,10 +17,10 @@ int initmouse()
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall mousexy()
+int mousexy()
 {
   int result = 0;
-#ifdef IS_WATCOM
+/*
   int iMouseX; // ecx
   int iMouseY; // esi
   int result; // eax
@@ -45,15 +45,15 @@ int __fastcall mousexy()
     iMouseY = 0;
   mousey = iMouseY;
   mousex = iMouseX;
-#endif
+  */
   return result;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-#ifdef ENABLE_PSEUDO
-int __fastcall mousebut(unsigned __int16 a1, int a2, int a3, int a4)
+int mousebut(unsigned __int16 a1, int a2, int a3, int a4)
 {
+  return 0; /*
   _WORD v6[16]; // [esp+0h] [ebp-28h] BYREF
   int v7; // [esp+20h] [ebp-8h]
 
@@ -63,13 +63,14 @@ int __fastcall mousebut(unsigned __int16 a1, int a2, int a3, int a4)
   v6[0] = 5;
   v6[2] = 0;
   int386(51, (int)v6, (int)v6);
-  return a1 & v6[0];
+  return a1 & v6[0];*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall checkmouse(int a1, int a2, int a3, int a4)
+int checkmouse(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
   char v5; // cl
   _WORD v6[14]; // [esp+0h] [ebp-2Ch] BYREF
@@ -95,13 +96,14 @@ int __fastcall checkmouse(int a1, int a2, int a3, int a4)
   } else {
     jpressed = 0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall drmouse(int a1, int a2, int a3, int a4)
+int drmouse(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // edi
   int v5; // ebx
   int v7; // eax
@@ -137,13 +139,14 @@ int __fastcall drmouse(int a1, int a2, int a3, int a4)
     ++v9;
   } while (v9 != v16);
   XMAX = v4;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *plotmouse()
+char *plotmouse()
 {
+  return 0; /*
   int v0; // ecx
   int v1; // esi
   _BYTE *result; // eax
@@ -166,8 +169,7 @@ _BYTE *plotmouse()
   result[4 * v0] = -113;
   mousex = v1;
   XMAX = v0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

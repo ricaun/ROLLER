@@ -1,8 +1,7 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
 void setreplaytrack()
-{
+{/*
   int v0; // eax
   char *v1; // edi
   char *v2; // esi
@@ -106,13 +105,14 @@ void setreplaytrack()
     }
     if (v5)
       fclose(v5);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int startreplay()
 {
+  return 0; /*
   int result; // eax
   char *v1; // edi
   const char *v2; // esi
@@ -379,13 +379,13 @@ int startreplay()
         filingmenu = 1;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall stopreplay(int a1, int a2, int a3, int a4)
-{
+void stopreplay(int a1, int a2, int a3, int a4)
+{/*
   char *v4; // edx
   char *v5; // ebx
   char *v6; // edi
@@ -461,13 +461,14 @@ void __fastcall stopreplay(int a1, int a2, int a3, int a4)
       v13[1] = v16;
       v13 += 2;
     } while (v16);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall DoReplayData(int a1, int a2, int a3, int a4)
+int DoReplayData(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int result; // eax
   int v5; // esi
   float *v6; // edi
@@ -1267,13 +1268,14 @@ int __fastcall DoReplayData(int a1, int a2, int a3, int a4)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall Rplay@<eax>(__int64 a1@<esi:edi>)
+int Rplay(__int64 a1)
 {
+  return 0; /*
   int result; // eax
 
   if (replaytype == 2) {
@@ -1286,13 +1288,14 @@ int __usercall Rplay@<eax>(__int64 a1@<esi:edi>)
     if (replayspeed == 256)
       return initsoundlag(currentreplayframe);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4)
+int Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   int result; // eax
 
   if (replaytype == 2) {
@@ -1302,13 +1305,14 @@ int __fastcall Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4)
     lastautocut = -1;
     replayspeed = -result;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rframeplus(int a1, int a2)
+int Rframeplus(int a1, int a2)
 {
+  return 0; /*
   int result; // eax
   __int64 v3; // [esp-4h] [ebp-8h]
 
@@ -1327,13 +1331,14 @@ int __fastcall Rframeplus(int a1, int a2)
     }
     _enable();
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rframeminus(int a1, int a2)
+int Rframeminus(int a1, int a2)
 {
+  return 0; /*
   int result; // eax
   __int64 v3; // [esp-4h] [ebp-8h]
 
@@ -1349,13 +1354,14 @@ int __fastcall Rframeminus(int a1, int a2)
       ticks = 0;
     _enable();
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall Rspeedplus@<eax>(int result@<eax>, unsigned int a2@<edx>, unsigned int a3@<edi>)
+int Rspeedplus(int result, unsigned int a2, unsigned int a3)
 {
+  return 0; /*
   if (replaytype == 2) {
     result = sfxsample(__SPAIR64__(a2, a3));
     if (++replaysetspeed == 9)
@@ -1372,13 +1378,13 @@ int __usercall Rspeedplus@<eax>(int result@<eax>, unsigned int a2@<edx>, unsigne
     if (replayspeed == 256)
       return initsoundlag(currentreplayframe);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __usercall Rspeedminus(__int64 a1@<esi:edi>)
-{
+void Rspeedminus(__int64 a1)
+{/*
   int v1; // eax
 
   if (replaytype == 2) {
@@ -1396,13 +1402,14 @@ void __usercall Rspeedminus(__int64 a1@<esi:edi>)
     }
     if (replayspeed == 256)
       initsoundlag(currentreplayframe);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall DoRstop(int a1, int a2)
+int DoRstop(int a1, int a2)
 {
+  return 0; /*
   __int64 v3; // [esp-4h] [ebp-8h]
 
   LODWORD(v3) = a2;
@@ -1414,13 +1421,14 @@ int __fastcall DoRstop(int a1, int a2)
     ticks = currentreplayframe;
     _enable();
   }
-  return sfxsample(v3);
+  return sfxsample(v3);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int Rstop()
 {
+  return 0; /*
   int result; // eax
 
   if (replaytype == 2) {
@@ -1432,13 +1440,14 @@ int Rstop()
     ticks = currentreplayframe;
     _enable();
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rrewindstart(int a1, int a2)
+int Rrewindstart(int a1, int a2)
 {
+  return 0; /*
   int result; // eax
   __int64 v3; // [esp-4h] [ebp-8h]
 
@@ -1449,13 +1458,14 @@ int __fastcall Rrewindstart(int a1, int a2)
       replayspeed = -64;
     rewinding = -1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rforwardstart(int a1, int a2)
+int Rforwardstart(int a1, int a2)
 {
+  return 0; /*
   int result; // eax
   __int64 v3; // [esp-4h] [ebp-8h]
 
@@ -1466,13 +1476,14 @@ int __fastcall Rforwardstart(int a1, int a2)
       replayspeed = 64;
     forwarding = -1;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall ROldStatus@<eax>(__int64 a1@<esi:edi>)
+int ROldStatus(__int64 a1)
 {
+  return 0; /*
   int result; // eax
 
   if (replaytype == 2) {
@@ -1487,13 +1498,14 @@ int __usercall ROldStatus@<eax>(__int64 a1@<esi:edi>)
       result = Rplay(a1);
     _enable();
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rstart(int a1, unsigned int a2, int a3, unsigned int a4)
+int Rstart(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   int v4; // eax
   int result; // eax
 
@@ -1510,13 +1522,14 @@ int __fastcall Rstart(int a1, unsigned int a2, int a3, unsigned int a4)
       return resetsmoke(v4, 0x8000);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Rend(int a1, unsigned int a2, int a3, unsigned int a4)
+int Rend(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   int result; // eax
   int v5; // eax
 
@@ -1532,13 +1545,14 @@ int __fastcall Rend(int a1, unsigned int a2, int a3, unsigned int a4)
     v5 = sfxsample(__SPAIR64__(a4, a2));
     return resetsmoke(v5, 0x8000);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall readdisable(int a1)
+unsigned int readdisable(int a1)
 {
+  return 0; /*
   char v1; // bl
   int v3; // eax
 
@@ -1546,13 +1560,14 @@ unsigned int __fastcall readdisable(int a1)
   if (!replayedit || a1 > 0x1FFFF)
     return 0;
   v3 = (a1 - (__CFSHL__(a1 >> 31, 5) + 32 * (a1 >> 31))) >> 5;
-  return ((unsigned int)disabled[v3] >> (v1 - 32 * v3)) & 1;
+  return ((unsigned int)disabled[v3] >> (v1 - 32 * v3)) & 1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall cleardisable(int result)
+int cleardisable(int result)
 {
+  return 0; /*
   char v1; // bl
 
   v1 = result;
@@ -1560,13 +1575,14 @@ int __fastcall cleardisable(int result)
     result = (result - (__CFSHL__(result >> 31, 5) + 32 * (result >> 31))) >> 5;
     disabled[result] &= ~(1 << (v1 - 32 * result));
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall setdisable(int result)
+int setdisable(int result)
 {
+  return 0; /*
   char v1; // bl
 
   v1 = result;
@@ -1574,13 +1590,14 @@ int __fastcall setdisable(int result)
     result = (result - (__CFSHL__(result >> 31, 5) + 32 * (result >> 31))) >> 5;
     disabled[result] |= 1 << (v1 - 32 * result);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall deleteframes(int result, int a2)
+int deleteframes(int result, int a2)
 {
+  return 0; /*
   int v2; // esi
   int v3; // ebx
   int i; // ebx
@@ -1599,13 +1616,14 @@ int __fastcall deleteframes(int result, int a2)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall undeleteframes(int result, int a2)
+int undeleteframes(int result, int a2)
 {
+  return 0; /*
   int v2; // ebx
   int v3; // edx
   int i; // edx
@@ -1621,13 +1639,13 @@ int __fastcall undeleteframes(int result, int a2)
     for (i = result; i <= v2; result = cleardisable(v5))
       v5 = i++;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void findnextvalid()
-{
+{/*
   int v0; // ebx
   int i; // edx
   unsigned int v2; // eax
@@ -1676,13 +1694,14 @@ void findnextvalid()
     if (v0 != currentreplayframe)
       pend_view_init = ViewType[0];
   }
-  currentreplayframe = v3;
+  currentreplayframe = v3;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 unsigned int findlastvalid()
 {
+  return 0; /*
   int v0; // ebx
   int i; // edx
   unsigned int result; // eax
@@ -1733,13 +1752,13 @@ unsigned int findlastvalid()
     }
   }
   currentreplayframe = v3;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void Rassemble()
-{
+{/*
   int v0; // eax
   int v1; // ebp
   int v2; // edx
@@ -2025,13 +2044,13 @@ void Rassemble()
     } else {
       filingmenu = 7;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void storecut()
-{
+{/*
   int v0; // esi
   int v1; // edi
   int v2; // ecx
@@ -2072,13 +2091,14 @@ void storecut()
     camera_variable_1[2 * v5] = ViewType[0];
   }
   currentreplayframe = v1;
-  cuts = v0;
+  cuts = v0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int removecut()
 {
+  return 0; /*
   int v0; // esi
   int v1; // ecx
   int v2; // edi
@@ -2105,13 +2125,14 @@ int removecut()
     }
   }
   cuts = v0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int readcut()
 {
+  return 0; /*
   int v0; // ecx
   int v1; // eax
   int v2; // edx
@@ -2129,13 +2150,14 @@ int readcut()
       } while (v1 < cuts);
     }
   }
-  return v0;
+  return v0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int displayreplay()
 {
+  return 0; /*
   int v0; // edi
   int v1; // esi
   int i; // ecx
@@ -2205,21 +2227,23 @@ int displayreplay()
   result = replaypanel;
   if (replaypanel)
     return displaycontrolpanel();
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // attributes: thunk
-int __fastcall compare(int a1, int a2)
+int compare(int a1, int a2)
 {
-  return strcmp(a1, a2);
+  return 0; /*
+  return strcmp(a1, a2);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall warning(int a1, int a2, int a3, int a4, char *a5)
+int warning(int a1, int a2, int a3, int a4, char *a5)
 {
+  return 0; /*
   int v5; // esi
   int v6; // edi
   int result; // eax
@@ -2256,13 +2280,14 @@ int __fastcall warning(int a1, int a2, int a3, int a4, char *a5)
     filingmenu = 0;
     disciconpressed = 0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __fastcall lsd(int a1, int a2, int a3, int a4)
+char lsd(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // esi
   unsigned __int8 v5; // al
   unsigned __int8 v6; // al
@@ -2363,13 +2388,14 @@ char __fastcall lsd(int a1, int a2, int a3, int a4)
     ++v7;
     v23 += 10;
   } while (v7 < 3);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall scandirectory(int a1)
+int scandirectory(int a1)
 {
+  return 0; /*
   int v1; // ebp
   char *v2; // eax
   int v3; // edx
@@ -2400,13 +2426,14 @@ int __fastcall scandirectory(int a1)
     } while (!v5);
   }
   filefiles = v1;
-  return qsort(filename, v1, 9, compare);
+  return qsort(filename, v1, 9, compare);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __fastcall fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9)
+char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9)
 {
+  return 0; /*
   int v9; // ebp
   char *v10; // edi
   char *v11; // esi
@@ -2708,13 +2735,14 @@ char __fastcall fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char 
   result = replayicon(a6 + 82, v44, 255);
   if (!filefiles)
     return prt_centrecol(rev_vga_variable_1, language_buffer_variable_52, a5, a6 + 44, 143);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall previouscut(int a1, int a2)
+int previouscut(int a1, int a2)
 {
+  return 0; /*
   int v2; // ebx
   int v3; // esi
   int v4; // edx
@@ -2784,13 +2812,14 @@ int __fastcall previouscut(int a1, int a2)
   result = ViewType[0];
   pend_view_init = ViewType[0];
   currentreplayframe = v7;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall nextcut(int a1, int a2)
+int nextcut(int a1, int a2)
 {
+  return 0; /*
   int v2; // esi
   int v3; // eax
   int v4; // edx
@@ -2848,13 +2877,14 @@ int __fastcall nextcut(int a1, int a2)
   result = ViewType[0];
   pend_view_init = ViewType[0];
   currentreplayframe = v7;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int loadreplay()
 {
+  return 0; /*
   char *v0; // esi
   char *v1; // edi
   char v2; // al
@@ -2910,13 +2940,14 @@ int loadreplay()
   lagdone = 0;
   holdmusic = 0;
   loading_replay = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int savereplay()
 {
+  return 0; /*
   int v0; // ebp
   char *v1; // esi
   char *v2; // edi
@@ -3041,13 +3072,14 @@ int savereplay()
     else
       filingmenu = 7;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall deletereplay(int a1, int a2, int a3, int a4)
+int deletereplay(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   char *v4; // esi
   char *v5; // edi
   char v6; // al
@@ -3116,13 +3148,14 @@ int __fastcall deletereplay(int a1, int a2, int a3, int a4)
   ticks = currentreplayframe;
   filingmenu = 0;
   lastfile = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 char updatedirectory()
 {
+  return 0; /*
   int v0; // edx
   char *v1; // edi
   char *v2; // esi
@@ -3148,26 +3181,28 @@ char updatedirectory()
     v1[1] = result;
     v1 += 2;
   } while (result);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int findintrofiles()
 {
+  return 0; /*
   int result; // eax
   int v1; // [esp-30h] [ebp-34h] BYREF
 
   introfiles = 0;
   for (result = dos_findfirst(aIntroGss); !result; ++introfiles)
     result = dos_findnext(&v1);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int displaycontrolpanel()
 {
+  return 0; /*
   int v0; // ebp
   int v1; // eax
   int v2; // edi
@@ -3292,13 +3327,14 @@ int displaycontrolpanel()
       } while (v6 < v14);
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall rtoggleedit(int a1, unsigned int a2, int a3, unsigned int a4)
+int rtoggleedit(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   replayedit = replayedit == 0;
   replayselect = 0;
   if (replaytype == 2) {
@@ -3310,13 +3346,14 @@ int __fastcall rtoggleedit(int a1, unsigned int a2, int a3, unsigned int a4)
     _enable();
   }
   rotpoint = currentreplayframe;
-  return sfxsample(__SPAIR64__(a4, a2));
+  return sfxsample(__SPAIR64__(a4, a2));*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall rstartblock(int a1, unsigned int a2, int a3, unsigned int a4)
+int rstartblock(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   _BOOL1 v4; // zf
   int result; // eax
 
@@ -3342,13 +3379,13 @@ int __fastcall rstartblock(int a1, unsigned int a2, int a3, unsigned int a4)
     replaystart = currentreplayframe;
     return sfxsample(__SPAIR64__(a4, a2));
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void rselectblock()
-{
+{/*
   int v0; // eax
   int v1; // ebx
   int i; // edx
@@ -3388,13 +3425,14 @@ void rselectblock()
       _enable();
     }
     sfxsample(v4);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall rdeleteblock@<eax>(__int64 a1@<esi:edi>)
+int rdeleteblock(__int64 a1)
 {
+  return 0; /*
   int v1; // ecx
   int v2; // ebx
   int i; // edx
@@ -3427,13 +3465,14 @@ int __usercall rdeleteblock@<eax>(__int64 a1@<esi:edi>)
     replayselect = 0;
     return sfxsample(a1);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall rstoreview(int a1, unsigned int a2, int a3, unsigned int a4)
+int rstoreview(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   int result; // eax
 
   if (replayedit) {
@@ -3448,13 +3487,14 @@ int __fastcall rstoreview(int a1, unsigned int a2, int a3, unsigned int a4)
     storecut();
     return sfxsample(__SPAIR64__(a4, a2));
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall rremoveview(int a1, unsigned int a2, int a3, unsigned int a4)
+int rremoveview(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   int result; // eax
 
   if (replayedit) {
@@ -3469,13 +3509,14 @@ int __fastcall rremoveview(int a1, unsigned int a2, int a3, unsigned int a4)
     removecut();
     return sfxsample(__SPAIR64__(a4, a2));
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4)
+int rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   if (replayedit) {
     if (replaytype == 2) {
       _disable();
@@ -3489,13 +3530,14 @@ int __fastcall rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4
     previouscut(result, a2);
     return sfxsample(__SPAIR64__(a4, a2));
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall rnextcut(int result, unsigned int a2, int a3, unsigned int a4)
+int rnextcut(int result, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   if (replayedit) {
     if (replaytype == 2) {
       _disable();
@@ -3509,13 +3551,14 @@ int __fastcall rnextcut(int result, unsigned int a2, int a3, unsigned int a4)
     nextcut(result, a2);
     return sfxsample(__SPAIR64__(a4, a2));
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __usercall rstartassemble(__int64 a1@<esi:edi>)
+void rstartassemble(__int64 a1)
 {
+  /*
   int v1; // ebx
   int v2; // edx
 
@@ -3535,13 +3578,14 @@ void __usercall rstartassemble(__int64 a1@<esi:edi>)
       filingmenu = 4;
     else
       filingmenu = 8;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *__fastcall replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+unsigned __int8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
+  return 0; /*
   int v8; // edx
   unsigned __int8 *result; // eax
   int v10; // edx
@@ -3633,13 +3677,14 @@ unsigned __int8 *__fastcall replayicon(int a1, int a2, int a3, int a4, int a5, i
     }
     result += a6 - v26;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall replaypanelletter(int result, int *a2, int *a3, int a4)
+int replaypanelletter(int result, int *a2, int *a3, int a4)
 {
+  return 0; /*
   int v4; // esi
 
   v4 = -1;
@@ -3660,13 +3705,14 @@ int __fastcall replaypanelletter(int result, int *a2, int *a3, int a4)
     result = *(_DWORD *)(rev_vga_variable_5 + 12 * v4) + 1;
     *a2 += result;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall replaypanelstring(const char *a1, int a2, int a3, int a4)
+int replaypanelstring(const char *a1, int a2, int a3, int a4)
 {
+  return 0; /*
   const char *v4; // esi
   unsigned int i; // ebp
   int result; // eax
@@ -3694,34 +3740,37 @@ int __fastcall replaypanelstring(const char *a1, int a2, int a3, int a4)
     }
     ++v4;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall displaypaneltime(int a1, int a2, int a3, int a4)
+int displaypaneltime(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   sprintf(buffer, "%02d:%02d:%02d", a1 / 36 / 60, a1 / 36 % 60, a1 % 36);
-  return replaypanelstring(buffer, a2, a3, a4);
+  return replaypanelstring(buffer, a2, a3, a4);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall discmenu(int a1, unsigned int a2, int a3, unsigned int a4)
+int discmenu(int a1, unsigned int a2, int a3, unsigned int a4)
 {
+  return 0; /*
   int result; // eax
 
   result = sfxsample(__SPAIR64__(a4, a2));
   lsdsel = 0;
   disciconpressed = -1;
   filingmenu = 5;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall initsoundlag(int a1)
+int initsoundlag(int a1)
 {
+  return 0; /*
   int v2; // esi
   int result; // eax
   int v4; // ebx
@@ -3754,13 +3803,13 @@ int __fastcall initsoundlag(int a1)
   numcars = v2;
   replayspeed = 256;
   _enable();
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void resetsmoke()
-{
+{/*
   int v0; // esi
   int v1; // ebx
   int v2; // ecx
@@ -3780,8 +3829,7 @@ void resetsmoke()
       v2 += 1408;
     } while (v1 < v0);
   }
-  numcars = v0;
+  numcars = v0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

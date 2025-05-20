@@ -1,4 +1,5 @@
 #include "userfns.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 double getdirection(double a1, double a2)

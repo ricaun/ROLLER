@@ -1,19 +1,8 @@
 #include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
-//temporarily putting this here so car.c will build
-int LoadCarTexture(int a1, char a2)
-{
-  (void)(a1); (void)(a2);
-  return 0;
-};
-
-//-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
-//-------------------------------------------------------------------------------------------------
-
-void __fastcall plotxyz(int a1, int a2, float a3, float a4, float a5, char a6)
-{
+void plotxyz(int a1, int a2, float a3, float a4, float a5, char a6)
+{/*
   __int16 v8; // fps
   _BOOL1 v9; // c0
   char v10; // c2
@@ -49,13 +38,14 @@ void __fastcall plotxyz(int a1, int a2, float a3, float a4, float a5, char a6)
       if ((int)v13 >= 0 && v19 <= 319 && (unsigned int)(int)v14 < 0xC8)
         *(_BYTE *)(scrbuf + v19 + winw * (199 - (int)v14)) = a6;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall linexyz(int a1, int a2, float a3, float a4, float a5, float a6, float a7, float a8, char a9)
+void linexyz(int a1, int a2, float a3, float a4, float a5, float a6, float a7, float a8, char a9)
 {
+  /*
   double v11; // st7
   double v12; // st6
   __int16 v13; // fps
@@ -136,13 +126,14 @@ void __fastcall linexyz(int a1, int a2, float a3, float a4, float a5, float a6, 
         (int)(v23 * v19) >> 31 << 6);
       compout(((int)v24 - (__CFSHL__((int)v24 >> 31, 6) + ((int)v24 >> 31 << 6))) >> 6, a9);
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __userpurge compout@<al>(int a1@<edx>, int a2@<ecx>, int a3@<ebx>, int a4@<edi>, int a5@<esi>, int a6, char a7)
+char compout(int a1, int a2, int a3, int a4, int a5, int a6, char a7)
 {
+  return 0;/*
   int v7; // ebp
   char v8; // cl
   char v9; // dl
@@ -269,13 +260,14 @@ char __userpurge compout@<al>(int a1@<edx>, int a2@<ecx>, int a3@<ebx>, int a4@<
   } while (!v20);
   if (v21)
     return line(a6, a7);
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *__fastcall line(int a1, int a2, int a3, int a4, int a5, char a6)
+char *line(int a1, int a2, int a3, int a4, int a5, char a6)
 {
+  return 0;/*
   int v6; // ebp
   _BYTE *result; // eax
   int v8; // esi
@@ -363,13 +355,13 @@ _BYTE *__fastcall line(int a1, int a2, int a3, int a4, int a5, char a6)
     }
   }
   winw = v6;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __usercall LoadPanel(char a1@<dil>)
-{
+void LoadPanel(char a1)
+{/*
   int v1; // ebx
   char *v2; // ecx
   int v3; // esi
@@ -421,13 +413,14 @@ void __usercall LoadPanel(char a1@<dil>)
       loadcompactedfile(v8, v12, ++v1, v8);
       v8 += 13;
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int InitRemaps()
 {
+  return 0;/*
   int v0; // edi
   int v1; // esi
   int v2; // ecx
@@ -445,13 +438,14 @@ int InitRemaps()
       ++v1;
     } while (v0 < numcars);
   }
-  return init_remap(texture_vga, -1, num_textures_variable_3, gfx_size);
+  return init_remap(texture_vga, -1, num_textures_variable_3, gfx_size);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall LoadGenericCarTextures(int a1, int a2, int a3, int a4)
+int LoadGenericCarTextures(int a1, int a2, int a3, int a4)
 {
+  return 0;/*
   int v4; // edx
   signed int v5; // ecx
   int v6; // eax
@@ -488,13 +482,14 @@ int __fastcall LoadGenericCarTextures(int a1, int a2, int a3, int a4)
   }
   result = setmapsel(cargen_vga[0], 18, v9, v8);
   num_textures_variable_2 = v7;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall LoadCarTexture(int a1, char a2, char *a3)
+int LoadCarTexture(int a1, char a2)
 {
+  return 0;/*
   int v3; // edx
   int v4; // ecx
   int v5; // eax
@@ -649,13 +644,14 @@ int __fastcall LoadCarTexture(int a1, char a2, char *a3)
     result = (int)v37;
     *v37 = 120;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall LoadBldTextures(int a1, int a2, int a3, int a4)
+int LoadBldTextures(int a1, int a2, int a3, int a4)
 {
+  return 0;/*
   int v4; // edx
   signed int v5; // ecx
   int v6; // eax
@@ -694,13 +690,14 @@ int __fastcall LoadBldTextures(int a1, int a2, int a3, int a4)
   BldTextures = v7;
   result = setmapsel(building_vga, 17, v9, v8);
   num_textures_variable_1 = v7;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall LoadTextures(int a1, int a2, int a3)
+int LoadTextures(int a1, int a2, int a3)
 {
+  return 0;/*
   __int64 v3; // rax
   int v4; // ecx
   int v5; // eax
@@ -841,13 +838,14 @@ int __fastcall LoadTextures(int a1, int a2, int a3)
     NoOfTextures = result;
     num_textures_variable_3 = result;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall init_remap(int result, int a2, int a3, int a4)
+int init_remap(int result, int a2, int a3, int a4)
 {
+  return 0;/*
   int v4; // edi
   int v5; // ebx
   int v6; // eax
@@ -969,13 +967,14 @@ int __fastcall init_remap(int result, int a2, int a3, int a4)
       v27 = result;
     } while (result < a3);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall sort_small_texture(int a1, char *a2, int a3)
+int sort_small_texture(int a1, char *a2, int a3)
 {
+  return 0;/*
   int result; // eax
   int v5; // ebp
   int v6; // ebp
@@ -1041,13 +1040,14 @@ int __fastcall sort_small_texture(int a1, char *a2, int a3)
       v18 = result;
     } while (result <= v17);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall sort_texture(char *a1, int a2)
+void *sort_texture(char *a1, int a2)
 {
+  return 0;/*
   int v3; // ebp
   int v4; // esi
   char *v5; // ecx
@@ -1115,13 +1115,14 @@ _DWORD *__fastcall sort_texture(char *a1, int a2)
       ++v18;
     } while (v18 <= v17);
   }
-  return fre(&v16);
+  return fre(&v16);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_DWORD *__fastcall sort_mini_texture(char *a1, int a2)
+void *sort_mini_texture(char *a1, int a2)
 {
+  return 0;/*
   int v3; // ebp
   int v4; // esi
   int v5; // edi
@@ -1191,13 +1192,14 @@ _DWORD *__fastcall sort_mini_texture(char *a1, int a2)
       ++v18;
     } while (v18 <= v17);
   }
-  return fre(&v16);
+  return fre(&v16);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall drbox(int a1, int a2, int a3, int a4, char a5)
+int drbox(int a1, int a2, int a3, int a4, char a5)
 {
+  return 0;/*
   int result; // eax
   int v6; // edi
   int i; // esi
@@ -1215,13 +1217,14 @@ int __fastcall drbox(int a1, int a2, int a3, int a4, char a5)
     }
     result = a4;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-_BYTE *__fastcall box(int a1, int a2, int a3, int a4, char a5)
+char *box(int a1, int a2, int a3, int a4, char a5)
 {
+  return 0;/*
   int v5; // esi
   int v6; // ebp
   int v7; // edi
@@ -1251,19 +1254,19 @@ _BYTE *__fastcall box(int a1, int a2, int a3, int a4, char a5)
     *v12 = a5;
   }
   winw = v5;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall SetVideoMode(char a1)
+int SetVideoMode(char a1)
 {
+  return 0;/*
   _BYTE v2[36]; // [esp+0h] [ebp-24h] BYREF
 
   v2[0] = a1;
   v2[1] = 0;
-  return int386(16, (int)v2, (int)v2);
+  return int386(16, (int)v2, (int)v2);*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

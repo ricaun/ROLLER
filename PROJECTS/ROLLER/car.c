@@ -258,10 +258,11 @@ int InitCars()
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
 
 __int16 placecars()
 {
+  return 0;
+  /*
   unsigned int v0; // ecx
   __int16 result; // ax
   int v2; // edi
@@ -532,13 +533,16 @@ __int16 placecars()
       ++v25;
     } while (v23 < local_players);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall DrawCars(int result, int a2)
+int DrawCars(int result, int a2)
 {
+  (void)(result); (void)(a2);
+  return 0;
+  /*
   int v2; // ebp
   int v3; // esi
   int v4; // edi
@@ -691,13 +695,16 @@ int __fastcall DrawCars(int result, int a2)
       ++v22;
     } while (v22 < v12);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 __fastcall DisplayCar(int a1, int a2, float a3)
+__int16 DisplayCar(int a1, int a2, float a3)
 {
+  (void)(a1); (void)(a2); (void)(a3);
+  return 0;
+  /*
   int v6; // ebx
   int v7; // esi
   int v8; // edi
@@ -2132,10 +2139,9 @@ LABEL_117:
       }
     }
   }
-  return v249;
+  return v249;*/
 }
 
-#endif
 //-------------------------------------------------------------------------------------------------
 
 int carZcmp(tCar *pCar1, tCar *pCar2)

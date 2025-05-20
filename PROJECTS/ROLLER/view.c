@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall calculateview(int a1, int a2, int a3)
+int calculateview(int a1, int a2, int a3)
 {
+  return 0; /*
   int v4; // esi
   unsigned int v5; // eax
   int v6; // eax
@@ -364,13 +364,14 @@ LABEL_9:
     result = vtilt;
     worldtilt = vtilt;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall initcarview(int result, int a2)
+int initcarview(int result, int a2)
 {
+  return 0; /*
   int v2; // ecx
   int v3; // esi
   unsigned int v4; // ebx
@@ -474,13 +475,14 @@ LABEL_15:
   v14 = *(float *)&lastpos_variable_3[256 * a2];
   nextpoint[a2] = 1;
   *(float *)((char *)&lastpos_variable_7 + result) = v14;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall newchaseview(int a1, int a2)
+int newchaseview(int a1, int a2)
 {
+  return 0; /*
   unsigned int v3; // eax
   int v4; // ebx
   int v5; // ecx
@@ -672,8 +674,7 @@ int __fastcall newchaseview(int a1, int a2)
   worldelev = velevation;
   result = vtilt;
   worldtilt = vtilt;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

@@ -1,8 +1,8 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
 int remove_mapsels()
 {
+  return 0; /*
   int v0; // ebp
   int v1; // ecx
   int v2; // edi
@@ -91,13 +91,14 @@ int remove_mapsels()
     } while (v11 < num_textures_variable_2);
   }
   num_textures_variable_2 = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall setmapsel(int a1, int a2, int a3, int a4)
+int setmapsel(int a1, int a2, int a3, int a4)
 {
+  return 0; /*
   int v4; // ebp
   int result; // eax
   __int16 v6; // di
@@ -173,13 +174,14 @@ int __fastcall setmapsel(int a1, int a2, int a3, int a4)
     __FPE_handler_exit();
     JUMPOUT(0x7A98F);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall twpolym(_WORD *a1, __int16 a2)
+int twpolym(void *a1, __int16 a2)
 {
+  return 0; /*
   __int16 v3; // bx
   __int16 v4; // si
   __int16 v5; // di
@@ -433,13 +435,14 @@ int __fastcall twpolym(_WORD *a1, __int16 a2)
       startsy_variable_1 = v28;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall POLYTEX(int a1, int a2, int *a3, int a4, int a5)
+int POLYTEX(int a1, int a2, int *a3, int a4, int a5)
 {
+  return 0; /*
   int result; // eax
   int v8; // edx
   int v9; // ecx
@@ -563,13 +566,14 @@ int __fastcall POLYTEX(int a1, int a2, int *a3, int a4, int a5)
       startsy_variable_1 = result;
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char __fastcall polym(int *a1, int a2, int a3)
+char polym(int *a1, int a2, int a3)
 {
+  return 0; /*
   int *v3; // ebp
   int v4; // ecx
   int v5; // esi
@@ -4547,13 +4551,14 @@ char __fastcall polym(int *a1, int a2, int a3)
       }
     }
   }
-  return v11;
+  return v11;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall polyt(int result, int a2, int a3)
+int polyt(int result, int a2, int a3)
 {
+  return 0; /*
   __int16 *v3; // ebp
   int v4; // edx
   int v5; // ecx
@@ -5793,8 +5798,7 @@ LABEL_76:
     goto LABEL_79;
   if (*(v3 - 11) >= 0)
     goto LABEL_132;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

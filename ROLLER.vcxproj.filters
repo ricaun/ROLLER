@@ -287,5 +287,11 @@
     <ClInclude Include="PROJECTS\ROLLER\userfns.h">
       <Filter>PROJECTS\ROLLER</Filter>
     </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\func3.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\building.h">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

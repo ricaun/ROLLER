@@ -1,10 +1,9 @@
 #include "function.h"
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDO
-//-------------------------------------------------------------------------------------------------
 
 void finish_race()
 {
+  /*
   int v0; // edi
   int v1; // esi
   int v2; // edx
@@ -323,9 +322,9 @@ void finish_race()
         ++Car_variable_31[v8];
       }
     }
-  }
+  }*/
 }
-#endif
+
 //-------------------------------------------------------------------------------------------------
 
 double getbankz(float a1, int iChunkIdx, tData *pData)
@@ -379,9 +378,11 @@ LABEL_7:
 }
 
 //-------------------------------------------------------------------------------------------------
-#ifdef ENABLE_PSEUDOCODE
-int __fastcall calculate_aheadbehindtime(int a1, float *a2, float *a3)
+
+int calculate_aheadbehindtime(int a1, float *a2, float *a3)
 {
+  return 0;
+  /*
   int result; // eax
   int v5; // esi
   int v6; // edi
@@ -484,13 +485,15 @@ int __fastcall calculate_aheadbehindtime(int a1, float *a2, float *a3)
     *a2 = -1.0;
     *a3 = -1.0;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int initnearcars()
 {
+  return 0;
+  /*
   int v0; // edi
   int v1; // ebx
   int v2; // ebx
@@ -533,13 +536,15 @@ int initnearcars()
   }
   result = 0;
   nearcarcheck = 0;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int initpits()
 {
+  return 0;
+  /*
   int result; // eax
   int v1; // ecx
   int v2; // ebx
@@ -561,13 +566,14 @@ int initpits()
     } while (result >= 0);
   }
   numstops = v1;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall dodamage(int a1, float a2)
+void dodamage(int a1, float a2)
 {
+  /*
   int *v6; // edi
   int v7; // eax
   int v8; // edx
@@ -794,13 +800,13 @@ void __fastcall dodamage(int a1, float a2)
     && v40 >= (double)function_c_variable_11
     && *(_BYTE *)(a1 + 102) <= 7u) {
     speechsample(27, 20000, 18, *(_DWORD *)(a1 + 32));
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall doviewtend(int a1, int a2, int a3)
-{
+void doviewtend(int a1, int a2, int a3)
+{/*
   int v5; // edx
   unsigned int v6; // eax
   int v7; // edx
@@ -960,13 +966,15 @@ void __fastcall doviewtend(int a1, int a2, int a3)
         }
       }
     }
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall changemateto(int result, int a2)
+int changemateto(int result, int a2)
 {
+  return 0;
+  /*
   int v2; // ecx
   int v4; // esi
   int v5; // edi
@@ -1014,13 +1022,14 @@ int __fastcall changemateto(int result, int a2)
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall linevalid(int a1, float a2, float a3)
+int linevalid(int a1, float a2, float a3)
 {
+  return 0;/*
   float *v6; // ecx
   int *v7; // edx
   unsigned int v8; // esi
@@ -1094,13 +1103,14 @@ int __fastcall linevalid(int a1, float a2, float a3)
     return -1;
   if (v14)
     return 0;
-  return v10;
+  return v10;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall analysefalloff(int a1)
+void analysefalloff(int a1)
 {
+  /*
   int v2; // ecx
   double v3; // st7
   char *v4; // esi
@@ -1317,13 +1327,14 @@ LABEL_12:
     v60 = (double)*(int *)(a1 + 200) - tsin[v59] * function_c_variable_17;
     _CHP(v59, v51 * 4);
     *(_DWORD *)(a1 + 200) = (int)v60;
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall showmap(int a1, int a2)
+int showmap(int a1, int a2)
 {
+  return 0;/*
   int v2; // esi
   int v4; // edx
   int v5; // eax
@@ -1562,13 +1573,14 @@ int __fastcall showmap(int a1, int a2)
     *(_BYTE *)result = v68;
   }
   winw = v38;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int firework_display()
 {
+  return 0;/*
   int result; // eax
   int j; // eax
   int i; // ebp
@@ -1724,8 +1736,7 @@ int firework_display()
     analysespeechsamples(j);
     readptr = ((_WORD)readptr + 1) & 0x1FF;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif

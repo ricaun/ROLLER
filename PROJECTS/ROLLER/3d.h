@@ -48,8 +48,9 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-tData localdata[];
-tGroundPt GroundPt[];
+extern int SVGA_ON;
+extern tData localdata[];
+extern tGroundPt GroundPt[];
 extern float tsin[];
 extern float ptan[];
 extern float tcos[];

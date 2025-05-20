@@ -1,8 +1,10 @@
-#ifdef ENABLE_PSEUDO
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall CalcVisibleTrack(int a1, unsigned int a2)
+int CalcVisibleTrack(int a1, unsigned int a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   int v3; // esi
   int v4; // edi
   int v5; // ebp
@@ -223,13 +225,16 @@ int __fastcall CalcVisibleTrack(int a1, unsigned int a2)
   else
     result = front_sec;
   start_sect = result;
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall DrawTrack3@<eax>(int *a1@<eax>, int a2@<edx>, int a3@<ebx>, float *a4@<ebp>, char *a5@<edi>)
+int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5)
 {
+  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
+  return 0;
+  /*
   int v5; // ecx
   float *v6; // eax
   char *v7; // edx
@@ -4619,12 +4624,12 @@ LABEL_393:
       }
     }
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall subdivide(
+void subdivide(
         int a1,
         int a2,
         float a3,
@@ -4642,6 +4647,23 @@ void __fastcall subdivide(
         int a15,
         int a16)
 {
+  (void)a1;
+  (void) a2;
+  (void) a3;
+  (void) a4;
+  (void) a5;
+  (void) a6;
+  (void) a7;
+  (void) a8;
+  (void) a9;
+  (void) a10;
+  (void) a11;
+  (void) a12;
+  (void) a13;
+  (void) a14;
+  (void) a15;
+  (void) a16;
+  /*
   int v18; // ebp
   int v19; // edi
   int v20; // esi
@@ -4723,12 +4745,12 @@ LABEL_10:
       compout(v22, 243);
     if (a14 >= 1.0 && a5 >= 1.0)
       compout(v23, 243);
-  }
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __stdcall dodivide(
+int dodivide(
         float a1,
         float a2,
         float a3,
@@ -4754,6 +4776,30 @@ int __stdcall dodivide(
         int a23,
         int a24)
 {
+  (void)a1;
+  (void)a2;
+  (void)a3;
+  (void)a4;
+  (void)a5;
+  (void)a6;
+  (void)a7;
+  (void)a8;
+  (void)a9;
+  (void)a10;
+  (void)a11;
+  (void)a12;
+  (void)a13;
+  (void)a14;
+  (void)a15;
+  (void)a16;
+  (void)a17;
+  (void)a18;
+  (void)a19;
+  (void)a20;
+  (void)a21;
+  (void)a22;
+  (void)a23;
+  (void)a24;/*
   int v29; // edx
   float v30; // eax
   float v31; // eax
@@ -5922,12 +5968,13 @@ int __stdcall dodivide(
       default:
         return result;
     }
-  }
+  }*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __stdcall facing_ok(
+int facing_ok(
         float a1,
         float a2,
         float a3,
@@ -5941,19 +5988,35 @@ int __stdcall facing_ok(
         float a11,
         float a12)
 {
+  (void)a1;
+  (void)a2;
+  (void)a3;
+  (void)a4;
+  (void)a5;
+  (void)a6;
+  (void)a7;
+  (void)a8;
+  (void)a9;
+  (void)a10;
+  (void)a11;
+  (void)a12;
+  return 0;/*
   float v13; // [esp+20h] [ebp-4h]
 
   v13 = a7 - a1;
   return (((a8 - a2) * (a6 - a12) - (a9 - a3) * (a5 - a11)) * a4
         + ((a9 - a3) * (a4 - a10) - (a6 - a12) * v13) * a5
         + ((a5 - a11) * v13 - (a4 - a10) * (a8 - a2)) * a6 >= 0.0)
-    - 1;
+    - 1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall Zcmp(float *a1, float *a2)
+int Zcmp(float *a1, float *a2)
 {
+  (void)(a1); (void)(a2);
+  return 0;
+  /*
   int v2; // edx
   int v3; // ebx
   float v5; // [esp+0h] [ebp-Ch]
@@ -5971,13 +6034,16 @@ int __fastcall Zcmp(float *a1, float *a2)
     if (v3 >= v2)
       return -1;
   }
-  return 1;
+  return 1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __fastcall set_starts(unsigned int result)
+unsigned int set_starts(unsigned int result)
 {
+  (void)(result);
+  return 0;
+  /*
   startsx_variable_1 = 0;
   startsx_variable_2 = 0;
   startsy = 0;
@@ -6020,8 +6086,7 @@ unsigned int __fastcall set_starts(unsigned int result)
     startsy_variable_2 = 4190208;
     startsy_variable_3 = 4190208;
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-#endif
