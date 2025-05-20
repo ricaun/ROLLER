@@ -241,6 +241,13 @@
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
     <ClInclude Include="PROJECTS\ROLLER\userfns.h" />
     <ClInclude Include="PROJECTS\ROLLER\view.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ROLLER.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\roller.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

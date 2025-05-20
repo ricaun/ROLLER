@@ -43,6 +43,9 @@
     <Filter Include="PROJECTS\ROLLER\Headers">
       <UniqueIdentifier>{2abb2369-89c5-4fa7-aa3d-b94daecee25a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PROJECTS\ROLLER\Resources">
+      <UniqueIdentifier>{f8d8d579-c11f-4ac0-9b50-bb02adda18c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NETSRC\SRC\ipx.c">
@@ -335,5 +338,18 @@
     <ClInclude Include="PROJECTS\ROLLER\replay.h">
       <Filter>PROJECTS\ROLLER\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>PROJECTS\ROLLER\Resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ROLLER.rc">
+      <Filter>PROJECTS\ROLLER\Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\roller.ico">
+      <Filter>PROJECTS\ROLLER\Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
