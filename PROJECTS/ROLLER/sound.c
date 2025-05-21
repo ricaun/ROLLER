@@ -4,6 +4,7 @@
 #include "3d.h"
 #include "cdx.h"
 #include <memory.h>
+#include <io.h>
 //-------------------------------------------------------------------------------------------------
 
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
@@ -1586,33 +1587,32 @@ char *FindConfigVar(char *a1, const char *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int loadfile(int a1, void *a2, unsigned int *a3, int a4)
+void loadfile(const char *szFile, void *pBuf, unsigned int uiSize, int iIsSound)
 {
-  return 0; /*
-  __int64 v5; // rax
+  int iFile; // eax
+  void *pBuf2; // eax
+  uint8 *pUint8Buf; // edx
 
-  *a2 = 0;
-  *a3 = 0;
-  v5 = open(a1, 512);
-  if ((_DWORD)v5 == -1) {
-    *a3 = 0;
-    *(_DWORD *)HIDWORD(v5) = 0;
+  pBuf = 0;
+  uiSize = 0;
+  iFile = _open(szFile, 512);
+  if (iFile == -1) {
+    uiSize = 0;
+    pBuf = 0;
   } else {
-    close(v5, HIDWORD(v5));
-    LODWORD(v5) = getcompactedfilelength(a1);
-    *a3 = v5;
-    if (!a4 || a4 == 1 && soundon) {
-      LODWORD(v5) = trybuffer(*a3);
-      *(_DWORD *)HIDWORD(v5) = v5;
-      if ((_DWORD)v5) {
-        HIDWORD(v5) = v5;
-        initmangle(a1);
-        LODWORD(v5) = loadcompactedfilepart(HIDWORD(v5), 1000000000);
-        LODWORD(v5) = uninitmangle(v5);
+    _close(iFile);
+    uiSize = getcompactedfilelength(szFile);
+    if (!iIsSound || iIsSound == 1 && soundon) {
+      pBuf2 = trybuffer(uiSize);
+      pBuf = pBuf2;
+      if (pBuf2) {
+        pUint8Buf = (uint8 *)pBuf2;
+        initmangle(szFile);
+        loadcompactedfilepart(pUint8Buf, 1000000000);
+        uninitmangle();
       }
     }
   }
-  return v5;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2443,11 +2443,10 @@ int sfxplaying(int a1)
 
 int cheatsampleok(int a1)
 {
-  return 0; /*
-  if (a1 == (__int16)player1_car || a1 == player2_car)
+  if (a1 == player1_car || a1 == player2_car)
     return -1;
   else
-    return 0;*/
+    return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
