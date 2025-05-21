@@ -10,42 +10,46 @@
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
 unsigned int musicon = 0xFFFFFFFF; //000A46A0
 unsigned int soundon = 0xFFFFFFFF; //000A46A4
+int palette_brightness = 32; //000A46B0
 int MusicCard = 0;          //000A4794
 int MusicCD = 0;            //000A4798
 int MusicPort = 0;          //000A479C
 int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
+uint8 unmangleinbuf[1024];  //00149EF0
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
+DPMI_RMI RMI;               //0016F838
 int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
-uint8 unmangleinbuf[1024];  //00149EF0
 
 //-------------------------------------------------------------------------------------------------
 
-int realmode(char a1, int a2, int a3, int a4)
+void realmode(uint8 byRealModeInterrupt)
 {
-  return 0; /*
-  __int16 v6; // [esp+0h] [ebp-34h] BYREF
-  char v7; // [esp+4h] [ebp-30h]
-  char v8; // [esp+5h] [ebp-2Fh]
-  __int16 v9; // [esp+8h] [ebp-2Ch]
-  int *v10; // [esp+14h] [ebp-20h]
-  _WORD v11[8]; // [esp+1Ch] [ebp-18h] BYREF
-  int v12; // [esp+2Ch] [ebp-8h]
+  /*union REGS regs; // [esp+0h] [ebp-34h] BYREF
+  struct SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
 
-  v12 = a4;
-  memset(v11, 0, 12);
-  v7 = a1;
-  v6 = 768;
-  v8 = 0;
-  v9 = 0;
-  v11[0] = __DS__;
-  v10 = &RMI;
-  return int386x(49, (int)&v6, (int)&v6, (int)v11);*/
+  // 49 is DPMI interrupt
+  // 768 Simulate Real Mode Interrupt
+  // bx is being set to the real mode interrupt to simulate
+  // all calls to this function set it to 0x10
+  //   to simulate a BIOS video interrupt in real mode
+  // __DS__ represents the current value of the DS (Data Segment) 
+  //   register in your program's segment context
+  // By setting sregs.es = __DS__; and regs.x.edi = (unsigned int)&RMI;,
+  //   we are telling the DPMI host that the RMI structure is located 
+  //   at offset &RMI in the segment __DS__
+  memset(&sregs, 0, sizeof(sregs));
+  regs.w.bx = byRealModeInterrupt;
+  regs.w.ax = 768;
+  regs.w.cx = 0;
+  sregs.es = __DS__;
+  regs.x.edi = (unsigned int)&RMI;
+  int386x(49, &regs, &regs, &sregs);*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -188,52 +192,62 @@ int setpal(int a1, int a2, void *a3, void *a4)
 //-------------------------------------------------------------------------------------------------
 
 void blankpal()
-{/*
-  unsigned int v4; // ecx
-  unsigned __int16 v5; // si
-  int result; // eax
-  int v7; // [esp+0h] [ebp-64h] BYREF
-  __int16 v8; // [esp+4h] [ebp-60h]
-  unsigned __int16 v9; // [esp+Ch] [ebp-58h]
-  _WORD v10[14]; // [esp+1Ch] [ebp-48h] BYREF
-  _BYTE v11[12]; // [esp+38h] [ebp-2Ch] BYREF
-  _BYTE v12[24]; // [esp+44h] [ebp-20h] BYREF
-  int v13; // [esp+5Ch] [ebp-8h]
+{
+  /*
+  unsigned int uiLinearAddress; // ecx
+  unsigned __int16 unDx; // si
+  union REGS regs; // [esp+0h] [ebp-64h] BYREF
+  REGS regs2; // [esp+1Ch] [ebp-48h] BYREF
+  struct SREGS sregs; // [esp+38h] [ebp-2Ch] BYREF
+  SREGS sregs2; // [esp+44h] [ebp-20h] BYREF
 
-  v13 = a4;
-  memset(v11, 0, sizeof(v11));
-  LOWORD(v7) = 256;
-  v8 = 48;
-  int386x(49, (int)&v7, (int)&v7, (int)v11);
-  v4 = 16 * (unsigned __int16)v7;
-  v5 = v9;
-  memset(v4, 0, 768);
-  RMI_variable_3 = 256;
-  RMI_variable_4 = 4114;
-  RMI_variable_1 = 0;
-  RMI_variable_2 = 0;
-  RMI_variable_5 = v4 >> 4;
-  realmode(16, 0, 12, v5);
-  memset(v12, 0, 12);
-  v10[6] = v5;
-  v10[0] = 257;
-  int386x(49, (int)v10, (int)v10, (int)v12);
-  result = 0;
+  memset(&sregs, 0, sizeof(sregs));
+  regs.w.ax = 256;
+  regs.w.bx = 48;
+
+  // allocate 48 LDT selectors
+  // * If successful, AX contains the first selector allocated.
+  // * If failed, the carry flag is set and AX contains an error code.
+  int386x(49, &regs, &regs, &sregs);
+
+  // Multiplying by 16 (* 16) converts a segment 
+  // selector value to a linear address in real 
+  // mode (segment:offset addressing), because in 
+  // real mode, the physical address is 
+  // segment * 16 + offset.
+  uiLinearAddress = 16 * regs.w.ax;
+  unDx = regs.w.dx;
+  memset((void *)uiLinearAddress, 0, 0x300u);
+  RMI.ecx = 256;
+  RMI.eax = 4114;
+  RMI.ebx = 0;
+  RMI.edx = 0;
+
+  // Shifting the address right by 4 (>> 4) converts 
+  // the linear address back to a segment value 
+  // (since segment = address / 16).
+  RMI.es = uiLinearAddress >> 4;
+  realmode(0x10u);
+  memset(&sregs2, 0, sizeof(sregs2));
+  regs2.w.dx = unDx;
+  regs2.w.ax = 257;
+  int386x(49, &regs2, &regs2, &sregs2);
+  */
   palette_brightness = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int resetpal()
+void resetpal()
 {
-  return 0; /*
-  RMI_variable_4 = 4114;
-  RMI_variable_1 = 0;
-  RMI_variable_3 = 256;
-  RMI_variable_5 = (unsigned int)pal_addr >> 4;
-  RMI_variable_2 = 0;
-  return realmode(16, 4114, 0, 256);*/
+  /*
+  RMI.eax = 4114;
+  RMI.ebx = 0;
+  RMI.ecx = 256;
+  RMI.es = (unsigned int)pal_addr >> 4;
+  RMI.edx = 0;
+  realmode(0x10u);
+  */
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -1329,11 +1329,15 @@ void free_game_memory()
 int readmode()
 {
   return 0;
-  //REGS regs; // [esp+0h] [ebp-24h] BYREF
-  //
-  //regs.h.ah = 15;
-  //int386(16, &regs, &regs);
-  //return regs.h.al;
+  /*
+  REGS regs; // [esp+0h] [ebp-24h] BYREF
+
+  // int386 calling interrupt 0x10 (16 in decimal) which is the BIOS video services interrupt.
+  // because regs.h.ah = 15;, it asks for the current video mode.
+  // current video mode is returned in regs.h.al
+  regs.h.ah = 15;
+  int386(16, &regs, &regs);
+  return regs.h.al;*/
 }
 
 //-------------------------------------------------------------------------------------------------

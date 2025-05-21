@@ -4,33 +4,43 @@
 #include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <Windows.h>
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  DWORD edi, esi, ebp, reserved, ebx, edx, ecx, eax;
+  WORD  flags, es, ds, fs, gs, ip, cs, sp, ss;
+} DPMI_RMI;
+
 //-------------------------------------------------------------------------------------------------
 
 extern unsigned int musicon;
 extern unsigned int soundon;
+extern int palette_brightness;
 extern int MusicCard;
 extern int MusicCD;
 extern int MusicPort;
 extern int SongPtr;
 extern int SongHandle;
+extern uint8 unmangleinbuf[];
 extern int unmangleinpoff;
 extern uint8 *unmangledst;
 extern int unmangleoverflow;
 extern FILE *unmanglefile;
 extern int unmanglebufpos;
+extern DPMI_RMI RMI;
 extern int optionssong;
 extern int titlesong;
-extern uint8 unmangleinbuf[];
 
 //-------------------------------------------------------------------------------------------------
 
-int realmode(char a1, int a2, int a3, int a4);
+void realmode(uint8 byRealModeInterrupt);
 int loadDOS(int a1, void *a2, int *a3);
 int claimDOS(int a1, void *a2);
 int releaseDOS(__int16 a1, int a2, int a3, int a4);
 int setpal(int a1, int a2, void *a3, void *a4);
-void blankpal();
-int resetpal();
+void resetpal();
 int Initialise_SOS();
 int updatejoy();
 int readuserdata(int result);
