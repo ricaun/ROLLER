@@ -2540,32 +2540,29 @@ int print_mem_used()
 
 //-------------------------------------------------------------------------------------------------
 
-int try_load_picture(int a1, int a2, int a3, int a4)
+uint8 *try_load_picture(const char *szFile)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  int v4; // ebx
-  __int64 v5; // rax
-  unsigned int v6; // eax
-  int v7; // ecx
+  uint8 *pBuf2; // ebx
+  int iFile; // eax
+  uint32 iLength; // eax
+  uint8 *pBuf; // ecx
 
-  v4 = 0;
-  v5 = open(a1, 512);
-  if ((_DWORD)v5 != -1) {
-    close(v5, HIDWORD(v5));
-    v6 = getcompactedfilelength(SHIDWORD(v5), SHIDWORD(v5), 0, a4);
-    v7 = trybuffer(v6);
-    v4 = v7;
-    if (v7)
-      loadcompactedfile(SHIDWORD(v5), v7);
+  pBuf2 = 0;
+  iFile = _open(szFile, 512);
+  if (iFile != -1) {
+    _close(iFile);
+    iLength = getcompactedfilelength(szFile);
+    pBuf = (uint8 *)trybuffer(iLength);
+    pBuf2 = pBuf;
+    if (pBuf)
+      loadcompactedfile(szFile, pBuf);
   }
-  return v4;*/
+  return pBuf2;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void *__fastcall save_champ(int a1)
+void *save_champ(int a1)
 {
   (void)(a1);
   return 0;
