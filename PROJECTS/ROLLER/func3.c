@@ -1,6 +1,12 @@
 #include "func3.h"
 #include "3d.h"
+#include "sound.h"
 #include <memory.h>
+#include <io.h>
+//-------------------------------------------------------------------------------------------------
+
+char g_szUnableToOpen[42] = "Unable to open texture map data file %s"; //000A23CC Symbol name added by ROLLER
+
 //-------------------------------------------------------------------------------------------------
 
 int winner_screen(int a1, char a2, void *a3)
@@ -4345,26 +4351,22 @@ unsigned __int8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, 
 
 //-------------------------------------------------------------------------------------------------
 
-int load_picture(int a1, int a2, int a3, int a4)
+uint8 *load_picture(const char *szFile)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); return 0;
-  /*
-  __int64 v4; // rax
-  int v5; // ebx
-  unsigned int v6; // ebx
+  int iFileHandle; // ebx
+  uint32 uiFileLength; // eax
+  uint8 *pBuf; // ebx
 
-  v4 = open(a1, 512);
-  v5 = v4;
-  if ((_DWORD)v4 == -1) {
-    printf(&aSUnableToOpenT[3]);
-    doexit();
+  iFileHandle = _open(szFile, 512);
+  if (iFileHandle == -1) {
+    printf(g_szUnableToOpen);
+    doexit(1, (int)(uint64)szFile, (void *)(uint64)0xFFFFFFFF);
   }
-  close(v5, HIDWORD(v4));
-  LODWORD(v4) = getcompactedfilelength(SHIDWORD(v4), SHIDWORD(v4), v5, a4);
-  v6 = getbuffer(v4);
-  loadcompactedfile(SHIDWORD(v4), v6);
-  LODWORD(v4) = v6;
-  return v4;*/
+  _close(iFileHandle);
+  uiFileLength = getcompactedfilelength(szFile);
+  pBuf = (uint8 *)getbuffer(uiFileLength);
+  loadcompactedfile(szFile, pBuf);
+  return pBuf;
 }
 
 //-------------------------------------------------------------------------------------------------

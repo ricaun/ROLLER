@@ -1,6 +1,8 @@
 #ifndef _ROLLER_FUNC3_H
 #define _ROLLER_FUNC3_H
 //-------------------------------------------------------------------------------------------------
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
 
 int winner_screen(int a1, char a2, void *a3);
 int StoreResult();
@@ -46,7 +48,7 @@ unsigned __int8 scale_text(
 int clear_screen(int a1, int a2);
 void display_picture(void *pDest, const void *pSrc);
 unsigned __int8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6);
-int load_picture(int a1, int a2, int a3, int a4);
+uint8 *load_picture(const char *szFile);
 int AllocateCars(int a1);
 int check_cars(int a1, int a2, int a3);
 char *select_messages();
