@@ -1,4 +1,5 @@
 #include "frontend.h"
+#include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
 int non_competitors[16];  //0016FDE0
@@ -19,7 +20,7 @@ int my_invul;             //0016FECC
 int FastestLap;           //0016FED0
 int racers;               //0016FED4
 uint32 cheat_mode;        //0016FED8
-int Race;                 //0016FED
+int Race;                 //0016FEDC
 int switch_types;         //0016FEE0
 int players_waiting;      //0016FEE4
 int switch_sets;          //0016FEE8
@@ -5316,28 +5317,16 @@ void *select_track(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int save_params()
+void save_params()
 {
-  return 0;
-  /*
-  int result; // eax
-
-  result = gfx_size;
   p_tex_size = gfx_size;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int reset_params()
+void reset_params()
 {
-  return 0;
-  /*
-  int result; // eax
-
-  result = p_tex_size;
   gfx_size = p_tex_size;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

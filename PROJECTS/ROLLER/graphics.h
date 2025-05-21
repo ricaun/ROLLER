@@ -2,6 +2,10 @@
 #define _ROLLER_GRAPHICS_H
 //-------------------------------------------------------------------------------------------------
 
+extern int gfx_size;
+
+//-------------------------------------------------------------------------------------------------
+
 void plotxyz(float a1, float a2, float a3, char a4);
 void linexyz(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, char a7);
 char compout(int a1, int a2, int a3, int a4, int a5, int a6, char a7);
