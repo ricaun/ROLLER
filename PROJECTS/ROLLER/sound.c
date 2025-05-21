@@ -1,16 +1,28 @@
 #include "sound.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "frontend.h"
+#include "moving.h"
+#include "3d.h"
+#include "cdx.h"
 #include <memory.h>
 //-------------------------------------------------------------------------------------------------
 
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
+unsigned int musicon = 0xFFFFFFFF; //000A46A0
+unsigned int soundon = 0xFFFFFFFF; //000A46A4
+int MusicCard = 0;          //000A4794
+int MusicCD = 0;            //000A4798
+int MusicPort = 0;          //000A479C
+int SongPtr = 0;            //000A47A0
+int SongHandle = 0;         //000A47A4
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
+int optionssong;            //0016F8C0
+int titlesong;              //0016F8C4
 uint8 unmangleinbuf[1024];  //00149EF0
+
 //-------------------------------------------------------------------------------------------------
 
 int realmode(char a1, int a2, int a3, int a4)
@@ -174,9 +186,8 @@ int setpal(int a1, int a2, void *a3, void *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int blankpal(int a1, int a2, int a3, int a4)
-{
-  return 0; /*
+void blankpal()
+{/*
   unsigned int v4; // ecx
   unsigned __int16 v5; // si
   int result; // eax
@@ -1333,18 +1344,14 @@ int play()
 
 //-------------------------------------------------------------------------------------------------
 
-int stop(int a1, int a2, int a3, int a4)
+void stop(int a1, int a2)
 {
-  return 0; /*
-  int result; // eax
-
   if (MusicCard) {
     if (SongPtr) {
-      sosMIDIStopSong(SongHandle, a2, &InitSong);
-      return sosMIDIResetSong(a4);
+      //sosMIDIStopSong(SongHandle, a2);
+      //sosMIDIResetSong(SongHandle, a2, (unsigned int)&InitSong);
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3883,30 +3890,28 @@ int resetsamplearray()
 
 //-------------------------------------------------------------------------------------------------
 
-int reinitmusic(int result, int a2, int a3, int a4)
+void reinitmusic(int a1, int a2)
 {
-  return 0; /*
-  int v4; // eax
+  int iSong; // eax
 
   if (musicon) {
     if (frontend_on) {
-      v4 = optionssong;
+      iSong = optionssong;
     } else if (replaytype == 2) {
-      v4 = titlesong;
+      iSong = titlesong;
     } else {
-      v4 = TrackLoad;
+      iSong = TrackLoad;
     }
-    return startmusic(v4);
+    startmusic(iSong);
   } else if (MusicCD && track_playing) {
-    return StopTrack();
+    StopTrack();
   } else if (MusicCard) {
     if (SongPtr) {
-      stop(result, a2, a3, a4);
-      result = sosMIDIUnInitSong(SongHandle);
+      stop(a1, a2);
+      //sosMIDIUnInitSong(SongHandle);
       SongPtr = 0;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

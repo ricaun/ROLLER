@@ -14,7 +14,8 @@ double g_dTwoPi2 = 6.28318530718;                             //000A0156 Symbol 
 char g_szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
 int hibuffers;             //000A32E0
 uint32 mem_used;           //000A32E8
-int SVGA_ON;               //000A34AC
+int SVGA_ON = 0;           //000A34AC
+int TrackLoad = 1;         //000A34B0
 void *scrbuf;              //000A353C
 tData localdata[500];      //000BEA10
 tGroundPt GroundPt[500];   //000CE410
@@ -3305,9 +3306,8 @@ LABEL_127:
 
 //-------------------------------------------------------------------------------------------------
 
-void test_w95(int a1, int a2, int a3, int a4)
+void test_w95()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   w95 = 1;
 }
 

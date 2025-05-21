@@ -9,7 +9,7 @@ int loadmodemnames();
 void select_modem();
 char *getprintstring(char *a1, int a2);
 __int64 display_essentials(int a1, int a2, int a3);
-int __fastcall check16550(int a1, int a2, int a3, int a4);
+void check16550(int iPort, int a2);
 
 //-------------------------------------------------------------------------------------------------
 #endif

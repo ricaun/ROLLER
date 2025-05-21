@@ -1329,12 +1329,11 @@ void free_game_memory()
 int readmode()
 {
   return 0;
-  /*
-  _BYTE v1[36]; // [esp+0h] [ebp-24h] BYREF
-
-  v1[1] = 15;
-  int386(16, (int)v1, (int)v1);
-  return v1[0];*/
+  //REGS regs; // [esp+0h] [ebp-24h] BYREF
+  //
+  //regs.h.ah = 15;
+  //int386(16, &regs, &regs);
+  //return regs.h.al;
 }
 
 //-------------------------------------------------------------------------------------------------

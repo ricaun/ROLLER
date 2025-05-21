@@ -1,4 +1,12 @@
 #include "comms.h"
+#include "sound.h"
+//-------------------------------------------------------------------------------------------------
+
+int serial_port = 2;    //000AFD98
+int modem_port = 2;     //000AFD9C
+int modem_baud = 19200; //000AFDA0
+int no_16550 = 0;       //000AFDA4
+
 //-------------------------------------------------------------------------------------------------
 
 int select_comport(unsigned __int16 a1, char *a2, unsigned int a3)
@@ -876,13 +884,12 @@ __int64 display_essentials(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int check16550(int a1, int a2, int a3, int a4)
+void check16550(int iPort, int a2)
 {
-  return 0; /*
-  int result; // eax
+  int v2; // eax
 
-  result = gss16550(a1);
-  if (result) {
+  v2 = 0;// gss16550(iPort);
+  if (v2) {
     a2 = 0;
     no_16550 = 0;
   } else if (MusicCD) {
@@ -892,11 +899,10 @@ int check16550(int a1, int a2, int a3, int a4)
   }
   if (no_16550 == 109) {
     musicon = 0;
-    result = reinitmusic(result, a2, a3, a4);
+    reinitmusic(v2, a2);
   }
   if (no_16550)
     soundon = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -2,6 +2,12 @@
 #define _ROLLER_CDX_H
 //-------------------------------------------------------------------------------------------------
 
+extern int track_playing;
+extern int last_audio_track;
+extern int numCDdrives;
+
+//-------------------------------------------------------------------------------------------------
+
 int FinishedAudio();
 int OpenDoor();
 void CloseDoor(int a1, int a2);

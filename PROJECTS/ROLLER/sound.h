@@ -2,6 +2,26 @@
 #define _ROLLER_SOUND_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include <stdio.h>
+#include <stdlib.h>
+//-------------------------------------------------------------------------------------------------
+
+extern unsigned int musicon;
+extern unsigned int soundon;
+extern int MusicCard;
+extern int MusicCD;
+extern int MusicPort;
+extern int SongPtr;
+extern int SongHandle;
+extern int unmangleinpoff;
+extern uint8 *unmangledst;
+extern int unmangleoverflow;
+extern FILE *unmanglefile;
+extern int unmanglebufpos;
+extern int optionssong;
+extern int titlesong;
+extern uint8 unmangleinbuf[];
+
 //-------------------------------------------------------------------------------------------------
 
 int realmode(char a1, int a2, int a3, int a4);
@@ -9,7 +29,7 @@ int loadDOS(int a1, void *a2, int *a3);
 int claimDOS(int a1, void *a2);
 int releaseDOS(__int16 a1, int a2, int a3, int a4);
 int setpal(int a1, int a2, void *a3, void *a4);
-int blankpal(int a1, int a2, int a3, int a4);
+void blankpal();
 int resetpal();
 int Initialise_SOS();
 int updatejoy();
@@ -22,7 +42,7 @@ void loadsamples();
 int loadfatalsample();
 void *releasesamples();
 int play();
-int stop(int a1, int a2, int a3, int a4);
+void stop(int a1, int a2);
 int devicespecificinit(int a1, int a2, int a3, int a4);
 int initgus();
 void *devicespecificuninit();
@@ -70,7 +90,7 @@ char *decode(char *result, int a2, int a3, int a4);
 int loadasample(int a1);
 int select8bitdriver(int result, int a2);
 int resetsamplearray();
-int reinitmusic(int result, int a2, int a3, int a4);
+void reinitmusic(int a1, int a2);
 int waitsampledone(int result);
 int getcompactedfilelength(const char *szFile);
 int initmangle(const char *szFile);

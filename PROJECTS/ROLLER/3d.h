@@ -48,16 +48,46 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int hibuffers;
+extern uint32 mem_used;
 extern int SVGA_ON;
+extern int TrackLoad;
+extern void *scrbuf;
 extern tData localdata[];
 extern tGroundPt GroundPt[];
 extern float tsin[];
 extern float ptan[];
 extern float tcos[];
+extern tMemBlock mem_blocks[];
+extern float tatn[];
 extern uint32 textures_off;
+extern int tex_count;
+extern int scr_size;
+extern int ybase;
+extern int xbase;
+extern int winx;
+extern int winy;
+extern float ext_y;
+extern float ext_z;
 extern float viewx;
 extern float viewy;
 extern float viewz;
+extern int clear_borders;
+extern float DDX;
+extern float DDY;
+extern float DDZ;
+extern float ext_x;
+extern int test_f1;
+extern int test_f2;
+extern int test_f3;
+extern int NoOfLaps;
+extern int w95;
+extern int VIEWDIST;
+extern int YMAX;
+extern int XMAX;
+extern int time_shown;
+extern int player2_car;
+extern int player1_car;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -68,7 +98,6 @@ void *getbuffer(uint32 uiSize);
 void *trybuffer(uint32 uiSize);
 void fre(void *pData);
 void doexit(int a1, int a2, void *pBuf);
-void test_w95(int a1, int a2, int a3, int a4);
 void *malloc2(int iSize, void *pPtr, int *pRegsDi);
 void free2(void *ptr);
 void firework_screen();
@@ -88,7 +117,7 @@ int carplus(int a1, unsigned int a2, int a3, unsigned int a4);
 int viewminus(int a1);
 int viewplus(int a1);
 void game_copypic(uint8 *a1, uint8 *a2, char *a3);
-void test_w95(int a1, int a2, int a3, int a4);
+void test_w95();
 void *malloc2(int iSize, void *pPtr, int *pRegsDi);
 void free2(void *ptr);
 
