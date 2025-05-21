@@ -3916,49 +3916,44 @@ void no_cd(int a1, int a2, int a3, char *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int name_cmp(int a1, int a2)
+int name_cmp(char *szName1, char *szName2)
 {
-  (void)(a1); (void)(a2); return 0;
-  /*
-  int v4; // edx
-  int v5; // eax
-  char v6; // cl
+  int iResult; // edx
+  int iCharIdx; // eax
+  char byChar; // cl
 
-  v4 = -1;
-  v5 = 0;
+  iResult = -1;
+  iCharIdx = 0;
   do {
-    if (v5 >= 9)
+    if (iCharIdx >= 9)
       break;
-    v6 = *(_BYTE *)(a2 + v5);
-    if (v6) {
-      if (v6 != *(_BYTE *)(a1 + v5))
-        v4 = 0;
-      ++v5;
+    byChar = szName2[iCharIdx];
+    if (byChar) {
+      if (byChar != szName1[iCharIdx])
+        iResult = 0;
+      ++iCharIdx;
     } else {
-      v5 = 9;
+      iCharIdx = 9;
     }
-  } while (v4);
-  return v4;*/
+  } while (iResult);
+  return iResult;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *name_copy(int a1, char *a2)
+void name_copy(char *szDest, char *szSrc)
 {
-  (void)(a1); (void)(a2); return 0;
-  /*
-  char *result; // eax
-  char *v5; // ebx
-  char v6; // cl
+  char *pSrcPos; // eax
+  char *pSrcEndPos; // ebx
+  char byChar; // cl
 
-  result = a2;
-  v5 = a2 + 9;
+  pSrcPos = szSrc;
+  pSrcEndPos = szSrc + 9;
   do {
-    ++a1;
-    v6 = *result++;
-    *(_BYTE *)(a1 - 1) = v6;
-  } while (result != v5);
-  return result;*/
+    ++szDest;
+    byChar = *pSrcPos++;
+    *(szDest - 1) = byChar;
+  } while (pSrcPos != pSrcEndPos);
 }
 
 //-------------------------------------------------------------------------------------------------
