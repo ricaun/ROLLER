@@ -3308,7 +3308,25 @@ LABEL_127:
 
 void test_w95()
 {
-  w95 = 1;
+  /*
+  REGS regs; // [esp+0h] [ebp-34h] BYREF
+  struct SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
+
+  // AX=1600h(5632) is a Microsoft-defined multiplex interrupt function used to
+  // query the windows environment. This returns:
+  // * AL = 0xFF if Windows is not running (i.e., plain DOS)
+  // * AL = major version and AH = minor version if Windows is running (e.g., AL=4, AH=0 for Windows 95)
+  memset(&sregs, 0, sizeof(sregs));
+  regs.w.ax = 5632;
+  int386x(47, &regs, &regs, &sregs);
+  w95 = regs.h.al;
+  if (regs.h.al < 3u || regs.h.al > 4u)
+    w95 = 0;
+  else
+    w95 = -1;*/
+
+  //for our purposes we'll pretend to be in DOS
+  w95 = 0;
 }
 
 //-------------------------------------------------------------------------------------------------
