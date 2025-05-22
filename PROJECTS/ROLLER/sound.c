@@ -8,8 +8,8 @@
 //-------------------------------------------------------------------------------------------------
 
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
-unsigned int musicon = 0xFFFFFFFF; //000A46A0
-unsigned int soundon = 0xFFFFFFFF; //000A46A4
+int musicon = -1;           //000A46A0
+int soundon = -1;           //000A46A4
 int palette_brightness = 32; //000A46B0
 int MusicCard = 0;          //000A4794
 int MusicCD = 0;            //000A4798

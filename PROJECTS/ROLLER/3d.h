@@ -48,16 +48,21 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int svga_possible;
 extern int hibuffers;
 extern uint32 mem_used;
+extern int current_mode;
 extern int SVGA_ON;
 extern int TrackLoad;
 extern void *scrbuf;
+extern int firstrun;
+extern int language;
 extern tData localdata[];
 extern tGroundPt GroundPt[];
 extern float tsin[];
 extern float ptan[];
 extern float tcos[];
+extern uint8 blank_line[];
 extern tMemBlock mem_blocks[];
 extern float tatn[];
 extern uint32 textures_off;
@@ -81,7 +86,10 @@ extern int test_f1;
 extern int test_f2;
 extern int test_f3;
 extern int NoOfLaps;
+extern int scrmode;
 extern int w95;
+extern int winh;
+extern int winw;
 extern int VIEWDIST;
 extern int YMAX;
 extern int XMAX;

@@ -167,9 +167,8 @@ int VESAmode(int *vesaModes, int iSvgaPossible)
 
 //-------------------------------------------------------------------------------------------------
 
-int svgacopy(uint8 *pBuf, __int16 a2, __int16 a3, int a4, int a5)
-{
-  return 0; /*
+int svgacopy(uint8 *pBuf, __int16 iX, __int16 iY, int iWidth, int iHeight)
+{/*
   int v6; // edx
   int v7; // eax
   int i; // edx
@@ -177,60 +176,55 @@ int svgacopy(uint8 *pBuf, __int16 a2, __int16 a3, int a4, int a5)
   int v10; // eax
   __int16 v11; // di
   char *v13; // [esp-4h] [ebp-40h]
-  int v14; // [esp+0h] [ebp-3Ch] BYREF
-  int v15; // [esp+4h] [ebp-38h]
-  int v16; // [esp+Ch] [ebp-30h]
-  int v17; // [esp+1Ch] [ebp-20h]
-  char *v18; // [esp+20h] [ebp-1Ch]
-  int v19; // [esp+24h] [ebp-18h]
-  int v20; // [esp+28h] [ebp-14h]
-  unsigned __int8 v21; // [esp+2Ch] [ebp-10h]
+  union REGS regs; // [esp+0h] [ebp-3Ch] BYREF
+  int v15; // [esp+1Ch] [ebp-20h]
+  char *v16; // [esp+20h] [ebp-1Ch]
+  int v17; // [esp+24h] [ebp-18h]
+  int v18; // [esp+28h] [ebp-14h]
+  unsigned __int8 v19; // [esp+2Ch] [ebp-10h]
 
-  v20 = a4;
-  v21 = (a3 * Vbytesperline + a2) / winrange;
-  v6 = (a3 * Vbytesperline + a2) % winrange;
-  v15 = 0;
-  v18 = (char *)&off_A0000 + v6;
-  v17 = v6;
-  v16 = v21;
-  v14 = 20229;
-  int386(16, (int)&v14, (int)&v14);
+  v18 = iWidth;
+  v19 = (iY * Vbytesperline + iX) / winrange;
+  v6 = (iY * Vbytesperline + iX) % winrange;
+  v16 = (char *)&off_A0000 + v6;
+  v15 = v6;
+  regs.x.edx = v19;
+  *(_QWORD *)&regs.x.eax = 20229LL;
+  int386(16, &regs, &regs);
   do {
-    v7 = (winrange - v17) / Vbytesperline;
-    if (v7 >= (__int16)a5)
-      LOWORD(v7) = a5;
-    for (i = 0; (__int16)i < (__int16)v7; --a5) {
-      v13 = v18;
-      qmemcpy(v18, a1, (__int16)v20);
+    v7 = (winrange - v15) / Vbytesperline;
+    if (v7 >= (__int16)iHeight)
+      LOWORD(v7) = iHeight;
+    for (i = 0; (__int16)i < (__int16)v7; --iHeight) {
+      v13 = v16;
+      qmemcpy(v16, pBuf, (__int16)v18);
       ++i;
-      v18 = &v13[Vbytesperline];
-      a1 += winw;
+      v16 = &v13[Vbytesperline];
+      pBuf += winw;
     }
-    if ((_WORD)a5) {
-      v9 = Vbytesperline * ((__int16)v7 + 1) + v17;
-      v17 = v9 % winrange;
-      v10 = (__int16)v20;
-      if (Vbytesperline - v9 % winrange < (__int16)v20)
+    if ((_WORD)iHeight) {
+      v9 = Vbytesperline * ((__int16)v7 + 1) + v15;
+      v15 = v9 % winrange;
+      v10 = (__int16)v18;
+      if (Vbytesperline - v9 % winrange < (__int16)v18)
         v10 = Vbytesperline - v9 % winrange;
-      v19 = v10;
-      qmemcpy(v18, a1, (__int16)v10);
-      ++v21;
-      v14 = 20229;
-      v15 = 0;
-      v16 = v21;
-      v11 = v20;
-      int386(16, (int)&v14, (int)&v14);
-      if ((_WORD)v19 != v11)
-        qmemcpy(&off_A0000, &a1[(__int16)v19], v11 - (__int16)v19);
-      v18 = (char *)&off_A0000 + v17;
-      a1 += winw;
-      --a5;
+      v17 = v10;
+      qmemcpy(v16, pBuf, (__int16)v10);
+      ++v19;
+      *(_QWORD *)&regs.x.eax = 20229LL;
+      regs.x.edx = v19;
+      v11 = v18;
+      int386(16, &regs, &regs);
+      if ((_WORD)v17 != v11)
+        qmemcpy(&off_A0000, &pBuf[(__int16)v17], v11 - (__int16)v17);
+      v16 = (char *)&off_A0000 + v15;
+      pBuf += winw;
+      --iHeight;
     }
-  } while ((_WORD)a5);
-  v14 = 20229;
-  v15 = 0;
-  v16 = 0;
-  return int386(16, (int)&v14, (int)&v14);*/
+  } while ((_WORD)iHeight);
+  *(_QWORD *)&regs.x.eax = 20229LL;
+  regs.x.edx = 0;
+  return int386(16, &regs, &regs);*/
 }
 
 //-------------------------------------------------------------------------------------------------

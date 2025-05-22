@@ -4,6 +4,12 @@
 #include <stddef.h>
 //-------------------------------------------------------------------------------------------------
 
+#define ONE_OVER_TRIG_LOOKUP_AY_COUNT 0.00006103515625
+#define ONE_OVER_TATN_LOOKUP_AY_COUNT 0.0009765625
+#define TWO_PI 6.28318530718
+
+//-------------------------------------------------------------------------------------------------
+
 typedef signed __int8 int8;
 typedef signed __int16 int16;
 typedef signed int int32;

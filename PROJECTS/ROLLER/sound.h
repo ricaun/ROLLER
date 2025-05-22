@@ -15,8 +15,8 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-extern unsigned int musicon;
-extern unsigned int soundon;
+extern int musicon;
+extern int soundon;
 extern int palette_brightness;
 extern int MusicCard;
 extern int MusicCD;

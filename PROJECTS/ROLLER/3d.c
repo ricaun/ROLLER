@@ -3,25 +3,28 @@
 #include "control.h"
 #include "func2.h"
 #include "svgacpy.h"
+#include "sound.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 //-------------------------------------------------------------------------------------------------
 
-double g_dOneOverTrigLookupAyCount = 0.00006103515625;        //000A012E Symbol name added by ROLLER
-double g_dOneOverTatnLookupAyCount = 0.0009765625;            //000A0136 Symbol name added by ROLLER
-double g_dTwoPi2 = 6.28318530718;                             //000A0156 Symbol name added by ROLLER
+int svga_possible = -1;    //000A31C0
 int hibuffers;             //000A32E0
 uint32 mem_used;           //000A32E8
+int current_mode = 666;    //000A333C
 int SVGA_ON = 0;           //000A34AC
 int TrackLoad = 1;         //000A34B0
 void *scrbuf;              //000A353C
+int firstrun = -1;         //000A35D4
+int language = 0;          //000A4768
 tData localdata[500];      //000BEA10
 tGroundPt GroundPt[500];   //000CE410
 float tsin[16384];         //001010F0
 float ptan[16384];         //001110F0
 float tcos[16384];         //00121128
+uint8 blank_line[640];     //001312A8
 tMemBlock mem_blocks[128]; //0013E058
 float tatn[1025];          //0013E95C
 uint32 textures_off;       //0013F960
@@ -45,7 +48,10 @@ int test_f1;               //0013FA58
 int test_f2;               //0013FA5C
 int test_f3;               //0013FA60
 int NoOfLaps;              //0013FA84
+int scrmode;               //0013FAB4
 int w95;                   //0013FB30
+int winh;                  //0013FB68
+int winw;                  //0013FB6C
 int VIEWDIST;              //0013FB70
 int YMAX;                  //0013FB74
 int XMAX;                  //0013FB78
@@ -125,7 +131,7 @@ void copypic(uint8 *pSrc, uint8 *pDest)
 //-------------------------------------------------------------------------------------------------
 
 void init_screen()
-{/*
+{
   int iSvgaPossible; // edx
   int iVesaMode; // ebx
   int i; // esi
@@ -133,9 +139,9 @@ void init_screen()
   int vesaModes[9]; // [esp+0h] [ebp-24h] BYREF
 
   iSvgaPossible = svga_possible;
-  vesaModes[0] = g_vesaModes[0];
-  vesaModes[1] = g_vesaModes[1];
-  vesaModes[2] = g_vesaModes[2];
+  vesaModes[0] = 0x100;
+  vesaModes[1] = 0x101;
+  vesaModes[2] = -1;
   if (!svga_possible && SVGA_ON) {
     setmodex();
     SVGA_ON = 1;
@@ -180,7 +186,7 @@ void init_screen()
         memset(blank_line, 0, sizeof(blank_line));
         for (i = 0; i < 40; ++i) {
           nY = i;
-          svgacopy((uint8 *)blank_line, 0, nY, 640, 1);
+          svgacopy(blank_line, 0, nY, 640, 1);
         }
         memset(blank_line, 112, sizeof(blank_line));
       }
@@ -191,7 +197,13 @@ void init_screen()
     XMAX = 320;
     YMAX = 200;
     scr_size = 64;
-    __asm { int     10h; -VIDEO - SET VIDEO MODE }
+    
+    // BIOS interrupt for video services
+    // ah = 0
+    // al = 13h
+    // Set video mode 13h
+    // (320x200 pixels, 256 colors)
+    //__asm { int     10h; -VIDEO - SET VIDEO MODE }
   }
   xbase = 159;
   ybase = 115;
@@ -200,7 +212,7 @@ void init_screen()
   winh = YMAX;
   winy = 0;
   if (palette_brightness > 0)
-    resetpal();*/
+    resetpal();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -241,7 +253,7 @@ void init()
 
   //load tsin, tcos, and ptan
   for (int i = 0; i < 16384; ++i) {
-    double dAngle = i * g_dTwoPi2 * g_dOneOverTrigLookupAyCount;
+    double dAngle = i * TWO_PI * ONE_OVER_TRIG_LOOKUP_AY_COUNT;
     tsin[i] = (float)sin(dAngle);
     tcos[i] = (float)cos(dAngle);
     ptan[i] = (float)tan(dAngle);
@@ -253,7 +265,7 @@ void init()
 
   //load tatn
   for (int i = 0; i < 1025; ++i) {
-    double dAngle = i * g_dTwoPi2 * g_dOneOverTatnLookupAyCount;
+    double dAngle = i * TWO_PI * ONE_OVER_TATN_LOOKUP_AY_COUNT;
     tatn[i] = (float)atan(dAngle);
   }
 
