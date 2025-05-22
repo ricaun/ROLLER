@@ -277,14 +277,10 @@ int RepeatTrack()
 
 //-------------------------------------------------------------------------------------------------
 
-int StopTrack()
+void StopTrack()
 {
-  return 0; /*
-  int result; // eax
-
-  result = AudioIOCTL(133, 0);
+  AudioIOCTL(133);
   track_playing = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -352,15 +348,15 @@ int FreeDOSMemory(unsigned __int16 a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int intRM(unsigned __int8 a1)
+void intRM(uint8 byInterruptNumber)
 {
-  return 0; /*
-  regs.w.ax = 768;
-  regs.w.bx = a1;
-  regs.w.cx = 0;
-  sregs.es = __DS__;
-  regs.x.edi = (unsigned int)&RMIcd;
-  return int386x(49, &regs, &regs, &sregs);*/
+  /*
+  regs.w.ax = 768;                              // DPMI: Simulate Real Mode Interrupt
+  regs.w.bx = byInterruptNumber;                // Interrupt number to simulate
+  regs.w.cx = 0;                                // Reserved
+  sregs.es = __DS__;                            // Segment of RMIcd
+  regs.x.edi = (unsigned int)&RMIcd;            // Offset of RMIcd (real mode register set)
+  int386x(0x31, &regs, &regs, &sregs);*/
 }
 
 //-------------------------------------------------------------------------------------------------

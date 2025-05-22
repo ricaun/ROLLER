@@ -244,7 +244,11 @@ void init()
   player_invul[0] = 0;
   player_invul[1] = 0;
   player2_car = 1;
-  //_STOSB((int)blank_line, 1886417008, 1, 0x280u);
+
+  // Fill blank_line with 640 bytes of 0x70
+  memset(blank_line, 0x70, 640);
+  //_STOSB(blank_line, 0x70707070, 1, 0x280u);
+
   DDY = 160.0;
   DDZ = 270.0;
   clear_borders = 0;

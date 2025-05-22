@@ -1,6 +1,8 @@
 #ifndef _ROLLER_CDX_H
 #define _ROLLER_CDX_H
 //-------------------------------------------------------------------------------------------------
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
 
 extern int track_playing;
 extern int last_audio_track;
@@ -19,11 +21,11 @@ int GetAudioInfo(int a1, int a2, int a3, int a4);
 int PlayTrack(int a1);
 int PlayTrack4(int a1);
 int RepeatTrack();
-int StopTrack();
+void StopTrack();
 int SetAudioVolume(int a1);
 int AudioIOCTL(char a1);
 int FreeDOSMemory(unsigned __int16 a1);
-int intRM(unsigned __int8 a1);
+void intRM(uint8 byInterruptNumber);
 int GetFirstCDDrive();
 void cdxinit();
 int cdxdone();

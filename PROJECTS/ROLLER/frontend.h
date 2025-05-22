@@ -4,6 +4,7 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern char player_names[16][9];
 extern int non_competitors[];
 extern int player_started[];
 extern int player_invul[];

@@ -2,6 +2,7 @@
 #include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
+char player_names[16][9]; //0016FA10
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
 int player_invul[16];     //0016FE60
