@@ -1,4 +1,5 @@
 #include "cdx.h"
+#include <stdio.h>
 //-------------------------------------------------------------------------------------------------
 
 int track_playing = 0;    //000A7510
@@ -55,88 +56,82 @@ void ResetDrive()
 
 //-------------------------------------------------------------------------------------------------
 
-int GetCDStatus()
+void GetCDStatus()
 {
-  return 0; /*
-  char v1; // [esp+0h] [ebp-10h] BYREF
-  int v2; // [esp+1h] [ebp-Fh]
+  uint8 szBuf[16]; // [esp+0h] [ebp-10h] BYREF
+  memset(szBuf, 0, sizeof(szBuf));
 
-  v1 = 6;
-  v2 = 0;
-  WriteIOCTL(3, 5, &v1);
-  printf(aStatus);
-  if ((v2 & 1) != 0)
-    printf(aDoorOpen);
+  szBuf[0] = 6;
+  WriteIOCTL(3u, 5u, szBuf);
+  printf("\n\nStatus:\n");
+  if ((szBuf[1] & 1) != 0)
+    printf("\nDoor Open");
   else
-    printf(aDoorClosed);
-  if ((v2 & 2) != 0)
-    printf(aDoorUnlocked);
+    printf("\nDoor Closed");
+  if ((szBuf[1] & 2) != 0)
+    printf("\nDoor unlocked");
   else
-    printf(aDoorLocked);
-  if ((v2 & 4) != 0)
-    printf(aSupportsCooked);
+    printf("\nDoor locked");
+  if ((szBuf[1] & 4) != 0)
+    printf("\nSupports Cooked and Raw");
   else
-    printf(aSupportsOnlyCo);
-  if ((v2 & 8) != 0)
-    printf(aReadWrite);
+    printf("\nSupports only Cooked");
+  if ((szBuf[1] & 8) != 0)
+    printf("\nRead/Write");
   else
-    printf(aReadOnly);
-  if ((v2 & 0x10) != 0)
-    printf(aCanPlayAudioTr);
+    printf("\nRead only");
+  if ((szBuf[1] & 0x10) != 0)
+    printf("\nCan play Audio tracks");
   else
-    printf(aCannotPlayAudi);
-  if ((v2 & 0x20) != 0)
-    printf(&aOoSupportsInte[2]);
+    printf("\nCannot play Audio tracks");
+  if ((szBuf[1] & 0x20) != 0)
+    printf("\nSupports interleaving");
   else
-    printf(&aKNoInterleavin[1]);
-  if ((v2 & 0x80u) == 0)
-    printf(&aAwNoPrefetchin[2]);
+    printf("\nNo interleaving");
+  if ((szBuf[1] & 0x80u) == 0)
+    printf("\nNo prefetching");
   else
-    printf(aSupprotsPrefet);
-  if ((v2 & 0x100) != 0)
-    printf(aSupportsAudioC);
+    printf("\nSupprots prefetching");
+  if ((szBuf[2] & 1) != 0)
+    printf("\nSupports audio channel manipulation");
   else
-    printf(&aCanNoAudioChan[3]);
-  if ((v2 & 0x200) != 0)
-    printf(aSupportsHsgAnd);
+    printf("\nNo audio channel manipulation");
+  if ((szBuf[2] & 2) != 0)
+    printf("\nSupports HSG and Red Book addressing");
   else
-    printf(&aInSupportsOnly[2]);
-  fflush(&__iob_variable_1);
-  return v2;*/
+    printf("\nSupports only HSG addressing, no Red Book");
+  fflush(stdout);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int WriteIOCTL(char a1, unsigned int a2, void *a3)
+void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 {
-  return 0; /*
-  int v3; // edi
-  int result; // eax
+  /*
+  char *v3; // edi
 
-  io_variable_2 = a1;
+  io_variable_2 = bySubCommand;
   io_variable_3 = 0;
   io_variable_8 = 0;
-  io = a2 + 13;
+  io = uiSize + 13;
   io_variable_1 = 0;
   io_variable_5 = 0;
   io_variable_9 = 0;
-  io_variable_7 = a2;
-  qmemcpy((void *)cdbuffer, a3, a2);
-  v3 = iobuffer;
-  io_variable_6 = (cdbuffer - (__CFSHL__(cdbuffer >> 31, 4) + 16 * (cdbuffer >> 31))) >> 4 << 16;
-  qmemcpy((void *)iobuffer, &io, 0x18u);
-  qmemcpy((void *)(v3 + 24), &io + 24, 2u);
-  memset(&RMIcd, 0, 50);
-  RMIcd_variable_2 = (unsigned __int8)drive;
-  RMIcd_variable_1 = 0;
-  RMIcd_variable_4 = (iobuffer - (__CFSHL__(iobuffer >> 31, 4) + 16 * (iobuffer >> 31))) >> 4;
-  RMIcd_variable_3 = 5392;
-  intRM(47, &RMIcd);
-  qmemcpy(a3, (const void *)cdbuffer, a2);
-  result = 26;
-  qmemcpy(&io, (const void *)iobuffer, 0x18u);
-  qmemcpy(&io + 24, (const void *)(iobuffer + 24), 2u);
-  return result;*/
+  io_variable_7 = uiSize;
+  qmemcpy(cdbuffer, pBuffer, uiSize);
+  v3 = (char *)iobuffer;
+  io_variable_6 = (int)((char *)cdbuffer - __CFSHL__((int)cdbuffer >> 31, 4) + -16 * ((int)cdbuffer >> 31)) >> 4 << 16;
+  qmemcpy(iobuffer, &io, 0x18u);
+  qmemcpy(v3 + 24, &io + 24, 2u);
+  memset(&RMIcd, 0, sizeof(RMIcd));
+  RMIcd.ecx = (unsigned __int8)drive;
+  RMIcd.ebx = 0;
+  RMIcd.es = (int)((char *)iobuffer - __CFSHL__((int)iobuffer >> 31, 4) + -16 * ((int)iobuffer >> 31)) >> 4;
+  RMIcd.eax = 5392;
+  intRM(0x2Fu);
+  qmemcpy(pBuffer, cdbuffer, uiSize);
+  qmemcpy(&io, iobuffer, 0x18u);
+  qmemcpy(&io + 24, (char *)iobuffer + 24, 2u);*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -262,24 +257,20 @@ int PlayTrack4(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int RepeatTrack()
-{
-  return 0; /*
-  int result; // eax
-
-  play_variable_4 = 1;
-  play_variable_5 = trackstarts[last_audio_track];
-  play_variable_6 = track_duration;
-  result = AudioIOCTL(132, -1);
-  track_playing = -1;
-  return result;*/
+void RepeatTrack()
+{/*
+  play.subCmd.reserved2[8] = 1;
+  play.subCmd.start_lba = trackstarts[last_audio_track];
+  play.subCmd.duration = track_duration;
+  AudioIOCTL(0x84u);
+  track_playing = -1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void StopTrack()
 {
-  AudioIOCTL(133);
+  AudioIOCTL(0x85); //stop track
   track_playing = 0;
 }
 
@@ -310,29 +301,26 @@ int SetAudioVolume(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int AudioIOCTL(char a1)
+void AudioIOCTL(uint8 bySubCommand)
 {
-  return 0; /*
-  int v1; // edi
-  int result; // eax
+  /*
+  char *pIoBuffer; // edi
 
-  v1 = iobuffer;
-  play_variable_2 = a1;
-  play = 22;
+  pIoBuffer = (char *)iobuffer;
+  play_variable_2 = bySubCommand;
+  play = 0x16;                                  // Send Audio Command
   play_variable_1 = 0;
   play_variable_3 = 0;
-  qmemcpy((void *)iobuffer, &play, 0x14u);
-  qmemcpy((void *)(v1 + 20), &play + 20, 2u);
-  memset(&RMIcd, 0, 50);
-  RMIcd_variable_2 = (unsigned __int8)drive;
-  RMIcd_variable_3 = 5392;
-  RMIcd_variable_4 = (iobuffer - (__CFSHL__(iobuffer >> 31, 4) + 16 * (iobuffer >> 31))) >> 4;
-  RMIcd_variable_1 = 0;
-  intRM(47, &RMIcd);
-  result = 22;
-  qmemcpy(&play, (const void *)iobuffer, 0x14u);
-  qmemcpy(&play + 20, (const void *)(iobuffer + 20), 2u);
-  return result;*/
+  qmemcpy(iobuffer, &play, 0x14u);
+  qmemcpy(pIoBuffer + 20, (char *)&play + 20, 2u);
+  memset(&RMIcd, 0, sizeof(RMIcd));
+  RMIcd.ecx = (unsigned __int8)drive;           // CD drive number
+  RMIcd.eax = 0x1510;                           //  (Function: Get CD-ROM Drive Information)
+  RMIcd.es = (int)((char *)iobuffer - __CFSHL__((int)iobuffer >> 31, 4) + -16 * ((int)iobuffer >> 31)) >> 4;// segment_of(iobuffer)
+  RMIcd.ebx = 0;
+  intRM(0x2Fu);                                 // Get address of the driver for a specific CD-ROM drive
+  qmemcpy(&play, iobuffer, 0x14u);
+  qmemcpy((char *)&play + 20, (char *)iobuffer + 20, 2u);*/
 }
 
 //-------------------------------------------------------------------------------------------------
