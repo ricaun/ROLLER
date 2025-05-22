@@ -26,7 +26,7 @@ int SetAudioVolume(int a1);
 void AudioIOCTL(uint8 bySubCommand);
 int FreeDOSMemory(unsigned __int16 a1);
 void intRM(uint8 byInterruptNumber);
-int GetFirstCDDrive();
+void GetFirstCDDrive();
 void cdxinit();
 int cdxdone();
 int cdpresent();

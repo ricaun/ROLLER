@@ -349,18 +349,17 @@ void intRM(uint8 byInterruptNumber)
 
 //-------------------------------------------------------------------------------------------------
 
-int GetFirstCDDrive()
+void GetFirstCDDrive()
 {
-  return 0; /*
-  regs = 5376;
-  regs_variable_1 = 0;
-  int386(47, (int)&regs, (int)&regs);
-  if (!regs_variable_1)
-    return 0;
-  drive = regs_variable_3;
-  firstCDdrive = (unsigned __int8)regs_variable_3;
-  numCDdrives = regs_variable_1;
-  return -1;*/
+  /*
+  regs.w.ax = 0x1500;
+  regs.w.bx = 0;
+  int386(47, &regs, &regs);
+  if (regs.w.bx) {
+    drive = regs.h.cl;
+    firstCDdrive = regs.h.cl;
+    numCDdrives = regs.w.bx;
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
