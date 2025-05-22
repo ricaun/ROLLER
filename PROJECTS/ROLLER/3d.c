@@ -2,6 +2,7 @@
 #include "frontend.h"
 #include "control.h"
 #include "func2.h"
+#include "svgacpy.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -11,7 +12,6 @@
 double g_dOneOverTrigLookupAyCount = 0.00006103515625;        //000A012E Symbol name added by ROLLER
 double g_dOneOverTatnLookupAyCount = 0.0009765625;            //000A0136 Symbol name added by ROLLER
 double g_dTwoPi2 = 6.28318530718;                             //000A0156 Symbol name added by ROLLER
-char g_szFailedToFind[32] = "Failed to find allocated block"; //000A018C Symbol name added by ROLLER
 int hibuffers;             //000A32E0
 uint32 mem_used;           //000A32E8
 int SVGA_ON = 0;           //000A34AC
@@ -124,21 +124,18 @@ void copypic(uint8 *pSrc, uint8 *pDest)
 
 //-------------------------------------------------------------------------------------------------
 
-int init_screen(int a1, int a2, int a3)
-{
-  (void)(a1); (void)(a2); (void)(a3);
-  /*
-  int v3; // edx
-  int v4; // ebx
+void init_screen()
+{/*
+  int iSvgaPossible; // edx
+  int iVesaMode; // ebx
   int i; // esi
-  __int16 v6; // bx
-  int result; // eax
-  _DWORD v8[9]; // [esp+0h] [ebp-24h] BYREF
+  __int16 nY; // bx
+  int vesaModes[9]; // [esp+0h] [ebp-24h] BYREF
 
-  v3 = svga_possible;
-  v8[0] = threed_c_reference_1[0];
-  v8[1] = threed_c_reference_1[1];
-  v8[2] = threed_c_reference_1[2];
+  iSvgaPossible = svga_possible;
+  vesaModes[0] = g_vesaModes[0];
+  vesaModes[1] = g_vesaModes[1];
+  vesaModes[2] = g_vesaModes[2];
   if (!svga_possible && SVGA_ON) {
     setmodex();
     SVGA_ON = 1;
@@ -149,17 +146,17 @@ int init_screen(int a1, int a2, int a3)
   }
   if (SVGA_ON && current_mode != -1) {
     current_mode = -1;
-    v4 = VESAmode(v8, v3, a3, (_BYTE *)0xFFFFFFFF);
-    scrmode = v4;
-    if (v4 == -1) {
+    iVesaMode = VESAmode(vesaModes, iSvgaPossible);
+    scrmode = iVesaMode;
+    if (iVesaMode == -1) {
       if (firstrun) {
         if (!language) {
-          printf(&aBooThisProgram[3]);
-          printf(&aAtItSOptimumLe[1]);
-          printf(&aCdmoreInformat[3]);
-          printf(aGraphics);
-          printf(&aVpressAnyKeyTo[1]);
-          fflush(&__iob_variable_1);
+          printf("\n\nThis program has not detected a VESA video driver which it needs to run\n");
+          printf("at it's optimum level. Please contact your video board manufacturer for\n");
+          printf("more information. The program will now continue using lower resolution\n");
+          printf("graphics.\n");
+          printf("Press any key to continue...");
+          fflush(stdout);
           while (fatkbhit())
             fatgetch();
           fatgetch();
@@ -179,11 +176,11 @@ int init_screen(int a1, int a2, int a3)
       XMAX = 640;
       YMAX = 400;
       scr_size = 128;
-      if (v4 == 257) {
+      if (iVesaMode == 0x101) {
         memset(blank_line, 0, sizeof(blank_line));
         for (i = 0; i < 40; ++i) {
-          v6 = i;
-          svgacopy(blank_line, 0, v6, 640, 1);
+          nY = i;
+          svgacopy((uint8 *)blank_line, 0, nY, 640, 1);
         }
         memset(blank_line, 112, sizeof(blank_line));
       }
@@ -201,13 +198,9 @@ int init_screen(int a1, int a2, int a3)
   winw = XMAX;
   winx = 0;
   winh = YMAX;
-  result = palette_brightness;
   winy = 0;
   if (palette_brightness > 0)
-    return resetpal();
-  return result;
-  */
-  return 0;
+    resetpal();*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -342,7 +335,7 @@ void fre(void *pData)
     }
     if (iMemBlocksIdx >= 128)                 // mem_blocks is 128 tMemBlocks
     {
-      printf(g_szFailedToFind);
+      printf("Failed to find allocated block\n");
       doexit(1, iMemBlocksIdx, pBuf);
     } else {
       mem_blocks[iMemBlocksIdx].pBuf = 0;

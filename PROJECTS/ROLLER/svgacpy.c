@@ -76,39 +76,41 @@ int VESADest(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int VESAmode(void *a1, int a2, int a3, char *a4)
+int VESAmode(int *vesaModes, int iSvgaPossible)
 {
-  return 0; /*
-  int v6; // ebx
-  unsigned int v7; // ecx
+  return 0x101;
+  /*
+  int v2; // ecx
+  int v5; // ebx
+  unsigned int v6; // ecx
   __int16 *i; // edx
-  int v9; // eax
+  int v8; // eax
+  int v9; // ecx
   unsigned __int16 v10; // ax
-  unsigned __int16 v11; // [esp+0h] [ebp-3Ch] BYREF
-  __int16 v12; // [esp+4h] [ebp-38h]
-  int v13; // [esp+18h] [ebp-24h]
-  _BYTE v14[24]; // [esp+1Ch] [ebp-20h] BYREF
-  _BYTE *v15; // [esp+34h] [ebp-8h]
+  union REGS regs; // [esp+0h] [ebp-3Ch] BYREF
+  struct SREGS v12; // [esp+1Ch] [ebp-20h] BYREF
+  int iSvgaPossible2; // [esp+30h] [ebp-Ch]
+  int v14; // [esp+34h] [ebp-8h]
 
-  v15 = a4;
-  memset(v14, 0, 12);
+  v14 = v2;
+  iSvgaPossible2 = iSvgaPossible;
+  memset(&v12, 0, sizeof(v12));
   if (!vesa_inf) {
-    a4 = v14;
-    v11 = 256;
-    v12 = 16;
-    int386x(49, (int)&v11, (int)&v11, (int)v14);
-    vesa_inf = 16 * v11;
-    if (v13) {
+    regs.w.ax = 256;
+    regs.w.bx = 16;
+    int386x(49, &regs, &regs, &v12);
+    vesa_inf = 16 * regs.w.ax;
+    if (regs.x.cflag) {
       puts(aInternalErrorV);
       return -1;
     }
-    RMI = 0;
-    RMI_variable_5 = (16 * v11) >> 4;
-    RMI_variable_4 = 20224;
-    realmode(16, (int)&v11, 0, (int)v14);
-    if ((unsigned __int8)RMI_variable_4 != 79)
+    RMI.edi = 0;
+    RMI.es = (16 * regs.w.ax) >> 4;
+    RMI.eax = 20224;
+    realmode(0x10u);
+    if (LOBYTE(RMI.eax) != 79)
       goto LABEL_5;
-    if (BYTE1(RMI_variable_4)) {
+    if (BYTE1(RMI.eax)) {
     LABEL_7:
       puts(aVesaFunctionCa);
       return -1;
@@ -117,46 +119,46 @@ int VESAmode(void *a1, int a2, int a3, char *a4)
       puts(aInternalErrorV_0);
   }
   if (vmode_inf
-    || (v11 = 256, a4 = v14, v12 = 16, int386x(49, (int)&v11, (int)&v11, (int)v14), vmode_inf = 16 * v11, !v13)) {
-    v6 = -1;
-    if (*a1 != -1) {
+    || (regs.w.ax = 256, regs.w.bx = 16, int386x(49, &regs, &regs, &v12), vmode_inf = 16 * regs.w.ax, !regs.x.cflag)) {
+    v5 = -1;
+    if (*vesaModes != -1) {
       do {
-        if (v6 != -1)
+        if (v5 != -1)
           break;
-        v7 = (unsigned int)&unk_FFFF0 & (*(int *)(vesa_inf + 14) >> 12);
-        for (i = (__int16 *)(v7 + (unsigned __int16)*(_DWORD *)(vesa_inf + 14)); ; ++i) {
-          v9 = *i;
-          if (v9 == -1)
+        v6 = (unsigned int)&unk_FFFF0 & (*(int *)(vesa_inf + 14) >> 12);
+        for (i = (__int16 *)(v6 + (unsigned __int16)*(_DWORD *)(vesa_inf + 14)); ; ++i) {
+          v8 = *i;
+          if (v8 == -1)
             break;
-          if (v9 == *a1 && !tryvesa(v9, (int)i, -1, v7)) {
-            v6 = *i;
+          if (v8 == *vesaModes && !tryvesa(v8, (int)i, -1, v6)) {
+            v5 = *i;
             break;
           }
         }
-        a4 = (_BYTE *)a1[1];
-        ++a1;
-      } while (a4 != (_BYTE *)-1);
+        v9 = vesaModes[1];
+        ++vesaModes;
+      } while (v9 != -1);
     }
-    if (v6 <= -1) {
+    if (v5 <= -1) {
       puts(&aConoSupportedV[2]);
     } else {
       winrange = *(__int16 *)(vmode_inf + 4) << 10;
       Vbytesperline = *(__int16 *)(vmode_inf + 16);
       v10 = *(_WORD *)(vmode_inf + 10);
       VesaSBase = 16 * *(unsigned __int16 *)(vmode_inf + 8);
-      RMI_variable_1 = v6;
+      RMI.ebx = v5;
       VesaDBase = 16 * v10;
-      RMI_variable_4 = 20226;
-      realmode(16, VesaSBase, v6, (int)a4);
-      if ((unsigned __int8)RMI_variable_4 != 79) {
+      RMI.eax = 20226;
+      realmode(0x10u);
+      if (LOBYTE(RMI.eax) != 79) {
       LABEL_5:
         puts(aVesaFunctionNo);
         return -1;
       }
-      if (BYTE1(RMI_variable_4))
+      if (BYTE1(RMI.eax))
         goto LABEL_7;
     }
-    return v6;
+    return v5;
   } else {
     puts(aInternalErrorV_1);
     return -1;

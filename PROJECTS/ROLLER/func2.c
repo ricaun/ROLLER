@@ -2,9 +2,28 @@
 #include "control.h"
 //-------------------------------------------------------------------------------------------------
 
-char g_szDgkfcRec[10] = "dgkfc.rec";    //000A0EF8 Symbol name added by ROLLER
 double g_dRecordLapsMultiplier = 0.01;  //000A0F09 Symbol name added by ROLLER
 double g_dRecordLapsMinimum = 0.4;      //000A0F11 Symbol name added by ROLLER
+uint8 key_buffer[64]; //0013FB90
+int write_key = 0;    //000A39E4
+int read_key = 0;     //000A39E8
+uint8 mapping[] =     //000A3AF8
+{
+  0x7F, 0x1B, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+  0x39, 0x30, 0x2D, 0x3D, 0x08, 0x09, 0x51, 0x57, 0x45, 0x52,
+  0x54, 0x59, 0x55, 0x49, 0x4F, 0x50, 0x5B, 0x5D, 0x0D, 0x7F,
+  0x41, 0x53, 0x44, 0x46, 0x47, 0x48, 0x4A, 0x4B, 0x4C, 0x3B,
+  0x27, 0x60, 0x7F, 0x23, 0x5A, 0x58, 0x43, 0x56, 0x42, 0x4E,
+  0x4D, 0x2C, 0x2E, 0x2F, 0x7F, 0x7F, 0x7F, 0x20, 0x7F, 0xC5,
+  0xC4, 0xC3, 0xC2, 0xC1, 0xC0, 0xBF, 0xBE, 0xBD, 0xBC, 0x7F,
+  0x7F, 0xB9, 0xB8, 0xB7, 0x2D, 0xB5, 0x7F, 0xB3, 0x7F, 0xB1,
+  0xB0, 0xAF, 0xAE, 0xAD, 0x7F, 0x7F, 0x5C, 0xBB, 0xBA, 0x7F,
+  0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+  0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+  0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+  0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
+};
+int twoparter = 0;    //000A3B78
 
 //-------------------------------------------------------------------------------------------------
 
@@ -1430,40 +1449,35 @@ int claim_key_int(int a1, int a2)
 
 int fatkbhit()
 {
-  return 0;
-  /*
   if (write_key == read_key && !twoparter)
     return read_key ^ write_key;
   else
     return -1;
-    */
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int fatgetch()
 {
-  return 0;
-  /*
-  int v0; // edx
-  int result; // eax
+  int iTwoParter; // edx
+  int iResult; // eax
 
-  v0 = twoparter;
+  iTwoParter = twoparter;
   if (twoparter) {
-    result = twoparter;
-    v0 = 0;
+    iResult = twoparter;
+    iTwoParter = 0;
   } else {
     while (write_key == read_key)
       ;
-    result = mapping[(unsigned __int8)key_buffer[read_key++]];
+    iResult = mapping[key_buffer[read_key++]];
     read_key &= 0x3Fu;
-    if (result < 0) {
-      v0 = -result;
-      result = 0;
+    if (iResult < 0) {
+      iTwoParter = -iResult;
+      iResult = 0;
     }
   }
-  twoparter = v0;
-  return result;*/
+  twoparter = iTwoParter;
+  return iResult;
 }
 
 //-------------------------------------------------------------------------------------------------

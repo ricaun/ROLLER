@@ -5,10 +5,6 @@
 #include <io.h>
 //-------------------------------------------------------------------------------------------------
 
-char g_szUnableToOpen[42] = "Unable to open texture map data file %s"; //000A23CC Symbol name added by ROLLER
-
-//-------------------------------------------------------------------------------------------------
-
 int winner_screen(int a1, char a2, void *a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
@@ -4351,7 +4347,7 @@ uint8 *load_picture(const char *szFile)
 
   iFileHandle = _open(szFile, 512);
   if (iFileHandle == -1) {
-    printf(g_szUnableToOpen);
+    printf("Unable to open texture map data file %s\n\n", szFile);
     doexit(1, (int)(uint64)szFile, (void *)(uint64)0xFFFFFFFF);
   }
   _close(iFileHandle);

@@ -92,7 +92,7 @@ extern int player1_car;
 //-------------------------------------------------------------------------------------------------
 
 void copypic(uint8 *pSrc, uint8 *pDest);
-int init_screen(int a1, int a2, int a3);
+void init_screen();
 void init();
 void *getbuffer(uint32 uiSize);
 void *trybuffer(uint32 uiSize);

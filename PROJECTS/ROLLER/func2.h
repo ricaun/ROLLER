@@ -4,6 +4,14 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern uint8 key_buffer[];
+extern int write_key;
+extern int read_key;
+extern uint8 mapping[];
+extern int twoparter;
+
+//-------------------------------------------------------------------------------------------------
+
 int draw_smoke(int a1, int a2);
 int test_panel(int a1, char *a2);
 void ZoomString(char *a1, int a2, int a3, int a4, int a5);
