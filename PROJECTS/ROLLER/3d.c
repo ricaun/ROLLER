@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 //-------------------------------------------------------------------------------------------------
 
 int svga_possible = -1;    //000A31C0
@@ -58,6 +60,12 @@ int XMAX;                  //0013FB78
 int time_shown;            //0013FB7C
 int player2_car;           //0013FB7E
 int player1_car;           //0013FB80
+
+//-------------------------------------------------------------------------------------------------
+
+static SDL_Window *s_pWindow = NULL;
+static SDL_Renderer *s_pRenderer = NULL;
+static bool s_bContinue = true;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -826,8 +834,30 @@ void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5)
 
 int main(int argc, const char **argv, const char **envp)
 {
-  printf("IT'S WHIPLASH\n");
   (void)(argc); (void)(argv); (void)(envp);
+
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
+    SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, 0, &s_pWindow, &s_pRenderer)) {
+    SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  
+  SDL_Surface *pIcon = IMG_Load("roller.ico");
+  SDL_SetWindowIcon(&s_pWindow, pIcon);
+
+  while (s_bContinue) {
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+      if (e.type == SDL_EVENT_KEY_DOWN) {
+        s_bContinue = false;
+      }
+    }
+  }
+
   /*
   int v3; // eax
   char **v4; // edx
