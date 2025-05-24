@@ -1614,12 +1614,12 @@ void loadfile(const char *szFile, void *pBuf, unsigned int uiSize, int iIsSound)
 
   pBuf = 0;
   uiSize = 0;
-  iFile = _open(szFile, 512);
+  iFile = open(szFile, 512);
   if (iFile == -1) {
     uiSize = 0;
     pBuf = 0;
   } else {
-    _close(iFile);
+    close(iFile);
     uiSize = getcompactedfilelength(szFile);
     if (!iIsSound || iIsSound == 1 && soundon) {
       pBuf2 = trybuffer(uiSize);

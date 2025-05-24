@@ -2549,9 +2549,9 @@ uint8 *try_load_picture(const char *szFile)
   uint8 *pBuf; // ecx
 
   pBuf2 = 0;
-  iFile = _open(szFile, 512);
+  iFile = open(szFile, 512);
   if (iFile != -1) {
-    _close(iFile);
+    close(iFile);
     iLength = getcompactedfilelength(szFile);
     pBuf = (uint8 *)trybuffer(iLength);
     pBuf2 = pBuf;
@@ -4350,12 +4350,12 @@ uint8 *load_picture(const char *szFile)
   uint32 uiFileLength; // eax
   uint8 *pBuf; // ebx
 
-  iFileHandle = _open(szFile, 512);
+  iFileHandle = open(szFile, 512);
   if (iFileHandle == -1) {
     printf("Unable to open texture map data file %s\n\n", szFile);
     doexit(1, (int)(uint64)szFile, (void *)(uint64)0xFFFFFFFF);
   }
-  _close(iFileHandle);
+  close(iFileHandle);
   uiFileLength = getcompactedfilelength(szFile);
   pBuf = (uint8 *)getbuffer(uiFileLength);
   loadcompactedfile(szFile, pBuf);
