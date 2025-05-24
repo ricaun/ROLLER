@@ -1453,7 +1453,7 @@ int resetcars()
 
 //-------------------------------------------------------------------------------------------------
 
-char *__fastcall min_skip_stuff(int *a1)
+char *min_skip_stuff(int *a1)
 {
   return 0; /*
   _BYTE *result; // eax

@@ -4,7 +4,9 @@
 #include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef IS_WINDOWS
 #include <Windows.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
@@ -38,7 +40,7 @@ extern int titlesong;
 void realmode(uint8 byRealModeInterrupt);
 int loadDOS(int a1, void *a2, int *a3);
 int claimDOS(int a1, void *a2);
-int releaseDOS(__int16 a1, int a2, int a3, int a4);
+int releaseDOS(int16 a1, int a2, int a3, int a4);
 int setpal(int a1, int a2, void *a3, void *a4);
 void resetpal();
 int Initialise_SOS();
@@ -67,18 +69,18 @@ int pannedsample(int result, int a2, int a3);
 int speechonly(int result, int a2, int a3, int a4);
 int speechsample(int result, int a2, int a3, int a4);
 int analysespeechsamples();
-int dospeechsample(__int64 a1);
+int dospeechsample(int64 a1);
 int loadfrontendsample(int result);
 int frontendsample(int a1);
 void *remove_frontendspeech();
 int sfxplaying(int a1);
 int cheatsampleok(int a1);
-int sfxsample(__int64 a1);
+int sfxsample(int64 a1);
 int sample2(
-        __int64 rax0,
+        int64 rax0,
         int ecx0,
         int ebx0,
-        __int64 a1,
+        int64 a1,
         int a2,
         int a3,
         int a4,
@@ -105,7 +107,7 @@ int waitsampledone(int result);
 int getcompactedfilelength(const char *szFile);
 int initmangle(const char *szFile);
 int uninitmangle();
-int loadcompactedfile(const char *szFile, void *pBuf);
+int loadcompactedfile(const char *szFile, uint8 *pBuf);
 void readmangled(uint8 *pBufRet, int iLength);
 void loadcompactedfilepart(uint8 *pDestination, int iDestLength);
 uint8 *unmangleGet(unsigned int uiPos, unsigned int uiCount);

@@ -472,7 +472,7 @@ int reinitstunts()
 
 //-------------------------------------------------------------------------------------------------
 
-void *__fastcall freeramp(void *result)
+void *freeramp(void *result)
 {
   return 0; /*
   _DWORD *v1; // [esp+0h] [ebp-4h] BYREF

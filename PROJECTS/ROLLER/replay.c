@@ -1274,7 +1274,7 @@ int DoReplayData(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int Rplay(__int64 a1)
+int Rplay(int64 a1)
 {
   return 0; /*
   int result; // eax
@@ -1384,7 +1384,7 @@ int Rspeedplus(int result, unsigned int a2, unsigned int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void Rspeedminus(__int64 a1)
+void Rspeedminus(int64 a1)
 {/*
   int v1; // eax
 
@@ -1482,7 +1482,7 @@ int Rforwardstart(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int ROldStatus(__int64 a1)
+int ROldStatus(int64 a1)
 {
   return 0; /*
   int result; // eax
@@ -3431,7 +3431,7 @@ void rselectblock()
 
 //-------------------------------------------------------------------------------------------------
 
-int rdeleteblock(__int64 a1)
+int rdeleteblock(int64 a1)
 {
   return 0; /*
   int v1; // ecx
@@ -3557,7 +3557,7 @@ int rnextcut(int result, unsigned int a2, int a3, unsigned int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void rstartassemble(__int64 a1)
+void rstartassemble(int64 a1)
 {
   /*
   int v1; // ebx
@@ -3584,7 +3584,7 @@ void rstartassemble(__int64 a1)
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+uint8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
   return 0; /*
   int v8; // edx

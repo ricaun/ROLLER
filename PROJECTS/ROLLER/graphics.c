@@ -5,7 +5,7 @@ int gfx_size; //00149740
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall plotxyz(float a1, float a2, float a3, char a4)
+void plotxyz(float a1, float a2, float a3, char a4)
 {/*
   double v8; // st6
   double v9; // st5

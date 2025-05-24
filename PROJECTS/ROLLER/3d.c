@@ -135,7 +135,7 @@ void init_screen()
   int iSvgaPossible; // edx
   int iVesaMode; // ebx
   int i; // esi
-  __int16 nY; // bx
+  int16 nY; // bx
   int vesaModes[9]; // [esp+0h] [ebp-24h] BYREF
 
   iSvgaPossible = svga_possible;
@@ -233,7 +233,7 @@ void init()
 
   for (int i = 0; i < 25; ++i) {
     int iRecordNamesPos = 9 * i;
-    strcpy_s(&RecordNames[iRecordNamesPos], 9, "-----");
+    strcpy(&RecordNames[iRecordNamesPos], "-----");
     RecordLaps[i] = 128.0f;
     RecordCars[i] = -1;
     RecordKills[i] = 0;
@@ -1999,7 +1999,7 @@ void play_game(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void game_keys(__int64 a1)
+void game_keys(int64 a1)
 {/*
   unsigned int v1; // eax
   int v2; // ecx

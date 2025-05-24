@@ -786,7 +786,7 @@ int test_panel(int a1, char *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall ZoomString(char *a1, int a2, int a3, int a4, int a5)
+void ZoomString(char *a1, int a2, int a3, int a4, int a5)
 {
   /*
   int v6; // esi
@@ -880,7 +880,7 @@ void __fastcall ZoomString(char *a1, int a2, int a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall ZoomSub(char *a1, int a2, int a3, int a4, int a5)
+void ZoomSub(char *a1, int a2, int a3, int a4, int a5)
 {/*
   double v6; // st7
   double v7; // st7
@@ -961,7 +961,7 @@ void __fastcall ZoomSub(char *a1, int a2, int a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-int zoom_letter(int a1, unsigned __int8 a2, void *a3, void *a4, char *a5, float a6)
+int zoom_letter(int a1, uint8 a2, void *a3, void *a4, char *a5, float a6)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6);
   return 0;
@@ -1179,7 +1179,7 @@ int print_block(char *a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int print_damage(unsigned __int8 *a1, int *a2, int a3)
+int print_damage(uint8 *a1, int *a2, int a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   return 0;
@@ -1300,7 +1300,7 @@ int print_damage(unsigned __int8 *a1, int *a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall print_pos(int result, int a2, int a3)
+int print_pos(int result, int a2, int a3)
 {
   return 0;/*
   int v3; // ebp
@@ -1919,7 +1919,7 @@ int prt_string(int a1, char *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int __fastcall prt_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5)
+int prt_letter(int a1, uint8 a2, void *a3, void *a4, int a5)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   return 0;
@@ -2021,7 +2021,7 @@ int __fastcall prt_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5
 
 //-------------------------------------------------------------------------------------------------
 
-int prt_letter_rev(int a1, unsigned __int8 a2, void *a3, void *a4, int a5)
+int prt_letter_rev(int a1, uint8 a2, void *a3, void *a4, int a5)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
   return 0;
@@ -2223,7 +2223,7 @@ char prt_centrecol(int a1, char *a2, int a3, int a4, char a5)
 
 //-------------------------------------------------------------------------------------------------
 
-int prt_lettercol(int a1, unsigned __int8 a2, void *a3, void *a4, char a5)
+int prt_lettercol(int a1, uint8 a2, void *a3, void *a4, char a5)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
   return 0;
@@ -4494,7 +4494,7 @@ void setmodex()
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 modexsethardware()
+uint8 modexsethardware()
 {
   return 0;
   /*

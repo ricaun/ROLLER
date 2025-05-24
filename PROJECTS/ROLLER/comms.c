@@ -9,7 +9,7 @@ int no_16550 = 0;       //000AFDA4
 
 //-------------------------------------------------------------------------------------------------
 
-int select_comport(unsigned __int16 a1, char *a2, unsigned int a3)
+int select_comport(uint16 a1, char *a2, unsigned int a3)
 {
   return 0; /*
   int v3; // edi
@@ -770,7 +770,7 @@ char *getprintstring(char *a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-__int64 display_essentials(int a1, int a2, int a3)
+int64 display_essentials(int a1, int a2, int a3)
 {
   return 0; /*
   int v4; // eax

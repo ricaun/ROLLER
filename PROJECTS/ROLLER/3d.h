@@ -117,7 +117,7 @@ void play_game_uninit(int a1, int a2, int a3, int a4);
 int winner_race();
 int champion_race();
 void play_game(int a1, int a2, int a3);
-void game_keys(__int64 a1);
+void game_keys(int64 a1);
 int mesminus();
 int mesplus();
 int carminus(int a1, int a2, int a3);

@@ -113,9 +113,9 @@ typedef struct
 void InitCarStructs();
 void CalcCarSizes();
 void InitCars();
-__int16 placecars();
+int16 placecars();
 int DrawCars(int result, int a2);
-__int16 DisplayCar(int iCarIdx, int a2, float a3);
+int16 DisplayCar(int iCarIdx, int a2, float a3);
 int carZcmp(tCar *pCar1, tCar *pCar2);
 
 //-------------------------------------------------------------------------------------------------

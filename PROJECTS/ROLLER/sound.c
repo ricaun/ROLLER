@@ -4,7 +4,12 @@
 #include "3d.h"
 #include "cdx.h"
 #include <memory.h>
+#ifdef IS_WINDOWS
 #include <io.h>
+#else
+#include <inttypes.h>
+#include <unistd.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
@@ -120,7 +125,7 @@ int claimDOS(int a1, void *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int releaseDOS(__int16 a1, int a2, int a3, int a4)
+int releaseDOS(int16 a1, int a2, int a3, int a4)
 {
   return 0; /*
   _WORD v6[14]; // [esp+0h] [ebp-34h] BYREF
@@ -2255,7 +2260,7 @@ int analysespeechsamples()
 
 //-------------------------------------------------------------------------------------------------
 
-int dospeechsample(__int64 a1)
+int dospeechsample(int64 a1)
 {
   return 0; /*
   int v1; // ebx
@@ -2465,7 +2470,7 @@ int cheatsampleok(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int sfxsample(__int64 a1)
+int sfxsample(int64 a1)
 {
   return 0; /*
   int v1; // ebx
@@ -2515,10 +2520,10 @@ int sfxsample(__int64 a1)
 //-------------------------------------------------------------------------------------------------
 
 int sample2(
-        __int64 rax0,
+        int64 rax0,
         int ecx0,
         int ebx0,
-        __int64 a1,
+        int64 a1,
         int a2,
         int a3,
         int a4,

@@ -38,16 +38,16 @@ void InitCarStructs()
   eCarDesignIndex carDesignIndex3; // esi
   int iRevsOffset; // ebp
   int iNextGear; // edx
-  __int16 k; // di
+  int16 k; // di
   int iNumGears2; // eax
   int m; // ebx
   double dSpeed; // st7
   float fChg; // [esp+0h] [ebp-20h]
   float fNextChg; // [esp+0h] [ebp-20h]
-  __int16 i; // [esp+4h] [ebp-1Ch]
+  int16 i; // [esp+4h] [ebp-1Ch]
 
   for (i = 0; i < 14; ++i) {
-    carDesignIndex = i;
+    carDesignIndex = (eCarDesignIndex)i;
     v1 = 0;
     carDesignIndex2 = CAR_DESIGN_AUTO;
     iNumGears = CarEngines.engines[carDesignIndex].iNumGears;
@@ -55,7 +55,7 @@ void InitCarStructs()
     while (v1 < i) {
       if (pSpds == CarEngines.engines[carDesignIndex2].pSpds)
         iNumGears = -1;
-      ++carDesignIndex2;
+      carDesignIndex2 = (eCarDesignIndex)((int)carDesignIndex2 + 1);
       ++v1;
     }
     for (j = 0; j < iNumGears; *(pSpds - 1) = (float)v6) {
@@ -66,7 +66,7 @@ void InitCarStructs()
     if (iNumGears > 0) {
       iChgIdx = 0;
       do {
-        carDesignIndex3 = i;                    // why is this defined a second time
+        carDesignIndex3 = (eCarDesignIndex)i;                    // why is this defined a second time
         iRevsOffset = 12 * i;
         fChg = (float)CarEngines.engines[carDesignIndex3].pChgs[iChgIdx];
         eng_chg_revs[iChgIdx + iRevsOffset] = (float)calc_revs(CarEngines.engines[carDesignIndex3].pRevs, iCurrGear, fChg);
@@ -197,20 +197,20 @@ void CalcCarSizes()
 
 void InitCars()
 {
-  __int16 i; // si
-  __int16 nNumGears; // di
-  __int16 j; // bx
-  __int16 k; // bx
+  int16 i; // si
+  int16 nNumGears; // di
+  int16 j; // bx
+  int16 k; // bx
   int iCurrCar; // eax
   uint8 byCarDesign; // dl
   int iCarTexIdxSetUnloaded; // eax
   int iCurrCarTexIdxSetUnloaded; // edx
-  __int16 nCarTexIdx; // di
+  int16 nCarTexIdx; // di
   eCarType carType; // eax
   eCarType carTexsLoadedIndex; // esi
   int iCarTexLoaded; // edx
   int iCurrCarTex; // ecx
-  __int16 m; // [esp+0h] [ebp-1Ch]
+  int16 m; // [esp+0h] [ebp-1Ch]
 
   for (i = 0; i < 14; ++i) {
     nNumGears = CarEngines.engines[i].iNumGears;
@@ -231,9 +231,9 @@ void InitCars()
   iCarTexIdxSetUnloaded = 1;
   car_texs_loaded[0] = 0;
   do {
-    iCurrCarTexIdxSetUnloaded = (__int16)iCarTexIdxSetUnloaded++;
+    iCurrCarTexIdxSetUnloaded = (int16)iCarTexIdxSetUnloaded++;
     car_texs_loaded[iCurrCarTexIdxSetUnloaded] = -1;
-  } while ((__int16)iCarTexIdxSetUnloaded < 16);
+  } while ((int16)iCarTexIdxSetUnloaded < 16);
 
   // load all car textures
   nCarTexIdx = 1;
@@ -258,7 +258,7 @@ void InitCars()
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 placecars()
+int16 placecars()
 {
   return 0;
   /*
@@ -699,7 +699,7 @@ int DrawCars(int result, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 DisplayCar(int a1, int a2, float a3)
+int16 DisplayCar(int a1, int a2, float a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   return 0;

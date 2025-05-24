@@ -167,7 +167,7 @@ int VESAmode(int *vesaModes, int iSvgaPossible)
 
 //-------------------------------------------------------------------------------------------------
 
-int svgacopy(uint8 *pBuf, __int16 iX, __int16 iY, int iWidth, int iHeight)
+int svgacopy(uint8 *pBuf, int16 iX, int16 iY, int iWidth, int iHeight)
 {/*
   int v6; // edx
   int v7; // eax

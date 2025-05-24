@@ -180,7 +180,7 @@ int setmapsel(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int twpolym(void *a1, __int16 a2)
+int twpolym(void *a1, int16 a2)
 {
   return 0; /*
   __int16 v3; // bx

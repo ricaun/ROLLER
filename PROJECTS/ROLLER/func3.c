@@ -2,7 +2,12 @@
 #include "3d.h"
 #include "sound.h"
 #include <memory.h>
+#ifdef IS_WINDOWS
 #include <io.h>
+#else
+#include <inttypes.h>
+#include <unistd.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 int winner_screen(int a1, char a2, void *a3)
@@ -3139,7 +3144,7 @@ int load_champ(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *lod_champ_char(unsigned __int8 *a1, void *a2)
+uint8 *lod_champ_char(uint8 *a1, void *a2)
 {
   (void)(a1); (void)(a2); return 0;
   /*
@@ -3983,7 +3988,7 @@ int loadtracksample(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-void *front_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5, char a6)
+void *front_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a6); (void)(a5);
   return 0;
@@ -4027,7 +4032,7 @@ void *front_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5, char 
 
 //-------------------------------------------------------------------------------------------------
 
-int scale_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5, char a6, int a7)
+int scale_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6, int a7)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
   return 0;
@@ -4084,7 +4089,7 @@ int scale_letter(int a1, unsigned __int8 a2, void *a3, void *a4, int a5, char a6
 
 //-------------------------------------------------------------------------------------------------
 
-int front_text(int a1, unsigned __int8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8)
+int front_text(int a1, uint8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7); (void)(a8);
   return 0;
@@ -4150,7 +4155,7 @@ int front_text(int a1, unsigned __int8 *a2, int a3, int a4, int a5, int a6, char
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 scale_text(
+uint8 scale_text(
         int a1,
         char *a2,
         int a3,
@@ -4302,7 +4307,7 @@ void display_picture(void *pDest, const void *pSrc)
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6)
+uint8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); return 0;
   /*

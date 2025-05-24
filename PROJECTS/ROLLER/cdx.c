@@ -325,7 +325,7 @@ void AudioIOCTL(uint8 bySubCommand)
 
 //-------------------------------------------------------------------------------------------------
 
-int FreeDOSMemory(unsigned __int16 a1)
+int FreeDOSMemory(uint16 a1)
 {
   return 0; /*
   memset(&sregs, 0, sizeof(sregs));

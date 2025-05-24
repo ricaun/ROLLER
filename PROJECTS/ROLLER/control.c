@@ -1722,7 +1722,7 @@ double change_gear(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall updatecar2(int a1, int a2, int a3)
+void updatecar2(int a1, int a2, int a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   /*
@@ -3125,7 +3125,7 @@ LABEL_502:
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 check_crossed_line(int a1)
+int16 check_crossed_line(int a1)
 {
   (void)(a1);
   return 0;
@@ -3866,7 +3866,7 @@ int doteaminit()
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 hitleft(int a1, int a2, int a3)
+int16 hitleft(int a1, int a2, int a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   return 0;
@@ -4018,7 +4018,7 @@ __int16 hitleft(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 hitright(int a1, int a2, int a3)
+int16 hitright(int a1, int a2, int a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   return 0;
@@ -4294,7 +4294,7 @@ double getroadz(float a1, float a2, int iChunkIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 putflat(tCar *pCar)
+int16 putflat(tCar *pCar)
 {
   return 0;/*
   int nCurrChunk; // esi
@@ -4865,7 +4865,7 @@ double block(int a1, float a2, int a3, float a4, float a5)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall autocar2(int a1)
+void autocar2(int a1)
 {
   (void)(a1);
   /*
@@ -5449,7 +5449,7 @@ LABEL_24:
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall changestrategy(int a1)
+void changestrategy(int a1)
 {
   (void)(a1);
   /*
@@ -6534,7 +6534,7 @@ void landontrack(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-__int16 converttoair(int a1, int a2, int a3, int a4)
+int16 converttoair(int a1, int a2, int a3, int a4)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   return 0;
@@ -6659,7 +6659,7 @@ void ordercars()
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall changeline(int a1)
+void changeline(int a1)
 {
   (void)(a1);
   /*
@@ -6837,7 +6837,7 @@ int updatesmokeandflames(int a1, unsigned int a2, int a3, unsigned int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void dospray(__int64 a1, int a2)
+void dospray(int64 a1, int a2)
 {
   (void)(a1); (void)(a2);
   /*

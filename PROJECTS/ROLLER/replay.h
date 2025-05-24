@@ -1,22 +1,24 @@
 #ifndef _ROLLER_REPLAY_H
 #define _ROLLER_REPLAY_H
 //-------------------------------------------------------------------------------------------------
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
 
 void setreplaytrack();
 int startreplay();
 void stopreplay(int a1, int a2, int a3, int a4);
 int DoReplayData(int a1, int a2, int a3, int a4);
-int Rplay(__int64 a1);
+int Rplay(int64 a1);
 int Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4);
 int Rframeplus(int a1, int a2);
 int Rframeminus(int a1, int a2);
 int Rspeedplus(int result, unsigned int a2, unsigned int a3);
-void Rspeedminus(__int64 a1);
+void Rspeedminus(int64 a1);
 int DoRstop(int a1, int a2);
 int Rstop();
 int Rrewindstart(int a1, int a2);
 int Rforwardstart(int a1, int a2);
-int ROldStatus(__int64 a1);
+int ROldStatus(int64 a1);
 int Rstart(int a1, unsigned int a2, int a3, unsigned int a4);
 int Rend(int a1, unsigned int a2, int a3, unsigned int a4);
 unsigned int readdisable(int a1);
@@ -47,13 +49,13 @@ int displaycontrolpanel();
 int rtoggleedit(int a1, unsigned int a2, int a3, unsigned int a4);
 int rstartblock(int a1, unsigned int a2, int a3, unsigned int a4);
 void rselectblock();
-int rdeleteblock(__int64 a1);
+int rdeleteblock(int64 a1);
 int rstoreview(int a1, unsigned int a2, int a3, unsigned int a4);
 int rremoveview(int a1, unsigned int a2, int a3, unsigned int a4);
 int rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4);
 int rnextcut(int result, unsigned int a2, int a3, unsigned int a4);
-void rstartassemble(__int64 a1);
-unsigned __int8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
+void rstartassemble(int64 a1);
+uint8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
 int replaypanelletter(int result, int *a2, int *a3, int a4);
 int replaypanelstring(const char *a1, int a2, int a3, int a4);
 int displaypaneltime(int a1, int a2, int a3, int a4);
