@@ -4,6 +4,8 @@
 #include <memory.h>
 #ifdef IS_WINDOWS
 #include <io.h>
+#define open _open
+#define close _close
 #else
 #include <inttypes.h>
 #include <unistd.h>
