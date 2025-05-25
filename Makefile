@@ -1,8 +1,12 @@
 LIBS = 	-lc \
 		-lm \
-		-lz
+		-lz \
+		-lSDL3 \
+		-lSDL3_image
 
 INCLUDES = 	-I. \
+			-I./external/SDL3-3.2.14/include \
+			-I./external/SDL3_image-3.2.4/include
 
 ifeq ($(BUILDCONFIG), debug)
 	DEBUGFLAGS = -D _DEBUG -D DEBUG
