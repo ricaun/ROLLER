@@ -4,6 +4,8 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern int false_starts;
+extern int replay_record;
 extern char player_names[16][9];
 extern int non_competitors[];
 extern int player_started[];
@@ -51,7 +53,7 @@ void *select_track(int a1, int a2, int a3, int a4);
 void save_params();
 void reset_params();
 int NetworkWait(int a1, int a2, int a3, int a4);
-char *loadcheatnames(int a1, int a2, int a3, int a4);
+void loadcheatnames();
 int CheckNames(char *a1, int a2);
 int restart_net_game(int a1);
 

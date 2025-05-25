@@ -18,7 +18,10 @@
 char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
 int musicon = -1;           //000A46A0
 int soundon = -1;           //000A46A4
-int palette_brightness = 32; //000A46B0
+int allengines = -1;        //000A46A8
+int palette_brightness = 32;//000A46B0
+int writeptr = 0;           //000A476C
+int readptr = 0;            //000A4770
 int MusicCard = 0;          //000A4794
 int MusicCD = 0;            //000A4798
 int MusicPort = 0;          //000A479C
@@ -33,6 +36,8 @@ int unmanglebufpos;         //0016F65C
 DPMI_RMI RMI;               //0016F838
 int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
+int delaywrite;             //0016F8C8
+int delayread;              //0016F8CC
 
 //-------------------------------------------------------------------------------------------------
 

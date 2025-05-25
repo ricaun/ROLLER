@@ -19,7 +19,10 @@ typedef struct
 
 extern int musicon;
 extern int soundon;
+extern int allengines;
 extern int palette_brightness;
+extern int writeptr;
+extern int readptr;
 extern int MusicCard;
 extern int MusicCD;
 extern int MusicPort;
@@ -34,6 +37,8 @@ extern int unmanglebufpos;
 extern DPMI_RMI RMI;
 extern int optionssong;
 extern int titlesong;
+extern int delaywrite;
+extern int delayread;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -42,6 +47,7 @@ int loadDOS(int a1, void *a2, int *a3);
 int claimDOS(int a1, void *a2);
 int releaseDOS(int16 a1, int a2, int a3, int a4);
 int setpal(int a1, int a2, void *a3, void *a4);
+void blankpal();
 void resetpal();
 int Initialise_SOS();
 int updatejoy();

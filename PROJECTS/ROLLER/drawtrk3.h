@@ -2,6 +2,10 @@
 #define _ROLLER_DRAWTRK3_H
 //-------------------------------------------------------------------------------------------------
 
+extern int view_limit;
+
+//-------------------------------------------------------------------------------------------------
+
 int CalcVisibleTrack(int a1, unsigned int a2);
 int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5);
 void subdivide(

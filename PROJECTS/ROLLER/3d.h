@@ -48,6 +48,7 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int game_size;
 extern int svga_possible;
 extern int hibuffers;
 extern uint32 mem_used;
@@ -85,8 +86,20 @@ extern float ext_x;
 extern int test_f1;
 extern int test_f2;
 extern int test_f3;
+extern int print_data;
+extern int demo_control;
+extern int tick_on;
+extern int oldmode;
+extern int start_race;
 extern int NoOfLaps;
+extern int countdown;
+extern int max_mem;
 extern int scrmode;
+extern int intro;
+extern int fatal_ini_loaded;
+extern int machine_speed;
+extern int winner_mode;
+extern int network_slot;
 extern int w95;
 extern int winh;
 extern int winw;

@@ -2,6 +2,8 @@
 #include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
+int false_starts = -1;    //000A4AB8
+int replay_record = 1;    //000A5304
 char player_names[16][9]; //0016FA10
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
@@ -5616,10 +5618,8 @@ LABEL_85:
 
 //-------------------------------------------------------------------------------------------------
 
-char *loadcheatnames(int a1, int a2, int a3, int a4)
+void loadcheatnames()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
   /*
   __int64 v4; // rax
   int v5; // ebx

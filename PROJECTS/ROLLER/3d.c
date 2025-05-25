@@ -1,7 +1,13 @@
 #include "3d.h"
-#include "frontend.h"
+#include "cdx.h"
 #include "control.h"
+#include "drawtrk3.h"
+#include "loadtrak.h"
+#include "moving.h"
+#include "frontend.h"
 #include "func2.h"
+#include "func3.h"
+#include "replay.h"
 #include "svgacpy.h"
 #include "sound.h"
 #include <stdio.h>
@@ -12,9 +18,11 @@
 #include <SDL3_image/SDL_image.h>
 //-------------------------------------------------------------------------------------------------
 
+int game_size = 64;        //000A31B4
 int svga_possible = -1;    //000A31C0
 int hibuffers;             //000A32E0
 uint32 mem_used;           //000A32E8
+int gosound = 3;           //000A3334
 int current_mode = 666;    //000A333C
 int SVGA_ON = 0;           //000A34AC
 int TrackLoad = 1;         //000A34B0
@@ -49,8 +57,20 @@ float ext_x;               //0013FA54
 int test_f1;               //0013FA58
 int test_f2;               //0013FA5C
 int test_f3;               //0013FA60
+int print_data;            //0013FA68
+int demo_control;          //0013FA6C
+int tick_on;               //0013FA70
+int oldmode;               //0013FA74
+int start_race;            //0013FA80
 int NoOfLaps;              //0013FA84
+int countdown;             //0013FA90
+int max_mem;               //0013FAA4
 int scrmode;               //0013FAB4
+int intro;                 //0013FAC0
+int fatal_ini_loaded;      //0013FADC
+int machine_speed;         //0013FAE0
+int winner_mode;           //0013FB08
+int network_slot;          //0013FB14
 int w95;                   //0013FB30
 int winh;                  //0013FB68
 int winw;                  //0013FB6C
@@ -65,7 +85,6 @@ int player1_car;           //0013FB80
 
 static SDL_Window *s_pWindow = NULL;
 static SDL_Renderer *s_pRenderer = NULL;
-static bool s_bContinue = true;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -834,113 +853,102 @@ void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5)
 
 int main(int argc, const char **argv, const char **envp)
 {
-  (void)(argc); (void)(argv); (void)(envp);
-
+  /***
+  * ADDED BY ROLLER
+  ***/
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-
   if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, 0, &s_pWindow, &s_pRenderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  
   SDL_Surface *pIcon = IMG_Load("roller.ico");
-  SDL_SetWindowIcon(&s_pWindow, pIcon);
+  SDL_SetWindowIcon(s_pWindow, pIcon);
+  /***
+  * END ROLLER CODE
+  ***/
 
-  while (s_bContinue) {
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_EVENT_KEY_DOWN) {
-        s_bContinue = false;
-      }
-    }
-  }
-
-  /*
-  int v3; // eax
-  char **v4; // edx
-  int v5; // ecx
-  int inited; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // edi
-  int v10; // ecx
-  char *v11; // eax
-  char *v12; // eax
-  int v13; // eax
+  //int v3; // eax
+  //int v4; // edx
+  //int v5; // ecx
+  uint32 uiCheatMode; // edi
+  //int v8; // eax
+  //char *szDirectory; // eax
+  int iMemBlocksIdx2; // eax
+  int iMemBlocksIdx; // edx
   int v14; // edx
-  int v15; // eax
-  int v16; // ebx
-  int v17; // edx
-  int v18; // ecx
-  int v19; // eax
-  int v20; // edx
-  int v21; // eax
-  int i; // ebx
-  int restarted; // eax
-  int v24; // ebx
-  int result; // eax
+  uint32 i; // ebx
+  //int restarted; // eax
+  //uint32 v17; // edi
+  //void *v18; // ebx
+  //uint8 *v19; // ecx
+  //int v20; // eax
+  //int v21; // eax
+  //int v22; // eax
+  //int v23; // eax
+  //int v24; // eax
+  //int v25; // eax
+  //int v26; // eax
+  //int result; // eax
 
-  v5 = v3;
-  gssCommsSetCommandBase(1751933793);
+  //v5 = v3;
+  //gssCommsSetCommandBase(0x686C6361u);
   oldmode = readmode();
-  blankpal(oldmode, 0, (int)v4, v5);
+  blankpal();
   SVGA_ON = 0;
-  inited = init_screen();
-  blankpal(inited, 0, (int)v4, v5);
+  init_screen();
+  blankpal();
   SVGA_ON = -1;
-  v7 = init_screen();
-  v8 = blankpal(v7, 0, (int)v4, v5);
-  test_w95(v8, 0, (int)v4, v5);
-  v9 = 0;
-  harderr((int)criticalhandler, __CS__);
+  init_screen();
+  blankpal();
+  test_w95();
+  uiCheatMode = 0;
+  //harderr((int)criticalhandler, __CS__);
   network_slot = 0;
-  if (v5 == 2)
-    network_slot = atoi(v4[1]) & 0xFFFFFF;
-  v10 = 1;
-  LOWORD(player1_car) = 0;
+  //if (v5 == 2)
+  //  network_slot = atoi(*(_DWORD *)(v4 + 4)) & 0xFFFFFF;
+  player1_car = 0;
   player2_car = 1;
-  name_copy((int)player_names, &aHuman[1]);
-  v11 = name_copy((int)&player_names[9 * player2_car], aPlayer2);
+  name_copy(player_names[0], "HUMAN");
+  name_copy(player_names[player2_car], "PLAYER 2");
   textures_off = 0;
   frontend_on = -1;
-  claim_key_int((int)v11, (int)aPlayer2);
-  v12 = *v4;
+  //claim_key_int(v8, (int)aPlayer2);
+  //szDirectory = *(char **)v4;
   max_mem = 0;
-  setdirectory(v12);
-  v13 = 0;
+  //setdirectory(szDirectory);
+  iMemBlocksIdx2 = 0;
   do {
-    v14 = 4 * (__int16)v13++;
-    mem_blocks[v14] = 0;
-  } while ((__int16)v13 < 128);
+    iMemBlocksIdx = (int16)iMemBlocksIdx2++;
+    mem_blocks[iMemBlocksIdx].pBuf = 0;
+  } while ((int16)iMemBlocksIdx2 < 128);
   cheat_mode = 0;
   load_language_map();
   load_fatal_config();
   if ((textures_off & 0x2000) != 0) {
-    v9 = cheat_mode | 0x40;
+    uiCheatMode = cheat_mode | 0x40;
     cheat_mode |= 0x40u;
     textures_off ^= 0x2000u;
   }
   if ((textures_off & 0x4000) != 0) {
     false_starts = -1;
-    v10 = textures_off;
-    BYTE1(v10) = BYTE1(textures_off) ^ 0x40;
-    textures_off = v10;
+    
+    // BYTE1 is the second byte
+    textures_off ^= 0x00004000;
   } else {
-    v14 = 0;
     false_starts = 0;
   }
   findintrofiles();
   initmusic();
   tick_on = 0;
-  j_unlink(aReplaysReplayT);
-  v15 = readsoundconfig(v9);
-  loadcheatnames(v15, v14 * 4, 0, v10);
+  remove("../REPLAYS/REPLAY.TMP");
+  readsoundconfig(uiCheatMode);
+  loadcheatnames();
   cdxinit();
   GetFirstCDDrive();
-  nullsub_2();
+  ResetDrive();
   StopTrack();
   StopTrack();
   print_data = 0;
@@ -958,45 +966,43 @@ int main(int argc, const char **argv, const char **envp)
     if (machine_speed < 9000)
       textures_off |= 0x80000u;
     if (machine_speed < 5000)
-      textures_off |= (unsigned int)&loc_3FFFC + 4;
+      textures_off |= 0x00040000;
     if (machine_speed < 4600) {
-      v16 = textures_off;
-      BYTE1(v16) = BYTE1(textures_off) | 8;
-      textures_off = v16;
+      textures_off |= 0x00000800;
     }
     if (machine_speed < 4300)
       textures_off |= 8u;
     if (machine_speed < 4000)
       view_limit = 32;
     if (machine_speed < 3750) {
-      v17 = textures_off;
-      LOBYTE(v17) = textures_off | 0x20;
-      textures_off = v17;
+      textures_off |= 0x00000020;
     }
     if (machine_speed < 3500) {
-      v18 = textures_off;
-      LOBYTE(v18) = textures_off | 0x10;
-      textures_off = v18;
+      textures_off |= 0x00000010;
     }
-    if (machine_speed < 3250)
+    if (machine_speed < 3250) {
+      uiCheatMode = textures_off | 0x200;
       textures_off |= 0x200u;
+    }
     if (machine_speed < 3000)
       game_size = 48;
-    if (machine_speed < 3800)
+    if (machine_speed < 3800) {
+      textures_off = 0;
       allengines = 0;
+    }
     if (machine_speed < 2900)
       replay_record = 0;
     if (machine_speed < 2800)
       view_limit = 24;
   }
-  v19 = InitCarStructs();
-  init(v19);
-  v20 = 0;
+  InitCarStructs();
+  init();
+  v14 = 0;
   print_data = 0;
   tick_on = 0;
-  v21 = copy_screens();
+  //copy_screens(0, 0, uiTexturesOff, (_BYTE *)uiTexturesOff2);
   i = 0;
-  title_screens(v21, 0, 0);
+  //title_screens(0, 0, (_BYTE *)uiTexturesOff2, uiCheatMode);
   time_to_start = 0;
   replaytype = 2;
   start_race = 0;
@@ -1008,56 +1014,58 @@ int main(int argc, const char **argv, const char **envp)
   readptr = 0;
   winner_mode = 0;
   intro = -1;
-  restarted = play_game(TrackLoad);
+  play_game(TrackLoad, 0, 0);
   intro = 0;
   VIEWDIST = 270;
   do {
-    start_race = 0;
-    time_to_start = 0;
-    if (restart_net) {
-      restarted = restart_net_game();
-    } else {
-      while (!time_to_start)
-        restarted = select_screen(0);
-    }
-    restart_net = 0;
-    countdown = 144;
-    gosound = 3;
-    delayread = 0;
-    delaywrite = 6;
-    writeptr = 0;
-    readptr = 0;
-    if (!quit_game) {
+    //start_race = 0;
+    //time_to_start = 0;
+    //if (restart_net) {
+    //  restarted = restart_net_game(restarted);
+    //} else {
+    //  while (!time_to_start)
+    //    select_screen(0);
+    //}
+    //restart_net = 0;
+    //countdown = 144;
+    //v17 = 3;
+    //gosound = 3;
+    //delayread = 0;
+    //delaywrite = 6;
+    //writeptr = 0;
+    //readptr = 0;
+    /*if (!quit_game) {
       if (game_type < 3) {
-        title_screens(restarted, v20, i);
-        v24 = replaytype;
-        v20 = -1;
+        title_screens(v14, (_WORD *)i, (_BYTE *)0x90, 3u);
+        v18 = (void *)replaytype;
+        v14 = -1;
         if (replaytype == 2)
-          v20 = 0;
+          v14 = 0;
         if (intro)
-          v20 = 0;
+          v14 = 0;
         net_quit = 0;
         prev_track = TrackLoad;
-        restarted = play_game(TrackLoad);
+        play_game(TrackLoad, v14, replaytype);
         if (network_buggered) {
-          restarted = network_fucked(restarted, v20);
-          v20 = 0;
+          network_fucked(restarted, v14, (int)v18);
+          v14 = 0;
         }
         if (net_quit || network_buggered) {
-          v20 = 0;
+          v14 = 0;
           if (network_champ_on && (network_buggered != 666 || !restart_net)) {
             game_type = 0;
             network_champ_on = 0;
           }
           if (net_quit)
-            restarted = close_network(restarted, 0, v24);
+            restarted = close_network(restarted, 0, v18);
         }
         if (cd_error)
-          no_cd();
+          no_cd(restarted, v14, (int)v18, (_BYTE *)0x90);
         i = 270;
+        v19 = (_BYTE *)quit_game;
         VIEWDIST = 270;
         if (!quit_game) {
-          if (v20) {
+          if (v14) {
             restarted = game_type;
             if (game_type) {
               if ((unsigned int)game_type > 1) {
@@ -1065,56 +1073,65 @@ int main(int argc, const char **argv, const char **envp)
                   StoreResult();
                   for (i = 0; (__int16)i < numcars; ++i) {
                     if (human_control[(__int16)i]) {
-                      v20 = 308 * (__int16)i;
-                      if (Car_variable_31[v20] > 1)
-                        TimeTrials((__int16)i);
+                      v14 = 308 * (__int16)i;
+                      if (*((char *)&Car[0].byUnk31 + v14) > 1)
+                        TimeTrials((__int16)i, v14, i, 0);
                     }
                   }
-                  restarted = ShowLapRecords();
+                  ShowLapRecords((__int16)i, v14, i, 0);
                 }
                 goto LABEL_103;
               }
               finish_race();
               StoreResult();
+              v23 = carorder[0];
               if (human_control[carorder[0]] || (cheat_mode & 0x20) != 0) {
-                v20 = carorder[0] & 1;
-                if (winner_screen((unsigned __int8)Car_variable_22[308 * carorder[0]], v20))
-                  winner_race();
+                v14 = carorder[0] & 1;
+                v23 = winner_screen(Car[carorder[0]].byCarDesignIdx, v14, (_WORD *)0x10E);
+                if (v23)
+                  v23 = winner_race();
               }
-              ResultRoundUp();
-              RaceResult();
-              ChampionshipStandings();
-              if (competitors > 8 && (cheat_mode & 0x4000) == 0)
-                TeamStandings();
-              ShowLapRecords();
+              ResultRoundUp(v23, v14, 270, 0);
+              RaceResult(v24, v14, 270, 0);
+              ChampionshipStandings(v25, v14, 270, 0);
+              if (competitors[0] > 8) {
+                v17 = cheat_mode;
+                if ((cheat_mode & 0x4000) == 0)
+                  TeamStandings(v26, v14, 270, 0);
+              }
+              ShowLapRecords(v26, v14, 270, 0);
               ++Race;
               restarted = prev_track + 1;
               TrackLoad = prev_track + 1;
-              if (Race == 8 || (v20 = cheat_mode, (cheat_mode & 0x10) != 0)) {
-                restarted = ChampionshipOver();
+              if (Race == 8 || (v14 = cheat_mode, (cheat_mode & 0x10) != 0)) {
+                restarted = ChampionshipOver(restarted, v14, 270, 0);
                 goto LABEL_103;
               }
               i = cheat_mode;
               if ((cheat_mode & 0x80u) == 0)
                 goto LABEL_103;
             LABEL_83:
-              restarted = RollCredits(restarted, v20, i);
+              restarted = RollCredits((_WORD *)i, v19, v17);
               goto LABEL_103;
             }
             if (!gave_up) {
               finish_race();
               StoreResult();
+              v20 = carorder[0];
               if (human_control[carorder[0]] || (cheat_mode & 0x20) != 0) {
-                v20 = carorder[0] & 1;
-                if (winner_screen((unsigned __int8)Car_variable_22[308 * carorder[0]], v20))
-                  winner_race();
+                v14 = carorder[0] & 1;
+                v20 = winner_screen(Car[carorder[0]].byCarDesignIdx, v14, (_WORD *)0x10E);
+                if (v20)
+                  v20 = winner_race();
               }
-              ResultRoundUp();
-              RaceResult();
-              restarted = ShowLapRecords();
+              ResultRoundUp(v20, v14, 270, 0);
+              RaceResult(v21, v14, 270, 0);
+              ShowLapRecords(v22, v14, 270, 0);
             }
+            v19 = (_BYTE *)cheat_mode;
             if ((cheat_mode & 0x10) != 0)
-              restarted = ChampionshipOver();
+              restarted = ChampionshipOver(restarted, v14, 270, (_BYTE *)cheat_mode);
+            v17 = cheat_mode;
             if ((cheat_mode & 0x80) != 0)
               goto LABEL_83;
           LABEL_103:
@@ -1124,24 +1141,36 @@ int main(int argc, const char **argv, const char **envp)
           intro = 0;
         }
       } else if (game_type == 3) {
-        restarted = ChampionshipStandings();
-        if (competitors > 8) {
+        //ChampionshipStandings(restarted, v14, i, (_BYTE *)0x90);
+        if (competitors[0] > 8) {
           i = cheat_mode;
           if ((cheat_mode & 0x4000) == 0)
-            restarted = TeamStandings();
+            //TeamStandings(restarted, v14, cheat_mode, (_BYTE *)0x90);
         }
         dontrestart = -1;
       } else {
-        restarted = ShowLapRecords();
+        //ShowLapRecords(restarted, v14, i, (_BYTE *)0x90);
         dontrestart = -1;
       }
+    }*/
+
+
+    /***
+    * ADDED BY ROLLER
+    ***/
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+      if (e.type == SDL_EVENT_KEY_DOWN) {
+        quit_game = 1;
+      }
     }
+    /***
+    * END ROLLER CODE
+    ***/
+
   } while (!quit_game);
-  __asm { int     10h; -VIDEO - SET VIDEO MODE }
-  doexit();
-  return result;
-#endif
-*/
+  //__asm { int     10h; -VIDEO - SET VIDEO MODE }
+  //doexit(0, v14, (void *)i);
   return 0;
 }
 
