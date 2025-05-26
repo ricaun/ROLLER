@@ -4,6 +4,10 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern int restart_net;
+
+//-------------------------------------------------------------------------------------------------
+
 int winner_screen(int a1, char a2, void *a3);
 int StoreResult();
 void RaceResult(int a1, int a2, int a3, char *a4);

@@ -3,6 +3,7 @@
 //-------------------------------------------------------------------------------------------------
 
 int false_starts = -1;    //000A4AB8
+int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
 char player_names[16][9]; //0016FA10
 int non_competitors[16];  //0016FDE0

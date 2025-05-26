@@ -881,7 +881,7 @@ int main(int argc, const char **argv, const char **envp)
   int v14; // edx
   uint32 i; // ebx
   //int restarted; // eax
-  //uint32 v17; // edi
+  uint32 uiCheatMode2; // edi
   //void *v18; // ebx
   //uint8 *v19; // ecx
   //int v20; // eax
@@ -934,8 +934,6 @@ int main(int argc, const char **argv, const char **envp)
   }
   if ((textures_off & 0x4000) != 0) {
     false_starts = -1;
-    
-    // BYTE1 is the second byte
     textures_off ^= 0x00004000;
   } else {
     false_starts = 0;
@@ -1018,142 +1016,141 @@ int main(int argc, const char **argv, const char **envp)
   intro = 0;
   VIEWDIST = 270;
   do {
-    //start_race = 0;
-    //time_to_start = 0;
+    start_race = 0;
+    time_to_start = 0;
     //if (restart_net) {
     //  restarted = restart_net_game(restarted);
     //} else {
     //  while (!time_to_start)
     //    select_screen(0);
     //}
-    //restart_net = 0;
-    //countdown = 144;
-    //v17 = 3;
-    //gosound = 3;
-    //delayread = 0;
-    //delaywrite = 6;
-    //writeptr = 0;
-    //readptr = 0;
-    /*if (!quit_game) {
+    restart_net = 0;
+    countdown = 144;
+    uiCheatMode2 = 3;
+    gosound = 3;
+    delayread = 0;
+    delaywrite = 6;
+    writeptr = 0;
+    readptr = 0;
+    if (!quit_game) {
       if (game_type < 3) {
-        title_screens(v14, (_WORD *)i, (_BYTE *)0x90, 3u);
-        v18 = (void *)replaytype;
-        v14 = -1;
-        if (replaytype == 2)
-          v14 = 0;
-        if (intro)
-          v14 = 0;
-        net_quit = 0;
-        prev_track = TrackLoad;
-        play_game(TrackLoad, v14, replaytype);
-        if (network_buggered) {
-          network_fucked(restarted, v14, (int)v18);
-          v14 = 0;
-        }
-        if (net_quit || network_buggered) {
-          v14 = 0;
-          if (network_champ_on && (network_buggered != 666 || !restart_net)) {
-            game_type = 0;
-            network_champ_on = 0;
-          }
-          if (net_quit)
-            restarted = close_network(restarted, 0, v18);
-        }
-        if (cd_error)
-          no_cd(restarted, v14, (int)v18, (_BYTE *)0x90);
-        i = 270;
-        v19 = (_BYTE *)quit_game;
-        VIEWDIST = 270;
-        if (!quit_game) {
-          if (v14) {
-            restarted = game_type;
-            if (game_type) {
-              if ((unsigned int)game_type > 1) {
-                if (game_type == 2) {
-                  StoreResult();
-                  for (i = 0; (__int16)i < numcars; ++i) {
-                    if (human_control[(__int16)i]) {
-                      v14 = 308 * (__int16)i;
-                      if (*((char *)&Car[0].byUnk31 + v14) > 1)
-                        TimeTrials((__int16)i, v14, i, 0);
-                    }
-                  }
-                  ShowLapRecords((__int16)i, v14, i, 0);
-                }
-                goto LABEL_103;
-              }
-              finish_race();
-              StoreResult();
-              v23 = carorder[0];
-              if (human_control[carorder[0]] || (cheat_mode & 0x20) != 0) {
-                v14 = carorder[0] & 1;
-                v23 = winner_screen(Car[carorder[0]].byCarDesignIdx, v14, (_WORD *)0x10E);
-                if (v23)
-                  v23 = winner_race();
-              }
-              ResultRoundUp(v23, v14, 270, 0);
-              RaceResult(v24, v14, 270, 0);
-              ChampionshipStandings(v25, v14, 270, 0);
-              if (competitors[0] > 8) {
-                v17 = cheat_mode;
-                if ((cheat_mode & 0x4000) == 0)
-                  TeamStandings(v26, v14, 270, 0);
-              }
-              ShowLapRecords(v26, v14, 270, 0);
-              ++Race;
-              restarted = prev_track + 1;
-              TrackLoad = prev_track + 1;
-              if (Race == 8 || (v14 = cheat_mode, (cheat_mode & 0x10) != 0)) {
-                restarted = ChampionshipOver(restarted, v14, 270, 0);
-                goto LABEL_103;
-              }
-              i = cheat_mode;
-              if ((cheat_mode & 0x80u) == 0)
-                goto LABEL_103;
-            LABEL_83:
-              restarted = RollCredits((_WORD *)i, v19, v17);
-              goto LABEL_103;
-            }
-            if (!gave_up) {
-              finish_race();
-              StoreResult();
-              v20 = carorder[0];
-              if (human_control[carorder[0]] || (cheat_mode & 0x20) != 0) {
-                v14 = carorder[0] & 1;
-                v20 = winner_screen(Car[carorder[0]].byCarDesignIdx, v14, (_WORD *)0x10E);
-                if (v20)
-                  v20 = winner_race();
-              }
-              ResultRoundUp(v20, v14, 270, 0);
-              RaceResult(v21, v14, 270, 0);
-              ShowLapRecords(v22, v14, 270, 0);
-            }
-            v19 = (_BYTE *)cheat_mode;
-            if ((cheat_mode & 0x10) != 0)
-              restarted = ChampionshipOver(restarted, v14, 270, (_BYTE *)cheat_mode);
-            v17 = cheat_mode;
-            if ((cheat_mode & 0x80) != 0)
-              goto LABEL_83;
-          LABEL_103:
-            if (player_type == 1)
-              player_type = 0;
-          }
-          intro = 0;
-        }
+    //    title_screens(v14, (_WORD *)i, (_BYTE *)0x90, 3u);
+    //    v18 = (void *)replaytype;
+    //    v14 = -1;
+    //    if (replaytype == 2)
+    //      v14 = 0;
+    //    if (intro)
+    //      v14 = 0;
+    //    net_quit = 0;
+    //    prev_track = TrackLoad;
+    //    play_game(TrackLoad, v14, replaytype);
+    //    if (network_buggered) {
+    //      network_fucked(restarted, v14, (int)v18);
+    //      v14 = 0;
+    //    }
+    //    if (net_quit || network_buggered) {
+    //      v14 = 0;
+    //      if (network_champ_on && (network_buggered != 666 || !restart_net)) {
+    //        game_type = 0;
+    //        network_champ_on = 0;
+    //      }
+    //      if (net_quit)
+    //        restarted = close_network(restarted, 0, v18);
+    //    }
+    //    if (cd_error)
+    //      no_cd(restarted, v14, (int)v18, (_BYTE *)0x90);
+    //    i = 270;
+    //    v19 = (_BYTE *)quit_game;
+    //    VIEWDIST = 270;
+    //    if (!quit_game) {
+    //      if (v14) {
+    //        restarted = game_type;
+    //        if (game_type) {
+    //          if ((unsigned int)game_type > 1) {
+    //            if (game_type == 2) {
+    //              StoreResult();
+    //              for (i = 0; (__int16)i < numcars; ++i) {
+    //                if (human_control[(__int16)i]) {
+    //                  v14 = 308 * (__int16)i;
+    //                  if (*((char *)&Car[0].byUnk31 + v14) > 1)
+    //                    TimeTrials((__int16)i, v14, i, 0);
+    //                }
+    //              }
+    //              ShowLapRecords((__int16)i, v14, i, 0);
+    //            }
+    //            goto LABEL_103;
+    //          }
+    //          finish_race();
+    //          StoreResult();
+    //          v23 = carorder[0];
+    //          if (human_control[carorder[0]] || (cheat_mode & 0x20) != 0) {
+    //            v14 = carorder[0] & 1;
+    //            v23 = winner_screen(Car[carorder[0]].byCarDesignIdx, v14, (_WORD *)0x10E);
+    //            if (v23)
+    //              v23 = winner_race();
+    //          }
+    //          ResultRoundUp(v23, v14, 270, 0);
+    //          RaceResult(v24, v14, 270, 0);
+    //          ChampionshipStandings(v25, v14, 270, 0);
+    //          if (competitors[0] > 8) {
+    //            uiCheatMode2 = cheat_mode;
+    //            if ((cheat_mode & 0x4000) == 0)
+    //              TeamStandings(v26, v14, 270, 0);
+    //          }
+    //          ShowLapRecords(v26, v14, 270, 0);
+    //          ++Race;
+    //          restarted = prev_track + 1;
+    //          TrackLoad = prev_track + 1;
+    //          if (Race == 8 || (v14 = cheat_mode, (cheat_mode & 0x10) != 0)) {
+    //            restarted = ChampionshipOver(restarted, v14, 270, 0);
+    //            goto LABEL_103;
+    //          }
+    //          i = cheat_mode;
+    //          if ((cheat_mode & 0x80u) == 0)
+    //            goto LABEL_103;
+    //        LABEL_83:
+    //          restarted = RollCredits((_WORD *)i, v19, uiCheatMode2);
+    //          goto LABEL_103;
+    //        }
+    //        if (!gave_up) {
+    //          finish_race();
+    //          StoreResult();
+    //          v20 = carorder[0];
+    //          if (human_control[carorder[0]] || (cheat_mode & 0x20) != 0) {
+    //            v14 = carorder[0] & 1;
+    //            v20 = winner_screen(Car[carorder[0]].byCarDesignIdx, v14, (_WORD *)0x10E);
+    //            if (v20)
+    //              v20 = winner_race();
+    //          }
+    //          ResultRoundUp(v20, v14, 270, 0);
+    //          RaceResult(v21, v14, 270, 0);
+    //          ShowLapRecords(v22, v14, 270, 0);
+    //        }
+    //        v19 = (_BYTE *)cheat_mode;
+    //        if ((cheat_mode & 0x10) != 0)
+    //          restarted = ChampionshipOver(restarted, v14, 270, (_BYTE *)cheat_mode);
+    //        uiCheatMode2 = cheat_mode;
+    //        if ((cheat_mode & 0x80) != 0)
+    //          goto LABEL_83;
+    //      LABEL_103:
+    //        if (player_type == 1)
+    //          player_type = 0;
+    //      }
+    //      intro = 0;
+    //    }
       } else if (game_type == 3) {
-        //ChampionshipStandings(restarted, v14, i, (_BYTE *)0x90);
-        if (competitors[0] > 8) {
-          i = cheat_mode;
-          if ((cheat_mode & 0x4000) == 0)
-            //TeamStandings(restarted, v14, cheat_mode, (_BYTE *)0x90);
-        }
-        dontrestart = -1;
-      } else {
-        //ShowLapRecords(restarted, v14, i, (_BYTE *)0x90);
-        dontrestart = -1;
+    //    //ChampionshipStandings(restarted, v14, i, (_BYTE *)0x90);
+    //    if (competitors[0] > 8) {
+    //      i = cheat_mode;
+    //      if ((cheat_mode & 0x4000) == 0)
+    //        //TeamStandings(restarted, v14, cheat_mode, (_BYTE *)0x90);
+    //    }
+    //    dontrestart = -1;
+    //  } else {
+    //    //ShowLapRecords(restarted, v14, i, (_BYTE *)0x90);
+    //    dontrestart = -1;
       }
-    }*/
-
+    }
 
     /***
     * ADDED BY ROLLER

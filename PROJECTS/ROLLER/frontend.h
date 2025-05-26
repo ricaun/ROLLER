@@ -5,6 +5,7 @@
 //-------------------------------------------------------------------------------------------------
 
 extern int false_starts;
+extern int game_type;
 extern int replay_record;
 extern char player_names[16][9];
 extern int non_competitors[];
