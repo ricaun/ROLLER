@@ -22,17 +22,21 @@ int allengines = -1;        //000A46A8
 int palette_brightness = 32;//000A46B0
 int writeptr = 0;           //000A476C
 int readptr = 0;            //000A4770
+int SoundCard = 0;          //000A4774
+int MusicVolume = 108;      //000A4790
 int MusicCard = 0;          //000A4794
 int MusicCD = 0;            //000A4798
 int MusicPort = 0;          //000A479C
 int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 uint8 unmangleinbuf[1024];  //00149EF0
+int TrackMap[32];           //00163038
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
+int frames;                 //0016F694
 DPMI_RMI RMI;               //0016F838
 int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
@@ -265,45 +269,51 @@ void resetpal()
 
 //-------------------------------------------------------------------------------------------------
 
-int Initialise_SOS()
+void Initialise_SOS()
 {
-  return 0; /*
-  int v0; // eax
-  int v1; // eax
-
-  v0 = sosTIMERInitSystem(0xFF00u, 0);
+  //sosTIMERInitSystem(0xFF00, 0);                // 0xFF00 maybe a special case for a slow rate timer?
   if (MusicCD)
-    v0 = SetAudioVolume(MusicVolume);
+    SetAudioVolume(MusicVolume);
   if (MusicCard) {
     if (MusicCard == 40970)
-      initgus(v0);
-    printf(aInitialisingMi);
-    fflush(&__iob_variable_1);
-    _STOSD(&TrackMap, 255, 0, 32);
-    sosMIDIInitSystem(0, 0);
-    MIDIInitDriver_variable_1 = 0;
-    MIDIHardware = MusicPort;
-    MIDIInitDriver_variable_2 = 0;
-    if (sosMIDIInitDriver((char)&MIDIInitDriver, (unsigned __int16)__DS__, (char)&MIDIHandle, (unsigned __int16)__DS__)) {
-      MusicCard = 0;
-      sosMIDIUnInitSystem();
-      printf(aFailed);
-    } else {
-      v1 = printf(&sound_c_variable_3);
-      devicespecificinit(v1);
-      sosMIDISetMasterVolume((unsigned __int8)MusicVolume);
-    }
+      initgus();
+    printf("Initialising MIDI device %4X...", MusicCard);
+    fflush(stdout);
+    memset(TrackMap, 255, 0x20 * sizeof(unsigned int));
+    //sosMIDIInitSystem(0, 0);
+    //MIDIInitDriver_variable_1 = 0;
+    //MIDIHardware = MusicPort;
+    //MIDIInitDriver_variable_2 = 0;
+    //if (sosMIDIInitDriver(
+    //  MusicCard,
+    //  0,
+    //  (unsigned int)&MIDIHardware,
+    //  __DS__,
+    //  (int)&MIDIInitDriver,
+    //  (unsigned __int16)__DS__,
+    //  (unsigned int)&MIDIHandle,
+    //  (unsigned __int16)__DS__)) {
+    //  MusicCard = 0;
+    //  sosMIDIUnInitSystem();
+    //  printf("Failed\n");
+    //} else {
+    //  printf("OK\n");
+    //  devicespecificinit();
+    //  sosMIDISetMasterVolume(MusicVolume);
+    //}
   }
   if (SoundCard) {
-    printf(aInitialisingDi);
-    fflush(&__iob_variable_1);
-    sosDIGIInitSystem(0, 0, 0);
-    printf(&sound_c_variable_3);
+    printf("Initialising DIGI device %4X...", SoundCard);
+    fflush(stdout);
+    //sosDIGIInitSystem(0, 0);
+    printf("OK\n");
   }
   select8bitdriver();
   ticks = 0;
   frames = 0;
-  return claim_ticktimer(36);*/
+
+  // start 36Hz timer that calls tickhandler
+  claim_ticktimer(36u, 0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1172,11 +1182,18 @@ int tickhandler(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void claim_ticktimer()
-{/*
-  if (sosTIMERRegisterEvent((char)&tickhandle, (unsigned __int16)__DS__)) {
-    printf(aUnableToSetTim);
-    doexit();
+void claim_ticktimer(unsigned int uiRateHz, int a2)
+{
+  /*
+  if (sosTIMERRegisterEvent(
+    uiRateHz,
+    a2,
+    (int)tickhandler,
+    __CS__,
+    (unsigned int)&tickhandle,
+    (unsigned __int16)__DS__)) {
+    printf("Unable to set timer\n");
+    doexit(1, a2, tickhandler);
   }*/
 }
 
@@ -3820,21 +3837,20 @@ int loadasample(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int select8bitdriver(int result, int a2)
+void select8bitdriver()
 {
-  return 0; /*
-  int v2; // eax
+  /*
+  int v0; // edx
 
   if (SoundCard) {
     if (drivertype == 1) {
-      sosTIMERRemoveEvent(TimerEventHandle);
-      a2 = 1;
-      result = sosDIGIUnInitDriver(DIGIHandle, 1, 1);
+      sosTIMERRemoveEvent(TimerEventHandle, v0);
+      sosDIGIUnInitDriver(DIGIHandle, 1, 1);
     }
-    result = resetsamplearray(result, a2);
+    resetsamplearray();
     if (drivertype) {
       drivertype = 0;
-      memset(&InitDriver, 0, 76);
+      memset(&InitDriver, 0, 0x4Cu);
       InitDriver = 4096;
       InitDriver_variable_1 = -1;
       InitDriver_variable_2 = 11025;
@@ -3842,17 +3858,29 @@ int select8bitdriver(int result, int a2)
       Hardware_variable_1 = SoundIRQ;
       Hardware_variable_2 = SoundDMA;
       InitDriver_variable_5 = 0;
-      v2 = sosDIGIInitDriver((char)&InitDriver, (unsigned __int16)__DS__, (char)&DIGIHandle, (unsigned __int16)__DS__);
-      if (v2) {
-        result = sosDIGIUnInitSystem(v2);
+      if (sosDIGIInitDriver(
+        SoundCard,
+        0,
+        (unsigned int)&Hardware,
+        __DS__,
+        (unsigned int)&InitDriver,
+        (unsigned __int16)__DS__,
+        (unsigned int)&DIGIHandle,
+        (unsigned __int16)__DS__)) {
+        sosDIGIUnInitSystem();
         SoundCard = 0;
       } else {
-        sosTIMERRegisterEvent((char)&TimerEventHandle, (unsigned __int16)__DS__);
-        return sosDIGISetMasterVolume(DIGIHandle, 0x7FFF);
+        sosTIMERRegisterEvent(
+          0x12Cu,
+          0x7FFF,
+          InitDriver_variable_3,
+          InitDriver_variable_4,
+          (unsigned int)&TimerEventHandle,
+          (unsigned __int16)__DS__);
+        sosDIGISetMasterVolume(DIGIHandle, 0x7FFFu);
       }
     }
-  }
-  return result;*/
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -65,6 +65,7 @@ extern float ptan[];
 extern float tcos[];
 extern uint8 blank_line[];
 extern tMemBlock mem_blocks[];
+extern int ticks;
 extern float tatn[];
 extern uint32 textures_off;
 extern int tex_count;

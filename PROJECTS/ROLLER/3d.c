@@ -36,6 +36,7 @@ float ptan[16384];         //001110F0
 float tcos[16384];         //00121128
 uint8 blank_line[640];     //001312A8
 tMemBlock mem_blocks[128]; //0013E058
+int ticks;                 //0013E92C
 float tatn[1025];          //0013E95C
 uint32 textures_off;       //0013F960
 int tex_count;             //0013F964
@@ -951,6 +952,10 @@ int main(int argc, const char **argv, const char **envp)
   StopTrack();
   print_data = 0;
   TrackSelect = 0;
+
+  // this initializes the timer system and calls
+  // claim_ticktimer which sets up a callback to
+  // increment ticks
   Initialise_SOS();
   check_machine_speed();
   if (fatal_ini_loaded) {
