@@ -4,6 +4,7 @@
 #include "3d.h"
 #include "cdx.h"
 #include <memory.h>
+#include <SDL3/SDL.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
@@ -37,12 +38,29 @@ int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
 int frames;                 //0016F694
+uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
 int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
 int delaywrite;             //0016F8C8
 int delayread;              //0016F8CC
 
+//-------------------------------------------------------------------------------------------------
+/***
+* ADDED BY ROLLER
+***/
+//-------------------------------------------------------------------------------------------------
+
+uint32 SDLTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+{
+  tickhandler(0, 0, 0, 0);
+  return interval;
+}
+
+//-------------------------------------------------------------------------------------------------
+/***
+* END ROLLER CODE
+***/
 //-------------------------------------------------------------------------------------------------
 
 void realmode(uint8 byRealModeInterrupt)
@@ -1184,6 +1202,14 @@ int tickhandler(int a1, int a2, int a3, int a4)
 
 void claim_ticktimer(unsigned int uiRateHz, int a2)
 {
+  /***
+  * ADDED BY ROLLER
+  ***/
+  tickhandle = SDL_AddTimer(uiRateHz, SDLTimerCallback, NULL); //may as well re-use tickhandle, it is also a uint32
+  /***
+  * END ROLLER CODE
+  ***/
+
   /*
   if (sosTIMERRegisterEvent(
     uiRateHz,
@@ -1199,34 +1225,44 @@ void claim_ticktimer(unsigned int uiRateHz, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int release_ticktimer()
+void release_ticktimer()
 {
-  return 0; /*
-  return sosTIMERRemoveEvent(tickhandle);*/
+  /***
+  * ADDED BY ROLLER
+  ***/
+  SDL_RemoveTimer(tickhandle); //may as well re-use tickhandle, it is also a uint32
+  /***
+  * END ROLLER CODE
+  ***/
+
+  //sosTIMERRemoveEvent(tickhandle);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int Uninitialise_SOS()
+void Uninitialise_SOS()
 {
-  return 0; /*
-  int result; // eax
-  int inited; // eax
-  int v2; // eax
+  /***
+  * ADDED BY ROLLER
+  ***/
+  SDL_RemoveTimer(tickhandle); //may as well re-use tickhandle, it is also a uint32
+  /***
+  * END ROLLER CODE
+  ***/
 
+  /*
   sosTIMERRemoveEvent(tickhandle);
   sosTIMERRemoveEvent(TimerEventHandle);
-  result = sosTIMERUnInitSystem(0);
+  sosTIMERUnInitSystem(0);
   if (SoundCard) {
-    inited = sosDIGIUnInitDriver(DIGIHandle, 1, 1);
-    result = sosDIGIUnInitSystem(inited);
+    sosDIGIUnInitDriver(DIGIHandle, 1, 1);
+    sosDIGIUnInitSystem();
   }
   if (MusicCard) {
-    devicespecificuninit(result);
-    v2 = sosMIDIUnInitDriver(MIDIHandle, 1);
-    return sosMIDIUnInitSystem(v2);
-  }
-  return result;*/
+    devicespecificuninit();
+    sosMIDIUnInitDriver(MIDIHandle, 1);
+    sosMIDIUnInitSystem();
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
