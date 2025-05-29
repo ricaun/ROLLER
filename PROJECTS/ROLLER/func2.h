@@ -30,10 +30,10 @@ void key_handler(
         int a5,
         int a6,
         int a7);
-int claim_key_int(int a1, int a2);
+void claim_key_int();
 int fatkbhit();
 int fatgetch();
-int release_key_int();
+void release_key_int();
 int clear_border(int a1, int a2, int a3, int a4);
 int DisplayFree();
 int setdirectory(char *a1);

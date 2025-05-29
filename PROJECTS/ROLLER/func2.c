@@ -1435,14 +1435,10 @@ void key_handler(
 
 //-------------------------------------------------------------------------------------------------
 
-int claim_key_int(int a1, int a2)
+void claim_key_int()
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  prev_int_9 = dos_getvect(9, a2, key_handler);
-  prev_int_9_variable_1 = a2;
-  return dos_setvect(9);*/
+  //_prev_int_9 = dos_getvect(9);        // Save current INT 9 handler
+  //dos_setvect(9, key_handler_);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1482,11 +1478,9 @@ int fatgetch()
 
 //-------------------------------------------------------------------------------------------------
 
-int release_key_int()
+void release_key_int()
 {
-  return 0;
-  /*
-  return dos_setvect(9);*/
+  //dos_setvect(9, _prev_int_9);
 }
 
 //-------------------------------------------------------------------------------------------------
