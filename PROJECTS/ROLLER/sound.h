@@ -4,6 +4,7 @@
 #include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #ifdef IS_WINDOWS
 #include <Windows.h>
 #endif
@@ -46,10 +47,10 @@ extern int delayread;
 //-------------------------------------------------------------------------------------------------
 
 void realmode(uint8 byRealModeInterrupt);
-int loadDOS(int a1, void *a2, int *a3);
+bool loadDOS(const char *szFilename, void **out_buffer);
 int claimDOS(int a1, void *a2);
 int releaseDOS(int16 a1, int a2, int a3, int a4);
-int setpal(int a1, int a2, void *a3, void *a4);
+bool setpal(const char *szFilename);
 void blankpal();
 void resetpal();
 void Initialise_SOS();

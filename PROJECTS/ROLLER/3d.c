@@ -33,6 +33,7 @@ int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
 tData localdata[500];       //000BEA10
 tGroundPt GroundPt[500];    //000CE410
+tColor palette[256];        //00100DD0
 float tsin[16384];          //001010F0
 float ptan[16384];          //001110F0
 float tcos[16384];          //00121128
@@ -878,7 +879,7 @@ int main(int argc, const char **argv, const char **envp)
   //int v5; // ecx
   uint32 uiCheatMode; // edi
   //int v8; // eax
-  //char *szDirectory; // eax
+  char *szDirectory; // eax
   int iMemBlocksIdx2; // eax
   int iMemBlocksIdx; // edx
   int v14; // edx
@@ -910,18 +911,18 @@ int main(int argc, const char **argv, const char **envp)
   uiCheatMode = 0;
   //harderr((int)criticalhandler, __CS__);
   network_slot = 0;
-  //if (v5 == 2)
-  //  network_slot = atoi(*(_DWORD *)(v4 + 4)) & 0xFFFFFF;
+  if (argc == 2)
+    network_slot = atoi(argv[1]) & 0xFFFFFF;
   player1_car = 0;
   player2_car = 1;
   name_copy(player_names[0], "HUMAN");
   name_copy(player_names[player2_car], "PLAYER 2");
   textures_off = 0;
   frontend_on = -1;
-  //claim_key_int(v8, (int)aPlayer2);
-  //szDirectory = *(char **)v4;
+  claim_key_int();
+  szDirectory = (char *)*argv;
   max_mem = 0;
-  //setdirectory(szDirectory);
+  setdirectory(szDirectory);
   iMemBlocksIdx2 = 0;
   do {
     iMemBlocksIdx = (int16)iMemBlocksIdx2++;

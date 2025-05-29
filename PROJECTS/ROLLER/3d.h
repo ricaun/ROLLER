@@ -48,6 +48,15 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint8 byR;
+  uint8 byB;
+  uint8 byG;
+} tColor;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int exiting;
 extern int game_size;
 extern int svga_possible;
@@ -60,15 +69,16 @@ extern int network_on;
 extern void *scrbuf;
 extern int firstrun;
 extern int language;
-extern tData localdata[];
-extern tGroundPt GroundPt[];
-extern float tsin[];
-extern float ptan[];
-extern float tcos[];
-extern uint8 blank_line[];
-extern tMemBlock mem_blocks[];
+extern tData localdata[500];
+extern tGroundPt GroundPt[500];
+extern tColor palette[256];
+extern float tsin[16384];
+extern float ptan[16384];
+extern float tcos[16384];
+extern uint8 blank_line[640];
+extern tMemBlock mem_blocks[128];
 extern int ticks;
-extern float tatn[];
+extern float tatn[1025];
 extern uint32 textures_off;
 extern int tex_count;
 extern int scr_size;

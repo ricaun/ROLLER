@@ -21,6 +21,7 @@ int musicon = -1;           //000A46A0
 int soundon = -1;           //000A46A4
 int allengines = -1;        //000A46A8
 int palette_brightness = 32;//000A46B0
+void *pal_selector = (void *)-1; //000A46B4
 int writeptr = 0;           //000A476C
 int readptr = 0;            //000A4770
 int SoundCard = 0;          //000A4774
@@ -38,6 +39,7 @@ uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
+void *pal_addr;             //0016F86C
 int frames;                 //0016F694
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
@@ -90,40 +92,84 @@ void realmode(uint8 byRealModeInterrupt)
 
 //-------------------------------------------------------------------------------------------------
 
-int loadDOS(int a1, void *a2, int *a3)
+bool loadDOS(const char *szFilename, void **out_buffer)
 {
-  return 0; /*
-  int v4; // ecx
-  __int64 v5; // rax
-  int v6; // esi
-  int v7; // edi
-  int v9; // [esp+0h] [ebp-38h] BYREF
-  __int16 v10; // [esp+4h] [ebp-34h]
-  unsigned __int16 v11; // [esp+Ch] [ebp-2Ch]
-  int v12; // [esp+18h] [ebp-20h]
-  _BYTE v13[28]; // [esp+1Ch] [ebp-1Ch] BYREF
-
-  v4 = 0;
-  v5 = open(a1, 512);
-  v6 = v5;
-  if ((_DWORD)v5 != -1) {
-    v7 = filelength(v5, HIDWORD(v5), a3);
-    *a3 = v7;
-    memset(v13, 0, 12);
-    v10 = ((v7 - (__CFSHL__(v7 >> 31, 4) + 16 * (v7 >> 31))) >> 4) + 1;
-    LOWORD(v9) = 256;
-    int386x(49, (int)&v9, (int)&v9, (int)v13);
-    if (v12) {
-      *a2 = -1;
-      return 0;
-    } else {
-      v4 = 16 * (unsigned __int16)v9;
-      *a2 = v11;
-      read(v6, v4, v7);
-      close(v6, v4);
-    }
+  FILE *file = fopen(szFilename, "rb");
+  if (!file) {
+    *out_buffer = NULL;
+    return false;
   }
-  return v4;*/
+
+  // Get file size
+  fseek(file, 0, SEEK_END);
+  long iFileSize = ftell(file);
+  rewind(file);
+
+  if (iFileSize <= 0) {
+    fclose(file);
+    *out_buffer = NULL;
+    return false;
+  }
+
+  // Allocate memory
+  void *pBuffer = malloc(iFileSize);
+  if (!pBuffer) {
+    fclose(file);
+    *out_buffer = NULL;
+    return false;
+  }
+
+  // Read file into buffer
+  int iReadBytes = (int)fread(pBuffer, 1, iFileSize, file);
+  fclose(file);
+
+  if (iReadBytes != iFileSize) {
+    free(pBuffer);
+    *out_buffer = NULL;
+    return false;
+  }
+
+  *out_buffer = pBuffer;
+  return true;
+  /*
+  union REGS regs;
+  struct SREGS sregs;
+
+  int handle = open_(szFilename, 0x200); // read-only
+  if (handle == -1) {
+    *out_segment = (void *)-1;
+    return false;
+  }
+
+  long file_size = filelength_(handle);
+  if (file_size <= 0) {
+    close_(handle);
+    *out_segment = (void *)-1;
+    return false;
+  }
+
+  // Allocate a DOS memory block using int 31h AX=0100h
+  unsigned short paragraphs = (file_size + 15) / 16; // round up to paragraphs
+  memset(&sregs, 0, sizeof(sregs));
+  regs.w.ax = 0x0100;
+  regs.w.bx = paragraphs;
+  int386x(0x31, &regs, &regs, &sregs);
+
+  if (regs.x.cflag || regs.w.ax == 0) {
+    close_(handle);
+    *out_segment = (void *)-1;
+    return false;
+  }
+
+  unsigned short seg = regs.w.ax;
+  *out_segment = (void *)(uintptr_t)seg;
+
+  // Convert segment:offset to linear address and read into it
+  void *dst = (void *)((uintptr_t)seg << 4);
+  read_(handle, dst, (unsigned int)file_size);
+  close_(handle);
+
+  return true;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -172,57 +218,57 @@ int releaseDOS(int16 a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int setpal(int a1, int a2, void *a3, void *a4)
+bool setpal(const char *szFilename)
 {
-  return 0; /*
-  int v4; // esi
-  _WORD *v5; // edx
-  __int16 v6; // cx
-  int DOS; // eax
-  unsigned __int8 *v8; // ebx
-  int v9; // eax
-  int result; // eax
-  _WORD v11[14]; // [esp+0h] [ebp-40h] BYREF
-  _BYTE v12[12]; // [esp+1Ch] [ebp-24h] BYREF
-  int v13[6]; // [esp+28h] [ebp-18h] BYREF
+  void *pFileData = NULL;
 
-  v13[4] = (int)a4;
-  v4 = a1;
-  v5 = (_WORD *)pal_selector;
-  if (pal_selector >= 0) {
-    v6 = pal_selector;
-    memset(v12, 0, sizeof(v12));
-    a3 = v11;
-    v11[6] = v6;
-    a4 = v12;
-    v11[0] = 257;
-    v5 = v11;
-    a1 = int386x(49, (int)v11, (int)v11, (int)v12);
-    pal_selector = -1;
+  // Free old palette memory, if it was set
+  if ((int64)pal_selector >= 0 && pal_addr) {
+    free(pal_addr);
+    pal_addr = NULL;
+    pal_selector = (void *)-1;
   }
-  blankpal(a1, (int)v5, (int)a3, (int)a4);
-  DOS = loadDOS(v4, &pal_selector, v13);
-  v8 = (unsigned __int8 *)DOS;
-  if (DOS)
-    pal_addr = DOS;
-  qmemcpy(palette, (const void *)pal_addr, 0x300u);
-  if ((cheat_mode & 8) != 0) {
-    v13[0] = 0;
-    do {
-      v9 = (v8[2] + v8[1] + *v8) / 3;
-      palette[3 * v13[0]] = v9;
-      *v8 = v9;
-      palette_variable_1[3 * v13[0]] = v9;
-      v8[1] = v9;
-      palette_variable_2[3 * v13[0]] = v9;
-      v8[2] = v9;
-      v8 += 3;
-      ++v13[0];
-    } while (v13[0] < 256);
+  /*if ( (int)pal_selector >= 0 )
+  {
+    v4 = (unsigned __int16)pal_selector;
+    memset(&sregs, 0, sizeof(sregs));
+    regs.w.dx = v4;
+    regs.w.ax = 257;
+    int386x(0x31, &regs, &regs, &sregs);
+    pal_selector = (void *)-1;
+  }*/
+
+  // Load palette file into memory
+  if (!loadDOS(szFilename, &pFileData)) {
+    fprintf(stderr, "Failed to load palette file: %s\n", szFilename);
+    return false;
   }
-  result = 0;
+
+  // Assign palette globals
+  pal_addr = pFileData;
+  pal_selector = pFileData; // For compatibility
+
+  uint8 *pRaw = (uint8 *)pFileData;
+
+  // Copy RGB triplets into the structured palette array
+  for (int i = 0; i < 256; ++i) {
+    palette[i].byR = pRaw[i * 3 + 0];
+    palette[i].byB = pRaw[i * 3 + 1];
+    palette[i].byG = pRaw[i * 3 + 2];
+  }
+
+  // If cheat mode flag is set, apply grayscale filter
+  if (cheat_mode & 0x08) {
+    for (int i = 0; i < 256; ++i) {
+      uint8 byAvg = (palette[i].byR + palette[i].byB + palette[i].byG) / 3;
+      palette[i].byR = byAvg;
+      palette[i].byB = byAvg;
+      palette[i].byG = byAvg;
+    }
+  }
+
   palette_brightness = 0;
-  return result;*/
+  return true;
 }
 
 //-------------------------------------------------------------------------------------------------
