@@ -105,7 +105,7 @@ int stopmusic(int a1, int a2);
 int load_language_map();
 int initmusic();
 void fade_palette(int a1, int a2, int j, int a4);
-int set_palette(int result);
+void set_palette(iBrightness);
 int check_joystick_usage();
 char convertname(char *a1);
 char *decode(char *result, int a2, int a3, int a4);

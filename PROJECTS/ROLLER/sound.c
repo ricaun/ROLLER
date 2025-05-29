@@ -39,7 +39,7 @@ uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
-void *pal_addr;             //0016F86C
+tColor *pal_addr;           //0016F86C
 int frames;                 //0016F694
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
@@ -320,8 +320,26 @@ void blankpal()
 
 //-------------------------------------------------------------------------------------------------
 
-void resetpal()
+void resetpal(/*SDL_Surface *surface*/)
 {
+  /*
+    if (!surface || !pal_addr || SDL_GetPixelFormatSurfaceFormat(surface) != SDL_PIXELFORMAT_INDEX8)
+        return;
+
+    SDL_Color colors[256];
+    for (int i = 0; i < 256; ++i) {
+        colors[i].r = pal_addr[i].byR;
+        colors[i].g = pal_addr[i].byG;
+        colors[i].b = pal_addr[i].byB;
+        colors[i].a = 255;
+    }
+
+    SDL_Palette* palette = SDL_SurfaceGetPalette(surface);
+    if (palette)
+        SDL_SetPaletteColors(palette, colors, 0, 256);*/
+  // Clean up heap-allocated palette memory
+  free(pal_addr);
+  pal_addr = NULL;
   /*
   RMI.eax = 4114;
   RMI.ebx = 0;
@@ -3664,32 +3682,32 @@ void fade_palette(int a1, int a2, int j, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int set_palette(int result)
+void set_palette(int iBrightness)
 {
-  return 0; /*
-  int v1; // ebp
-  int i; // ebx
-  int v3; // edx
-  int j; // ebx
-  unsigned __int8 v5; // al
+  if (iBrightness == palette_brightness)
+    return;
 
-  v1 = result;
-  if (result != palette_brightness) {
-    qmemcpy((void *)pal_addr, palette, 0x300u);
-    for (i = 0; i < 768; *(_BYTE *)(i + pal_addr - 1) = v3 >> 5) {
-      v3 = result * *(unsigned __int8 *)(i + pal_addr);
-      ++i;
-    }
-    __outbyte(0x3C8u, 0);
-    for (j = 0; j < 768; ++j) {
-      v5 = *(_BYTE *)(j + pal_addr);
-      __outbyte(0x3C9u, v5);
-    }
-    result = 768;
-    qmemcpy((void *)pal_addr, palette, 0x300u);
-    palette_brightness = v1;
+  if (iBrightness < 0) iBrightness = 0;
+  if (iBrightness > 31) iBrightness = 31;
+
+  for (int i = 0; i < 256; ++i) {
+    pal_addr[i].byR = (palette[i].byR * iBrightness) / 31;
+    pal_addr[i].byG = (palette[i].byG * iBrightness) / 31;
+    pal_addr[i].byB = (palette[i].byB * iBrightness) / 31;
   }
-  return result;*/
+
+  // Update the SDL palette
+  //SDL_Color sdl_colors[256];
+  //
+  //for (int i = 0; i < 256; ++i) {
+  //  sdl_colors[i].r = pal_addr[i].r;
+  //  sdl_colors[i].g = pal_addr[i].g;
+  //  sdl_colors[i].b = pal_addr[i].b;
+  //  sdl_colors[i].a = 255;
+  //}
+  //SDL_SetPaletteColors(sdl_palette, sdl_colors, 0, 256);
+
+  palette_brightness = iBrightness;
 }
 
 //-------------------------------------------------------------------------------------------------
