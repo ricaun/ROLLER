@@ -1,9 +1,23 @@
 #ifndef _ROLLER_NETWORK_H
 #define _ROLLER_NETWORK_H
 //-------------------------------------------------------------------------------------------------
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
+
+extern int net_started;
+extern int net_players[16];
+extern int16 player_checks[8192];
+extern int player_ready[16];
+extern int received_seed;
+extern int frame_number;
+extern int broadcast_mode;
+extern int active_nodes;
+extern int16 wConsoleNode;
+
+//-------------------------------------------------------------------------------------------------
 
 int Initialise_Network(int a1);
-int close_network(int a1, int a2, int a3);
+void close_network();
 int send_net_error();
 int send_game_error(int result);
 int send_network_sync_error();
@@ -33,7 +47,7 @@ void SendAMessage(int a1, int a2, int a3, int a4);
 void BroadcastNews(int a1, int a2, int a3, int a4);
 int remove_messages(int Header, int a2, void *a3, int a4);
 int reset_network(int a1);
-int clear_network_game();
+void clear_network_game();
 int reset_net_wait();
 unsigned int send_broadcast(unsigned int result, int a2, int a3, int a4);
 int send_here(int result);

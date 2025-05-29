@@ -31,6 +31,7 @@ extern int MusicPort;
 extern int SongPtr;
 extern int SongHandle;
 extern uint8 unmangleinbuf[];
+extern int copy_multiple[8192];
 extern int unmangleinpoff;
 extern uint8 *unmangledst;
 extern int unmangleoverflow;

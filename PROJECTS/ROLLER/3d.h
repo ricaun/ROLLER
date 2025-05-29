@@ -48,6 +48,7 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int exiting;
 extern int game_size;
 extern int svga_possible;
 extern int hibuffers;
@@ -55,6 +56,7 @@ extern uint32 mem_used;
 extern int current_mode;
 extern int SVGA_ON;
 extern int TrackLoad;
+extern int network_on;
 extern void *scrbuf;
 extern int firstrun;
 extern int language;
@@ -119,7 +121,7 @@ void init();
 void *getbuffer(uint32 uiSize);
 void *trybuffer(uint32 uiSize);
 void fre(void *pData);
-void doexit(int a1, int a2, void *pBuf);
+void doexit();
 void *malloc2(int iSize, void *pPtr, int *pRegsDi);
 void free2(void *ptr);
 void firework_screen();

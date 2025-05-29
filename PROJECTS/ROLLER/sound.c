@@ -32,6 +32,7 @@ int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 uint8 unmangleinbuf[1024];  //00149EF0
 int TrackMap[32];           //00163038
+int copy_multiple[8192];    //0016764C
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654

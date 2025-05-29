@@ -1274,22 +1274,18 @@ int DoReplayData(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int Rplay(int64 a1)
+void Rplay(int64 a1)
 {
-  return 0; /*
-  int result; // eax
-
+  /*
   if (replaytype == 2) {
     sfxsample(a1);
     replaydirection = 1;
     lastautocut = -1;
     replayspeed = replayspeeds[replaysetspeed];
-    result = 16;
     qmemcpy(repsample, newrepsample, sizeof(repsample));
     if (replayspeed == 256)
-      return initsoundlag(currentreplayframe);
-  }
-  return result;*/
+      initsoundlag(currentreplayframe);
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1482,24 +1478,20 @@ int Rforwardstart(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int ROldStatus(int64 a1)
+void ROldStatus(int64 a1)
 {
-  return 0; /*
-  int result; // eax
-
+  /*
   if (replaytype == 2) {
     replayspeed = replaydirection * replayspeeds[replaysetspeed];
     _disable();
-    result = currentreplayframe;
     rewinding = 0;
     forwarding = 0;
     ticks = currentreplayframe;
     fraction = 0;
     if (replayspeed == 256)
-      result = Rplay(a1);
+      Rplay(a1);
     _enable();
-  }
-  return result;*/
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------

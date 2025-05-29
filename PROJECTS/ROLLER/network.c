@@ -1,4 +1,22 @@
 #include "network.h"
+#include "sound.h"
+#include "3d.h"
+#include "func3.h"
+#include "frontend.h"
+#include "moving.h"
+//-------------------------------------------------------------------------------------------------
+
+int net_type = 1;           //000A6104
+int net_started = 0;        //000A610C
+int net_players[16];        //00178718
+int16 player_checks[8192];  //00178758
+int player_ready[16];       //0017C858
+int received_seed;          //0017C938
+int frame_number;           //0017C940
+int broadcast_mode;         //0017C984
+int active_nodes;           //0017C9B0
+int16 wConsoleNode;         //0017C9DA
+
 //-------------------------------------------------------------------------------------------------
 
 int Initialise_Network(int a1)
@@ -99,61 +117,53 @@ int Initialise_Network(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int close_network(int a1, int a2, int a3)
+void close_network()
 {
-  return 0; /*
-  int v3; // edx
-  int v4; // eax
+  int iNode; // edx
   int i; // edx
-  int v6; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int result; // eax
 
   network_slot = -1;
   if (network_on) {
     tick_on = 0;
-    do
-      a1 = gssCommsPostListen(a1, a2, a3);
-    while (a1);
-    v3 = 0;
-    wConsoleNode = gssCommsNetAddrToNode(&address);
-    while (v3 < wConsoleNode) {
-      v4 = gssCommsDeleteNode(0);
-      if (v4) {
-        printf(aFailedToDelete);
-        doexit();
-      }
-      gssCommsSortNodes(v4);
-      ++v3;
+    //while (gssCommsPostListen())
+    //  ;
+    iNode = 0;
+    wConsoleNode = 0;// gssCommsNetAddrToNode((int)&address);
+    while (iNode < wConsoleNode) {
+      //if (gssCommsDeleteNode(0)) {
+      //  printf("FAILED TO DELETE NODE a (%d)!!!\n", iNode);
+      //  doexit();
+      //}
+      //gssCommsSortNodes();
+      ++iNode;
     }
     for (i = wConsoleNode + 1; i < network_on; ++i) {
-      v6 = gssCommsDeleteNode(1);
-      if (v6) {
-        printf(aFailedToDelete_0);
-        doexit();
-      }
-      gssCommsSortNodes(v6);
+      //if (gssCommsDeleteNode(1)) {
+      //  printf("FAILED TO DELETE NODE b (%d)!!!\n", i);
+      //  doexit();
+      //}
+      //gssCommsSortNodes();
     }
-    gssCommsGetActiveNodes();
-    wConsoleNode = gssCommsNetAddrToNode(&address);
+    //gssCommsGetActiveNodes();
+    wConsoleNode = 0;// gssCommsNetAddrToNode((int)&address);
     if (exiting)
       goto LABEL_18;
   } else if ((net_started || net_type) && exiting) {
   LABEL_18:
-    v7 = gssCommsSetType(1);
-    gssCommsUnInitSystem(v7);
-    v8 = gssCommsSetType(0);
-    gssCommsUnInitSystem(v8);
+    ;
+    //gssCommsSetType(1);
+    //gssCommsUnInitSystem();
+    //gssCommsSetType(0);
+    //gssCommsUnInitSystem();
   }
-  v9 = _STOSD(net_players, 0, a3, 16);
-  master = -667;
+
+  for (int i = 0; i < 16; ++i)
+      net_players[i] = -667;
+
   if (network_on && !frontend_on) {
     Players_Cars[0] = my_car;
-    name_copy((int)player_names, my_name);
+    name_copy(player_names[0], my_name);
     manual_control[0] = my_control;
-    v9 = my_invul;
     player_invul[0] = my_invul;
   }
   if (network_on)
@@ -168,10 +178,9 @@ int close_network(int a1, int a2, int a3)
   if (game_type != 1 && replaytype != 2)
     network_champ_on = 0;
   broadcast_mode = 0;
-  result = clear_network_game(v9);
-  if (net_type)
-    return gssCommsUnInitSystem(result);
-  return result;*/
+  clear_network_game();
+  //if (net_type)
+  //  gssCommsUnInitSystem();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2281,29 +2290,17 @@ int reset_network(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int clear_network_game()
+void clear_network_game()
 {
-  return 0; /*
-  int v0; // esi
-  int v1; // ebx
-  int v2; // ecx
-  unsigned int v3; // eax
-
-  v0 = 0x4000;
-  v1 = 0;
-  v2 = 0;
-  do {
-    v3 = 2 * v1;
-    player_ready[v2] = 0;
-    do {
-      v3 += 32;
-      net_players_variable_1[v3 / 2] = -1;
-    } while (v3 != v0);
-    v0 += 2;
-    ++v1;
-    ++v2;
-  } while (v1 < 16);
-  return memset(copy_multiple, 0, 0x8000);*/
+  for (int iPlayer = 0; iPlayer < 16; ++iPlayer) {
+    player_ready[iPlayer] = 0;
+    // Start at offset = iPlayer * 2 and step by 32
+    for (int iOffset = iPlayer * 2; iOffset < 0x4000 / 2; iOffset += 16)  // step is 32 bytes = 16 shorts
+    {
+      player_checks[iOffset] = -1;
+    }
+  }
+  memset(copy_multiple, 0, sizeof(copy_multiple));
 }
 
 //-------------------------------------------------------------------------------------------------

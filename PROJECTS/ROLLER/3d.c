@@ -18,69 +18,71 @@
 #include <SDL3_image/SDL_image.h>
 //-------------------------------------------------------------------------------------------------
 
-int game_size = 64;        //000A31B4
-int svga_possible = -1;    //000A31C0
-int hibuffers;             //000A32E0
-uint32 mem_used;           //000A32E8
-int gosound = 3;           //000A3334
-int current_mode = 666;    //000A333C
-int SVGA_ON = 0;           //000A34AC
-int TrackLoad = 1;         //000A34B0
-void *scrbuf;              //000A353C
-int firstrun = -1;         //000A35D4
-int language = 0;          //000A4768
-tData localdata[500];      //000BEA10
-tGroundPt GroundPt[500];   //000CE410
-float tsin[16384];         //001010F0
-float ptan[16384];         //001110F0
-float tcos[16384];         //00121128
-uint8 blank_line[640];     //001312A8
-tMemBlock mem_blocks[128]; //0013E058
-int ticks;                 //0013E92C
-float tatn[1025];          //0013E95C
-uint32 textures_off;       //0013F960
-int tex_count;             //0013F964
-int scr_size;              //0013F988
-int ybase;                 //0013F98C
-int xbase;                 //0013F990
-int winx;                  //0013F994
-int winy;                  //0013F998
-float ext_y;               //0013F99C
-float ext_z;               //0013F9A0
-float viewx;               //0013F9A4
-float viewy;               //0013F9A8
-float viewz;               //0013F9AC
-int clear_borders;         //0013FA44
-float DDX;                 //0013FA48
-float DDY;                 //0013FA4C
-float DDZ;                 //0013FA50
-float ext_x;               //0013FA54
-int test_f1;               //0013FA58
-int test_f2;               //0013FA5C
-int test_f3;               //0013FA60
-int print_data;            //0013FA68
-int demo_control;          //0013FA6C
-int tick_on;               //0013FA70
-int oldmode;               //0013FA74
-int start_race;            //0013FA80
-int NoOfLaps;              //0013FA84
-int countdown;             //0013FA90
-int max_mem;               //0013FAA4
-int scrmode;               //0013FAB4
-int intro;                 //0013FAC0
-int fatal_ini_loaded;      //0013FADC
-int machine_speed;         //0013FAE0
-int winner_mode;           //0013FB08
-int network_slot;          //0013FB14
-int w95;                   //0013FB30
-int winh;                  //0013FB68
-int winw;                  //0013FB6C
-int VIEWDIST;              //0013FB70
-int YMAX;                  //0013FB74
-int XMAX;                  //0013FB78
-int time_shown;            //0013FB7C
-int player2_car;           //0013FB7E
-int player1_car;           //0013FB80
+int exiting = 0;            //000A3170
+int game_size = 64;         //000A31B4
+int svga_possible = -1;     //000A31C0
+int hibuffers;              //000A32E0
+uint32 mem_used;            //000A32E8
+int gosound = 3;            //000A3334
+int current_mode = 666;     //000A333C
+int SVGA_ON = 0;            //000A34AC
+int TrackLoad = 1;          //000A34B0
+int network_on = 0;         //000A3510
+void *scrbuf;               //000A353C
+int firstrun = -1;          //000A35D4
+int language = 0;           //000A4768
+tData localdata[500];       //000BEA10
+tGroundPt GroundPt[500];    //000CE410
+float tsin[16384];          //001010F0
+float ptan[16384];          //001110F0
+float tcos[16384];          //00121128
+uint8 blank_line[640];      //001312A8
+tMemBlock mem_blocks[128];  //0013E058
+int ticks;                  //0013E92C
+float tatn[1025];           //0013E95C
+uint32 textures_off;        //0013F960
+int tex_count;              //0013F964
+int scr_size;               //0013F988
+int ybase;                  //0013F98C
+int xbase;                  //0013F990
+int winx;                   //0013F994
+int winy;                   //0013F998
+float ext_y;                //0013F99C
+float ext_z;                //0013F9A0
+float viewx;                //0013F9A4
+float viewy;                //0013F9A8
+float viewz;                //0013F9AC
+int clear_borders;          //0013FA44
+float DDX;                  //0013FA48
+float DDY;                  //0013FA4C
+float DDZ;                  //0013FA50
+float ext_x;                //0013FA54
+int test_f1;                //0013FA58
+int test_f2;                //0013FA5C
+int test_f3;                //0013FA60
+int print_data;             //0013FA68
+int demo_control;           //0013FA6C
+int tick_on;                //0013FA70
+int oldmode;                //0013FA74
+int start_race;             //0013FA80
+int NoOfLaps;               //0013FA84
+int countdown;              //0013FA90
+int max_mem;                //0013FAA4
+int scrmode;                //0013FAB4
+int intro;                  //0013FAC0
+int fatal_ini_loaded;       //0013FADC
+int machine_speed;          //0013FAE0
+int winner_mode;            //0013FB08
+int network_slot;           //0013FB14
+int w95;                    //0013FB30
+int winh;                   //0013FB68
+int winw;                   //0013FB6C
+int VIEWDIST;               //0013FB70
+int YMAX;                   //0013FB74
+int XMAX;                   //0013FB78
+int time_shown;             //0013FB7C
+int player2_car;            //0013FB7E
+int player1_car;            //0013FB80
 
 //-------------------------------------------------------------------------------------------------
 
@@ -397,7 +399,7 @@ void fre(void *pData)
 
 //-------------------------------------------------------------------------------------------------
 
-void doexit(int a1, int a2, void *pBuf)
+void doexit()
 {
   /*
   int v0; // eax

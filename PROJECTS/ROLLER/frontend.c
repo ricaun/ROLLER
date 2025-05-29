@@ -3,8 +3,12 @@
 //-------------------------------------------------------------------------------------------------
 
 int false_starts = -1;    //000A4AB8
+int manual_control[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //000A4B74
+int Players_Cars[16] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; //000A4C38
+int player_type = 0;      //000A4CB8
 int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
+int network_champ_on = 0; //000A5318
 char player_names[16][9]; //0016FA10
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
