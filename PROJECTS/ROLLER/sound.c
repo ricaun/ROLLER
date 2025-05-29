@@ -275,6 +275,12 @@ bool setpal(const char *szFilename)
 
 void blankpal()
 {
+  if (!pal_addr)
+    return;
+  
+  memset(pal_addr, 0, sizeof(tColor) * 256);
+  UpdateScreen();
+
   /*
   unsigned int uiLinearAddress; // ecx
   unsigned __int16 unDx; // si
@@ -320,26 +326,8 @@ void blankpal()
 
 //-------------------------------------------------------------------------------------------------
 
-void resetpal(/*SDL_Surface *surface*/)
+void resetpal()
 {
-  /*
-    if (!surface || !pal_addr || SDL_GetPixelFormatSurfaceFormat(surface) != SDL_PIXELFORMAT_INDEX8)
-        return;
-
-    SDL_Color colors[256];
-    for (int i = 0; i < 256; ++i) {
-        colors[i].r = pal_addr[i].byR;
-        colors[i].g = pal_addr[i].byG;
-        colors[i].b = pal_addr[i].byB;
-        colors[i].a = 255;
-    }
-
-    SDL_Palette* palette = SDL_SurfaceGetPalette(surface);
-    if (palette)
-        SDL_SetPaletteColors(palette, colors, 0, 256);*/
-  // Clean up heap-allocated palette memory
-  free(pal_addr);
-  pal_addr = NULL;
   /*
   RMI.eax = 4114;
   RMI.ebx = 0;
@@ -348,6 +336,14 @@ void resetpal(/*SDL_Surface *surface*/)
   RMI.edx = 0;
   realmode(0x10u);
   */
+
+  // Clean up heap-allocated palette memory
+  if (pal_addr) {
+    free(pal_addr);
+    pal_addr = NULL;
+  }
+
+  UpdateScreen();
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 #include "3d.h"
 #include "sound.h"
 #include <memory.h>
+#include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
@@ -9,7 +10,6 @@
 #else
 #include <inttypes.h>
 #include <unistd.h>
-#include <fcntl.h>
 #endif
 //-------------------------------------------------------------------------------------------------
 
@@ -4357,10 +4357,11 @@ uint8 *load_picture(const char *szFile)
   uint32 uiFileLength; // eax
   uint8 *pBuf; // ebx
 
-  iFileHandle = open(szFile, 512);
+  iFileHandle = open(szFile, _O_RDONLY | _O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
     printf("Unable to open texture map data file %s\n\n", szFile);
     doexit(1, (int)(uint64)szFile, (void *)(uint64)0xFFFFFFFF);
+    return NULL;
   }
   close(iFileHandle);
   uiFileLength = getcompactedfilelength(szFile);

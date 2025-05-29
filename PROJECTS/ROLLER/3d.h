@@ -66,6 +66,8 @@ extern int current_mode;
 extern int SVGA_ON;
 extern int TrackLoad;
 extern int network_on;
+extern int mirror;
+extern void *screen;
 extern void *scrbuf;
 extern int firstrun;
 extern int language;
@@ -125,6 +127,7 @@ extern int player1_car;
 
 //-------------------------------------------------------------------------------------------------
 
+void UpdateScreen(); //added by ROLLER
 void copypic(uint8 *pSrc, uint8 *pDest);
 void init_screen();
 void init();

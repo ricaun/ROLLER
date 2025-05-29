@@ -28,7 +28,9 @@ int current_mode = 666;     //000A333C
 int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
 int network_on = 0;         //000A3510
-void *scrbuf;               //000A353C
+int mirror = 0;             //000A3524
+void *screen; //= 0xA0000;  //000A3538
+void *scrbuf = 0;           //000A353C
 int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
 tData localdata[500];       //000BEA10
@@ -86,9 +88,38 @@ int player2_car;            //0013FB7E
 int player1_car;            //0013FB80
 
 //-------------------------------------------------------------------------------------------------
-
+// added by ROLLER
 static SDL_Window *s_pWindow = NULL;
 static SDL_Renderer *s_pRenderer = NULL;
+static SDL_Texture *s_pWindowTexture = NULL;
+static uint8 *s_pRGBBuffer = NULL;
+
+//-------------------------------------------------------------------------------------------------
+// added by ROLLER
+void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *pRGB, int width, int height)
+{
+  if (!pIndexed || !pPalette || !pRGB)
+    return;
+
+  for (int i = 0; i < width * height; ++i) {
+    const tColor *c = &pPalette[pIndexed[i]];
+    pRGB[i * 3 + 0] = c->byR;
+    pRGB[i * 3 + 1] = c->byG;
+    pRGB[i * 3 + 2] = c->byB;
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+// added by ROLLER
+void UpdateScreen()
+{
+  ConvertIndexedToRGB(scrbuf, palette, s_pRGBBuffer, 640, 400);
+
+  SDL_UpdateTexture(s_pWindowTexture, NULL, s_pRGBBuffer, 640 * 3);
+  SDL_RenderClear(s_pRenderer);
+  SDL_RenderTexture(s_pRenderer, s_pWindowTexture, NULL, NULL);
+  SDL_RenderPresent(s_pRenderer);
+}
 
 //-------------------------------------------------------------------------------------------------
 
@@ -390,7 +421,7 @@ void fre(void *pData)
     uiSize = mem_blocks[iMemBlocksIdx].uiSize;
     if (uiSize >= 0) {
       mem_used -= uiSize;
-      free2(mem_blocks[iMemBlocksIdx].pAlsoBuf);
+      free2(mem_blocks[iMemBlocksIdx].pBuf); //.pAlsoBuf?
     } else {
       // is this necessary?
     }
@@ -868,8 +899,11 @@ int main(int argc, const char **argv, const char **envp)
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  s_pWindowTexture = SDL_CreateTexture(s_pRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 640, 400);
+  s_pRGBBuffer = malloc(640 * 400 * 3);
   SDL_Surface *pIcon = IMG_Load("roller.ico");
   SDL_SetWindowIcon(s_pWindow, pIcon);
+
   /***
   * END ROLLER CODE
   ***/
@@ -1008,7 +1042,8 @@ int main(int argc, const char **argv, const char **envp)
   tick_on = 0;
   //copy_screens(0, 0, uiTexturesOff, (_BYTE *)uiTexturesOff2);
   i = 0;
-  //title_screens(0, 0, (_BYTE *)uiTexturesOff2, uiCheatMode);
+  title_screens(0, 0);
+  
   time_to_start = 0;
   replaytype = 2;
   start_race = 0;
@@ -1165,9 +1200,11 @@ int main(int argc, const char **argv, const char **envp)
     ***/
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_EVENT_KEY_DOWN) {
+      if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_QUIT) {
         quit_game = 1;
       }
+
+      UpdateScreen();
     }
     /***
     * END ROLLER CODE
@@ -1176,6 +1213,17 @@ int main(int argc, const char **argv, const char **envp)
   } while (!quit_game);
   //__asm { int     10h; -VIDEO - SET VIDEO MODE }
   //doexit(0, v14, (void *)i);
+
+  /***
+  * ADDED BY ROLLER
+  ***/
+  SDL_DestroyRenderer(s_pRenderer);
+  SDL_DestroyWindow(s_pWindow);
+  SDL_DestroyTexture(s_pWindowTexture);
+  free(s_pRGBBuffer);
+  /***
+  * END ROLLER CODE
+  ***/
   return 0;
 }
 

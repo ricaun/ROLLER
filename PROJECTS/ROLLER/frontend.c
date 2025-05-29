@@ -1,5 +1,8 @@
 #include "frontend.h"
 #include "graphics.h"
+#include "3d.h"
+#include "func3.h"
+#include "sound.h"
 //-------------------------------------------------------------------------------------------------
 
 int false_starts = -1;    //000A4AB8
@@ -9,6 +12,7 @@ int player_type = 0;      //000A4CB8
 int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
 int network_champ_on = 0; //000A5318
+void *front_vga[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //000A5324
 char player_names[16][9]; //0016FA10
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
@@ -43,44 +47,45 @@ char my_name[14];         //0016FF12
 
 //-------------------------------------------------------------------------------------------------
 
-int *title_screens(unsigned int a1, short *a2, char *a3, unsigned int a4)
+int16 *title_screens(unsigned int a1, unsigned int a2)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  int inited; // eax
-  _UNKNOWN **v5; // edx
-  __int64 v7; // [esp-Ch] [ebp-10h]
+  //int v2; // edi
+  uint8 *pScreen; // edx
+  //int64 v5; // [esp-Ch] [ebp-10h]
 
-  v7 = __PAIR64__(a1, a4);
+  //HIDWORD(v5) = a2;
+  //LODWORD(v5) = v2;
   winx = 0;
   winy = 0;
   winw = XMAX;
   mirror = 0;
   SVGA_ON = 0;
   winh = YMAX;
-  inited = init_screen(YMAX, 0, (int)a2);
+  init_screen();
   SVGA_ON = -1;
-  init_screen(inited, 0, (int)a2);
+  init_screen();
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  setpal((int)aTitlePal, 0, a2, a3);
-  front_vga[0] = load_picture(&aTitleBm[2]);
-  display_picture(scrbuf, front_vga[0], a2);
-  v5 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  loadfatalsample();
-  fade_palette(32, (int)v5, (int)a2, (int)a3);
-  if ((cheat_mode & 0x202) != 0)
-    dospeechsample(v7);
-  disable_keyboard();
-  if ((cheat_mode & 0x202) != 0)
-    waitsampledone(88);
-  fre(front_vga);
-  return freefatalsample();*/
+  setpal("title.pal");
+  front_vga[0] = load_picture("title.bm");
+  if (front_vga[0] && scrbuf) //check added by ROLLER
+    display_picture(scrbuf, front_vga[0]);
+  pScreen = screen;
+  //copypic(scrbuf, screen);
+   
+  
+  //loadfatalsample();
+  //fade_palette(32, (int)pScreen);
+  //if ((cheat_mode & 0x202) != 0)
+  //  dospeechsample(v5);
+  //disable_keyboard();
+  //if ((cheat_mode & 0x202) != 0)
+  //  waitsampledone(88);
+  fre(front_vga[0]);
+  return 0;// freefatalsample();
 }
 
 //-------------------------------------------------------------------------------------------------

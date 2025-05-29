@@ -11,10 +11,11 @@ extern int player_type;
 extern int game_type;
 extern int replay_record;
 extern int network_champ_on;
+extern void *front_vga[15];
 extern char player_names[16][9];
-extern int non_competitors[];
-extern int player_started[];
-extern int player_invul[];
+extern int non_competitors[16];
+extern int player_started[16];
+extern int player_invul[16];
 extern int p_texs_off;
 extern int p_tex_size;
 extern int quit_game;
@@ -39,12 +40,12 @@ extern int StartPressed;
 extern int waste;
 extern int switch_same;
 extern int car_request;
-extern uint8 oldkeys[];
-extern char my_name[];
+extern uint8 oldkeys[14];
+extern char my_name[14];
 
 //-------------------------------------------------------------------------------------------------
 
-int *title_screens(unsigned int a1, short *a2, char *a3, unsigned int a4);
+int16 *title_screens(unsigned int a1, unsigned int a2);
 void copy_screens(int a1, int a2, int a3, char *a4);
 void select_screen(int a1);
 void select_disk(int a1, int a2, int a3);
