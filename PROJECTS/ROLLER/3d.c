@@ -116,8 +116,36 @@ void UpdateScreen()
   ConvertIndexedToRGB(scrbuf, palette, s_pRGBBuffer, 640, 400);
 
   SDL_UpdateTexture(s_pWindowTexture, NULL, s_pRGBBuffer, 640 * 3);
+
+  // Get current window size
+  int iWindowWidth, iWindowHeight;
+  SDL_GetCurrentRenderOutputSize(s_pRenderer, &iWindowWidth, &iWindowHeight);
+
+  // Get original texture size
+  int iTexWidth = 640;
+  int iTexHeight = 400;
+
+  // Calculate aspect ratio-preserving destination rectangle
+  SDL_FRect dst;
+  float fWindowAspect = (float)iWindowWidth / (float)iWindowHeight;
+  float fTextureAspect = (float)iTexWidth / (float)iTexHeight;
+
+  if (fWindowAspect > fTextureAspect) {
+      // Window is wider than texture
+    dst.h = (float)iWindowHeight;
+    dst.w = fTextureAspect * iWindowHeight;
+    dst.x = (iWindowWidth - dst.w) / 2;
+    dst.y = 0;
+  } else {
+      // Window is taller than texture
+    dst.w = (float)iWindowWidth;
+    dst.h = iWindowWidth / fTextureAspect;
+    dst.x = 0;
+    dst.y = (iWindowHeight - dst.h) / 2;
+  }
+
   SDL_RenderClear(s_pRenderer);
-  SDL_RenderTexture(s_pRenderer, s_pWindowTexture, NULL, NULL);
+  SDL_RenderTexture(s_pRenderer, s_pWindowTexture, NULL, &dst);
   SDL_RenderPresent(s_pRenderer);
 }
 
@@ -900,6 +928,7 @@ int main(int argc, const char **argv, const char **envp)
     return SDL_APP_FAILURE;
   }
   s_pWindowTexture = SDL_CreateTexture(s_pRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 640, 400);
+  SDL_SetTextureScaleMode(s_pWindowTexture, SDL_SCALEMODE_NEAREST);
   s_pRGBBuffer = malloc(640 * 400 * 3);
   SDL_Surface *pIcon = IMG_Load("roller.ico");
   SDL_SetWindowIcon(s_pWindow, pIcon);
