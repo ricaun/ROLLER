@@ -4158,7 +4158,6 @@ void readmangled(uint8 *pBufRet, int iLength)
 
 //-------------------------------------------------------------------------------------------------
 
-
 void loadcompactedfilepart(uint8 *pDest, uint32 uiDestLength)
 {
   uint32 uiOutputPos = 0;

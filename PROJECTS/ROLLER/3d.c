@@ -103,9 +103,9 @@ void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *p
 
   for (int i = 0; i < width * height; ++i) {
     const tColor *c = &pPalette[pIndexed[i]];
-    pRGB[i * 3 + 0] = c->byR;
-    pRGB[i * 3 + 1] = c->byG;
-    pRGB[i * 3 + 2] = c->byB;
+    pRGB[i * 3 + 0] = c->byR * 255 / 63;
+    pRGB[i * 3 + 1] = c->byG * 255 / 63;
+    pRGB[i * 3 + 2] = c->byB * 255 / 63;
   }
 }
 
