@@ -103,9 +103,9 @@ void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *p
 
   for (int i = 0; i < width * height; ++i) {
     const tColor *c = &pPalette[pIndexed[i]];
-    pRGB[i * 3 + 0] = c->byR * 255 / 63;
-    pRGB[i * 3 + 1] = c->byG * 255 / 63;
-    pRGB[i * 3 + 2] = c->byB * 255 / 63;
+    pRGB[i * 3 + 0] = (c->byR * 255) / 63;
+    pRGB[i * 3 + 1] = (c->byG * 255) / 63;
+    pRGB[i * 3 + 2] = (c->byB * 255) / 63;
   }
 }
 
@@ -895,7 +895,7 @@ int main(int argc, const char **argv, const char **envp)
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, 0, &s_pWindow, &s_pRenderer)) {
+  if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, SDL_WINDOW_RESIZABLE, &s_pWindow, &s_pRenderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
