@@ -127,7 +127,6 @@ extern int player1_car;
 
 //-------------------------------------------------------------------------------------------------
 
-void UpdateSDLWindow(); //added by ROLLER
 void copypic(uint8 *pSrc, uint8 *pDest);
 void init_screen();
 void init();

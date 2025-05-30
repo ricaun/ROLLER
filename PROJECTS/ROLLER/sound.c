@@ -279,7 +279,6 @@ void blankpal()
     return;
   
   memset(pal_addr, 0, sizeof(tColor) * 256);
-  UpdateSDLWindow();
 
   /*
   unsigned int uiLinearAddress; // ecx
@@ -342,8 +341,6 @@ void resetpal()
     free(pal_addr);
     pal_addr = NULL;
   }
-
-  UpdateSDLWindow();
 }
 
 //-------------------------------------------------------------------------------------------------
