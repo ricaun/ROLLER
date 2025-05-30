@@ -119,7 +119,7 @@ int initmangle(const char *szFile);
 int uninitmangle();
 int loadcompactedfile(const char *szFile, uint8 *pBuf);
 void readmangled(uint8 *pBufRet, int iLength);
-void loadcompactedfilepart(uint8 *pDestination, int iDestLength);
+void loadcompactedfilepart(uint8 *pDestination, uint32 uiDestLength);
 uint8 *unmangleGet(unsigned int uiPos, unsigned int uiCount);
 
 //-------------------------------------------------------------------------------------------------

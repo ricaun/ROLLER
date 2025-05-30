@@ -1749,7 +1749,7 @@ void loadfile(const char *szFile, void *pBuf, unsigned int uiSize, int iIsSound)
       if (pBuf2) {
         pUint8Buf = (uint8 *)pBuf2;
         initmangle(szFile);
-        loadcompactedfilepart(pUint8Buf, 1000000000);
+        loadcompactedfilepart(pUint8Buf, uiSize);
         uninitmangle();
       }
     }
@@ -4122,7 +4122,8 @@ int uninitmangle()
 int loadcompactedfile(const char *szFile, uint8 *pBuf)
 {
   initmangle(szFile);
-  loadcompactedfilepart(pBuf, 1000000000);
+  uint32 uiSize = getcompactedfilelength(szFile);
+  loadcompactedfilepart(pBuf, uiSize);
   return fclose(unmanglefile);
 }
 
@@ -4157,89 +4158,101 @@ void readmangled(uint8 *pBufRet, int iLength)
 
 //-------------------------------------------------------------------------------------------------
 
-void loadcompactedfilepart(uint8 *pDestination, int iDestLength)
+
+void loadcompactedfilepart(uint8 *pDest, uint32 uiDestLength)
 {
-  // start positions
-  int iInputPos = 4;
-  int iOutputPos = 0;
+  uint32 uiOutputPos = 0;
 
-  while (iOutputPos < iDestLength) {
-    uint8 *pSource = unmangleGet(iInputPos, 1);
-    int iValue = (int)pSource[0];
+  while (uiOutputPos < uiDestLength) {
+    uint8 *pByte = unmangleGet(unmangleinpoff, 1);
+    uint8 b = *pByte;
+    unmangleinpoff++;
 
-    if (iValue <= 0x3F) // 0x00 to 0x3F: read bytes from input
-    {
-      uint8 *pSource = unmangleGet(iInputPos + 1, iValue);
-      memcpy(&pDestination[iOutputPos], pSource, iValue);
-      iInputPos += iValue + 1;
-      iOutputPos += iValue;
-    } else if (iValue <= 0x4F) // 0x40 to 0x4F: generate ascending bytes based on last 2 bytes
-    {
-      int iDelta = pDestination[iOutputPos - 1] - pDestination[iOutputPos - 2];
-      for (int i = 0; i < ((iValue & 0x0F) + 3); i++) {
-        pDestination[iOutputPos] = ((pDestination[iOutputPos - 1] + iDelta) & 0xFF);
-        iOutputPos++;
+    if (b <= 0x3F) {
+        // Literal copy
+      uint32 uiCount = b;
+      if (unmangleinpoff + uiCount > (uint32)unmangleinpoff + 0x400 || uiOutputPos + uiCount > uiDestLength)
+        break;
+      uint8 *pData = unmangleGet(unmangleinpoff, uiCount);
+      memcpy(&pDest[uiOutputPos], pData, uiCount);
+      unmangleinpoff += uiCount;
+      uiOutputPos += uiCount;
+    } else if (b <= 0x4F) {
+        // Linear extrapolation (bytes)
+      uint32 uiCount = (b & 0x0F) + 3;
+      if (uiOutputPos < 2 || uiOutputPos + uiCount > uiDestLength)
+        break;
+      int iDelta = pDest[uiOutputPos - 1] - pDest[uiOutputPos - 2];
+      for (uint32 i = 0; i < uiCount; ++i) {
+        pDest[uiOutputPos] = (uint8)((pDest[uiOutputPos - 1] + iDelta) & 0xFF);
+        uiOutputPos++;
       }
-      iInputPos++;
-    } else if (iValue <= 0x5F) // 0x50 to 0x5F: generate ascending words based on last 2 words
-    {
-      short sDelta = *(short *)(pDestination + iOutputPos - 2) - *(short *)(pDestination + iOutputPos - 4);
-      for (int i = 0; i < ((iValue & 0x0F) + 2); i++) {
-        short sNewShort = (*(short *)(pDestination + iOutputPos - 2)) + sDelta;
-        pDestination[iOutputPos] = (uint8)(sNewShort & 0xFF);
-        pDestination[iOutputPos + 1] = (uint8)((sNewShort >> 8) & 0xFF);
-        iOutputPos += 2;
+    } else if (b <= 0x5F) {
+        // Linear extrapolation (words)
+      uint32 uiCount = (b & 0x0F) + 2;
+      if (uiOutputPos < 4 || uiOutputPos + uiCount * 2 > uiDestLength)
+        break;
+      int16 nPrev = (int16)(pDest[uiOutputPos - 2] | (pDest[uiOutputPos - 1] << 8));
+      int16 nPrev2 = (int16)(pDest[uiOutputPos - 4] | (pDest[uiOutputPos - 3] << 8));
+      int16 nDelta = nPrev - nPrev2;
+      for (uint32 i = 0; i < uiCount; ++i) {
+        int16 nNewVal = nPrev + nDelta;
+        pDest[uiOutputPos++] = nNewVal & 0xFF;
+        pDest[uiOutputPos++] = (nNewVal >> 8) & 0xFF;
+        nPrev = nNewVal;
       }
-      iInputPos++;
-    } else if (iValue <= 0x6F) // 0x60 to 0x6F: clone last byte in output
-    {
-      for (int i = 0; i < ((iValue & 0x0F) + 3); i++) {
-        pDestination[iOutputPos] = pDestination[iOutputPos - 1];
-        iOutputPos++;
+    } else if (b <= 0x6F) {
+        // Repeat last byte
+      uint32 uiCount = (b & 0x0F) + 3;
+      if (uiOutputPos == 0 || uiOutputPos + uiCount > uiDestLength)
+        break;
+      uint8 val = pDest[uiOutputPos - 1];
+      memset(&pDest[uiOutputPos], val, uiCount);
+      uiOutputPos += uiCount;
+    } else if (b <= 0x7F) {
+        // Repeat last word
+      uint32 uiCount = (b & 0x0F) + 2;
+      if (uiOutputPos < 2 || uiOutputPos + uiCount * 2 > uiDestLength)
+        break;
+      for (uint32 i = 0; i < uiCount; ++i) {
+        pDest[uiOutputPos] = pDest[uiOutputPos - 2];
+        pDest[uiOutputPos + 1] = pDest[uiOutputPos - 1];
+        uiOutputPos += 2;
       }
-      iInputPos++;
-    } else if (iValue <= 0x7F) // 0x70 to 0x7F: clone last word in output
-    {
-      for (int i = 0; i < ((iValue & 0x0F) + 2); i++) {
-        pDestination[iOutputPos] = pDestination[iOutputPos - 2];
-        pDestination[iOutputPos + 1] = pDestination[iOutputPos - 1];
-        iOutputPos += 2;
-      }
-      iInputPos++;
-    } else if (iValue <= 0xBF) // 0x80 to 0xBF: clone 3 bytes using offset
-    {
-      int iOffset = (iValue & 0x3F);
-      if (iOutputPos - iOffset - 3 < 0 || iOutputPos - iOffset - 3 >= iDestLength)
-        return;
-      if (iOutputPos - iOffset - 1 < 0 || iOutputPos - iOffset - 1 >= iDestLength)
-        return;
-      pDestination[iOutputPos] = pDestination[iOutputPos - iOffset - 3];
-      pDestination[iOutputPos + 1] = pDestination[iOutputPos - iOffset - 2];
-      pDestination[iOutputPos + 2] = pDestination[iOutputPos - iOffset - 1];
-      iOutputPos += 3;
-      iInputPos++;
-    } else if (iValue <= 0xDF) // 0xC0 to 0xDF: clone using offset and length from next byte
-    {
-      int iOffset = ((iValue & 0x03) << 8) + (int)(pSource[iInputPos + 1]) + 3;
-      int iLength = ((iValue >> 2) & 0x07) + 4;
-      for (int i = 0; i < iLength; i++) {
-        if (iOutputPos - iOffset < 0 || iOutputPos - iOffset >= iDestLength)
-          return;
-        pDestination[iOutputPos] = pDestination[iOutputPos - iOffset];
-        iOutputPos++;
-      }
-      iInputPos += 2;
-    } else // 0xE0 to 0xFF: clone using offset and length from next 2 bytes
-    {
-      int iOffset = ((iValue & 0x1F) << 8) + (int)(pSource[iInputPos + 1]) + 3;
-      int iLength = (int)(pSource[iInputPos + 2]) + 5;
-      for (int i = 0; i < iLength; i++) {
-        if (iOutputPos - iOffset < 0 || iOutputPos - iOffset >= iDestLength)
-          return;
-        pDestination[iOutputPos] = pDestination[iOutputPos - iOffset];
-        iOutputPos++;
-      }
-      iInputPos += 3;
+    } else if (b <= 0xBF) {
+        // Copy 3 bytes from offset
+      int iOffset = (b & 0x3F) + 3;
+      if ((int)uiOutputPos - iOffset < 0 || uiOutputPos + 3 > uiDestLength)
+        break;
+      for (int i = 0; i < 3; ++i)
+        pDest[uiOutputPos++] = pDest[uiOutputPos - iOffset];
+    } else if (b <= 0xDF) {
+        // Copy from offset and length from next byte
+      uint8 *pLen = unmangleGet(unmangleinpoff, 1);
+      uint8 lenByte = *pLen;
+      unmangleinpoff++;
+
+      int iOffset = (((b & 0x03) << 8) | lenByte) + 3;
+      int length = ((b >> 2) & 0x07) + 4;
+      if ((int)uiOutputPos - iOffset < 0 || uiOutputPos + length > uiDestLength)
+        break;
+
+      for (int i = 0; i < length; ++i)
+        pDest[uiOutputPos++] = pDest[uiOutputPos - iOffset];
+    } else {
+        // Copy from offset and length from next 2 bytes
+      uint8 *pBytes = unmangleGet(unmangleinpoff, 2);
+      uint8 offsetLo = pBytes[0];
+      uint8 lengthByte = pBytes[1];
+      unmangleinpoff += 2;
+
+      int iOffset = (((b & 0x1F) << 8) | offsetLo) + 3;
+      int iLength = lengthByte + 5;
+      if ((int)uiOutputPos - iOffset < 0 || uiOutputPos + iLength > uiDestLength)
+        break;
+
+      for (int i = 0; i < iLength; ++i)
+        pDest[uiOutputPos++] = pDest[uiOutputPos - iOffset];
     }
   }
 }
