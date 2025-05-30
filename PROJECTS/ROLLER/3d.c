@@ -150,6 +150,15 @@ void UpdateScreen()
 }
 
 //-------------------------------------------------------------------------------------------------
+//added by ROLLER
+void ToggleFullscreen()
+{
+  static bool s_bIsFullscreen = false;
+  s_bIsFullscreen = !s_bIsFullscreen;
+  SDL_SetWindowFullscreen(s_pWindow, s_bIsFullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+}
+
+//-------------------------------------------------------------------------------------------------
 
 void copypic(uint8 *pSrc, uint8 *pDest)
 {
@@ -1229,8 +1238,22 @@ int main(int argc, const char **argv, const char **envp)
     ***/
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_QUIT) {
-        quit_game = 1;
+      switch(e.type) {
+        case SDL_EVENT_QUIT:
+          quit_game = 1;
+          break;
+        case SDL_EVENT_KEY_DOWN:
+          if (e.key.key == SDLK_ESCAPE) {
+            quit_game = 1;
+          } else if (e.key.key == SDLK_F11) {
+            ToggleFullscreen();
+          } else if (e.key.key == SDLK_RETURN) {
+            SDL_Keymod mod = SDL_GetModState();
+            if (mod & (SDL_KMOD_LALT | SDL_KMOD_RALT)) {
+              ToggleFullscreen();
+            }
+          }
+          break;
       }
 
       UpdateScreen();
