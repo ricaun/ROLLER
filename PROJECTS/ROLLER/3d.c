@@ -111,7 +111,7 @@ void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *p
 
 //-------------------------------------------------------------------------------------------------
 // added by ROLLER
-void UpdateScreen()
+void UpdateSDLWindow()
 {
   ConvertIndexedToRGB(scrbuf, palette, s_pRGBBuffer, 640, 400);
 
@@ -1256,7 +1256,7 @@ int main(int argc, const char **argv, const char **envp)
           break;
       }
 
-      UpdateScreen();
+      UpdateSDLWindow();
     }
     /***
     * END ROLLER CODE
