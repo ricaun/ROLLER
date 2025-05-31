@@ -1,8 +1,9 @@
 #include "sound.h"
 #include "frontend.h"
 #include "moving.h"
-#include "3d.h"
 #include "cdx.h"
+#include "func2.h"
+#include "3d.h"
 #include <memory.h>
 #include <SDL3/SDL.h>
 #ifdef IS_WINDOWS
@@ -16,7 +17,6 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
-char szRb[3] = "rb\0";      //000A175C Symbol name added by ROLLER, open files in modes "read" and "binary"
 int musicon = -1;           //000A46A0
 int soundon = -1;           //000A46A4
 int allengines = -1;        //000A46A8
@@ -31,6 +31,7 @@ int MusicCD = 0;            //000A4798
 int MusicPort = 0;          //000A479C
 int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
+int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
 int TrackMap[32];           //00163038
 int copy_multiple[8192];    //0016764C
@@ -39,7 +40,10 @@ uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
+int s7;                     //0016F660
+int MIDIHandle;             //0016F68C
 tColor *pal_addr;           //0016F86C
+int DIGIHandle;             //0016F690
 int frames;                 //0016F694
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
@@ -54,9 +58,15 @@ int delayread;              //0016F8CC
 ***/
 //-------------------------------------------------------------------------------------------------
 
-uint32 SDLTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
 {
   tickhandler(0, 0, 0, 0);
+  return interval;
+}
+
+uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+{
+  ++s7;
   return interval;
 }
 
@@ -1263,7 +1273,7 @@ void claim_ticktimer(unsigned int uiRateHz, int a2)
   /***
   * ADDED BY ROLLER
   ***/
-  tickhandle = SDL_AddTimer(uiRateHz, SDLTimerCallback, NULL); //may as well re-use tickhandle, it is also a uint32
+  tickhandle = SDL_AddTimer(uiRateHz, SDLTickTimerCallback, NULL); //may as well re-use tickhandle, it is also a uint32
   /***
   * END ROLLER CODE
   ***/
@@ -1483,7 +1493,7 @@ int play()
 
 //-------------------------------------------------------------------------------------------------
 
-void stop(int a1, int a2)
+void stop()
 {
   if (MusicCard) {
     if (SongPtr) {
@@ -3519,158 +3529,116 @@ int initmusic()
 
 //-------------------------------------------------------------------------------------------------
 
-void fade_palette(int a1, int a2, int j, int a4)
-{/*
-  int v4; // edx
-  int v5; // ebp
-  _BOOL1 k; // cc
-  int m; // eax
-  int v8; // edx
-  unsigned __int8 v9; // al
-  unsigned __int8 v10; // al
-  int n; // ebx
-  unsigned __int8 v12; // al
-  int v13; // ebp
-  int i; // eax
-  int v15; // edx
-  unsigned __int8 v16; // al
-  unsigned __int8 v17; // al
-  unsigned __int8 v18; // al
-  int v19; // [esp+0h] [ebp-34h] BYREF
-  int v20; // [esp+4h] [ebp-30h]
-  int v21; // [esp+8h] [ebp-2Ch]
-  int v22; // [esp+Ch] [ebp-28h]
-  int v23; // [esp+10h] [ebp-24h]
-  int v24; // [esp+14h] [ebp-20h]
-  int v25; // [esp+18h] [ebp-1Ch]
+void fade_palette(int iTargetBrightness)
+{
+  int iOriginalTickOn = tick_on;
+  int iOriginalTicks = ticks;
+  uint32 uiTimerHandle = 0;
 
-  v20 = a1;
-  if ( !a1 )
+  if (iTargetBrightness == 0)
     disable_keyboard();
-  if ( v20 == 32 && soundon )
-    a1 = sosDIGISetMasterVolume(DIGIHandle, 0x7FFF);
-  v4 = palette_brightness;
-  if ( palette_brightness != v20 )
-  {
-    v22 = tick_on;
-    v23 = ticks;
-    tick_on = 0;
-    s7 = 0;
-    if ( current_mode )
-      sosTIMERRegisterEvent((char)&v19, (unsigned __int16)__DS__);
-    j = v20;
-    if ( v4 > v20 )
-    {
-      v21 = s7;
-      v13 = v4;
-      if ( v4 >= v20 )
-      {
-        v24 = 0x7FFF * v4;
-        do
-        {
-          if ( !v20 && !holdmusic )
-          {
-            if ( musicon )
-              sosMIDISetMasterVolume((unsigned __int8)((v13 * MusicVolume
-                                                      - (__CFSHL__((v13 * MusicVolume) >> 31, 5)
-                                                       + 32 * ((v13 * MusicVolume) >> 31))) >> 5));
-            if ( soundon )
-              sosDIGISetMasterVolume(DIGIHandle, (v24 - (__CFSHL__(v24 >> 31, 5) + 32 * (v24 >> 31))) >> 5);
-            if ( MusicCD )
-              SetAudioVolume((v13 * MusicVolume
-                            - (__CFSHL__((v13 * MusicVolume) >> 31, 5)
-                             + 32 * ((v13 * MusicVolume) >> 31))) >> 5);
-          }
-          qmemcpy((void *)pal_addr, palette, 0x300u);
-          for ( i = 0; i < 768; *(_BYTE *)(pal_addr + i - 1) = v15 >> 5 )
-            v15 = v13 * *(unsigned __int8 *)(pal_addr + i++);
-          if ( current_mode )
-          {
-            while ( v21 == s7 )
-              ;
-            v21 = s7;
-          }
-          else
-          {
-            do
-              v16 = __inbyte(0x3DAu);
-            while ( (v16 & 8) == 0 );
-            do
-              v17 = __inbyte(0x3DAu);
-            while ( (v17 & 8) != 0 );
-          }
-          __outbyte(0x3C8u, 0);
-          for ( j = 0; j < 768; ++j )
-          {
-            v18 = *(_BYTE *)(j + pal_addr);
-            v4 = 969;
-            __outbyte(0x3C9u, v18);
-          }
-          --v13;
-          v24 -= 0x7FFF;
-        }
-        while ( v13 >= v20 );
-      }
-    }
-    else
-    {
-      v25 = s7;
-      v5 = v4;
-      for ( k = v4 <= v20; k; k = v5 <= v20 )
-      {
-        qmemcpy((void *)pal_addr, palette, 0x300u);
-        for ( m = 0; m < 768; *(_BYTE *)(pal_addr + m - 1) = v8 >> 5 )
-          v8 = v5 * *(unsigned __int8 *)(pal_addr + m++);
-        if ( current_mode )
-        {
-          while ( v25 == s7 )
-            ;
-          v25 = s7;
-        }
-        else
-        {
-          do
-            v9 = __inbyte(0x3DAu);
-          while ( (v9 & 8) == 0 );
-          do
-            v10 = __inbyte(0x3DAu);
-          while ( (v10 & 8) != 0 );
-        }
-        __outbyte(0x3C8u, 0);
-        for ( n = 0; n < 768; ++n )
-        {
-          v12 = *(_BYTE *)(n + pal_addr);
-          v4 = 969;
-          __outbyte(0x3C9u, v12);
-        }
-        j = v20;
-        ++v5;
-      }
-    }
-    if ( current_mode )
-      sosTIMERRemoveEvent(v19);
-    qmemcpy((void *)pal_addr, palette, 0x300u);
-    a4 = 0;
-    palette_brightness = v20;
-    tick_on = v22;
-    a1 = v23;
-    ticks = v23;
+
+  if (iTargetBrightness == 32 && soundon) {
+    //sosDIGISetMasterVolume(DIGIHandle, 0x7FFF);
   }
-  if ( v20 == 32 )
-    enable_keyboard();
-  if ( !v20 && !holdmusic )
-  {
-    if ( MusicCD && track_playing )
-    {
-      StopTrack();
+
+  int iCurrentBrightness = palette_brightness;
+
+  if (iTargetBrightness == iCurrentBrightness)
+    return;
+
+  tick_on = 0;
+  s7 = 0;
+
+  if (current_mode != 0) {
+    uiTimerHandle = SDL_AddTimer(70, SDLS7TimerCallback, NULL); //added by ROLLER
+  }
+
+  if (iTargetBrightness > iCurrentBrightness) {
+      // FADE IN LOOP
+    for (int iStep = iCurrentBrightness; iStep <= iTargetBrightness; iStep++) {
+      memcpy(pal_addr, palette, 768);
+
+      for (int i = 0; i < 255; i++) {
+        pal_addr[i].byR = (palette[i].byR * iStep) >> 5;
+        pal_addr[i].byB = (palette[i].byB * iStep) >> 5;
+        pal_addr[i].byG = (palette[i].byG * iStep) >> 5;
+      }
+
+      if (current_mode != 0) {
+        int iPrev = s7;
+        while (s7 == iPrev); // Wait for timer tick
+      } else {
+        //wait for retrace
+        //aka VSYNC for DOS
+      }
+
+      //set dac palette
+      UpdateSDLWindow();
     }
-    else if ( MusicCard && SongPtr )
-    {
-      stop(a1, v4, j, a4);
-      sosMIDIUnInitSong(SongHandle);
+  } else {
+      // FADE OUT LOOP
+    int iVolumeStep = (iTargetBrightness << 15) - iTargetBrightness;
+
+    for (int iStep = iCurrentBrightness; iStep >= iTargetBrightness; iStep--) {
+      if (iTargetBrightness == 0 && !holdmusic) {
+        if (musicon) {
+          //sosMIDISetMasterVolume(((MusicVolume * iStep) >> 5) & 0xFF);
+        }
+
+        if (soundon) {
+          //sosDIGISetMasterVolume(DIGIHandle, (iVolumeStep >> 5));
+        }
+
+        if (MusicCD) {
+          //SetAudioVolume(((MusicVolume * iStep) >> 5) & 0xFF);
+        }
+      }
+
+      memcpy(pal_addr, palette, 768);
+
+      for (int i = 0; i < 255; i++) {
+        pal_addr[i].byR = (palette[i].byR * iStep) >> 5;
+        pal_addr[i].byB = (palette[i].byB * iStep) >> 5;
+        pal_addr[i].byG = (palette[i].byG * iStep) >> 5;
+      }
+
+      if (current_mode != 0) {
+        int iPrevS7 = s7;
+        while (s7 == iPrevS7); // Wait for timer tick
+      } else {
+        //wait for retrace
+        //aka VSYNC for DOS
+      }
+
+      //set dac palette
+      UpdateSDLWindow();
+
+      iVolumeStep -= 0x7FFF;
+    }
+  }
+
+  if (current_mode != 0) {
+    SDL_RemoveTimer(uiTimerHandle); //added by ROLLER
+  }
+
+  memcpy(pal_addr, palette, 768);
+  palette_brightness = iTargetBrightness;
+  tick_on = iOriginalTickOn;
+  ticks = iOriginalTicks;
+
+  if (iTargetBrightness == 0)
+    enable_keyboard();
+
+  if (iTargetBrightness == 0 && !holdmusic) {
+    if (MusicCD && track_playing)
+      StopTrack();
+    else if (MusicCard && SongPtr) {
+      stop();
+      //sosMIDIUnInitSong(SongHandle);
       SongPtr = 0;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4089,7 +4057,7 @@ int getcompactedfilelength(const char *szFile)
   FILE *pFile; // esi
   int iLength; // [esp+0h] [ebp-14h] BYREF
 
-  pFile = fopen(szFile, szRb);
+  pFile = fopen(szFile, "rb");
   fread(&iLength, 1u, 4u, pFile);
   fclose(pFile);
   return iLength;
@@ -4102,7 +4070,7 @@ int initmangle(const char *szFile)
   unmangleinpoff = 4;
   unmanglebufpos = 4;
   unmangleoverflow = 0;
-  unmanglefile = fopen(szFile, szRb);
+  unmanglefile = fopen(szFile, "rb");
   fseek(unmanglefile, unmanglebufpos, 0);
   return (int)fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
 }

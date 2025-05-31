@@ -48,15 +48,6 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-typedef struct
-{
-  uint8 byR;
-  uint8 byB;
-  uint8 byG;
-} tColor;
-
-//-------------------------------------------------------------------------------------------------
-
 extern int exiting;
 extern int game_size;
 extern int svga_possible;
@@ -127,6 +118,7 @@ extern int player1_car;
 
 //-------------------------------------------------------------------------------------------------
 
+void UpdateSDLWindow(); //added by ROLLER
 void copypic(uint8 *pSrc, uint8 *pDest);
 void init_screen();
 void init();

@@ -47,7 +47,7 @@ char my_name[14];         //0016FF12
 
 //-------------------------------------------------------------------------------------------------
 
-int16 *title_screens(unsigned int a1, unsigned int a2)
+void title_screens(unsigned int a1, unsigned int a2)
 {
   //int v2; // edi
   uint8 *pScreen; // edx
@@ -78,43 +78,38 @@ int16 *title_screens(unsigned int a1, unsigned int a2)
    
   
   //loadfatalsample();
-  //fade_palette(32, (int)pScreen);
+  fade_palette(32);
   //if ((cheat_mode & 0x202) != 0)
   //  dospeechsample(v5);
   //disable_keyboard();
   //if ((cheat_mode & 0x202) != 0)
   //  waitsampledone(88);
   fre(front_vga[0]);
-  return 0;// freefatalsample();
+  //freefatalsample();
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void copy_screens(int a1, int a2, int a3, char *a4)
-{
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  /*
-  _UNKNOWN **v4; // edx
-
+void copy_screens()
+{/*
   SVGA_ON = -1;
-  init_screen(a1, -1, 0);
+  init_screen();
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  setpal((int)&aClGremlinPal[3], -1, 0, a4);
-  front_vga[0] = load_picture(aGremlinBm);
-  display_picture(scrbuf, front_vga[0], 0);
-  v4 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  fade_palette(32, (int)v4, 0, (int)a4);
+  setpal("gremlin.pal");
+  front_vga[0] = load_picture("gremlin.bm");
+  display_picture(scrbuf, front_vga[0]);
+  copypic(scrbuf, screen);
+  fade_palette(32, screen);
   disable_keyboard();
   ticks = 0;
   while (ticks < 180)
     ;
   fre(front_vga);
-  fade_palette(0, (int)v4, 0, (int)a4);*/
+  fade_palette(0, screen);*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -5729,10 +5724,8 @@ LABEL_7:
 
 //-------------------------------------------------------------------------------------------------
 
-int restart_net_game(int a1)
+void restart_net_game()
 {
-  (void)(a1);
-  return 0;
   /*
   int v1; // eax
   int v2; // eax

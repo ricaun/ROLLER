@@ -45,8 +45,8 @@ extern char my_name[14];
 
 //-------------------------------------------------------------------------------------------------
 
-int16 *title_screens(unsigned int a1, unsigned int a2);
-void copy_screens(int a1, int a2, int a3, char *a4);
+void title_screens(unsigned int a1, unsigned int a2);
+void copy_screens();
 void select_screen(int a1);
 void select_disk(int a1, int a2, int a3);
 int select_car(int a1, int a2, unsigned int a3, int a4);
@@ -61,7 +61,7 @@ void reset_params();
 int NetworkWait(int a1, int a2, int a3, int a4);
 void loadcheatnames();
 int CheckNames(char *a1, int a2);
-int restart_net_game(int a1);
+void restart_net_game();
 
 //-------------------------------------------------------------------------------------------------
 #endif
