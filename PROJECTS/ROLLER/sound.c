@@ -61,6 +61,7 @@ int delayread;              //0016F8CC
 uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
 {
   tickhandler(0, 0, 0, 0);
+  ++ticks;
   return interval;
 }
 

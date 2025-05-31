@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include "3d.h"
 #include "func3.h"
+#include "func2.h"
 #include "sound.h"
 //-------------------------------------------------------------------------------------------------
 
@@ -91,7 +92,7 @@ void title_screens(unsigned int a1, unsigned int a2)
 //-------------------------------------------------------------------------------------------------
 
 void copy_screens()
-{/*
+{
   SVGA_ON = -1;
   init_screen();
   winx = 0;
@@ -102,14 +103,14 @@ void copy_screens()
   setpal("gremlin.pal");
   front_vga[0] = load_picture("gremlin.bm");
   display_picture(scrbuf, front_vga[0]);
-  copypic(scrbuf, screen);
-  fade_palette(32, screen);
+  copypic(scrbuf, (uint8 *)screen);
+  fade_palette(32);
   disable_keyboard();
   ticks = 0;
   while (ticks < 180)
     ;
-  fre(front_vga);
-  fade_palette(0, screen);*/
+  fre(front_vga[0]);
+  fade_palette(0);
 }
 
 //-------------------------------------------------------------------------------------------------
