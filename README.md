@@ -1,5 +1,7 @@
 ## ROLLER
-![alt text](https://github.com/Zizin13/ROLLER/blob/master/images/whiplash.gif)
+![Roller logo](./master/images/whiplash.gif)
+
+### About
 
 C skeleton that builds, some functions and data decompiled.
 
@@ -14,3 +16,22 @@ Note: wdump symbol offsets do not account for DOS4GW.EXE. Load FATAL.EXE_split_d
 ## External Dependencies Used:
 * SDL3.2.14: https://github.com/libsdl-org/SDL
 * SDL_Image3.2.4: https://github.com/libsdl-org/SDL_image
+
+## Building
+
+### Clone the repository
+
+```bash
+git clone https://github.com/zizin13/roller.git
+cd roller
+```
+
+### Prerequisites
+
+- [Zig 0.14.1](https://ziglang.org/download/)
+
+The easiest way to install is to use [mise](https://mise.jdx.dev/):
+
+```bash
+mise install
+```
