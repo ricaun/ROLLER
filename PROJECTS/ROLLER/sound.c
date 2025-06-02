@@ -3558,15 +3558,18 @@ void fade_palette(int iTargetBrightness)
   if (iTargetBrightness > iCurrentBrightness) {
       // FADE IN LOOP
     for (int iStep = iCurrentBrightness; iStep <= iTargetBrightness; iStep++) {
-      memcpy(pal_addr, palette, 768);
-
-      for (int i = 0; i < 255; i++) {
+      for (int i = 0; i < 256; i++) {
         pal_addr[i].byR = (palette[i].byR * iStep) >> 5;
         pal_addr[i].byB = (palette[i].byB * iStep) >> 5;
         pal_addr[i].byG = (palette[i].byG * iStep) >> 5;
       }
 
       if (current_mode != 0) {
+        //could also do this instead of SDL timer
+        //uint32 uiStartTime = SDL_GetTicks();
+        //while (SDL_GetTicks() - uiStartTime < 70) {
+        //  SDL_Delay(1);
+        //}
         int iPrev = s7;
         while (s7 == iPrev); // Wait for timer tick
       } else {
@@ -3596,9 +3599,7 @@ void fade_palette(int iTargetBrightness)
         }
       }
 
-      memcpy(pal_addr, palette, 768);
-
-      for (int i = 0; i < 255; i++) {
+      for (int i = 0; i < 256; i++) {
         pal_addr[i].byR = (palette[i].byR * iStep) >> 5;
         pal_addr[i].byB = (palette[i].byB * iStep) >> 5;
         pal_addr[i].byG = (palette[i].byG * iStep) >> 5;
