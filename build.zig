@@ -1,6 +1,13 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
+    const running_in_vs = blk: {
+        _ = std.process.getEnvVarOwned(b.allocator, "VisualStudioEdition") catch break :blk false;
+        break :blk true;
+    };
+
+    const assets_path = b.option(std.Build.LazyPath, "assets-path", "Path to assets") orelse b.path("fatdata");
+
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -80,7 +87,7 @@ pub fn build(b: *std.Build) void {
 
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
-    run_cmd.setCwd(b.path("fatdata"));
+    run_cmd.setCwd(assets_path);
 
     if (b.args) |args| {
         run_cmd.addArgs(args);
@@ -88,4 +95,13 @@ pub fn build(b: *std.Build) void {
 
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
+
+    if (running_in_vs) {
+        const cp = b.addInstallDirectory(.{
+            .source_dir = assets_path,
+            .install_dir = .bin,
+            .install_subdir = "",
+        });
+        exe.step.dependOn(&cp.step);
+    }
 }
