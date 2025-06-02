@@ -25,6 +25,7 @@ Note: wdump symbol offsets do not account for DOS4GW.EXE. Load FATAL.EXE_split_d
 ## Build GCC
 ```bash
 git clone https://github.com/zizin13/roller.git
+cd roller
 make
 ```
 
