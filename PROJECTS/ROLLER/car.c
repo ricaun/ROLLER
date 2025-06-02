@@ -19,7 +19,7 @@ int car_texmap[16];             //0017F2B0
 tCarBox CarBox;                 //0017F2F0
 tCar Car[16];                   //0017F8F0
 int car_texs_loaded[16];        //00181E30
-float StoreEngines[80];         //00188200
+tStoreEngine StoreEngines[14];  //00188200
 int LoadCarTextures;            //0018852C
 
 //-------------------------------------------------------------------------------------------------
@@ -38,10 +38,6 @@ void InitCarStructs()
   eCarDesignIndex carDesignIndex3; // esi
   int iRevsOffset; // ebp
   int iNextGear; // edx
-  int16 k; // di
-  int iNumGears2; // eax
-  int m; // ebx
-  double dSpeed; // st7
   float fChg; // [esp+0h] [ebp-20h]
   float fNextChg; // [esp+0h] [ebp-20h]
   int16 i; // [esp+4h] [ebp-1Ch]
@@ -80,14 +76,11 @@ void InitCarStructs()
       } while (iCurrGear < iNumGears);
     }
   }
-  // thread panic: index 80 out of bounds for type 'float[80]'
-  // for (k = 0; k < 14; ++k) {
-  //   iNumGears2 = CarEngines.engines[k].iNumGears;
-  //   if (iNumGears2 > 0) {
-  //     for (m = 0; m < iNumGears2; StoreEngines[6 * k + m - 1] = (float)dSpeed)
-  //       dSpeed = CarEngines.engines[k].pSpds[m++];
-  //   }
-  // }
+  for (int iCarIdx = 0; iCarIdx < 14; iCarIdx++) {
+    for (int i = 0; i < CarEngines.engines[iCarIdx].iNumGears; i++) {
+      StoreEngines[iCarIdx].speeds[i] = CarEngines.engines[iCarIdx].pSpds[i];
+    }
+  }
   CalcCarSizes();
 }
 
@@ -217,9 +210,9 @@ void InitCars()
     nNumGears = CarEngines.engines[i].iNumGears;
     for (j = 0; j < nNumGears; ++j) {
       if ((textures_off & 0x10000) != 0)
-        CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j] * (float)car_c_variable_3;
+        CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j] * (float)car_c_variable_3;
       else
-        CarEngines.engines[i].pSpds[j] = StoreEngines[6 * i + j];
+        CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j];
     }
   }
   for (k = 0; k < numcars; ++k) {
