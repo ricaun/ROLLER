@@ -4357,7 +4357,7 @@ uint8 *load_picture(const char *szFile)
   uint32 uiFileLength; // eax
   uint8 *pBuf; // ebx
 
-  iFileHandle = open(szFile, _O_RDONLY | _O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  iFileHandle = open(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
     printf("Unable to open texture map data file %s\n\n", szFile);
     doexit(1, (int)(uint64)szFile, (void *)(uint64)0xFFFFFFFF);

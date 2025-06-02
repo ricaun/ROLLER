@@ -1038,9 +1038,9 @@ int main(int argc, const char **argv, const char **envp)
   iMemBlocksIdx2 = 0;
   do {
     uiTexturesOff = 0;
-    iMemBlocksIdx = (__int16)iMemBlocksIdx2++;
+    iMemBlocksIdx = (int16)iMemBlocksIdx2++;
     mem_blocks[iMemBlocksIdx].pBuf = 0;
-  } while ((__int16)iMemBlocksIdx2 < 128);
+  } while ((int16)iMemBlocksIdx2 < 128);
   cheat_mode = 0;
   load_language_map();
   load_fatal_config();
