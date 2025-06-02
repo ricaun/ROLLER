@@ -80,13 +80,14 @@ void InitCarStructs()
       } while (iCurrGear < iNumGears);
     }
   }
-  for (k = 0; k < 14; ++k) {
-    iNumGears2 = CarEngines.engines[k].iNumGears;
-    if (iNumGears2 > 0) {
-      for (m = 0; m < iNumGears2; StoreEngines[6 * k + m - 1] = (float)dSpeed)
-        dSpeed = CarEngines.engines[k].pSpds[m++];
-    }
-  }
+  // thread panic: index 80 out of bounds for type 'float[80]'
+  // for (k = 0; k < 14; ++k) {
+  //   iNumGears2 = CarEngines.engines[k].iNumGears;
+  //   if (iNumGears2 > 0) {
+  //     for (m = 0; m < iNumGears2; StoreEngines[6 * k + m - 1] = (float)dSpeed)
+  //       dSpeed = CarEngines.engines[k].pSpds[m++];
+  //   }
+  // }
   CalcCarSizes();
 }
 

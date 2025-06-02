@@ -1,0 +1,21 @@
+.{
+    .name = .roller,
+    .version = "0.0.0",
+    .fingerprint = 0x7af618f83e4aca69, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.14.1",
+    .dependencies = .{
+        .SDL_image = .{
+            .url = "git+https://github.com/allyourcodebase/SDL_image.git#b4eea3007f965a17c946e31b3ce52196b94ce64b",
+            .hash = "SDL_image-3.2.4--aJoHa0VAAC_C_du38OrOmZ4m23B5bCjXONc13NEpTYf",
+        },
+        .sdl = .{
+            .url = "git+https://github.com/castholm/SDL.git#0ab7c9830bf17c1a2404461a88c0fdedf95309a4",
+            .hash = "sdl-0.2.3+3.2.14-7uIn9Gh6fgEdV7R2A723rZxtbgkVd0PHIs2rvshLBqgV",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "PROJECTS/",
+    },
+}
