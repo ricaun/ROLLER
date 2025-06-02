@@ -371,3 +371,5 @@ fatdata/
 # Zig build artifacts
 zig-out/
 .zig-cache/
+/compileData.scor
+/compileData.scor.gbl
