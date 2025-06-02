@@ -17,7 +17,22 @@ Note: wdump symbol offsets do not account for DOS4GW.EXE. Load FATAL.EXE_split_d
 * SDL3.2.14: https://github.com/libsdl-org/SDL
 * SDL_Image3.2.4: https://github.com/libsdl-org/SDL_image
 
-## Building
+## Build MSVC
+1. Clone repository
+2. Open ROLLER.sln
+3. Build project
+
+## Build GCC
+```bash
+git clone https://github.com/zizin13/roller.git
+make
+```
+
+### Prerequisites
+* SDL3
+* SDL3_Image
+
+## Build Zig
 
 ### Clone the repository
 
