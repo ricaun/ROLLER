@@ -61,6 +61,15 @@ pub fn build(b: *std.Build) void {
         },
     });
 
+    switch (target.result.os.tag) {
+        .windows => {},
+        else => {
+            exe_mod.addCMacro("__int16", "int16");
+            exe_mod.addCMacro("_O_RDONLY", "O_RDONLY");
+            exe_mod.addCMacro("_O_BINARY", "0x200");
+        },
+    }
+
     const exe = b.addExecutable(.{
         .name = "roller",
         .root_module = exe_mod,
