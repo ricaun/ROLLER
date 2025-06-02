@@ -10,6 +10,7 @@
 #else
 #include <inttypes.h>
 #include <unistd.h>
+#define O_BINARY 0 //linux does not differentiate between text and binary
 #endif
 //-------------------------------------------------------------------------------------------------
 
