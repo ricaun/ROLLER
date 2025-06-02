@@ -1,5 +1,5 @@
 ## ROLLER
-![Roller logo](./master/images/whiplash.gif)
+![Roller logo](./images/whiplash.gif)
 
 ### About
 
