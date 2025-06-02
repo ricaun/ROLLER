@@ -26,7 +26,7 @@ git clone https://github.com/zizin13/roller.git
 cd roller
 ```
 
-### Prerequisites
+### Install prerequisites
 
 - [Zig 0.14.1](https://ziglang.org/download/)
 
@@ -35,3 +35,26 @@ The easiest way to install is to use [mise](https://mise.jdx.dev/):
 ```bash
 mise install
 ```
+
+### Provide assets
+
+Assets from a retail copy of the game are required to run. You can use either of these two options:
+
+  1. Copy the `fatdata` folder to the project folder
+  2. Run `roller` with the `fatdata` folder as the current working directory
+
+### Build and run the project
+
+Using default settings
+```bash
+zig build run
+```
+
+A custom data folder
+```bash
+zig build -Dassets-path=/path/to/fatdata run
+```
+
+### Windows development
+
+There is basic support for Visual Studio 2022 using [ZigVS](https://marketplace.visualstudio.com/items?itemName=LuckystarStudio.ZigVS)
