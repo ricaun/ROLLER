@@ -3616,6 +3616,7 @@ void fade_palette(int iTargetBrightness)
       }
 
       //set dac palette
+      SDL_PollEvent(NULL);
       UpdateSDLWindow();
 
       iVolumeStep -= 0x7FFF;
