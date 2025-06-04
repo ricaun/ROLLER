@@ -1,0 +1,3 @@
+-I.
+-I./external/SDL3-3.2.14/include
+-I./external/SDL3_image-3.2.4/include
