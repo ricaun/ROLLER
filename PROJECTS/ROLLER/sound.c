@@ -1,4 +1,5 @@
 #include "sound.h"
+#include "SDL3/SDL_events.h"
 #include "frontend.h"
 #include "moving.h"
 #include "cdx.h"
@@ -87,10 +88,10 @@ void realmode(uint8 byRealModeInterrupt)
   // bx is being set to the real mode interrupt to simulate
   // all calls to this function set it to 0x10
   //   to simulate a BIOS video interrupt in real mode
-  // __DS__ represents the current value of the DS (Data Segment) 
+  // __DS__ represents the current value of the DS (Data Segment)
   //   register in your program's segment context
   // By setting sregs.es = __DS__; and regs.x.edi = (unsigned int)&RMI;,
-  //   we are telling the DPMI host that the RMI structure is located 
+  //   we are telling the DPMI host that the RMI structure is located
   //   at offset &RMI in the segment __DS__
   memset(&sregs, 0, sizeof(sregs));
   regs.w.bx = byRealModeInterrupt;
@@ -288,7 +289,7 @@ void blankpal()
 {
   if (!pal_addr)
     return;
-  
+
   memset(pal_addr, 0, sizeof(tColor) * 256);
 
   /*
@@ -308,10 +309,10 @@ void blankpal()
   // * If failed, the carry flag is set and AX contains an error code.
   int386x(49, &regs, &regs, &sregs);
 
-  // Multiplying by 16 (* 16) converts a segment 
-  // selector value to a linear address in real 
-  // mode (segment:offset addressing), because in 
-  // real mode, the physical address is 
+  // Multiplying by 16 (* 16) converts a segment
+  // selector value to a linear address in real
+  // mode (segment:offset addressing), because in
+  // real mode, the physical address is
   // segment * 16 + offset.
   uiLinearAddress = 16 * regs.w.ax;
   unDx = regs.w.dx;
@@ -321,8 +322,8 @@ void blankpal()
   RMI.ebx = 0;
   RMI.edx = 0;
 
-  // Shifting the address right by 4 (>> 4) converts 
-  // the linear address back to a segment value 
+  // Shifting the address right by 4 (>> 4) converts
+  // the linear address back to a segment value
   // (since segment = address / 16).
   RMI.es = uiLinearAddress >> 4;
   realmode(0x10u);
@@ -3578,6 +3579,7 @@ void fade_palette(int iTargetBrightness)
       }
 
       //set dac palette
+      SDL_PollEvent(NULL);
       UpdateSDLWindow();
     }
   } else {
@@ -4227,7 +4229,7 @@ void loadcompactedfilepart(uint8 *pDest, uint32 uiDestLength)
 
 uint8 *unmangleGet(unsigned int uiPos, unsigned int uiLookahead)
 {
-  // if what we want to read is not currently in the 
+  // if what we want to read is not currently in the
   // buffer load it into the buffer from the file
   if (uiPos < (uint32)unmanglebufpos || uiPos + uiLookahead >(uint32)unmanglebufpos + 1024) {
     unmanglebufpos = uiPos;
