@@ -1,7 +1,11 @@
 #include "loadtrak.h"
+#include <stdarg.h>
+#include <string.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-uint8 TrackSelect = 0;  //000A5F9C
+uint8 TrackSelect = 0;      //000A5F9C
+char *delims = " ,\n\t\r";  //000A6088
 
 //-------------------------------------------------------------------------------------------------
 
@@ -1100,85 +1104,110 @@ int ReadAnimData(int result, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int readline(int a1, const char *a2, double *a3)
+void readline(FILE *pFile, const char *szFmt, ...)
 {
-  return 0; /*
-  int v3; // eax
-  char *v4; // esi
-  double *v5; // edi
-  char v6; // al
-  char v7; // al
-  char *v8; // esi
-  double *v9; // edi
-  char v10; // al
-  char v11; // al
-  int result; // eax
-  _BYTE v13[512]; // [esp+0h] [ebp-22Ch] BYREF
-  unsigned int i; // [esp+200h] [ebp-2Ch]
-  int v15; // [esp+204h] [ebp-28h]
+  char szBuffer[0x200];
+  char *szTok;
+  va_list args;
+  int iFieldIndex = 0;
+  char *szDelims = delims;
 
-  do {
-    fgets(v13, 512, a1, a1);
-    v15 = strtok(v13, delims);
-    if (strstr(v15, loadtrak_c_variable_53) == v15)
-      v15 = 0;
-    v3 = strstr(v15, &aE[1]);
-    if (v3 == v15)
-      v15 = 0;
-  } while (!v15);
-  for (i = 0; ; ++i) {
-    result = 0;
-    if (strlen(a2) <= i)
-      break;
-    if (a2[i] == 68)
-      *a3 = strtod(v15, 0) * loadtrak_c_variable_55;
-    if (a2[i] == 70)
-      *(float *)a3 = strtod(v15, 0) * loadtrak_c_variable_55;
-    if (a2[i] == 73)
-      *(_DWORD *)a3 = strtol(v15, 0, 10) << 8;
-    if (a2[i] == 83)
-      *(_WORD *)a3 = (unsigned __int16)strtol(v15, 0, 10) << 8;
-    if (a2[i] == 100)
-      *a3 = strtod(v15, 0);
-    if (a2[i] == 102)
-      *(float *)a3 = strtod(v15, 0);
-    if (a2[i] == 105)
-      *(_DWORD *)a3 = strtol(v15, 0, 10);
-    if (a2[i] == 115)
-      *(_WORD *)a3 = strtol(v15, 0, 10);
-    if (a2[i] == 67) {
-      v4 = (char *)v15;
-      v5 = a3;
-      do {
-        v6 = *v4;
-        *(_BYTE *)v5 = *v4;
-        if (!v6)
-          break;
-        v7 = v4[1];
-        v4 += 2;
-        *((_BYTE *)v5 + 1) = v7;
-        v5 = (double *)((char *)v5 + 2);
-      } while (v7);
+  va_start(args, szFmt);
+  double dScale = 255.0;
+
+  // Skip comments and blank lines
+  while (1) {
+    if (!fgets(szBuffer, sizeof(szBuffer), pFile)) {
+      va_end(args);
+      return; // EOF or error
     }
-    if (a2[i] == 99) {
-      v8 = (char *)v15;
-      v9 = a3;
-      do {
-        v10 = *v8;
-        *(_BYTE *)v9 = *v8;
-        if (!v10)
-          break;
-        v11 = v8[1];
-        v8 += 2;
-        *((_BYTE *)v9 + 1) = v11;
-        v9 = (double *)((char *)v9 + 2);
-      } while (v11);
+
+    szTok = strtok(szBuffer, szDelims);
+    if (!szTok) continue;
+
+    if (strncmp(szTok, "//", 2) == 0 || strchr(szTok, ';') == szTok) {
+      continue;
     }
-    if (a2[i] == 117)
-      *(_BYTE *)a3 = strtol(v15, 0, 10);
-    v15 = strtok(0, delims);
+    break;
   }
-  return result;*/
+
+  char *szFmtPtr = (char *)szFmt;
+  char *szCurrTok = szTok;
+
+  while (*szFmtPtr && szCurrTok) {
+    void *pDst = va_arg(args, void *);
+
+    switch (*szFmtPtr) {
+      case 'D':
+      { // double scaled
+        double val = strtod(szCurrTok, NULL) * dScale;
+        *(double *)pDst = val;
+        break;
+      }
+      case 'F':
+      { // float scaled
+        float val = (float)(strtod(szCurrTok, NULL) * dScale);
+        *(float *)pDst = val;
+        break;
+      }
+      case 'I':
+      { // int shifted
+        int val = strtol(szCurrTok, NULL, 10) << 8;
+        *(int *)pDst = val;
+        break;
+      }
+      case 'S':
+      { // short shifted
+        short val = (short)(strtol(szCurrTok, NULL, 10) << 8);
+        *(short *)pDst = val;
+        break;
+      }
+      case 'd':
+      {
+        *(double *)pDst = strtod(szCurrTok, NULL);
+        break;
+      }
+      case 'f':
+      {
+        *(float *)pDst = (float)strtod(szCurrTok, NULL);
+        break;
+      }
+      case 'i':
+      {
+        *(int *)pDst = strtol(szCurrTok, NULL, 10);
+        break;
+      }
+      case 's':
+      {
+        *(short *)pDst = (short)strtol(szCurrTok, NULL, 10);
+        break;
+      }
+      case 'u':
+      {
+        *(uint8*)pDst = (uint8)strtol(szCurrTok, NULL, 10);
+        break;
+      }
+      case 'C':
+      case 'c':
+      {
+        char *szDest = (char *)pDst;
+        const char *szSrc = szCurrTok;
+        // Custom wide copy: 2 bytes per char
+        while (*szSrc) {
+          *szDest++ = *szSrc++;
+          *szDest++ = *szSrc++;
+        }
+        *szDest = '\0';
+        break;
+      }
+    }
+
+    szFmtPtr++;
+    szCurrTok = strtok(NULL, szDelims);
+    iFieldIndex++;
+  }
+
+  va_end(args);
 }
 
 //-------------------------------------------------------------------------------------------------

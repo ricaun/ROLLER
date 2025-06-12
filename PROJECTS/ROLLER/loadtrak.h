@@ -2,9 +2,11 @@
 #define _ROLLER_LOADTRAK_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include <stdio.h>
 //-------------------------------------------------------------------------------------------------
 
 extern uint8 TrackSelect;
+extern char *delims;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -15,7 +17,7 @@ char *read_bldmap(char **a1);
 int readstuntdata(int a1, int a2, int a3, int a4);
 void activatestunts();
 int ReadAnimData(int result, int a2);
-int readline(int a1, const char *a2, double *a3);
+void readline(FILE *pFile, const char *szFmt, ...);
 char *memgets(char *a1, int *a2);
 char *readline2(int *a1, const char *a2, ...);
 double *rotatepoint(
