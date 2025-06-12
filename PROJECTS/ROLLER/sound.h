@@ -33,7 +33,10 @@ extern int MusicPort;
 extern int SongPtr;
 extern int SongHandle;
 extern uint8 unmangleinbuf[1024];
+extern char lang[512];
 extern int TrackMap[32];
+extern char TextExt[64];
+extern char SampleExt[64];
 extern int copy_multiple[8192];
 extern int unmangleinpoff;
 extern uint8 *unmangledst;
@@ -51,6 +54,7 @@ extern int optionssong;
 extern int titlesong;
 extern int delaywrite;
 extern int delayread;
+extern int languages;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -110,7 +114,7 @@ int loopsample(int result, unsigned int a2, int a3, int a4, int a5);
 void enginesound(int a1, float a2, float a3, float a4, int a5);
 int startmusic(int result);
 int stopmusic(int a1, int a2);
-int load_language_map();
+void load_language_map();
 int initmusic();
 void fade_palette(int iPaletteBrightness);
 void set_palette(int iBrightness);

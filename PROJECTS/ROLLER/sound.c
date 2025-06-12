@@ -5,6 +5,7 @@
 #include "cdx.h"
 #include "func2.h"
 #include "3d.h"
+#include "loadtrak.h"
 #include <memory.h>
 #include <SDL3/SDL.h>
 #ifdef IS_WINDOWS
@@ -34,7 +35,10 @@ int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
+char lang[512];             //00162E38
 int TrackMap[32];           //00163038
+char TextExt[64];           //001630CA
+char SampleExt[64];         //0016310A
 int copy_multiple[8192];    //0016764C
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
@@ -52,6 +56,7 @@ int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
 int delaywrite;             //0016F8C8
 int delayread;              //0016F8CC
+int languages;              //0016F8D8
 
 //-------------------------------------------------------------------------------------------------
 /***
@@ -3373,33 +3378,41 @@ int stopmusic(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int load_language_map()
+void load_language_map()
 {
-  return 0; /*
-  int v0; // ebx
-  int v1; // edi
-  char *v2; // esi
-  char *v3; // edx
-  char *v4; // ecx
-  char *v6; // [esp-Ch] [ebp-24h]
+  FILE *pFile;
+  int i;
 
-  v0 = 0;
-  v1 = fopen(aLanguageIni, &aSR[3]);
-  readline(v1, &aII[3], &languages);
-  if (languages > 0) {
-    v2 = (char *)&lang;
-    v3 = (char *)&TextExt;
-    v4 = (char *)&SampleExt;
-    do {
-      v6 = v2;
-      ++v0;
-      v4 += 4;
-      v3 += 4;
-      v2 += 32;
-      readline(v1, aCcc, v6);
-    } while (v0 < languages);
+  // open file
+  pFile = fopen("LANGUAGE.INI", "r");
+  if (!pFile) return;
+
+  // read number of languages into languages
+  readline(pFile, "i", &languages);
+
+  // check if languages is valid
+  if (languages <= 0) {
+    fclose(pFile);
+    return;
   }
-  return fclose(v1);*/
+
+  // Set up pointers to global buffers
+  char *szLangPtr = lang;
+  char *szTextExtPtr = TextExt;
+  char *szSampleExtPtr = SampleExt;
+
+  // loop through each language and read settings
+  for (i = 0; i < languages; i++) {
+    readline(pFile, "ccc", szLangPtr, szTextExtPtr, szSampleExtPtr);
+
+    // Move pointers forward to next slots
+    szLangPtr += 32;        // Each lang entry is 32 bytes
+    szTextExtPtr += 4;       // Each extension is 4 bytes
+    szSampleExtPtr += 4;
+  }
+
+  // close the file
+  fclose(pFile);
 }
 
 //-------------------------------------------------------------------------------------------------
