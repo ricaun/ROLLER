@@ -1113,7 +1113,7 @@ void readline(FILE *pFile, const char *szFmt, ...)
   char *szDelims = delims;
 
   va_start(args, szFmt);
-  double dScale = 255.0;
+  double dScale = 256.0;
 
   // Skip comments and blank lines
   while (1) {
