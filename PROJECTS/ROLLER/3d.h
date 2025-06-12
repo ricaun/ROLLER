@@ -68,6 +68,7 @@ extern tColor palette[256];
 extern float tsin[16384];
 extern float ptan[16384];
 extern float tcos[16384];
+extern char buffer[128];
 extern uint8 blank_line[640];
 extern tMemBlock mem_blocks[128];
 extern int ticks;

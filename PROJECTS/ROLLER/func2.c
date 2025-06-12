@@ -1,13 +1,13 @@
 #include "func2.h"
 #include "control.h"
+#include "sound.h"
+#include "3d.h"
+#include <stdio.h>
 //-------------------------------------------------------------------------------------------------
 
-double g_dRecordLapsMultiplier = 0.01;  //000A0F09 Symbol name added by ROLLER
-double g_dRecordLapsMinimum = 0.4;      //000A0F11 Symbol name added by ROLLER
-uint8 key_buffer[64]; //0013FB90
-int write_key = 0;    //000A39E4
-int read_key = 0;     //000A39E8
-uint8 mapping[] =     //000A3AF8
+int write_key = 0;          //000A39E4
+int read_key = 0;           //000A39E8
+uint8 mapping[] =           //000A3AF8
 {
   0x7F, 0x1B, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
   0x39, 0x30, 0x2D, 0x3D, 0x08, 0x09, 0x51, 0x57, 0x45, 0x52,
@@ -23,7 +23,10 @@ uint8 mapping[] =     //000A3AF8
   0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
   0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
-int twoparter = 0;    //000A3B78
+int twoparter = 0;          //000A3B78
+uint8 key_buffer[64];       //0013FB90
+char config_buffer[8192];   //0013FBD8
+char language_buffer[8192]; //00141BD8
 
 //-------------------------------------------------------------------------------------------------
 
@@ -4776,66 +4779,70 @@ int check_machine_speed()
 
 //-------------------------------------------------------------------------------------------------
 
-void load_language_file(int a1, int a2)
+void load_language_file(const char *szFilename, int iUseConfigBuffer)
 {
-  (void)(a1); (void)(a2);
-  /*
-  int v4; // esi
-  _BYTE *v5; // edi
-  char *v6; // esi
-  char v7; // al
-  char v8; // al
-  int v9; // esi
-  int v10; // edi
-  int v11; // ecx
-  char *v12; // eax
-  char *v13; // edx
-  char *i; // edx
-  char v15; // bl
+  FILE *pFile;
+  char *szExt;
+  char *szTextExt;
+  char *szFileExt;
+  int i = 0;
 
-  v4 = language;
-  v5 = (_BYTE *)(strstr() + 1);
-  v6 = (char *)&TextExt + 4 * v4;
-  do {
-    v7 = *v6;
-    *v5 = *v6;
-    if (!v7)
+  // look for ".eng" in filename
+  szExt = strstr(szFilename, ".eng");
+
+  // get translation text extension string based on language index
+  szTextExt = (char *)TextExt[language];
+
+  // copy this text extension after the ".eng" part in the filename
+  szFileExt = szExt + 1;  // skip the dot
+  while (*szTextExt) {
+    *szFileExt++ = *szTextExt++;
+    if (*szTextExt == 0)
       break;
-    v8 = v6[1];
-    v6 += 2;
-    v5[1] = v8;
-    v5 += 2;
-  } while (v8);
-  v9 = fopen(a1, aR_0);
-  if (v9) {
-    v10 = 0;
-    v11 = 0;
-    do {
-      fgets(&buffer, 512, v9, v11);
-      if (buffer == 69 && buffer_variable_1 == 78 && buffer_variable_2 == 68) {
-        v10 = -1;
-      } else {
-        v12 = &buffer_variable_1;
-        if (a2 == 1)
-          v13 = config_buffer;
-        else
-          v13 = (char *)&language_buffer;
-        for (i = &v13[v11]; ; *(i - 1) = v15) {
-          v15 = *v12;
-          if (*v12 == 34)
-            break;
-          ++i;
-          ++v12;
-        }
-        v11 += 64;
-        *i = 0;
-      }
-    } while (!v10);
-    fclose(v9);
-  } else {
-    printf(&aMpunableToOpen[2]);
-    doexit();
-  }*/
+    *szFileExt++ = *szTextExt++;
+  }
+  *szFileExt = '\0';
+
+  // try opening the language file
+  pFile = fopen(szFilename, "r");
+  if (!pFile) {
+    printf("Unable to open file: %s\n", szFilename);
+    doexit(1);
+  }
+
+  int iEndFound = 0;
+  int iLineOffset = 0;
+
+  while (!iEndFound) {
+    // fead a line into buffer
+    if (!fgets(buffer, 128, pFile)) break; //512 in original code but buffer is only 128 in size
+
+    // check for "END" keyword
+    if (buffer[0] == 'E' && buffer[1] == 'N' && buffer[2] == 'D') {
+      iEndFound = 1;
+      break;
+    }
+
+    // determine destination buffer
+    char *szDest;
+    if (iUseConfigBuffer == 1) {
+      szDest = config_buffer + iLineOffset;
+    } else {
+      szDest = language_buffer + iLineOffset;
+    }
+
+    // copy characters between quotes to dest
+    char *szSrc = buffer + 1;  // skip first character
+    while (*szSrc != '"' && *szSrc != '\0') {
+      *szDest++ = *szSrc++;
+    }
+    *szDest = '\0';
+
+    // increment iLineOffset
+    iLineOffset += 64;
+  }
+
+  fclose(pFile);
 }
 
 //-------------------------------------------------------------------------------------------------

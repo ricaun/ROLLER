@@ -4,11 +4,13 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
-extern uint8 key_buffer[];
 extern int write_key;
 extern int read_key;
 extern uint8 mapping[];
 extern int twoparter;
+extern uint8 key_buffer[];
+extern char config_buffer[8192];
+extern char language_buffer[8192];
 
 //-------------------------------------------------------------------------------------------------
 
@@ -76,7 +78,7 @@ char small_zoom(char *a1);
 char subzoom(char *a1);
 void make_time(char *a1, int a2, float a3);
 int check_machine_speed();
-void load_language_file(int a1, int a2);
+void load_language_file(const char *szFilename, int iUseConfigBuffer);
 int do_blip(int a1, int a2);
 
 //-------------------------------------------------------------------------------------------------

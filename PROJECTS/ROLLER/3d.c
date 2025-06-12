@@ -39,6 +39,7 @@ tColor palette[256];        //00100DD0
 float tsin[16384];          //001010F0
 float ptan[16384];          //001110F0
 float tcos[16384];          //00121128
+char buffer[128];           //00131228
 uint8 blank_line[640];      //001312A8
 tMemBlock mem_blocks[128];  //0013E058
 int ticks;                  //0013E92C
