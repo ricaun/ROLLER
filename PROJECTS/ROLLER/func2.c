@@ -1603,7 +1603,8 @@ void setdirectory(const char *szAppPath)
   chdir(szLocalDir);
 
   // set dir to FATDATA
-  chdir("FATDATA");
+  if (chdir("FATDATA") != 0)
+    chdir("fatdata"); //linux compatibility
 }
 
 //-------------------------------------------------------------------------------------------------
