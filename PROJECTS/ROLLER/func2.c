@@ -3,6 +3,12 @@
 #include "sound.h"
 #include "3d.h"
 #include <stdio.h>
+#ifdef IS_WINDOWS
+#include <direct.h>
+#define chdir _chdir
+#else
+#include <unistd.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 int write_key = 0;          //000A39E4
@@ -1557,35 +1563,47 @@ int DisplayFree()
 
 //-------------------------------------------------------------------------------------------------
 
-int setdirectory(char *a1)
+void setdirectory(const char *szAppPath)
 {
-  (void)(a1);
-  return 0;
-  /*
-  _BYTE *v1; // edi
-  char v3; // al
-  char v4; // al
-  _BYTE *v5; // eax
-  _BYTE v7[272]; // [esp+0h] [ebp-110h] BYREF
+  char szLocalDir[256];
+  char *p = szLocalDir;
+  const char *s = szAppPath;
 
-  v1 = v7;
-  do {
-    v3 = *a1;
-    *v1 = *a1;
-    if (!v3)
-      break;
-    v4 = a1[1];
-    a1 += 2;
-    v1[1] = v4;
-    v1 += 2;
-  } while (v4);
-  dos_setdrive((v7[0] & 0xDF) - 64, 0);
-  v5 = (_BYTE *)strrchr(v7, 92);
-  if (*(v5 - 1) == 58)
-    ++v5;
-  *v5 = 0;
-  chdir(v7);
-  return chdir(aFatdata);*/
+  // Copy the path into localPath, 2 bytes at a time
+  while (true) {
+    *p++ = *s;
+    if (*s == '\0') break;
+    *p++ = *(s + 1);
+    s += 2;
+    if (*(s - 1) == '\0') break;
+  }
+
+#ifdef IS_WINDOWS
+  // Set current drive based on first letter of path (e.g., 'C' -> drive 3)
+  char cDriveLetter = szLocalDir[0] & 0xDF; // Convert to uppercase
+  int iDrive = (int)(cDriveLetter - '@');  // 'A' => 1, 'C' => 3, etc.
+  //dos_setdrive(iDrive, 0);
+  _chdrive(iDrive);
+#endif
+
+  // Find last backslash in the path
+  char *szLastSlash = strrchr(szLocalDir, '\\');
+  if (!szLastSlash)
+    szLastSlash = strrchr(szLocalDir, '/'); //linux compatibility
+  if (szLastSlash && *(szLastSlash - 1) == ':') {
+    szLastSlash++;  // skip over ":"
+  }
+
+  // trim filename
+  if (szLastSlash) {
+    *szLastSlash = '\0';
+  }
+
+  // set dir to szLocalDir
+  chdir(szLocalDir);
+
+  // set dir to FATDATA
+  chdir("FATDATA");
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ int fatgetch();
 void release_key_int();
 int clear_border(int a1, int a2, int a3, int a4);
 int DisplayFree();
-int setdirectory(char *a1);
+void setdirectory(const char *szAppPath);
 int FindShades();
 int nearest_colour(int a1, int a2, int a3);
 int select_view(int a1);
