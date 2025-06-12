@@ -3,6 +3,7 @@
 #include "sound.h"
 #include "3d.h"
 #include <stdio.h>
+#include <string.h>
 #ifdef IS_WINDOWS
 #include <direct.h>
 #define chdir _chdir
