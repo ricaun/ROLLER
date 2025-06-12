@@ -15,6 +15,7 @@ int replay_record = 1;    //000A5304
 int network_champ_on = 0; //000A5318
 void *front_vga[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //000A5324
 char player_names[16][9]; //0016FA10
+int allocated_cars[14];   //0016FBC8
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
 int player_invul[16];     //0016FE60

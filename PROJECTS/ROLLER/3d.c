@@ -1153,8 +1153,8 @@ int main(int argc, const char **argv, const char **envp)
     if (restart_net) {
       restart_net_game();
     } else {
-      //while (!time_to_start)
-      //  select_screen(0);
+      while (!time_to_start)
+        select_screen(0);
     }
     restart_net = 0;
     countdown = 144;

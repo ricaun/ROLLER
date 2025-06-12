@@ -54,7 +54,7 @@ void display_picture(void *pDest, const void *pSrc);
 uint8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6);
 uint8 *load_picture(const char *szFile);
 int AllocateCars(int a1);
-int check_cars(int a1, int a2, int a3);
+void check_cars();
 char *select_messages();
 void show_received_mesage();
 int select_netslot();

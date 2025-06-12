@@ -37,6 +37,7 @@ extern char lang[512];
 extern int TrackMap[32];
 extern char TextExt[64];
 extern char SampleExt[64];
+extern int car_to_player[8][2];
 extern int copy_multiple[8192];
 extern int unmangleinpoff;
 extern uint8 *unmangledst;

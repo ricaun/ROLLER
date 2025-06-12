@@ -39,6 +39,7 @@ char lang[512];             //00162E38
 int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
+int car_to_player[8][2];    //0016748C
 int copy_multiple[8192];    //0016764C
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650

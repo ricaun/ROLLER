@@ -13,6 +13,7 @@ extern int replay_record;
 extern int network_champ_on;
 extern void *front_vga[15];
 extern char player_names[16][9];
+extern int allocated_cars[14];
 extern int non_competitors[16];
 extern int player_started[16];
 extern int player_invul[16];

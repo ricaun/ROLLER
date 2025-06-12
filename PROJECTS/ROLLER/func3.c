@@ -1,6 +1,7 @@
 #include "func3.h"
 #include "3d.h"
 #include "sound.h"
+#include "frontend.h"
 #include <memory.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
@@ -4615,48 +4616,43 @@ int AllocateCars(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int check_cars(int a1, int a2, int a3)
+void check_cars()
 {
-  (void)(a1); (void)(a2); (void)(a3); return 0;
-  /*
-  int result; // eax
-  int v4; // edx
-  int v5; // edi
-  int v6; // ebx
+  memset(allocated_cars, 0, sizeof(allocated_cars));
 
-  _STOSD(allocated_cars, 0, a3, 14);
-  result = player_type;
-  if (!player_type) {
-    players = 1;
-    goto LABEL_8;
+  // Determine number of players
+  switch (player_type) {
+    case 0:
+      players = 1;
+      break;
+    case 1:
+      players = network_on;
+      break;
+    case 2:
+      players = 2;
+      break;
+    default:
+      return;
   }
-  if ((unsigned int)player_type <= 1) {
-    result = network_on;
-    goto LABEL_7;
+
+  if (players <= 0)
+    return;
+
+  for (int i = 0; i < players; i++) {
+    int iCarId = Players_Cars[i];
+
+    // If not in cheat mode 0x4000, increment allocation count
+    if (!(cheat_mode & 0x4000)) {
+      allocated_cars[iCarId]++;
+    }
+
+    // Assign player index to car_to_player[iCarId][slot]
+    if (allocated_cars[iCarId] == 1) {
+      car_to_player[iCarId][0] = i;
+    } else {
+      car_to_player[iCarId][1] = i;
+    }
   }
-  if (player_type == 2)
-    LABEL_7:
-  players = result;
-LABEL_8:
-  v4 = 0;
-  if (players > 0) {
-    result = 0;
-    do {
-      v5 = *(int *)((char *)Players_Cars + result);
-      if (v5 >= 0) {
-        if ((cheat_mode & 0x4000) == 0)
-          ++allocated_cars[v5];
-        v6 = *(int *)((char *)Players_Cars + result);
-        if (allocated_cars[v6] == 1)
-          car_to_player[2 * v6] = v4;
-        else
-          car_to_player_variable_1[2 * v6] = v4;
-      }
-      result += 4;
-      ++v4;
-    } while (v4 < players);
-  }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
