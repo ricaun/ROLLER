@@ -36,6 +36,9 @@ int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
+uint32 SampleLen[120];         //00160560
+uint8 *SamplePtr[120];      //00160750
+char Sample[120][15];       //00162730
 char lang[512];             //00162E38
 int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
@@ -1745,28 +1748,28 @@ char *FindConfigVar(char *a1, const char *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-void loadfile(const char *szFile, void *pBuf, unsigned int uiSize, int iIsSound)
+void loadfile(const char *szFile, void *pBuf, unsigned int *uiSize, int iIsSound)
 {
   int iFile; // eax
   void *pBuf2; // eax
   uint8 *pUint8Buf; // edx
 
   pBuf = 0;
-  uiSize = 0;
+  *uiSize = 0;
   iFile = open(szFile, 512);
   if (iFile == -1) {
-    uiSize = 0;
+    *uiSize = 0;
     pBuf = 0;
   } else {
     close(iFile);
-    uiSize = getcompactedfilelength(szFile);
+    *uiSize = getcompactedfilelength(szFile);
     if (!iIsSound || iIsSound == 1 && soundon) {
-      pBuf2 = trybuffer(uiSize);
+      pBuf2 = trybuffer(*uiSize);
       pBuf = pBuf2;
       if (pBuf2) {
         pUint8Buf = (uint8 *)pBuf2;
         initmangle(szFile);
-        loadcompactedfilepart(pUint8Buf, uiSize);
+        loadcompactedfilepart(pUint8Buf, *uiSize);
         uninitmangle();
       }
     }
@@ -3799,108 +3802,76 @@ char *decode(char *result, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int loadasample(int a1)
+void loadasample(int iIndex)
 {
-  return 0; /*
-  char *v2; // edi
-  char *v3; // esi
-  char v4; // al
-  char v5; // al
-  int result; // eax
-  char *v7; // ebx
-  int v8; // ecx
-  int v9; // esi
-  int v10; // edi
-  char v11; // dh
-  char v12; // dl
-  int v13; // esi
-  char *v14; // ebx
-  int v15; // ecx
-  int v16; // edi
-  char v17; // dh
-  char v18; // dl
-  int v19; // ebp
-  int i; // ebx
-  int v21; // ecx
-  int j; // ebx
-  char v23[32]; // [esp+0h] [ebp-40h] BYREF
-  int v24; // [esp+20h] [ebp-20h]
-  int v25; // [esp+24h] [ebp-1Ch]
+  char szFilenameBuf[32];
 
-  v2 = v23;
-  v3 = (char *)&Sample + 15 * a1;
-  do {
-    v4 = *v3;
-    *v2 = *v3;
-    if (!v4)
-      break;
-    v5 = v3[1];
-    v3 += 2;
-    v2[1] = v5;
-    v2 += 2;
-  } while (v5);
-  convertname(v23);
-  result = loadfile((int)v23, &SamplePtr[a1], (unsigned int *)&SampleLen[a1], 1);
-  if (cheatsample) {
-    v7 = (char *)SamplePtr[a1];
-    if (v7) {
-      result = 2198;
-      v8 = 0;
-      v9 = 7283;
-      v10 = SampleLen[a1];
-      if (v10 > 0) {
-        do {
-          ++v8;
-          v11 = *v7;
-          v24 = result + v9;
-          ++v7;
-          v12 = result + v9;
-          v9 = result;
-          result = v24;
-          *(v7 - 1) = v12 ^ v11;
-        } while (v8 < v10);
-      }
+  // construct sample filename
+  char *szSrc = Sample[iIndex];
+  char *szDst = szFilenameBuf;
+  while (*szSrc) {
+    *szDst++ = *szSrc++;
+    if (!*szSrc) break;
+    *szDst++ = *szSrc++;
+  }
+  *szDst = '\0';
+
+  // convert sample name to real path or cheat version
+  convertname(szFilenameBuf);
+
+  // load file into memory
+  loadfile(szFilenameBuf, &SamplePtr[iIndex], &SampleLen[iIndex], 1);
+
+  // check if cheat sample flag is set and process if needed
+  if (cheatsample && SamplePtr[iIndex]) {
+    uint8 *pData= SamplePtr[iIndex];
+    int iLen = SampleLen[iIndex];
+    uint32 uiSeed = 0x1C73;
+    uint32 uiStep = 0x896;
+    int i;
+
+    for (i = 0; i < iLen; ++i) {
+      uiSeed += uiStep;
+      pData[i] ^= (uint8)uiSeed;
     }
   }
-  if (a1 == 79 || a1 == 80 || a1 == 81 || a1 == 82) {
-    result = 4 * a1;
-    if (SamplePtr[a1]) {
-      v13 = 77;
-      v14 = (char *)SamplePtr[a1];
-      v15 = 87;
-      v16 = SampleLen[a1];
-      for (result = 0; result < v16; *(v14 - 1) = v18 ^ v17) {
-        ++result;
-        v17 = *v14;
-        v25 = v15 + v13;
-        ++v14;
-        v18 = v15 + v13;
-        v13 = v15;
-        v15 = v25;
-      }
+
+  // if the index is between 79 and 82 apply a second xor pass
+  if (iIndex >= 79 && iIndex <= 82 && SamplePtr[iIndex]) {
+    uint8 *pData = SamplePtr[iIndex];
+    int iLen = SampleLen[iIndex];
+    uint32 uiSeed = 0x4D;
+    uint32 uiStep = 0x57;
+
+    for (int i = 0; i < iLen; ++i) {
+      uiSeed += uiStep;
+      pData[i] ^= (uint8)uiSeed;
     }
   }
-  v19 = a1;
-  if (SamplePtr[v19] && (cheat_mode & 0x800) != 0) {
-    result = cheat_mode;
-    if ((cheat_mode & 0x2000) != 0) {
-      for (i = 0; i < SampleLen[v19]; i += 2)
-        *(_BYTE *)(SamplePtr[v19] + i / 2) = *(_BYTE *)(SamplePtr[v19] + i);
-      result = SampleLen[v19] / 2;
-      SampleLen[v19] = result;
+
+  // if cheat mode is enabled with flag 0x800
+  if (SamplePtr[iIndex] && (cheat_mode & 0x800)) {
+    if (cheat_mode & 0x2000) {
+      // halve the sample length, keep only even-indexed bytes
+      int iLen = SampleLen[iIndex];
+      uint8 *pData = SamplePtr[iIndex];
+      for (int i = 0; i < iLen; i += 2) {
+        pData[i / 2] = pData[i];
+      }
+      SampleLen[iIndex] = iLen / 2;
     } else {
-      v21 = 0;
-      for (j = 0; j < SampleLen[v19]; ++j) {
-        result = j / 3;
-        if (j % 3 != 2) {
-          result = SamplePtr[v19];
-          *(_BYTE *)(++v21 + result - 1) = *(_BYTE *)(j + result);
+      // remove every third byte
+      int iLen = SampleLen[iIndex];
+      uint8 *pData = SamplePtr[iIndex];
+      int iNewLen = 0;
+      for (int i = 0; i < iLen; ++i) {
+        if (i % 3 != 2) {
+          pData[iNewLen++] = pData[i];
         }
       }
-      SampleLen[v19] = v21;
+      SampleLen[iIndex] = iNewLen;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
