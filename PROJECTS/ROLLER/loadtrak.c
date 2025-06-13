@@ -1195,6 +1195,8 @@ void readline(FILE *pFile, const char *szFmt, ...)
         // Custom wide copy: 2 bytes per char
         while (*szSrc) {
           *szDest++ = *szSrc++;
+          if (!*szSrc)
+            break;
           *szDest++ = *szSrc++;
         }
         *szDest = '\0';
