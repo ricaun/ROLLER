@@ -34,9 +34,11 @@ int MusicCD = 0;            //000A4798
 int MusicPort = 0;          //000A479C
 int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
+int CDSong[20] = { 10, 10, 10, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0 }; //000A47A8
+int GMSong[21] = { 0, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0 }; //000A47F8
 int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
-uint32 SampleLen[120];         //00160560
+uint32 SampleLen[120];      //00160560
 uint8 *SamplePtr[120];      //00160750
 char Sample[120][15];       //00162730
 char lang[512];             //00162E38
@@ -55,12 +57,18 @@ int MIDIHandle;             //0016F68C
 tColor *pal_addr;           //0016F86C
 int DIGIHandle;             //0016F690
 int frames;                 //0016F694
+char Song[20][15];          //0016F708
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
+int nummusictracks;         //0016F8A8
+int winchampsong;           //0016F8AC
+int winsong;                //0016F8B0
+int leaderboardsong;        //0016F8BC
 int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
 int delaywrite;             //0016F8C8
 int delayread;              //0016F8CC
+int numsamples;             //0016F8D0
 int cheatsample;            //0016F8D4
 int languages;              //0016F8D8
 
@@ -3423,129 +3431,55 @@ void load_language_map()
 
 //-------------------------------------------------------------------------------------------------
 
-int initmusic()
+void initmusic()
 {
-  return 0; /*
-  int v0; // ebx
-  int v1; // ebp
-  char *v2; // edx
-  char *v3; // esi
-  char *v4; // edi
-  char v5; // al
-  char v6; // al
-  char *v7; // esi
-  char *v8; // edi
-  char v9; // al
-  char v10; // al
-  int v11; // ebp
-  char *v12; // edx
-  char *v13; // esi
-  char *v14; // edi
-  char v15; // al
-  char v16; // al
-  char *v17; // esi
-  char *v18; // edi
-  char v19; // al
-  char v20; // al
-  int *v21; // edx
-  int *v22; // ecx
-  int v23; // ebp
-  int *v25; // [esp-8h] [ebp-38h]
-  char *v26; // [esp-4h] [ebp-34h]
-  char v27[20]; // [esp+0h] [ebp-30h] BYREF
-  int v28[7]; // [esp+14h] [ebp-1Ch] BYREF
+  FILE *pFile = fopen("SOUND.INI", "r");
+  if (!pFile) return;
 
-  v0 = fopen(aSoundIni, &aSR[3]);
-  readline(v0, &aII[3], &numsamples);
-  readline(v0, &aII[3], v28);
-  v1 = 0;
-  readline(v0, &aII[3], &nummusictracks);
-  if (numsamples > 0) {
-    v2 = (char *)&Sample;
-    do {
-      readline(v0, &sound_c_variable_67, v27);
-      v3 = aRaw;
-      v26 = v27;
-      v4 = &v27[strlen(v27)];
-      do {
-        v5 = *v3;
-        *v4 = *v3;
-        if (!v5)
-          break;
-        v6 = v3[1];
-        v3 += 2;
-        v4[1] = v6;
-        v4 += 2;
-      } while (v6);
-      v7 = v27;
-      v8 = v2;
-      ++v1;
-      v26 = v2;
-      do {
-        v9 = *v7;
-        *v8 = *v7;
-        if (!v9)
-          break;
-        v10 = v7[1];
-        v7 += 2;
-        v8[1] = v10;
-        v8 += 2;
-      } while (v10);
-      v2 += 15;
-    } while (v1 < numsamples);
+  readline(pFile, "i", &numsamples);
+  int iSongCount = 0;
+  readline(pFile, "i", &iSongCount);
+  readline(pFile, "i", &nummusictracks);
+
+  // read sample filenames
+  for (int i = 0; i < numsamples; i++) {
+    char szBuf[20];
+    readline(pFile, "c", szBuf);
+
+    // add extension ".RAW"
+    char *szEnd = &szBuf[strlen(szBuf)];
+    if (szEnd) strcpy(szEnd, ".RAW");
+
+    strncpy(Sample[i], szBuf, 15);
+    Sample[i][14] = '\0';
   }
-  v11 = 0;
-  if (v28[0] > 0) {
-    v12 = (char *)&Song;
-    do {
-      readline(v0, &sound_c_variable_67, v27);
-      v13 = aHmp;
-      v26 = v27;
-      v14 = &v27[strlen(v27)];
-      do {
-        v15 = *v13;
-        *v14 = *v13;
-        if (!v15)
-          break;
-        v16 = v13[1];
-        v13 += 2;
-        v14[1] = v16;
-        v14 += 2;
-      } while (v16);
-      v17 = v27;
-      v18 = v12;
-      ++v11;
-      v26 = v12;
-      do {
-        v19 = *v17;
-        *v18 = *v17;
-        if (!v19)
-          break;
-        v20 = v17[1];
-        v17 += 2;
-        v18[1] = v20;
-        v18 += 2;
-      } while (v20);
-      v12 += 15;
-    } while (v11 < v28[0]);
+
+  // read song filenames
+  for (int i = 0; i < iSongCount; i++) {
+    char szBuf[20];
+    readline(pFile, "c", szBuf);
+
+    // add extension ".HMP"
+    char *szEnd = &szBuf[strlen(szBuf)];
+    if (szEnd) strcpy(szEnd, ".HMP");
+
+    strncpy(Song[i], szBuf, 15);
+    Song[i][14] = '\0';
   }
-  v21 = GMSong;
-  v22 = CDSong;
-  v23 = 0;
-  while (v23 < nummusictracks + 5) {
-    v26 = (char *)v22;
-    v25 = v21;
-    ++v23;
-    ++v22;
-    ++v21;
-    readline(v0, aIi, v25);
+
+  // read GMSong/CDSong values for each track (+5 entries)
+  for (int i = 0; i < nummusictracks + 5; i++) {
+    readline(pFile, "ii", &GMSong[i], &CDSong[i]);
   }
+
+  // set special track indices (stored as negative values)
   titlesong = -nummusictracks;
-  leaderboardsong = -(nummusictracks + 2);
   optionssong = -(nummusictracks + 1);
+  leaderboardsong = -(nummusictracks + 2);
   winsong = -(nummusictracks + 3);
   winchampsong = -(nummusictracks + 4);
-  return fclose(v0);*/
+
+  fclose(pFile);
 }
 
 //-------------------------------------------------------------------------------------------------
