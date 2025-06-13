@@ -64,7 +64,7 @@ int facing_ok(
         float a11,
         float a12);
 int Zcmp(float *a1, float *a2);
-unsigned int set_starts(unsigned int result);
+void set_starts(unsigned int uiType);
 
 //-------------------------------------------------------------------------------------------------
 #endif

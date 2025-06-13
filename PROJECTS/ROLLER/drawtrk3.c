@@ -1,4 +1,6 @@
 #include "drawtrk3.h"
+#include "polytex.h"
+#include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
 int view_limit = 0; //000A41B8
@@ -6044,54 +6046,49 @@ int Zcmp(float *a1, float *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int set_starts(unsigned int result)
+void set_starts(unsigned int uiType)
 {
-  (void)(result);
-  return 0;
-  /*
-  startsx_variable_1 = 0;
-  startsx_variable_2 = 0;
-  startsy = 0;
-  startsy_variable_1 = 0;
+  startsx[1] = 0;
+  startsx[2] = 0;
+  startsy[0] = 0;
+  startsy[1] = 0;
   if (gfx_size) {
-    if (result) {
-      if (result <= 1) {
-        startsx = 4190208;
-        startsx_variable_3 = 4190208;
-        startsy_variable_2 = 2093056;
-        startsy_variable_3 = 2093056;
-      } else if (result == 2) {
-        startsx = 2093056;
-        startsx_variable_3 = 2093056;
-        startsy_variable_2 = 4190208;
-        startsy_variable_3 = 4190208;
+    if (uiType) {
+      if (uiType <= 1) {
+        startsx[0] = 0x3FF000;
+        startsx[3] = 0x3FF000;
+        startsy[2] = 0x1FF000;
+        startsy[3] = 0x1FF000;
+      } else if (uiType == 2) {
+        startsx[0] = 0x1FF000;
+        startsx[3] = 0x1FF000;
+        startsy[2] = 0x3FF000;
+        startsy[3] = 0x3FF000;
       }
     } else {
-      startsx = 2093056;
-      startsx_variable_3 = 2093056;
-      startsy_variable_2 = 2093056;
-      startsy_variable_3 = 2093056;
+      startsx[0] = 0x1FF000;
+      startsx[3] = 0x1FF000;
+      startsy[2] = 0x1FF000;
+      startsy[3] = 0x1FF000;
     }
-  } else if (result) {
-    if (result <= 1) {
-      startsx = 8384512;
-      startsx_variable_3 = 8384512;
-      startsy_variable_2 = 4190208;
-      startsy_variable_3 = 4190208;
-    } else if (result == 2) {
-      startsx = 4190208;
-      startsx_variable_3 = 4190208;
-      startsy_variable_2 = 8384512;
-      startsy_variable_3 = 8384512;
+  } else if (uiType) {
+    if (uiType <= 1) {
+      startsx[0] = 0x7FF000;
+      startsx[3] = 0x7FF000;
+      startsy[2] = 0x3FF000;
+      startsy[3] = 0x3FF000;
+    } else if (uiType == 2) {
+      startsx[0] = 0x3FF000;
+      startsx[3] = 0x3FF000;
+      startsy[2] = 0x7FF000;
+      startsy[3] = 0x7FF000;
     }
   } else {
-    result = 4190208;
-    startsx = 4190208;
-    startsx_variable_3 = 4190208;
-    startsy_variable_2 = 4190208;
-    startsy_variable_3 = 4190208;
+    startsx[0] = 0x3FF000;
+    startsx[3] = 0x3FF000;
+    startsy[2] = 0x3FF000;
+    startsy[3] = 0x3FF000;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
