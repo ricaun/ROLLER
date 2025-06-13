@@ -6055,39 +6055,39 @@ void set_starts(unsigned int uiType)
   if (gfx_size) {
     if (uiType) {
       if (uiType <= 1) {
-        startsx[0] = 64.0f;
-        startsx[3] = 64.0f;
-        startsy[2] = 31.875f;
-        startsy[3] = 31.875f;
+        startsx[0] = 0x3FF000;
+        startsx[3] = 0x3FF000;
+        startsy[2] = 0x1FF000;
+        startsy[3] = 0x1FF000;
       } else if (uiType == 2) {
-        startsx[0] = 31.875f;
-        startsx[3] = 31.875f;
-        startsy[2] = 64.0f;
-        startsy[3] = 64.0f;
+        startsx[0] = 0x1FF000;
+        startsx[3] = 0x1FF000;
+        startsy[2] = 0x3FF000;
+        startsy[3] = 0x3FF000;
       }
     } else {
-      startsx[0] = 31.875f;
-      startsx[3] = 31.875f;
-      startsy[2] = 31.875f;
-      startsy[3] = 31.875f;
+      startsx[0] = 0x1FF000;
+      startsx[3] = 0x1FF000;
+      startsy[2] = 0x1FF000;
+      startsy[3] = 0x1FF000;
     }
   } else if (uiType) {
     if (uiType <= 1) {
-      startsx[0] = 128.0f;
-      startsx[3] = 128.0f;
-      startsy[2] = 64.0f;
-      startsy[3] = 64.0f;
+      startsx[0] = 0x7FF000;
+      startsx[3] = 0x7FF000;
+      startsy[2] = 0x3FF000;
+      startsy[3] = 0x3FF000;
     } else if (uiType == 2) {
-      startsx[0] = 64.0f;
-      startsx[3] = 64.0f;
-      startsy[2] = 128.0f;
-      startsy[3] = 128.0f;
+      startsx[0] = 0x3FF000;
+      startsx[3] = 0x3FF000;
+      startsy[2] = 0x7FF000;
+      startsy[3] = 0x7FF000;
     }
   } else {
-    startsx[0] = 64.0f;
-    startsx[3] = 64.0f;
-    startsy[2] = 64.0f;
-    startsy[3] = 64.0f;
+    startsx[0] = 0x3FF000;
+    startsx[3] = 0x3FF000;
+    startsy[2] = 0x3FF000;
+    startsy[3] = 0x3FF000;
   }
 }
 

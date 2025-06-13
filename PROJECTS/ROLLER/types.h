@@ -32,6 +32,10 @@ typedef unsigned int       DWORD;
 typedef unsigned short     WORD;
 #endif
 
+typedef int32 fixed16_16;
+#define TO_FIXED(x) ((fixed16_16)((x) * 65536.0f))
+#define FROM_FIXED(x) ((float)(x) / 65536.0f)
+
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
