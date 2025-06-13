@@ -59,7 +59,7 @@ void enable_keyboard();
 void disable_keyboard();
 void *save_fatal_config();
 int load_fatal_config();
-int getconfigvalue(int a1, int a2, int *a3, int a4, int a5);
+void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutVal, int iMin, int iMax);
 char getconfigvalueuc(int a1, int a2, char *a3, int a4, int a5);
 int displaycalibrationbar(int a1, int a2, int a3);
 int blankwindow(int a1, int a2, int a3, int a4);

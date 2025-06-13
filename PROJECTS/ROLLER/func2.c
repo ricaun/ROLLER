@@ -4051,49 +4051,28 @@ int load_fatal_config()
 
 //-------------------------------------------------------------------------------------------------
 
-int getconfigvalue(int a1, int a2, int *a3, int a4, int a5)
+void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutVal, int iMin, int iMax)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0;
-  /*
-  int result; // eax
-  int v6; // [esp+0h] [ebp-4h] BYREF
+  int iTempVal;
+  const char *szValue = FindConfigVar(szConfigText, szVarName);
 
-  result = FindConfigVar(a1, a2, a3, a4);
-  if (result) {
-    sscanf(result, "%i", &v6);
-    if (a4 > v6)
-      v6 = a4;
-    if (v6 > a5)
-      v6 = a5;
-    result = v6;
-    *a3 = v6;
+  if (szValue) {
+    if (sscanf(szValue, "%i", &iTempVal) == 1) {
+      if (iMin > iTempVal)
+        iTempVal = iMin;
+      if (iTempVal > iMax)
+        iTempVal = iMax;
+
+      *piOutVal = iTempVal;
+    }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 char getconfigvalueuc(int a1, int a2, char *a3, int a4, int a5)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
   return 0;
-  /*
-  
-  int ConfigVar; // eax
-  __int16 v7; // [esp+0h] [ebp-4h] BYREF
-
-  ConfigVar = FindConfigVar(a1, a2, a3, a4);
-  if (ConfigVar) {
-    sscanf(ConfigVar, "%hi", &v7);
-    if (v7 < a4)
-      v7 = a4;
-    if (v7 > a5)
-      v7 = a5;
-    LOBYTE(ConfigVar) = v7;
-    *a3 = v7;
-  }
-  return ConfigVar;*/
 }
 
 //-------------------------------------------------------------------------------------------------
