@@ -1731,27 +1731,33 @@ int readsoundconfig(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-char *FindConfigVar(char *a1, const char *a2)
+char *FindConfigVar(char *szConfigText, const char *szVarName)
 {
-  return 0; /*
-  char *result; // eax
-  char *v4; // edx
-  char v5; // al
+  char *szMatch = strstr(szConfigText, szVarName);
+  if (!szMatch)
+    return NULL;
 
-  result = (char *)strstr();
-  if (result) {
-    if (result != a1 && (IsTable[(unsigned __int8)(*(result - 1) + 1)] & 2) == 0)
-      return 0;
-    v4 = &result[strlen(a2)];
-    do
-      v5 = *v4++;
-    while ((IsTable[(unsigned __int8)(v5 + 1)] & 2) != 0);
-    if (*(v4 - 1) == 61)
-      return v4;
-    else
-      return 0;
+  if (szMatch != szConfigText) {
+    // check that the match is at the start of a line or preceded by whitespace.
+    char cPrev = szMatch[-1];
+    if (isalpha((uint8)cPrev) || isdigit((uint8)cPrev) || cPrev == '_')
+      return NULL;
   }
-  return result;*/
+
+  // move 'edx' to point past the matched variable name
+  char *szEnd = szMatch;
+  uint32 uiLen = (uint32)strlen(szVarName);
+  szEnd += uiLen;
+
+  // skip any trailing spaces
+  while (isspace((uint8)(*szEnd + 1)))
+    szEnd++;
+
+  // make sure it's followed by '='
+  if (szEnd[-1] != '=')
+    return NULL;
+
+  return szEnd;
 }
 
 //-------------------------------------------------------------------------------------------------

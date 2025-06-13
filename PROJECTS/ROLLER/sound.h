@@ -95,7 +95,7 @@ int devicespecificinit(int a1, int a2, int a3, int a4);
 int initgus();
 void *devicespecificuninit();
 int readsoundconfig(int a1);
-char *FindConfigVar(char *a1, const char *a2);
+char *FindConfigVar(char *szConfigText, const char *szVarName);
 void loadfile(const char *szFile, void *pBuf, unsigned int *uiSize, int iIsSound);
 int ReadJoys(int *a1);
 int check_joystickpresence();
