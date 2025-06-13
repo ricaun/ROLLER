@@ -4058,7 +4058,7 @@ void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutV
 
   if (szValue) {
     if (sscanf(szValue, "%i", &iTempVal) == 1) {
-      if (iMin > iTempVal)
+      if (iTempVal < iMin)
         iTempVal = iMin;
       if (iTempVal > iMax)
         iTempVal = iMax;
@@ -4070,9 +4070,20 @@ void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutV
 
 //-------------------------------------------------------------------------------------------------
 
-char getconfigvalueuc(int a1, int a2, char *a3, int a4, int a5)
+void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pbyOutVal, int iMin, int iMax)
 {
-  return 0;
+  short nTempVal;
+  const char *szValue = FindConfigVar(szConfigText, szVarName);
+
+  if (szValue) {
+    if (sscanf(szValue, "%hi", &nTempVal) == 1) {
+      if (nTempVal < iMin)
+        nTempVal = iMin;
+      if (nTempVal > iMax)
+        nTempVal = iMax;
+      *pbyOutVal = (unsigned char)nTempVal;
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

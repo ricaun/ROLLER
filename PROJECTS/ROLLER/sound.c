@@ -1731,7 +1731,7 @@ int readsoundconfig(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-char *FindConfigVar(char *szConfigText, const char *szVarName)
+char *FindConfigVar(const char *szConfigText, const char *szVarName)
 {
   char *szMatch = strstr(szConfigText, szVarName);
   if (!szMatch)
