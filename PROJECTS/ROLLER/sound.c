@@ -22,6 +22,7 @@
 int musicon = -1;           //000A46A0
 int soundon = -1;           //000A46A4
 int allengines = -1;        //000A46A8
+int cheat_samples = 0;      //000A46AC
 int palette_brightness = 32;//000A46B0
 void *pal_selector = (void *)-1; //000A46B4
 int writeptr = 0;           //000A476C
@@ -57,6 +58,7 @@ int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
 int delaywrite;             //0016F8C8
 int delayread;              //0016F8CC
+int cheatsample;            //0016F8D4
 int languages;              //0016F8D8
 
 //-------------------------------------------------------------------------------------------------
@@ -3714,78 +3716,63 @@ int check_joystick_usage()
 
 //-------------------------------------------------------------------------------------------------
 
-char convertname(char *a1)
+void convertname(char *szFilename)
 {
-  return 0; /*
-  char *v2; // edi
-  char *v3; // esi
-  char result; // al
-  _BYTE *v5; // eax
-  int v6; // eax
-  _BYTE *v7; // edi
-  char *v8; // esi
-  char v9; // al
-  char v10; // al
-  int v11; // eax
-  char *v12; // esi
-  char *v13; // edi
-  _BYTE v14[48]; // [esp-2Ch] [ebp-30h] BYREF
+  char szTemp[32];
+  char *p = szTemp;
+  char *s = szFilename;
 
-  v2 = v14;
-  v3 = a1;
   cheatsample = 0;
-  do {
-    result = *v3;
-    *v2 = *v3;
-    if (!result)
-      break;
-    result = v3[1];
-    v3 += 2;
-    v2[1] = result;
-    v2 += 2;
-  } while (result);
-  if (!cheat_samples || language) {
-    if (!language)
-      return result;
-    v7 = (_BYTE *)(strstr(a1, aRaw) + 1);
-    v8 = (char *)&SampleExt + 4 * language;
-    do {
-      v9 = *v8;
-      *v7 = *v8;
-      if (!v9)
-        break;
-      v10 = v8[1];
-      v8 += 2;
-      v7[1] = v10;
-      v7 += 2;
-    } while (v10);
-    v11 = fopen(a1, aRb_3);
-    if (v11)
-      return fclose(v11);
-  } else {
-    v5 = (_BYTE *)strstr(a1, aRaw);
-    v5[1] = 75;
-    v5[2] = 67;
-    v5[3] = 0;
-    v6 = fopen(a1, aRb_3);
-    if (v6) {
-      cheatsample = -1;
-      return fclose(v6);
+
+  // copy filename to temp buffer (word-wise copy, handling 2 bytes at a time)
+  while (1) {
+    *p++ = *s;
+    if (*s++ == '\0') break;
+    *p++ = *s;
+    if (*s++ == '\0') break;
+  }
+
+  // check for cheat sample conversion
+  if (cheat_samples && language == 0) {
+    char *ext = strstr(szFilename, ".RAW");
+    if (ext) {
+      ext[1] = 'K';   // Change to ".KC"
+      ext[2] = 'C';
+      ext[3] = '\0';
+
+      FILE *fp = fopen(szFilename, "rb");
+      if (fp) {
+        cheatsample = -1;
+        fclose(fp);
+        return;
+      }
     }
   }
-  v12 = v14;
-  v13 = a1;
-  do {
-    result = *v12;
-    *v13 = *v12;
-    if (!result)
-      break;
-    result = v12[1];
-    v12 += 2;
-    v13[1] = result;
-    v13 += 2;
-  } while (result);
-  return result;*/
+
+  // language-specific sample override
+  if (language != 0) {
+    char *szExt = strstr(szFilename, ".RAW");
+    if (szExt) {
+      const char *szLangExt = (const char *)SampleExt[language];
+      strcpy(szExt + 1, szLangExt);
+
+      FILE *fp = fopen(szFilename, "rb");
+      if (fp) {
+        fclose(fp);
+        return;
+      }
+    }
+  }
+
+  // restore original filename from temp if all else fails
+  s = szTemp;
+  p = szFilename;
+  while (1) {
+    *p++ = *s;
+    if (*s++ == '\0') break;
+    *p++ = *s;
+    if (*s++ == '\0') break;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

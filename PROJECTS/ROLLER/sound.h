@@ -120,7 +120,7 @@ int initmusic();
 void fade_palette(int iPaletteBrightness);
 void set_palette(int iBrightness);
 int check_joystick_usage();
-char convertname(char *a1);
+void convertname(char *szFilename);
 char *decode(char *result, int a2, int a3, int a4);
 int loadasample(int a1);
 void select8bitdriver();

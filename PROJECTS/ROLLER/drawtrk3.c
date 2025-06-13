@@ -6055,39 +6055,39 @@ void set_starts(unsigned int uiType)
   if (gfx_size) {
     if (uiType) {
       if (uiType <= 1) {
-        startsx[0] = 0x3FF000;
-        startsx[3] = 0x3FF000;
-        startsy[2] = 0x1FF000;
-        startsy[3] = 0x1FF000;
+        startsx[0] = 0x3FF000; //64.0
+        startsx[3] = 0x3FF000; //64.0
+        startsy[2] = 0x1FF000; //31.875
+        startsy[3] = 0x1FF000; //31.875
       } else if (uiType == 2) {
-        startsx[0] = 0x1FF000;
-        startsx[3] = 0x1FF000;
-        startsy[2] = 0x3FF000;
-        startsy[3] = 0x3FF000;
+        startsx[0] = 0x1FF000; //31.875
+        startsx[3] = 0x1FF000; //31.875
+        startsy[2] = 0x3FF000; //64.0
+        startsy[3] = 0x3FF000; //64.0
       }
     } else {
-      startsx[0] = 0x1FF000;
-      startsx[3] = 0x1FF000;
-      startsy[2] = 0x1FF000;
-      startsy[3] = 0x1FF000;
+      startsx[0] = 0x1FF000; //31.875
+      startsx[3] = 0x1FF000; //31.875
+      startsy[2] = 0x1FF000; //31.875
+      startsy[3] = 0x1FF000; //31.875
     }
   } else if (uiType) {
     if (uiType <= 1) {
-      startsx[0] = 0x7FF000;
-      startsx[3] = 0x7FF000;
-      startsy[2] = 0x3FF000;
-      startsy[3] = 0x3FF000;
+      startsx[0] = 0x7FF000; //128.0
+      startsx[3] = 0x7FF000; //128.0
+      startsy[2] = 0x3FF000; //64.0
+      startsy[3] = 0x3FF000; //64.0
     } else if (uiType == 2) {
-      startsx[0] = 0x3FF000;
-      startsx[3] = 0x3FF000;
-      startsy[2] = 0x7FF000;
-      startsy[3] = 0x7FF000;
+      startsx[0] = 0x3FF000; //64.0
+      startsx[3] = 0x3FF000; //64.0
+      startsy[2] = 0x7FF000; //128.0
+      startsy[3] = 0x7FF000; //128.0
     }
   } else {
-    startsx[0] = 0x3FF000;
-    startsx[3] = 0x3FF000;
-    startsy[2] = 0x3FF000;
-    startsy[3] = 0x3FF000;
+    startsx[0] = 0x3FF000; //64.0
+    startsx[3] = 0x3FF000; //64.0
+    startsy[2] = 0x3FF000; //64.0
+    startsy[3] = 0x3FF000; //64.0
   }
 }
 
