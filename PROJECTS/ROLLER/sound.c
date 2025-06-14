@@ -3720,24 +3720,17 @@ void convertname(char *szFilename)
 
 //-------------------------------------------------------------------------------------------------
 
-char *decode(char *result, int a2, int a3, int a4)
+void decode(uint8 *pData, int iLength, int iStep, int iOffset)
 {
-  return 0; /*
-  int i; // edx
-  char v7; // bh
-  char v8; // bl
-  int v9; // [esp+0h] [ebp-Ch]
+  int iNextOffset = iOffset;
 
-  for (i = 0; i < a2; *(result - 1) = v8 ^ v7) {
-    ++i;
-    v7 = *result;
-    v9 = a4 + a3;
-    ++result;
-    v8 = a4 + a3;
-    a3 = a4;
-    a4 = v9;
+  for (int i = 0; i < iLength; i++) {
+    uint8 byOriginal = *pData;
+    uint8 byXorValue = iNextOffset;
+    *pData = byOriginal ^ byXorValue;
+    pData++;
+    iNextOffset += iStep;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
