@@ -4,13 +4,22 @@
 #include "types.h"
 #include "engines.h"
 #include "car.h"
+
 //-------------------------------------------------------------------------------------------------
 
-extern float eng_chg_revs[];
-extern float RecordLaps[];
-extern int RecordCars[];
-extern int RecordKills[];
-extern char RecordNames[];
+extern float eng_chg_revs[168];
+extern int JBYmax;
+extern int JBYmin;
+extern int JBXmin;
+extern int JBXmax;
+extern int JAYmax;
+extern int JAXmax;
+extern int JAYmin;
+extern int JAXmin;
+extern float RecordLaps[25];
+extern int RecordCars[25];
+extern int RecordKills[25];
+extern char RecordNames[228];
 
 //-------------------------------------------------------------------------------------------------
 

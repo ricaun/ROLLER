@@ -2,9 +2,15 @@
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
-double dTrigLookupMax  = 16384.0; //000A1482 Symbol name added by ROLLER
-double dTwoPi = 6.28318530718;    //000A148A Symbol name added by ROLLER
 float eng_chg_revs[168];          //00149978
+int JBYmax;                       //00149C24
+int JBYmin;                       //00149C30
+int JBXmin;                       //00149C34
+int JBXmax;                       //00149C3C
+int JAYmax;                       //00149C40
+int JAXmax;                       //00149C44
+int JAYmin;                       //00149C4C
+int JAXmin;                       //00149C50
 float RecordLaps[25];             //00149C5C
 int RecordCars[25];               //00149CC0
 int RecordKills[25];              //00149D24
@@ -5595,9 +5601,7 @@ int getangle(float fX, float fY)
     return 0;
 
   // IF_DATAN2 is atan2 that returns a double
-  // control_c_variable_172 is 16384.0, the count of the trig lookup tables
-  // control_c_variable_173 is 6.28318530718, or 2 * pi
-  dAngle = atan2(fY, fX) * dTrigLookupMax / dTwoPi;
+  dAngle = atan2(fY, fX) * 16384.0 / 6.28318530718;
 
   // round to integer?
   //_CHP();

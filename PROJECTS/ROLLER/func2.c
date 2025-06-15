@@ -4226,12 +4226,8 @@ int volumebar(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int remove_uncalibrated()
+void remove_uncalibrated()
 {
-  return 0;
-  /*
-  int result; // eax
-
   if (JAXmax - JAXmin < 100)
     x1ok = 0;
   if (JAYmax - JAYmin < 100)
@@ -4240,7 +4236,6 @@ int remove_uncalibrated()
     x2ok = 0;
   if (JBYmax - JBYmin < 100)
     y2ok = 0;
-  result = y2ok;
   bitaccept = y2ok | y1ok | x1ok | x2ok;
   if (x1ok || y1ok)
     Joy1used = -1;
@@ -4250,7 +4245,6 @@ int remove_uncalibrated()
     Joy2used = -1;
   else
     Joy2used = x2ok;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

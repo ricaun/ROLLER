@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #endif
+
 //-------------------------------------------------------------------------------------------------
 
 int musicon = -1;           //000A46A0
@@ -36,6 +37,13 @@ int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 int CDSong[20] = { 10, 10, 10, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0 }; //000A47A8
 int GMSong[21] = { 0, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0 }; //000A47F8
+int Joy1used = 0;           //000A4A0C
+int Joy2used = 0;           //000A4A0C
+int x1ok = 0;               //000A4A30
+int y1ok = 0;               //000A4A34
+int x2ok = 0;               //000A4A38
+int y2ok = 0;               //000A4A3C
+int bitaccept = 0;          //000A4A40
 int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
 uint32 SampleLen[120];      //00160560
