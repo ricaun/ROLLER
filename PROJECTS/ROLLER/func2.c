@@ -10,6 +10,7 @@
 #include "func3.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #ifdef IS_WINDOWS
 #include <direct.h>
 #define chdir _chdir
@@ -3986,80 +3987,55 @@ void LoadRecords()
 
 //-------------------------------------------------------------------------------------------------
 
-void *SaveRecords()
+void SaveRecords()
 {
-  return 0;
-  /*
-  int v0; // ebp
-  int v1; // ebx
-  int v2; // esi
-  unsigned int v3; // eax
-  int v4; // edi
-  int v5; // edx
-  double v6; // st7
-  int v7; // eax
-  int v8; // eax
-  int v9; // edi
-  char v10; // cl
-  int v11; // esi
-  unsigned int v13; // [esp+0h] [ebp-24h] BYREF
-  int v14; // [esp+4h] [ebp-20h]
-  int v15; // [esp+8h] [ebp-1Ch]
+  uint8 *pBuffer = getbuffer(0x400);  // Get a 1KB buffer
+  uint8 *pWritePtr = pBuffer;
+  int iNumBytes = 0;
 
-  v0 = 1;
-  v1 = 18;
-  v2 = 1;
-  v3 = getbuffer(0x400u);
-  v4 = 0;
-  v5 = v3;
-  v13 = v3;
-  v14 = 18;
-  do {
-    v6 = RecordLaps[v2] * func2_c_variable_328;
-    _CHP(v3, v5);
-    v15 = (int)v6;
-    v7 = copy_int(v5, (int)v6, v1);
-    v15 = RecordCars[v2];
-    v8 = copy_int(v7, v15, v1);
-    v1 = v14;
-    v15 = RecordKills[v2];
-    v9 = v4 + 12;
-    v5 = copy_int(v8, v15, v14);
-    v3 = 9 * v0;
-    do {
-      ++v5;
-      v10 = RecordNames[v3++];
-      *(_BYTE *)(v5 - 1) = v10;
-    } while (v3 != v1);
-    v4 = v9 + 9;
-    ++v2;
-    ++v0;
-    v14 += 9;
-  } while (v0 < 25);
-  v11 = fopen(aDgkfcRec, &func2_c_variable_327);
-  if (!v11)
-    v11 = fopen(aDgkfcRec, &aMwb[1]);
-  fwrite(v13, 1, v4, v11);
-  fclose(v11);
-  return fre(&v13);*/
+  for (int i = 1; i < 25; ++i) {
+    // Convert RecordLaps[i] * 100.0 to int
+    double dLaps = (double)RecordLaps[i] * 100.0;
+    int iLaps = (int)round(dLaps); //_CHP
+    pWritePtr = copy_int(pWritePtr, iLaps);
+
+    // Write RecordCars[i]
+    pWritePtr = copy_int(pWritePtr, RecordCars[i]);
+
+    // Write RecordKills[i]
+    pWritePtr = copy_int(pWritePtr, RecordKills[i]);
+
+    // Write RecordNames[i]
+    for (int j = 0; j < 9; ++j) {
+      *pWritePtr++ = RecordNames[i][j];
+    }
+
+    iNumBytes += 12 + 9; // 12 bytes from 3 ints, 9 bytes for name
+  }
+
+  FILE *f = fopen("dgkfc.rec", "rb+"); // Primary mode
+
+  if (!f) {
+    f = fopen("dgkfc.rec", "wb"); // Fallback mode
+  }
+
+  if (f) {
+    fwrite(pBuffer, 1, iNumBytes, f);
+    fclose(f);
+  }
+
+  fre(pBuffer); // Free the allocated buffer
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int copy_int(int a1, int a2)
+uint8 *copy_int(uint8 *pDest, uint32 uiValue)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v2; // eax
-  int result; // eax
-
-  v2 = a1 + 3;
-  *(_WORD *)(v2 - 3) = a2;
-  result = v2 + 1;
-  *(_BYTE *)(result - 2) = BYTE2(a2);
-  *(_BYTE *)(result - 1) = HIBYTE(a2);
-  return result;*/
+  pDest += 3;
+  pDest[-3] = (uint8)(uiValue);          // Byte 0 (LSB)
+  pDest[-2] = (uint8)(uiValue >> 16);    // Byte 2 (Byte 1 is skipped/overwritten)
+  pDest[-1] = (uint8)(uiValue >> 24);    // Byte 3 (MSB)
+  return pDest + 1;  // Equivalent to original eax + 4
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -20,7 +20,7 @@ extern int JAXmin;
 extern float RecordLaps[25];
 extern int RecordCars[25];
 extern int RecordKills[25];
-extern char RecordNames[228];
+extern char RecordNames[25][9];
 
 //-------------------------------------------------------------------------------------------------
 

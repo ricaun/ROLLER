@@ -15,7 +15,7 @@ int JAXmin;                       //00149C50
 float RecordLaps[25];             //00149C5C
 int RecordCars[25];               //00149CC0
 int RecordKills[25];              //00149D24
-char RecordNames[228];            //00149DC8
+char RecordNames[25][9];          //00149DC8
 
 //-------------------------------------------------------------------------------------------------
 
