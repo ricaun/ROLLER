@@ -7,6 +7,7 @@
 
 //-------------------------------------------------------------------------------------------------
 
+extern int level;
 extern float eng_chg_revs[168];
 extern int JBYmax;
 extern int JBYmin;

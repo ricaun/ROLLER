@@ -6,6 +6,11 @@ int serial_port = 2;    //000AFD98
 int modem_port = 2;     //000AFD9C
 int modem_baud = 19200; //000AFDA0
 int no_16550 = 0;       //000AFDA4
+int current_modem = 0;  //000AFDA8
+char modem_initstring[51] = "ATX"; //000AFDAC
+char modem_phone[53] = { 0 }; //000AFDDF
+int modem_tone = -1;    //000AFE14
+int modem_call = -1;    //000AFE18
 
 //-------------------------------------------------------------------------------------------------
 

@@ -117,6 +117,20 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int numcars;
+extern char default_names[16][9];
+extern float CarBaseX;
+extern float CarBaseY;
+extern float CarDiag;
+extern int car_texmap[16];
+extern tCarBox CarBox;
+extern tCar Car[16];
+extern int car_texs_loaded[16];
+extern tStoreEngine StoreEngines[14];
+extern int LoadCarTextures;
+
+//-------------------------------------------------------------------------------------------------
+
 void InitCarStructs();
 void CalcCarSizes();
 void InitCars();

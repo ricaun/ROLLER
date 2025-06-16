@@ -8,13 +8,29 @@
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
+float g_fTinycarSize = 0.25f;   //000A2100 Symbol name added by ROLLER
 int numcars;                    //000A6114
+char default_names[16][9] = {   //000A6158
+  "SAL",
+  "HAL",
+  "SLAVE",
+  "ZEN",
+  "ASH",
+  "BISHOP",
+  "VOYAGER",
+  "NOMAD",
+  "BOB",
+  "VINCENT",
+  "EDDIE",
+  "MARVIN",
+  "KRYTEN",
+  "HOLLY",
+  "ROBBY",
+  "GORT"
+};
 float CarBaseX;                 //0018851C
 float CarBaseY;                 //00188520
 float CarDiag;                  //00188524
-double car_c_variable_1 = 2.2;  //000A20F8
-float g_fTinycarSize = 0.25f;   //000A2100 Symbol name added by ROLLER
-double car_c_variable_3 = 1.03; //000A2104
 int car_texmap[16];             //0017F2B0
 tCarBox CarBox;                 //0017F2F0
 tCar Car[16];                   //0017F8F0
@@ -55,7 +71,7 @@ void InitCarStructs()
       ++v1;
     }
     for (j = 0; j < iNumGears; *(pSpds - 1) = (float)v6) {
-      v6 = *pSpds++ * car_c_variable_1;
+      v6 = *pSpds++ * 2.2;
       ++j;
     }
     iCurrGear = 0;
@@ -210,7 +226,7 @@ void InitCars()
     nNumGears = CarEngines.engines[i].iNumGears;
     for (j = 0; j < nNumGears; ++j) {
       if ((textures_off & 0x10000) != 0)
-        CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j] * (float)car_c_variable_3;
+        CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j] * 1.03f;
       else
         CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j];
     }

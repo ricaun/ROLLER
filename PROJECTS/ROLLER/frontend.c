@@ -6,7 +6,16 @@
 #include "sound.h"
 //-------------------------------------------------------------------------------------------------
 
+
 int false_starts = -1;    //000A4AB8
+char network_messages[5][14] = { //000A4AC8
+  "SLOWCOACH",
+  "OUT OF MY WAY",
+  "YOU DIE",
+  "SUCKER",
+  "I WON!"
+};
+int competitors = 16;     //000A4B70
 int manual_control[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //000A4B74
 int Players_Cars[16] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; //000A4C38
 int player_type = 0;      //000A4CB8

@@ -5,6 +5,8 @@
 //-------------------------------------------------------------------------------------------------
 
 extern int false_starts;
+extern char network_messages[5][14];
+extern int competitors;
 extern int manual_control[16];
 extern int Players_Cars[16];
 extern int player_type;

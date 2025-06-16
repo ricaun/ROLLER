@@ -2,6 +2,12 @@
 #include "control.h"
 #include "sound.h"
 #include "3d.h"
+#include "frontend.h"
+#include "car.h"
+#include "colision.h"
+#include "drawtrk3.h"
+#include "comms.h"
+#include "func3.h"
 #include <stdio.h>
 #include <string.h>
 #ifdef IS_WINDOWS
@@ -31,9 +37,11 @@ uint8 mapping[] =           //000A3AF8
   0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 int twoparter = 0;          //000A3B78
+tUserKey userkey = { 44u, 45u, 20u, 33u, 19u, 32u, 79u, 80u, 73u, 77u, 72u, 76u, 21u, 79u }; //000A410C
 uint8 key_buffer[64];       //0013FB90
 char config_buffer[8192];   //0013FBD8
 char language_buffer[8192]; //00141BD8
+int no_mem;                 //00143BE0
 
 //-------------------------------------------------------------------------------------------------
 
@@ -3403,83 +3411,9 @@ void *save_fatal_config()
 
 //-------------------------------------------------------------------------------------------------
 
-int load_fatal_config()
+void load_fatal_config()
 {
-  return 0;
-  /*
-  _DWORD *v0; // eax
-  _DWORD *v1; // edi
-  int v2; // ebp
-  unsigned int v3; // eax
-  int i; // eax
-  char *v5; // ebx
-  char *ConfigVar; // eax
-  char v7; // dh
-  int v8; // ecx
-  char *v9; // ebx
-  char *v10; // eax
-  char v11; // cl
-  char *v12; // ebx
-  char *v13; // eax
-  char v14; // dl
-  char *v15; // ebx
-  _BYTE *v16; // eax
-  char *v17; // ebx
-  char *v18; // eax
-  char v19; // dl
-  char *v20; // ebx
-  _BYTE *v21; // eax
-  char *v22; // ebx
-  char *v23; // eax
-  char v24; // dl
-  char *v25; // ebx
-  _BYTE *v26; // eax
-  char *v27; // ebx
-  char *v28; // eax
-  char v29; // dl
-  char *v30; // ebx
-  _BYTE *v31; // eax
-  char *v32; // ebx
-  char *v33; // eax
-  char v34; // dl
-  char *v35; // ebx
-  _BYTE *v36; // eax
-  char *v37; // ebx
-  char *v38; // eax
-  char v39; // dl
-  char *v40; // ebx
-  _BYTE *v41; // eax
-  char *v42; // ebx
-  char *v43; // eax
-  char v44; // dl
-  char *v45; // ebx
-  _BYTE *v46; // eax
-  char *v47; // ebx
-  char *v48; // eax
-  char v49; // dl
-  char *v50; // ebx
-  _BYTE *v51; // eax
-  char *v52; // ebx
-  char *v53; // eax
-  char v54; // dl
-  char *v55; // ebx
-  char *v56; // eax
-  char v57; // dh
-  char *v58; // ebx
-  _BYTE *v59; // eax
-  char *v60; // ebx
-  char *v61; // eax
-  char v62; // ch
-  const char *v63; // ebx
-  char *v64; // eax
-  char v65; // dl
-  char *v66; // ebx
-  char *v67; // eax
-  char v68; // dh
-  int v70; // [esp+0h] [ebp-24h]
-  unsigned int v71; // [esp+4h] [ebp-20h] BYREF
-  int v72; // [esp+8h] [ebp-1Ch]
-
+  // Initialize global variables with default values
   JAXmin = 10000;
   JAXmax = -10000;
   JAYmin = 10000;
@@ -3496,557 +3430,258 @@ int load_fatal_config()
   Joy1used = 0;
   Joy2used = 0;
   fatal_ini_loaded = 0;
-  v0 = (_DWORD *)fopen(&aAtfatalIni[2], aRb_2);
-  v1 = v0;
-  if (v0) {
+
+  // Open FATAL.INI file
+  char *pData;
+  int iFileSize;
+  FILE *pFile;
+  char *pDataEnd;
+  pFile = fopen("FATAL.INI", "rb");
+  if (!pFile)
+    pFile = fopen("fatal.ini", "rb"); //linux compatibility, added by ROLLER
+
+  if (pFile) {
     fatal_ini_loaded = -1;
-    fseek(v0, 0, 2);
-    v2 = ftell(v1);
-    fseek(v1, 0, 0);
-    v3 = getbuffer(v2 + 1);
-    v71 = v3;
-    if (v3) {
-      fread(v3, 1, v2, v1);
-      fclose(v1);
-      decode(v71, v2, 77, 101);
-      for (i = 0; i < v2; ++i) {
-        if (*(_BYTE *)(i + v71) == 13)
-          *(_BYTE *)(i + v71) = 10;
+
+    // Get file size
+    fseek(pFile, 0, SEEK_END);
+    iFileSize = ftell(pFile);
+    fseek(pFile, 0, SEEK_SET);
+
+    // Allocate buffer and read file
+    pData = getbuffer(iFileSize + 1);
+    if (pData) {
+      fread(pData, 1, iFileSize, pFile);
+      fclose(pFile);
+
+      // Decode file contents
+      decode(pData, iFileSize, 77, 101);
+
+      // Convert DOS line endings to Unix
+      for (int i = 0; i < iFileSize; i++) {
+        if (pData[i] == '\r') {
+          pData[i] = '\n';
+        }
       }
-      *(_BYTE *)(v71 + v2) = 0;
-      getconfigvalue(128);
-      getconfigvalue(128);
-      getconfigvalue(128);
-      getconfigvalue(128);
-      if (EngineVolume == 128)
-        EngineVolume = 127;
-      if (SFXVolume == 128)
-        SFXVolume = 127;
-      if (SpeechVolume == 128)
-        SpeechVolume = 127;
-      if (MusicVolume == 128)
-        MusicVolume = 127;
-      getconfigvalue(1);
-      if (allengines)
-        allengines = -1;
-      getconfigvalue(1);
-      if (soundon)
-        soundon = -1;
-      getconfigvalue(1);
-      if (musicon)
-        musicon = -1;
-      getconfigvalue(1);
-      if (game_svga == 1)
-        game_svga = -1;
-      if (no_mem)
-        game_svga = 0;
+
+      // Add null terminator
+      pDataEnd = pData + iFileSize;
+      *pDataEnd = '\0';
+
+      // Read configuration values
+      getconfigvalue(pData, "EngineVolume", &EngineVolume, 0, 128);
+      getconfigvalue(pData, "SFXVolume", &SFXVolume, 0, 128);
+      getconfigvalue(pData, "SpeechVolume", &SpeechVolume, 0, 128);
+      getconfigvalue(pData, "MusicVolume", &MusicVolume, 0, 128);
+      if (EngineVolume == 128) EngineVolume = 127;
+      if (SFXVolume == 128) SFXVolume = 127;
+      if (SpeechVolume == 128) SpeechVolume = 127;
+      if (MusicVolume == 128) MusicVolume = 127;
+
+      getconfigvalue(pData, "CarE", &allengines, 0, 1);
+      if (allengines) allengines = -1;
+
+      getconfigvalue(pData, "SfxO", &soundon, 0, 1);
+      if (soundon) soundon = -1;
+
+      getconfigvalue(pData, "MusO", &musicon, 0, 1);
+      if (musicon) musicon = -1;
+
+      getconfigvalue(pData, "SVGA", &game_svga, 0, 1);
+      if (game_svga == 1) game_svga = -1;
+      if (no_mem) game_svga = 0;
+
       game_size = 128;
-      getconfigvalue(128);
-      if (!game_svga)
-        game_size /= 2;
-      getconfigvalue(8);
-      getconfigvalue(2);
-      getconfigvalueuc(v71, (int)&aAlp1left[2], userkey, 0, 139);
-      getconfigvalueuc(v71, (int)&aIp1right[1], &userkey_variable_1, 0, 139);
-      getconfigvalueuc(v71, (int)aP1up, &userkey_variable_2, 0, 139);
-      getconfigvalueuc(v71, (int)&aP1down[2], &userkey_variable_3, 0, 139);
-      getconfigvalueuc(v71, (int)&aP1upgear[1], &userkey_variable_4, 0, 139);
-      getconfigvalueuc(v71, (int)&aBaup1downgear[3], &userkey_variable_5, 0, 139);
-      getconfigvalueuc(v71, (int)&aMp1cheat[1], &userkey_variable_12, 0, 139);
-      getconfigvalueuc(v71, (int)aP2left, &userkey_variable_6, 0, 139);
-      getconfigvalueuc(v71, (int)&aEp2right[1], &userkey_variable_7, 0, 139);
-      getconfigvalueuc(v71, (int)aP2up, &userkey_variable_8, 0, 139);
-      getconfigvalueuc(v71, (int)aP2down, &userkey_variable_9, 0, 139);
-      getconfigvalueuc(v71, (int)&aOp2upgear[1], &userkey_variable_10, 0, 139);
-      getconfigvalueuc(v71, (int)&aUsip2downgear[3], &userkey_variable_11, 0, 139);
-      getconfigvalueuc(v71, (int)&aEp2cheat[1], &userkey_variable_13, 0, 139);
-      getconfigvalue(1);
-      x1ok = v70 != 0;
-      getconfigvalue(1);
-      if (v70)
-        y1ok = 2;
-      else
-        y1ok = 0;
-      getconfigvalue(1);
-      if (v70)
-        x2ok = 4;
-      else
-        x2ok = 0;
-      getconfigvalue(1);
-      if (v70)
-        y2ok = 8;
-      else
-        y2ok = 0;
+      getconfigvalue(pData, "Size", &game_size, 64, 128);
+      if (!game_svga) {
+        game_size = (game_size - (game_size < 0)) / 2;
+      }
+
+      getconfigvalue(pData, "View", &game_view[0], 0, 8);
+      getconfigvalue(pData, "Names", &names_on, 0, 2);
+
+      // Read keyboard mappings
+      getconfigvalueuc(pData, "P1left", &userkey.byP1left, 0, 139);
+      getconfigvalueuc(pData, "P1right", &userkey.byP1right, 0, 139);
+      getconfigvalueuc(pData, "P1up", &userkey.byP1up, 0, 139);
+      getconfigvalueuc(pData, "P1down", &userkey.byP1down, 0, 139);
+      getconfigvalueuc(pData, "P1upgear", &userkey.byP1upgear, 0, 139);
+      getconfigvalueuc(pData, "P1downgear", &userkey.byP1downgear, 0, 139);
+      getconfigvalueuc(pData, "P1cheat", &userkey.byP1cheat, 0, 139);
+      getconfigvalueuc(pData, "P2left", &userkey.byP2left, 0, 139);
+      getconfigvalueuc(pData, "P2right", &userkey.byP2right, 0, 139);
+      getconfigvalueuc(pData, "P2up", &userkey.byP2up, 0, 139);
+      getconfigvalueuc(pData, "P2down", &userkey.byP2down, 0, 139);
+      getconfigvalueuc(pData, "P2upgear", &userkey.byP2upgear, 0, 139);
+      getconfigvalueuc(pData, "P2downgear", &userkey.byP2downgear, 0, 139);
+      getconfigvalueuc(pData, "P2cheat", &userkey.byP2cheat, 0, 139);
+
+      // Read joystick configuration
+      int iTemp;
+      getconfigvalue(pData, "Joy1X", &iTemp, 0, 1);
+      x1ok = iTemp ? 1 : 0;
+
+      getconfigvalue(pData, "Joy1Y", &iTemp, 0, 1);
+      y1ok = iTemp ? 2 : 0;
+
+      getconfigvalue(pData, "Joy2X", &iTemp, 0, 1);
+      x2ok = iTemp ? 4 : 0;
+
+      getconfigvalue(pData, "Joy2Y", &iTemp, 0, 1);
+      y2ok = iTemp ? 8 : 0;
+
+      // Validate calibration values
       if (x1ok) {
         JAXmin = 10000;
         JAXmax = -10000;
-        getconfigvalue(0x7FFFFFFF);
-        JAXmin = 10000;
-        v72 = JAXmax;
-        getconfigvalue(0x7FFFFFFF);
-        JAXmax = v72;
-        if (v72 < JAXmin)
-          x1ok = 0;
+        getconfigvalue(pData, "Joy1Xmin", &JAXmin, 0, 0x7FFFFFFF);
+        getconfigvalue(pData, "Joy1Xmax", &JAXmax, 0, 0x7FFFFFFF);
+        if (JAXmax <= JAXmin) x1ok = 0;
       }
       if (y1ok) {
         JAYmin = 10000;
         JAYmax = -10000;
-        getconfigvalue(0x7FFFFFFF);
-        JAYmin = 10000;
-        v72 = JAYmax;
-        getconfigvalue(0x7FFFFFFF);
-        JAYmax = v72;
-        if (v72 < JAYmin)
-          y1ok = 0;
+        getconfigvalue(pData, "Joy1Ymin", &JAYmin, 0, 0x7FFFFFFF);
+        getconfigvalue(pData, "Joy1Ymax", &JAYmax, 0, 0x7FFFFFFF);
+        if (JAYmax <= JAYmin) y1ok = 0;
       }
       if (x2ok) {
         JBXmin = 10000;
         JBXmax = -10000;
-        getconfigvalue(0x7FFFFFFF);
-        JBXmin = 10000;
-        v72 = JBXmax;
-        getconfigvalue(0x7FFFFFFF);
-        JBXmax = v72;
-        if (v72 < JBXmin)
-          x2ok = 0;
+        getconfigvalue(pData, "Joy2Xmin", &JBXmin, 0, 0x7FFFFFFF);
+        getconfigvalue(pData, "Joy2Xmax", &JBXmax, 0, 0x7FFFFFFF);
+        if (JBXmax <= JBXmin) x2ok = 0;
       }
       if (y2ok) {
         JBYmin = 10000;
         JBYmax = -10000;
-        getconfigvalue(0x7FFFFFFF);
-        JBYmin = 10000;
-        v72 = JBYmax;
-        getconfigvalue(0x7FFFFFFF);
-        JBYmax = v72;
-        if (v72 < JBYmin)
-          y2ok = 0;
+        getconfigvalue(pData, "Joy2Ymin", &JBYmin, 0, 0x7FFFFFFF);
+        getconfigvalue(pData, "Joy2Ymax", &JBYmax, 0, 0x7FFFFFFF);
+        if (JBYmax <= JBYmin) y2ok = 0;
       }
-      if (JAXmin == JAXmax)
-        JAXmax = JAXmin + 1;
-      if (JAYmin == JAYmax)
-        JAYmax = JAYmin + 1;
-      if (JBXmin == JBXmax)
-        JBXmax = JBXmin + 1;
-      if (JBYmin == JBYmax)
-        JBYmax = JBYmin + 1;
-      bitaccept = y2ok | x2ok | y1ok | x1ok;
-      v5 = &buffer;
-      ConfigVar = (char *)FindConfigVar(v71, aNom, &buffer, 0);
-      if (ConfigVar) {
-        while (1) {
-          v7 = *ConfigVar;
-          if (*ConfigVar == 10)
-            break;
-          ++v5;
-          ++ConfigVar;
-          *(v5 - 1) = v7;
+
+      // Calculate bitmask for accepted joystick axes
+      bitaccept = x1ok | y1ok | x2ok | y2ok;
+
+      // Process player names
+      char *pNamePos = FindConfigVar(pData, "Nom");
+      if (pNamePos) {
+        char *pDest = buffer;
+        while (*pNamePos != '\n') {
+          *pDest++ = *pNamePos++;
         }
-        *v5 = 0;
+        *pDest = '\0';
       }
-      if (!buffer)
-        strcpy(&buffer, "HUMAN");
-      name_copy((int)player_names, &buffer);
-      getconfigvalue(15);
-      Players_Cars[0] = 0;
-      v72 = level;
-      getconfigvalue(5);
-      level = v72;
-      v72 = damage_level;
-      getconfigvalue(2);
-      damage_level = v72;
-      v72 = textures_off;
-      getconfigvalue(0x7FFFFFFF);
-      textures_off = v72;
-      getconfigvalue(1);
-      getconfigvalue(1);
-      v72 = game_type;
-      getconfigvalue(2);
-      game_type = v72;
-      v72 = competitors;
-      getconfigvalue(16);
-      competitors = v72;
-      v72 = TrackLoad;
-      getconfigvalue(24);
-      TrackLoad = v72;
-      v8 = 0;
-      getconfigvalue(4);
-      if (player_type && player_type != 2) {
-        v8 = 0;
+      if (!buffer[0]) {
+        strcpy(buffer, "HUMAN");
+      }
+      name_copy(player_names[0], buffer);
+
+      // Read various game settings
+      getconfigvalue(pData, "Car1", &Players_Cars[0], 0, 15);
+      getconfigvalue(pData, "Level", &level, 0, 5);
+      getconfigvalue(pData, "Damage", &damage_level, 0, 2);
+      getconfigvalue(pData, "Detail", &textures_off, 0, 0x7FFFFFFF);
+      getconfigvalue(pData, "Ahead", &view_limit, 0, 1);
+      getconfigvalue(pData, "Record", &replay_record, 0, 1);
+      getconfigvalue(pData, "Game", &game_type, 0, 2);
+      getconfigvalue(pData, "Racers", &competitors, 1, 16);
+      getconfigvalue(pData, "Track", &TrackLoad, -1, 24);
+      getconfigvalue(pData, "Players", &player_type, 0, 4);
+
+      // Process second player name if needed      
+      if (player_type && player_type != 2)
         player_type = 0;
-      }
       if (player_type == 2) {
-        v9 = &buffer;
-        v10 = (char *)FindConfigVar(v71, aHan, &buffer, 0);
-        if (v10) {
-          while (1) {
-            v11 = *v10;
-            if (*v10 == 10)
-              break;
-            ++v9;
-            ++v10;
-            *(v9 - 1) = v11;
+        char *pName2Pos = FindConfigVar(pData, "Han");
+        if (pName2Pos) {
+          char *pDest = buffer;
+          while (*pName2Pos != '\n') {
+            *pDest++ = *pName2Pos++;
           }
-          *v9 = 0;
+          *pDest = '\0';
         }
-        if (!buffer)
-          strcpy(&buffer, "PLAYER 2");
-        v8 = -1;
-        name_copy((int)player_names_variable_1, &buffer);
-        v72 = 0;
-        getconfigvalue(15);
-        Players_Cars_variable_1 = 0;
-      }
-      if (game_type == 1)
-        TrackLoad = 8 * ((TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3) + 1;
-      v12 = &buffer;
-      v13 = (char *)FindConfigVar(v71, &aOy1ariel1[3], &buffer, v8);
-      if (v13) {
-        while (1) {
-          v14 = *v13;
-          if (*v13 == 10)
-            break;
-          ++v12;
-          ++v13;
-          *(v12 - 1) = v14;
+        if (!buffer[0]) {
+          strcpy(buffer, "PLAYER 2");
         }
-        *v12 = 0;
+        name_copy(player_names[1], buffer);
+        getconfigvalue(pData, "Car2", &Players_Cars[1], -1, 15);
       }
-      if (!buffer)
-        strcpy(&buffer, "COMP 1");
-      name_copy((int)&default_names, &buffer);
-      v15 = &buffer;
-      v16 = (_BYTE *)FindConfigVar(v71, &aNariel2[1], &buffer, v8);
-      if (v16) {
-        while (1) {
-          LOBYTE(v8) = *v16;
-          if (*v16 == 10)
-            break;
-          ++v15;
-          ++v16;
-          *(v15 - 1) = v8;
+
+      // Adjust track load for game type
+      if (game_type == 1) {
+        TrackLoad = ((TrackLoad - 1) / 8) * 8 + 1;
+      }
+
+      // Process AI driver names
+      char *compNameAy[] = {
+          "Ariel1", "Ariel2", "DeSilva1", "DeSilva2",
+          "Pulse1", "Pulse2", "Global1", "Global2",
+          "Million1", "Million2", "Mission1", "Mission2",
+          "Zizin1", "Zizin2", "Reise1", "Reise2"
+      };
+      for (int i = 0; i < 16; i++) {
+        char *pNameSrc = FindConfigVar(pData, compNameAy[i]);
+        if (pNameSrc) {
+          char *pDest = buffer;
+          while (*pNameSrc != '\n') {
+            *pDest++ = *pNameSrc++;
+          }
+          *pDest = '\0';
+        } else {
+          sprintf(buffer, "COMP %d", i + 1);
         }
-        *v15 = 0;
+        name_copy(default_names[i], buffer);
       }
-      if (!buffer)
-        strcpy(&buffer, "COMP 2");
-      name_copy((int)"HAL", &buffer);
-      v17 = &buffer;
-      v18 = (char *)FindConfigVar(v71, &aMdesilva1[1], &buffer, v8);
-      if (v18) {
-        while (1) {
-          v19 = *v18;
-          if (*v18 == 10)
-            break;
-          ++v17;
-          ++v18;
-          *(v17 - 1) = v19;
+
+      // Process network messages
+      char *netMessageAy[] = {
+          "NetMes1", "NetMes2", "NetMes3", "NetMes4"
+      };
+      for (int i = 0; i < 4; i++) {
+        char *pMsgSrc = FindConfigVar(pData, netMessageAy[i]);
+        if (pMsgSrc) {
+          char *pDest = network_messages[i];
+          while (*pMsgSrc != '\n') {
+            *pDest++ = *pMsgSrc++;
+          }
+          *pDest = '\0';
         }
-        *v17 = 0;
       }
-      if (!buffer)
-        strcpy(&buffer, "COMP 3");
-      name_copy((int)aSlave, &buffer);
-      v20 = &buffer;
-      v21 = (_BYTE *)FindConfigVar(v71, &aXdesilva2[1], &buffer, v8);
-      if (v21) {
-        while (1) {
-          LOBYTE(v8) = *v21;
-          if (*v21 == 10)
-            break;
-          ++v20;
-          ++v21;
-          *(v20 - 1) = v8;
+
+      // Read modem/network settings
+      getconfigvalue(pData, "ComPort", &serial_port, 1, 4);
+      getconfigvalue(pData, "ModemPort", &modem_port, 1, 4);
+      getconfigvalue(pData, "ModemTone", &modem_tone, -10, 10);
+      char *pModemInit = FindConfigVar(pData, "ModemInit");
+      if (pModemInit) {
+        char *pDest = modem_initstring;
+        while (*pModemInit != '\n') {
+          *pDest++ = *pModemInit++;
         }
-        *v20 = 0;
+        *pDest = '\0';
       }
-      if (!buffer)
-        strcpy(&buffer, "COMP 4");
-      name_copy((int)aZen, &buffer);
-      v22 = &buffer;
-      v23 = (char *)FindConfigVar(v71, &a1pulse1[1], &buffer, v8);
-      if (v23) {
-        while (1) {
-          v24 = *v23;
-          if (*v23 == 10)
-            break;
-          ++v22;
-          ++v23;
-          *(v22 - 1) = v24;
+      char *pModemPhone = FindConfigVar(pData, "ModemPhone");
+      if (pModemPhone) {
+        char *pDest = modem_phone;
+        while (*pModemPhone != '\n') {
+          *pDest++ = *pModemPhone++;
         }
-        *v22 = 0;
+        *pDest = '\0';
       }
-      if (!buffer)
-        strcpy(&buffer, "COMP 5");
-      name_copy((int)aAsh, &buffer);
-      v25 = &buffer;
-      v26 = (_BYTE *)FindConfigVar(v71, &aApulse2[1], &buffer, v8);
-      if (v26) {
-        while (1) {
-          LOBYTE(v8) = *v26;
-          if (*v26 == 10)
-            break;
-          ++v25;
-          ++v26;
-          *(v25 - 1) = v8;
-        }
-        *v25 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 6");
-      name_copy((int)aBishop, &buffer);
-      v27 = &buffer;
-      v28 = (char *)FindConfigVar(v71, &aAglobal1[1], &buffer, v8);
-      if (v28) {
-        while (1) {
-          v29 = *v28;
-          if (*v28 == 10)
-            break;
-          ++v27;
-          ++v28;
-          *(v27 - 1) = v29;
-        }
-        *v27 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 7");
-      name_copy((int)aVoyager, &buffer);
-      v30 = &buffer;
-      v31 = (_BYTE *)FindConfigVar(v71, &aIglobal2[1], &buffer, v8);
-      if (v31) {
-        while (1) {
-          LOBYTE(v8) = *v31;
-          if (*v31 == 10)
-            break;
-          ++v30;
-          ++v31;
-          *(v30 - 1) = v8;
-        }
-        *v30 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 8");
-      name_copy((int)aNomad, &buffer);
-      v32 = &buffer;
-      v33 = (char *)FindConfigVar(v71, &aOmillion1[1], &buffer, v8);
-      if (v33) {
-        while (1) {
-          v34 = *v33;
-          if (*v33 == 10)
-            break;
-          ++v32;
-          ++v33;
-          *(v32 - 1) = v34;
-        }
-        *v32 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 9");
-      name_copy((int)aBob, &buffer);
-      v35 = &buffer;
-      v36 = (_BYTE *)FindConfigVar(v71, aMillion2, &buffer, v8);
-      if (v36) {
-        while (1) {
-          LOBYTE(v8) = *v36;
-          if (*v36 == 10)
-            break;
-          ++v35;
-          ++v36;
-          *(v35 - 1) = v8;
-        }
-        *v35 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 10");
-      name_copy((int)aVincent, &buffer);
-      v37 = &buffer;
-      v38 = (char *)FindConfigVar(v71, aMission1, &buffer, v8);
-      if (v38) {
-        while (1) {
-          v39 = *v38;
-          if (*v38 == 10)
-            break;
-          ++v37;
-          ++v38;
-          *(v37 - 1) = v39;
-        }
-        *v37 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 11");
-      name_copy((int)aEddie, &buffer);
-      v40 = &buffer;
-      v41 = (_BYTE *)FindConfigVar(v71, aMission2, &buffer, v8);
-      if (v41) {
-        while (1) {
-          LOBYTE(v8) = *v41;
-          if (*v41 == 10)
-            break;
-          ++v40;
-          ++v41;
-          *(v40 - 1) = v8;
-        }
-        *v40 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 12");
-      name_copy((int)aMarvin, &buffer);
-      v42 = &buffer;
-      v43 = (char *)FindConfigVar(v71, aZizin1, &buffer, v8);
-      if (v43) {
-        while (1) {
-          v44 = *v43;
-          if (*v43 == 10)
-            break;
-          ++v42;
-          ++v43;
-          *(v42 - 1) = v44;
-        }
-        *v42 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 13");
-      name_copy((int)aKryten, &buffer);
-      v45 = &buffer;
-      v46 = (_BYTE *)FindConfigVar(v71, aZizin2, &buffer, v8);
-      if (v46) {
-        while (1) {
-          LOBYTE(v8) = *v46;
-          if (*v46 == 10)
-            break;
-          ++v45;
-          ++v46;
-          *(v45 - 1) = v8;
-        }
-        *v45 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 14");
-      name_copy((int)aHolly, &buffer);
-      v47 = &buffer;
-      v48 = (char *)FindConfigVar(v71, aReise1, &buffer, v8);
-      if (v48) {
-        while (1) {
-          v49 = *v48;
-          if (*v48 == 10)
-            break;
-          ++v47;
-          ++v48;
-          *(v47 - 1) = v49;
-        }
-        *v47 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 15");
-      name_copy((int)aRobby, &buffer);
-      v50 = &buffer;
-      v51 = (_BYTE *)FindConfigVar(v71, aReise2, &buffer, v8);
-      if (v51) {
-        while (1) {
-          LOBYTE(v8) = *v51;
-          if (*v51 == 10)
-            break;
-          ++v50;
-          ++v51;
-          *(v50 - 1) = v8;
-        }
-        *v50 = 0;
-      }
-      if (!buffer)
-        strcpy(&buffer, "COMP 16");
-      name_copy((int)aGort, &buffer);
-      v52 = aSlowcoach;
-      v53 = (char *)FindConfigVar(v71, aNetmes1, aSlowcoach, v8);
-      if (v53) {
-        while (1) {
-          v54 = *v53;
-          if (*v53 == 10)
-            break;
-          ++v52;
-          ++v53;
-          *(v52 - 1) = v54;
-        }
-        *v52 = 0;
-      }
-      v55 = aOutOfMyWay;
-      v56 = (char *)FindConfigVar(v71, aNetmes2, aOutOfMyWay, v8);
-      if (v56) {
-        while (1) {
-          v57 = *v56;
-          if (*v56 == 10)
-            break;
-          ++v55;
-          ++v56;
-          *(v55 - 1) = v57;
-        }
-        *v55 = 0;
-      }
-      v58 = aYouDie;
-      v59 = (_BYTE *)FindConfigVar(v71, aNetmes3, aYouDie, v8);
-      if (v59) {
-        while (1) {
-          LOBYTE(v8) = *v59;
-          if (*v59 == 10)
-            break;
-          ++v58;
-          ++v59;
-          *(v58 - 1) = v8;
-        }
-        *v58 = 0;
-      }
-      v60 = aSucker;
-      v61 = (char *)FindConfigVar(v71, aNetmes4, aSucker, v8);
-      if (v61) {
-        while (1) {
-          v62 = *v61;
-          if (*v61 == 10)
-            break;
-          ++v60;
-          ++v61;
-          *(v60 - 1) = v62;
-        }
-        *v60 = 0;
-      }
-      getconfigvalue(4);
-      getconfigvalue(4);
-      getconfigvalue(10);
-      v63 = "ATX";
-      v64 = (char *)FindConfigVar(v71, &aInmodeminit[2], "ATX", -10);
-      if (v64) {
-        while (1) {
-          v65 = *v64;
-          if (*v64 == 10)
-            break;
-          ++v63;
-          ++v64;
-          *((_BYTE *)v63 - 1) = v65;
-        }
-        *v63 = 0;
-      }
-      v66 = &modem_phone;
-      v67 = (char *)FindConfigVar(v71, &aSsmodemphone[2], &modem_phone, -10);
-      if (v67) {
-        while (1) {
-          v68 = *v67;
-          if (*v67 == 10)
-            break;
-          ++v66;
-          ++v67;
-          *(v66 - 1) = v68;
-        }
-        *v66 = 0;
-      }
-      getconfigvalue(10);
-      getconfigvalue(800);
-      getconfigvalue(28800);
-      v72 = network_slot;
-      getconfigvalue(99999999);
-      network_slot = v72;
-      v0 = fre(&v71);
+      getconfigvalue(pData, "ModemCall", &modem_call, -10, 10);
+      getconfigvalue(pData, "ModemType", &current_modem, -800, 800);
+      getconfigvalue(pData, "ModemBaud", &modem_baud, 9600, 28800);
+      getconfigvalue(pData, "NetSlot", &network_slot, 0, 99999999);
+
+      // Free configuration buffer
+      fre(&pData);
     } else {
-      v0 = (_DWORD *)fclose(v1);
+      fclose(pFile);
     }
   }
-  return remove_uncalibrated(v0);*/
+
+  remove_uncalibrated();
 }
 
 //-------------------------------------------------------------------------------------------------

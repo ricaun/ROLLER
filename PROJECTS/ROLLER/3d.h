@@ -49,11 +49,14 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern int exiting;
+extern int game_svga;
 extern int game_size;
+extern int game_view[2];
 extern int svga_possible;
 extern int hibuffers;
 extern uint32 mem_used;
 extern int current_mode;
+extern int names_on;
 extern int SVGA_ON;
 extern int TrackLoad;
 extern int network_on;

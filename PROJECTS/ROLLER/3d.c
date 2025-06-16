@@ -19,12 +19,15 @@
 //-------------------------------------------------------------------------------------------------
 
 int exiting = 0;            //000A3170
+int game_svga = 0;          //000A31B0
 int game_size = 64;         //000A31B4
+int game_view[2] = { 0, 0 }; //000A31B8
 int svga_possible = -1;     //000A31C0
 int hibuffers;              //000A32E0
 uint32 mem_used;            //000A32E8
 int gosound = 3;            //000A3334
 int current_mode = 666;     //000A333C
+int names_on = 1;           //000A3340
 int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
 int network_on = 0;         //000A3510

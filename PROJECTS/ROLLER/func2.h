@@ -4,13 +4,35 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint8 byP1left;
+  uint8 byP1right;
+  uint8 byP1up;
+  uint8 byP1down;
+  uint8 byP1upgear;
+  uint8 byP1downgear;
+  uint8 byP1cheat;
+  uint8 byP2left;
+  uint8 byP2right;
+  uint8 byP2up;
+  uint8 byP2down;
+  uint8 byP2upgear;
+  uint8 byP2downgear;
+  uint8 byP2cheat;
+} tUserKey;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int write_key;
 extern int read_key;
 extern uint8 mapping[];
 extern int twoparter;
+extern tUserKey userkey;
 extern uint8 key_buffer[];
 extern char config_buffer[8192];
 extern char language_buffer[8192];
+extern int no_mem;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -58,7 +80,7 @@ char display_paused();
 void enable_keyboard();
 void disable_keyboard();
 void *save_fatal_config();
-int load_fatal_config();
+void load_fatal_config();
 void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutVal, int iMin, int iMax);
 void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pbyOutVal, int iMin, int iMax);
 int displaycalibrationbar(int a1, int a2, int a3);
