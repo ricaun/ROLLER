@@ -394,7 +394,7 @@ void init()
 
   for (int i = 0; i < 25; ++i) {
     int iRecordNamesPos = 9 * i;
-    strcpy(&RecordNames[iRecordNamesPos], "-----");
+    strcpy(RecordNames[iRecordNamesPos], "-----");
     RecordLaps[i] = 128.0f;
     RecordCars[i] = -1;
     RecordKills[i] = 0;

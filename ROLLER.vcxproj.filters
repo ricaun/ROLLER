@@ -237,6 +237,9 @@
     <ClCompile Include="PROJECTS\ROLLER\view.c">
       <Filter>PROJECTS\ROLLER\Source</Filter>
     </ClCompile>
+    <ClCompile Include="PROJECTS\ROLLER\roller.c">
+      <Filter>PROJECTS\ROLLER</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -340,6 +343,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>PROJECTS\ROLLER\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="PROJECTS\ROLLER\roller.h">
+      <Filter>PROJECTS\ROLLER\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

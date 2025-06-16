@@ -8,6 +8,7 @@
 #include "drawtrk3.h"
 #include "comms.h"
 #include "func3.h"
+#include "roller.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -3437,10 +3438,7 @@ void load_fatal_config()
   int iFileSize;
   FILE *pFile;
   char *pDataEnd;
-  pFile = fopen("FATAL.INI", "rb");
-  if (!pFile)
-    pFile = fopen("fatal.ini", "rb"); //linux compatibility, added by ROLLER
-
+  pFile = ROLLERfopen("FATAL.INI", "rb");
   if (pFile) {
     fatal_ini_loaded = -1;
 
@@ -4013,10 +4011,10 @@ void SaveRecords()
     iNumBytes += 12 + 9; // 12 bytes from 3 ints, 9 bytes for name
   }
 
-  FILE *f = fopen("dgkfc.rec", "rb+"); // Primary mode
+  FILE *f = ROLLERfopen("dgkfc.rec", "rb+"); // Primary mode
 
   if (!f) {
-    f = fopen("dgkfc.rec", "wb"); // Fallback mode
+    f = ROLLERfopen("dgkfc.rec", "wb"); // Fallback mode
   }
 
   if (f) {
@@ -4424,7 +4422,7 @@ void load_language_file(const char *szFilename, int iUseConfigBuffer)
   *szFileExt = '\0';
 
   // try opening the language file
-  pFile = fopen(szFilename, "r");
+  pFile = ROLLERfopen(szFilename, "r");
   if (!pFile) {
     printf("Unable to open file: %s\n", szFilename);
     doexit(1);

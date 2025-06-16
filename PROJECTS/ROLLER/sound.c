@@ -6,6 +6,7 @@
 #include "func2.h"
 #include "3d.h"
 #include "loadtrak.h"
+#include "roller.h"
 #include <memory.h>
 #include <SDL3/SDL.h>
 #ifdef IS_WINDOWS
@@ -136,7 +137,7 @@ void realmode(uint8 byRealModeInterrupt)
 
 bool loadDOS(const char *szFilename, void **out_buffer)
 {
-  FILE *file = fopen(szFilename, "rb");
+  FILE *file = ROLLERfopen(szFilename, "rb");
   if (!file) {
     *out_buffer = NULL;
     return false;
@@ -3415,7 +3416,7 @@ void load_language_map()
   int i;
 
   // open file
-  pFile = fopen("LANGUAGE.INI", "r");
+  pFile = ROLLERfopen("LANGUAGE.INI", "r");
   if (!pFile) return;
 
   // read number of languages into languages
@@ -3450,7 +3451,7 @@ void load_language_map()
 
 void initmusic()
 {
-  FILE *pFile = fopen("SOUND.INI", "r");
+  FILE *pFile = ROLLERfopen("SOUND.INI", "r");
   if (!pFile) return;
 
   readline(pFile, "i", &numsamples);
@@ -3694,7 +3695,7 @@ void convertname(char *szFilename)
       ext[2] = 'C';
       ext[3] = '\0';
 
-      FILE *fp = fopen(szFilename, "rb");
+      FILE *fp = ROLLERfopen(szFilename, "rb");
       if (fp) {
         cheatsample = -1;
         fclose(fp);
@@ -3710,7 +3711,7 @@ void convertname(char *szFilename)
       const char *szLangExt = (const char *)SampleExt[language];
       strcpy(szExt + 1, szLangExt);
 
-      FILE *fp = fopen(szFilename, "rb");
+      FILE *fp = ROLLERfopen(szFilename, "rb");
       if (fp) {
         fclose(fp);
         return;
@@ -3978,7 +3979,7 @@ int getcompactedfilelength(const char *szFile)
   FILE *pFile; // esi
   int iLength; // [esp+0h] [ebp-14h] BYREF
 
-  pFile = fopen(szFile, "rb");
+  pFile = ROLLERfopen(szFile, "rb");
   fread(&iLength, 1u, 4u, pFile);
   fclose(pFile);
   return iLength;
@@ -3991,7 +3992,7 @@ int initmangle(const char *szFile)
   unmangleinpoff = 4;
   unmanglebufpos = 4;
   unmangleoverflow = 0;
-  unmanglefile = fopen(szFile, "rb");
+  unmanglefile = ROLLERfopen(szFile, "rb");
   fseek(unmanglefile, unmanglebufpos, 0);
   return (int)fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
 }
