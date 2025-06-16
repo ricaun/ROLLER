@@ -8,6 +8,7 @@
 #include "loadtrak.h"
 #include "roller.h"
 #include <memory.h>
+#include <ctype.h>
 #include <SDL3/SDL.h>
 #ifdef IS_WINDOWS
 #include <io.h>
