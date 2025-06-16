@@ -3610,7 +3610,12 @@ void load_fatal_config()
 
       // Adjust track load for game type
       if (game_type == 1) {
-        TrackLoad = ((TrackLoad - 1) / 8) * 8 + 1;
+        if (TrackLoad < 1) {
+          TrackLoad = 1;
+        } else {
+          // Clear the lower 3 bits (round down to multiple of 8)
+          TrackLoad = ((TrackLoad - 1) & 0xFFFFFFF8) + 1;
+        }
       }
 
       // Process AI driver names
