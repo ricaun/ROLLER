@@ -28,9 +28,15 @@ int allengines = -1;        //000A46A8
 int cheat_samples = 0;      //000A46AC
 int palette_brightness = 32;//000A46B0
 void *pal_selector = (void *)-1; //000A46B4
+char SourcePath[64] = { 0 }; //000A46C4
+char DestinationPath[64] = { 0 }; //000A4704
+char languagename[32] = { 0 }; //000A4744
 int writeptr = 0;           //000A476C
 int readptr = 0;            //000A4770
 int SoundCard = 0;          //000A4774
+int SoundPort = 0;          //000A4778
+int SoundIRQ = 0;           //000A477C
+int SoundDMA = 0;           //000A4780
 int EngineVolume = 32;      //000A4784
 int SFXVolume = 56;         //000A4788
 int SpeechVolume = 127;     //000A478C
@@ -54,7 +60,7 @@ uint8 unmangleinbuf[1024];  //00149EF0
 uint32 SampleLen[120];      //00160560
 uint8 *SamplePtr[120];      //00160750
 char Sample[120][15];       //00162730
-char lang[512];             //00162E38
+char lang[16][32];          //00162E38
 int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
@@ -1650,96 +1656,85 @@ void *devicespecificuninit()
 
 //-------------------------------------------------------------------------------------------------
 
-int readsoundconfig(int a1)
+void readsoundconfig(void)
 {
-  return 0; /*
-  int result; // eax
-  int v2; // ecx
-  unsigned int v3; // esi
-  int ConfigVar; // eax
-  int v5; // ebx
-  char *v6; // ecx
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15[7]; // [esp+0h] [ebp-1Ch] BYREF
+  FILE *fp = ROLLERfopen("../config.ini", "rb");
+  char *pBuffer = NULL;
+  long iSize;
 
-  result = fopen(&aDConfigIni[1], aRb_3);
-  v2 = 0;
-  v3 = result;
-  if (!result)
-    v2 = -1;
-  if (!v2) {
-    fseek(result, 0, 2);
-    a1 = ftell(v3);
-    fseek(v3, 0, 0);
-    result = getbuffer(a1 + 1);
-    v15[0] = result;
-    if (!result) {
-      v2 = -1;
-      result = fclose(v3);
+  if (!fp) return;
+
+  // Determine file size
+  fseek(fp, 0, SEEK_END);
+  iSize = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  pBuffer = (char *)getbuffer(iSize + 1);
+  if (!pBuffer) {
+    fclose(fp);
+    return;
+  }
+
+  fread(pBuffer, 1, iSize, fp);
+  pBuffer[iSize] = '\0'; // Null-terminate for string parsing
+
+  // Parse Language
+  char *szVar = FindConfigVar(pBuffer, "Language");
+  if (szVar) sscanf(szVar, "%s", languagename);
+
+  // Match language index
+  language = 0;
+  for (int i = 0; i < languages; i++) {
+    if (strcmp(languagename, lang[i]) == 0) {
+      language = i;
+      break;
     }
   }
-  if (!v2) {
-    fread(v15[0], 1, a1, v3);
-    *(_BYTE *)(v15[0] + a1) = 0;
-    ConfigVar = FindConfigVar(v15[0], &aFlanguage[2], a1, v3);
-    if (ConfigVar)
-      sscanf(ConfigVar, "%s", &languagename);
-    v5 = 0;
-    v6 = (char *)languages;
-    language = 0;
-    if (languages > 0) {
-      v6 = (char *)&lang;
-      do {
-        if (!strcmp(&languagename, v6))
-          language = v5;
-        ++v5;
-        v6 += 32;
-      } while (v5 < languages);
-    }
-    v7 = FindConfigVar(v15[0], &aMsourcepath[1], v5, v6);
-    if (v7)
-      sscanf(v7, "%s", &SourcePath);
-    v8 = FindConfigVar(v15[0], &aEdestinationpa[1], v5, v6);
-    if (v8)
-      sscanf(v8, "%s", &DestinationPath);
-    v9 = FindConfigVar(v15[0], aSoundcard, v5, v6);
-    if (v9)
-      sscanf(v9, "%hi", &SoundCard);
-    v10 = FindConfigVar(v15[0], aSoundport, v5, v6);
-    if (v10)
-      sscanf(v10, "%hi", &SoundPort);
-    v11 = FindConfigVar(v15[0], &aPSoundirq[2], v5, v6);
-    if (v11)
-      sscanf(v11, "%hi", &SoundIRQ);
-    v12 = FindConfigVar(v15[0], &aOwnsounddma[3], v5, v6);
-    if (v12)
-      sscanf(v12, "%hi", &SoundDMA);
-    v13 = FindConfigVar(v15[0], &aGramusiccard[3], v5, v6);
-    if (v13)
-      sscanf(v13, "%hi", &MusicCard);
-    v14 = FindConfigVar(v15[0], &aSMusicport[2], v5, v6);
-    if (v14)
-      sscanf(v14, "%hi", &MusicPort);
-    fre(v15);
-    result = fclose(v3);
-    if (MusicCard == 205) {
-      result = 0;
-      MusicCard = 0;
-      MusicCD = -1;
-    }
+
+  // SourcePath
+  szVar = FindConfigVar(pBuffer, "SourcePath");
+  if (szVar) sscanf(szVar, "%s", SourcePath);
+
+  // DestinationPath
+  szVar = FindConfigVar(pBuffer, "DestinationPath");
+  if (szVar) sscanf(szVar, "%s", DestinationPath);
+
+  // Sound settings
+  szVar = FindConfigVar(pBuffer, "SoundCard");
+  if (szVar) sscanf(szVar, "%hi", &(short)SoundCard);
+
+  szVar = FindConfigVar(pBuffer, "SoundPort");
+  if (szVar) sscanf(szVar, "%hi", &(short)SoundPort);
+
+  szVar = FindConfigVar(pBuffer, "SoundIRQ");
+  if (szVar) sscanf(szVar, "%hi", &(short)SoundIRQ);
+
+  szVar = FindConfigVar(pBuffer, "SoundDMA");
+  if (szVar) sscanf(szVar, "%hi", &(short)SoundDMA);
+
+  // Music settings
+  szVar = FindConfigVar(pBuffer, "MusicCard");
+  if (szVar) sscanf(szVar, "%hi", &(short)MusicCard);
+
+  szVar = FindConfigVar(pBuffer, "MusicPort");
+  if (szVar) sscanf(szVar, "%hi", &(short)MusicPort);
+
+  // Cleanup
+  fre(pBuffer);
+  fclose(fp);
+
+  // Special MusicCard case
+  if (MusicCard == 0xCD) {
+    MusicCard = 0;
+    MusicCD = -1;
   }
-  if (!MusicCard && !MusicCD)
-    musicon = MusicCard;
-  if (!SoundCard)
+
+  // Set flags
+  if (MusicCard == 0 && MusicCD == 0)
+    musicon = 0;
+
+  if (SoundCard == 0)
     soundon = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1759,7 +1754,7 @@ char *FindConfigVar(const char *szConfigText, const char *szVarName)
 
   // move 'edx' to point past the matched variable name
   char *szEnd = szMatch;
-  uint32 uiLen = (uint32)strlen(szVarName);
+  uint32 uiLen = (uint32)strlen(szVarName) + 1;
   szEnd += uiLen;
 
   // skip any trailing spaces

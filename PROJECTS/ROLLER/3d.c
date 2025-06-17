@@ -938,7 +938,7 @@ int main(int argc, const char **argv, const char **envp)
   initmusic();
   tick_on = 0;
   remove("..\\REPLAYS\\REPLAY.TMP");
-  readsoundconfig(uiCheatMode);
+  readsoundconfig();
   loadcheatnames();
   cdxinit();
   GetFirstCDDrive();
