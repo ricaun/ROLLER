@@ -3215,6 +3215,9 @@ void findintrofiles()
     if (fnmatch("INTRO*.GSS", entry->d_name, FNM_CASEFOLD) == 0) {
       introfiles++;
     }
+    if (fnmatch("intro*.gss", entry->d_name, FNM_CASEFOLD) == 0) {
+      introfiles++;
+    }
   }
 
   closedir(dir);
