@@ -4,8 +4,8 @@
 #include "func3.h"
 #include "func2.h"
 #include "sound.h"
+#include "roller.h"
 //-------------------------------------------------------------------------------------------------
-
 
 int false_starts = -1;    //000A4AB8
 char network_messages[5][14] = { //000A4AC8
