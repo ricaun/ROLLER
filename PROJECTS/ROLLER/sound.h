@@ -21,6 +21,7 @@ typedef struct
 extern int musicon;
 extern int soundon;
 extern int allengines;
+extern int cheat_samples;
 extern int palette_brightness;
 extern void *pal_selector;
 extern char SourcePath[64];
@@ -99,7 +100,7 @@ void Initialise_SOS();
 int updatejoy();
 int readuserdata(int result);
 int tickhandler(int a1, int a2, int a3, int a4);
-void claim_ticktimer(unsigned int uiRateHz, int a2);
+void claim_ticktimer(unsigned int uiRateHz);
 void release_ticktimer();
 void Uninitialise_SOS();
 void loadsamples();

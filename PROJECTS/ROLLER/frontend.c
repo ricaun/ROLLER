@@ -5,6 +5,7 @@
 #include "func2.h"
 #include "sound.h"
 #include "roller.h"
+#include "car.h"
 #include <fcntl.h>
 #include <string.h>
 #ifdef IS_WINDOWS
@@ -28,8 +29,10 @@ char network_messages[5][14] = { //000A4AC8
 };
 int competitors = 16;     //000A4B70
 int manual_control[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //000A4B74
+int infinite_laps = 0;    //000A4C34
 int Players_Cars[16] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; //000A4C38
 int player_type = 0;      //000A4CB8
+int cup_won = 0;          //000A4CBC
 int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
 int network_champ_on = 0; //000A5318
@@ -5725,44 +5728,191 @@ void loadcheatnames()
 
 //-------------------------------------------------------------------------------------------------
 
-int CheckNames(char *a1, int a2)
+void CheckNames(char *szPlayerName, int iPlayerIdx)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  char *v3; // ebp
-  unsigned int v5; // [esp+14h] [ebp-1Ch]
-  int v6; // [esp+18h] [ebp-18h]
+  int iWMrBrush = 0;
+  int iCheatIdx = 0;
 
-  v3 = cheat_names;
-  v5 = 0;
-  _disable();
-  decode(cheat_names, 288, 43, 87);
-  if (cheat_names[0] == 35)
-    goto LABEL_7;
-  v6 = 0;
-  while (1) {
-    if (name_cmp(a1, v3)) {
-      if (v5 <= 0x19)
-        __asm { jmp     cs : off_4A54C[eax] }
-      goto LABEL_6;
-    }
-    if (!*a1)
-      break;
-  LABEL_6:
-    v3 += 9;
-    ++v5;
-    v6 += 4;
-    if (*v3 == 35)
-      goto LABEL_7;
+  // Decode cheat names list
+  decode((uint8*)cheat_names, 288, 43, 87);
+
+  // Skip processing if cheat list is empty
+  if (cheat_names[0][0] == '#') {
+    // Re-encode cheat names
+    decode((uint8*)cheat_names, 288, 43, 87);
+    return;
   }
-  name_copy((int)a1, aMrDull);
-  if (!a2)
-    cheat_mode |= 8u;
-LABEL_7:
-  decode(cheat_names, 288, 43, 87);
-  _enable();
-  return 0;*/
+
+  char *szCurrCheat = (char *)cheat_names;
+
+  // Process all cheat names until terminator '#'
+  while (*szCurrCheat != '#') {
+      // Check if player name matches current cheat name
+    if (name_cmp(szPlayerName, szCurrCheat) == 0) {
+      // Handle cheats
+      if (iCheatIdx <= 25) {
+        switch (iCheatIdx) {
+          case 0:
+            Players_Cars[iPlayerIdx] = 8;
+            name_copy(szPlayerName, "DAMIAN");
+            cheat_mode |= 0x01;
+            break;
+          case 1:
+            Players_Cars[iPlayerIdx] = 9;
+            name_copy(szPlayerName, "DAMON");
+            cheat_mode |= 0x01;
+            break;
+          case 2:
+            Players_Cars[iPlayerIdx] = 10;
+            name_copy(szPlayerName, "AHAM");
+            cheat_mode |= 0x01;
+            break;
+          case 3:
+            Players_Cars[iPlayerIdx] = 11;
+            name_copy(szPlayerName, "KEV");
+            cheat_mode |= 0x01;
+            break;
+          case 4:
+            Players_Cars[iPlayerIdx] = 12;
+            name_copy(szPlayerName, "LISA");
+            cheat_mode |= 0x01;
+            break;
+          case 5:
+            name_copy(szPlayerName, "PAT");
+            cheat_mode |= 0x02;
+            break;
+          case 6:
+            name_copy(szPlayerName, "MARK");
+            cheat_mode |= 0x04;
+            player_invul[iPlayerIdx] = -1;
+            break;
+          case 7:
+            name_copy(szPlayerName, "WMRBRUSH");
+            iWMrBrush = -1;
+            if (cheat_mode & 0x4000) {
+              // Handle player cars and infinite laps
+              short nPlayer1Car = (short)player1_car;
+              if ((short)nPlayer1Car == iPlayerIdx) {
+                for (int i = 0; i < players; i++) {
+                  infinite_laps = -1;
+                }
+              } else {
+                for (int i = 0; i < players; i++) {
+                  if (i != (int)nPlayer1Car) {
+                    Players_Cars[i * 4] = -1;
+                  }
+                }
+              }
+              switch_same = -1;
+            }
+            if (cheat_mode & 0x0800) {
+              release_ticktimer();
+              claim_ticktimer(36);
+            }
+            cheat_mode = 0;
+            player_invul[iPlayerIdx] = 0;
+            CalcCarSizes();
+            break;
+          case 8:
+            name_copy(szPlayerName, "OMPDJ");
+            cheat_samples = -1;
+            releasesamples();
+            loadfatalsample();
+            break;
+          case 9:
+            name_copy(szPlayerName, "PHIL");
+            cup_won |= 1;
+            textures_off |= 0x1000;
+            break;
+          case 10:
+            name_copy(szPlayerName, "LAZY");
+            cheat_mode |= 0x10;
+            break;
+          case 11:
+            name_copy(szPlayerName, "IDOL");
+            cheat_mode |= 0x20;
+            break;
+          case 12:
+            name_copy(szPlayerName, "ESULUMIERE");
+            cheat_mode |= 0x40;
+            break;
+          case 13:
+            name_copy(szPlayerName, "MR CRED");
+            cheat_mode |= 0x80;
+            break;
+          case 14:
+            name_copy(szPlayerName, "NEIL");
+            cheat_mode |= 0x100;
+            break;
+          case 15:
+            name_copy(szPlayerName, "BTMRBONUS");
+            textures_off |= 0x20000;
+            cup_won |= 2;
+            break;
+          case 16:
+            name_copy(szPlayerName, "SUMRREVIL");
+            cheat_mode |= 0x200;
+            break;
+          case 17:
+            if ((double)(1247486966.0f / 1245708284.0f) * 3145727.0 == 1247486966.0f) {
+              name_copy(szPlayerName, "TYPE B");
+            } else {
+              name_copy(szPlayerName, "TYPE A");
+            }
+            break;
+          case 18:
+            name_copy(szPlayerName, "SNOWMAN");
+            cheat_mode |= 0x400;
+            break;
+          case 19:
+            name_copy(szPlayerName, "SPEEDY");
+            cheat_mode |= 0x800;
+            release_ticktimer();
+            claim_ticktimer(50);
+            break;
+          case 20:
+            name_copy(szPlayerName, "NUCLEAR!");
+            cheat_mode |= 0x2800;
+            release_ticktimer();
+            claim_ticktimer(100);
+            break;
+          case 21:
+            name_copy(szPlayerName, "GULLIVER");
+            cheat_mode |= 0x1000;
+            break;
+          case 22:
+            name_copy(szPlayerName, "TINYTIM");
+            cheat_mode |= 0x8000;
+            CalcCarSizes();
+            break;
+          case 23:
+            name_copy(szPlayerName, "HEADACHE");
+            cheat_mode |= 0x10000;
+            break;
+          case 24:
+            name_copy(szPlayerName, "PAINTER");
+            cheat_mode |= 0x20000;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    // Handle empty player name
+    else if (*szPlayerName == '\0') {
+      name_copy(szPlayerName, "MR DULL");
+      if (iPlayerIdx == 0) {
+        cheat_mode |= 0x08;
+      }
+      break;
+    }
+
+    // Move to next cheat name
+    szCurrCheat += 9;
+    iCheatIdx++;
+  }
+  // Re-encode cheat names
+  decode((uint8*)cheat_names, 288, 43, 87);
 }
 
 //-------------------------------------------------------------------------------------------------

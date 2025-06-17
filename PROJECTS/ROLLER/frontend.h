@@ -8,8 +8,10 @@ extern int false_starts;
 extern char network_messages[5][14];
 extern int competitors;
 extern int manual_control[16];
+extern int infinite_laps;
 extern int Players_Cars[16];
 extern int player_type;
+extern int cup_won;
 extern int game_type;
 extern int replay_record;
 extern int network_champ_on;
@@ -63,7 +65,7 @@ void save_params();
 void reset_params();
 int NetworkWait(int a1, int a2, int a3, int a4);
 void loadcheatnames();
-int CheckNames(char *a1, int a2);
+void CheckNames(char *szPlayerName, int iPlayerIdx);
 void restart_net_game();
 
 //-------------------------------------------------------------------------------------------------

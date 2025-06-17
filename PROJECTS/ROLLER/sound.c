@@ -440,7 +440,7 @@ void Initialise_SOS()
   frames = 0;
 
   // start 36Hz timer that calls tickhandler
-  claim_ticktimer(36u, 0);
+  claim_ticktimer(36u);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1309,7 +1309,7 @@ int tickhandler(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void claim_ticktimer(unsigned int uiRateHz, int a2)
+void claim_ticktimer(unsigned int uiRateHz)
 {
   /***
   * ADDED BY ROLLER
