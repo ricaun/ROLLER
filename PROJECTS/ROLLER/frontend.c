@@ -6,6 +6,7 @@
 #include "sound.h"
 #include "roller.h"
 #include <fcntl.h>
+#include <string.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
@@ -5667,6 +5668,7 @@ void loadcheatnames()
   int iCheatIdx = 0;
 
   // Try to open PASSWORD.INI to get its size
+#ifdef IS_WINDOWS
   iFileHandle = open("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   iSize = _filelength(iFileHandle);
 
@@ -5675,9 +5677,18 @@ void loadcheatnames()
 
   // Close raw handle and reopen as FILE*
   close(iFileHandle);
+#endif
+
   fp = ROLLERfopen("PASSWORD.INI", "rb");
   if (!fp)
     return;
+
+#ifndef IS_WINDOWS
+  //linux compatibility, added by ROLLER
+  fseek(fp, 0, SEEK_END);
+  iSize = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+#endif
 
   // Read file into buffer
   fread(buffer, iSize, 1, fp);
