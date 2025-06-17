@@ -14,7 +14,7 @@ static SDL_Texture *s_pWindowTexture = NULL;
 static uint8 *s_pRGBBuffer = NULL;
 
 //-------------------------------------------------------------------------------------------------
-// added by ROLLER
+
 void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *pRGB, int width, int height)
 {
   if (!pIndexed || !pPalette || !pRGB)
@@ -29,7 +29,7 @@ void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *p
 }
 
 //-------------------------------------------------------------------------------------------------
-// added by ROLLER
+
 void UpdateSDLWindow()
 {
   ConvertIndexedToRGB(scrbuf, pal_addr, s_pRGBBuffer, 640, 400);
@@ -69,7 +69,7 @@ void UpdateSDLWindow()
 }
 
 //-------------------------------------------------------------------------------------------------
-//added by ROLLER
+
 void ToggleFullscreen()
 {
   static bool s_bIsFullscreen = false;
@@ -78,7 +78,7 @@ void ToggleFullscreen()
 }
 
 //-------------------------------------------------------------------------------------------------
-//added by ROLLER
+
 int InitSDL()
 {
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
