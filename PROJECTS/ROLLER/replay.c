@@ -3,6 +3,7 @@
 #ifdef IS_WINDOWS
 #include <io.h>
 #else
+#define _GNU_SOURCE
 #include <dirent.h>
 #include <fnmatch.h>
 #endif
