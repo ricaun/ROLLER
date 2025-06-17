@@ -3551,8 +3551,7 @@ void fade_palette(int iTargetBrightness)
       }
 
       //set dac palette
-      SDL_PollEvent(NULL);
-      UpdateSDLWindow();
+      UpdateSDL();
     }
   } else {
       // FADE OUT LOOP
@@ -3588,8 +3587,7 @@ void fade_palette(int iTargetBrightness)
       }
 
       //set dac palette
-      SDL_PollEvent(NULL);
-      UpdateSDLWindow();
+      UpdateSDL();
 
       iVolumeStep -= 0x7FFF;
     }

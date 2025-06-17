@@ -118,7 +118,7 @@ void copy_screens()
   disable_keyboard();
   ticks = 0;
   while (ticks < 180)
-    ;
+    UpdateSDL();
   fre(front_vga[0]);
   fade_palette(0);
 }

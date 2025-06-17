@@ -164,34 +164,6 @@ void ToggleFullscreen()
 
 //-------------------------------------------------------------------------------------------------
 //added by ROLLER
-void SDLEventLoop()
-{
-  SDL_Event e;
-  while (SDL_PollEvent(&e)) {
-    switch (e.type) {
-      case SDL_EVENT_QUIT:
-        quit_game = 1;
-        break;
-      case SDL_EVENT_KEY_DOWN:
-        if (e.key.key == SDLK_ESCAPE) {
-          quit_game = 1;
-        } else if (e.key.key == SDLK_F11) {
-          ToggleFullscreen();
-        } else if (e.key.key == SDLK_RETURN) {
-          SDL_Keymod mod = SDL_GetModState();
-          if (mod & (SDL_KMOD_LALT | SDL_KMOD_RALT)) {
-            ToggleFullscreen();
-          }
-        }
-        break;
-    }
-
-    UpdateSDLWindow();
-  }
-}
-
-//-------------------------------------------------------------------------------------------------
-//added by ROLLER
 int InitSDL()
 {
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
@@ -218,6 +190,34 @@ void ShutdownSDL()
   SDL_DestroyWindow(s_pWindow);
   SDL_DestroyTexture(s_pWindowTexture);
   free(s_pRGBBuffer);
+}
+
+//-------------------------------------------------------------------------------------------------
+//added by ROLLER
+void UpdateSDL()
+{
+  SDL_Event e;
+  while (SDL_PollEvent(&e)) {
+    switch (e.type) {
+      case SDL_EVENT_QUIT:
+        quit_game = 1;
+        exit(0);
+        break;
+      case SDL_EVENT_KEY_DOWN:
+        if (e.key.key == SDLK_ESCAPE) {
+          quit_game = 1;
+        } else if (e.key.key == SDLK_F11) {
+          ToggleFullscreen();
+        } else if (e.key.key == SDLK_RETURN) {
+          SDL_Keymod mod = SDL_GetModState();
+          if (mod & (SDL_KMOD_LALT | SDL_KMOD_RALT)) {
+            ToggleFullscreen();
+          }
+        }
+        break;
+    }
+  }
+  UpdateSDLWindow();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1156,8 +1156,8 @@ int main(int argc, const char **argv, const char **envp)
     if (restart_net) {
       restart_net_game();
     } else {
-      while (!time_to_start)
-        select_screen(0);
+      //while (!time_to_start)
+      //  select_screen(0);
     }
     restart_net = 0;
     countdown = 144;
@@ -1288,7 +1288,7 @@ int main(int argc, const char **argv, const char **envp)
     }
 
     //added by ROLLER
-    SDLEventLoop();
+    UpdateSDL();
 
   } while (!quit_game);
   //__asm { int     10h; -VIDEO - SET VIDEO MODE }
