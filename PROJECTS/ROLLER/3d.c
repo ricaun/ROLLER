@@ -919,8 +919,7 @@ int main(int argc, const char **argv, const char **envp)
   load_language_map();
   load_fatal_config();
   if ((textures_off & 0x2000) != 0) {
-    uiCheatMode = cheat_mode | 0x40;
-    cheat_mode |= 0x40u;
+    cheat_mode |= CHEAT_MODE_WIDESCREEN;
     textures_off ^= 0x2000u;
   }
   if ((textures_off & 0x4000) != 0) {

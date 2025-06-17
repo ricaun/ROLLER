@@ -4641,8 +4641,8 @@ void check_cars()
   for (int i = 0; i < players; i++) {
     int iCarId = Players_Cars[i];
 
-    // If not in cheat mode 0x4000, increment allocation count
-    if (!(cheat_mode & 0x4000)) {
+    // If not in CHEAT_MODE_CLONES, increment allocation count
+    if (!(cheat_mode & CHEAT_MODE_CLONES)) {
       allocated_cars[iCarId]++;
     }
 

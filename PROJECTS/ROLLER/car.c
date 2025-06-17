@@ -153,7 +153,7 @@ void CalcCarSizes()
       ++nCoordsIdx;
     }
     // Multiply by tinycar value if using tinycar cheat
-    if ((cheat_mode & 0x8000) != 0) {
+    if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0) {
       fXLow = fXLow * g_fTinycarSize;
       fYLow = fYLow * g_fTinycarSize;
       fXHigh = fXHigh * g_fTinycarSize;
@@ -196,7 +196,7 @@ void CalcCarSizes()
     ++pAutoCoords;
   }
   result = cheat_mode;
-  if ((cheat_mode & 0x8000) != 0) {
+  if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0) {
     CarBaseX = CarBaseX * g_fTinycarSize;
     CarBaseY = CarBaseY * g_fTinycarSize;
   }

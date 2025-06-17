@@ -309,7 +309,7 @@ bool setpal(const char *szFilename)
   }
 
   // If cheat mode flag is set, apply grayscale filter
-  if (cheat_mode & 0x08) {
+  if (cheat_mode & CHEAT_MODE_GRAYSCALE) {
     for (int i = 0; i < 256; ++i) {
       uint8 byAvg = (palette[i].byR + palette[i].byB + palette[i].byG) / 3;
       palette[i].byR = byAvg;
@@ -3794,9 +3794,9 @@ void loadasample(int iIndex)
     }
   }
 
-  // if cheat mode is enabled with flag 0x800
-  if (SamplePtr[iIndex] && (cheat_mode & 0x800)) {
-    if (cheat_mode & 0x2000) {
+  // if using 50Hz timer
+  if (SamplePtr[iIndex] && (cheat_mode & CHEAT_MODE_50HZ_TIMER)) {
+    if (cheat_mode & CHEAT_MODE_100HZ_TIMER) { //100Hz timer
       // halve the sample length, keep only even-indexed bytes
       int iLen = SampleLen[iIndex];
       uint8 *pData = SamplePtr[iIndex];
