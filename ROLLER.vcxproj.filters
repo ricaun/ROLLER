@@ -238,7 +238,7 @@
       <Filter>PROJECTS\ROLLER\Source</Filter>
     </ClCompile>
     <ClCompile Include="PROJECTS\ROLLER\roller.c">
-      <Filter>PROJECTS\ROLLER</Filter>
+      <Filter>PROJECTS\ROLLER\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
