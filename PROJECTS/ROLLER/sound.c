@@ -3425,7 +3425,7 @@ void load_language_map()
   }
 
   // Set up pointers to global buffers
-  char *szLangPtr = lang;
+  char *szLangPtr = lang[0];
   char *szTextExtPtr = TextExt;
   char *szSampleExtPtr = SampleExt;
 
@@ -3728,14 +3728,19 @@ void convertname(char *szFilename)
 
 void decode(uint8 *pData, int iLength, int iStep, int iOffset)
 {
-  int iNextOffset = iOffset;
+  int i; // edx
+  uint8 byOriginal; // bh
+  uint8 byXorValue; // bl
+  int iNextOffset; // [esp+0h] [ebp-Ch]
 
-  for (int i = 0; i < iLength; i++) {
-    uint8 byOriginal = *pData;
-    uint8 byXorValue = iNextOffset;
-    *pData = byOriginal ^ byXorValue;
-    pData++;
-    iNextOffset += iStep;
+  for (i = 0; i < iLength; *(pData - 1) = byXorValue ^ byOriginal) {
+    ++i;
+    byOriginal = *pData;
+    iNextOffset = iOffset + iStep;
+    ++pData;
+    byXorValue = iOffset + iStep;
+    iStep = iOffset;
+    iOffset = iNextOffset;
   }
 }
 
