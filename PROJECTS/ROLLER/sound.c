@@ -10,6 +10,7 @@
 #include <memory.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
+#include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
@@ -17,7 +18,7 @@
 #else
 #include <inttypes.h>
 #include <unistd.h>
-#include <fcntl.h>
+#define O_BINARY 0 //linux does not differentiate between text and binary
 #endif
 
 //-------------------------------------------------------------------------------------------------
@@ -1778,7 +1779,7 @@ void loadfile(const char *szFile, void *pBuf, unsigned int *uiSize, int iIsSound
 
   pBuf = 0;
   *uiSize = 0;
-  iFile = open(szFile, 512);
+  iFile = open(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFile == -1) {
     *uiSize = 0;
     pBuf = 0;

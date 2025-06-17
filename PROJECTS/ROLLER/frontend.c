@@ -5,6 +5,16 @@
 #include "func2.h"
 #include "sound.h"
 #include "roller.h"
+#include <fcntl.h>
+#ifdef IS_WINDOWS
+#include <io.h>
+#define open _open
+#define close _close
+#else
+#include <inttypes.h>
+#include <unistd.h>
+#define O_BINARY 0 //linux does not differentiate between text and binary
+#endif
 //-------------------------------------------------------------------------------------------------
 
 int false_starts = -1;    //000A4AB8
@@ -23,6 +33,7 @@ int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
 int network_champ_on = 0; //000A5318
 void *front_vga[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //000A5324
+char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
 int allocated_cars[14];   //0016FBC8
 int non_competitors[16];  //0016FDE0
@@ -5648,59 +5659,57 @@ LABEL_85:
 
 void loadcheatnames()
 {
-  /*
-  __int64 v4; // rax
-  int v5; // ebx
-  char *result; // eax
-  char *v7; // esi
-  int v8; // edi
-  int v9; // eax
-  int i; // ecx
-  char *v11; // ebx
-  char *v12; // esi
-  char *v13; // edi
-  char v14; // al
-  char v15; // al
-  char v16[1036]; // [esp-410h] [ebp-414h] BYREF
-  int v17; // [esp-4h] [ebp-8h]
+  char buffer[0x400]; // Temporary buffer for file contents
+  int iFileHandle;
+  FILE *fp;
+  int iSize;
+  char *szTok;
+  int iCheatIdx = 0;
 
-  v17 = a4;
-  v4 = open(aPasswordIni, 512);
-  v5 = v4;
-  result = (char *)filelength(v4, HIDWORD(v4), v4);
-  v7 = result;
-  if (v5 != -1) {
-    close(v5, aRb_4);
-    v8 = fopen(aPasswordIni, aRb_4);
-    fread(v16, v7, 1, v8);
-    fclose(v8);
-    _disable();
-    decode(v16, (int)v7, 23, 37);
-    v9 = strtok(v16, &frontend_c_variable_64);
-    for (i = 0; ; i += 9) {
-      v11 = (char *)v9;
-      if (!strcmp(v9, &frontend_c_variable_67))
-        break;
-      v12 = v11;
-      v13 = &cheat_names[i];
-      do {
-        v14 = *v12;
-        *v13 = *v12;
-        if (!v14)
-          break;
-        v15 = v12[1];
-        v12 += 2;
-        v13[1] = v15;
-        v13 += 2;
-      } while (v15);
-      v9 = strtok(0, &frontend_c_variable_64);
-    }
-    *(_WORD *)&cheat_names[i] = frontend_c_variable_67;
-    memset(v16, 0, 1024);
-    result = decode(cheat_names, 288, 43, 87);
-    _enable();
+  // Try to open PASSWORD.INI to get its size
+  iFileHandle = open("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  iSize = _filelength(iFileHandle);
+
+  if (iFileHandle == -1)
+    return;
+
+  // Close raw handle and reopen as FILE*
+  close(iFileHandle);
+  fp = ROLLERfopen("PASSWORD.INI", "rb");
+  if (!fp)
+    return;
+
+  // Read file into buffer
+  fread(buffer, iSize, 1, fp);
+  fclose(fp);
+
+  // Decode the read contents
+  decode((uint8 *)buffer, iSize, 23, 37);
+
+  // Tokenize buffer and load cheat names
+  szTok = strtok(buffer, "\n\t\r");
+
+  while (szTok) {
+    // Check for end marker string
+    if (strcmp(szTok, "#") == 0)
+      break;
+
+    // Copy token into cheat_names[iCheatIdx]
+    strncpy(cheat_names[iCheatIdx], szTok, 9);
+
+    iCheatIdx++;
+    szTok = strtok(NULL, "\n\t\r");
   }
-  return result;*/
+
+  // Set final cheat name entry to end marker
+  cheat_names[iCheatIdx][0] = '#';
+  cheat_names[iCheatIdx][1] = '\0';
+
+  // Wipe the buffer
+  memset(buffer, 0, 0x57);
+
+  // Perform another decode on cheat_names
+  decode((uint8 *)cheat_names, 288, 43, 87);
 }
 
 //-------------------------------------------------------------------------------------------------

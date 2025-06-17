@@ -2558,7 +2558,7 @@ uint8 *try_load_picture(const char *szFile)
   uint8 *pBuf; // ecx
 
   pBuf2 = 0;
-  iFile = open(szFile, 512);
+  iFile = open(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFile != -1) {
     close(iFile);
     iLength = getcompactedfilelength(szFile);
