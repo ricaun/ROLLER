@@ -4,6 +4,10 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern int introfiles;
+
+//-------------------------------------------------------------------------------------------------;
+
 void setreplaytrack();
 int startreplay();
 void stopreplay(int a1, int a2, int a3, int a4);
@@ -44,7 +48,7 @@ int loadreplay();
 int savereplay();
 int deletereplay(int a1, int a2, int a3, int a4);
 char updatedirectory();
-int findintrofiles();
+void findintrofiles();
 int displaycontrolpanel();
 int rtoggleedit(int a1, unsigned int a2, int a3, unsigned int a4);
 int rstartblock(int a1, unsigned int a2, int a3, unsigned int a4);

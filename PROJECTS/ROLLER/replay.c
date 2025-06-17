@@ -1,4 +1,15 @@
 #include "replay.h"
+#include <stdio.h>
+#ifdef IS_WINDOWS
+#include <io.h>
+#else
+#include <dirent.h>
+#include <fnmatch.h>
+#endif
+//-------------------------------------------------------------------------------------------------
+
+int introfiles; //0018EE70
+
 //-------------------------------------------------------------------------------------------------
 
 void setreplaytrack()
@@ -3179,16 +3190,35 @@ char updatedirectory()
 
 //-------------------------------------------------------------------------------------------------
 
-int findintrofiles()
+void findintrofiles()
 {
-  return 0; /*
-  int result; // eax
-  int v1; // [esp-30h] [ebp-34h] BYREF
-
   introfiles = 0;
-  for (result = dos_findfirst(aIntroGss); !result; ++introfiles)
-    result = dos_findnext(&v1);
-  return result;*/
+#ifdef IS_WINDOWS
+  struct _finddata_t fileinfo;
+  intptr_t handle = _findfirst("INTRO*.GSS", &fileinfo);
+
+  if (handle == -1)
+    return;
+
+  do {
+    introfiles++;
+  } while (_findnext(handle, &fileinfo) == 0);
+
+  _findclose(handle);
+#else
+  DIR *dir = opendir(".");
+  if (!dir)
+    return;
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (fnmatch("INTRO*.GSS", entry->d_name, FNM_CASEFOLD) == 0) {
+      introfiles++;
+    }
+  }
+
+  closedir(dir);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
