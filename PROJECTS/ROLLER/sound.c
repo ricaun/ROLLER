@@ -297,8 +297,8 @@ bool setpal(const char *szFilename)
   // Copy RGB triplets into the structured palette array
   for (int i = 0; i < 256; ++i) {
     palette[i].byR = pRaw[i * 3 + 0];
-    palette[i].byB = pRaw[i * 3 + 1];
-    palette[i].byG = pRaw[i * 3 + 2];
+    palette[i].byG = pRaw[i * 3 + 1];
+    palette[i].byB = pRaw[i * 3 + 2];
   }
 
   // If cheat mode flag is set, apply grayscale filter

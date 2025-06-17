@@ -80,8 +80,20 @@ void title_screens(unsigned int a1, unsigned int a2)
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  setpal("title.pal");
-  front_vga[0] = load_picture("title.bm");
+
+  // added by ROLLER, check to see if title.bm and title.pal exist
+  // these files were not shipped in the USA localization
+  FILE *pTitleBm = ROLLERfopen("title.bm", "r");
+  FILE *pTitlePal = ROLLERfopen("title.pal", "r");
+  bool bHasTitle = false;
+  if (pTitleBm && pTitlePal) {
+    bHasTitle = true;
+    fclose(pTitleBm);
+    fclose(pTitlePal);
+  }
+
+  setpal(bHasTitle ? "title.pal" : "whipped.pal");
+  front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
   pScreen = screen;
