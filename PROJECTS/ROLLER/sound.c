@@ -1702,23 +1702,23 @@ void readsoundconfig(void)
 
   // Sound settings
   szVar = FindConfigVar(pBuffer, "SoundCard");
-  if (szVar) sscanf(szVar, "%hi", &(short)SoundCard);
+  if (szVar) sscanf(szVar, "%hi", &SoundCard);
 
   szVar = FindConfigVar(pBuffer, "SoundPort");
-  if (szVar) sscanf(szVar, "%hi", &(short)SoundPort);
+  if (szVar) sscanf(szVar, "%hi", &SoundPort);
 
   szVar = FindConfigVar(pBuffer, "SoundIRQ");
-  if (szVar) sscanf(szVar, "%hi", &(short)SoundIRQ);
+  if (szVar) sscanf(szVar, "%hi", &SoundIRQ);
 
   szVar = FindConfigVar(pBuffer, "SoundDMA");
-  if (szVar) sscanf(szVar, "%hi", &(short)SoundDMA);
+  if (szVar) sscanf(szVar, "%hi", &SoundDMA);
 
   // Music settings
   szVar = FindConfigVar(pBuffer, "MusicCard");
-  if (szVar) sscanf(szVar, "%hi", &(short)MusicCard);
+  if (szVar) sscanf(szVar, "%hi", &MusicCard);
 
   szVar = FindConfigVar(pBuffer, "MusicPort");
-  if (szVar) sscanf(szVar, "%hi", &(short)MusicPort);
+  if (szVar) sscanf(szVar, "%hi", &MusicPort);
 
   // Cleanup
   fre(pBuffer);
