@@ -1,9 +1,9 @@
-## ROLLER
+# ROLLER
 ![Roller logo](./images/whiplash.gif)
 
-### About
+This project aims to implement all the functionality of the 1995 game Whiplash/Fatal Racing in a way that builds and runs on modern PCs. Where necessary, DOS-specific functions are substituded with SDL and Windows/Unix equivalents.
 
-C skeleton that builds, some functions and data decompiled.
+## About
 
 Debug symbol dump generated with wdump, part of: https://github.com/open-watcom/open-watcom-v2
 
