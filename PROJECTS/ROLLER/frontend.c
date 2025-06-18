@@ -5752,41 +5752,41 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
       // Handle cheats
       if (iCheatIdx <= 25) {
         switch (iCheatIdx) {
-          case 0:
+          case 0: //SUICYCO (cheat car, explode opponent)
             Players_Cars[iPlayerIdx] = 8;
             name_copy(szPlayerName, "DAMIAN");
             cheat_mode |= CHEAT_MODE_CHEAT_CAR;
             break;
-          case 1:
+          case 1: //MAYTE (cheat car, top speed)
             Players_Cars[iPlayerIdx] = 9;
             name_copy(szPlayerName, "DAMON");
             cheat_mode |= CHEAT_MODE_CHEAT_CAR;
             break;
-          case 2:
+          case 2: //2X4B523P (cheat car, flip opponent)
             Players_Cars[iPlayerIdx] = 10;
             name_copy(szPlayerName, "GRAHAM");
             cheat_mode |= CHEAT_MODE_CHEAT_CAR;
             break;
-          case 3:
+          case 3: //TINKLE (cheat car, jump opponent)
             Players_Cars[iPlayerIdx] = 11;
             name_copy(szPlayerName, "KEV");
             cheat_mode |= CHEAT_MODE_CHEAT_CAR;
             break;
-          case 4:
+          case 4: //LOVEBUN (formula car)
             Players_Cars[iPlayerIdx] = 12;
             name_copy(szPlayerName, "LISA");
             cheat_mode |= CHEAT_MODE_CHEAT_CAR;
             break;
-          case 5:
+          case 5: //DR DEATH (death mode)
             name_copy(szPlayerName, "PAT");
             cheat_mode |= CHEAT_MODE_DEATH_MODE;
             break;
-          case 6:
+          case 6: //SUPERMAN (invincible human car)
             name_copy(szPlayerName, "MARK");
             cheat_mode |= CHEAT_MODE_INVINCIBLE;
             player_invul[iPlayerIdx] = -1;
             break;
-          case 7:
+          case 7: //REMOVE
             name_copy(szPlayerName, "MRBRUSH");
             iWMrBrush = -1;
             if (cheat_mode & CHEAT_MODE_CLONES) {
@@ -5813,87 +5813,87 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
             player_invul[iPlayerIdx] = 0;
             CalcCarSizes();
             break;
-          case 8:
+          case 8: //TOPTUNES (alternate voice)
             name_copy(szPlayerName, "OMPDJ");
             cheat_samples = -1;
             releasesamples();
             loadfatalsample();
             break;
-          case 9:
+          case 9: //GOLDBOY (unlock premier cup)
             name_copy(szPlayerName, "PHIL");
             cup_won |= 1;
             textures_off |= 0x1000;
             break;
-          case 10:
+          case 10: //CUP WON (view end sequence)
             name_copy(szPlayerName, "LAZY");
             cheat_mode |= CHEAT_MODE_END_SEQUENCE;
             break;
-          case 11:
+          case 11: //I WON (view race history)
             name_copy(szPlayerName, "IDOL");
             cheat_mode |= CHEAT_MODE_RACE_HISTORY;
             break;
-          case 12:
+          case 12: //CINEMA (widescreen)
             name_copy(szPlayerName, "ESULUMIERE");
             cheat_mode |= CHEAT_MODE_WIDESCREEN;
             break;
-          case 13:
+          case 13: //ROLL EM (view credits)
             name_copy(szPlayerName, "MR CRED");
             cheat_mode |= CHEAT_MODE_CREDITS;
             break;
-          case 14:
+          case 14: //FORMULA1 (advanced car set)
             name_copy(szPlayerName, "NEIL");
             cheat_mode |= CHEAT_MODE_ADVANCED_CARS;
             break;
-          case 15:
+          case 15: //MREPRISE (bonus cup unlocked)
             name_copy(szPlayerName, "BTMRBONUS");
             textures_off |= 0x20000;
             cup_won |= 2;
             break;
-          case 16:
+          case 16: //DUEL (killer opponents)
             name_copy(szPlayerName, "SUMRREVIL");
             cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
             break;
-          case 17:
+          case 17: //PROCESS
             if ((double)(1247486966.0f / 1245708284.0f) * 3145727.0 == 1247486966.0f) {
               name_copy(szPlayerName, "TYPE B");
             } else {
               name_copy(szPlayerName, "TYPE A");
             }
             break;
-          case 18:
+          case 18: //MRFROSTY (icy roads)
             name_copy(szPlayerName, "SNOWMAN");
             cheat_mode |= CHEAT_MODE_ICY_ROAD;
             break;
-          case 19:
+          case 19: //MR ZOOM (50Hz timer)
             name_copy(szPlayerName, "SPEEDY");
             cheat_mode |= CHEAT_MODE_50HZ_TIMER;
             release_ticktimer();
             claim_ticktimer(50);
             break;
-          case 20:
+          case 20: //TACHYONS (100Hz timer)
             name_copy(szPlayerName, "NUCLEAR!");
             cheat_mode |= CHEAT_MODE_100HZ_TIMER;
             release_ticktimer();
             claim_ticktimer(100);
             break;
-          case 21:
+          case 21: //YOTARACE (double track size)
             name_copy(szPlayerName, "GULLIVER");
             cheat_mode |= CHEAT_MODE_DOUBLE_TRACK;
             break;
-          case 22:
+          case 22: //CLONES
             //removed?
             //cheat_mode |= CHEAT_MODE_CLONES
             break;
-          case 23:
+          case 23: //TINYTOTS (tiny cars)
             name_copy(szPlayerName, "TINYTIM");
             cheat_mode |= CHEAT_MODE_TINY_CARS;
             CalcCarSizes();
             break;
-          case 24:
+          case 24: //WARPGATE (warp)
             name_copy(szPlayerName, "HEADACHE");
             cheat_mode |= CHEAT_MODE_WARP;
             break;
-          case 25:
+          case 25: //FREAKY (invert colors)
             name_copy(szPlayerName, "PAINTER");
             cheat_mode |= CHEAT_MODE_BONUS_UNLOCKED;
             break;
