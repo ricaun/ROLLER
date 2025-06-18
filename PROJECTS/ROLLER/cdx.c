@@ -429,31 +429,27 @@ int cdpresent()
 
 //-------------------------------------------------------------------------------------------------
 
-int checkCD(char a1, int a2, int a3, int a4)
+int checkCD(uint8 byDriveIdx)
 {
-  return 0; /*
-  int result; // eax
-  int v5; // esi
-  int v6; // edx
-  char v7; // [esp+0h] [ebp-8Ch] BYREF
-  char v8[99]; // [esp+1h] [ebp-8Bh] BYREF
-  _BYTE v9[32]; // [esp+64h] [ebp-28h] BYREF
-  int v10; // [esp+84h] [ebp-8h]
+  char szFilename[128];
+  char buffer[20];
+  FILE *fp;
+  uint32 uiBytesRead;
 
-  v10 = a4;
-  v7 = a1 + 65;
-  strcpy(v8, ":\\FATAL.EXE");
-  result = fopen(&v7, aRb_1);
-  v5 = result;
-  if (result) {
-    v6 = fread(v9, 1, 20, result);
-    fclose(v5);
-    if (v6 == 20)
-      return -1;
-    else
-      return 0;
-  }
-  return result;*/
+  // Construct filename
+  sprintf(szFilename, "%c:\\FATAL.EXE", byDriveIdx + 'A');
+
+  // Try to open the file
+  fp = fopen(szFilename, "rb");
+  if (!fp)
+    return 0;
+
+  // Read 20 bytes
+  uiBytesRead = fread(buffer, 1, 20, fp);
+  fclose(fp);
+
+  // Return -1 if read was exactly 20 bytes, else 0
+  return (uiBytesRead == 20) ? -1 : 0;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ void GetFirstCDDrive();
 void cdxinit();
 void cdxdone();
 int cdpresent();
-int checkCD(char a1, int a2, int a3, int a4);
+int checkCD(uint8 byDriveIdx);
 int criticalhandler();
 
 //-------------------------------------------------------------------------------------------------
