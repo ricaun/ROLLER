@@ -6,6 +6,7 @@
 
 uint8 TrackSelect = 0;      //000A5F9C
 char *delims = " ,\n\t\r";  //000A6088
+int meof;                   //00176AC4
 
 //-------------------------------------------------------------------------------------------------
 
@@ -1214,29 +1215,35 @@ void readline(FILE *pFile, const char *szFmt, ...)
 
 //-------------------------------------------------------------------------------------------------
 
-char *memgets(char *a1, int *a2)
+char *memgets(uint8 *pDst, uint8 **ppSrc)
 {
-  return 0; /*
-  int v3; // esi
-  _BYTE *result; // eax
-  char v5; // bl
-  int v6; // ebx
+  int iEof = 0;
+  uint8 *pDstItr = pDst;
+  int i = 0;
 
-  v3 = 0;
-  do {
-    result = a1;
-    do {
-      v5 = *(_BYTE *)*a2;
-      *result = v5;
-      if (v5 == 26)
-        v3 = -1;
-      v6 = *a2 + 1;
-      *a2 = v6;
-      ++result;
-    } while (*(_BYTE *)(v6 - 1) > 0xDu && !v3);
-  } while (*a1 <= 0xDu);
-  meof = v3;
-  return result;*/
+  while (1) {
+    uint8 *pSrc = *ppSrc;
+    uint8 byte = *pSrc;
+    *pDstItr++ = byte;
+
+    if (byte == 0x1A)  // End-of-input marker
+      iEof = -1;
+
+    (*ppSrc)++;  // advance source pointer
+
+    if (byte >= 13) {
+      if (!iEof)
+        continue;
+    }
+
+    if (pDst[0] >= 13)
+      continue;
+
+    break;
+  }
+
+  meof = iEof;
+  return pDst;
 }
 
 //-------------------------------------------------------------------------------------------------

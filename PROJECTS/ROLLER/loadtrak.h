@@ -7,6 +7,7 @@
 
 extern uint8 TrackSelect;
 extern char *delims;
+extern int meof;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ int readstuntdata(int a1, int a2, int a3, int a4);
 void activatestunts();
 int ReadAnimData(int result, int a2);
 void readline(FILE *pFile, const char *szFmt, ...);
-char *memgets(char *a1, int *a2);
+char *memgets(char *dst, uint8 **ppSrc);
 char *readline2(int *a1, const char *a2, ...);
 double *rotatepoint(
         double a1,
