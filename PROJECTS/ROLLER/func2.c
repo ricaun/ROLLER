@@ -9,6 +9,7 @@
 #include "comms.h"
 #include "func3.h"
 #include "roller.h"
+#include "polytex.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
