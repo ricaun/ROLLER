@@ -71,7 +71,7 @@ extern char my_name[14];
 
 //-------------------------------------------------------------------------------------------------
 
-void title_screens(unsigned int a1, unsigned int a2);
+void title_screens();
 void copy_screens();
 void select_screen(int a1);
 void select_disk(int a1, int a2, int a3);

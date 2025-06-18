@@ -59,6 +59,7 @@ extern int current_mode;
 extern int names_on;
 extern int SVGA_ON;
 extern int TrackLoad;
+extern int paused;
 extern int network_on;
 extern int mirror;
 extern void *screen;

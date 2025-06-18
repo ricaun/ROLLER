@@ -73,14 +73,8 @@ char my_name[14];         //0016FF12
 
 //-------------------------------------------------------------------------------------------------
 
-void title_screens(unsigned int a1, unsigned int a2)
+void title_screens()
 {
-  //int v2; // edi
-  uint8 *pScreen; // edx
-  //int64 v5; // [esp-Ch] [ebp-10h]
-
-  //HIDWORD(v5) = a2;
-  //LODWORD(v5) = v2;
   winx = 0;
   winy = 0;
   winw = XMAX;
@@ -111,19 +105,17 @@ void title_screens(unsigned int a1, unsigned int a2)
   front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
-  pScreen = screen;
-  //copypic(scrbuf, screen);
-   
-  
-  //loadfatalsample();
+
+  copypic(scrbuf, (uint8 *)screen);
+  loadfatalsample();
   fade_palette(32);
-  //if ((cheat_mode & 0x202) != 0)
-  //  dospeechsample(v5);
-  //disable_keyboard();
-  //if ((cheat_mode & 0x202) != 0)
-  //  waitsampledone(88);
+  if ((cheat_mode & 0x202) != 0)
+    dospeechsample(88, 0x8000);
+  disable_keyboard();
+  if ((cheat_mode & 0x202) != 0)
+    waitsampledone(88);
   fre(front_vga[0]);
-  //freefatalsample();
+  freefatalsample();
 }
 
 //-------------------------------------------------------------------------------------------------

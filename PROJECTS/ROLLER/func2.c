@@ -3679,7 +3679,7 @@ void load_fatal_config()
       getconfigvalue(pData, "NetSlot", &network_slot, 0, 99999999);
 
       // Free configuration buffer
-      fre(&pData);
+      fre(pData);
     } else {
       fclose(pFile);
     }

@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <assert.h>
 //-------------------------------------------------------------------------------------------------
 
 int exiting = 0;            //000A3170
@@ -29,6 +30,7 @@ int current_mode = 666;     //000A333C
 int names_on = 1;           //000A3340
 int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
+int paused = 0;             //000A34C4
 int network_on = 0;         //000A3510
 int mirror = 0;             //000A3524
 void *screen; //= 0xA0000;  //000A3538
@@ -382,6 +384,7 @@ void fre(void *pData)
     }
     if (iMemBlocksIdx >= 128)                 // mem_blocks is 128 tMemBlocks
     {
+      assert(0);
       printf("Failed to find allocated block\n");
       doexit(1, iMemBlocksIdx, pBuf);
     } else {
@@ -477,6 +480,7 @@ void doexit()
   __FPE_handler_exit();
   JUMPOUT(0x7A98F);
   */
+  exit(0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1004,7 +1008,7 @@ int main(int argc, const char **argv, const char **envp)
   tick_on = 0;
   copy_screens();
   i = 0;
-  title_screens(0, 0); //V13, 0
+  title_screens();
   time_to_start = 0;
   replaytype = 2;
   start_race = 0;

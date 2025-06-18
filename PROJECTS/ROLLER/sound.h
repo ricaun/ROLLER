@@ -18,6 +18,31 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int handles[16];
+} tSampleHandleCar;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  void *pSample;
+  uint16 unSegment;
+  int iLength;
+  int iUnk1;
+  int iUnk2;
+  int iVolume;
+  int iSampleIndex;
+  int unused[23];
+} tSampleData;
+
+//-------------------------------------------------------------------------------------------------
+
+extern int samplespending;
+extern int writesample;
+extern int readsample;
+extern int lastsample;
 extern int musicon;
 extern int soundon;
 extern int allengines;
@@ -60,6 +85,8 @@ extern char lang[16][32];
 extern int TrackMap[32];
 extern char TextExt[64];
 extern char SampleExt[64];
+extern int HandleCar[32];
+extern int HandleSample[32];
 extern int car_to_player[8][2];
 extern int copy_multiple[8192];
 extern int unmangleinpoff;
@@ -104,7 +131,8 @@ void claim_ticktimer(unsigned int uiRateHz);
 void release_ticktimer();
 void Uninitialise_SOS();
 void loadsamples();
-int loadfatalsample();
+void loadfatalsample();
+void freefatalsample();
 void *releasesamples();
 int play();
 void stop();
@@ -122,7 +150,7 @@ int pannedsample(int result, int a2, int a3);
 int speechonly(int result, int a2, int a3, int a4);
 int speechsample(int result, int a2, int a3, int a4);
 int analysespeechsamples();
-int dospeechsample(int64 a1);
+void dospeechsample(int iSampleIdx, int iVolume);
 int loadfrontendsample(int result);
 int frontendsample(int a1);
 void *remove_frontendspeech();

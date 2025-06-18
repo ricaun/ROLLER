@@ -23,6 +23,10 @@
 
 //-------------------------------------------------------------------------------------------------
 
+int samplespending = 0;     //000A4690
+int writesample = 0;        //000A4694
+int readsample = 0;         //000A4698
+int lastsample = 0;         //000A469C
 int musicon = -1;           //000A46A0
 int soundon = -1;           //000A46A4
 int allengines = -1;        //000A46A8
@@ -49,6 +53,9 @@ int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 int CDSong[20] = { 10, 10, 10, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0 }; //000A47A8
 int GMSong[21] = { 0, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0 }; //000A47F8
+tSampleData SampleData = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 18176, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1701995379 } }; //000A484C
+tSampleData SampleFixed = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A48C4
+tSampleData SamplePanned = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A493C
 int Joy1used = 0;           //000A4A0C
 int Joy2used = 0;           //000A4A0C
 int x1ok = 0;               //000A4A30
@@ -60,11 +67,14 @@ int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
 uint32 SampleLen[120];      //00160560
 uint8 *SamplePtr[120];      //00160750
+tSampleHandleCar SampleHandleCar[120]; //00160930
 char Sample[120][15];       //00162730
 char lang[16][32];          //00162E38
 int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
+int HandleCar[32];          //00163B8C
+int HandleSample[32];       //00163C0C
 int car_to_player[8][2];    //0016748C
 int copy_multiple[8192];    //0016764C
 int unmangleinpoff;         //0016F64C
@@ -1458,39 +1468,36 @@ LABEL_30:
 
 //-------------------------------------------------------------------------------------------------
 
-int loadfatalsample()
+void loadfatalsample()
 {
-  return 0; /*
-  int result; // eax
-
-  if (!SamplePtr_variable_13)
+  if (!SamplePtr[88])
     loadasample(88);
-  if (!SamplePtr_variable_8)
+  if (!SamplePtr[83])
     loadasample(83);
-  if (!SamplePtr_variable_12)
+  if (!SamplePtr[87])
     loadasample(87);
-  if (!SamplePtr_variable_9)
+  if (!SamplePtr[84])
     loadasample(84);
-  if (!SamplePtr_variable_10)
+  if (!SamplePtr[85])
     loadasample(85);
-  if (!SamplePtr_variable_11)
+  if (!SamplePtr[86])
     loadasample(86);
-  result = 0;
   samplespending = 0;
   writesample = 0;
   readsample = 0;
   lastsample = -10000;
-  return result;
 }
 
-_DWORD *freefatalsample()
+//-------------------------------------------------------------------------------------------------
+
+void freefatalsample()
 {
-  fre(SamplePtr_variable_13);
-  fre(&SamplePtr_variable_8);
-  fre(&SamplePtr_variable_12);
-  fre(&SamplePtr_variable_9);
-  fre(&SamplePtr_variable_10);
-  return fre(&SamplePtr_variable_11);*/
+  fre(SamplePtr[88]);
+  fre(SamplePtr[83]);
+  fre(SamplePtr[87]);
+  fre(SamplePtr[84]);
+  fre(SamplePtr[85]);
+  fre(SamplePtr[86]);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2425,51 +2432,60 @@ int analysespeechsamples()
 
 //-------------------------------------------------------------------------------------------------
 
-int dospeechsample(int64 a1)
+void dospeechsample(int iSampleIdx, int iVolume)
 {
-  return 0; /*
-  int v1; // ebx
-  int v2; // esi
-  int v3; // ebx
-  int v4; // ecx
+  int iUseVolume;
+  int iHandle, iSampleHandle;
 
-  v1 = HIDWORD(a1);
-  v2 = a1;
-  if (SamplePtr[(_DWORD)a1]) {
-    if (SHIDWORD(a1) > 0x7FFF)
-      v1 = 0x7FFF;
-    LODWORD(a1) = v1 * SpeechVolume / 127;
-    v3 = a1;
-    if (soundon && !paused) {
-      v4 = SampleHandleCar[16 * v2];
-      if (v4 != -1) {
-        _disable();
-        if (!sosDIGISampleDone(DIGIHandle, SampleHandleCar[16 * v2])) {
-          sosDIGIStopSample(DIGIHandle);
-          SampleHandleCar[16 * v2] = -1;
-          HandleSample[v4] = -1;
-        }
-        _enable();
-      }
-      SampleFixed_variable_1 = __DS__;
-      SampleFixed_variable_4 = v2;
-      SampleFixed_variable_3 = v3;
-      SampleFixed = SamplePtr[v2];
-      SampleFixed_variable_2 = SampleLen[v2];
-      _disable();
-      a1 = sosDIGIStartSample(DIGIHandle, v2 << 6, &SampleFixed, __DS__);
-      *(int *)((char *)SampleHandleCar + HIDWORD(a1)) = a1;
-      _enable();
-      if ((_DWORD)a1 != -1) {
-        HIDWORD(a1) = HandleSample[(_DWORD)a1];
-        if (HIDWORD(a1) != -1)
-          SampleHandleCar[16 * HIDWORD(a1) + HandleCar[(_DWORD)a1]] = -1;
-        HandleSample[(_DWORD)a1] = v2;
-        HandleCar[(_DWORD)a1] = 0;
-      }
-    }
+  // Check sample pointer is valid
+  if (SamplePtr[iSampleIdx] == 0)
+    return;
+
+  // Clamp volume to 0x7FFF
+  if (iVolume > 0x7FFF)
+    iVolume = 0x7FFF;
+
+  // Scale volume by speech volume setting (div 127)
+  iUseVolume = (SpeechVolume * iVolume) / 127;
+
+  // Abort if sound is off or paused
+  if (!soundon || paused)
+    return;
+
+  iSampleHandle = SampleHandleCar[iSampleIdx].handles[0];
+
+  // If a sample is already assigned
+  if (iSampleHandle != -1) {
+    //if (sosDIGISampleDone(DIGIHandle, iSampleHandle) == 0) {
+    //  // Stop previous sample if it's still playing
+    //  sosDIGIStopSample(DIGIHandle, iSampleHandle);
+    //  SampleHandleCar[iSampleIndex].handles[0] = -1;
+    //  HandleSample[iSampleHandle] = -1;
+    //}
   }
-  return a1;*/
+
+  // Setup sample parameters
+  //SampleFixed.unSegment = __DS__;
+  SampleFixed.iSampleIndex = iSampleIdx;
+  SampleFixed.iVolume = iUseVolume;
+  SampleFixed.pSample = SamplePtr[iSampleIdx];
+  SampleFixed.iLength = SampleLen[iSampleIdx];
+
+  // Start sample
+  iHandle = -1;// sosDIGIStartSample(DIGIHandle, iSampleIndex << 6, &SampleFixed);
+  SampleHandleCar[iSampleIdx].handles[0] = iHandle;
+
+  if (iHandle == -1)
+    return;
+
+  int iPrevHandle = HandleSample[iHandle];
+
+  // If that handle was previously used for another sample
+  if (iPrevHandle != -1)
+    SampleHandleCar[iPrevHandle].handles[HandleCar[iHandle]] = -1;
+
+  HandleSample[iHandle] = iSampleIdx;
+  HandleCar[iHandle] = 0;
 }
 
 //-------------------------------------------------------------------------------------------------
