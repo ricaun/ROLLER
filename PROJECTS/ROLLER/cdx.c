@@ -416,7 +416,7 @@ void GetFirstCDDrive()
     }
   }
 
-  numCDdrives = count;
+  numCDdrives = iCount;
 #endif
   /*
   regs.w.ax = 0x1500;
