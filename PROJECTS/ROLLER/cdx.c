@@ -1,5 +1,5 @@
 #include "cdx.h"
-#include "roller.h""
+#include "roller.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -379,13 +379,13 @@ void GetFirstCDDrive()
 {
   firstCDdrive = -1;
 #ifdef IS_WINDOWS
-  uint16 nDrives = GetLogicalDrives();
-  if (nDrives == 0)
-    return 0;
+  uint32 uiDrives = GetLogicalDrives();
+  if (uiDrives == 0)
+    return;
 
   int iCount = 0;
   for (char cDrive = 'A'; cDrive <= 'Z'; cDrive++) {
-    if (!(nDrives & (1 << (cDrive - 'A'))))
+    if (!(uiDrives & (1 << (cDrive - 'A'))))
       continue;
 
     char szRootPath[] = { cDrive, ':', '\\', '\0' };
