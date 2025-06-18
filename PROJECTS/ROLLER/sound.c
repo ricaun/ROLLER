@@ -1513,12 +1513,12 @@ void loadfatalsample()
 
 void freefatalsample()
 {
-  fre(SamplePtr[88]);
-  fre(SamplePtr[83]);
-  fre(SamplePtr[87]);
-  fre(SamplePtr[84]);
-  fre(SamplePtr[85]);
-  fre(SamplePtr[86]);
+  fre(&SamplePtr[88]);
+  fre(&SamplePtr[83]);
+  fre(&SamplePtr[87]);
+  fre(&SamplePtr[84]);
+  fre(&SamplePtr[85]);
+  fre(&SamplePtr[86]);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1527,7 +1527,7 @@ void releasesamples()
 {
   if (SoundCard) {
     for (int i = 0; i < 120; ++i) {
-      fre(SamplePtr[i]);
+      fre(&SamplePtr[i]);
       SamplePtr[i] = NULL;
     }
   }
@@ -1655,12 +1655,12 @@ void devicespecificuninit()
       break;
     case 40962:
     case 40969:
-      fre(FMInstruments);
-      fre(FMDrums);
+      fre(&FMInstruments);
+      fre(&FMDrums);
       break;
     case 40964:
       //sosMIDISendMIDIData(MIDIHandle, 11, (int)&MT32reset, __DS__);
-      fre(MT32Data);
+      fre(&MT32Data);
       break;
   }
 }
@@ -1731,7 +1731,7 @@ void readsoundconfig(void)
   if (szVar) sscanf(szVar, "%hi", &MusicPort);
 
   // Cleanup
-  fre(pBuffer);
+  fre(&pBuffer);
   fclose(fp);
 
   // Special MusicCard case

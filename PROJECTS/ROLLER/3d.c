@@ -10,12 +10,19 @@
 #include "replay.h"
 #include "svgacpy.h"
 #include "sound.h"
+#include "network.h"
 #include "roller.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <assert.h>
+#ifdef IS_WINDOWS
+#include <direct.h>
+#define chdir _chdir
+#else
+#include <unistd.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 int exiting = 0;            //000A3170
@@ -34,8 +41,15 @@ int TrackLoad = 1;          //000A34B0
 int paused = 0;             //000A34C4
 int network_on = 0;         //000A3510
 int mirror = 0;             //000A3524
-void *screen; //= 0xA0000;  //000A3538
-void *scrbuf = 0;           //000A353C
+void *screen = NULL; //= 0xA0000; //000A3538
+void *scrbuf = NULL;        //000A353C
+void *mirbuf = NULL;        //000A3540
+void *texture_vga = NULL;   //000A3544
+void *building_vga = NULL;  //000A3548
+void *horizon_vga = NULL;   //000A354C
+void *cartex_vga[16] = { NULL }; //000A3550
+void *cargen_vga = NULL;    //000A3590
+void *rev_vga[16] = { NULL }; //000A3594
 int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
 tData localdata[500];       //000BEA10
@@ -368,17 +382,17 @@ void *trybuffer(uint32 uiSize)
 
 //-------------------------------------------------------------------------------------------------
 
-void fre(void *pData)
+void fre(void **ppData)
 {
   void *pBuf; // ebx
   int iMemBlocksIdx; // edx
   int i; // eax
   signed int uiSize; // eax
 
-  if (pData) {
+  if (*ppData) {
     pBuf = mem_blocks[0].pBuf;
     iMemBlocksIdx = 0;
-    for (i = 0; pBuf != pData; ++iMemBlocksIdx) {
+    for (i = 0; pBuf != *ppData; ++iMemBlocksIdx) {
       if (i >= 128)
         break;
       pBuf = mem_blocks[++i].pBuf;
@@ -387,7 +401,7 @@ void fre(void *pData)
     {
       assert(0);
       printf("Failed to find allocated block\n");
-      doexit(1, iMemBlocksIdx, pBuf);
+      doexit();
     } else {
       mem_blocks[iMemBlocksIdx].pBuf = 0;
     }
@@ -398,7 +412,7 @@ void fre(void *pData)
     } else {
       // is this necessary?
     }
-    pData = 0;
+    *ppData = 0;
   }
 }
 
@@ -406,81 +420,51 @@ void fre(void *pData)
 
 void doexit()
 {
-  /*
-  int v0; // eax
-  int *v1; // edx
-  int *v2; // eax
-  _DWORD *v3; // ebx
-  int *v4; // edx
-  _DWORD *v5; // eax
-  int v6; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // ebx
-  int v11; // edx
-
   exiting = -1;
   if (network_on) {
     tick_on = -1;
     frontend_on = -1;
     broadcast_mode = -666;
-    while (broadcast_mode == -666)
-      ;
+    while (broadcast_mode == -666) {
+      UpdateSDL();
+    }
   }
-  v0 = close_network();
-  SaveRecords(v0);
-  v1 = &rev_vga;
+  close_network();
+  SaveRecords();
   fre(&mirbuf);
-  do {
-    v2 = v1++;
-    fre(v2);
-  } while (v1 != &rev_vga + 16);
-  v3 = &cartex_vga;
-  v4 = &front_vga;
-  fre(&horizon_vga);
-  do {
-    fre(v4);
-    fre(v3);
-    ++v4;
-    ++v3;
-  } while (v4 != &front_vga + 16);
+  for (int i = 0; i < 16; ++i) {
+    fre(&rev_vga[i]);
+    fre(&cartex_vga[i]);
+    fre(&front_vga[i]);
+  }
   fre(&font_vga);
   fre(&title_vga);
   fre(&cargen_vga);
   fre(&texture_vga);
   fre(&building_vga);
-  v5 = fre(&scrbuf);
-  v6 = release_key_int(v5);
-  v7 = Uninitialise_SOS(v6);
-  v8 = releasesamples(v7);
+  fre(&scrbuf);
+  release_key_int();
+  Uninitialise_SOS();
+  releasesamples();
   if (MusicCD)
-    cdxdone(v8);
-  v9 = remove(aReplaysReplayT);
-  if ((cheat_mode & 0x40) != 0)
+    cdxdone();
+  remove("../REPLAYS/REPLAY.TMP");
+  if ((cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)
     textures_off |= 0x2000u;
   else
     textures_off &= ~0x2000u;
-  if (false_starts) {
-    v10 = textures_off;
-    BYTE1(v10) = BYTE1(textures_off) | 0x40;
-    textures_off = v10;
-  } else {
-    v11 = textures_off;
-    BYTE1(v11) = BYTE1(textures_off) & 0xBF;
-    textures_off = v11;
-  }
+  if (false_starts)
+    textures_off |= 0x40;
+  else
+    textures_off &= 0xBF;
   if (!intro)
-    v9 = save_fatal_config(v9);
-  while (kbhit(v9))
-    v9 = getch();
-  chdir(&aNy[2]);
-  __atexit();
-  __int23_exit();
-  __int23_exit();
-  __FPE_handler_exit();
-  JUMPOUT(0x7A98F);
-  */
+    save_fatal_config();
+
+  //clear keyboard buffer
+  //while (kbhit(iSuccess))
+  //  iSuccess = getch();
+  chdir("..");
+
   exit(0);
 }
 

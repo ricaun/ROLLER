@@ -116,7 +116,7 @@ void UpdateSDL()
     switch (e.type) {
       case SDL_EVENT_QUIT:
         quit_game = 1;
-        exit(0);
+        doexit();
         break;
       case SDL_EVENT_KEY_DOWN:
         if (e.key.key == SDLK_ESCAPE) {

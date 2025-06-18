@@ -36,7 +36,9 @@ int cup_won = 0;          //000A4CBC
 int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
 int network_champ_on = 0; //000A5318
-void *front_vga[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //000A5324
+void *font_vga = NULL;    //000A531C
+void *title_vga = NULL;   //000A5320
+void *front_vga[16] = { NULL }; //000A5324
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
 int champorder[16];       //0016FAC8
@@ -117,7 +119,7 @@ void title_screens()
   disable_keyboard();
   if ((cheat_mode & 0x202) != 0)
     waitsampledone(88);
-  fre(front_vga[0]);
+  fre(&front_vga[0]);
   freefatalsample();
 }
 
@@ -141,7 +143,7 @@ void copy_screens()
   ticks = 0;
   while (ticks < 180)
     UpdateSDL();
-  fre(front_vga[0]);
+  fre(&front_vga[0]);
   fade_palette(0);
 }
 
