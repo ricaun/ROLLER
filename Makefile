@@ -84,4 +84,4 @@ ROLLER: $(OBJ) Makefile
 
 clean:
 	rm -f ./bin/ROLLER
-	rm -f obj/*/*.o
+	rm -rf obj
