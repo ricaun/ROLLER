@@ -7,6 +7,10 @@
 extern int track_playing;
 extern int last_audio_track;
 extern int numCDdrives;
+void *iobuffer;
+void *cdbuffer;
+int16 ioselector;
+int16 cdselector;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -16,7 +20,7 @@ void CloseDoor(int a1, int a2);
 void ResetDrive();
 void GetCDStatus();
 void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer);
-int AllocDOSMemory(int a1, void *a2);
+void *AllocDOSMemory(int iSizeBytes, int16 *pOutSegment);
 int GetAudioInfo(int a1, int a2, int a3, int a4);
 int PlayTrack(int a1);
 int PlayTrack4(int a1);
@@ -28,7 +32,7 @@ int FreeDOSMemory(uint16 a1);
 void intRM(uint8 byInterruptNumber);
 void GetFirstCDDrive();
 void cdxinit();
-int cdxdone();
+void cdxdone();
 int cdpresent();
 int checkCD(char a1, int a2, int a3, int a4);
 int criticalhandler();

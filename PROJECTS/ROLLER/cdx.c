@@ -6,6 +6,11 @@
 int track_playing = 0;    //000A7510
 int last_audio_track = 0; //000A7514
 int numCDdrives = 0;      //000A7518
+void *iobuffer;           //001A1CEC
+void *cdbuffer;           //001A1CF0
+int16 ioselector;         //001A1E88
+int16 cdselector;         //001A1E8C
+char volscale[129];       //001A1F1E
 
 //-------------------------------------------------------------------------------------------------
 
@@ -137,20 +142,25 @@ void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 
 //-------------------------------------------------------------------------------------------------
 
-int AllocDOSMemory(int a1, void *a2)
+void *AllocDOSMemory(int iSizeBytes, int16 *pOutSegment)
 {
-  return 0; /*
-  memset(&sregs, 0, 12);
-  regs = 256;
-  regs_variable_1 = ((a1 - (__CFSHL__(a1 >> 31, 4) + 16 * (a1 >> 31))) >> 4) + 1;
-  int386x(49, (int)&regs, (int)&regs, (int)&sregs);
-  if (regs_variable_6) {
-    *a2 = -1;
-    return 0;
-  } else {
-    *a2 = (unsigned __int16)regs_variable_4;
-    return 16 * (unsigned __int16)regs;
-  }*/
+  pOutSegment = NULL;
+  return malloc(iSizeBytes);
+
+  //memset(&sregs, 0, sizeof(sregs));             // clear sregs
+  //regs.w.ax = 0x100;                            // allocate DOS memory block
+  //regs.w.bx = ((iSizeBytes - (__CFSHL__(iSizeBytes >> 31, 4) + 16 * (iSizeBytes >> 31))) >> 4) + 1;// compute number of 16-byte paragraphs needed to hold iSizeBytes
+  //int386x(0x31, &regs, &regs, &sregs);
+  //
+  //// if carry flag is set, alloc failed
+  //if (regs.x.cflag) {
+  //  *(_DWORD *)pOutSegment = -1;
+  //  return 0;
+  //} else {
+  //  // alloc succeeded
+  //  *(_DWORD *)pOutSegment = regs.w.dx;
+  //  return (void *)(16 * regs.w.ax);
+  //}
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -366,57 +376,39 @@ void GetFirstCDDrive()
 //-------------------------------------------------------------------------------------------------
 
 void cdxinit()
-{/*
-  int v0; // edx
-  double v1; // st7
-  __int16 v2; // fps
-  _BOOL1 v3; // c0
-  char v4; // c2
-  _BOOL1 v5; // c3
-  int v6; // eax
-  float v7; // [esp+0h] [ebp-14h]
-  int i; // [esp+4h] [ebp-10h]
-
+{
   iobuffer = AllocDOSMemory(256, &ioselector);
-  v0 = 0;
   cdbuffer = AllocDOSMemory(1024, &cdselector);
-  for (i = 0; i < 129; ++i) {
-    v1 = cdx_c_variable_21;
-    IF_POW(cdx_c_variable_21);
-    v3 = v1 < cdx_c_variable_22;
-    v4 = 0;
-    v5 = v1 == cdx_c_variable_22;
-    LOWORD(v6) = v2;
-    if (v1 > cdx_c_variable_22) {
-      v0 = i;
-      volscale[i] = 127;
-    } else {
-      _CHP(v6, v0);
-      v0 = i;
-      v7 = v1;
-      volscale[i] = (int)v7;
-    }
-  }*/
-}
 
+  // Initialize the volume scaling table
+  for (int i = 0; i < 129; i++) {
+    double dPow = pow(i * 127.0 * 127.0, 1.0 / 3.0);
+
+    if (dPow <= 127.0f) {
+      float fPow = (float)dPow;
+      volscale[i] = (uint8)round(fPow);
+    } else {
+      volscale[i] = 127;  // Cap to 127 if over the limit
+    }
+  }
+}
 //-------------------------------------------------------------------------------------------------
 
-int cdxdone()
+void cdxdone()
 {
-  return 0; /*
-  __int16 v0; // cx
-  __int16 v1; // cx
+  free(cdbuffer);
+  free(iobuffer);
+  cdbuffer = NULL;
+  iobuffer = NULL;
 
-  v0 = cdselector;
-  memset(&sregs, 0, 12);
-  regs_variable_4 = v0;
-  regs = 257;
-  int386x(49, (int)&regs, (int)&regs, (int)&sregs);
-  v1 = ioselector;
-  memset(&sregs, 0, 12);
-  regs_variable_4 = v1;
-  regs = 257;
-  return int386x(49, (int)&regs, (int)&regs, (int)&sregs);*/
+  //memset(&sregs, 0, sizeof(sregs));
+  //regs.w.dx = cdselector;
+  //regs.w.ax = 257;
+  //int386x(49, &regs, &regs, &sregs);
+  //memset(&sregs, 0, sizeof(sregs));
+  //regs.w.dx = ioselector;
+  //regs.w.ax = 257;
+  //int386x(49, &regs, &regs, &sregs);
 }
 
 //-------------------------------------------------------------------------------------------------
