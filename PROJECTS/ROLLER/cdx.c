@@ -1,4 +1,5 @@
 #include "cdx.h"
+#include "roller.h""
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -416,7 +417,7 @@ void GetFirstCDDrive()
     }
   }
 
-  numCDdrives = count;
+  numCDdrives = iCount;
 #endif
   /*
   regs.w.ax = 0x1500;

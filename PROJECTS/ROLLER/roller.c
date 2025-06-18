@@ -174,12 +174,11 @@ int IsCDROMDevice(const char *szPath)
   assert(0);
   return 0;
 #else
-  int fd = open(path, O_RDONLY | O_NONBLOCK);
+  int fd = open(szPath, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     return 0;
 
-  struct cdrom_capability cap;
-  int result = ioctl(fd, CDROM_GET_CAPABILITY, &cap);
+  int result = ioctl(fd, CDROM_GET_CAPABILITY, 0);
   close(fd);
   return (result != -1);
 #endif
