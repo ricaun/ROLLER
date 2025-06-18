@@ -5814,7 +5814,7 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
             CalcCarSizes();
             break;
           case 8: //TOPTUNES (alternate voice)
-            name_copy(szPlayerName, "OMPDJ");
+            name_copy(szPlayerName, "DJ SFX");
             cheat_samples = -1;
             releasesamples();
             loadfatalsample();
