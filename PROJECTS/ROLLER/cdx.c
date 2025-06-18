@@ -1,6 +1,8 @@
 #include "cdx.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 int track_playing = 0;    //000A7510
@@ -437,7 +439,7 @@ int checkCD(uint8 byDriveIdx)
   uint32 uiBytesRead;
 
   // Construct filename
-  sprintf(szFilename, "%c:\\FATAL.EXE", byDriveIdx + 'A');
+  sprintf(szFilename, "%c:/FATAL.EXE", byDriveIdx + 'A');
 
   // Try to open the file
   fp = fopen(szFilename, "rb");
@@ -445,7 +447,7 @@ int checkCD(uint8 byDriveIdx)
     return 0;
 
   // Read 20 bytes
-  uiBytesRead = fread(buffer, 1, 20, fp);
+  uiBytesRead = (int)fread(buffer, 1, 20, fp);
   fclose(fp);
 
   // Return -1 if read was exactly 20 bytes, else 0
@@ -456,9 +458,11 @@ int checkCD(uint8 byDriveIdx)
 
 int criticalhandler()
 {
-  return 0; /*
+  return 3;
+  /*
   _BYTE retaddr[8]; // [esp+0h] [ebp+0h]
 
+  // returning 3 is sending a signal "Ignore" to DOS critical error handler
   return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(3);*/
 }
 

@@ -79,7 +79,7 @@ int prt_lettercol(int a1, uint8 a2, void *a3, void *a4, char a5);
 char display_paused();
 void enable_keyboard();
 void disable_keyboard();
-void *save_fatal_config();
+void save_fatal_config();
 void load_fatal_config();
 void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutVal, int iMin, int iMax);
 void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pbyOutVal, int iMin, int iMax);

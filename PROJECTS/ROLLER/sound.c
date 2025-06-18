@@ -85,6 +85,9 @@ int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
 int s7;                     //0016F660
+void *MT32Data;             //0016F66C
+void *FMDrums;              //0016F670
+void *FMInstruments;        //0016F674
 int MIDIHandle;             //0016F68C
 tColor *pal_addr;           //0016F86C
 int DIGIHandle;             //0016F690
@@ -1371,19 +1374,18 @@ void Uninitialise_SOS()
   * END ROLLER CODE
   ***/
 
-  /*
-  sosTIMERRemoveEvent(tickhandle);
-  sosTIMERRemoveEvent(TimerEventHandle);
-  sosTIMERUnInitSystem(0);
-  if (SoundCard) {
-    sosDIGIUnInitDriver(DIGIHandle, 1, 1);
-    sosDIGIUnInitSystem();
-  }
+  //sosTIMERRemoveEvent(tickhandle);
+  //sosTIMERRemoveEvent(TimerEventHandle);
+  //sosTIMERUnInitSystem(0);
+  //if (SoundCard) {
+  //  sosDIGIUnInitDriver(DIGIHandle, 1, 1);
+  //  sosDIGIUnInitSystem();
+  //}
   if (MusicCard) {
     devicespecificuninit();
-    sosMIDIUnInitDriver(MIDIHandle, 1);
-    sosMIDIUnInitSystem();
-  }*/
+    //sosMIDIUnInitDriver(MIDIHandle, 1);
+    //sosMIDIUnInitSystem();
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1521,22 +1523,14 @@ void freefatalsample()
 
 //-------------------------------------------------------------------------------------------------
 
-void *releasesamples()
+void releasesamples()
 {
-  return 0; /*
-  int *v0; // ebx
-  int i; // edx
-  _DWORD *result; // eax
-
   if (SoundCard) {
-    v0 = SamplePtr;
-    for (i = 0; i < 120; Hardware_variable_3[i] = 0) {
-      result = fre(v0);
-      ++i;
-      ++v0;
+    for (int i = 0; i < 120; ++i) {
+      fre(SamplePtr[i]);
+      SamplePtr[i] = NULL;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1653,32 +1647,22 @@ int initgus()
 
 //-------------------------------------------------------------------------------------------------
 
-void *devicespecificuninit()
+void devicespecificuninit()
 {
-  return 0; /*
-  _DWORD *result; // eax
-  int *v1; // eax
-
-  result = (_DWORD *)(MusicCard - 40961);
   switch (MusicCard) {
     case 40961:
-      result = (_DWORD *)sosMIDISendMIDIData(MIDIHandle, 11, &SCreset, __DS__);
+      //sosMIDISendMIDIData(MIDIHandle, 11, (int)&SCreset, __DS__);
       break;
     case 40962:
     case 40969:
-      fre(&FMInstruments);
-      v1 = &FMDrums;
-      goto LABEL_5;
-    case 40964:
-      sosMIDISendMIDIData(MIDIHandle, 11, &MT32reset, __DS__);
-      v1 = &MT32Data;
-    LABEL_5:
-      result = fre(v1);
+      fre(FMInstruments);
+      fre(FMDrums);
       break;
-    default:
-      return result;
+    case 40964:
+      //sosMIDISendMIDIData(MIDIHandle, 11, (int)&MT32reset, __DS__);
+      fre(MT32Data);
+      break;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

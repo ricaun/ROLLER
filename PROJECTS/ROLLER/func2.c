@@ -3254,161 +3254,137 @@ void disable_keyboard()
 
 //-------------------------------------------------------------------------------------------------
 
-void *save_fatal_config()
+void save_fatal_config()
 {
-  return 0;
-  /*
-  int v0; // esi
-  _DWORD *result; // eax
-  _DWORD *v2; // esi
-  unsigned int v3; // edi
-  unsigned int v4; // eax
-  unsigned int v5[7]; // [esp+0h] [ebp-1Ch] BYREF
-
-  v0 = fopen(&aAtfatalIni[2], &aLw[1]);
-  fprintf(
-    v0,
-    "EngineVolume=%d\n",
-    4 * ((EngineVolume + 1 - (__CFSHL__((EngineVolume + 1) >> 31, 2) + 4 * ((EngineVolume + 1) >> 31))) >> 2));
-  fprintf(
-    v0,
-    "SFXVolume=%d\n",
-    4 * ((SFXVolume + 1 - (__CFSHL__((SFXVolume + 1) >> 31, 2) + 4 * ((SFXVolume + 1) >> 31))) >> 2));
-  fprintf(
-    v0,
-    "SpeechVolume=%d\n",
-    4 * ((SpeechVolume + 1 - (__CFSHL__((SpeechVolume + 1) >> 31, 2) + 4 * ((SpeechVolume + 1) >> 31))) >> 2));
-  fprintf(
-    v0,
-    "MusicVolume=%d\n",
-    4 * ((MusicVolume + 1 - (__CFSHL__((MusicVolume + 1) >> 31, 2) + 4 * ((MusicVolume + 1) >> 31))) >> 2));
+  FILE *fp = fopen("FATAL.INI", "w");
+  fprintf(fp, "EngineVolume=%d\n", (4 * ((EngineVolume + 1) / 4)));
+  fprintf(fp, "SFXVolume=%d\n", (4 * ((SFXVolume + 1) / 4)));
+  fprintf(fp, "SpeechVolume=%d\n", (4 * ((SpeechVolume + 1) / 4)));
+  fprintf(fp, "MusicVolume=%d\n", (4 * ((MusicVolume + 1) / 4)));
   if (allengines)
-    fprintf(v0, "CarE=1\n");
+    fprintf(fp, "CarE=1\n");
   else
-    fprintf(v0, "CarE=0\n");
+    fprintf(fp, "CarE=0\n");
   if (soundon)
-    fprintf(v0, "SfxO=1\n");
+    fprintf(fp, "SfxO=1\n");
   else
-    fprintf(v0, "SfxO=0\n");
+    fprintf(fp, "SfxO=0\n");
   if (musicon)
-    fprintf(v0, "MusO=1\n");
+    fprintf(fp, "MusO=1\n");
   else
-    fprintf(v0, "MusO=0\n");
-  fprintf(v0, "SVGA=%d\n", abs32(game_svga));
+    fprintf(fp, "MusO=0\n");
+  fprintf(fp, "SVGA=%d\n", game_svga ? 1 : 0);
   if (game_svga)
-    fprintf(v0, "Size=%d\n", game_size);
+    fprintf(fp, "Size=%d\n", game_size);
   else
-    fprintf(v0, "Size=%d\n", 2 * game_size);
-  fprintf(v0, "View=%i\n", game_view);
-  fprintf(v0, "Names=%i\n", abs32(names_on));
-  fprintf(v0, "P1left=%i\n", (unsigned __int8)userkey[0]);
-  fprintf(v0, "P1right=%i\n", (unsigned __int8)userkey_variable_1);
-  fprintf(v0, "P1up=%i\n", (unsigned __int8)userkey_variable_2);
-  fprintf(v0, "P1down=%i\n", (unsigned __int8)userkey_variable_3);
-  fprintf(v0, "P1upgear=%i\n", (unsigned __int8)userkey_variable_4);
-  fprintf(v0, "P1downgear=%i\n", (unsigned __int8)userkey_variable_5);
-  fprintf(v0, "P1cheat=%i\n", (unsigned __int8)userkey_variable_12);
-  fprintf(v0, "P2left=%i\n", (unsigned __int8)userkey_variable_6);
-  fprintf(v0, "P2right=%i\n", (unsigned __int8)userkey_variable_7);
-  fprintf(v0, "P2up=%i\n", (unsigned __int8)userkey_variable_8);
-  fprintf(v0, "P2down=%i\n", (unsigned __int8)userkey_variable_9);
-  fprintf(v0, "P2upgear=%i\n", (unsigned __int8)userkey_variable_10);
-  fprintf(v0, "P2downgear=%i\n", (unsigned __int8)userkey_variable_11);
-  fprintf(v0, "P2cheat=%i\n", (unsigned __int8)userkey_variable_13);
-  fprintf(v0, "Joy1X=%i\n", x1ok != 0);
-  fprintf(v0, "Joy1Y=%i\n", y1ok != 0);
-  fprintf(v0, "Joy2X=%i\n", x2ok != 0);
-  fprintf(v0, "Joy2Y=%i\n", y2ok != 0);
+    fprintf(fp, "Size=%d\n", 2 * game_size);
+  fprintf(fp, "View=%i\n", game_view[0]);
+  fprintf(fp, "Names=%i\n", names_on ? 1 : 0);
+  fprintf(fp, "P1left=%i\n", userkey.byP1left);
+  fprintf(fp, "P1right=%i\n", userkey.byP1right);
+  fprintf(fp, "P1up=%i\n", userkey.byP1up);
+  fprintf(fp, "P1down=%i\n", userkey.byP1down);
+  fprintf(fp, "P1upgear=%i\n", userkey.byP1upgear);
+  fprintf(fp, "P1downgear=%i\n", userkey.byP1downgear);
+  fprintf(fp, "P1cheat=%i\n", userkey.byP2downgear);
+  fprintf(fp, "P2left=%i\n", userkey.byP1cheat);
+  fprintf(fp, "P2right=%i\n", userkey.byP2left);
+  fprintf(fp, "P2up=%i\n", userkey.byP2right);
+  fprintf(fp, "P2down=%i\n", userkey.byP2up);
+  fprintf(fp, "P2upgear=%i\n", userkey.byP2down);
+  fprintf(fp, "P2downgear=%i\n", userkey.byP2upgear);
+  fprintf(fp, "P2cheat=%i\n", userkey.byP2cheat);
+  fprintf(fp, "Joy1X=%i\n", x1ok != 0);
+  fprintf(fp, "Joy1Y=%i\n", y1ok != 0);
+  fprintf(fp, "Joy2X=%i\n", x2ok != 0);
+  fprintf(fp, "Joy2Y=%i\n", y2ok != 0);
   if (x1ok) {
-    fprintf(v0, "Joy1Xmin=%i\n", JAXmin);
-    fprintf(v0, "Joy1Xmax=%i\n", JAXmax);
+    fprintf(fp, "Joy1Xmin=%i\n", JAXmin);
+    fprintf(fp, "Joy1Xmax=%i\n", JAXmax);
   }
   if (y1ok) {
-    fprintf(v0, "Joy1Ymin=%i\n", JAYmin);
-    fprintf(v0, "Joy1Ymax=%i\n", JAYmax);
+    fprintf(fp, "Joy1Ymin=%i\n", JAYmin);
+    fprintf(fp, "Joy1Ymax=%i\n", JAYmax);
   }
   if (x2ok) {
-    fprintf(v0, "Joy2Xmin=%i\n", JBXmin);
-    fprintf(v0, "Joy2Xmax=%i\n", JBXmax);
+    fprintf(fp, "Joy2Xmin=%i\n", JBXmin);
+    fprintf(fp, "Joy2Xmax=%i\n", JBXmax);
   }
   if (y2ok) {
-    fprintf(v0, "Joy2Ymin=%i\n", JBYmin);
-    fprintf(v0, "Joy2Ymax=%i\n", JBYmax);
+    fprintf(fp, "Joy2Ymin=%i\n", JBYmin);
+    fprintf(fp, "Joy2Ymax=%i\n", JBYmax);
   }
-  name_copy((int)&buffer, player_names);
-  fprintf(v0, "Nom=%s\n", &buffer);
-  fprintf(v0, "Car1=%i\n", Players_Cars[0]);
+  name_copy(buffer, player_names[0]);
+  fprintf(fp, "Nom=%s\n", buffer);
+  fprintf(fp, "Car1=%i\n", Players_Cars[0]);
   if (player_type == 2) {
-    name_copy((int)&buffer, player_names_variable_1);
-    fprintf(v0, "Han=%s\n", &buffer);
-    fprintf(v0, "Car2=%i\n", Players_Cars_variable_1);
+    name_copy(buffer, player_names[1]);
+    fprintf(fp, "Han=%s\n", buffer);
+    fprintf(fp, "Car2=%i\n", Players_Cars[1]);
   }
-  fprintf(v0, "Level=%i\n", level);
-  fprintf(v0, "Damage=%i\n", damage_level);
-  fprintf(v0, "Detail=%i\n", textures_off);
+  fprintf(fp, "Level=%i\n", level);
+  fprintf(fp, "Damage=%i\n", damage_level);
+  fprintf(fp, "Detail=%i\n", textures_off);
   if (view_limit)
-    fprintf(v0, "Ahead=1\n");
+    fprintf(fp, "Ahead=1\n");
   else
-    fprintf(v0, "Ahead=0\n");
-  fprintf(v0, "Record=%i\n", replay_record);
-  fprintf(v0, "Game=%i\n", game_type);
-  fprintf(v0, "Racers=%i\n", competitors);
-  fprintf(v0, "Track=%i\n", TrackLoad);
-  fprintf(v0, "Players=%i\n", player_type);
-  fprintf(v0, "Ariel1=%s\n", &default_names);
-  fprintf(v0, "Ariel2=%s\n", "HAL");
-  fprintf(v0, "DeSilva1=%s\n", aSlave);
-  fprintf(v0, "DeSilva2=%s\n", aZen);
-  fprintf(v0, "Pulse1=%s\n", aAsh);
-  fprintf(v0, "Pulse2=%s\n", aBishop);
-  fprintf(v0, "Global1=%s\n", aVoyager);
-  fprintf(v0, "Global2=%s\n", aNomad);
-  fprintf(v0, "Million1=%s\n", aBob);
-  fprintf(v0, "Million2=%s\n", aVincent);
-  fprintf(v0, "Mission1=%s\n", aEddie);
-  fprintf(v0, "Mission2=%s\n", aMarvin);
-  fprintf(v0, "Zizin1=%s\n", aKryten);
-  fprintf(v0, "Zizin2=%s\n", aHolly);
-  fprintf(v0, "Reise1=%s\n", aRobby);
-  fprintf(v0, "Reise2=%s\n", aGort);
-  fprintf(v0, "NetMes1=%s\n", aSlowcoach);
-  fprintf(v0, "NetMes2=%s\n", aOutOfMyWay);
-  fprintf(v0, "NetMes3=%s\n", aYouDie);
-  fprintf(v0, "NetMes4=%s\n", aSucker);
-  fprintf(v0, "ComPort=%i\n", serial_port);
-  fprintf(v0, "ModemPort=%i\n", modem_port);
-  fprintf(v0, "ModemTone=%i\n", modem_tone);
-  fprintf(v0, "ModemInit=%s\n", "ATX");
-  fprintf(v0, "ModemPhone=%s\n", &modem_phone);
-  fprintf(v0, "ModemCall=%i\n", modem_call);
-  fprintf(v0, "ModemType=%i\n", current_modem);
-  fprintf(v0, "NetSlot=%i\n", network_slot);
-  fprintf(v0, "ModemBaud=%i\n", modem_baud);
-  fclose(v0);
-  result = (_DWORD *)fopen(&aAtfatalIni[2], aRb_2);
-  v2 = result;
-  if (result) {
-    fseek(result, 0, 2);
-    v3 = ftell(v2);
-    fseek(v2, 0, 0);
-    v4 = getbuffer(v3);
-    v5[0] = v4;
-    if (v4) {
-      fread(v4, 1, v3, v2);
-      fclose(v2);
-      decode(v5[0], v3, 77, 101);
-      fopen(&aAtfatalIni[2], &aMwb[1]);
-      if (v2) {
-        fwrite(v5[0], 1, v3, v2);
-        fclose(v2);
+    fprintf(fp, "Ahead=0\n");
+  fprintf(fp, "Record=%i\n", replay_record);
+  fprintf(fp, "Game=%i\n", game_type);
+  fprintf(fp, "Racers=%i\n", competitors);
+  fprintf(fp, "Track=%i\n", TrackLoad);
+  fprintf(fp, "Players=%i\n", player_type);
+  fprintf(fp, "Ariel1=%s\n", default_names[0]);
+  fprintf(fp, "Ariel2=%s\n", default_names[1]);
+  fprintf(fp, "DeSilva1=%s\n", default_names[2]);
+  fprintf(fp, "DeSilva2=%s\n", default_names[3]);
+  fprintf(fp, "Pulse1=%s\n", default_names[4]);
+  fprintf(fp, "Pulse2=%s\n", default_names[5]);
+  fprintf(fp, "Global1=%s\n", default_names[6]);
+  fprintf(fp, "Global2=%s\n", default_names[7]);
+  fprintf(fp, "Million1=%s\n", default_names[8]);
+  fprintf(fp, "Million2=%s\n", default_names[9]);
+  fprintf(fp, "Mission1=%s\n", default_names[10]);
+  fprintf(fp, "Mission2=%s\n", default_names[11]);
+  fprintf(fp, "Zizin1=%s\n", default_names[12]);
+  fprintf(fp, "Zizin2=%s\n", default_names[13]);
+  fprintf(fp, "Reise1=%s\n", default_names[14]);
+  fprintf(fp, "Reise2=%s\n", default_names[15]);
+  fprintf(fp, "NetMes1=%s\n", network_messages[0]);
+  fprintf(fp, "NetMes2=%s\n", network_messages[1]);
+  fprintf(fp, "NetMes3=%s\n", network_messages[2]);
+  fprintf(fp, "NetMes4=%s\n", network_messages[3]);
+  fprintf(fp, "ComPort=%i\n", serial_port);
+  fprintf(fp, "ModemPort=%i\n", modem_port);
+  fprintf(fp, "ModemTone=%i\n", modem_tone);
+  fprintf(fp, "ModemInit=%s\n", modem_initstring);
+  fprintf(fp, "ModemPhone=%s\n", modem_phone);
+  fprintf(fp, "ModemCall=%i\n", modem_call);
+  fprintf(fp, "ModemType=%i\n", current_modem);
+  fprintf(fp, "NetSlot=%i\n", network_slot);
+  fprintf(fp, "ModemBaud=%i\n", modem_baud);
+  fclose(fp);
+  fp = fopen("FATAL.INI", "rb");
+  if (fp) {
+    fseek(fp, 0, SEEK_END);
+    uint32 uiSize = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    char *pBuf = (char *)getbuffer(uiSize);
+    if (pBuf) {
+      fread(pBuf, 1u, uiSize, fp);
+      fclose(fp);
+      decode((uint8 *)pBuf, uiSize, 77, 101);
+      fp = fopen("FATAL.INI", "wb");
+      if (fp) {
+        fwrite(pBuf, 1, uiSize, fp);
+        fclose(fp);
       }
-      return fre(v5);
+      fre(pBuf);
     } else {
-      fclose(v2);
-      return (_DWORD *)remove(&aAtfatalIni[2]);
+      fclose(fp);
+      remove("FATAL.INI");
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
