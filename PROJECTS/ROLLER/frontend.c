@@ -5843,12 +5843,12 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
             cheat_mode |= CHEAT_MODE_ADVANCED_CARS;
             break;
           case 15: //MREPRISE (bonus cup unlocked)
-            name_copy(szPlayerName, "BTMRBONUS");
+            name_copy(szPlayerName, "MRBONUS");
             textures_off |= 0x20000;
             cup_won |= 2;
             break;
           case 16: //DUEL (killer opponents)
-            name_copy(szPlayerName, "SUMRREVIL");
+            name_copy(szPlayerName, "MRREVIL");
             cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
             break;
           case 17: //PROCESS
