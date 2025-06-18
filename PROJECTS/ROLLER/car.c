@@ -6,9 +6,9 @@
 #include "3d.h"
 #include "graphics.h"
 #include <math.h>
+#include <assert.h>
 //-------------------------------------------------------------------------------------------------
 
-float g_fTinycarSize = 0.25f;   //000A2100 Symbol name added by ROLLER
 int numcars;                    //000A6114
 char default_names[16][9] = {   //000A6158
   "SAL",
@@ -59,17 +59,17 @@ void InitCarStructs()
     // If unique pointer, scale speeds by 2.2
     if (iFirstDuplicateIndex > 0) {
       for (int i = 0; i < iNumGears; ++i) {
-        pCar->pSpds[i] *= 2.2;
+        pCar->pSpds[i] *= (float)2.2;
       }
     }
 
     // Compute eng_chg_revs and the next value per gear
     for (int iGear = 0; iGear < iNumGears; ++iGear) {
       float fChg1 = (float)pCar->pChgs[iGear];
-      eng_chg_revs[iCarIdx * 24 + iGear * 2] = calc_revs(pCar->pRevs, iGear, fChg1);
+      eng_chg_revs[iCarIdx * 24 + iGear * 2] = (float)calc_revs(pCar->pRevs, iGear, fChg1);
 
       float fChg2 = (float)pCar->pChgs[iGear + 1];
-      eng_chg_revs[iCarIdx * 24 + iGear * 2 + 1] = calc_revs(pCar->pRevs, iGear, fChg2);
+      eng_chg_revs[iCarIdx * 24 + iGear * 2 + 1] = (float)calc_revs(pCar->pRevs, iGear, fChg2);
     }
   }
 
@@ -142,10 +142,10 @@ void CalcCarSizes()
     }
     // Multiply by tinycar value if using tinycar cheat
     if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0) {
-      fXLow = fXLow * g_fTinycarSize;
-      fYLow = fYLow * g_fTinycarSize;
-      fXHigh = fXHigh * g_fTinycarSize;
-      fYHigh = fYHigh * g_fTinycarSize;
+      fXLow = fXLow * 0.25f;
+      fYLow = fYLow * 0.25f;
+      fXHigh = fXHigh * 0.25f;
+      fYHigh = fYHigh * 0.25f;
     }
     iCarBoxIdx = 8 * nCarDesignsIdx;            // 24 for 8 3-float points defining a hitbox
     CarBox.hitboxAy[iCarBoxIdx].fX = fXLow;
@@ -185,8 +185,8 @@ void CalcCarSizes()
   }
   result = cheat_mode;
   if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0) {
-    CarBaseX = CarBaseX * g_fTinycarSize;
-    CarBaseY = CarBaseY * g_fTinycarSize;
+    CarBaseX = CarBaseX * 0.25f;
+    CarBaseY = CarBaseY * 0.25f;
   }
   CarDiag = (float)sqrt(CarBaseX * CarBaseX + CarBaseY * CarBaseY);
 }

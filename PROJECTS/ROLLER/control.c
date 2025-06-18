@@ -973,43 +973,44 @@ void control()
 
 double calc_revs(tRev *pRevs, int iGear, float fChg)
 {
-  tRev *v5; // eax
-  double v6; // st7
-  double v7; // st3
-  float v9; // [esp+8h] [ebp-40h]
-  float v10; // [esp+18h] [ebp-30h]
-  float fUnk4; // [esp+2Ch] [ebp-1Ch]
-  float fUnk5; // [esp+34h] [ebp-14h]
-  float fUnk7; // [esp+38h] [ebp-10h]
-  float v14; // [esp+3Ch] [ebp-Ch]
-  float fUnk3; // [esp+40h] [ebp-8h]
+  tRev *pRev; // eax
+  double d2; // st7
+  double d3; // st3
+  float d1; // [esp+18h] [ebp-30h]
+  float fRev4; // [esp+2Ch] [ebp-1Ch]
+  float fRev5; // [esp+34h] [ebp-14h]
+  float fRev7; // [esp+38h] [ebp-10h]
+  float fResult; // [esp+3Ch] [ebp-Ch]
+  float fRev3; // [esp+40h] [ebp-8h]
 
-  v5 = &pRevs[iGear];
-  fUnk3 = v5->fUnk3;
-  fUnk5 = v5->fUnk5;
-  fUnk7 = v5->fUnk7;
-  fUnk4 = v5->fUnk4;
-  if (fChg < 0.0 || fChg >= (double)fUnk3) {
-    if (fChg < (double)fUnk3 || fChg >= (double)fUnk7) {
-      v14 = 1.0;
+  pRev = &pRevs[iGear];
+  fRev3 = pRev->fRev3;
+  fRev5 = pRev->fRev5;
+  fRev7 = pRev->fRev7;
+  fRev4 = pRev->fRev4;
+  if (fChg < 0.0 || fChg >= (double)fRev3) {
+    if (fChg < (double)fRev3 || fChg >= (double)fRev7) {
+      fResult = 1.0;
     } else {
-      v10 = fChg - fUnk3;
-      v6 = fChg - fUnk5;
-      v7 = fChg - fUnk7;
-      v9 = (float)v6 * (float)v7 * fUnk4 / ((fUnk3 - fUnk5) * (fUnk3 - fUnk7));
-      v14 = (float)v7 * v10 * v5->fUnk6 / ((fUnk5 - fUnk3) * (fUnk5 - fUnk7))
-        + v9
-        + (float)v6 * v10 * v5->fUnk8 / ((fUnk7 - fUnk3) * (fUnk7 - fUnk5));
+      d1 = fChg - fRev3;
+      d2 = fChg - fRev5;
+      d3 = fChg - fRev7;
+      fResult = (float)d3 * d1 * pRev->fRev6 / ((fRev5 - fRev3) * (fRev5 - fRev7))
+        + (float)d2 * (float)d3 * fRev4 / ((fRev3 - fRev5) * (fRev3 - fRev7))
+        + (float)d2 * d1 * pRev->fRev8 / ((fRev7 - fRev3) * (fRev7 - fRev5));
     }
-  } else {
-    v14 = (fChg - fUnk3) * fChg * v5->fUnk2 / ((v5->fUnk1 - fUnk3) * v5->fUnk1)
-      + (fChg - v5->fUnk1) * fChg * fUnk4 / (fUnk3 * (fUnk3 - v5->fUnk1));
+  } else
+  {
+    fResult = (fChg - fRev3) * fChg * pRev->fRev2 / ((pRev->fRev1 - fRev3) * pRev->fRev1)
+      + (fChg - pRev->fRev1) * fChg * fRev4 / (fRev3 * (fRev3 - pRev->fRev1));
   }
-  if (v14 < 0.0)
-    v14 = 0.0;
-  if (v14 > 1.0)
+
+  // clamp result to between 0.0 and 1.0
+  if (fResult < 0.0)
+    fResult = 0.0;
+  if (fResult > 1.0)
     return 1.0;
-  return v14;
+  return fResult;
 }
 
 //-------------------------------------------------------------------------------------------------
