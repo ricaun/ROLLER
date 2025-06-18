@@ -1215,7 +1215,7 @@ void readline(FILE *pFile, const char *szFmt, ...)
 
 //-------------------------------------------------------------------------------------------------
 
-char *memgets(uint8 *pDst, uint8 **ppSrc)
+uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 {
   int iEof = 0;
   uint8 *pDstItr = pDst;
