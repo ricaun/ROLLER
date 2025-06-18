@@ -11,6 +11,7 @@ extern void *iobuffer;
 extern void *cdbuffer;
 extern int16 ioselector;
 extern int16 cdselector;
+extern char volscale[129];
 
 //-------------------------------------------------------------------------------------------------
 
