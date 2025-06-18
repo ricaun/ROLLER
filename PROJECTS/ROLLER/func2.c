@@ -3256,7 +3256,7 @@ void disable_keyboard()
 
 void save_fatal_config()
 {
-  FILE *fp = fopen("FATAL.INI", "w");
+  FILE *fp = ROLLERfopen("FATAL.INI", "w");
   fprintf(fp, "EngineVolume=%d\n", (4 * ((EngineVolume + 1) / 4)));
   fprintf(fp, "SFXVolume=%d\n", (4 * ((SFXVolume + 1) / 4)));
   fprintf(fp, "SpeechVolume=%d\n", (4 * ((SpeechVolume + 1) / 4)));
@@ -3364,7 +3364,7 @@ void save_fatal_config()
   fprintf(fp, "NetSlot=%i\n", network_slot);
   fprintf(fp, "ModemBaud=%i\n", modem_baud);
   fclose(fp);
-  fp = fopen("FATAL.INI", "rb");
+  fp = ROLLERfopen("FATAL.INI", "rb");
   if (fp) {
     fseek(fp, 0, SEEK_END);
     uint32 uiSize = ftell(fp);
@@ -3374,7 +3374,7 @@ void save_fatal_config()
       fread(pBuf, 1u, uiSize, fp);
       fclose(fp);
       decode((uint8 *)pBuf, uiSize, 77, 101);
-      fp = fopen("FATAL.INI", "wb");
+      fp = ROLLERfopen("FATAL.INI", "wb");
       if (fp) {
         fwrite(pBuf, 1, uiSize, fp);
         fclose(fp);

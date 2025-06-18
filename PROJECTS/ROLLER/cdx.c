@@ -494,10 +494,11 @@ int checkCD(uint8 byDriveIdx)
   uint32 uiBytesRead;
 
   // Construct filename
+  //TODO: linux compatibility
   sprintf(szFilename, "%c:/FATAL.EXE", byDriveIdx + 'A');
 
   // Try to open the file
-  fp = fopen(szFilename, "rb");
+  fp = ROLLERfopen(szFilename, "rb");
   if (!fp)
     return 0;
 
