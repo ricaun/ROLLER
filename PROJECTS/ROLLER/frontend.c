@@ -5831,7 +5831,7 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
             cheat_mode |= CHEAT_MODE_RACE_HISTORY;
             break;
           case 12: //CINEMA (widescreen)
-            name_copy(szPlayerName, "ESULUMIERE");
+            name_copy(szPlayerName, "LUMIERE");
             cheat_mode |= CHEAT_MODE_WIDESCREEN;
             break;
           case 13: //ROLL EM (view credits)
