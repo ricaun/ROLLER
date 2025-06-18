@@ -5730,7 +5730,6 @@ void loadcheatnames()
 
 void CheckNames(char *szPlayerName, int iPlayerIdx)
 {
-  int iWMrBrush = 0;
   int iCheatIdx = 0;
 
   // Decode cheat names list
@@ -5788,7 +5787,6 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
             break;
           case 7: //REMOVE
             name_copy(szPlayerName, "MRBRUSH");
-            iWMrBrush = -1;
             if (cheat_mode & CHEAT_MODE_CLONES) {
               // Handle player cars and infinite laps
               short nPlayer1Car = (short)player1_car;
