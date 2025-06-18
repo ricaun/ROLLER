@@ -1778,24 +1778,24 @@ char *FindConfigVar(const char *szConfigText, const char *szVarName)
 
 //-------------------------------------------------------------------------------------------------
 
-void loadfile(const char *szFile, void *pBuf, unsigned int *uiSize, int iIsSound)
+void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSound)
 {
   int iFile; // eax
   void *pBuf2; // eax
   uint8 *pUint8Buf; // edx
 
-  pBuf = 0;
+  *pBuf = 0;
   *uiSize = 0;
   iFile = open(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFile == -1) {
     *uiSize = 0;
-    pBuf = 0;
+    *pBuf = 0;
   } else {
     close(iFile);
     *uiSize = getcompactedfilelength(szFile);
     if (!iIsSound || iIsSound == 1 && soundon) {
       pBuf2 = trybuffer(*uiSize);
-      pBuf = pBuf2;
+      *pBuf = pBuf2;
       if (pBuf2) {
         pUint8Buf = (uint8 *)pBuf2;
         initmangle(szFile);
