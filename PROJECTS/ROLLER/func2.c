@@ -1679,37 +1679,27 @@ int FindShades()
 
 //-------------------------------------------------------------------------------------------------
 
-int nearest_colour(int a1, int a2, int a3)
+int nearest_colour(int iR, int iB, int iG)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // edi
-  int v4; // ecx
-  int v5; // ebx
-  __int64 v6; // rax
-  int v7; // esi
-  __int64 v8; // rax
-  int v9; // eax
-  int v14; // [esp+10h] [ebp-14h]
+  int iBestIndex = 0;
+  int iBestDistance = 1024;  // large initial value
+  int rDiff, bDiff, gDiff;
+  int iDistance;
 
-  v3 = 1024;
-  v4 = 1;
-  v5 = 3;
-  v14 = 0;
-  do {
-    v6 = (unsigned __int8)palette[v5] - a1;
-    v7 = abs32((unsigned __int8)palette_variable_1[v5] - a2) + (HIDWORD(v6) ^ v6) - HIDWORD(v6);
-    v8 = (unsigned __int8)palette_variable_2[v5] - a3;
-    v9 = v7 + (HIDWORD(v8) ^ v8) - HIDWORD(v8);
-    if (v9 < v3) {
-      v14 = v4;
-      v3 = v9;
+  for (int i = 1; i < 256; ++i) {
+    // Calculate distance
+    rDiff = abs((int)palette[i].byR - iR);
+    bDiff = abs((int)palette[i].byB - iB);
+    gDiff = abs((int)palette[i].byG - iG);
+    iDistance = rDiff + bDiff + gDiff;
+
+    if (iDistance < iBestDistance) {
+      iBestDistance = iDistance;
+      iBestIndex = i;
     }
-    ++v4;
-    v5 += 3;
-  } while (v4 < 256);
-  return v14;*/
+  }
+
+  return iBestIndex;
 }
 
 //-------------------------------------------------------------------------------------------------

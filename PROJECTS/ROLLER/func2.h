@@ -62,7 +62,7 @@ int clear_border(int a1, int a2, int a3, int a4);
 int DisplayFree();
 void setdirectory(const char *szAppPath);
 int FindShades();
-int nearest_colour(int a1, int a2, int a3);
+int nearest_colour(int iR, int iB, int iG);
 int select_view(int a1);
 int mini_prt_string(int a1, char *a2);
 int mini_prt_string_rev(int a1, char *a2);
