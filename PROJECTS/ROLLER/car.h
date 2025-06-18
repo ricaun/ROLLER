@@ -119,6 +119,7 @@ typedef struct
 
 extern int numcars;
 extern char default_names[16][9];
+extern int16 ViewType[2];
 extern float CarBaseX;
 extern float CarBaseY;
 extern float CarDiag;

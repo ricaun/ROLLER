@@ -28,6 +28,7 @@ char default_names[16][9] = {   //000A6158
   "ROBBY",
   "GORT"
 };
+int16 ViewType[2] = { 0, 0 };   //000A620C
 float CarBaseX;                 //0018851C
 float CarBaseY;                 //00188520
 float CarDiag;                  //00188524

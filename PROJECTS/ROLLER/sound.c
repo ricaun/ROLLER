@@ -1,15 +1,17 @@
 #include "sound.h"
-#include "SDL3/SDL_events.h"
 #include "frontend.h"
 #include "moving.h"
 #include "cdx.h"
 #include "func2.h"
+#include "func3.h"
 #include "3d.h"
 #include "loadtrak.h"
+#include "car.h"
 #include "roller.h"
 #include <memory.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_events.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -1387,36 +1389,37 @@ void Uninitialise_SOS()
 //-------------------------------------------------------------------------------------------------
 
 void loadsamples()
-{/*
-  int v0; // edx
-  int v1; // ecx
-  int v2; // ebx
-  int v3; // edx
-  int v4; // eax
-  int v5; // eax
-  int v6; // edx
+{
+  int iWinnerSample = winner_mode;
 
-  v0 = winner_mode;
-  if (winner_mode) {
-    if (champ_mode) {
+  if (iWinnerSample != 0) {
+    if (champ_mode != 0) {
+      // Championship mode
       loadasample(0);
       loadasample(1);
       loadasample(3);
       loadasample(9);
-      loadasample(10);
-      loadasample(11);
-      loadasample(12);
+      loadasample(0xA);
+      loadasample(0xB);
+      loadasample(0xC);
       loadasample(6);
-      v5 = total_wins[champorder[0]];
-      if (v5 > 0)
-        loadasample(v5 + 88);
-      v6 = total_kills[champorder[0]];
-      if (v6 > 0 && v6 < 17)
-        loadasample(v6 + 96);
-      if (v6 >= 17)
+
+      int iChampIdx = champorder[0];
+      int iWins = total_wins[iChampIdx];
+      if (iWins > 0) {
+        loadasample(iWins + 88); // Sound for win count
+      }
+
+      int iKills = total_kills[iChampIdx];
+      if (iKills > 0 && iKills < 17) {
+        loadasample(iKills + 96); // Sound for kill count
+      } else if (iKills >= 17) {
         loadasample(113);
-      v4 = 118;
+      }
+
+      loadasample(118);
     } else {
+      // Winner mode but not championship
       loadasample(0);
       loadasample(1);
       loadasample(3);
@@ -1428,42 +1431,58 @@ void loadsamples()
       loadasample(115);
       loadasample(116);
       loadasample(117);
-      v3 = result_kills[result_order[0]];
-      if (v3 > 0 && v3 < 17)
-        loadasample(v3 + 96);
-      if (v3 < 17)
-        goto LABEL_30;
-      v4 = 113;
-    }
-    loadasample(v4);
-    goto LABEL_30;
-  }
-  if (numsamples > 0) {
-    v1 = -71;
-    v2 = 0;
-    do {
-      if (!winner_mode) {
-        if (v0 >= 71 && (v0 <= 78 || v0 >= 89)) {
-          if ((unsigned __int8)Car_variable_22[308 * ViewType[0]] != v1 || SamplePtr[v2])
-            goto LABEL_13;
-        LABEL_12:
-          loadasample(v0);
-          goto LABEL_13;
-        }
-        if (!SamplePtr[v2])
-          goto LABEL_12;
+
+      int iKills = total_kills[result_order[0]];
+      if (iKills > 0 && iKills < 17) {
+        loadasample(iKills + 96);
+      } else if (iKills >= 17) {
+        loadasample(0x71);
       }
-    LABEL_13:
-      ++v1;
-      ++v0;
-      ++v2;
-    } while (v0 < numsamples);
+
+      loadasample(0x76);
+    }
+  } else {
+      // Normal mode
+    if (numsamples > 0) {
+      int iSampleIdx = 0;
+      int iDesignCmp = -71;
+
+      while (iWinnerSample < numsamples) {
+        if (winner_mode != 0) break;
+
+        if (iWinnerSample < 71 || iWinnerSample > 78) {
+          if (SamplePtr[iSampleIdx] != NULL) {
+            goto next;
+          }
+        } else if (iWinnerSample >= 89) {
+          goto next;
+        }
+
+        int iViewIdx = ViewType[0];
+        int iDesign = Car[iViewIdx].byCarDesignIdx;
+        if (iDesign != iDesignCmp) {
+          goto next;
+        }
+
+        if (SamplePtr[iSampleIdx] != NULL) {
+          goto next;
+        }
+
+        loadasample(iWinnerSample);
+
+      next:
+        iDesignCmp++;
+        iWinnerSample++;
+        iSampleIdx++;
+      }
+    }
   }
-LABEL_30:
+
+  // Reset sample state
   samplespending = 0;
   writesample = 0;
   readsample = 0;
-  lastsample = -10000;*/
+  lastsample = -10000;
 }
 
 //-------------------------------------------------------------------------------------------------

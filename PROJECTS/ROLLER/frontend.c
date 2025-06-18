@@ -39,7 +39,10 @@ int network_champ_on = 0; //000A5318
 void *front_vga[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //000A5324
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
+int champorder[16];       //0016FAC8
+int total_wins[16];       //0016FB88
 int allocated_cars[14];   //0016FBC8
+int total_kills[16];      //0016FC40
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
 int player_invul[16];     //0016FE60
