@@ -351,13 +351,12 @@ void AudioIOCTL(uint8 bySubCommand)
 
 //-------------------------------------------------------------------------------------------------
 
-int FreeDOSMemory(uint16 a1)
+void FreeDOSMemory(uint16 unSegment)
 {
-  return 0; /*
-  memset(&sregs, 0, sizeof(sregs));
-  regs.w.dx = a1;
-  regs.w.ax = 257;
-  return int386x(49, &regs, &regs, &sregs);*/
+  //memset(&sregs, 0, sizeof(sregs));
+  //regs.w.dx = nSegment;
+  //regs.w.ax = 0x101;
+  //int386x(0x31, &regs, &regs, &sregs);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -472,16 +471,13 @@ void cdxdone()
 
 int cdpresent()
 {
-  return 0; /*
-  int result; // eax
-  int i; // edx
+  int iSuccess = 0;
 
-  result = 0;
-  for (i = 0; i < numCDdrives; ++i) {
-    if (!result)
-      result = checkCD(i + firstCDdrive);
+  for (int i = 0; i < numCDdrives; ++i) {
+    if (!iSuccess)
+      iSuccess = checkCD(i + firstCDdrive);
   }
-  return result;*/
+  return iSuccess;
 }
 
 //-------------------------------------------------------------------------------------------------

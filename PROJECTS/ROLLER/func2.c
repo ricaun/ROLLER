@@ -1337,30 +1337,15 @@ int print_pos(int result, int a2, int a3)
 
 void free_game_memory()
 {
-  /*
-  char *v0; // edx
-  _DWORD *v1; // eax
-  _DWORD *v2; // eax
-  int *v3; // edx
-  int *v4; // eax
-
   fre(&building_vga);
-  v0 = (char *)&cartex_vga;
   fre(&horizon_vga);
-  do {
-    v1 = v0;
-    v0 += 4;
-    fre(v1);
-  } while (v0 != (char *)&cartex_vga + 64);
-  v2 = fre(&cargen_vga);
-  remove_mapsels(v2);
-  v3 = &rev_vga;
-  fre(&texture_vga);
-  do {
-    v4 = v3++;
-    fre(v4);
-  } while (v3 != &rev_vga + 16);
-  return fre(&mirbuf);*/
+  for (int i = 0; i < 16; ++i) {
+    fre(&cartex_vga[i]);
+    fre(&rev_vga[i]);
+  }
+  fre(&cargen_vga);
+  remove_mapsels();
+  fre(&mirbuf);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ void RepeatTrack();
 void StopTrack();
 int SetAudioVolume(int a1);
 void AudioIOCTL(uint8 bySubCommand);
-int FreeDOSMemory(uint16 a1);
+void FreeDOSMemory(uint16 unSegment);
 void intRM(uint8 byInterruptNumber);
 void GetFirstCDDrive();
 void cdxinit();
