@@ -2,10 +2,19 @@
 #include "3d.h"
 #include "sound.h"
 #include "frontend.h"
+#include <assert.h>
 #include <string.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#ifndef IS_WINDOWS
+#include <dirent.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <linux/cdrom.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 static SDL_Window *s_pWindow = NULL;
@@ -155,6 +164,25 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode)
   if (pFile) return pFile;
 
   return fopen(szLower, szMode);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+int IsCDROMDevice(const char *szPath)
+{
+#ifdef IS_WINDOWS
+  assert(0);
+  return 0;
+#else
+  int fd = open(path, O_RDONLY | O_NONBLOCK);
+  if (fd < 0)
+    return 0;
+
+  struct cdrom_capability cap;
+  int result = ioctl(fd, CDROM_GET_CAPABILITY, &cap);
+  close(fd);
+  return (result != -1);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------

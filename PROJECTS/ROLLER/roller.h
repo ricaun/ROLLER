@@ -10,6 +10,7 @@ int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
 FILE *ROLLERfopen(const char *szFile, const char *szMode); //tries to open file with both all caps and all lower case
+int IsCDROMDevice(const char *szPath);
 
 //-------------------------------------------------------------------------------------------------
 #endif

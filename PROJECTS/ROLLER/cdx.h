@@ -7,6 +7,7 @@
 extern int track_playing;
 extern int last_audio_track;
 extern int numCDdrives;
+extern int firstCDdrive;
 extern void *iobuffer;
 extern void *cdbuffer;
 extern int16 ioselector;

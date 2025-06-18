@@ -3,15 +3,27 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#ifdef IS_WINDOWS
+#include <windows.h>
+#else
+#include <dirent.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <linux/cdrom.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#endif
 //-------------------------------------------------------------------------------------------------
 
 int track_playing = 0;    //000A7510
 int last_audio_track = 0; //000A7514
 int numCDdrives = 0;      //000A7518
+int firstCDdrive;         //001A1B4C
 void *iobuffer;           //001A1CEC
 void *cdbuffer;           //001A1CF0
 int16 ioselector;         //001A1E88
 int16 cdselector;         //001A1E8C
+int drive;                //001A1F9F
 char volscale[129];       //001A1F1E
 
 //-------------------------------------------------------------------------------------------------
@@ -364,6 +376,48 @@ void intRM(uint8 byInterruptNumber)
 
 void GetFirstCDDrive()
 {
+  firstCDdrive = -1;
+#ifdef IS_WINDOWS
+  uint16 nDrives = GetLogicalDrives();
+  if (nDrives == 0)
+    return 0;
+
+  int iCount = 0;
+  for (char cDrive = 'A'; cDrive <= 'Z'; cDrive++) {
+    if (!(nDrives & (1 << (cDrive - 'A'))))
+      continue;
+
+    char szRootPath[] = { cDrive, ':', '\\', '\0' };
+    uint32 uiType = GetDriveTypeA(szRootPath);
+    if (uiType == DRIVE_CDROM) {
+      if (firstCDdrive == -1) {
+        firstCDdrive = cDrive - 'A';
+        drive = cDrive - 'A';
+      }
+      iCount++;
+    }
+  }
+
+  numCDdrives = iCount;
+#else
+  const char *szDevPrefix = "/dev/";
+  const char *targets[] = { "cdrom", "sr0", "sr1", "sr2", "sr3", NULL };
+  int iCount = 0;
+
+  for (int i = 0; targets[i] != NULL; ++i) {
+    char fullPath[64];
+    snprintf(fullPath, sizeof(fullPath), "%s%s", szDevPrefix, targets[i]);
+    if (IsCDROMDevice(fullPath)) {
+      if (firstCDdrive == -1) {
+        firstCDdrive = i;
+        drive = i;
+      }
+      iCount++;
+    }
+  }
+
+  numCDdrives = count;
+#endif
   /*
   regs.w.ax = 0x1500;
   regs.w.bx = 0;
