@@ -43,61 +43,48 @@ int LoadCarTextures;            //0018852C
 
 void InitCarStructs()
 {
-  eCarDesignIndex carDesignIndex; // ebx
-  int v1; // esi
-  eCarDesignIndex carDesignIndex2; // ecx
-  int iNumGears; // edi
-  float *pSpds; // ebx
-  int j; // ecx
-  double v6; // st7
-  int iCurrGear; // ebx
-  int iChgIdx; // ecx
-  eCarDesignIndex carDesignIndex3; // esi
-  int iRevsOffset; // ebp
-  int iNextGear; // edx
-  float fChg; // [esp+0h] [ebp-20h]
-  float fNextChg; // [esp+0h] [ebp-20h]
-  int16 i; // [esp+4h] [ebp-1Ch]
+  for (int iCarIdx = 0; iCarIdx < 14; ++iCarIdx) {
+    tCarEngine *pCar = &CarEngines.engines[iCarIdx];
+    int iNumGears = pCar->iNumGears;
 
-  for (i = 0; i < 14; ++i) {
-    carDesignIndex = (eCarDesignIndex)i;
-    v1 = 0;
-    carDesignIndex2 = CAR_DESIGN_AUTO;
-    iNumGears = CarEngines.engines[carDesignIndex].iNumGears;
-    pSpds = CarEngines.engines[carDesignIndex].pSpds;
-    while (v1 < i) {
-      if (pSpds == CarEngines.engines[carDesignIndex2].pSpds)
-        iNumGears = -1;
-      carDesignIndex2 = (eCarDesignIndex)((int)carDesignIndex2 + 1);
-      ++v1;
+    // Check for duplicate pointers in other car engines
+    int iFirstDuplicateIndex = iNumGears;
+    for (int i = 0; i < iCarIdx; ++i) {
+      if (pCar->pSpds == CarEngines.engines[i].pSpds) {
+        iFirstDuplicateIndex = -1;
+        break;
+      }
     }
-    for (j = 0; j < iNumGears; *(pSpds - 1) = (float)v6) {
-      v6 = *pSpds++ * 2.2;
-      ++j;
+
+    // If unique pointer, scale speeds by 2.2
+    if (iFirstDuplicateIndex > 0) {
+      for (int i = 0; i < iNumGears; ++i) {
+        pCar->pSpds[i] *= 2.2;
+      }
     }
-    iCurrGear = 0;
-    if (iNumGears > 0) {
-      iChgIdx = 0;
-      do {
-        carDesignIndex3 = (eCarDesignIndex)i;                    // why is this defined a second time
-        iRevsOffset = 12 * i;
-        fChg = (float)CarEngines.engines[carDesignIndex3].pChgs[iChgIdx];
-        eng_chg_revs[iChgIdx + iRevsOffset] = (float)calc_revs(CarEngines.engines[carDesignIndex3].pRevs, iCurrGear, fChg);
-        fNextChg = (float)CarEngines.engines[carDesignIndex3].pChgs[iChgIdx + 1];
-        iChgIdx += 2;
-        iNextGear = iCurrGear++;
-        eng_chg_revs[iChgIdx + iRevsOffset - 1] = (float)calc_revs(
-                                                          CarEngines.engines[carDesignIndex3].pRevs,
-                                                          iNextGear,
-                                                          fNextChg);
-      } while (iCurrGear < iNumGears);
+
+    // Compute eng_chg_revs and the next value per gear
+    for (int iGear = 0; iGear < iNumGears; ++iGear) {
+      float fChg1 = (float)pCar->pChgs[iGear];
+      eng_chg_revs[iCarIdx * 24 + iGear * 2] = calc_revs(pCar->pRevs, iGear, fChg1);
+
+      float fChg2 = (float)pCar->pChgs[iGear + 1];
+      eng_chg_revs[iCarIdx * 24 + iGear * 2 + 1] = calc_revs(pCar->pRevs, iGear, fChg2);
     }
   }
-  for (int iCarIdx = 0; iCarIdx < 14; iCarIdx++) {
-    for (int i = 0; i < CarEngines.engines[iCarIdx].iNumGears; i++) {
-      StoreEngines[iCarIdx].speeds[i] = CarEngines.engines[iCarIdx].pSpds[i];
+
+  // Copy speed data into StoreEngines
+  for (int iCarIdx = 0; iCarIdx < 14; ++iCarIdx) {
+    int iNumGears = CarEngines.engines[iCarIdx].iNumGears;
+    if (iNumGears <= 0)
+      continue;
+
+    float *pSpds = CarEngines.engines[iCarIdx].pSpds;
+    for (int iGear = 0; iGear < iNumGears; ++iGear) {
+      StoreEngines[iCarIdx].speeds[iGear] = pSpds[iGear];
     }
   }
+
   CalcCarSizes();
 }
 
