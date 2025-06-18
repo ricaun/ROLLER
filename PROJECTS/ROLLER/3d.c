@@ -460,6 +460,9 @@ void doexit()
   if (!intro)
     save_fatal_config();
 
+  //added by ROLLER
+  ShutdownSDL();
+
   //clear keyboard buffer
   //while (kbhit(iSuccess))
   //  iSuccess = getch();
@@ -1151,9 +1154,6 @@ int main(int argc, const char **argv, const char **envp)
   } while (!quit_game);
   //__asm { int     10h; -VIDEO - SET VIDEO MODE }
   doexit();
-
-  //added by ROLLER
-  ShutdownSDL();
 
   return 0;
 }
