@@ -4354,21 +4354,23 @@ void make_time(char *a1, int a2, float a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int check_machine_speed()
+void check_machine_speed()
 {
-  return 0;
-  /*
-  int v0; // edx
-  int result; // eax
+  int iCounter = 0;
+  int iTarget = frames + 4;
+  int iTimeout = frames + 13;
 
-  v0 = 0;
-  while (frames + 4 != frames)
+  // Wait until frames reaches frames + 4
+  while (frames != iTarget)
     ;
-  while (frames + 13 != frames)
-    ++v0;
-  result = v0 / 1000;
-  machine_speed = v0 / 1000;
-  return result;*/
+
+// Count how many iterations until frames reaches frames + 13
+  while (frames != iTimeout) {
+    iCounter++;
+  }
+
+  // Divide the loop count by 1000 to estimate machine speed
+  machine_speed = iCounter / 1000;
 }
 
 //-------------------------------------------------------------------------------------------------
