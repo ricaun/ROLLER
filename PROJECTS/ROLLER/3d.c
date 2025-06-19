@@ -61,7 +61,7 @@ float tcos[16384];          //00121128
 char buffer[128];           //00131228
 uint8 blank_line[640];      //001312A8
 tMemBlock mem_blocks[128];  //0013E058
-int ticks;                  //0013E92C
+volatile int ticks;         //0013E92C
 float tatn[1025];           //0013E95C
 uint32 textures_off;        //0013F960
 int tex_count;              //0013F964

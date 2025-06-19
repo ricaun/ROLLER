@@ -92,7 +92,7 @@ void *FMInstruments;        //0016F674
 int MIDIHandle;             //0016F68C
 tColor *pal_addr;           //0016F86C
 int DIGIHandle;             //0016F690
-int frames;                 //0016F694
+volatile int frames;        //0016F694
 char Song[20][15];          //0016F708
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
@@ -108,30 +108,6 @@ int numsamples;             //0016F8D0
 int cheatsample;            //0016F8D4
 int languages;              //0016F8D8
 
-//-------------------------------------------------------------------------------------------------
-/***
-* ADDED BY ROLLER
-***/
-//-------------------------------------------------------------------------------------------------
-
-uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
-{
-  tickhandler(0, 0, 0, 0);
-  ++ticks;
-  ++frames;
-  return interval;
-}
-
-uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
-{
-  ++s7;
-  return interval;
-}
-
-//-------------------------------------------------------------------------------------------------
-/***
-* END ROLLER CODE
-***/
 //-------------------------------------------------------------------------------------------------
 
 void realmode(uint8 byRealModeInterrupt)
@@ -1331,7 +1307,7 @@ void claim_ticktimer(unsigned int uiRateHz)
   /***
   * ADDED BY ROLLER
   ***/
-  tickhandle = SDL_AddTimer(uiRateHz, SDLTickTimerCallback, NULL); //may as well re-use tickhandle, it is also a uint32
+  tickhandle = ROLLERAddTimer(uiRateHz, SDLTickTimerCallback, NULL); //may as well re-use tickhandle, it is also a uint32
   /***
   * END ROLLER CODE
   ***/
@@ -3542,7 +3518,7 @@ void fade_palette(int iTargetBrightness)
   s7 = 0;
 
   if (current_mode != 0) {
-    uiTimerHandle = SDL_AddTimer(70, SDLS7TimerCallback, NULL); //added by ROLLER
+    uiTimerHandle = ROLLERAddTimer(70, SDLS7TimerCallback, NULL); //added by ROLLER
   }
 
   if (iTargetBrightness > iCurrentBrightness) {

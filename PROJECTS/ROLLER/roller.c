@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
-#include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #ifndef IS_WINDOWS
 #include <dirent.h>
@@ -21,6 +20,9 @@ static SDL_Window *s_pWindow = NULL;
 static SDL_Renderer *s_pRenderer = NULL;
 static SDL_Texture *s_pWindowTexture = NULL;
 static uint8 *s_pRGBBuffer = NULL;
+uint64 ullTargetSDLTicksNS = 0;
+uint64 ullLastSDLTicksNS = 0;
+uint64 ullCurrSDLTicksNS = 0;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -164,6 +166,41 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode)
   if (pFile) return pFile;
 
   return fopen(szLower, szMode);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *userdata)
+{
+  ullTargetSDLTicksNS = 1000000000 / uiFrequencyHz;
+  ullLastSDLTicksNS = SDL_GetTicksNS();
+  return SDL_AddTimer(HZ_TO_MS(uiFrequencyHz), callback, userdata);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+{
+  tickhandler(0, 0, 0, 0);
+  ++ticks; //TODO remove
+  ++frames; //TODO remove
+
+  ullCurrSDLTicksNS = SDL_GetTicksNS();
+  int64 llNSSinceLast = (int64)ullCurrSDLTicksNS - (int64)ullLastSDLTicksNS;
+  int64 llDelta = llNSSinceLast - (int64)ullTargetSDLTicksNS;
+  if (llDelta < 0)
+    llDelta = 0;
+  ullLastSDLTicksNS = ullCurrSDLTicksNS;
+
+  return (uint32)((ullTargetSDLTicksNS - llDelta) / 1000000);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+{
+  ++s7;
+  return interval;
 }
 
 //-------------------------------------------------------------------------------------------------

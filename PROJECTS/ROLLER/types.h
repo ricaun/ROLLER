@@ -7,6 +7,7 @@
 #define ONE_OVER_TRIG_LOOKUP_AY_COUNT 0.00006103515625
 #define ONE_OVER_TATN_LOOKUP_AY_COUNT 0.0009765625
 #define TWO_PI 6.28318530718
+#define HZ_TO_MS(x) 1000/x
 
 //-------------------------------------------------------------------------------------------------
 

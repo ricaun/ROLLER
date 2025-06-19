@@ -102,7 +102,7 @@ extern void *FMInstruments;
 extern int MIDIHandle;
 extern tColor *pal_addr;
 extern int DIGIHandle;
-extern int frames;
+extern volatile int frames;
 extern char Song[20][15];
 extern uint32 tickhandle;
 extern DPMI_RMI RMI;
