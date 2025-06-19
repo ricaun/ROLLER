@@ -85,7 +85,7 @@ uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
-int s7;                     //0016F660
+volatile int s7;            //0016F660
 void *MT32Data;             //0016F66C
 void *FMDrums;              //0016F670
 void *FMInstruments;        //0016F674

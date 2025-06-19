@@ -174,7 +174,7 @@ uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *us
 {
   ullTargetSDLTicksNS = 1000000000 / uiFrequencyHz;
   ullLastSDLTicksNS = SDL_GetTicksNS();
-  return SDL_AddTimer(HZ_TO_MS(uiFrequencyHz), callback, userdata);
+  return SDL_AddTimer(HZ_TO_MS(uiFrequencyHz), callback, userdata); //NOTE: this may be too fast since we are rounding down, ex 36Hz = 27.777777ms instead of 27ms
 }
 
 //-------------------------------------------------------------------------------------------------

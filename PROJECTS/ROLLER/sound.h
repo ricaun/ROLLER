@@ -95,7 +95,7 @@ extern uint8 *unmangledst;
 extern int unmangleoverflow;
 extern FILE *unmanglefile;
 extern int unmanglebufpos;
-extern int s7;
+extern volatile int s7;
 extern void *MT32Data;
 extern void *FMDrums;
 extern void *FMInstruments;
