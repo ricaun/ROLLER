@@ -24,6 +24,8 @@ int lastreplayframe;      //0018EE58
 int introfiles;           //0018EE70
 char newrepsample[16];    //0018DC68
 char repsample[16];       //0018DC78
+int rewinding;            //0018EE68
+int forwarding;           //0018EE6C
 
 //-------------------------------------------------------------------------------------------------
 
@@ -1513,20 +1515,25 @@ int Rforwardstart(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-void ROldStatus(int64 a1)
+void ROldStatus()
 {
-  /*
   if (replaytype == 2) {
+    // Calculate effective replay speed (direction * base speed)
     replayspeed = replaydirection * replayspeeds[replaysetspeed];
-    _disable();
+
+    //cli(); //disable interrupts
     rewinding = 0;
     forwarding = 0;
+
+    // Synchronize timing system with replay position
     ticks = currentreplayframe;
     fraction = 0;
-    if (replayspeed == 256)
-      Rplay(a1);
-    _enable();
-  }*/
+    
+    //if playing at normal speed (0x100 is 1.0 in 8.8 fixed float)
+    if (replayspeed == 0x100)
+      Rplay(); //Initialize replay playback
+    //sti() //enable interrupts
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

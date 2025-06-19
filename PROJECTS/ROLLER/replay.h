@@ -15,6 +15,8 @@ extern int lastreplayframe;
 extern int introfiles;
 extern char newrepsample[16];
 extern char repsample[16];
+extern int rewinding;
+extern int forwarding;
 
 //-------------------------------------------------------------------------------------------------;
 
@@ -32,7 +34,7 @@ int DoRstop(int a1, int a2);
 int Rstop();
 int Rrewindstart(int a1, int a2);
 int Rforwardstart(int a1, int a2);
-void ROldStatus(int64 a1);
+void ROldStatus();
 int Rstart(int a1, unsigned int a2, int a3, unsigned int a4);
 int Rend(int a1, unsigned int a2, int a3, unsigned int a4);
 unsigned int readdisable(int a1);
