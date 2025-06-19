@@ -55,9 +55,9 @@ int SongPtr = 0;            //000A47A0
 int SongHandle = 0;         //000A47A4
 int CDSong[20] = { 10, 10, 10, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0 }; //000A47A8
 int GMSong[21] = { 0, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0 }; //000A47F8
-tSampleData SampleData = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 18176, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1701995379 } }; //000A484C
-tSampleData SampleFixed = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A48C4
-tSampleData SamplePanned = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A493C
+tSampleData SampleData = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 18176, 0, 0, 0 }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1701995379 } }; //000A484C
+tSampleData SampleFixed = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 256, 0, 0, 0, }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A48C4
+tSampleData SamplePanned = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 768, 0, 0, 0, }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A493C
 int Joy1used = 0;           //000A4A0C
 int Joy2used = 0;           //000A4A0C
 int x1ok = 0;               //000A4A30
@@ -2691,50 +2691,42 @@ void sfxsample(int iSample, int iVol)
 
 //-------------------------------------------------------------------------------------------------
 
-int sample2(
-        int64 rax0,
-        int ecx0,
-        int ebx0,
-        int64 a1,
-        int a2,
-        int a3,
-        int a4,
-        int a5)
+void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan, int iHandleOffset)
 {
-  return 0; /*
-  int v8; // esi
-  int v9; // edi
-  int v10; // ecx
-  int v12; // [esp+0h] [ebp-14h]
+  if (!soundon || paused || !SamplePtr[iSampleIndex]) {
+    return;
+  }
 
-  v8 = rax0;
-  if (soundon) {
-    if (!paused) {
-      LODWORD(rax0) = 4 * rax0;
-      v9 = rax0 + (HIDWORD(rax0) << 6);
-      if (*(int *)((char *)SampleHandleCar + v9) == -1) {
-        SampleData_variable_5 = HIDWORD(rax0);
-        SampleData_variable_6 = ecx0;
-        v12 = SamplePtr[HIDWORD(rax0)];
-        SampleData_variable_2 = SampleLen[HIDWORD(rax0)];
-        SampleData_variable_1 = __DS__;
-        SampleData_variable_7 = a1;
-        SampleData = v12;
-        SampleData_variable_3 = HIDWORD(a1);
-        SampleData_variable_4 = ebx0;
-        rax0 = sosDIGIStartSample(DIGIHandle, HIDWORD(rax0), &SampleData, __DS__);
-        *(int *)((char *)SampleHandleCar + v9) = rax0;
-        if ((_DWORD)rax0 != -1) {
-          v10 = HandleSample[(_DWORD)rax0];
-          if (v10 != -1)
-            SampleHandleCar[16 * v10 + HandleCar[(_DWORD)rax0]] = -1;
-          HandleSample[(_DWORD)rax0] = HIDWORD(rax0);
-          HandleCar[(_DWORD)rax0] = v8;
-        }
+  // Only proceed if no sample is currently playing in this slot
+  if (SampleHandleCar[iSampleIndex].handles[iCarIndex] != -1) {
+    // Prepare sample data structure
+    //SampleData.unSegment = 0;
+    SampleData.iSampleIndex = iSampleIndex;
+    SampleData.iPitch = iPitch;
+    SampleData.pSample = SamplePtr[iSampleIndex];
+    SampleData.iLength = SampleLen[iSampleIndex];
+    SampleData.iPan = iPan;
+    SampleData.iHandleOffset = iHandleOffset;
+    SampleData.iVolume = iVolume;
+
+    // Start sample playback
+    int iNewHandle = -1;// sosDIGIStartSample_(DIGIHandle, iHandlePos, &SampleData);
+
+    // Store new hhandle
+    SampleHandleCar[iSampleIndex].handles[iCarIndex] = iNewHandle;
+
+    if (iNewHandle != -1) {
+      // Clear any previous assignment of this handle
+      if (HandleSample[iNewHandle] != -1) {
+        int iPrevCar = HandleCar[iNewHandle];
+        SampleHandleCar[HandleSample[iNewHandle]].handles[iPrevCar] = -1;
       }
+
+      // Update handle tracking arrays
+      HandleSample[iNewHandle] = iSampleIndex;
+      HandleCar[iNewHandle] = iCarIndex;
     }
   }
-  return rax0;*/
 }
 
 //-------------------------------------------------------------------------------------------------

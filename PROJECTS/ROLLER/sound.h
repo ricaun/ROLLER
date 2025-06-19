@@ -30,11 +30,15 @@ typedef struct
   void *pSample;
   uint16 unSegment;
   int iLength;
-  int iUnk1;
+  int iHandleOffset;
   int iUnk2;
   int iVolume;
   int iSampleIndex;
-  int unused[23];
+  int unknown[7];
+  int iPitch;
+  int iUnk3;
+  int iPan;
+  int unknown2[13];
 } tSampleData;
 
 //-------------------------------------------------------------------------------------------------
@@ -161,15 +165,7 @@ void *remove_frontendspeech();
 int sfxplaying(int a1);
 int cheatsampleok(int a1);
 void sfxsample(int iSample, int iVol);
-int sample2(
-        int64 rax0,
-        int ecx0,
-        int ebx0,
-        int64 a1,
-        int a2,
-        int a3,
-        int a4,
-        int a5);
+void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan, int iHandleOffset);
 int sfxpend(int a1, int a2, int a3);
 int enginesounds2(int result, int a2);
 int enginesounds(int result);
