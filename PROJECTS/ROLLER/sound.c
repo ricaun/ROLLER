@@ -78,7 +78,8 @@ char SampleExt[64];         //0016310A
 int HandleCar[32];          //00163B8C
 int HandleSample[32];       //00163C0C
 int car_to_player[8][2];    //0016748C
-int copy_multiple[8192];    //0016764C
+int player_to_car[16];      //001674CC
+int copy_multiple[512][16]; //0016764C
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
@@ -1344,7 +1345,7 @@ void claim_ticktimer(unsigned int uiRateHz)
     (unsigned int)&tickhandle,
     (unsigned __int16)__DS__)) {
     printf("Unable to set timer\n");
-    doexit(1, a2, tickhandler);
+    doexit();
   }*/
 }
 

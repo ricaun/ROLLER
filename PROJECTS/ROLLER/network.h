@@ -4,13 +4,31 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint32 uiUnk1;
+  uint32 uiId;
+  uint8 byConsoleNode;
+  uint16 unFrameId;
+} tSyncHeader;
+
+//-------------------------------------------------------------------------------------------------
+
+extern int net_type;
 extern int net_started;
+extern int test_mini[2];
+extern int test_multiple[16];
 extern int net_players[16];
 extern int16 player_checks[8192];
 extern int player_ready[16];
+extern int syncptr;
+extern int syncleft;
+extern int syncnode;
+extern int syncframe;
 extern int received_seed;
 extern int frame_number;
 extern int broadcast_mode;
+extern tSyncHeader in_header;
 extern int active_nodes;
 extern int16 wConsoleNode;
 

@@ -4,16 +4,24 @@
 #include "func3.h"
 #include "frontend.h"
 #include "moving.h"
+#include "car.h"
 //-------------------------------------------------------------------------------------------------
 
 int net_type = 1;           //000A6104
 int net_started = 0;        //000A610C
+int test_mini[2];           //001786C0
+int test_multiple[16];      //001786C8
 int net_players[16];        //00178718
 int16 player_checks[8192];  //00178758
 int player_ready[16];       //0017C858
+int syncptr;                //0017C928
+int syncleft;               //0017C92C
+int syncnode;               //0017C930
+int syncframe;              //0017C934
 int received_seed;          //0017C938
 int frame_number;           //0017C940
 int broadcast_mode;         //0017C984
+tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
 int16 wConsoleNode;         //0017C9DA
 
@@ -1125,69 +1133,54 @@ void receive_all_singles()
 
 //-------------------------------------------------------------------------------------------------
 
-void do_sync_stuff()
-{/*
-  int v0; // esi
-  char v1; // al
-  int v2; // edx
-  int v3; // eax
-  int *v4; // edx
-  int v5; // ebx
-  int v6; // eax
-  char v7; // al
-  _DWORD *v8; // edx
-  int i; // eax
-  int v10; // ebx
-  int v11; // eax
+void do_sync_stuff(void)
+{
+  int *pCopy;
+  uint8 byConsoleNode = (uint8)wConsoleNode;
+  uint16 unFrame = syncframe;
 
-  v0 = syncptr;
-  if (net_type) {
-    do {
-      if (!syncleft)
-        break;
-      v7 = wConsoleNode;
-      *((_DWORD *)&in_header + 1) = 1751933798;
-      *((_BYTE *)&in_header + 8) = v7;
-      v8 = &test_mini;
-      *((_WORD *)&in_header + 5) = syncframe;
-      for (i = 0; i < 2; ++i) {
-        ++v8;
-        v10 = copy_multiple[16 * v0 + player_to_car[i]];
-        *(v8 - 1) = v10;
-      }
-      syncptr = v0;
-      v11 = gssCommsSendData(syncnode);
-      v0 = ((_WORD)syncptr + 1) & 0x1FF;
-      --syncleft;
-      ++syncframe;
-    } while (v11);
+  if (net_type == 0) {
+    // Full sync: send all cars to all nodes
+    while (syncleft > 0) {
+      in_header.uiId = 0x686C6366;
+      in_header.byConsoleNode = byConsoleNode;
+      in_header.unFrameId = unFrame;
+
+      // Pack data for all cars
+      pCopy = test_multiple;
+      for (int i = 0; i < numcars; i++)
+        *pCopy++ = copy_multiple[syncptr][player_to_car[i]];
+
+      // Send 64 bytes (16 * 4-byte ints)
+      //if (!gssCommsSendData(&in_header, 12, syncnode, test_multiple, 64))
+      //  break;
+
+      syncptr = (syncptr + 1) & 0x1FF; // wrap around 512
+      syncframe++;
+      syncleft--;
+    }
   } else {
-    while (syncleft) {
-      v1 = wConsoleNode;
-      *((_DWORD *)&in_header + 1) = 1751933798;
-      *((_BYTE *)&in_header + 8) = v1;
-      v2 = numcars;
-      *((_WORD *)&in_header + 5) = syncframe;
-      v3 = 0;
-      if (v2 > 0) {
-        v4 = (int *)&test_multiple;
-        do {
-          v5 = copy_multiple[16 * v0 + v3++];
-          *v4++ = v5;
-        } while (v3 < numcars);
+    // Minimal sync: send only player-to-car pairs
+    while (syncleft > 0) {
+      in_header.uiId = 0x686C6366;
+      in_header.byConsoleNode = byConsoleNode;
+      in_header.unFrameId = unFrame;
+
+      // Pack data for player-to-car mappings
+      pCopy = test_mini;
+      for (int i = 0; i < 2; i++) {
+        *pCopy++ = copy_multiple[syncptr][player_to_car[i]];
       }
-      syncptr = v0;
-      v6 = gssCommsSendData(syncnode);
-      v0 = ((_WORD)syncptr + 1) & 0x1FF;
-      --syncleft;
-      ++syncframe;
-      if (!v6) {
-        syncptr = ((_WORD)syncptr + 1) & 0x1FF;
-        return;
-      }
+
+      // Send 8 bytes (2 * 4-byte ints)
+      //if (!gssCommsSendData(&in_header, 12, syncnode, test_mini, 8))
+      //  break;
+
+      syncptr = (syncptr + 1) & 0x1FF;
+      syncframe++;
+      syncleft--;
     }
   }
-  syncptr = v0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
