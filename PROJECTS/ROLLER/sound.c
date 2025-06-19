@@ -3694,7 +3694,7 @@ void convertname(char *szFilename)
   if (language != 0) {
     char *szExt = strstr(szFilename, ".RAW");
     if (szExt) {
-      const char *szLangExt = (const char *)SampleExt[language];
+      const char *szLangExt = (const char *)SampleExt + language * 4;
       strcpy(szExt + 1, szLangExt);
 
       FILE *fp = ROLLERfopen(szFilename, "rb");

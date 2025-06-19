@@ -4363,7 +4363,7 @@ void load_language_file(const char *szFilename, int iUseConfigBuffer)
   szExt = strstr(szFilename, ".eng");
 
   // get translation text extension string based on language index
-  szTextExt = (char *)TextExt[language];
+  szTextExt = (char *)TextExt + language * 4;
 
   // copy this text extension after the ".eng" part in the filename
   szFileExt = szExt + 1;  // skip the dot
