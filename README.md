@@ -17,6 +17,10 @@ Note: wdump symbol offsets do not account for DOS4GW.EXE. Load FATAL.EXE_split_d
 * SDL3.2.14: https://github.com/libsdl-org/SDL
 * SDL_Image3.2.4: https://github.com/libsdl-org/SDL_image
 
+## Installation
+
+Assets from a retail copy of the game are required to run. Drop the contents of the build directory (bin or zig-out) into the Whiplash/Fatal Racing install directory. ROLLER.exe should be in the same directory as WHIP.EXE/FATAL.EXE.
+
 ## Build MSVC
 1. Clone repository
 2. Open ROLLER.sln
@@ -51,14 +55,6 @@ The easiest way to install is to use [mise](https://mise.jdx.dev/):
 ```bash
 mise install
 ```
-
-### Provide assets
-
-Assets from a retail copy of the game are required to run. You can use either of these two options:
-
-  1. Copy the `fatdata` folder to the project folder
-  2. Run `roller` with the `fatdata` folder as the current working directory
-
 ### Build and run the project
 
 Using default settings
