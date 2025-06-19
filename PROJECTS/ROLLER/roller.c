@@ -133,7 +133,7 @@ void UpdateSDL()
         if (e.key.key == SDLK_ESCAPE) {
           quit_game = 1;
         } else if (e.key.key == SDLK_SPACE) {
-          PlayAudioSampleWait(88); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
+          PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
         } else if (e.key.key == SDLK_F11) {
           ToggleFullscreen();
         } else if (e.key.key == SDLK_RETURN) {
