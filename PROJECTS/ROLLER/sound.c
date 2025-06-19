@@ -67,6 +67,9 @@ int y2ok = 0;               //000A4A3C
 int bitaccept = 0;          //000A4A40
 int holdmusic = 0;          //000A4A4C
 uint8 unmangleinbuf[1024];  //00149EF0
+int lastvolume[16];         //001603F8
+int lastpitch[16];          //00160438
+int lastpan[16];            //00160478
 uint32 SampleLen[120];      //00160560
 uint8 *SamplePtr[120];      //00160750
 tSampleHandleCar SampleHandleCar[120]; //00160930
@@ -2691,7 +2694,7 @@ void sfxsample(int iSample, int iVol)
 
 //-------------------------------------------------------------------------------------------------
 
-void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan, int iHandleOffset)
+void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan, int iByteOffset)
 {
   if (!soundon || paused || !SamplePtr[iSampleIndex]) {
     return;
@@ -2706,7 +2709,7 @@ void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan,
     SampleData.pSample = SamplePtr[iSampleIndex];
     SampleData.iLength = SampleLen[iSampleIndex];
     SampleData.iPan = iPan;
-    SampleData.iHandleOffset = iHandleOffset;
+    SampleData.iByteOffset = iByteOffset;
     SampleData.iVolume = iVolume;
 
     // Start sample playback
@@ -3025,68 +3028,55 @@ int enginesounds(int result)
 
 //-------------------------------------------------------------------------------------------------
 
-int loopsample(int result, unsigned int a2, int a3, int a4, int a5)
+void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
 {
-  return 0; /*
-  unsigned int v5; // ebp
-  unsigned int v7; // ebx
-  int v8; // esi
-  int v9; // ecx
-  unsigned int v10; // ebp
-  __int64 v11; // [esp-8h] [ebp-18h]
-  int v12; // [esp+0h] [ebp-10h]
-  int v13; // [esp+4h] [ebp-Ch]
-  int v14; // [esp+8h] [ebp-8h]
-  int v15; // [esp+Ch] [ebp-4h]
-  int v16; // [esp+14h] [ebp+4h]
-
-  v5 = result;
-  if (soundon && SamplePtr[a2]) {
-    v7 = 4 * result + (a2 << 6);
-    if (*(int *)((char *)SampleHandleCar + v7) != -1 && !a3)
-      goto LABEL_9;
-    result = a2 << 6;
-    v7 = (a2 << 6) + 4 * v5;
-    if (*(int *)((char *)SampleHandleCar + v7) == -1) {
-      if (a3) {
-        HIDWORD(v11) = *(int *)((char *)SampleHandleCar + v7);
-        LODWORD(v11) = a5;
-        return sample2(__SPAIR64__(a2, v5), a4, a3, v11, v12, v13, v14, v15);
-      }
-      return result;
-    }
-    if (!a3) {
-    LABEL_9:
-      sosDIGIStopSample(DIGIHandle);
-      result = *(int *)((char *)SampleHandleCar + v7);
-      HandleSample[result] = -1;
-      *(int *)((char *)SampleHandleCar + v7) = -1;
-      return result;
-    }
-    if (a4 < 2048)
-      a4 = 2048;
-    if (a4 > 0x80000)
-      a4 = 0x80000;
-    v8 = a3 >> 10;
-    v9 = a4 >> 10;
-    v16 = a5 >> 12;
-    if (v8 != lastvolume[v5]) {
-      sosDIGISetSampleVolume(DIGIHandle, SampleHandleCar[16 * a2 + v5], v8 << 10, v9);
-      lastvolume[v5] = v8;
-    }
-    if (v9 != lastpitch[v5]) {
-      sosDIGISetPitch(DIGIHandle, SampleHandleCar[16 * a2 + v5], v9 << 10);
-      lastpitch[v5] = v9;
-    }
-    v10 = v5;
-    result = v16;
-    if (v16 != lastpan[v10]) {
-      sosDIGISetPanLocation(DIGIHandle, SampleHandleCar[16 * a2 + v10], v16 << 12);
-      result = v16;
-      lastpan[v10] = v16;
-    }
+  if (!soundon || !SamplePtr[iSampleIdx]) {
+    return;
   }
-  return result;*/
+
+  // Calculate handle array position
+  int iHandle = SampleHandleCar[iSampleIdx].handles[iCarIdx];
+
+  if (iHandle != -1) {
+    if (iVolume == 0) {
+      // Stop playing sample
+      sosDIGIStopSample(DIGIHandle, iHandle);
+      HandleSample[iHandle] = -1;
+      SampleHandleCar[iSampleIdx].handles[iCarIdx] = -1;
+      return;
+    } else {
+      // Clamp pitch value between 0x800 and 0x80000
+      if (iPitch < 0x800) iPitch = 0x800;
+      if (iPitch > 0x80000) iPitch = 0x80000;
+
+      // Convert parameters to fixed-point format
+      int iVolFixed = iVolume >> 10;        // Convert to 10.6 fixed-point
+      int iPitchFixed = iPitch >> 10;       // Convert to 10.6 fixed-point
+      int iPanFixed = iPan >> 12;           // Convert to 4.12 fixed-point
+
+      // Update volume if changed
+      if (iVolFixed != lastvolume[iCarIdx]) {
+        //sosDIGISetSampleVolume(DIGIHandle, handle, iVolFixed << 10);
+        lastvolume[iCarIdx] = iVolFixed;
+      }
+
+      // Update pitch if changed
+      if (iPitchFixed != lastpitch[iCarIdx]) {
+        //sosDIGISetPitch(DIGIHandle, handle, iPitchFixed << 10);
+        lastpitch[iCarIdx] = iPitchFixed;
+      }
+
+      // Update pan if changed
+      if (iPanFixed != lastpan[iCarIdx]) {
+        //sosDIGISetPanLocation(DIGIHandle, handle, iPanFixed << 12);
+        lastpan[iCarIdx] = iPanFixed;
+      }
+    }
+  } else if (iVolume != 0) {
+    // Start new sample playback - calculate byte offset for audio system
+    int iByteOffset = (iSampleIdx << 6) + (iCarIdx << 2);
+    sample2(iCarIdx, iSampleIdx, iVolume, iPitch, iPan, iByteOffset);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
