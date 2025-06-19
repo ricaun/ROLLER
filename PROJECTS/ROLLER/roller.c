@@ -200,7 +200,15 @@ uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval
 uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
 {
   ++s7;
-  return interval;
+
+  ullCurrSDLTicksNS = SDL_GetTicksNS();
+  int64 llNSSinceLast = (int64)ullCurrSDLTicksNS - (int64)ullLastSDLTicksNS;
+  int64 llDelta = llNSSinceLast - (int64)ullTargetSDLTicksNS;
+  if (llDelta < 0)
+    llDelta = 0;
+  ullLastSDLTicksNS = ullCurrSDLTicksNS;
+
+  return (uint32)((ullTargetSDLTicksNS - llDelta) / 1000000);
 }
 
 //-------------------------------------------------------------------------------------------------
