@@ -4,10 +4,17 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern int replayspeeds[9];
+extern int replaysetspeed;
+extern int replaydirection;
+extern int lastfile;
+extern int lastautocut;
 extern int replayspeed;
 extern int currentreplayframe;
 extern int lastreplayframe;
 extern int introfiles;
+extern char newrepsample[16];
+extern char repsample[16];
 
 //-------------------------------------------------------------------------------------------------;
 
@@ -15,7 +22,7 @@ void setreplaytrack();
 int startreplay();
 void stopreplay(int a1, int a2, int a3, int a4);
 int DoReplayData(int a1, int a2, int a3, int a4);
-void Rplay(int64 a1);
+void Rplay();
 int Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4);
 int Rframeplus(int a1, int a2);
 int Rframeminus(int a1, int a2);

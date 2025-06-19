@@ -2,6 +2,7 @@
 #include "sound.h"
 #include "car.h"
 #include "3d.h"
+#include "moving.h"
 #include <stdio.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -12,10 +13,17 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
-int replayspeed;        //0018EE40
-int currentreplayframe; //0018EE54
-int lastreplayframe;    //0018EE58
-int introfiles;         //0018EE70
+int replayspeeds[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 }; //000A63BC
+int replaysetspeed = 0;   //000A6414
+int replaydirection = 0;  //000A6418
+int lastfile = -1;        //000A641C
+int lastautocut = -1;     //000A6420
+int replayspeed;          //0018EE40
+int currentreplayframe;   //0018EE54
+int lastreplayframe;      //0018EE58
+int introfiles;           //0018EE70
+char newrepsample[16];    //0018DC68
+char repsample[16];       //0018DC78
 
 //-------------------------------------------------------------------------------------------------
 
@@ -1292,18 +1300,27 @@ int DoReplayData(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void Rplay(int64 a1)
+void Rplay()
 {
-  /*
   if (replaytype == 2) {
-    sfxsample(a1);
+    // Play sound effect sample 83 at 50% volume (0x8000)
+    // Volume 0x8000 = 32768, which is 50 % of full 16-bit volume
+    sfxsample(83, 0x8000);
+
+    // Init replay state
     replaydirection = 1;
     lastautocut = -1;
+
+    // Set replay speed
     replayspeed = replayspeeds[replaysetspeed];
-    qmemcpy(repsample, newrepsample, sizeof(repsample));
-    if (replayspeed == 256)
+    
+    // copy newrepsample into repsample
+    memcpy(repsample, newrepsample, sizeof(repsample));
+    
+    // Initialize sound timing if playing at normal speed (0x100 is 1.0 in 8.8 fixed float)
+    if (replayspeed == 0x100)
       initsoundlag(currentreplayframe);
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
