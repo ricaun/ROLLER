@@ -43,6 +43,28 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iPitch1;
+  int iVolume1;
+  int iPitch2;
+  int iVolume2;
+  int iPitch3;
+  int iVolume3;
+  int iPan;
+} tEngineSoundData;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int header[6];
+  tEngineSoundData engineSoundData[6];
+  int remaining[176];
+} tCarSoundData;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int samplespending;
 extern int writesample;
 extern int readsample;
@@ -75,6 +97,7 @@ extern int CDSong[20];
 extern int GMSong[21];
 extern int Joy1used;
 extern int Joy2used;
+extern int fraction;
 extern int x1ok;
 extern int y1ok;
 extern int x2ok;
@@ -94,6 +117,7 @@ extern char TextExt[64];
 extern char SampleExt[64];
 extern int HandleCar[32];
 extern int HandleSample[32];
+extern tCarSoundData enginedelay[16];
 extern int car_to_player[8][2];
 extern int player_to_car[16];
 extern int copy_multiple[512][16];

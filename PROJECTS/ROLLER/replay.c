@@ -1,4 +1,7 @@
 #include "replay.h"
+#include "sound.h"
+#include "car.h"
+#include "3d.h"
 #include <stdio.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -9,7 +12,10 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
-int introfiles; //0018EE70
+int replayspeed;        //0018EE40
+int currentreplayframe; //0018EE54
+int lastreplayframe;    //0018EE58
+int introfiles;         //0018EE70
 
 //-------------------------------------------------------------------------------------------------
 
@@ -3795,42 +3801,33 @@ int discmenu(int a1, unsigned int a2, int a3, unsigned int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int initsoundlag(int a1)
+void initsoundlag(uint32 uiTicks)
 {
-  return 0; /*
-  int v2; // esi
-  int result; // eax
-  int v4; // ebx
-  int v5; // ecx
+  //cli();  // Disable interrupts
 
-  _disable();
-  v2 = numcars;
   delayread = 0;
-  result = 6;
   delaywrite = 6;
-  v4 = 0;
-  if (numcars > 0) {
-    v5 = 168;
-    do {
-      result = 896 * v4;
-      do {
-        result += 28;
-        *(int *)((char *)&HandleSample_variable_2 + result) = -1;
-        *(int *)((char *)&HandleSample_variable_3 + result) = -1;
-        *(int *)((char *)&HandleSample_variable_4 + result) = -1;
-      } while (result != v5);
-      ++v4;
-      v5 += 896;
-    } while (v4 < v2);
+
+  int iNumCars = numcars;
+  if (iNumCars > 16) iNumCars = 16;
+
+  for (int iCarIdx = 0; iCarIdx < iNumCars; iCarIdx++) {
+    // Initialize all 6 entries for this car
+    for (int iEntryIdx = 0; iEntryIdx < 6; iEntryIdx++) {
+      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iPitch1 = -1;
+      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iPitch2 = -1;
+      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iPitch3 = -1;
+    }
   }
-  ticks = a1;
+
+  // Initialize timing system
+  ticks = uiTicks;
   fraction = 0;
-  currentreplayframe = a1;
-  lastreplayframe = a1;
-  numcars = v2;
-  replayspeed = 256;
-  _enable();
-  return result;*/
+  currentreplayframe = uiTicks;
+  lastreplayframe = uiTicks;
+  replayspeed = 0x100;  // 1.0x speed
+
+  //sti();  // Enable interrupts
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -60,6 +60,7 @@ tSampleData SampleFixed = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 256, 0, 0, 0
 tSampleData SamplePanned = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 768, 0, 0, 0, }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A493C
 int Joy1used = 0;           //000A4A0C
 int Joy2used = 0;           //000A4A0C
+int fraction = 0;           //000A4A14
 int x1ok = 0;               //000A4A30
 int y1ok = 0;               //000A4A34
 int x2ok = 0;               //000A4A38
@@ -80,6 +81,7 @@ char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
 int HandleCar[32];          //00163B8C
 int HandleSample[32];       //00163C0C
+tCarSoundData enginedelay[16]; //00163C8C
 int car_to_player[8][2];    //0016748C
 int player_to_car[16];      //001674CC
 int copy_multiple[512][16]; //0016764C
@@ -3040,7 +3042,7 @@ void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
   if (iHandle != -1) {
     if (iVolume == 0) {
       // Stop playing sample
-      sosDIGIStopSample(DIGIHandle, iHandle);
+      //sosDIGIStopSample(DIGIHandle, iHandle);
       HandleSample[iHandle] = -1;
       SampleHandleCar[iSampleIdx].handles[iCarIdx] = -1;
       return;

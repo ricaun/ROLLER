@@ -4,6 +4,9 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern int replayspeed;
+extern int currentreplayframe;
+extern int lastreplayframe;
 extern int introfiles;
 
 //-------------------------------------------------------------------------------------------------;
@@ -64,7 +67,7 @@ int replaypanelletter(int result, int *a2, int *a3, int a4);
 int replaypanelstring(const char *a1, int a2, int a3, int a4);
 int displaypaneltime(int a1, int a2, int a3, int a4);
 int discmenu(int a1, unsigned int a2, int a3, unsigned int a4);
-int initsoundlag(int a1);
+void initsoundlag(uint32 uiTicks);
 void resetsmoke();
 
 //-------------------------------------------------------------------------------------------------
