@@ -160,7 +160,7 @@ int frontendsample(int a1);
 void *remove_frontendspeech();
 int sfxplaying(int a1);
 int cheatsampleok(int a1);
-int sfxsample(int64 a1);
+void sfxsample(int iSample, int iVol);
 int sample2(
         int64 rax0,
         int ecx0,

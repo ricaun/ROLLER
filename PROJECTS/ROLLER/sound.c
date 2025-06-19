@@ -2632,52 +2632,62 @@ int cheatsampleok(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int sfxsample(int64 a1)
+void sfxsample(int iSample, int iVol)
 {
-  return 0; /*
-  int v1; // ebx
-  int v2; // esi
-  int v3; // ebx
-  int v4; // ecx
+  if (SamplePtr[iSample] == 0)
+    return;
 
-  v1 = HIDWORD(a1);
-  v2 = a1;
-  if (SamplePtr[(_DWORD)a1]) {
-    if (SHIDWORD(a1) > 0x7FFF)
-      v1 = 0x7FFF;
-    LODWORD(a1) = v1 * SFXVolume / 127;
-    v3 = a1;
-    if (soundon && !paused) {
-      v4 = SampleHandleCar[16 * v2];
-      if (v4 != -1) {
-        _disable();
-        if (!sosDIGISampleDone(DIGIHandle, SampleHandleCar[16 * v2])) {
-          sosDIGIStopSample(DIGIHandle);
-          SampleHandleCar[16 * v2] = -1;
-          HandleSample[v4] = -1;
-        }
-        _enable();
-      }
-      SampleFixed_variable_1 = __DS__;
-      SampleFixed_variable_4 = v2;
-      SampleFixed_variable_3 = v3;
-      SampleFixed = SamplePtr[v2];
-      SampleFixed_variable_2 = SampleLen[v2];
-      _disable();
-      a1 = sosDIGIStartSample(DIGIHandle, v2 << 6, &SampleFixed, __DS__);
-      *(int *)((char *)SampleHandleCar + HIDWORD(a1)) = a1;
-      _enable();
-      if ((_DWORD)a1 != -1) {
-        HIDWORD(a1) = HandleSample[(_DWORD)a1];
-        if (HIDWORD(a1) != -1)
-          SampleHandleCar[16 * HIDWORD(a1) + HandleCar[(_DWORD)a1]] = -1;
-        HandleSample[(_DWORD)a1] = v2;
-        HandleCar[(_DWORD)a1] = 0;
-      }
-    }
+  // Clamp volume to maximum 0x7FFF
+  if (iVol > 0x7FFF)
+    iVol = 0x7FFF;
+
+  // Scale volume using SFXVolume
+  int iScaledVol = (SFXVolume * iVol) / 127;
+  
+  // Check if sound is disabled or paused
+  if (!soundon || paused)
+    return;
+
+  // Stop any currently playing sample for this index
+  int iOldHandle = SampleHandleCar[iSample].handles[0];
+  if (iOldHandle != -1) {
+    // cli(); Disable interrupts
+    //if (!sosDIGISampleDone(DIGIHandle, iOldHandle)) {
+    //  sosDIGIStopSample(DIGIHandle, iOldHandle);
+    //  SampleHandleCar[iSample].handles[0] = -1;
+    //  HandleSample[oldHandle] = -1;
+    //}
+    // sti(); Enable interrupts
   }
-  return a1;*/
+
+  // Prepare sample data
+  //SampleFixed.unSegment = ds;
+  SampleFixed.iSampleIndex = iSample;
+  SampleFixed.iVolume = iScaledVol;
+  SampleFixed.pSample = SamplePtr[iSample];
+  SampleFixed.iLength = SampleLen[iSample];
+
+  // cli(); Disable interrupts
+  // Calculate offset in SampleHandleCar array (64 bytes per element)
+  //int iHandleOffset = iSample << 6;
+  int iNewHandle = -1;// sosDIGIStartSample(DIGIHandle, iHandleOffset, &SampleFixed);
+  // Store new handle
+  SampleHandleCar[iSample].handles[0] = iNewHandle;
+  // sti(); Enable interrupts
+    
+  // Clear previous sample association if handle was reused
+  if (iNewHandle == -1)
+    return;
+  if (HandleSample[iNewHandle] != -1) {
+    int iPrevCar = HandleCar[iNewHandle];
+    SampleHandleCar[HandleSample[iNewHandle]].handles[iPrevCar] = -1;
+  }
+
+  // Update handle tracking arrays
+  HandleSample[iNewHandle] = iSample;
+  HandleCar[iNewHandle] = 0; // Always use first slot in handles array
 }
+
 
 //-------------------------------------------------------------------------------------------------
 
