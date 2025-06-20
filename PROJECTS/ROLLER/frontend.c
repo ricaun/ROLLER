@@ -5660,6 +5660,9 @@ LABEL_85:
 
 void loadcheatnames()
 {
+#ifndef IS_WINDOWS
+return;
+#endif
   char buffer[0x400]; // Temporary buffer for file contents
   int iFileHandle;
   FILE *fp;
