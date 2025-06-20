@@ -122,8 +122,8 @@ void title_screens()
   if ((cheat_mode & 0x202) != 0)
     waitsampledone(SOUND_SAMPLE_FATAL);
 #if _DEBUG
-  loadtracksample(16);
-  frontendsample(0x8000);
+  //loadtracksample(1);
+  //frontendsample(0x8000);
 #endif
   fre(&front_vga[0]);
   freefatalsample();

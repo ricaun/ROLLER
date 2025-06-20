@@ -160,7 +160,10 @@ void UpdateSDL()
         if (e.key.key == SDLK_ESCAPE) {
           quit_game = 1;
         } else if (e.key.key == SDLK_SPACE) {
-          PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
+          //PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
+          PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
+          PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
+          PlayAudioSampleWait(SOUND_SAMPLE_GO);
         } else if (e.key.key == SDLK_F11) {
           ToggleFullscreen();
         } else if (e.key.key == SDLK_RETURN) {
@@ -282,9 +285,6 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
     SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
     return;
   }
-
-  int chmap[2] = { -1, 0 };
-  SDL_SetAudioStreamOutputChannelMap(stream, chmap, 2); // pan
 
   float volume = 0.5f;
   SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
