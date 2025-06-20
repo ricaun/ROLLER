@@ -176,6 +176,90 @@ void UpdateSDL()
 }
 
 //-------------------------------------------------------------------------------------------------
+#define NUM_DIGI_STREAMS 32
+SDL_AudioStream *digi_stream[NUM_DIGI_STREAMS];
+
+int DIGISampleStart(tSampleData *data)
+{
+  int index = -1;
+  for (int i = 0; i < NUM_DIGI_STREAMS; ++i) {
+    if (!digi_stream[i] || DIGISampleDone(i)) {
+      index = i;
+      break;
+    }
+  }
+  if (index < 0) {
+    SDL_Log("No available audio stream slots for digital sample.");
+    return index; // No available stream slots
+  }
+
+  float volume = (float)data->iVolume / 0x7FFF; // Convert volume to [0.0, 1.0] range
+  // show data info
+  SDL_Log("ROLLER_DIGIStartSample: %i, length: %i, offset: %i, volume: %f, pitch: %i, pan: %i", data->iSampleIndex, data->iLength, data->iByteOffset, volume, data->iPitch, data->iPan);
+
+  if (!digi_stream[index]) {
+    SDL_AudioSpec spec;
+    spec.channels = 1; // Mono
+    spec.freq = 11025; // Sample rate
+    spec.format = SDL_AUDIO_U8; // 8-bit unsigned audio
+    SDL_Log("ROLLER_DIGIStartSample: channels: %i, freq: %i, format: %i", spec.channels, spec.freq, spec.format);
+    digi_stream[index] = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
+    if (!digi_stream[index]) {
+      SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
+      return -1;
+    }
+  }
+
+  SDL_AudioDeviceID device = SDL_GetAudioStreamDevice(digi_stream[index]);
+  SDL_Log("ROLLER_DIGIStartSample: device: %u", device);
+
+  // Set pitch in the stream
+  SDL_SetAudioStreamFrequencyRatio(digi_stream[index], 1.0); // pitch
+
+  // Set the gain for the audio stream
+  SDL_SetAudioStreamGain(digi_stream[index], volume); 
+
+  // Put audio data into the stream
+  SDL_PutAudioStreamData(digi_stream[index], ((Uint8 *)data->pSample), data->iLength);
+  SDL_ResumeAudioStreamDevice(digi_stream[index]);
+
+  SDL_Log("ROLLER_DIGIStartSample: index: %d", index);
+  return index;
+}
+
+/// <summary>
+/// Check if a digital sample is done playing.
+/// </summary>
+/// <param name="index"></param>
+boolean DIGISampleDone(int index)
+{
+  return DIGISampleAvailable(index) == 0;
+}
+
+int DIGISampleAvailable(int index)
+{
+  if (index < 0 || index >= NUM_DIGI_STREAMS) {
+    return 0;
+  }
+  if (digi_stream[index]) {
+    return SDL_GetAudioStreamAvailable(digi_stream[index]);
+  }
+  return 0;
+}
+
+void DIGISampleClear(int index)
+{
+  if (index < 0 || index >= NUM_DIGI_STREAMS) {
+    SDL_Log("Invalid stream index: %d", index);
+    return;
+  }
+
+  if (digi_stream[index]) {
+    SDL_PauseAudioStreamDevice(digi_stream[index]);
+    SDL_ClearAudioStream(digi_stream[index]);
+    digi_stream[index] = NULL;
+  }
+}
 
 void PlayAudioSampleWait(int iIndex)
 {
@@ -187,6 +271,7 @@ void PlayAudioSampleWait(int iIndex)
 
 void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
 {
+  // https://wiki.libsdl.org/SDL3/QuickReference
   SDL_AudioSpec wav_spec;
   wav_spec.channels = 1; // Stereo
   wav_spec.freq = 11025; // Sample rate
@@ -198,6 +283,11 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
     return;
   }
 
+  int chmap[2] = { -1, 0 };
+  SDL_SetAudioStreamOutputChannelMap(stream, chmap, 2); // pan
+
+  float volume = 0.5f;
+  SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
   SDL_PutAudioStreamData(stream, buffer, length);
   SDL_ResumeAudioStreamDevice(stream);
 

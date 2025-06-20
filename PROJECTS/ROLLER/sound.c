@@ -2469,8 +2469,10 @@ void dospeechsample(int iSampleIdx, int iVolume)
   int iHandle, iSampleHandle;
 
   // Check sample pointer is valid
-  if (SamplePtr[iSampleIdx] == 0)
+  if (SamplePtr[iSampleIdx] == 0)     {
+    SDL_Log("dospeechsample: Sample pointer is NULL for sample index %d", iSampleIdx);
     return;
+  }
 
   // Clamp volume to 0x7FFF
   if (iVolume > 0x7FFF)
@@ -2487,12 +2489,12 @@ void dospeechsample(int iSampleIdx, int iVolume)
 
   // If a sample is already assigned
   if (iSampleHandle != -1) {
-    //if (sosDIGISampleDone(DIGIHandle, iSampleHandle) == 0) {
-    //  // Stop previous sample if it's still playing
-    //  sosDIGIStopSample(DIGIHandle, iSampleHandle);
-    //  SampleHandleCar[iSampleIndex].handles[0] = -1;
-    //  HandleSample[iSampleHandle] = -1;
-    //}
+    if (!DIGISampleDone(iSampleHandle)) {
+      // Stop previous sample if it's still playing
+      DIGISampleClear(iSampleHandle);
+      SampleHandleCar[iSampleIdx].handles[0] = -1;
+      HandleSample[iSampleHandle] = -1;
+    }
   }
 
   // Setup sample parameters
@@ -2503,7 +2505,7 @@ void dospeechsample(int iSampleIdx, int iVolume)
   SampleFixed.iLength = SampleLen[iSampleIdx];
 
   // Start sample
-  iHandle = -1;// sosDIGIStartSample(DIGIHandle, iSampleIndex << 6, &SampleFixed);
+  iHandle = DIGISampleStart(&SampleFixed);
   SampleHandleCar[iSampleIdx].handles[0] = iHandle;
 
   if (iHandle == -1)
@@ -2702,11 +2704,11 @@ void sfxsample(int iSample, int iVol)
   int iOldHandle = SampleHandleCar[iSample].handles[0];
   if (iOldHandle != -1) {
     // cli(); Disable interrupts
-    //if (!sosDIGISampleDone(DIGIHandle, iOldHandle)) {
-    //  sosDIGIStopSample(DIGIHandle, iOldHandle);
-    //  SampleHandleCar[iSample].handles[0] = -1;
-    //  HandleSample[oldHandle] = -1;
-    //}
+    if (!DIGISampleDone(iOldHandle)) {
+      DIGISampleClear(iOldHandle);
+      SampleHandleCar[iSample].handles[0] = -1;
+      HandleSample[iOldHandle] = -1;
+    }
     // sti(); Enable interrupts
   }
 
@@ -2720,7 +2722,7 @@ void sfxsample(int iSample, int iVol)
   // cli(); Disable interrupts
   // Calculate offset in SampleHandleCar array (64 bytes per element)
   //int iHandleOffset = iSample << 6;
-  int iNewHandle = -1;// sosDIGIStartSample(DIGIHandle, iHandleOffset, &SampleFixed);
+  int iNewHandle = DIGISampleStart(&SampleFixed);
   // Store new handle
   SampleHandleCar[iSample].handles[0] = iNewHandle;
   // sti(); Enable interrupts
@@ -2760,7 +2762,7 @@ void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan,
     SampleData.iVolume = iVolume;
 
     // Start sample playback
-    int iNewHandle = -1;// sosDIGIStartSample_(DIGIHandle, iHandlePos, &SampleData);
+    int iNewHandle = DIGISampleStart(&SampleData);
 
     // Store new hhandle
     SampleHandleCar[iSampleIndex].handles[iCarIndex] = iNewHandle;
@@ -3990,22 +3992,21 @@ void reinitmusic(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int waitsampledone(int result)
+void waitsampledone(int iSampleIdx)
 {
-  return 0; /*
-  int v1; // ebx
+  if (!soundon)
+    return;
 
-  if (soundon) {
-    if (SamplePtr[result]) {
-      v1 = result << 6;
-      if (SampleHandleCar[16 * result] != -1) {
-        do
-          result = sosDIGISampleDone(DIGIHandle, *(int *)((char *)SampleHandleCar + v1));
-        while (!result);
-      }
-    }
+  // Check sample pointer is valid
+  if (SamplePtr[iSampleIdx] == 0)
+    return;
+
+  for (size_t i = 0; i < 16; i++) {
+    int iSampleHandle = SampleHandleCar[iSampleIdx].handles[i];
+    while (!DIGISampleDone(iSampleHandle)) {}
   }
-  return result;*/
+
+  return;
 }
 
 //-------------------------------------------------------------------------------------------------

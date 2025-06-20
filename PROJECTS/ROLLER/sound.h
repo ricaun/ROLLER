@@ -347,7 +347,7 @@ void loadasample(int iIndex);
 void select8bitdriver();
 int resetsamplearray();
 void reinitmusic(int a1, int a2);
-int waitsampledone(int result);
+void waitsampledone(int iSampleIdx);
 int getcompactedfilelength(const char *szFile);
 int initmangle(const char *szFile);
 int uninitmangle();

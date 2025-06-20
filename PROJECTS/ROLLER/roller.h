@@ -2,6 +2,7 @@
 #define _ROLLER_ROLLER_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include "sound.h"
 #include <stdio.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
@@ -17,6 +18,12 @@ extern SDL_Gamepad *g_pController2;
 int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
+
+int DIGISampleStart(tSampleData *data);
+boolean DIGISampleDone(int index);
+int DIGISampleAvailable(int index);
+void DIGISampleClear(int index);
+
 void PlayAudioSampleWait(int iIndex);
 void PlayAudioDataWait(Uint8 *buffer, Uint32 length);
 FILE *ROLLERfopen(const char *szFile, const char *szMode); //tries to open file with both all caps and all lower case
