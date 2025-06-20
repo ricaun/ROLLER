@@ -3,7 +3,7 @@
 #include "car.h"
 #include "3d.h"
 #include "moving.h"
-#include <stdio.h>
+#include <string.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #else
@@ -1315,10 +1315,10 @@ void Rplay()
 
     // Set replay speed
     replayspeed = replayspeeds[replaysetspeed];
-    
+
     // copy newrepsample into repsample
     memcpy(repsample, newrepsample, sizeof(repsample));
-    
+
     // Initialize sound timing if playing at normal speed (0x100 is 1.0 in 8.8 fixed float)
     if (replayspeed == 0x100)
       initsoundlag(currentreplayframe);
@@ -1528,7 +1528,7 @@ void ROldStatus()
     // Synchronize timing system with replay position
     ticks = currentreplayframe;
     fraction = 0;
-    
+
     //if playing at normal speed (0x100 is 1.0 in 8.8 fixed float)
     if (replayspeed == 0x100)
       Rplay(); //Initialize replay playback
