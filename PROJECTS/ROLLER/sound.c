@@ -1380,51 +1380,51 @@ void loadsamples()
   if (iWinnerSample != 0) {
     if (champ_mode != 0) {
       // Championship mode
-      loadasample(0);
-      loadasample(1);
-      loadasample(3);
-      loadasample(9);
-      loadasample(0xA);
-      loadasample(0xB);
-      loadasample(0xC);
-      loadasample(6);
+      loadasample(SOUND_SAMPLE_ENGINE); // 0 - Engine sound
+      loadasample(SOUND_SAMPLE_ENGINE2); // 1 - Engine sound 2
+      loadasample(SOUND_SAMPLE_SKID1); // 3 - Skid sound
+      loadasample(SOUND_SAMPLE_LANDSKID); // 9 - Landskid sound
+      loadasample(SOUND_SAMPLE_LIGHTLAN); // 10 - Light land sound
+      loadasample(SOUND_SAMPLE_BANK); // 11 - Bank sound
+      loadasample(SOUND_SAMPLE_WALL1); // 12 - Wall sound
+      loadasample(SOUND_SAMPLE_EXPLO); // 6 - Explosion sound
 
       int iChampIdx = champorder[0];
       int iWins = total_wins[iChampIdx];
       if (iWins > 0) {
-        loadasample(iWins + 88); // Sound for win count
+        loadasample(iWins + (SOUND_SAMPLE_1RACE - 1)); // 88 - Sound for win count 
       }
 
       int iKills = total_kills[iChampIdx];
       if (iKills > 0 && iKills < 17) {
-        loadasample(iKills + 96); // Sound for kill count
+        loadasample(iKills + (SOUND_SAMPLE_ONE - 1)); // 96 - Sound for kill count 
       } else if (iKills >= 17) {
-        loadasample(113);
+        loadasample(SOUND_SAMPLE_FATLOTS); // 113 - Sound for 17+ kills
       }
 
-      loadasample(118);
+      loadasample(SOUND_SAMPLE_CONGRAT); // 118 - Sound for championship win 
     } else {
       // Winner mode but not championship
-      loadasample(0);
-      loadasample(1);
-      loadasample(3);
-      loadasample(9);
-      loadasample(10);
-      loadasample(11);
-      loadasample(12);
-      loadasample(114);
-      loadasample(115);
-      loadasample(116);
-      loadasample(117);
+      loadasample(SOUND_SAMPLE_ENGINE); // 0 - Engine sound
+      loadasample(SOUND_SAMPLE_ENGINE2); // 1 - Engine sound 2
+      loadasample(SOUND_SAMPLE_SKID1); // 3 - Skid sound
+      loadasample(SOUND_SAMPLE_LANDSKID); // 9 - Landskid sound
+      loadasample(SOUND_SAMPLE_LIGHTLAN); // 10 - Light land sound
+      loadasample(SOUND_SAMPLE_BANK); // 11 - Bank sound
+      loadasample(SOUND_SAMPLE_WALL1); // 12 - Wall sound
+      loadasample(SOUND_SAMPLE_WON); // 114
+      loadasample(SOUND_SAMPLE_STAT); // 115
+      loadasample(SOUND_SAMPLE_NEWLAP); // 116
+      loadasample(SOUND_SAMPLE_NEWFAST); // 117
 
       int iKills = total_kills[result_order[0]];
       if (iKills > 0 && iKills < 17) {
-        loadasample(iKills + 96);
+        loadasample(iKills + (SOUND_SAMPLE_ONE - 1)); // Sound for kill count // 96
       } else if (iKills >= 17) {
-        loadasample(0x71);
+        loadasample(SOUND_SAMPLE_FATLOTS); // 113 // Sound for 17+ kills
       }
 
-      loadasample(0x76);
+      loadasample(SOUND_SAMPLE_CONGRAT); // 118 - Sound for winner mode
     }
   } else {
       // Normal mode
@@ -1474,18 +1474,18 @@ void loadsamples()
 
 void loadfatalsample()
 {
-  if (!SamplePtr[88])
-    loadasample(88);
-  if (!SamplePtr[83])
-    loadasample(83);
-  if (!SamplePtr[87])
-    loadasample(87);
-  if (!SamplePtr[84])
-    loadasample(84);
-  if (!SamplePtr[85])
-    loadasample(85);
-  if (!SamplePtr[86])
-    loadasample(86);
+  if (!SamplePtr[SOUND_SAMPLE_FATAL]) // 88 - Fatal sample
+    loadasample(SOUND_SAMPLE_FATAL);
+  if (!SamplePtr[SOUND_SAMPLE_BUTTON]) // 83 - Button sample
+    loadasample(SOUND_SAMPLE_BUTTON);
+  if (!SamplePtr[SOUND_SAMPLE_START]) // 87 - Start sample
+    loadasample(SOUND_SAMPLE_START);
+  if (!SamplePtr[SOUND_SAMPLE_CARIN]) // 84 - Car in sample
+    loadasample(SOUND_SAMPLE_CARIN);
+  if (!SamplePtr[SOUND_SAMPLE_CAROUT]) // 85 - Car out sample
+    loadasample(SOUND_SAMPLE_CAROUT);
+  if (!SamplePtr[SOUND_SAMPLE_TRACK]) // 86 - Track sample
+    loadasample(SOUND_SAMPLE_TRACK);
   samplespending = 0;
   writesample = 0;
   readsample = 0;
@@ -1496,12 +1496,12 @@ void loadfatalsample()
 
 void freefatalsample()
 {
-  fre(&SamplePtr[88]);
-  fre(&SamplePtr[83]);
-  fre(&SamplePtr[87]);
-  fre(&SamplePtr[84]);
-  fre(&SamplePtr[85]);
-  fre(&SamplePtr[86]);
+  fre(&SamplePtr[SOUND_SAMPLE_FATAL]); // 88 - Fatal sample
+  fre(&SamplePtr[SOUND_SAMPLE_BUTTON]); // 83 - Button sample
+  fre(&SamplePtr[SOUND_SAMPLE_START]); // 87 - Start sample
+  fre(&SamplePtr[SOUND_SAMPLE_CARIN]); // 84 - Car in sample
+  fre(&SamplePtr[SOUND_SAMPLE_CAROUT]); // 85 - Car out sample
+  fre(&SamplePtr[SOUND_SAMPLE_TRACK]); // 86 - Track sample
 }
 
 //-------------------------------------------------------------------------------------------------

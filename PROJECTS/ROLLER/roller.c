@@ -94,7 +94,7 @@ void ToggleFullscreen()
 
 int InitSDL()
 {
-  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
+  if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
@@ -151,6 +151,8 @@ void UpdateSDL()
       case SDL_EVENT_KEY_DOWN:
         if (e.key.key == SDLK_ESCAPE) {
           quit_game = 1;
+        } else if (e.key.key == SDLK_SPACE) {
+          PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
         } else if (e.key.key == SDLK_F11) {
           ToggleFullscreen();
         } else if (e.key.key == SDLK_RETURN) {
@@ -163,6 +165,40 @@ void UpdateSDL()
     }
   }
   UpdateSDLWindow();
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void PlayAudioSampleWait(int iIndex)
+{
+  if (iIndex >= 120) return;
+  SDL_Log("Play Sample[%i]: %s", iIndex, Sample[iIndex]);
+  loadasample(iIndex);
+  PlayAudioDataWait(SamplePtr[iIndex], SampleLen[iIndex]);
+}
+
+void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
+{
+  SDL_AudioSpec wav_spec;
+  wav_spec.channels = 1; // Stereo
+  wav_spec.freq = 11025; // Sample rate
+  wav_spec.format = SDL_AUDIO_U8; // 8-bit unsigned audio
+
+  SDL_AudioStream *stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, NULL, NULL);
+  if (!stream) {
+    SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
+    return;
+  }
+
+  SDL_PutAudioStreamData(stream, buffer, length);
+  SDL_ResumeAudioStreamDevice(stream);
+
+  // wait from the audio stream to finish playing
+  while (SDL_GetAudioStreamAvailable(stream) > 0) {
+    SDL_Delay(10);
+  }
+
+  SDL_ClearAudioStream(stream);
 }
 
 //-------------------------------------------------------------------------------------------------
