@@ -323,7 +323,7 @@ int speechsample(int result, int a2, int a3, int a4);
 int analysespeechsamples();
 void dospeechsample(int iSampleIdx, int iVolume);
 void loadfrontendsample(char *fileName);
-int frontendsample(int a1);
+int frontendsample(int iVol);
 void remove_frontendspeech();
 int sfxplaying(int a1);
 int cheatsampleok(int a1);

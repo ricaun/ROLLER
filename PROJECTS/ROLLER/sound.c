@@ -2599,11 +2599,8 @@ void loadfrontendsample(char *fileName)
 
 //-------------------------------------------------------------------------------------------------
 
-int frontendsample(int a1)
+int frontendsample(int iVol)
 {
-  int iVol;
-  iVol = a1;
-
   if (iVol > 0x7FFF)
     iVol = 0x7FFF;
 
