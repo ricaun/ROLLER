@@ -19,6 +19,8 @@
 static SDL_Window *s_pWindow = NULL;
 static SDL_Renderer *s_pRenderer = NULL;
 static SDL_Texture *s_pWindowTexture = NULL;
+SDL_Gamepad *g_pController1 = NULL;
+SDL_Gamepad *g_pController2 = NULL;
 static uint8 *s_pRGBBuffer = NULL;
 uint64 ullTargetSDLTicksNS = 0;
 uint64 ullLastSDLTicksNS = 0;
@@ -105,6 +107,19 @@ int InitSDL()
   s_pRGBBuffer = malloc(640 * 400 * 3);
   SDL_Surface *pIcon = IMG_Load("roller.ico");
   SDL_SetWindowIcon(s_pWindow, pIcon);
+
+  SDL_InitSubSystem(SDL_INIT_GAMEPAD);
+
+  // Open game controllers
+  int iCount;
+  SDL_GetGamepads(&iCount);
+  if (!g_pController1 && iCount > 0) {
+    g_pController1 = SDL_OpenGamepad(0);
+  }
+  if (!g_pController2 && iCount > 1) {
+    g_pController2 = SDL_OpenGamepad(1);
+  }
+
   return SDL_APP_SUCCESS;
 }
 
@@ -112,6 +127,10 @@ int InitSDL()
 
 void ShutdownSDL()
 {
+  if (g_pController1) SDL_CloseGamepad(g_pController1);
+  if (g_pController2) SDL_CloseGamepad(g_pController2);
+  SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
+
   SDL_DestroyRenderer(s_pRenderer);
   SDL_DestroyWindow(s_pWindow);
   SDL_DestroyTexture(s_pWindowTexture);
@@ -227,6 +246,18 @@ int IsCDROMDevice(const char *szPath)
   close(fd);
   return (result != -1);
 #endif
+}
+
+//-------------------------------------------------------------------------------------------------
+
+int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis)
+{
+  if (!pController || !SDL_GamepadHasAxis(pController, axis)) {
+    return 0;
+  }
+  // Convert from [-32768, 32767] to [0, 10000]
+  const int value = SDL_GetGamepadAxis(pController, axis);
+  return ((value + 32768) * 10000) / 65536;
 }
 
 //-------------------------------------------------------------------------------------------------

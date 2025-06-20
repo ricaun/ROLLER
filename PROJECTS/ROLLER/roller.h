@@ -5,6 +5,12 @@
 #include <stdio.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_gamepad.h>
+//-------------------------------------------------------------------------------------------------
+
+extern SDL_Gamepad *g_pController1;
+extern SDL_Gamepad *g_pController2;
+
 //-------------------------------------------------------------------------------------------------
 
 // functions added by ROLLER
@@ -16,6 +22,7 @@ uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *us
 uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval);
 uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval);
 int IsCDROMDevice(const char *szPath);
+int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis);
 
 //-------------------------------------------------------------------------------------------------
 #endif

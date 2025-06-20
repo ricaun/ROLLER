@@ -65,6 +65,20 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iX1Status;
+  int iY1Status;
+  int iX1Count;
+  int iY1Count;
+  int iX2Status;
+  int iY2Status;
+  int iX2Count;
+  int iY2Count;
+} tJoyPos;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int samplespending;
 extern int writesample;
 extern int readsample;
@@ -177,7 +191,7 @@ void devicespecificuninit();
 void readsoundconfig();
 char *FindConfigVar(const char *szConfigText, const char *szVarName);
 void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSound);
-int ReadJoys(int *a1);
+void ReadJoys(tJoyPos *pJoy);
 int check_joystickpresence();
 int initsounds();
 int stopallsamples();

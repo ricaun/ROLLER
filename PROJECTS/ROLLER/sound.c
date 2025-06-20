@@ -1794,99 +1794,144 @@ void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSoun
 
 //-------------------------------------------------------------------------------------------------
 
-int ReadJoys(int *a1)
+void ReadJoys(tJoyPos *pJoy)
 {
-  return 0; /*
-  unsigned __int8 v2; // al
-  int v3; // ebx
-  int v4; // eax
-  int v5; // esi
-  int v6; // ecx
-  int v7; // edi
-  int v8; // eax
-  int v9; // ebx
-  int result; // eax
-  int v12; // [esp+4h] [ebp-2Ch]
-  int v13; // [esp+8h] [ebp-28h]
-  int v14; // [esp+Ch] [ebp-24h]
-  int v15; // [esp+10h] [ebp-20h]
-  int v16; // [esp+14h] [ebp-1Ch]
+  // Process events to update controller state
+  SDL_PumpEvents();
+  
+  // Check joystick 1 (controller 1)
+  pJoy->iX1Status = g_pController1 ? 1 : 0;
+  pJoy->iY1Status = g_pController1 ? 1 : 0;
+  pJoy->iX1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTX);
+  pJoy->iY1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTY);
 
-  v2 = __inbyte(0x201u);
-  v3 = 0;
-  v15 = 0;
-  v16 = 0;
-  v4 = (int)(unsigned __int8)~v2 >> 4;
-  v13 = 0;
-  *a1 = v4 & 1;
-  a1[1] = (v4 & 3) >> 1;
-  v5 = 0;
-  a1[4] = (v4 >> 2) & 1;
-  a1[5] = ((v4 >> 2) & 3) >> 1;
+  // Check joystick 2 (controller 2)
+  pJoy->iX2Status = g_pController2 ? 1 : 0;
+  pJoy->iY2Status = g_pController2 ? 1 : 0;
+  pJoy->iX2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTX);
+  pJoy->iY2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTY);
+
+  // Update presence flags based on controller status
+  x1ok = (g_pController1 != NULL);
+  y1ok = (g_pController1 != NULL);
+  x2ok = (g_pController2 != NULL);
+  y2ok = (g_pController2 != NULL);
+
+  // Update global acceptance mask
+  bitaccept = (x1ok << 0) | (y1ok << 1) | (x2ok << 2) | (y2ok << 3);
+
+  /*unsigned __int8 byCurrentVal; // al
+  int i; // ebx
+  int v4; // eax
+  int iX2Count; // esi
+  int iY1Ok; // ecx
+  int iY2Ok; // edi
+  int iCurrentVal; // eax
+  int iX1Ok2; // ebx
+  int iX2Ok; // [esp+4h] [ebp-2Ch]
+  int iY2Count; // [esp+8h] [ebp-28h]
+  int iX1Ok; // [esp+Ch] [ebp-24h]
+  int iX1Count; // [esp+10h] [ebp-20h]
+  int iY1count; // [esp+14h] [ebp-1Ch]
+
+  // Read initial joystick state
+  byCurrentVal = __inbyte(0x201u);
+  i = 0;
+  iX1Count = 0;
+  iY1count = 0;
+  v4 = (int)(unsigned __int8)~byCurrentVal >> 4;
+  iY2Count = 0;
+  pJoyPos->iX1Status = v4 & 1;
+  pJoyPos->iY1Status = (v4 & 3) >> 1;
+  iX2Count = 0;
+  pJoyPos->iX2Status = (v4 >> 2) & 1;
+  pJoyPos->iY2Status = ((v4 >> 2) & 3) >> 1;
   _disable();
   __outbyte(0x201u, 0xFFu);
-  v14 = x1ok;
-  v6 = y1ok;
-  v12 = x2ok;
-  v7 = y2ok;
+
+  // Store current axis presence flags
+  iX1Ok = x1ok;
+  iY1Ok = y1ok;
+  iX2Ok = x2ok;
+  iY2Ok = y2ok;
+
+  // Main measurement loop
   do {
-    v8 = 0;
-    LOBYTE(v8) = __inbyte(0x201u);
+    iCurrentVal = 0;
+    LOBYTE(iCurrentVal) = __inbyte(0x201u);
+
+    // Measure X1 axis
     if (x1ok) {
-      v14 = v8 & 1;
-      if ((v8 & 1) != 0)
-        ++v15;
+      iX1Ok = iCurrentVal & 1;
+      if ((iCurrentVal & 1) != 0)             // Axis still active
+        ++iX1Count;
     }
+
+    // Measure Y1 axis
     if (y1ok) {
-      v6 = v8 & 2;
-      if ((v8 & 2) != 0)
-        ++v16;
+      iY1Ok = iCurrentVal & 2;
+      if ((iCurrentVal & 2) != 0)             // Axis still active
+        ++iY1count;
     }
+
+    // Measure X2 axis
     if (x2ok) {
-      v12 = v8 & 4;
-      if ((v8 & 4) != 0)
-        ++v5;
+      iX2Ok = iCurrentVal & 4;
+      if ((iCurrentVal & 4) != 0)             // Axis still active
+        ++iX2Count;
     }
+
+    // Measure Y2 axis
     if (y2ok) {
-      v7 = v8 & 8;
-      if ((v8 & 8) != 0)
-        ++v13;
+      iY2Ok = iCurrentVal & 8;
+      if ((iCurrentVal & 8) != 0)             // Axis still active
+        ++iY2Count;
     }
-    ++v3;
-  } while ((v8 & bitaccept) != 0 && v3 < 10000);
-  v9 = v14;
+    ++i;
+  } while ((iCurrentVal & bitaccept) != 0 && i < 10000);
+  // Exit conditions:
+  // 1. All axes have discharged
+  // 2. Reached maximum loop count (10,000)
+
+  // re-enable interrupts
+  iX1Ok2 = iX1Ok;
   _enable();
-  if (v9) {
-    a1[2] = 0;
-    x1ok = 0;
-    bitaccept = y2ok | y1ok | x2ok;
+
+  // Process results for X1 axis
+  if (iX1Ok2) {
+    pJoyPos->iX1Count = 0;
+    x1ok = 0;                                   // mark axis as unavailable
+    bitaccept = y2ok | y1ok | x2ok;             // Update global acceptance mask
   } else {
-    a1[2] = v15;
+    pJoyPos->iX1Count = iX1Count;
   }
-  if (v6) {
-    a1[3] = 0;
-    y1ok = 0;
-    bitaccept = y2ok | x1ok | x2ok;
+
+  // Process results for Y1 axis
+  if (iY1Ok) {
+    pJoyPos->iY1Count = 0;
+    y1ok = 0;                                   // mark axis as unavailable
+    bitaccept = y2ok | x1ok | x2ok;             // Update global acceptance mask
   } else {
-    a1[3] = v16;
+    pJoyPos->iY1Count = iY1count;
   }
-  if (v12) {
-    a1[6] = 0;
-    x2ok = 0;
-    bitaccept = y2ok | y1ok | x1ok;
+
+  // Process results for X2 axis
+  if (iX2Ok) {
+    pJoyPos->iX2Count = 0;
+    x2ok = 0;                                   // Mark axis as unavailable
+    bitaccept = y2ok | y1ok | x1ok;             // Update global acceptance mask
   } else {
-    a1[6] = v5;
+    pJoyPos->iX2Count = iX2Count;
   }
-  if (v7) {
-    a1[7] = 0;
-    y2ok = 0;
-    result = x2ok | y1ok | x1ok;
-    bitaccept = result;
+
+  // Process results for Y2 axis
+  if (iY2Ok) {
+    pJoyPos->iY2Count = 0;
+    y2ok = 0;                                   // Mark axis as unavailable
+    bitaccept = x2ok | y1ok | x1ok;             // Update global acceptance mask
   } else {
-    result = v13;
-    a1[7] = v13;
-  }
-  return result;*/
+    pJoyPos->iY2Count = iY2Count;
+  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
