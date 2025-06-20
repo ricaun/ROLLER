@@ -110,15 +110,21 @@ void title_screens()
   front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
-
+#if _DEBUG
+  cheat_mode = 0x202; // enable speech in debug mode
+#endif
   copypic(scrbuf, (uint8 *)screen);
   loadfatalsample();
   fade_palette(32);
   if ((cheat_mode & 0x202) != 0)
-    dospeechsample(88, 0x8000);
+    dospeechsample(SOUND_SAMPLE_FATAL, 0x8000);
   disable_keyboard();
   if ((cheat_mode & 0x202) != 0)
-    waitsampledone(88);
+    waitsampledone(SOUND_SAMPLE_FATAL);
+#if _DEBUG
+  //loadtracksample(1);
+  //frontendsample(0x8000);
+#endif
   fre(&front_vga[0]);
   freefatalsample();
 }

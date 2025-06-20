@@ -3969,31 +3969,11 @@ void name_copy(char *szDest, char *szSrc)
 
 //-------------------------------------------------------------------------------------------------
 
-int loadtracksample(int a1)
+void loadtracksample(int track_number)
 {
-  (void)(a1);
-  return 0;
-  /*
-  char *v1; // esi
-  char *v2; // edi
-  char v3; // al
-  char v4; // al
-
-  strcpy(buffer, "track");
-  sprintf(&buffer_variable_5, "%02d", a1);
-  v1 = &aBmRaw[3];
-  v2 = &buffer[strlen(buffer)];
-  do {
-    v3 = *v1;
-    *v2 = *v1;
-    if (!v3)
-      break;
-    v4 = v1[1];
-    v1 += 2;
-    v2[1] = v4;
-    v2 += 2;
-  } while (v4);
-  return loadfrontendsample((int)buffer);*/
+  if (track_number <= 0) track_number = 1;
+  snprintf(buffer, sizeof(buffer), "TRACK%02d.RAW", track_number);
+  loadfrontendsample(buffer);
 }
 
 //-------------------------------------------------------------------------------------------------

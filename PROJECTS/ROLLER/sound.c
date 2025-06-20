@@ -1798,7 +1798,7 @@ void ReadJoys(tJoyPos *pJoy)
 {
   // Process events to update controller state
   SDL_PumpEvents();
-  
+
   // Check joystick 1 (controller 1)
   pJoy->iX1Status = g_pController1 ? 1 : 0;
   pJoy->iY1Status = g_pController1 ? 1 : 0;
@@ -2469,8 +2469,10 @@ void dospeechsample(int iSampleIdx, int iVolume)
   int iHandle, iSampleHandle;
 
   // Check sample pointer is valid
-  if (SamplePtr[iSampleIdx] == 0)
+  if (SamplePtr[iSampleIdx] == 0) {
+    SDL_Log("dospeechsample: Sample pointer is NULL for sample index %d", iSampleIdx);
     return;
+  }
 
   // Clamp volume to 0x7FFF
   if (iVolume > 0x7FFF)
@@ -2487,12 +2489,12 @@ void dospeechsample(int iSampleIdx, int iVolume)
 
   // If a sample is already assigned
   if (iSampleHandle != -1) {
-    //if (sosDIGISampleDone(DIGIHandle, iSampleHandle) == 0) {
-    //  // Stop previous sample if it's still playing
-    //  sosDIGIStopSample(DIGIHandle, iSampleHandle);
-    //  SampleHandleCar[iSampleIndex].handles[0] = -1;
-    //  HandleSample[iSampleHandle] = -1;
-    //}
+    if (!DIGISampleDone(iSampleHandle)) {
+      // Stop previous sample if it's still playing
+      DIGISampleClear(iSampleHandle);
+      SampleHandleCar[iSampleIdx].handles[0] = -1;
+      HandleSample[iSampleHandle] = -1;
+    }
   }
 
   // Setup sample parameters
@@ -2503,7 +2505,7 @@ void dospeechsample(int iSampleIdx, int iVolume)
   SampleFixed.iLength = SampleLen[iSampleIdx];
 
   // Start sample
-  iHandle = -1;// sosDIGIStartSample(DIGIHandle, iSampleIndex << 6, &SampleFixed);
+  iHandle = DIGISampleStart(&SampleFixed);
   SampleHandleCar[iSampleIdx].handles[0] = iHandle;
 
   if (iHandle == -1)
@@ -2521,132 +2523,113 @@ void dospeechsample(int iSampleIdx, int iVolume)
 
 //-------------------------------------------------------------------------------------------------
 
-int loadfrontendsample(int result)
-{
-  return 0; /*
-  char *v1; // esi
-  char *v2; // edi
-  char v3; // al
-  char v4; // al
-  int v5; // esi
-  int v6; // ecx
-  char *v7; // ebx
-  int v8; // edi
-  char v9; // dh
-  char v10; // dl
-  int i; // ebx
-  int v12; // ecx
-  int j; // ebx
-  _BYTE v14[32]; // [esp+0h] [ebp-3Ch] BYREF
-  int v15; // [esp+20h] [ebp-1Ch]
+int frontendspeechhandle;
+uint8 *frontendspeechptr;
+uint32 frontendlen;
 
-  v1 = (char *)result;
-  if (SoundCard) {
-    if (frontendspeechhandle != -1) {
-      _disable();
-      sosDIGIStopSample(DIGIHandle);
-      _enable();
-      frontendspeechhandle = -1;
-    }
-    if (frontendspeechptr)
-      fre(&frontendspeechptr);
-    v2 = v14;
-    do {
-      v3 = *v1;
-      *v2 = *v1;
-      if (!v3)
-        break;
-      v4 = v1[1];
-      v1 += 2;
-      v2[1] = v4;
-      v2 += 2;
-    } while (v4);
-    convertname(v14, &frontendspeechptr, &frontendlen, 0);
-    result = loadfile((int)v14, &frontendspeechptr, (unsigned int *)&frontendlen, 0);
-    if (cheatsample) {
-      result = frontendspeechptr;
-      if (frontendspeechptr) {
-        v5 = 7283;
-        v6 = 2198;
-        v7 = (char *)frontendspeechptr;
-        v8 = frontendlen;
-        for (result = 0; result < v8; *(v7 - 1) = v10 ^ v9) {
-          ++result;
-          v9 = *v7;
-          v15 = v6 + v5;
-          ++v7;
-          v10 = v6 + v5;
-          v5 = v6;
-          v6 = v15;
-        }
-      }
-    }
-    if (frontendspeechptr && (cheat_mode & 0x800) != 0) {
-      if ((cheat_mode & 0x2000) != 0) {
-        for (i = 0; i < frontendlen; i += 2)
-          *(_BYTE *)(frontendspeechptr + i / 2) = *(_BYTE *)(frontendspeechptr + i);
-        result = frontendlen / 2;
-        frontendlen /= 2;
-      } else {
-        v12 = 0;
-        for (j = 0; j < frontendlen; ++j) {
-          result = j / 3;
-          if (j % 3 != 2) {
-            result = frontendspeechptr;
-            *(_BYTE *)(++v12 + frontendspeechptr - 1) = *(_BYTE *)(j + frontendspeechptr);
-          }
-        }
-        frontendlen = v12;
-      }
+void loadfrontendsample(char *fileName)
+{
+  if (!SoundCard)
+    return;
+
+  // Clear any existing frontend speech sample
+  if (frontendspeechhandle != -1) {
+    DIGISampleClear(frontendspeechhandle);
+    frontendspeechhandle = -1;
+  }
+
+  // Free any existing frontend speech pointer
+  if (frontendspeechptr)
+    fre(&frontendspeechptr);
+
+  char szFilenameBuf[32];
+  // construct sample filename
+  char *szSrc = fileName;
+  char *szDst = szFilenameBuf;
+  while (*szSrc) {
+    *szDst++ = *szSrc++;
+    if (!*szSrc) break;
+    *szDst++ = *szSrc++;
+  }
+  *szDst = '\0';
+
+  // convert sample name to real path or cheat version
+  convertname(szFilenameBuf);
+  SDL_Log("Loading track sample: %s\n", szFilenameBuf);
+  // load file into memory
+  loadfile(szFilenameBuf, &frontendspeechptr, &frontendlen, 1);
+
+  if (cheatsample && frontendspeechptr) {
+    uint8 *pData = frontendspeechptr;
+    int iLen = frontendlen;
+    uint32 uiSeed = 0x1C73;
+    uint32 uiStep = 0x896;
+    int i;
+
+    for (i = 0; i < iLen; ++i) {
+      uiSeed += uiStep;
+      pData[i] ^= (uint8)uiSeed;
     }
   }
-  return result;*/
+
+  // if using 50Hz timer
+  if (frontendspeechptr && (cheat_mode & CHEAT_MODE_50HZ_TIMER)) {
+    if (cheat_mode & CHEAT_MODE_100HZ_TIMER) { //100Hz timer
+      // halve the sample length, keep only even-indexed bytes
+      int iLen = frontendlen;
+      uint8 *pData = frontendspeechptr;
+      for (int i = 0; i < iLen; i += 2) {
+        pData[i / 2] = pData[i];
+      }
+      frontendlen = iLen / 2;
+    } else {
+      // remove every third byte
+      int iLen = frontendlen;
+      uint8 *pData = frontendspeechptr;
+      int iNewLen = 0;
+      for (int i = 0; i < iLen; ++i) {
+        if (i % 3 != 2) {
+          pData[iNewLen++] = pData[i];
+        }
+      }
+      frontendlen = iNewLen;
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int frontendsample(int a1)
+int frontendsample(int iVol)
 {
-  return 0; /*
-  int v1; // edx
-  int result; // eax
+  if (iVol > 0x7FFF)
+    iVol = 0x7FFF;
 
-  v1 = a1;
-  result = resetsamplearray(a1, a1);
-  if (soundon && frontendspeechptr) {
-    if (v1 > 0x7FFF)
-      v1 = 0x7FFF;
-    SampleFixed_variable_1 = __DS__;
-    SampleFixed_variable_4 = 0;
-    SampleFixed = frontendspeechptr;
-    SampleFixed_variable_3 = SpeechVolume * v1 / 127;
-    SampleFixed_variable_2 = frontendlen;
-    _disable();
-    result = sosDIGIStartSample(DIGIHandle, SampleFixed_variable_3, &SampleFixed, __DS__);
-    frontendspeechhandle = result;
-    _enable();
-  }
-  return result;*/
+  // Scale volume using SpeechVolume
+  int iScaledVol = (SpeechVolume * iVol) / 127;
+
+  SampleFixed.iSampleIndex = 0;
+  SampleFixed.iVolume = iScaledVol;
+  SampleFixed.pSample = frontendspeechptr;
+  SampleFixed.iLength = frontendlen;
+
+  frontendspeechhandle = DIGISampleStart(&SampleFixed);
+
+  return frontendspeechhandle;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void *remove_frontendspeech()
+void remove_frontendspeech()
 {
-  return 0; /*
-  _DWORD *result; // eax
-
-  if (SoundCard) {
-    if (frontendspeechhandle != -1) {
-      _disable();
-      result = (_DWORD *)sosDIGIStopSample(DIGIHandle);
-      _enable();
-      frontendspeechhandle = -1;
-    }
-    if (frontendspeechptr)
-      return fre(&frontendspeechptr);
+  // Clear any existing frontend speech sample
+  if (frontendspeechhandle != -1) {
+    DIGISampleClear(frontendspeechhandle);
+    frontendspeechhandle = -1;
   }
-  return result;*/
+
+// Free any existing frontend speech pointer
+  if (frontendspeechptr)
+    fre(&frontendspeechptr);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2684,8 +2667,10 @@ int cheatsampleok(int a1)
 
 void sfxsample(int iSample, int iVol)
 {
-  if (SamplePtr[iSample] == 0)
+  if (SamplePtr[iSample] == 0) {
+    SDL_Log("sfxsample: Sample pointer is NULL for sample index %d", iSample);
     return;
+  }
 
   // Clamp volume to maximum 0x7FFF
   if (iVol > 0x7FFF)
@@ -2693,7 +2678,7 @@ void sfxsample(int iSample, int iVol)
 
   // Scale volume using SFXVolume
   int iScaledVol = (SFXVolume * iVol) / 127;
-  
+
   // Check if sound is disabled or paused
   if (!soundon || paused)
     return;
@@ -2702,11 +2687,11 @@ void sfxsample(int iSample, int iVol)
   int iOldHandle = SampleHandleCar[iSample].handles[0];
   if (iOldHandle != -1) {
     // cli(); Disable interrupts
-    //if (!sosDIGISampleDone(DIGIHandle, iOldHandle)) {
-    //  sosDIGIStopSample(DIGIHandle, iOldHandle);
-    //  SampleHandleCar[iSample].handles[0] = -1;
-    //  HandleSample[oldHandle] = -1;
-    //}
+    if (!DIGISampleDone(iOldHandle)) {
+      DIGISampleClear(iOldHandle);
+      SampleHandleCar[iSample].handles[0] = -1;
+      HandleSample[iOldHandle] = -1;
+    }
     // sti(); Enable interrupts
   }
 
@@ -2720,11 +2705,11 @@ void sfxsample(int iSample, int iVol)
   // cli(); Disable interrupts
   // Calculate offset in SampleHandleCar array (64 bytes per element)
   //int iHandleOffset = iSample << 6;
-  int iNewHandle = -1;// sosDIGIStartSample(DIGIHandle, iHandleOffset, &SampleFixed);
+  int iNewHandle = DIGISampleStart(&SampleFixed);
   // Store new handle
   SampleHandleCar[iSample].handles[0] = iNewHandle;
   // sti(); Enable interrupts
-    
+
   // Clear previous sample association if handle was reused
   if (iNewHandle == -1)
     return;
@@ -2760,7 +2745,7 @@ void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan,
     SampleData.iVolume = iVolume;
 
     // Start sample playback
-    int iNewHandle = -1;// sosDIGIStartSample_(DIGIHandle, iHandlePos, &SampleData);
+    int iNewHandle = DIGISampleStart(&SampleData);
 
     // Store new hhandle
     SampleHandleCar[iSampleIndex].handles[iCarIndex] = iNewHandle;
@@ -3799,13 +3784,13 @@ void loadasample(int iIndex)
 
   // convert sample name to real path or cheat version
   convertname(szFilenameBuf);
-
+  SDL_Log("loadasample: %s\n", szFilenameBuf);
   // load file into memory
   loadfile(szFilenameBuf, &SamplePtr[iIndex], &SampleLen[iIndex], 1);
 
   // check if cheat sample flag is set and process if needed
   if (cheatsample && SamplePtr[iIndex]) {
-    uint8 *pData= SamplePtr[iIndex];
+    uint8 *pData = SamplePtr[iIndex];
     int iLen = SampleLen[iIndex];
     uint32 uiSeed = 0x1C73;
     uint32 uiStep = 0x896;
@@ -3990,22 +3975,21 @@ void reinitmusic(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int waitsampledone(int result)
+void waitsampledone(int iSampleIdx)
 {
-  return 0; /*
-  int v1; // ebx
+  if (!soundon)
+    return;
 
-  if (soundon) {
-    if (SamplePtr[result]) {
-      v1 = result << 6;
-      if (SampleHandleCar[16 * result] != -1) {
-        do
-          result = sosDIGISampleDone(DIGIHandle, *(int *)((char *)SampleHandleCar + v1));
-        while (!result);
-      }
-    }
+  // Check sample pointer is valid
+  if (SamplePtr[iSampleIdx] == 0)
+    return;
+
+  for (size_t i = 0; i < 16; i++) {
+    int iSampleHandle = SampleHandleCar[iSampleIdx].handles[i];
+    while (!DIGISampleDone(iSampleHandle)) {}
   }
-  return result;*/
+
+  return;
 }
 
 //-------------------------------------------------------------------------------------------------
