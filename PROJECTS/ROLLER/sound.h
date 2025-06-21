@@ -342,7 +342,7 @@ void fade_palette(int iPaletteBrightness);
 void set_palette(int iBrightness);
 int check_joystick_usage();
 void convertname(char *szFilename);
-void decode(uint8 *pData, int iLength, int iStep, int iOffset);
+void decode(uint8 *pData, int iLength, uint32 uiStep, uint32 uiOffset);
 void loadasample(int iIndex);
 void select8bitdriver();
 int resetsamplearray();

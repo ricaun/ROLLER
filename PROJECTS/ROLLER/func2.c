@@ -3367,9 +3367,6 @@ void save_fatal_config()
 
 void load_fatal_config()
 {
-#ifndef IS_WINDOWS
-return;
-#endif
   // Initialize global variables with default values
   JAXmin = 10000;
   JAXmax = -10000;
