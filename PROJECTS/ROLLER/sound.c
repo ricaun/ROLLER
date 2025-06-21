@@ -1496,12 +1496,12 @@ void loadfatalsample()
 
 void freefatalsample()
 {
-  fre(&SamplePtr[SOUND_SAMPLE_FATAL]); // 88 - Fatal sample
-  fre(&SamplePtr[SOUND_SAMPLE_BUTTON]); // 83 - Button sample
-  fre(&SamplePtr[SOUND_SAMPLE_START]); // 87 - Start sample
-  fre(&SamplePtr[SOUND_SAMPLE_CARIN]); // 84 - Car in sample
-  fre(&SamplePtr[SOUND_SAMPLE_CAROUT]); // 85 - Car out sample
-  fre(&SamplePtr[SOUND_SAMPLE_TRACK]); // 86 - Track sample
+  fre((void**)&SamplePtr[SOUND_SAMPLE_FATAL]); // 88 - Fatal sample
+  fre((void**)&SamplePtr[SOUND_SAMPLE_BUTTON]); // 83 - Button sample
+  fre((void**)&SamplePtr[SOUND_SAMPLE_START]); // 87 - Start sample
+  fre((void**)&SamplePtr[SOUND_SAMPLE_CARIN]); // 84 - Car in sample
+  fre((void**)&SamplePtr[SOUND_SAMPLE_CAROUT]); // 85 - Car out sample
+  fre((void**)&SamplePtr[SOUND_SAMPLE_TRACK]); // 86 - Track sample
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1510,7 +1510,7 @@ void releasesamples()
 {
   if (SoundCard) {
     for (int i = 0; i < 120; ++i) {
-      fre(&SamplePtr[i]);
+      fre((void**)&SamplePtr[i]);
       SamplePtr[i] = NULL;
     }
   }
@@ -1714,7 +1714,7 @@ void readsoundconfig(void)
   if (szVar) sscanf(szVar, "%hi", &MusicPort);
 
   // Cleanup
-  fre(&pBuffer);
+  fre((void**)&pBuffer);
   fclose(fp);
 
   // Special MusicCard case
@@ -2540,7 +2540,7 @@ void loadfrontendsample(char *fileName)
 
   // Free any existing frontend speech pointer
   if (frontendspeechptr)
-    fre(&frontendspeechptr);
+    fre((void**)&frontendspeechptr);
 
   char szFilenameBuf[32];
   // construct sample filename
@@ -2557,7 +2557,7 @@ void loadfrontendsample(char *fileName)
   convertname(szFilenameBuf);
   SDL_Log("Loading track sample: %s\n", szFilenameBuf);
   // load file into memory
-  loadfile(szFilenameBuf, &frontendspeechptr, &frontendlen, 1);
+  loadfile(szFilenameBuf, (void**)&frontendspeechptr, &frontendlen, 1);
 
   if (cheatsample && frontendspeechptr) {
     uint8 *pData = frontendspeechptr;
@@ -2629,7 +2629,7 @@ void remove_frontendspeech()
 
 // Free any existing frontend speech pointer
   if (frontendspeechptr)
-    fre(&frontendspeechptr);
+    fre((void**)&frontendspeechptr);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3786,7 +3786,7 @@ void loadasample(int iIndex)
   convertname(szFilenameBuf);
   SDL_Log("loadasample: %s\n", szFilenameBuf);
   // load file into memory
-  loadfile(szFilenameBuf, &SamplePtr[iIndex], &SampleLen[iIndex], 1);
+  loadfile(szFilenameBuf, (void**)&SamplePtr[iIndex], &SampleLen[iIndex], 1);
 
   // check if cheat sample flag is set and process if needed
   if (cheatsample && SamplePtr[iIndex]) {

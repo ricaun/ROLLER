@@ -3355,7 +3355,7 @@ void save_fatal_config()
         fwrite(pBuf, 1, uiSize, fp);
         fclose(fp);
       }
-      fre(&pBuf);
+      fre((void**)&pBuf);
     } else {
       fclose(fp);
       remove("FATAL.INI");
@@ -3634,7 +3634,7 @@ return;
       getconfigvalue(pData, "NetSlot", &network_slot, 0, 99999999);
 
       // Free configuration buffer
-      fre(&pData);
+      fre((void**)&pData);
     } else {
       fclose(pFile);
     }
@@ -3977,7 +3977,7 @@ void SaveRecords()
     fclose(f);
   }
 
-  fre(&pBuffer); // Free the allocated buffer
+  fre((void**)&pBuffer); // Free the allocated buffer
 }
 
 //-------------------------------------------------------------------------------------------------
