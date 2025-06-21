@@ -5675,7 +5675,7 @@ void loadcheatnames()
 
   // Try to open PASSWORD.INI to get its size
 #ifdef IS_WINDOWS
-  iFileHandle = open("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  iFileHandle = ROLLERopen("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   iSize = _filelength(iFileHandle);
 
   if (iFileHandle == -1)

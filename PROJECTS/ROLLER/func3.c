@@ -2,6 +2,7 @@
 #include "3d.h"
 #include "sound.h"
 #include "frontend.h"
+#include "roller.h"
 #include <memory.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
@@ -2559,7 +2560,7 @@ uint8 *try_load_picture(const char *szFile)
   uint8 *pBuf; // ecx
 
   pBuf2 = 0;
-  iFile = open(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  iFile = ROLLERopen(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFile != -1) {
     close(iFile);
     iLength = getcompactedfilelength(szFile);
@@ -4340,7 +4341,7 @@ uint8 *load_picture(const char *szFile)
   uint32 uiFileLength; // eax
   uint8 *pBuf; // ebx
 
-  iFileHandle = open(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  iFileHandle = ROLLERopen(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
     printf("Unable to open texture map data file %s\n\n", szFile);
     doexit();

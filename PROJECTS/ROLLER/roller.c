@@ -6,14 +6,21 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
-#ifndef IS_WINDOWS
+#include <fcntl.h>
+#ifdef IS_WINDOWS
+#include <io.h>
+#define open _open
+#define close _close
+#else
+#include <inttypes.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <linux/cdrom.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#define O_BINARY 0 //linux does not differentiate between text and binary
 #endif
+
 //-------------------------------------------------------------------------------------------------
 
 static SDL_Window *s_pWindow = NULL;
@@ -319,6 +326,28 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode)
   if (pFile) return pFile;
 
   return fopen(szLower, szMode);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+int ROLLERopen(const char *szFile, int iOpenFlags)
+{
+  int iHandle = open(szFile, iOpenFlags);
+  if (iHandle != -1) return iHandle;
+
+  char szUpper[260] = { 0 };
+  char szLower[260] = { 0 };
+  int iLength = (int)strlen(szFile);
+
+  for (int i = 0; i < iLength && i < sizeof(szUpper); ++i) {
+    szUpper[i] = toupper(szFile[i]);
+    szLower[i] = tolower(szFile[i]);
+  }
+
+  iHandle = open(szUpper, iOpenFlags);
+  if (iHandle != -1) return iHandle;
+
+  return open(szLower, iOpenFlags);
 }
 
 //-------------------------------------------------------------------------------------------------
