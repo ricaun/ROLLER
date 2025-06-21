@@ -4,9 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#ifdef IS_WINDOWS
+#if defined(IS_WINDOWS)
 #include <windows.h>
-#else
+#elif defined(IS_LINUX)
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -377,7 +377,7 @@ void intRM(uint8 byInterruptNumber)
 void GetFirstCDDrive()
 {
   firstCDdrive = -1;
-#ifdef IS_WINDOWS
+#if defined(IS_WINDOWS)
   uint32 uiDrives = GetLogicalDrives();
   if (uiDrives == 0)
     return;
@@ -399,7 +399,7 @@ void GetFirstCDDrive()
   }
 
   numCDdrives = iCount;
-#else
+#elif defined(IS_LINUX)
   const char *szDevPrefix = "/dev/";
   const char *targets[] = { "cdrom", "sr0", "sr1", "sr2", "sr3", NULL };
   int iCount = 0;

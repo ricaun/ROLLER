@@ -1826,7 +1826,7 @@ tCarDesign CarDesigns[] =
     &f1wack_backs[0],
     CAR_F1WACK,
     &f1wack_places[0],
-    (tAnimation *)0xFFFFFFFF
+    (tAnimation *)-1 //0xFFFFFFFF
   },
   {
     50u,

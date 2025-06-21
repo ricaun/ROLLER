@@ -4,6 +4,14 @@
 #include <stddef.h>
 //-------------------------------------------------------------------------------------------------
 
+#if defined (WIN32) || defined (_WIN32)
+#define IS_WINDOWS
+#elif defined(__linux__) || defined(linux) || defined(__linux)
+#define IS_LINUX
+#endif
+
+//-------------------------------------------------------------------------------------------------
+
 #define ONE_OVER_TRIG_LOOKUP_AY_COUNT 0.00006103515625
 #define ONE_OVER_TATN_LOOKUP_AY_COUNT 0.0009765625
 #define TWO_PI 6.28318530718
