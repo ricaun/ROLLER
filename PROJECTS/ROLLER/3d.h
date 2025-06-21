@@ -97,6 +97,7 @@ extern float ext_z;
 extern float viewx;
 extern float viewy;
 extern float viewz;
+extern char keys[140];
 extern int clear_borders;
 extern float DDX;
 extern float DDY;

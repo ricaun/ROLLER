@@ -8,6 +8,7 @@
 #include "loadtrak.h"
 #include "car.h"
 #include "roller.h"
+#include "control.h"
 #include <memory.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
@@ -71,6 +72,8 @@ uint8 unmangleinbuf[1024];  //00149EF0
 int lastvolume[16];         //001603F8
 int lastpitch[16];          //00160438
 int lastpan[16];            //00160478
+int joyvalue[8];            //001604F8
+tJoyPos rud_Joy_pos;        //00160518
 uint32 SampleLen[120];      //00160560
 uint8 *SamplePtr[120];      //00160750
 tSampleHandleCar SampleHandleCar[120]; //00160930
@@ -443,81 +446,80 @@ void Initialise_SOS()
 
 //-------------------------------------------------------------------------------------------------
 
-int updatejoy()
+void updatejoy()
 {
-  return 0; /*
-  int result; // eax
-  int v1; // eax
-  int v2; // eax
-  int v3; // eax
-  int v4; // eax
-  int v5; // eax
-  int v6; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
+  int iX1Scaled; // eax
+  int iX1Clamped2; // eax
+  int iX1Clamped; // eax
+  int iY1Scaled; // eax
+  int iY1Clamped2; // eax
+  int iY1Clamped; // eax
+  int iX2Scaled; // eax
+  int iX2Clamped2; // eax
+  int iX2Clamped; // eax
+  int iY2Scaled; // eax
+  int iY2Clamped2; // eax
+  int iY2Clamped; // eax
 
-  result = memset(&joyvalue, 0, 32);
+  memset(joyvalue, 0, sizeof(joyvalue));
   if (Joy1used || Joy2used)
-    result = ReadJoys(&rud_Joy_pos);
+    ReadJoys(&rud_Joy_pos);
   if (Joy1used) {
-    keys_variable_10 = rud_Joy_pos;
-    keys_variable_11 = rud_Joy_pos_variable_1;
-    v1 = ((2 * rud_Joy_pos_variable_2 - JAXmax - JAXmin) << 10) / (JAXmax - JAXmin);
-    if (v1 >= 0) {
-      v3 = v1 - 100;
-      if (v3 < 0)
-        v3 = 0;
-      joyvalue_variable_1 = v3;
+    keys[128] = rud_Joy_pos.iX1Status;
+    keys[129] = rud_Joy_pos.iY1Status;
+    iX1Scaled = ((2 * rud_Joy_pos.iX1Count - JAXmax - JAXmin) << 10) / (JAXmax - JAXmin);
+    if (iX1Scaled >= 0) {
+      iX1Clamped = iX1Scaled - 100;
+      if (iX1Clamped < 0)
+        iX1Clamped = 0;
+      joyvalue[1] = iX1Clamped;
     } else {
-      v2 = v1 + 100;
-      if (v2 > 0)
-        v2 = 0;
-      joyvalue = -v2;
+      iX1Clamped2 = iX1Scaled + 100;
+      if (iX1Clamped2 > 0)
+        iX1Clamped2 = 0;
+      joyvalue[0] = -iX1Clamped2;
     }
-    v4 = ((2 * rud_Joy_pos_variable_3 - JAYmax - JAYmin) << 10) / (JAYmax - JAYmin);
-    if (v4 >= 0) {
-      result = v4 - 100;
-      if (result < 0)
-        result = 0;
-      joyvalue_variable_3 = result;
+    iY1Scaled = ((2 * rud_Joy_pos.iY1Count - JAYmax - JAYmin) << 10) / (JAYmax - JAYmin);
+    if (iY1Scaled >= 0) {
+      iY1Clamped = iY1Scaled - 100;
+      if (iY1Clamped < 0)
+        iY1Clamped = 0;
+      joyvalue[3] = iY1Clamped;
     } else {
-      result = v4 + 100;
-      if (result > 0)
-        result = 0;
-      joyvalue_variable_2 = -result;
+      iY1Clamped2 = iY1Scaled + 100;
+      if (iY1Clamped2 > 0)
+        iY1Clamped2 = 0;
+      joyvalue[2] = -iY1Clamped2;
     }
   }
   if (Joy2used) {
-    keys_variable_12 = rud_Joy_pos_variable_4;
-    keys_variable_13 = rud_Joy_pos_variable_5;
-    v5 = ((2 * rud_Joy_pos_variable_6 - JBXmax - JBXmin) << 10) / (JBXmax - JBXmin);
-    if (v5 >= 0) {
-      v7 = v5 - 100;
-      if (v7 < 0)
-        v7 = 0;
-      joyvalue_variable_5 = v7;
+    keys[130] = rud_Joy_pos.iX2Status;
+    keys[131] = rud_Joy_pos.iY2Status;
+    iX2Scaled = ((2 * rud_Joy_pos.iX2Count - JBXmax - JBXmin) << 10) / (JBXmax - JBXmin);
+    if (iX2Scaled >= 0) {
+      iX2Clamped = iX2Scaled - 100;
+      if (iX2Clamped < 0)
+        iX2Clamped = 0;
+      joyvalue[5] = iX2Clamped;
     } else {
-      v6 = v5 + 100;
-      if (v6 > 0)
-        v6 = 0;
-      joyvalue_variable_4 = -v6;
+      iX2Clamped2 = iX2Scaled + 100;
+      if (iX2Clamped2 > 0)
+        iX2Clamped2 = 0;
+      joyvalue[4] = -iX2Clamped2;
     }
-    v8 = ((2 * rud_Joy_pos_variable_7 - JBYmax - JBYmin) << 10) / (JBYmax - JBYmin);
-    if (v8 >= 0) {
-      result = v8 - 100;
-      if (result < 0)
-        result = 0;
-      joyvalue_variable_7 = result;
+    iY2Scaled = ((2 * rud_Joy_pos.iY2Count - JBYmax - JBYmin) << 10) / (JBYmax - JBYmin);
+    if (iY2Scaled >= 0) {
+      iY2Clamped = iY2Scaled - 100;
+      if (iY2Clamped < 0)
+        iY2Clamped = 0;
+      joyvalue[7] = iY2Clamped;
     } else {
-      v9 = v8 + 100;
-      if (v9 > 0)
-        v9 = 0;
-      result = -v9;
-      joyvalue_variable_6 = result;
+      iY2Clamped2 = iY2Scaled + 100;
+      if (iY2Clamped2 > 0)
+        iY2Clamped2 = 0;
+      joyvalue[6] = -iY2Clamped2;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -75,6 +75,7 @@ float ext_z;                //0013F9A0
 float viewx;                //0013F9A4
 float viewy;                //0013F9A8
 float viewz;                //0013F9AC
+char keys[140];             //0013F9B4
 int clear_borders;          //0013FA44
 float DDX;                  //0013FA48
 float DDY;                  //0013FA4C
