@@ -94,18 +94,11 @@ void ToggleFullscreen()
 
 int InitSDL()
 {
-#ifdef IS_WINDOWS
   if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-#else
-  //TODO linux audio
-  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
-    SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
-    return SDL_APP_FAILURE;
-  }
-#endif
+
   if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, SDL_WINDOW_RESIZABLE, &s_pWindow, &s_pRenderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
