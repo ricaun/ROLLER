@@ -20,7 +20,7 @@ void ShutdownSDL();
 void UpdateSDL();
 
 int DIGISampleStart(tSampleData *data);
-boolean DIGISampleDone(int index);
+bool DIGISampleDone(int index);
 int DIGISampleAvailable(int index);
 void DIGISampleClear(int index);
 

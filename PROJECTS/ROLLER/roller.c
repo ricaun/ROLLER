@@ -234,7 +234,7 @@ int DIGISampleStart(tSampleData *data)
 /// Check if a digital sample is done playing.
 /// </summary>
 /// <param name="index"></param>
-boolean DIGISampleDone(int index)
+bool DIGISampleDone(int index)
 {
   return DIGISampleAvailable(index) == 0;
 }
