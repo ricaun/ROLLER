@@ -26,8 +26,10 @@ int syncframe;              //0017C934
 int received_seed;          //0017C938
 int frame_number;           //0017C940
 tSyncHeader p_header;       //0017C948
+int test_seed;              //0017C958
 int my_age;                 //0017C964
 int broadcast_mode;         //0017C984
+int random_seed;            //0017C98C
 int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
@@ -385,7 +387,7 @@ void send_record_to_master(int iRecordIdx)
 void send_record_to_slaves(int iRecordIdx)
 {
   if (network_on) {
-    p_header.byConsoleNode = wConsoleNode;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
     p_header.uiId = 0x686C636B;
     p_record.fRecordLap = RecordLaps[iRecordIdx];
     strncpy(p_record.szRecordName, RecordNames[iRecordIdx], sizeof(p_record.szRecordName));
@@ -401,7 +403,6 @@ void send_record_to_slaves(int iRecordIdx)
       }
     }
   }
-  return iRecordIdx;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -466,27 +467,23 @@ char send_mes(char *a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int send_seed(int result)
+void send_seed(int iRandomSeed)
 {
-  return 0; /*
-  int v1; // edi
-  int v2; // esi
-
-  v1 = result;
   if (network_on) {
-    test_seed = result;
-    v2 = 0;
-    p_header_variable_2 = wConsoleNode;
-    for (p_header_variable_1 = 1751933800; v2 < network_on; ++v2) {
-      if (v2 != wConsoleNode) {
-        while (!gssCommsSendData(v2))
-          ;
+    test_seed = iRandomSeed;
+    p_header.uiId = 0x686C6368;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    for (int i = 0;  i < network_on; ++i) {
+      if (i != wConsoleNode) {
+        //TODO network
+        //while (!gssCommsSendData(&p_header, 12, &test_seed, 4, i))
+        //  UpdateSDL(); //added by ROLLER
       }
     }
-    result = srand(v1);
-    random_seed = v1;
+
+    srand(iRandomSeed);
+    random_seed = iRandomSeed;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
