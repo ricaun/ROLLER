@@ -41,10 +41,21 @@ typedef struct {
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  float fRecordLap;
+  char szRecordName[9];
+  //padding byte
+  uint16 unRecordCar;
+} tRecordPacket;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int net_type;
 extern int net_started;
 extern int test_mini[2];
 extern int test_multiple[16];
+extern tRecordPacket p_record;
 extern int net_players[16];
 extern int16 player_checks[8192];
 extern int address[64];
@@ -55,8 +66,10 @@ extern int syncnode;
 extern int syncframe;
 extern int received_seed;
 extern int frame_number;
+extern tSyncHeader p_header;
 extern int my_age;
 extern int broadcast_mode;
+extern int master;
 extern tSyncHeader in_header;
 extern int active_nodes;
 extern int16 wConsoleNode;
@@ -72,7 +85,7 @@ int send_resync(int result);
 int send_nocd_error();
 void send_quit();
 void send_ready();
-int send_record_to_master(int result);
+void send_record_to_master(int iRecordIdx);
 int send_record_to_slaves(int result);
 char send_mes(char *a1, int a2);
 int send_seed(int result);

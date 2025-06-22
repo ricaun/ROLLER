@@ -7,12 +7,14 @@
 #include "car.h"
 #include "control.h"
 #include "colision.h"
+#include "roller.h"
 //-------------------------------------------------------------------------------------------------
 
 int net_type = 1;           //000A6104
 int net_started = 0;        //000A610C
 int test_mini[2];           //001786C0
 int test_multiple[16];      //001786C8
+tRecordPacket p_record;     //00178708
 int net_players[16];        //00178718
 int16 player_checks[8192];  //00178758
 int address[64];            //0017C758
@@ -23,8 +25,10 @@ int syncnode;               //0017C930
 int syncframe;              //0017C934
 int received_seed;          //0017C938
 int frame_number;           //0017C940
+tSyncHeader p_header;       //0017C948
 int my_age;                 //0017C964
 int broadcast_mode;         //0017C984
+int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
 int16 wConsoleNode;         //0017C9DA
@@ -361,34 +365,19 @@ void send_ready()
 
 //-------------------------------------------------------------------------------------------------
 
-int send_record_to_master(int result)
+void send_record_to_master(int iRecordIdx)
 {
-  return 0; /*
-  double v1; // st7
-  int *v2; // edx
-  int v3; // eax
-  char v4; // cl
-  int v5; // [esp+0h] [ebp-20h]
-
-  v5 = result;
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    v1 = RecordLaps[result];
-    p_header_variable_1 = 1751933803;
-    v2 = p_record;
-    v3 = 9 * result;
-    *(float *)p_record = v1;
-    do {
-      v2 = (int *)((char *)v2 + 1);
-      v4 = RecordNames[v3++];
-      *((_BYTE *)v2 + 3) = v4;
-    } while (v3 != 9 * v5 + 9);
-    HIWORD(p_record[3]) = RecordCars[v5];
-    do
-      result = gssCommsSendData(master);
-    while (!result);
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = 0x686C636B;
+    p_record.fRecordLap = RecordLaps[iRecordIdx];
+    strncpy(p_record.szRecordName, RecordNames[iRecordIdx], sizeof(p_record.szRecordName));
+
+    p_record.unRecordCar = RecordCars[iRecordIdx];
+    //TODO network
+    //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), &p_record, sizeof(tRecordPacket), master))
+    //  UpdateSDL(); //added by ROLLER
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
