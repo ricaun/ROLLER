@@ -36,7 +36,6 @@ typedef struct {
   int32 iNetworkChampOn;
   int32 iNetworkSlot;
   char default_names[16][9];
-  tSyncHeader header;
 } tTransmitInitPacket;
 
 //-------------------------------------------------------------------------------------------------
@@ -86,7 +85,7 @@ int send_nocd_error();
 void send_quit();
 void send_ready();
 void send_record_to_master(int iRecordIdx);
-int send_record_to_slaves(int result);
+void send_record_to_slaves(int iRecordIdx);
 char send_mes(char *a1, int a2);
 int send_seed(int result);
 int send_single(int result);

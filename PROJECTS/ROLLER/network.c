@@ -372,8 +372,8 @@ void send_record_to_master(int iRecordIdx)
     p_header.uiId = 0x686C636B;
     p_record.fRecordLap = RecordLaps[iRecordIdx];
     strncpy(p_record.szRecordName, RecordNames[iRecordIdx], sizeof(p_record.szRecordName));
-
     p_record.unRecordCar = RecordCars[iRecordIdx];
+
     //TODO network
     //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), &p_record, sizeof(tRecordPacket), master))
     //  UpdateSDL(); //added by ROLLER
@@ -382,41 +382,26 @@ void send_record_to_master(int iRecordIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-int send_record_to_slaves(int result)
+void send_record_to_slaves(int iRecordIdx)
 {
-  return 0; /*
-  double v1; // st7
-  int *v2; // edx
-  int v3; // eax
-  char v4; // cl
-  int v5; // [esp+0h] [ebp-24h]
-  int i; // [esp+8h] [ebp-1Ch]
-
-  v5 = result;
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    v1 = RecordLaps[result];
-    p_header_variable_1 = 1751933803;
-    v2 = p_record;
-    v3 = 9 * result;
-    *(float *)p_record = v1;
-    do {
-      v2 = (int *)((char *)v2 + 1);
-      v4 = RecordNames[v3++];
-      *((_BYTE *)v2 + 3) = v4;
-    } while (v3 != 9 * v5 + 9);
-    HIWORD(p_record[3]) = RecordCars[v5];
-    result = 0;
-    for (i = 0; i < network_on; ++i) {
-      result = wConsoleNode;
+    p_header.byConsoleNode = wConsoleNode;
+    p_header.uiId = 0x686C636B;
+    p_record.fRecordLap = RecordLaps[iRecordIdx];
+    strncpy(p_record.szRecordName, RecordNames[iRecordIdx], sizeof(p_record.szRecordName));
+    p_record.unRecordCar = RecordCars[iRecordIdx];
+
+    for (int i = 0; i < network_on; ++i) {
+      iRecordIdx = wConsoleNode;
       if (wConsoleNode != i) {
-        do
-          result = gssCommsSendData(i);
-        while (!result);
+        //TODO network
+        //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), &p_record, sizeof(tRecordPacket), i)) {
+        //  UpdateSDL(); //added by ROLLER
+        //}
       }
     }
   }
-  return result;*/
+  return iRecordIdx;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1187,11 +1172,12 @@ int TransmitInit()
   char *szDefaultNamesDst; // ecx
   char *szDefaultNameItr; // ebx
   tTransmitInitPacket initPacket; // [esp+0h] [ebp-108h] BYREF
+  tSyncHeader header;
 
   iSuccess = -1;
   if (network_on) {
-    initPacket.header.byConsoleNode = player1_car;
-    initPacket.header.uiId = 0x686C6361;
+    header.byConsoleNode = player1_car;
+    header.uiId = 0x686C6361;
     initPacket.iTrackLoad = TrackLoad;
     name_copy(initPacket.szPlayerName, player_names[wConsoleNode]);
     initPacket.address[0] = address[0];
@@ -1256,7 +1242,7 @@ int TransmitInit()
     //         &initPacket.header,
     //         sizeof(tSyncHeader),
     //         &initPacket,
-    //         offsetof(tTransmitInitPacket, header),
+    //         sizeof(tTransmitInitPacket),
     //         21);
   }
   return iSuccess;
