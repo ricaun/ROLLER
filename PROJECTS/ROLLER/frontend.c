@@ -35,6 +35,7 @@ int player_type = 0;      //000A4CB8
 int cup_won = 0;          //000A4CBC
 int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
+int last_type = 0;        //000A530C
 int network_champ_on = 0; //000A5318
 void *font_vga = NULL;    //000A531C
 void *title_vga = NULL;   //000A5320
@@ -5873,7 +5874,7 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
             break;
           case 20: //TACHYONS (100Hz timer)
             name_copy(szPlayerName, "NUCLEAR!");
-            cheat_mode |= CHEAT_MODE_100HZ_TIMER;
+            cheat_mode |= CHEAT_MODE_100HZ_TIMER | CHEAT_MODE_50HZ_TIMER;
             release_ticktimer();
             claim_ticktimer(100);
             break;

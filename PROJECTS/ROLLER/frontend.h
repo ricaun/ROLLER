@@ -17,7 +17,7 @@
 #define CHEAT_MODE_ICY_ROAD         0x00000400
 #define CHEAT_MODE_50HZ_TIMER       0x00000800
 #define CHEAT_MODE_DOUBLE_TRACK     0x00001000
-#define CHEAT_MODE_100HZ_TIMER      0x00002800
+#define CHEAT_MODE_100HZ_TIMER      0x00002000
 #define CHEAT_MODE_CLONES           0x00004000
 #define CHEAT_MODE_TINY_CARS        0x00008000
 #define CHEAT_MODE_WARP             0x00010000
@@ -35,6 +35,7 @@ extern int player_type;
 extern int cup_won;
 extern int game_type;
 extern int replay_record;
+extern int last_type;
 extern int network_champ_on;
 extern void *font_vga;
 extern void *title_vga;

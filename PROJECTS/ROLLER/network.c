@@ -5,6 +5,8 @@
 #include "frontend.h"
 #include "moving.h"
 #include "car.h"
+#include "control.h"
+#include "colision.h"
 //-------------------------------------------------------------------------------------------------
 
 int net_type = 1;           //000A6104
@@ -13,6 +15,7 @@ int test_mini[2];           //001786C0
 int test_multiple[16];      //001786C8
 int net_players[16];        //00178718
 int16 player_checks[8192];  //00178758
+int address[64];            //0017C758
 int player_ready[16];       //0017C858
 int syncptr;                //0017C928
 int syncleft;               //0017C92C
@@ -20,6 +23,7 @@ int syncnode;               //0017C930
 int syncframe;              //0017C934
 int received_seed;          //0017C938
 int frame_number;           //0017C940
+int my_age;                 //0017C964
 int broadcast_mode;         //0017C984
 tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
@@ -1185,98 +1189,88 @@ void do_sync_stuff(void)
 
 //-------------------------------------------------------------------------------------------------
 
-int TransmitInit(int a1, int a2, int a3, int a4)
+int TransmitInit()
 {
-  return 0; /*
-  int result; // eax
-  int v5; // eax
-  int v6; // eax
-  int v7; // eax
-  char *v8; // ecx
-  char *v9; // ebx
-  _BYTE v10[12]; // [esp+10h] [ebp-F8h] BYREF
-  int v11; // [esp+1Ch] [ebp-ECh]
-  int v12; // [esp+20h] [ebp-E8h]
-  int v13; // [esp+24h] [ebp-E4h]
-  int v14; // [esp+28h] [ebp-E0h]
-  int v15; // [esp+2Ch] [ebp-DCh]
-  int v16; // [esp+30h] [ebp-D8h]
-  int v17; // [esp+34h] [ebp-D4h]
-  int v18; // [esp+38h] [ebp-D0h]
-  int v19; // [esp+3Ch] [ebp-CCh]
-  int v20; // [esp+40h] [ebp-C8h]
-  int v21; // [esp+44h] [ebp-C4h]
-  int v22; // [esp+48h] [ebp-C0h]
-  bool v23; // [esp+4Ch] [ebp-BCh]
-  int v24; // [esp+50h] [ebp-B8h]
-  int v25; // [esp+54h] [ebp-B4h]
-  char v26; // [esp+58h] [ebp-B0h] BYREF
-  int v27; // [esp+ECh] [ebp-1Ch]
-  char v28; // [esp+F0h] [ebp-18h]
-  int v29; // [esp+100h] [ebp-8h]
+  int iSuccess; // eax
+  int32 iCarIdx; // eax
+  int32 iGameType; // eax
+  int32 iLevelFlags; // eax
+  char *szDefaultNamesDst; // ecx
+  char *szDefaultNameItr; // ebx
+  tTransmitInitPacket initPacket; // [esp+0h] [ebp-108h] BYREF
 
-  v29 = a4;
-  result = -1;
+  iSuccess = -1;
   if (network_on) {
-    v28 = player1_car;
-    v27 = 1751933793;
-    v14 = TrackLoad;
-    name_copy((int)v10, &player_names[9 * wConsoleNode]);
+    initPacket.header.byConsoleNode = player1_car;
+    initPacket.header.uiId = 0x686C6361;
+    initPacket.iTrackLoad = TrackLoad;
+    name_copy(initPacket.szPlayerName, player_names[wConsoleNode]);
+    initPacket.address[0] = address[0];
+    initPacket.address[1] = address[1];
+    initPacket.address[2] = address[2];
+    initPacket.address[3] = address[3];
     if (broadcast_mode == -9999)
-      v5 = car_request - 1;
+      iCarIdx = car_request - 1;
     else
-      v5 = Players_Cars[wConsoleNode];
-    v13 = v5;
+      iCarIdx = Players_Cars[wConsoleNode];
+    initPacket.iCarIdx = iCarIdx;
     if (net_type)
       ++my_age;
-    v12 = my_age;
-    v11 = network_on;
+    initPacket.iMyAge = my_age;
+    initPacket.iNetworkOn = network_on;
     if (game_type <= 2)
-      v6 = game_type;
+      iGameType = game_type;
     else
-      v6 = last_type;
-    v15 = v6;
-    v18 = competitors;
-    v16 = manual_control[wConsoleNode];
-    v7 = level;
-    if ((cheat_mode & 2) != 0)
-      BYTE1(v7) = BYTE1(level) | 1;
+      iGameType = last_type;
+    initPacket.iGameType = iGameType;
+    initPacket.iCompetitors = competitors;
+    initPacket.iManualControl = manual_control[wConsoleNode];
+    iLevelFlags = level;
+    if ((cheat_mode & CHEAT_MODE_DEATH_MODE) != 0)
+      iLevelFlags = level | 0x0100;
     if (player_invul[player1_car])
-      BYTE1(v7) |= 2u;
-    if ((cheat_mode & 0x200) != 0)
-      BYTE1(v7) |= 4u;
-    if ((cheat_mode & 0x400) != 0)
-      BYTE1(v7) |= 8u;
-    if ((cheat_mode & 0x800) != 0)
-      BYTE1(v7) |= 0x10u;
-    if ((cheat_mode & 0x1000) != 0)
-      BYTE1(v7) |= 0x20u;
-    if ((cheat_mode & 0x2000) != 0)
-      BYTE1(v7) |= 0x40u;
-    if ((cheat_mode & 0x4000) != 0)
-      BYTE1(v7) |= 0x80u;
-    if ((cheat_mode & 0x8000) != 0)
-      v7 |= (unsigned int)cstart_branch_1;
-    v17 = v7;
-    v19 = damage_level;
-    v20 = StartPressed;
+      iLevelFlags |= 0x0200;
+    if ((cheat_mode & CHEAT_MODE_KILLER_OPPONENTS) != 0)
+      iLevelFlags |= 0x0400;
+    if ((cheat_mode & CHEAT_MODE_ICY_ROAD) != 0)
+      iLevelFlags |= 0x0800;
+    if ((cheat_mode & CHEAT_MODE_50HZ_TIMER) != 0)
+      iLevelFlags |= 0x1000;
+    if ((cheat_mode & CHEAT_MODE_DOUBLE_TRACK) != 0)
+      iLevelFlags |= 0x2000;
+    if ((cheat_mode & CHEAT_MODE_100HZ_TIMER) != 0)
+      iLevelFlags |= 0x4000;
+    if ((cheat_mode & CHEAT_MODE_CLONES) != 0)
+      iLevelFlags |= 0x8000;
+    if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0)
+      iLevelFlags |= 0x10000;
+    initPacket.iLevelFlags = iLevelFlags;
+    initPacket.iDamageLevel = damage_level;
+    initPacket.iStartPressed = StartPressed;
     if (time_to_start == 45)
       time_to_start = 0;
-    v21 = time_to_start;
-    v22 = false_starts;
-    v23 = ((unsigned int)cstart_branch_1 & textures_off) != 0;
-    v24 = network_champ_on;
-    v8 = &v26;
-    v9 = default_names;
-    v25 = network_slot;
+    initPacket.iTimeToStart = time_to_start;
+    initPacket.iFalseStart = false_starts;
+    initPacket.iTextureMode = (textures_off & 0x10000) != 0;
+    initPacket.iNetworkChampOn = network_champ_on;
+    szDefaultNamesDst = initPacket.default_names[0];
+    szDefaultNameItr = default_names[0];
+    initPacket.iNetworkSlot = network_slot;
     do {
-      name_copy((int)v8, v9);
-      v9 += 9;
-      v8 += 9;
-    } while (v9 != &default_names[144]);
-    return gssCommsSendData(21);
+      name_copy(szDefaultNamesDst, szDefaultNameItr);
+      szDefaultNameItr += 9;
+      szDefaultNamesDst += 9;
+    } while (szDefaultNameItr != default_names[16]);
+
+    return -1; //TODO network
+    //return gssCommsSendData(
+    //         &initPacket.header,
+    //         sizeof(tSyncHeader),
+    //         &initPacket,
+    //         offsetof(tTransmitInitPacket, header),
+    //         21);
   }
-  return result;*/
+  return iSuccess;
 }
 
 //-------------------------------------------------------------------------------------------------

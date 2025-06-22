@@ -468,6 +468,7 @@ void updatejoy()
     keys[128] = rud_Joy_pos.iX1Status;
     keys[129] = rud_Joy_pos.iY1Status;
     iX1Scaled = ((2 * rud_Joy_pos.iX1Count - JAXmax - JAXmin) << 10) / (JAXmax - JAXmin);
+    //apply 100-unit deadzone
     if (iX1Scaled >= 0) {
       iX1Clamped = iX1Scaled - 100;
       if (iX1Clamped < 0)
@@ -480,6 +481,7 @@ void updatejoy()
       joyvalue[0] = -iX1Clamped2;
     }
     iY1Scaled = ((2 * rud_Joy_pos.iY1Count - JAYmax - JAYmin) << 10) / (JAYmax - JAYmin);
+    //apply 100-unit deadzone
     if (iY1Scaled >= 0) {
       iY1Clamped = iY1Scaled - 100;
       if (iY1Clamped < 0)
@@ -496,6 +498,7 @@ void updatejoy()
     keys[130] = rud_Joy_pos.iX2Status;
     keys[131] = rud_Joy_pos.iY2Status;
     iX2Scaled = ((2 * rud_Joy_pos.iX2Count - JBXmax - JBXmin) << 10) / (JBXmax - JBXmin);
+    //apply 100-unit deadzone
     if (iX2Scaled >= 0) {
       iX2Clamped = iX2Scaled - 100;
       if (iX2Clamped < 0)
@@ -508,6 +511,7 @@ void updatejoy()
       joyvalue[4] = -iX2Clamped2;
     }
     iY2Scaled = ((2 * rud_Joy_pos.iY2Count - JBYmax - JBYmin) << 10) / (JBYmax - JBYmin);
+    //apply 100-unit deadzone
     if (iY2Scaled >= 0) {
       iY2Clamped = iY2Scaled - 100;
       if (iY2Clamped < 0)
