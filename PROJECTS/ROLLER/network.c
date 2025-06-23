@@ -2282,40 +2282,38 @@ int reset_net_wait()
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int send_broadcast(unsigned int result, int a2, int a3, int a4)
+unsigned int send_broadcast(unsigned int uiBroadcastMode)
 {
-  return 0; /*
-  int v4; // edx
-  int v5; // edx
+  uint32 uiOldTimeToStart;
 
-  if (result < 0xFFFFFE38) {
-    if (result == -457) {
-      v5 = time_to_start;
-      time_to_start = -457;
+  if (uiBroadcastMode < 0xFFFFFE38) {
+    if (uiBroadcastMode == 0xFFFFFE37) {
+      uiOldTimeToStart = time_to_start;
+      time_to_start = 0xFFFFFE37;
       do {
-        result = -1;
+        uiBroadcastMode = -1;
         if (network_on)
-          result = TransmitInit(-1, v5, a3, a4);
-      } while (!result);
-      time_to_start = v5;
+          uiBroadcastMode = TransmitInit();
+      } while (!uiBroadcastMode);
+      time_to_start = uiOldTimeToStart;
     }
-  } else if (result <= 0xFFFFFE38) {
-    v4 = time_to_start;
-    time_to_start = -456;
+  } else if (uiBroadcastMode <= 0xFFFFFE38) {
+    uiOldTimeToStart = time_to_start;
+    time_to_start = 0xFFFFFE38;
     do {
-      result = -1;
+      uiBroadcastMode = -1;
       if (network_on)
-        result = TransmitInit(-1, v4, a3, a4);
-    } while (!result);
-    time_to_start = v4;
-  } else if (result == -1) {
+        uiBroadcastMode = TransmitInit();
+    } while (!uiBroadcastMode);
+    time_to_start = uiOldTimeToStart;
+  } else if (uiBroadcastMode == -1) {
     do {
-      result = -1;
+      uiBroadcastMode = -1;
       if (network_on)
-        result = TransmitInit(-1, 0, a3, a4);
-    } while (!result);
+        uiBroadcastMode = TransmitInit();
+    } while (!uiBroadcastMode);
   }
-  return result;*/
+  return uiBroadcastMode;
 }
 
 //-------------------------------------------------------------------------------------------------

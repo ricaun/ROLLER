@@ -129,7 +129,7 @@ int remove_messages(int Header, int a2, void *a3, int a4);
 int reset_network(int a1);
 void clear_network_game();
 int reset_net_wait();
-unsigned int send_broadcast(unsigned int result, int a2, int a3, int a4);
+unsigned int send_broadcast(unsigned int uiBroadcastMode);
 int send_here(int result);
 
 //-------------------------------------------------------------------------------------------------
