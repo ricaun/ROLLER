@@ -3506,6 +3506,7 @@ void initmusic()
   // read GMSong/CDSong values for each track (+5 entries)
   for (int i = 0; i < nummusictracks + 5; i++) {
     readline(pFile, "ii", &GMSong[i], &CDSong[i]);
+    SDL_Log("GMSong[%d] = %i | CDSong[%d] = %i", i, GMSong[i], i, CDSong[i]);
   }
 
   // set special track indices (stored as negative values)
