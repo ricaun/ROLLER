@@ -5732,7 +5732,7 @@ void loadcheatnames()
 
 //-------------------------------------------------------------------------------------------------
 
-void CheckNames(char *szPlayerName, int iPlayerIdx)
+int CheckNames(char *szPlayerName, int iPlayerIdx)
 {
   int iCheatIdx = 0;
 
@@ -5743,7 +5743,7 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
   if (cheat_names[0][0] == '#') {
     // Re-encode cheat names
     decode((uint8*)cheat_names, 288, 43, 87);
-    return;
+    return 0;
   }
 
   char *szCurrCheat = (char *)cheat_names;
@@ -5919,6 +5919,8 @@ void CheckNames(char *szPlayerName, int iPlayerIdx)
   }
   // Re-encode cheat names
   decode((uint8*)cheat_names, 288, 43, 87);
+
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------

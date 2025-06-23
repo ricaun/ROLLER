@@ -50,8 +50,26 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  char szPlayerName[9];
+  //padding byte
+  //padding byte
+  //padding byte
+  int iPlayerCar;
+  int iTrackLoad;
+  int iGameType;
+  int iManualControl;
+  int iLevel;
+  int iCompetitors;
+  int iDamageLevel;
+} tPlayerInfoPacket;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int net_type;
 extern int net_started;
+extern int gamers_playing[4];
 extern int test_mini[2];
 extern int test_multiple[16];
 extern tRecordPacket p_record;
@@ -65,10 +83,11 @@ extern int syncnode;
 extern int syncframe;
 extern int received_seed;
 extern int frame_number;
+extern int start_multiple;
 extern tSyncHeader p_header;
 extern int test_seed;
 extern int my_age;
-extern int broadcast_mode;
+extern uint32 broadcast_mode;
 extern int random_seed;
 extern int master;
 extern tSyncHeader in_header;
@@ -101,11 +120,11 @@ void do_sync_stuff();
 int TransmitInit();
 int StartNode(int a1);
 int CheckNewNodes();
-int FoundNodes(int result);
+void FoundNodes();
 void SendPlayerInfo();
 int prepare_net_message(int result, int a2);
 void SendAMessage(int a1, int a2, int a3, int a4);
-void BroadcastNews(int a1, int a2, int a3, int a4);
+void BroadcastNews();
 int remove_messages(int Header, int a2, void *a3, int a4);
 int reset_network(int a1);
 void clear_network_game();

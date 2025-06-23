@@ -12,6 +12,7 @@
 
 int net_type = 1;           //000A6104
 int net_started = 0;        //000A610C
+int gamers_playing[4];      //00178470
 int test_mini[2];           //001786C0
 int test_multiple[16];      //001786C8
 tRecordPacket p_record;     //00178708
@@ -25,10 +26,11 @@ int syncnode;               //0017C930
 int syncframe;              //0017C934
 int received_seed;          //0017C938
 int frame_number;           //0017C940
+int start_multiple;         //0017C944
 tSyncHeader p_header;       //0017C948
 int test_seed;              //0017C958
 int my_age;                 //0017C964
-int broadcast_mode;         //0017C984
+uint32 broadcast_mode;      //0017C984
 int random_seed;            //0017C98C
 int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
@@ -1836,81 +1838,71 @@ int CheckNewNodes()
 
 //-------------------------------------------------------------------------------------------------
 
-int FoundNodes(int result)
+void FoundNodes()
 {
-  return 0; /*
-  int v1; // eax
-  __int16 ConsoleNode; // ax
-  int v3; // ecx
-  char *v4; // edx
-  int v5; // edx
-  int v6; // edx
+  if (!master) return;  // Only process if we're the master
 
-  if (master) {
-    v1 = gssCommsSortNodes(result);
-    network_on = gssCommsGetActiveNodes(v1);
-    ConsoleNode = gssCommsGetConsoleNode(network_on);
-    wConsoleNode = ConsoleNode;
-    master = 0;
-    start_multiple = network_on - 1;
-    v3 = Players_Cars[player1_car];
-    manual_control[ConsoleNode] = manual_control[player1_car];
-    v4 = &player_names[9 * player1_car];
-    Players_Cars[ConsoleNode] = v3;
-    name_copy((int)&player_names[9 * ConsoleNode], v4);
-    result = wConsoleNode;
-    v5 = player_invul[player1_car];
-    player1_car = wConsoleNode;
-    player_invul[wConsoleNode] = v5;
-    v6 = 0;
-    if (network_on > 0) {
-      result = 0;
-      do {
-        result += 4;
-        ++v6;
-        *(int *)((char *)p_record_variable_3 + result) = -1;
-      } while (v6 < network_on);
+  // Update network state
+  // TODO network
+  //gssCommsSortNodes();
+  //network_on = gssCommsGetActiveNodes();
+  //wConsoleNode = gssCommsGetConsoleNode();
+
+  // Reset master flag and set player count
+  master = 0;
+  start_multiple = network_on - 1;
+
+  // Transfer player settings to network slot
+  Players_Cars[wConsoleNode] = Players_Cars[player1_car];
+  manual_control[wConsoleNode] = manual_control[player1_car];
+  player_invul[wConsoleNode] = player_invul[player1_car];
+
+  // Copy player name to network slot
+  name_copy(player_names[wConsoleNode], player_names[player1_car]);
+
+  // Update player1 to current network slot
+  player1_car = wConsoleNode;
+
+  // Initialize net_players array
+  if (network_on > 0) {
+    for (int i = 0; i < network_on; i++) {
+      net_players[i] = -1;  // 0xFFFFFFFF
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void SendPlayerInfo()
-{/*
-  int v0; // ecx
-  _BYTE v1[12]; // [esp+0h] [ebp-44h] BYREF
-  int v2; // [esp+Ch] [ebp-38h]
-  int v3; // [esp+10h] [ebp-34h]
-  int v4; // [esp+14h] [ebp-30h]
-  int v5; // [esp+18h] [ebp-2Ch]
-  int v6; // [esp+1Ch] [ebp-28h]
-  int v7; // [esp+20h] [ebp-24h]
-  int v8; // [esp+24h] [ebp-20h]
-  int i; // [esp+28h] [ebp-1Ch]
+{
+  tPlayerInfoPacket playerInfo; // [esp+0h] [ebp-44h] BYREF
 
   if (network_on) {
-    name_copy((int)v1, &player_names[9 * player1_car]);
-    v2 = Players_Cars[player1_car];
-    v3 = TrackLoad;
-    v4 = game_type;
-    v7 = competitors;
-    v6 = level;
-    v0 = player_invul[player1_car];
-    v8 = damage_level;
-    if (v0)
-      LOBYTE(v8) = v8 | 0x40;
-    v5 = manual_control[player1_car];
-    *((_BYTE *)&p_header + 8) = wConsoleNode;
-    *((_DWORD *)&p_header + 1) = 1751933802;
-    for (i = 0; i < network_on; ++i) {
+    //setup playerInfo packet
+    name_copy(playerInfo.szPlayerName, player_names[player1_car]);
+    playerInfo.iPlayerCar = Players_Cars[player1_car];
+    playerInfo.iTrackLoad = TrackLoad;
+    playerInfo.iGameType = game_type;
+    playerInfo.iCompetitors = competitors;
+    playerInfo.iLevel = level;
+    playerInfo.iDamageLevel = damage_level;
+    if (player_invul[player1_car])
+      playerInfo.iDamageLevel |= 0x00000040;
+    playerInfo.iManualControl = manual_control[player1_car];
+    
+    //setup header
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = 0x686C636A;
+
+    //send to all nodes
+    for (int i = 0; i < network_on; ++i) {
       if (wConsoleNode != i) {
-        while (!gssCommsSendData(i))
-          ;
+        //TODO network
+        //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), &playerInfo, sizeof(tPlayerInfoPacket), i))
+        //  UpdateSDL(); //added by ROLLER
       }
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1968,83 +1960,84 @@ void SendAMessage(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void BroadcastNews(int a1, int a2, int a3, int a4)
-{/*
-  int v4; // eax
-  int v5; // eax
-  int v6; // eax
+void BroadcastNews()
+{
+  int iInitSuccess8; // eax
+  int iInitSuccess7; // eax
+  int iInitSuccess6; // eax
   int j; // eax
-  int v8; // eax
-  int v9; // eax
+  int iInitSuccess5; // eax
+  int iInitSuccess4; // eax
   int i; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15; // eax
+  int iInitSuccess3; // eax
+  int iInitSuccess2; // eax
+  int iInitSuccess10; // eax
+  int iOldTimeToStart; // edx
+  int iInitSuccess9; // eax
+  int iInitSuccess; // eax
 
   if (!broadcast_mode)
     return;
-  if ((unsigned int)broadcast_mode < 0xFFFFFD63) {
-    if ((unsigned int)broadcast_mode < 0xFFFFF562) {
-      if ((unsigned int)broadcast_mode < 0xFFFFD8F1) {
+  if (broadcast_mode < 0xFFFFFD63) {
+    if (broadcast_mode < 0xFFFFF562) {
+      if (broadcast_mode < 0xFFFFD8F1) {
       LABEL_81:
-        v15 = -1;
+        iInitSuccess = -1;
         if (network_on)
-          v15 = TransmitInit(-1, a2, a3, a4);
-        if (v15) {
-          check_cars(v15);
+          iInitSuccess = TransmitInit();
+        if (iInitSuccess) {
+          check_cars();
           broadcast_mode = 0;
         }
         return;
       }
-      if ((unsigned int)broadcast_mode <= 0xFFFFD8F1) {
-        if (total_wins_variable_1[car_request] < 2) {
-          v12 = -1;
+      if (broadcast_mode <= 0xFFFFD8F1) {
+        if (total_wins[car_request + 15] < 2) {
+          iInitSuccess2 = -1;
           if (network_on)
-            v12 = TransmitInit(-1, a2, a3, a4);
-          if (!v12)
+            iInitSuccess2 = TransmitInit();
+          if (!iInitSuccess2)
             return;
           car_request = -car_request;
-          check_cars(v12);
+          check_cars();
         } else {
           car_request = 0;
         }
         broadcast_mode = 0;
         return;
       }
-      if (broadcast_mode != -3567)
+      if (broadcast_mode != 0xFFFFF211)
         goto LABEL_81;
       if (wConsoleNode != master)
         send_record_to_master(TrackLoad);
     } else {
-      if ((unsigned int)broadcast_mode <= 0xFFFFF562) {
+      if (broadcast_mode <= 0xFFFFF562) {
         send_record_to_slaves(TrackLoad);
         send_seed(random_seed);
         broadcast_mode = 0;
         return;
       }
-      if ((unsigned int)broadcast_mode < 0xFFFFFD61)
+      if (broadcast_mode < 0xFFFFFD61)
         goto LABEL_81;
-      if ((unsigned int)broadcast_mode <= 0xFFFFFD61) {
+      if (broadcast_mode <= 0xFFFFFD61) {
         if (master) {
-          v11 = -1;
+          iInitSuccess3 = -1;
           time_to_start = -1;
           if (network_on)
-            v11 = TransmitInit(-1, a2, a3, a4);
-          if (!v11) {
+            iInitSuccess3 = TransmitInit();
+          if (!iInitSuccess3) {
             time_to_start = 0;
             return;
           }
-          FoundNodes(v11);
+          FoundNodes();
         }
         broadcast_mode = 0;
       } else {
         StartPressed = 0;
-        v9 = -1;
+        iInitSuccess4 = -1;
         if (network_on)
-          v9 = TransmitInit(-1, 0, a3, a4);
-        if (v9) {
+          iInitSuccess4 = TransmitInit();
+        if (iInitSuccess4) {
           player_started[0] = 0;
           players_waiting = 0;
           for (i = 0; i < network_on; ++i) {
@@ -2055,21 +2048,21 @@ void BroadcastNews(int a1, int a2, int a3, int a4)
         }
       }
     }
-  } else if ((unsigned int)broadcast_mode <= 0xFFFFFD63) {
-    v8 = -1;
+  } else if (broadcast_mode <= 0xFFFFFD63) {
+    iInitSuccess5 = -1;
     if (network_on)
-      v8 = TransmitInit(-1, a2, a3, a4);
-    if (v8) {
-      waste = CheckNames(&player_names[9 * player1_car], player1_car);
+      iInitSuccess5 = TransmitInit();
+    if (iInitSuccess5) {
+      waste = CheckNames(player_names[player1_car], player1_car);
       broadcast_mode = 0;
     }
-  } else if ((unsigned int)broadcast_mode < 0xFFFFFD66) {
-    if ((unsigned int)broadcast_mode <= 0xFFFFFD64) {
+  } else if (broadcast_mode < 0xFFFFFD66) {
+    if (broadcast_mode <= 0xFFFFFD64) {
       StartPressed = -1;
-      v6 = -1;
+      iInitSuccess6 = -1;
       if (network_on)
-        v6 = TransmitInit(-1, -1, a3, a4);
-      if (v6) {
+        iInitSuccess6 = TransmitInit();
+      if (iInitSuccess6) {
         player_started[0] = -1;
         players_waiting = 0;
         for (j = 0; j < network_on; ++j) {
@@ -2080,56 +2073,57 @@ void BroadcastNews(int a1, int a2, int a3, int a4)
       }
     } else {
       time_to_start = -667;
-      v5 = -1;
+      iInitSuccess7 = -1;
       if (network_on)
-        v5 = TransmitInit(-1, a2, a3, a4);
+        iInitSuccess7 = TransmitInit();
       time_to_start = 0;
-      if (v5)
+      if (iInitSuccess7)
         broadcast_mode = 0;
     }
-  } else if ((unsigned int)broadcast_mode <= 0xFFFFFD66) {
+  } else if (broadcast_mode <= 0xFFFFFD66) {
     time_to_start = -666;
-    v4 = -1;
+    iInitSuccess8 = -1;
     if (network_on)
-      v4 = TransmitInit(-1, a2, a3, a4);
+      iInitSuccess8 = TransmitInit();
     time_to_start = 0;
-    if (v4) {
+    if (iInitSuccess8) {
       I_Quit = -1;
       broadcast_mode = 0;
     }
   } else {
-    if ((unsigned int)broadcast_mode < 0xFFFFFE38) {
-      if (broadcast_mode == -457) {
-        a2 = time_to_start;
-        time_to_start = -457;
-        v14 = -1;
+    if (broadcast_mode < 0xFFFFFE38) {
+      if (broadcast_mode == 0xFFFFFE37) {
+        iOldTimeToStart = time_to_start;
+        time_to_start = 0xFFFFFE37;
+        iInitSuccess9 = -1;
         if (network_on)
-          v14 = TransmitInit(-1, a2, a3, a4);
-        if (v14)
+          iInitSuccess9 = TransmitInit();
+        if (iInitSuccess9)
           broadcast_mode = 0;
-        time_to_start = a2;
+        time_to_start = iOldTimeToStart;
       }
       goto LABEL_81;
     }
-    if ((unsigned int)broadcast_mode <= 0xFFFFFE38) {
-      time_to_start = -456;
-      _STOSD(gamers_playing, 0, a3, 4);
-      v13 = -1;
+    if (broadcast_mode <= 0xFFFFFE38) {
+      time_to_start = 0xFFFFFE38;
+      //_STOSD(gamers_playing, 0, v0, 4u);
+      memset(gamers_playing, 0, sizeof(gamers_playing));
+      iInitSuccess10 = -1;
       if (network_on)
-        v13 = TransmitInit(-1, 0, a3, 4);
-      if (v13)
+        iInitSuccess10 = TransmitInit();
+      if (iInitSuccess10)
         broadcast_mode = 0;
       time_to_start = 0;
     } else {
-      if (broadcast_mode != -314)
+      if (broadcast_mode != 0xFFFFFEC6)
         goto LABEL_81;
-      FoundNodes(-314);
+      FoundNodes();
       SendPlayerInfo();
       if (wConsoleNode != master)
         send_record_to_master(TrackLoad);
       broadcast_mode = 0;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

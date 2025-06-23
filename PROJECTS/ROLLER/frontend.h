@@ -92,7 +92,7 @@ void save_params();
 void reset_params();
 int NetworkWait(int a1, int a2, int a3, int a4);
 void loadcheatnames();
-void CheckNames(char *szPlayerName, int iPlayerIdx);
+int CheckNames(char *szPlayerName, int iPlayerIdx);
 void restart_net_game();
 
 //-------------------------------------------------------------------------------------------------
