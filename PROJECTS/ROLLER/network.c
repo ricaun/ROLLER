@@ -2119,26 +2119,22 @@ void BroadcastNews()
 
 //-------------------------------------------------------------------------------------------------
 
-int remove_messages(int Header, int a2, void*a3, int a4)
+void remove_messages(int iClear)
 {
-  return 0; /*
-  int v4; // ecx
-  _DWORD v6[4]; // [esp-Ch] [ebp-10h] BYREF
-
-  v6[2] = a4;
-  v4 = Header;
-  do {
-    gssCommsPostListen(Header, a2, a3);
-    a2 = 12;
-    a3 = v6;
-    Header = gssCommsGetHeader(&in_header, 12, v6);
-  } while (Header);
-  if (v4) {
-    do
-      Header = gssCommsPostListen(Header, 12, v6);
-    while (Header);
-  }
-  return clear_network_game(Header);*/
+  //uint8 buffer[4]; // [esp-Ch] [ebp-10h] BYREF
+  //
+  //// first message processing loop
+  //do {
+  //  gssCommsPostListen();                       // check for incoming messages
+  //  UpdateSDL(); //added by ROLLER
+  //} while (gssCommsGetHeader(&in_header, sizeof(tSyncHeader), buffer));// continue until there are no more messages
+  //
+  //// additional clearing if condition is true
+  //if (iClear) {
+  //  while (gssCommsPostListen())
+  //    UpdateSDL(); //added by ROLLER
+  //}
+  clear_network_game();
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -159,7 +159,7 @@ void SendPlayerInfo();
 int prepare_net_message(int result, int a2);
 void SendAMessage();
 void BroadcastNews();
-int remove_messages(int Header, int a2, void *a3, int a4);
+void remove_messages(int iClear);
 int reset_network(int a1);
 void clear_network_game();
 int reset_net_wait();
