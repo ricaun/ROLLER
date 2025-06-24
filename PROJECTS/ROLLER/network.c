@@ -683,18 +683,9 @@ void send_multiple()
 
 void receive_multiple()
 {
-  int unFrameId2; // eax
-  int *pCopyMultipleAtWritePtrMinus1; // edx
-  int iPlayerIdx2; // edx
-  int *pCopyMultipleAtWritePtr; // ebx
-  int iPlayerIdx; // edx
-  int j; // eax
-  int unFrameId; // eax
-  int i; // eax
   tPlayerInfoPacket playerInfoPacket; // [esp+0h] [ebp-60h] BYREF
   char szMesPacket[14]; // [esp+28h] [ebp-38h] BYREF
   //void *pPacket; // [esp+38h] [ebp-28h] BYREF
-  int iCarIdx; // [esp+3Ch] [ebp-24h]
   int iPaused; // [esp+40h] [ebp-20h] BYREF
   int *pSeed; // [esp+44h] [ebp-1Ch]
 
@@ -716,7 +707,6 @@ void receive_multiple()
           continue;
         case PACKET_ID_PLAYER_CARS:
           if (net_type) {
-            iPlayerIdx = 0;
             if (network_on > 0) {
               for (int i = 0; i < network_on; ++i) {
                 player_ready[i] = -1;
@@ -726,12 +716,10 @@ void receive_multiple()
             net_loading = 0;
             //TODO network
             //gssCommsGetBlock(pPacket, test_mini, 8);
-            for (j = 0; j < 2; ++j) {
-              copy_multiple[writeptr][player_to_car[j]] = test_mini[i];
+            for (int i = 0; i < 2; ++i) {
+              copy_multiple[writeptr][player_to_car[i]] = test_mini[i];
             }
           } else {
-            iPlayerIdx2 = 0;
-            pCopyMultipleAtWritePtr = copy_multiple[writeptr];
             if (network_on > 0) {
 
               for (int i = 0; i < network_on; ++i) {
@@ -741,12 +729,11 @@ void receive_multiple()
             active_nodes = network_on;
             net_loading = 0;
             //TODO network
-            //gssCommsGetBlock(pPacket, pCopyMultipleAtWritePtr, 64);
+            //gssCommsGetBlock(pPacket, &copy_multiple[writeptr], 64);
           }
           network_timeout = frames;
           ++ticks_received;
-          unFrameId = in_header.unFrameId;
-          if (unFrameId == frame_number) {
+          if (in_header.unFrameId == frame_number) {
             ++frame_number;
             writeptr = (writeptr + 1) & 0x1FF;
             next_resync = -1;
@@ -754,7 +741,7 @@ void receive_multiple()
             //gssCommsPostListen();
             continue;
           }
-          if (unFrameId <= frame_number)
+          if (in_header.unFrameId <= frame_number)
             goto LABEL_54;
           ++lost_message;
           //TODO network
@@ -835,18 +822,14 @@ void receive_multiple()
           //gssCommsPostListen();
           continue;
         case PACKET_ID_MULTIPLE:
-          unFrameId2 = in_header.unFrameId;
-          if (unFrameId2 == frame_number) {
-            iCarIdx = player_to_car[1];
-            pCopyMultipleAtWritePtrMinus1 = copy_multiple[(writeptr - 1) & 0x1FF];
-            memcpy(
-              &copy_multiple[writeptr][player_to_car[0]],
-              &pCopyMultipleAtWritePtrMinus1[player_to_car[0]],
-              sizeof(copy_multiple[writeptr][player_to_car[0]]));
-            memcpy(
-              &copy_multiple[writeptr][iCarIdx],
-              &pCopyMultipleAtWritePtrMinus1[iCarIdx],
-              sizeof(copy_multiple[writeptr][iCarIdx]));
+          if (in_header.unFrameId == frame_number) {
+
+            int iPrevIdx = (writeptr - 1) & 0x1FF;
+            int iCar0 = player_to_car[0];
+            int iCar1 = player_to_car[1];
+            copy_multiple[writeptr][iCar0] = copy_multiple[iPrevIdx][iCar0];
+            copy_multiple[writeptr][iCar1] = copy_multiple[iPrevIdx][iCar1];
+
             network_timeout = frames;
             ++ticks_received;
             ++frame_number;
@@ -856,7 +839,7 @@ void receive_multiple()
             //gssCommsPostListen();
             continue;
           }
-          if (unFrameId2 <= frame_number)
+          if (in_header.unFrameId <= frame_number)
             goto LABEL_54;
           ++lost_message;
           //TODO network
