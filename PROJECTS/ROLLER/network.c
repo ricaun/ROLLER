@@ -35,6 +35,8 @@ int random_seed;            //0017C98C
 int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
+int net_quit;               //0017C9B4
+char p_data[14];            //0017C9BE
 int16 wConsoleNode;         //0017C9DA
 
 //-------------------------------------------------------------------------------------------------
@@ -319,25 +321,27 @@ int send_nocd_error()
 //-------------------------------------------------------------------------------------------------
 
 void send_quit()
-{/*
+{
   int i; // esi
 
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    p_header_variable_1 = 1751933796;
+    p_header.byConsoleNode = wConsoleNode;
+    p_header.uiId = PACKET_ID_QUIT;
     if (wConsoleNode == master) {
       for (i = 0; i < network_on; ++i) {
         if (i != wConsoleNode) {
-          while (!gssCommsSendData(i))
-            ;
+          //TODO network
+          //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, i))
+          //  UpdateSDL(); //added by ROLLER
         }
       }
       net_quit = -1;
     } else {
-      while (!gssCommsSendData(master))
-        ;
+      //TODO network
+      //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, master))
+      //  UpdateSDL(); //added by ROLLER
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

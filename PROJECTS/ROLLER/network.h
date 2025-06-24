@@ -5,6 +5,7 @@
 //-------------------------------------------------------------------------------------------------
 
 #define PACKET_ID_TRANSMIT_INIT 0x686C6361
+#define PACKET_ID_QUIT          0x686C6364
 #define PACKET_ID_PLAYER_CARS   0x686C6366
 #define PACKET_ID_SEED          0x686C6368
 #define PACKET_ID_PLAYER_INFO   0x686C636A
@@ -113,6 +114,8 @@ extern int random_seed;
 extern int master;
 extern tSyncHeader in_header;
 extern int active_nodes;
+extern int net_quit;
+extern char p_data[14];
 extern int16 wConsoleNode;
 
 //-------------------------------------------------------------------------------------------------
