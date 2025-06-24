@@ -120,6 +120,7 @@ extern int test_seed;
 extern int resync;
 extern int my_age;
 extern int network_mistake;
+extern int pauser;
 extern uint32 broadcast_mode;
 extern int message_sent;
 extern int random_seed;

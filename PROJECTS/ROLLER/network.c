@@ -32,6 +32,7 @@ int test_seed;              //0017C958
 int resync;                 //0017C95C
 int my_age;                 //0017C964
 int network_mistake;        //0017C97C
+int pauser;                 //0017C980
 uint32 broadcast_mode;      //0017C984
 int message_sent;           //0017C988
 int random_seed;            //0017C98C
@@ -530,24 +531,30 @@ void send_slot()
 //-------------------------------------------------------------------------------------------------
 
 void transmitpausetoslaves()
-{/*
-  int v0; // esi
-  int v1; // edi
+{
+  int iNode; // esi
+  int iNetPlayerIdx; // edi
+  tSyncHeader syncHeader; // [esp+0h] [ebp-28h] BYREF
+  bool bPaused; // [esp+Ch] [ebp-1Ch] BYREF
 
   if (network_on) {
-    v0 = 0;
+    syncHeader.byConsoleNode = pauser;
+    syncHeader.uiId = PACKET_ID_PAUSE;
+    bPaused = paused;
+    iNode = 0;
     if (network_on > 0) {
-      v1 = 0;
+      iNetPlayerIdx = 0;
       do {
-        if (v0 != master && net_players[v1]) {
-          while (!gssCommsSendData(v0))
-            ;
+        if (iNode != master && net_players[iNetPlayerIdx]) {
+          //Todo network
+          //while (!gssCommsSendData(&syncHeader, sizeof(tSyncHeader), bPaused, sizeof(bool), iNode))
+          //  UpdateSDL(); //added by ROLLER
         }
-        ++v1;
-        ++v0;
-      } while (v0 < network_on);
+        ++iNetPlayerIdx;
+        ++iNode;
+      } while (iNode < network_on);
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
