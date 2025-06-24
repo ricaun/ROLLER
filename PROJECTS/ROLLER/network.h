@@ -9,6 +9,7 @@
 #define PACKET_ID_PLAYER_CARS   0x686C6366
 #define PACKET_ID_READY         0x686C6367
 #define PACKET_ID_SEED          0x686C6368
+#define PACKET_ID_PAUSE         0x686C6369
 #define PACKET_ID_PLAYER_INFO   0x686C636A
 #define PACKET_ID_RECORD        0x686C636B
 #define PACKET_ID_NOCD          0x686C636F
@@ -142,7 +143,7 @@ void send_record_to_slaves(int iRecordIdx);
 char send_mes(char *a1, int a2);
 void send_seed(int iRandomSeed);
 int send_single(int result);
-int send_pause();
+void send_pause();
 int send_slot();
 void transmitpausetoslaves();
 void send_multiple();

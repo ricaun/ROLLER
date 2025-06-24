@@ -512,17 +512,19 @@ int send_single(int result)
 
 //-------------------------------------------------------------------------------------------------
 
-int send_pause()
+void send_pause()
 {
-  return 0; /*
-  int result; // eax
+  tSyncHeader syncHeader; // [esp+0h] [ebp-1Ch] BYREF
+  bool bPaused; // [esp+Ch] [ebp-10h] BYREF
 
   if (network_on) {
-    do
-      result = gssCommsSendData(master);
-    while (!result);
+    syncHeader.byConsoleNode = (uint8)wConsoleNode;
+    syncHeader.uiId = PACKET_ID_PAUSE;
+    bPaused = paused == 0;
+    //TODO network
+    //while (!gssCommsSendData(&syncHeader, sizeof(tSyncHeader), &bPaused, sizeof(bool), master))
+    //  UpdateSDL(); //added by ROLLER
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
