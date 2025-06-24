@@ -118,6 +118,7 @@ int delayread;              //0016F8CC
 int numsamples;             //0016F8D0
 int cheatsample;            //0016F8D4
 int languages;              //0016F8D8
+int net_loading;            //0016F8DC
 int network_error;          //0017C97C
 
 //-------------------------------------------------------------------------------------------------

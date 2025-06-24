@@ -289,6 +289,7 @@ extern int delayread;
 extern int numsamples;
 extern int cheatsample;
 extern int languages;
+extern int net_loading;
 extern int network_error;
 
 //-------------------------------------------------------------------------------------------------

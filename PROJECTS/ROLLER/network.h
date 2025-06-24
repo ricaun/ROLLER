@@ -158,7 +158,7 @@ extern int16 wConsoleNode;
 
 //-------------------------------------------------------------------------------------------------
 
-int Initialise_Network(int a1);
+void Initialise_Network(int iSelectNetSlot);
 void close_network();
 void send_net_error();
 void send_game_error();

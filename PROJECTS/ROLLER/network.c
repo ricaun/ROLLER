@@ -57,100 +57,74 @@ int16 wConsoleNode;         //0017C9DA
 
 //-------------------------------------------------------------------------------------------------
 
-int Initialise_Network(int a1)
+void Initialise_Network(int iSelectNetSlot)
 {
-  return 0; /*
-  int v2; // ecx
-  int v3; // esi
-  int i; // ebx
-  unsigned int v5; // eax
-  int v6; // edx
-  int result; // eax
-  int v8; // eax
-  int NetworkAddr; // eax
-  int ConsoleNode; // eax
-  int v11; // [esp+0h] [ebp-1Ch]
+  int iResetNetwork; // [esp+0h] [ebp-1Ch]
 
-  v11 = 0;
+  iResetNetwork = 0;
   active_nodes = 0;
   net_quit = 0;
-  master = -667;
+  master = 0xFFFFFD65;
   wConsoleNode = 0;
   network_on = 0;
   net_loading = 0;
-  v2 = 0x4000;
-  memset(copy_multiple, 0, 0x8000);
-  v3 = 0;
-  for (i = 0; i < 16; ++i) {
-    v5 = 2 * i;
-    player_ready[v3] = 0;
-    v6 = v2;
-    do {
-      v5 += 32;
-      net_players_variable_1[v5 / 2] = -1;
-    } while (v5 != v2);
-    v2 += 2;
-    ++v3;
+  memset(copy_multiple, 0, sizeof(copy_multiple));
+
+  for (int i = 0; i < 16; ++i) {
+    player_ready[i] = 0;
+    for (int j = 0; i < 512; ++j) {
+      player_checks[j][i] = -1;
+    }
   }
+
   message_node = -1;
   message_number = -1;
   message_received = -1;
   message_sent = -1;
-  result = v6 ^ v5;
-  time_to_start = result;
+  time_to_start = 0;
   received_seed = 0;
   frame_number = 0;
   active_nodes = 0;
-  if (net_type || !net_started) {
-    result = gssCommsInitSystem(20);
-    if (result)
-      v11 = -1;
-  }
-  if (!v11) {
+
+  //TODO network
+  //if ((net_type || !net_started) && gssCommsInitSystem(20u))
+  //  iResetNetwork = -1;
+  if (!iResetNetwork) {
     I_Quit = 0;
     broadcast_mode = 0;
     writeptr = 0;
     readptr = 0;
-    remove_messages(-1, 0, -1);
+    remove_messages(-1);
     if (!net_type)
       net_started = -1;
-    v8 = 1;
-    net_players[0] = 0;
-    player_started[0] = 0;
-    do {
-      v8 += 5;
-      test_multiple_variable_1[v8] = 0;
-      non_competitors_variable_4[v8] = 0;
-      p_record[v8] = 0;
-      non_competitors_variable_5[v8] = 0;
-      p_record_variable_1[v8] = 0;
-      non_competitors_variable_6[v8] = 0;
-      p_record_variable_2[v8] = 0;
-      non_competitors_variable_7[v8] = 0;
-      p_record_variable_3[v8] = 0;
-      non_competitors_variable_8[v8] = 0;
-    } while (v8 != 16);
+
+    for (int i = 0; i < 16; ++i) {
+      net_players[i] = 0;
+      player_started[i] = 0;
+    }
+
     players_waiting = 0;
     if (!network_champ_on)
       Players_Cars[player1_car] = -1;
     my_age = 0;
-    NetworkAddr = gssCommsGetNetworkAddr(&address, 0);
-    ConsoleNode = gssCommsGetConsoleNode(NetworkAddr);
+    //TODO network
+    //gssCommsGetNetworkAddr(address[0]);
+    //gssCommsGetConsoleNode();
     network_on = 1;
-    if (a1 || network_slot < 0)
-      broadcast_mode = -456;
+    if (iSelectNetSlot || network_slot < 0)
+      broadcast_mode = 0xFFFFFE38;              // force slave broadcast?
     else
       broadcast_mode = -1;
     tick_on = -1;
     while (broadcast_mode)
-      ;
-    result = gssCommsSortNodes(ConsoleNode);
+      UpdateSDL(); //added by ROLLER
+    //TODO network
+    //gssCommsSortNodes();
     received_records = 1;
     switch_sets = 0;
     switch_same = 0;
     switch_types = 0;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
