@@ -25,11 +25,13 @@ int syncleft;               //0017C92C
 int syncnode;               //0017C930
 int syncframe;              //0017C934
 int received_seed;          //0017C938
+int received_records;       //0017C93C
 int frame_number;           //0017C940
 int start_multiple;         //0017C944
 tSyncHeader p_header;       //0017C948
 int test_seed;              //0017C958
 int resync;                 //0017C95C
+int message_received;       //0017C960
 int my_age;                 //0017C964
 int message_number;         //0017C968
 int message_node;           //0017C96C
@@ -2126,56 +2128,41 @@ void remove_messages(int iClear)
 
 //-------------------------------------------------------------------------------------------------
 
-int reset_network(int a1)
+void reset_network(int iResetBroadcastMode)
 {
-  return 0; /*
-  __int64 v2; // rax
+  int iNode; // edx
   int i; // edx
-  int v4; // eax
-  int v5; // eax
-  int NetworkAddr; // eax
-  __int64 v7; // rax
-  int result; // eax
 
+  iNode = 0;
   gamers_playing[0] = 0;
-  gamers_playing_variable_1 = 0;
-  gamers_playing_variable_2 = 0;
-  gamers_playing_variable_3 = 0;
-  v2 = gssCommsNetAddrToNode(&address);
-  wConsoleNode = v2;
-  while (SHIDWORD(v2) < wConsoleNode) {
-    LODWORD(v2) = gssCommsDeleteNode(0);
-    if ((_DWORD)v2) {
-      printf(aFailedToDelete_1);
-      doexit();
-    }
-    gssCommsSortNodes(v2);
-    ++HIDWORD(v2);
+  gamers_playing[1] = 0;
+  gamers_playing[2] = 0;
+  gamers_playing[3] = 0;
+  //TODO network
+  wConsoleNode = 0;// gssCommsNetAddrToNode(address);
+  while (iNode < wConsoleNode) {
+    //TODO network
+    //if (gssCommsDeleteNode(0)) {
+    //  printf("FAILED TO DELETE NODE c (%d)!!!\n", iNode);
+    //  doexit();
+    //}
+    //gssCommsSortNodes();
+    ++iNode;
   }
   for (i = wConsoleNode + 1; i < network_on; ++i) {
-    v4 = gssCommsDeleteNode(1);
-    if (v4) {
-      printf(aFailedToDelete_2);
-      doexit();
-    }
-    gssCommsSortNodes(v4);
+    //TODO network
+    //if (gssCommsDeleteNode(1)) {
+    //  printf("FAILED TO DELETE NODE (%d)!!!\n", i);
+    //  doexit();
+    //}
+    //gssCommsSortNodes();
   }
-  player_started[0] = 0;
-  v5 = 1;
-  net_players[0] = 0;
-  do {
-    v5 += 5;
-    non_competitors_variable_4[v5] = 0;
-    test_multiple_variable_1[v5] = 0;
-    non_competitors_variable_5[v5] = 0;
-    p_record[v5] = 0;
-    non_competitors_variable_6[v5] = 0;
-    p_record_variable_1[v5] = 0;
-    non_competitors_variable_7[v5] = 0;
-    p_record_variable_2[v5] = 0;
-    non_competitors_variable_8[v5] = 0;
-    p_record_variable_3[v5] = 0;
-  } while (v5 != 16);
+
+  for (int i = 0; i < 16; ++i) {
+    player_started[i] = 0;
+    net_players[i] = 0;
+  }
+
   player1_car = 0;
   received_seed = 0;
   frame_number = 0;
@@ -2188,23 +2175,24 @@ int reset_network(int a1)
   wConsoleNode = 0;
   I_Quit = 0;
   my_age = 0;
-  NetworkAddr = gssCommsGetNetworkAddr(&address, 0);
-  LODWORD(v7) = gssCommsGetConsoleNode(NetworkAddr);
+  //TODO network
+  //gssCommsGetNetworkAddr(address[0]);
+  //gssCommsGetConsoleNode();
   network_on = 1;
   if (network_slot >= 0)
     broadcast_mode = -1;
   else
-    broadcast_mode = -456;
+    broadcast_mode = 0xFFFFFE38;
   tick_on = -1;
-  if (a1) {
-    v7 = send_broadcast(broadcast_mode);
-    broadcast_mode = HIDWORD(v7);
+  if (iResetBroadcastMode) {
+    send_broadcast(broadcast_mode);
+    broadcast_mode = 0;
   }
-  gssCommsSortNodes(v7);
+  //TODO network
+  //gssCommsSortNodes();
   received_records = 1;
   switch_sets = 0;
   switch_types = 0;
-  result = network_on;
   players = network_on;
   message_received = -1;
   message_sent = -1;
@@ -2212,7 +2200,6 @@ int reset_network(int a1)
     player_started[0] = -1;
     players_waiting = 1;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
