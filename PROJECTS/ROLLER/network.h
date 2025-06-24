@@ -10,6 +10,7 @@
 #define PACKET_ID_SEED          0x686C6368
 #define PACKET_ID_PLAYER_INFO   0x686C636A
 #define PACKET_ID_RECORD        0x686C636B
+#define PACKET_ID_NOCD          0x686C636F
 #define PACKET_ID_MESSAGE       0x686C6373
 
 //-------------------------------------------------------------------------------------------------
@@ -126,7 +127,7 @@ int send_net_error();
 int send_game_error(int result);
 int send_network_sync_error();
 int send_resync(int result);
-int send_nocd_error();
+void send_nocd_error();
 void send_quit();
 void send_ready();
 void send_record_to_master(int iRecordIdx);

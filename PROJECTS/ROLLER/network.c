@@ -295,27 +295,25 @@ int send_resync(int result)
 
 //-------------------------------------------------------------------------------------------------
 
-int send_nocd_error()
+void send_nocd_error()
 {
-  return 0; /*
-  int result; // eax
   int i; // esi
 
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    p_header_variable_1 = 1751933807;
-    result = wConsoleNode;
-    if (wConsoleNode == master) {
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = PACKET_ID_NOCD;
+    if (wConsoleNode == (int16)master) {
       for (i = 0; i < network_on; ++i) {
-        result = wConsoleNode;
-        if (i != wConsoleNode)
-          result = gssCommsSendData(i);
+        if (i != wConsoleNode) {
+          //TODO network
+          //gssCommsSendData(&p_header, 12, p_data, 0, i);
+        }
       }
     } else {
-      return gssCommsSendData(master);
+      //TODO network
+      //gssCommsSendData(&p_header, 12, p_data, 0, master);
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -325,7 +323,7 @@ void send_quit()
   int i; // esi
 
   if (network_on) {
-    p_header.byConsoleNode = wConsoleNode;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
     p_header.uiId = PACKET_ID_QUIT;
     if (wConsoleNode == master) {
       for (i = 0; i < network_on; ++i) {
