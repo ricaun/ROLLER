@@ -5,6 +5,7 @@
 //-------------------------------------------------------------------------------------------------
 
 #define PACKET_ID_TRANSMIT_INIT 0x686C6361
+#define PACKET_ID_SEND_MES      0x686C6363
 #define PACKET_ID_QUIT          0x686C6364
 #define PACKET_ID_PLAYER_CARS   0x686C6366
 #define PACKET_ID_READY         0x686C6367
@@ -120,6 +121,7 @@ extern int resync;
 extern int my_age;
 extern int network_mistake;
 extern uint32 broadcast_mode;
+extern int message_sent;
 extern int random_seed;
 extern int master;
 extern tSyncHeader in_header;
@@ -141,7 +143,7 @@ void send_quit();
 void send_ready();
 void send_record_to_master(int iRecordIdx);
 void send_record_to_slaves(int iRecordIdx);
-char send_mes(char *a1, int a2);
+void send_mes(int iNetworkMessageIdx, int iNode);
 void send_seed(int iRandomSeed);
 int send_single(int result);
 void send_pause();

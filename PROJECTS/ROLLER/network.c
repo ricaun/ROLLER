@@ -33,6 +33,7 @@ int resync;                 //0017C95C
 int my_age;                 //0017C964
 int network_mistake;        //0017C97C
 uint32 broadcast_mode;      //0017C984
+int message_sent;           //0017C988
 int random_seed;            //0017C98C
 int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
@@ -407,62 +408,45 @@ void send_record_to_slaves(int iRecordIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-char send_mes(char *a1, int a2)
+void send_mes(int iNetworkMessageIdx, int iNode)
 {
-  return 0; /*
-  char *v2; // esi
-  char *v3; // edi
-  char *v4; // esi
-  char v5; // al
-  char v6; // al
-  int v7; // esi
-  int v8; // edi
+  char *szNetworkMessage; // eax
+  int iNodeIdx; // esi
+  int iNetPlayers; // edi
 
-  v2 = a1;
   if (network_on) {
-    a1 = &aSlowcoach[14 * (_DWORD)a1];
-    if (*a1) {
-      message_sent = (int)v2;
-      v3 = (char *)&p_data;
-      v4 = a1;
-      do {
-        v5 = *v4;
-        *v3 = *v4;
-        if (!v5)
-          break;
-        v6 = v4[1];
-        v4 += 2;
-        v3[1] = v6;
-        v3 += 2;
-      } while (v6);
-      LOBYTE(a1) = wConsoleNode;
-      p_header_variable_1 = 1751933795;
-      p_header_variable_2 = wConsoleNode;
-      if (a2 == -1) {
-        v7 = 0;
+    szNetworkMessage = network_messages[iNetworkMessageIdx];
+    if (*szNetworkMessage) {
+      message_sent = iNetworkMessageIdx;
+
+      strncpy(p_data, network_messages[iNetworkMessageIdx], sizeof(p_data));
+
+      // setup header
+      p_header.uiId = PACKET_ID_SEND_MES;
+      p_header.byConsoleNode = (uint8)wConsoleNode;
+      if (iNode == -1) {
+        iNodeIdx = 0;
         if (network_on > 0) {
-          v8 = 0;
+          iNetPlayers = 0;
           do {
-            LOBYTE(a1) = wConsoleNode;
-            if (v7 != wConsoleNode && net_players[v8]) {
-              do
-                a1 = (char *)gssCommsSendData(v7);
-              while (!a1);
+            if (iNodeIdx != wConsoleNode && net_players[iNetPlayers]) {
+              //TODO network
+              //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, sizeof(p_data), iNodeIdx))
+              //  UpdateSDL(); //added by ROLLER
             }
-            ++v8;
-            ++v7;
-          } while (v7 < network_on);
+            ++iNetPlayers;
+            ++iNodeIdx;
+          } while (iNodeIdx < network_on);
         }
       } else {
-        do
-          a1 = (char *)gssCommsSendData(a2);
-        while (!a1);
+        //TODO network
+        //while (!gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, sizeof(p_data), iNode))
+        //  UpdateSDL(); //added by ROLLER
       }
     } else {
       message_sent = 4;
     }
   }
-  return (char)a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
