@@ -31,6 +31,8 @@ tSyncHeader p_header;       //0017C948
 int test_seed;              //0017C958
 int resync;                 //0017C95C
 int my_age;                 //0017C964
+int message_number;         //0017C968
+int message_node;           //0017C96C
 int network_mistake;        //0017C97C
 int pauser;                 //0017C980
 uint32 broadcast_mode;      //0017C984
@@ -1895,12 +1897,10 @@ void SendPlayerInfo()
 
 //-------------------------------------------------------------------------------------------------
 
-int prepare_net_message(int result, int a2)
+void prepare_net_message(int iMessageMode, int iMessageNumber)
 {
-  return 0; /*
-  message_node = result;
-  message_number = a2;
-  return result;*/
+  message_node = iMessageMode;
+  message_number = iMessageNumber;
 }
 
 //-------------------------------------------------------------------------------------------------
