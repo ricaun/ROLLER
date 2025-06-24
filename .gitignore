@@ -364,6 +364,7 @@ FodyWeavers.xsd
 
 !/external/SDL3_image-3.2.4/lib/x64
 !/external/SDL3-3.2.14/lib/x64
+!/external/wildmidi-0.4.6/lib/x64
 
 # Roller data files
 fatdata/
