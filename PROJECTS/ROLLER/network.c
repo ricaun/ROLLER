@@ -2296,22 +2296,28 @@ unsigned int send_broadcast(unsigned int uiBroadcastMode)
 
 //-------------------------------------------------------------------------------------------------
 
-int send_here(int result)
+void send_here(int iNode, int iFrame)
 {
-  return 0; /*
   int i; // esi
+  tSyncHeader syncHeader; // [esp+0h] [ebp-1Ch] BYREF
+  //int iData; // [esp+Ch] [ebp-10h] BYREF
 
   if (network_on) {
-    if (result == master) {
+    syncHeader.byConsoleNode = iNode;
+    syncHeader.unFrameId = iFrame;
+    syncHeader.uiId = PACKET_ID_SEND_HERE;
+    if (iNode == master) {
       for (i = 0; i < network_on; ++i) {
-        if (i != master)
-          result = gssCommsSendData(i);
+        if (i != master) {
+          //TODO network
+          //gssCommsSendData(&syncHeader, sizeof(tSyncHeader), iData, sizeof(int), i);
+        }
       }
     } else {
-      return gssCommsSendData(master);
+      //TODO network
+      //gssCommsSendData(&syncHeader, sizeof(tSyncHeader), iData, sizeof(int), master);
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

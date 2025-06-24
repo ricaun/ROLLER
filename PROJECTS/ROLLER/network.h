@@ -19,6 +19,7 @@
 #define PACKET_ID_GAME_ERROR    0x686C636E
 #define PACKET_ID_RESYNC        0x686C6370
 #define PACKET_ID_SLOT          0x686C6371
+#define PACKET_ID_SEND_HERE     0x686C6372
 #define PACKET_ID_MESSAGE       0x686C6373
 
 //-------------------------------------------------------------------------------------------------
@@ -167,7 +168,7 @@ int reset_network(int a1);
 void clear_network_game();
 int reset_net_wait();
 unsigned int send_broadcast(unsigned int uiBroadcastMode);
-int send_here(int result);
+void send_here(int iNode, int iFrame);
 
 //-------------------------------------------------------------------------------------------------
 #endif
