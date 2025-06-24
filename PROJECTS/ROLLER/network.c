@@ -529,17 +529,18 @@ void send_pause()
 
 //-------------------------------------------------------------------------------------------------
 
-int send_slot()
+void send_slot()
 {
-  return 0; /*
-  int result; // eax
+  tSyncHeader syncHeader;
+  //int iSlot;// = network_slot?
 
   if (network_on) {
-    do
-      result = gssCommsSendData(21);
-    while (!result);
+    syncHeader.byConsoleNode = (uint8)network_slot;
+    syncHeader.uiId = PACKET_ID_SLOT;
+    //TODO network
+    //while (!gssCommsSendData(&syncHeader, sizeof(tSyncHeader), &iSlot, sizeof(int), 21))
+    //  UpdateSDL(); //added by ROLLER
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@
 #define PACKET_ID_SYNC_ERROR    0x686C636D
 #define PACKET_ID_GAME_ERROR    0x686C636E
 #define PACKET_ID_RESYNC        0x686C6370
+#define PACKET_ID_SLOT          0x686C6371
 #define PACKET_ID_MESSAGE       0x686C6373
 
 //-------------------------------------------------------------------------------------------------
@@ -144,7 +145,7 @@ char send_mes(char *a1, int a2);
 void send_seed(int iRandomSeed);
 int send_single(int result);
 void send_pause();
-int send_slot();
+void send_slot();
 void transmitpausetoslaves();
 void send_multiple();
 void receive_multiple();
