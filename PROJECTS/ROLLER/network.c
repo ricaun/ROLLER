@@ -341,28 +341,28 @@ void send_quit()
 //-------------------------------------------------------------------------------------------------
 
 void send_ready()
-{/*
-  int v0; // edi
-  int v1; // eax
+{
+  int iDataSent; // eax
 
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
     if (localCD)
-      p_header_variable_1 = 1751933799;
+      p_header.uiId = PACKET_ID_READY;
     else
-      p_header_variable_1 = 1751933807;
+      p_header.uiId = PACKET_ID_NOCD;
     if (wConsoleNode != master || player_ready[master]) {
       do {
-        _disable();
-        v1 = gssCommsSendData(master);
-        _enable();
-      } while (!v1);
+        //TODO network
+        //_disable();
+        iDataSent = 1;// gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, master);
+        //_enable();
+        UpdateSDL(); //added by ROLLER
+      } while (!iDataSent);
     } else {
-      v0 = active_nodes + 1;
       player_ready[master] = -1;
-      active_nodes = v0;
+      active_nodes++;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -118,6 +118,7 @@ extern int scrmode;
 extern int intro;
 extern int fatal_ini_loaded;
 extern int machine_speed;
+extern int localCD;
 extern int winner_mode;
 extern int network_slot;
 extern int w95;
