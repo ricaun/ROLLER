@@ -170,7 +170,7 @@ void BroadcastNews();
 void remove_messages(int iClear);
 int reset_network(int a1);
 void clear_network_game();
-int reset_net_wait();
+void reset_net_wait();
 unsigned int send_broadcast(unsigned int uiBroadcastMode);
 void send_here(int iNode, int iFrame);
 

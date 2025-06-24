@@ -2232,26 +2232,14 @@ void clear_network_game()
 
 //-------------------------------------------------------------------------------------------------
 
-int reset_net_wait()
+void reset_net_wait()
 {
-  return 0; /*
-  int result; // eax
+  for (int i = 0; i < 16; ++i) {
+    player_started[i] = 0;
+  }
 
-  result = 2;
-  player_started_variable_1 = 0;
-  do {
-    result += 7;
-    non_competitors_variable_2[result] = 0;
-    non_competitors_variable_3[result] = 0;
-    non_competitors_variable_4[result] = 0;
-    non_competitors_variable_5[result] = 0;
-    non_competitors_variable_6[result] = 0;
-    non_competitors_variable_7[result] = 0;
-    non_competitors_variable_8[result] = 0;
-  } while (result != 16);
   time_to_start = 0;
   players_waiting = 0;
-  return result * 4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
