@@ -12,6 +12,7 @@
 #define PACKET_ID_RECORD        0x686C636B
 #define PACKET_ID_NOCD          0x686C636F
 #define PACKET_ID_NET_ERROR     0x686C636C
+#define PACKET_ID_GAME_ERROR    0x686C636E
 #define PACKET_ID_RESYNC        0x686C6370
 #define PACKET_ID_MESSAGE       0x686C6373
 
@@ -113,6 +114,7 @@ extern tSyncHeader p_header;
 extern int test_seed;
 extern int resync;
 extern int my_age;
+extern int network_mistake;
 extern uint32 broadcast_mode;
 extern int random_seed;
 extern int master;
@@ -127,7 +129,7 @@ extern int16 wConsoleNode;
 int Initialise_Network(int a1);
 void close_network();
 void send_net_error();
-int send_game_error(int result);
+void send_game_error();
 int send_network_sync_error();
 void send_resync(int iFrameNumber);
 void send_nocd_error();

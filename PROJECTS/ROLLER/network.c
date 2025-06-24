@@ -31,6 +31,7 @@ tSyncHeader p_header;       //0017C948
 int test_seed;              //0017C958
 int resync;                 //0017C95C
 int my_age;                 //0017C964
+int network_mistake;        //0017C97C
 uint32 broadcast_mode;      //0017C984
 int random_seed;            //0017C98C
 int master;                 //0017C9A0
@@ -228,28 +229,28 @@ void send_net_error()
 
 //-------------------------------------------------------------------------------------------------
 
-int send_game_error(int result)
+void send_game_error()
 {
-  return 0; /*
+  int iDataSent; // eax
   int i; // esi
 
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    p_header_variable_1 = 1751933806;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = PACKET_ID_GAME_ERROR;
     network_mistake = -1;
     if (wConsoleNode == master) {
       for (i = 0; i < network_on; ++i) {
         if (i != wConsoleNode) {
-          result = gssCommsSendData(i);
-          if (!result)
+          //TODO network
+          iDataSent = 0;// gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, i);
+          if (!iDataSent)
             i = network_on;
         }
       }
-      if (result)
+      if (iDataSent)
         network_error = 666;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
