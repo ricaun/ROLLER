@@ -29,6 +29,7 @@ int frame_number;           //0017C940
 int start_multiple;         //0017C944
 tSyncHeader p_header;       //0017C948
 int test_seed;              //0017C958
+int resync;                 //0017C95C
 int my_age;                 //0017C964
 uint32 broadcast_mode;      //0017C984
 int random_seed;            //0017C98C
@@ -281,16 +282,15 @@ int send_network_sync_error()
 
 //-------------------------------------------------------------------------------------------------
 
-int send_resync(int result)
+void send_resync(int iResync)
 {
-  return 0; /*
   if (network_on) {
-    resync = result;
-    p_header_variable_2 = wConsoleNode;
-    p_header_variable_1 = 1751933808;
-    return gssCommsSendData(master);
+    resync = iResync;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = PACKET_ID_RESYNC;
+    //TODO network
+    //gssCommsSendData(&p_header, sizeof(tSyncHeader), &resync, sizeof(int32), master);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -306,12 +306,12 @@ void send_nocd_error()
       for (i = 0; i < network_on; ++i) {
         if (i != wConsoleNode) {
           //TODO network
-          //gssCommsSendData(&p_header, 12, p_data, 0, i);
+          //gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, i);
         }
       }
     } else {
       //TODO network
-      //gssCommsSendData(&p_header, 12, p_data, 0, master);
+      //gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, master);
     }
   }
 }

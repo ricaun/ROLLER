@@ -11,6 +11,7 @@
 #define PACKET_ID_PLAYER_INFO   0x686C636A
 #define PACKET_ID_RECORD        0x686C636B
 #define PACKET_ID_NOCD          0x686C636F
+#define PACKET_ID_RESYNC        0x686C6370
 #define PACKET_ID_MESSAGE       0x686C6373
 
 //-------------------------------------------------------------------------------------------------
@@ -109,6 +110,7 @@ extern int frame_number;
 extern int start_multiple;
 extern tSyncHeader p_header;
 extern int test_seed;
+extern int resync;
 extern int my_age;
 extern uint32 broadcast_mode;
 extern int random_seed;
@@ -126,7 +128,7 @@ void close_network();
 int send_net_error();
 int send_game_error(int result);
 int send_network_sync_error();
-int send_resync(int result);
+void send_resync(int iResync);
 void send_nocd_error();
 void send_quit();
 void send_ready();
