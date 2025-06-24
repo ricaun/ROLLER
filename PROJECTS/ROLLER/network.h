@@ -112,6 +112,7 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern int net_type;
+extern int slave_pause;
 extern int net_started;
 extern int gamers_playing[4];
 extern int test_mini[2];
@@ -143,12 +144,16 @@ extern int pauser;
 extern uint32 broadcast_mode;
 extern int message_sent;
 extern int random_seed;
+extern int lost_message;
+extern int duff_message;
+extern int check_set;
 extern int master;
 extern tSyncHeader in_header;
 extern int active_nodes;
 extern int net_quit;
 extern tDataPacket slave_data;
 extern char p_data[14];
+extern char received_message[14];
 extern int16 wConsoleNode;
 
 //-------------------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@
 //-------------------------------------------------------------------------------------------------
 
 int net_type = 1;           //000A6104
+int slave_pause = 0;        //000A6108
 int net_started = 0;        //000A610C
 int gamers_playing[4];      //00178470
 int test_mini[2];           //001786C0
@@ -42,12 +43,16 @@ int pauser;                 //0017C980
 uint32 broadcast_mode;      //0017C984
 int message_sent;           //0017C988
 int random_seed;            //0017C98C
+int lost_message;           //0017C994
+int duff_message;           //0017C998
+int check_set;              //0017C99C
 int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
 int net_quit;               //0017C9B4
 tDataPacket slave_data;     //0017C9B8
 char p_data[14];            //0017C9BE
+char received_message[14];  //0017C9CC
 int16 wConsoleNode;         //0017C9DA
 
 //-------------------------------------------------------------------------------------------------
@@ -952,178 +957,145 @@ void receive_multiple()
 //-------------------------------------------------------------------------------------------------
 
 void receive_all_singles()
-{/*
-  int v0; // ebx
-  int Block; // eax
-  int v2; // edx
-  unsigned __int16 v3; // dx
-  int v4; // eax
-  int v5; // eax
-  int v6; // edx
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  int v11; // edx
-  int v12; // eax
-  int v13; // ebx
-  int v14; // eax
-  int v15; // edx
-  int v16; // eax
-  int v17; // eax
-  _DWORD v18[58]; // [esp+0h] [ebp-140h] BYREF
-  char v19[12]; // [esp+E8h] [ebp-58h] BYREF
-  int v20; // [esp+F4h] [ebp-4Ch]
-  int v21; // [esp+F8h] [ebp-48h]
-  int v22; // [esp+FCh] [ebp-44h]
-  int v23; // [esp+100h] [ebp-40h]
-  int v24; // [esp+104h] [ebp-3Ch]
-  int v25; // [esp+108h] [ebp-38h]
-  _BYTE v26[4]; // [esp+10Ch] [ebp-34h]
-  _BYTE v27[16]; // [esp+110h] [ebp-30h] BYREF
-  int v28; // [esp+120h] [ebp-20h] BYREF
-  _DWORD v29[7]; // [esp+124h] [ebp-1Ch] BYREF
+{
+  int byConsoleNode; // eax
+  tTransmitInitPacket transmitInitPacket; // [esp+0h] [ebp-140h] BYREF
+  tPlayerInfoPacket playerInfoPacket; // [esp+E8h] [ebp-58h] BYREF
+  char szMesPacket[14]; // [esp+110h] [ebp-30h] BYREF
+  //void *pData; // [esp+120h] [ebp-20h] BYREF
+  int iFrame;
 
   if (network_on) {
-    while (1) {
-      v0 = (int)&v28;
-      if (!gssCommsGetHeader(&in_header, 12, &v28))
-        break;
-      Block = 4 * *((unsigned __int8 *)&in_header + 8);
-      v2 = *(int *)((char *)car_to_player + Block);
-      if (net_players[v2]) {
-        v2 = active_nodes + 1;
-        switch (*((_DWORD *)&in_header + 1)) {
-          case 0x686C6361:
-            v2 = (int)v18;
-            v0 = 232;
-            Block = gssCommsGetBlock(v28, v18, 232);
-            if (v18[17] != -456)
-              goto LABEL_32;
-            v4 = send_slot();
-            gssCommsPostListen(v4, v18, 232);
-            break;
-          case 0x686C6363:
-            v2 = (int)v27;
-            v0 = 14;
-            gssCommsGetBlock(v28, v27, 14);
-            message_received = *((unsigned __int8 *)&in_header + 8);
-            for (Block = 0; Block < 14; p_data_variable_8[Block] = v2) {
-              Block += 7;
-              p_data_variable_2[Block] = v26[Block - 3];
-              p_data_variable_3[Block] = v26[Block - 2];
-              p_data_variable_4[Block] = v26[Block - 1];
-              p_data_variable_5[Block] = v26[Block];
-              p_data_variable_6[Block] = v26[Block + 1];
-              p_data_variable_7[Block] = v26[Block + 2];
-              LOBYTE(v2) = v26[Block + 3];
-            }
-            goto LABEL_32;
-          case 0x686C6364:
-            gssCommsPostListen(Block, v2, &v28);
+    //TODO network
+    //while (gssCommsGetHeader(&in_header, sizeof(tSyncHeader), &pData)) {
+    while (false) {
+      byConsoleNode = in_header.byConsoleNode;
+      if (net_players[car_to_player[0][byConsoleNode]]) {
+        switch (in_header.uiId) {
+          case PACKET_ID_TRANSMIT_INIT:
+            //TODO network
+            //gssCommsGetBlock(pData, &transmitInitPacket, sizeof(tTransmitInitPacket));
+            if (transmitInitPacket.iTimeToStart != 0xFFFFFE38)
+              goto LABEL_31;
+            send_slot();
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_SEND_MES:
+            //TODO network
+            //gssCommsGetBlock(pData, szMesPacket, 14);
+            message_received = in_header.byConsoleNode;
+
+            strncpy(received_message, szMesPacket, sizeof(received_message));
+
+            goto LABEL_31;
+          case PACKET_ID_QUIT:
+            //TODO network
+            //gssCommsPostListen();
             send_quit();
-            gssCommsPostListen(v7, v2, &v28);
-            break;
-          case 0x686C6365:
-            gssCommsGetBlock(v28, &slave_data, 6);
-            LOWORD(copy_multiple[16 * writeptr + *((unsigned __int8 *)&in_header + 8)]) = slave_data;
-            HIWORD(copy_multiple[16 * writeptr + *((unsigned __int8 *)&in_header + 8)]) = slave_data_variable_1;
-            v5 = car_to_player[*((unsigned __int8 *)&in_header + 8)];
-            v6 = frames;
-            net_time[v5] = frames;
-            gssCommsPostListen(v5, v6, 6);
-            break;
-          case 0x686C6367:
-            if (player_ready[*((unsigned __int8 *)&in_header + 8)])
-              goto LABEL_32;
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_SINGLE:
+            //TODO network
+            //gssCommsGetBlock(pData, &slave_data, 6);
+            copy_multiple[writeptr][in_header.byConsoleNode] = slave_data.iData;
+            net_time[car_to_player[0][in_header.byConsoleNode]] = frames;
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_READY:
+            if (player_ready[in_header.byConsoleNode])
+              goto LABEL_31;
             ++active_nodes;
-            *(int *)((char *)player_ready + Block) = -1;
+            player_ready[byConsoleNode] = -1;
             netCD = -1;
-            gssCommsPostListen(Block, v2, -1);
-            break;
-          case 0x686C6369:
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_PAUSE:
             slave_pause = -1;
-            v9 = *((unsigned __int8 *)&in_header + 8);
-            pauser = v9;
-            gssCommsPostListen(v9, v2, &v28);
-            break;
-          case 0x686C636A:
-            gssCommsGetBlock(v28, v19, 40);
-            v10 = v20;
-            Players_Cars[*((unsigned __int8 *)&in_header + 8)] = v20;
-            check_cars(v10);
-            name_copy((int)&player_names[9 * *((unsigned __int8 *)&in_header + 8)], v19);
-            TrackLoad = v21;
-            game_type = v22;
-            competitors = v25;
-            level = v24;
-            damage_level = v26[0] & 0xF;
-            if ((v26[0] & 0x40) != 0)
-              player_invul[*((unsigned __int8 *)&in_header + 8)] = -1;
+            pauser = in_header.byConsoleNode;
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_PLAYER_INFO: 
+            //TODO network
+            //gssCommsGetBlock(pData, &playerInfoPacket, sizeof(tPlayerInfoPacket));
+            Players_Cars[in_header.byConsoleNode] = playerInfoPacket.iPlayerCar;
+            check_cars();
+            name_copy(player_names[in_header.byConsoleNode], playerInfoPacket.szPlayerName);
+            TrackLoad = playerInfoPacket.iTrackLoad;
+            game_type = playerInfoPacket.iGameType;
+            competitors = playerInfoPacket.iCompetitors;
+            level = playerInfoPacket.iLevel;
+            damage_level = playerInfoPacket.iDamageLevel & 0xF;
+            if ((playerInfoPacket.iDamageLevel & 0x40) != 0)
+              player_invul[in_header.byConsoleNode] = -1;
             else
-              player_invul[*((unsigned __int8 *)&in_header + 8)] = 0;
-            v11 = *((unsigned __int8 *)&in_header + 8);
-            v12 = v23;
-            manual_control[v11] = v23;
-            gssCommsPostListen(v12, v11, 40);
-            break;
-          case 0x686C636D:
-            gssCommsPostListen(Block, v2, &v28);
-            v8 = send_network_sync_error();
-            network_sync_error = -1;
-            gssCommsPostListen(v8, v2, &v28);
-            break;
-          case 0x686C636F:
-            if (player_ready[*((unsigned __int8 *)&in_header + 8)])
-              goto LABEL_32;
+              player_invul[in_header.byConsoleNode] = 0;
+            manual_control[in_header.byConsoleNode] = playerInfoPacket.iManualControl;
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_SYNC_ERROR:
+            goto LABEL_23;
+          case PACKET_ID_NOCD:
+            if (player_ready[in_header.byConsoleNode])
+              goto LABEL_31;
             ++active_nodes;
-            *(int *)((char *)player_ready + Block) = -1;
-            gssCommsPostListen(Block, v2, -1);
-            break;
-          case 0x686C6370:
+            player_ready[byConsoleNode] = -1;
+            //TODO network
+            //gssCommsPostListen();
+            continue;
+          case PACKET_ID_RESYNC: 
             ++lost_message;
-            gssCommsPostListen(Block, v2, &v28);
-            v13 = 4;
-            syncnode = *((unsigned __int8 *)&in_header + 8);
-            gssCommsGetBlock(v28, v29, 4);
-            syncframe = v29[0];
-            if (frame_number - v29[0] <= 500) {
-              if (gssCommsGetType())
-                gssclrtx();
-              v15 = syncframe;
+            //TODO network
+            //gssCommsPostListen();
+            syncnode = in_header.byConsoleNode;
+            //TODO network
+            //gssCommsGetBlock(pData, iFrame, 4);
+            syncframe = iFrame;
+            if (frame_number - iFrame <= 500) {
+              //TODO network
+              //if (gssCommsGetType())
+              //  gssclrtx();
               syncleft = frame_number - syncframe;
-              v16 = syncframe & 0x1FF;
-              syncptr = v16;
+              syncptr = syncframe & 0x1FF;
               if (check_set && syncleft > 7) {
-                v15 = -1;
-                v13 = 0x4000;
-                v16 = memset(player_checks, -1, sizeof(player_checks));
+                memset(player_checks, -1, sizeof(player_checks));
                 check_set = 0;
               }
-              v17 = do_sync_stuff(v16, v15, v13, &in_header);
-              gssCommsPostListen(v17, v15, v13);
+              do_sync_stuff();
+              //TODO network
+              //gssCommsPostListen();
             } else {
-              gssCommsPostListen(frame_number - v29[0], v29, 4);
-              v14 = send_network_sync_error();
+            LABEL_23:
+              //TODO network
+              //gssCommsPostListen();
+              send_network_sync_error();
               network_sync_error = -1;
-              gssCommsPostListen(v14, -1, 4);
+              //TODO network
+              //gssCommsPostListen();
             }
             break;
-          case 0x686C6372:
-            v3 = *((_WORD *)&in_header + 5);
-            load_times[*((unsigned __int8 *)&in_header + 8)] = v3;
-            gssCommsPostListen(Block, v3, &v28);
+          case PACKET_ID_SEND_HERE:
+            load_times[in_header.byConsoleNode] = in_header.unFrameId;
+            //TODO network
+            //gssCommsPostListen();
             break;
           default:
             ++duff_message;
-            goto LABEL_32;
+            goto LABEL_31;
         }
       } else {
-      LABEL_32:
-        gssCommsPostListen(Block, v2, v0);
+      LABEL_31:
+        ;
+        //TODO network
+        //gssCommsPostListen();
       }
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

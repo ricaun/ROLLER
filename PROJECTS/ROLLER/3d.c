@@ -96,6 +96,7 @@ int scrmode;                //0013FAB4
 int intro;                  //0013FAC0
 int fatal_ini_loaded;       //0013FADC
 int machine_speed;          //0013FAE0
+int netCD;                  //0013FAE4
 int localCD;                //0013FAE8
 int winner_mode;            //0013FB08
 int network_slot;           //0013FB14

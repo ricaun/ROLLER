@@ -72,6 +72,7 @@ uint8 unmangleinbuf[1024];  //00149EF0
 int lastvolume[16];         //001603F8
 int lastpitch[16];          //00160438
 int lastpan[16];            //00160478
+int net_time[16];           //001604B8
 int joyvalue[8];            //001604F8
 tJoyPos rud_Joy_pos;        //00160518
 uint32 SampleLen[120];      //00160560
@@ -87,6 +88,7 @@ int HandleSample[32];       //00163C0C
 tCarSoundData enginedelay[16]; //00163C8C
 int car_to_player[8][2];    //0016748C
 int player_to_car[16];      //001674CC
+int load_times[16];         //0016760C
 int copy_multiple[512][16]; //0016764C
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
@@ -97,6 +99,7 @@ volatile int s7;            //0016F660
 void *MT32Data;             //0016F66C
 void *FMDrums;              //0016F670
 void *FMInstruments;        //0016F674
+int network_sync_error;     //0016F678
 int MIDIHandle;             //0016F68C
 tColor *pal_addr;           //0016F86C
 int DIGIHandle;             //0016F690
