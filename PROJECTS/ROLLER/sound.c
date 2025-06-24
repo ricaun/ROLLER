@@ -96,10 +96,12 @@ int unmangleoverflow;       //0016F654
 FILE *unmanglefile;         //0016F658
 int unmanglebufpos;         //0016F65C
 volatile int s7;            //0016F660
+int network_timeout;        //0016F668
 void *MT32Data;             //0016F66C
 void *FMDrums;              //0016F670
 void *FMInstruments;        //0016F674
 int network_sync_error;     //0016F678
+int ticks_received;         //0016F680
 int MIDIHandle;             //0016F68C
 tColor *pal_addr;           //0016F86C
 int DIGIHandle;             //0016F690

@@ -50,6 +50,7 @@ typedef struct
 
 extern int exiting;
 extern int champ_mode;
+extern int cd_error;
 extern int game_svga;
 extern int game_size;
 extern int game_view[2];

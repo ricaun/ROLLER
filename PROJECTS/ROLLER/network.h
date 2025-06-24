@@ -111,9 +111,11 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int sync_errors;
 extern int net_type;
 extern int slave_pause;
 extern int net_started;
+extern int next_resync;
 extern int gamers_playing[4];
 extern int test_mini[2];
 extern int test_multiple[16];
@@ -144,6 +146,7 @@ extern int pauser;
 extern uint32 broadcast_mode;
 extern int message_sent;
 extern int random_seed;
+extern int dostopsamps;
 extern int lost_message;
 extern int duff_message;
 extern int check_set;

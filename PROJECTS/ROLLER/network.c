@@ -10,9 +10,11 @@
 #include "roller.h"
 //-------------------------------------------------------------------------------------------------
 
+int sync_errors = 0;        //000A6100
 int net_type = 1;           //000A6104
 int slave_pause = 0;        //000A6108
 int net_started = 0;        //000A610C
+int next_resync = 0;        //000A6110
 int gamers_playing[4];      //00178470
 int test_mini[2];           //001786C0
 int test_multiple[16];      //001786C8
@@ -43,6 +45,7 @@ int pauser;                 //0017C980
 uint32 broadcast_mode;      //0017C984
 int message_sent;           //0017C988
 int random_seed;            //0017C98C
+int dostopsamps;            //0017C990
 int lost_message;           //0017C994
 int duff_message;           //0017C998
 int check_set;              //0017C99C
@@ -679,245 +682,208 @@ void send_multiple()
 //-------------------------------------------------------------------------------------------------
 
 void receive_multiple()
-{/*
-  int v0; // edx
-  int v1; // ebx
-  int i; // eax
-  int v3; // edx
-  int v4; // eax
-  int v5; // ebx
-  int *v6; // edx
-  int *v7; // esi
-  int *v8; // edx
-  int v9; // eax
-  int v10; // edx
-  int *v11; // ebx
-  int v12; // eax
-  int v13; // edx
-  int v14; // eax
+{
+  int unFrameId2; // eax
+  int *pCopyMultipleAtWritePtrMinus1; // edx
+  int iPlayerIdx2; // edx
+  int *pCopyMultipleAtWritePtr; // ebx
+  int iPlayerIdx; // edx
   int j; // eax
-  int v16; // ecx
-  int v17; // eax
-  int v18; // eax
-  int v19; // eax
-  int v20; // ebx
-  int v21; // eax
-  int v22; // edx
-  int v23; // eax
-  char v24[12]; // [esp+0h] [ebp-60h] BYREF
-  int v25; // [esp+Ch] [ebp-54h]
-  int v26; // [esp+10h] [ebp-50h]
-  int v27; // [esp+14h] [ebp-4Ch]
-  int v28; // [esp+18h] [ebp-48h]
-  int v29; // [esp+1Ch] [ebp-44h]
-  int v30; // [esp+20h] [ebp-40h]
-  _BYTE v31[4]; // [esp+24h] [ebp-3Ch]
-  _BYTE v32[16]; // [esp+28h] [ebp-38h] BYREF
-  int v33; // [esp+38h] [ebp-28h] BYREF
-  int v34; // [esp+3Ch] [ebp-24h]
-  int v35; // [esp+40h] [ebp-20h] BYREF
-  int *v36; // [esp+44h] [ebp-1Ch]
+  int unFrameId; // eax
+  int i; // eax
+  tPlayerInfoPacket playerInfoPacket; // [esp+0h] [ebp-60h] BYREF
+  char szMesPacket[14]; // [esp+28h] [ebp-38h] BYREF
+  //void *pPacket; // [esp+38h] [ebp-28h] BYREF
+  int iCarIdx; // [esp+3Ch] [ebp-24h]
+  int iPaused; // [esp+40h] [ebp-20h] BYREF
+  int *pSeed; // [esp+44h] [ebp-1Ch]
 
   if (network_on && !net_quit) {
-    v36 = &test_seed;
-    while (1) {
-      v0 = 12;
-      v1 = (int)&v33;
-      if (!gssCommsGetHeader(&in_header, 12, &v33))
-        break;
-      i = *((_DWORD *)&in_header + 1) - 1751933795;
-      switch (*((_DWORD *)&in_header + 1)) {
-        case 0x686C6363:
-          v0 = (int)v32;
-          v1 = 14;
-          gssCommsGetBlock(v33, v32, 14);
-          message_received = *((unsigned __int8 *)&in_header + 8);
-          for (i = 0; i < 14; p_data_variable_8[i] = v0) {
-            i += 7;
-            p_data_variable_2[i] = v31[i - 3];
-            p_data_variable_3[i] = v31[i - 2];
-            p_data_variable_4[i] = v31[i - 1];
-            p_data_variable_5[i] = v31[i];
-            p_data_variable_6[i] = v31[i + 1];
-            p_data_variable_7[i] = v31[i + 2];
-            LOBYTE(v0) = v31[i + 3];
-          }
+    pSeed = &test_seed;
+    while (false) {
+    //while (gssCommsGetHeader(&in_header, 12, &pPacket)) {
+      switch (in_header.uiId) {
+        case PACKET_ID_SEND_MES:
+          //TODO network
+          //gssCommsGetBlock(pPacket, szMesPacket, 14);
+          message_received = in_header.byConsoleNode;
+          strncpy(received_message, szMesPacket, sizeof(received_message));
           goto LABEL_54;
-        case 0x686C6364:
+        case PACKET_ID_QUIT:
           net_quit = -1;
-          gssCommsPostListen(i, 12, &v33);
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C6366:
+        case PACKET_ID_PLAYER_CARS:
           if (net_type) {
-            v13 = 0;
+            iPlayerIdx = 0;
             if (network_on > 0) {
-              v14 = 0;
-              do {
-                ++v14;
-                ++v13;
-                address_variable_1[v14] = -1;
-              } while (v13 < network_on);
+              for (int i = 0; i < network_on; ++i) {
+                player_ready[i] = -1;
+              }
             }
             active_nodes = network_on;
             net_loading = 0;
-            gssCommsGetBlock(v33, &test_mini, 8);
-            v0 = (int)&test_mini;
+            //TODO network
+            //gssCommsGetBlock(pPacket, test_mini, 8);
             for (j = 0; j < 2; ++j) {
-              v0 += 4;
-              v16 = (writeptr << 6) + 4 * player_to_car[j];
-              v1 = *(_DWORD *)(v0 - 4);
-              *(int *)((char *)copy_multiple + v16) = v1;
+              copy_multiple[writeptr][player_to_car[j]] = test_mini[i];
             }
           } else {
-            v10 = 0;
-            v11 = &copy_multiple[16 * writeptr];
+            iPlayerIdx2 = 0;
+            pCopyMultipleAtWritePtr = copy_multiple[writeptr];
             if (network_on > 0) {
-              v12 = 0;
-              do {
-                ++v12;
-                ++v10;
-                address_variable_1[v12] = -1;
-              } while (v10 < network_on);
+
+              for (int i = 0; i < network_on; ++i) {
+                player_ready[i] = -1;
+              }
             }
             active_nodes = network_on;
             net_loading = 0;
-            v0 = (int)v11;
-            v1 = 64;
-            gssCommsGetBlock(v33, v0, 64);
+            //TODO network
+            //gssCommsGetBlock(pPacket, pCopyMultipleAtWritePtr, 64);
           }
           network_timeout = frames;
           ++ticks_received;
-          i = *((unsigned __int16 *)&in_header + 5);
-          if ((unsigned __int16)i == frame_number) {
+          unFrameId = in_header.unFrameId;
+          if (unFrameId == frame_number) {
             ++frame_number;
-            v17 = ((_WORD)writeptr + 1) & 0x1FF;
-            writeptr = v17;
+            writeptr = (writeptr + 1) & 0x1FF;
             next_resync = -1;
-            gssCommsPostListen(v17, v0, v1);
+            //TODO network
+            //gssCommsPostListen();
             continue;
           }
-          if (i <= frame_number)
+          if (unFrameId <= frame_number)
             goto LABEL_54;
           ++lost_message;
-          gssCommsPostListen(i, v0, v1);
-          if (*((unsigned __int16 *)&in_header + 5) - frame_number > 500) {
-            v18 = send_network_sync_error();
+          //TODO network
+          //gssCommsPostListen();
+          if (in_header.unFrameId - frame_number > 500) {
+            send_network_sync_error();
             network_sync_error = -1;
-            gssCommsPostListen(v18, v0, v1);
+            //TODO network
+            //gssCommsPostListen();
             continue;
           }
-          i = frames;
           if (frames <= next_resync)
             goto LABEL_54;
-          if (gssCommsGetType())
-            gssclrrx();
+          //TODO network
+          //if (gssCommsGetType())
+          //  gssclrrx();
           goto LABEL_17;
-        case 0x686C6368:
-          gssCommsGetBlock(v33, &test_seed, 4);
-          srand(*v36);
-          random_seed = *v36;
+        case PACKET_ID_SEED:
+          //TODO network
+          //gssCommsGetBlock(pPacket, &test_seed, 4);
+          srand(*pSeed);
+          random_seed = *pSeed;
           received_seed = -1;
-          gssCommsPostListen(random_seed, &test_seed, 4);
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C6369:
-          v0 = (int)&v35;
-          v1 = 4;
-          gssCommsGetBlock(v33, &v35, 4);
-          if (paused != v35 && v35)
+        case PACKET_ID_PAUSE:
+          //TODO network
+          //gssCommsGetBlock(pPacket, &iPaused, 4);
+          if (paused != iPaused && iPaused)
             dostopsamps = -1;
-          i = v35;
-          paused = v35;
-          if (!v35)
+          paused = iPaused;
+          if (!iPaused)
             goto LABEL_54;
-          v19 = *((unsigned __int8 *)&in_header + 8);
-          pauser = v19;
-          gssCommsPostListen(v19, &v35, 4);
+          pauser = in_header.byConsoleNode;
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C636A:
-          v20 = 40;
-          gssCommsGetBlock(v33, v24, 40);
-          v21 = v25;
-          Players_Cars[*((unsigned __int8 *)&in_header + 8)] = v25;
-          check_cars(v21);
-          name_copy((int)&player_names[9 * *((unsigned __int8 *)&in_header + 8)], v24);
-          TrackLoad = v26;
-          game_type = v27;
-          competitors = v30;
-          level = v29;
-          damage_level = v31[0] & 0xF;
-          if ((v31[0] & 0x40) != 0) {
-            player_invul[*((unsigned __int8 *)&in_header + 8)] = -1;
-          } else {
-            v20 = 0;
-            player_invul[*((unsigned __int8 *)&in_header + 8)] = 0;
-          }
-          v22 = *((unsigned __int8 *)&in_header + 8);
-          v23 = v28;
-          manual_control[v22] = v28;
-          gssCommsPostListen(v23, v22 * 4, v20);
+        case PACKET_ID_PLAYER_INFO:
+          //TODO network
+          //gssCommsGetBlock(pPacket, &playerInfoPacket, sizeof(tPlayerInfoPacket));
+          Players_Cars[in_header.byConsoleNode] = playerInfoPacket.iPlayerCar;
+          check_cars();
+          name_copy(player_names[in_header.byConsoleNode], playerInfoPacket.szPlayerName);
+          TrackLoad = playerInfoPacket.iTrackLoad;
+          game_type = playerInfoPacket.iGameType;
+          competitors = playerInfoPacket.iCompetitors;
+          level = playerInfoPacket.iLevel;
+          damage_level = playerInfoPacket.iDamageLevel & 0xF;
+          if ((playerInfoPacket.iDamageLevel & 0x40) != 0)
+            player_invul[in_header.byConsoleNode] = -1;
+          else
+            player_invul[in_header.byConsoleNode] = 0;
+          manual_control[in_header.byConsoleNode] = playerInfoPacket.iManualControl;
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C636C:
+        case PACKET_ID_NET_ERROR:
           network_error = 999;
-          gssCommsPostListen(i, 12, &v33);
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C636D:
+        case PACKET_ID_SYNC_ERROR:
           goto LABEL_13;
-        case 0x686C636E:
+        case PACKET_ID_GAME_ERROR:
           network_error = 666;
-          gssCommsPostListen(i, 12, &v33);
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C636F:
+        case PACKET_ID_NOCD:
           cd_error = -1;
-          gssCommsPostListen(i, 12, &v33);
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C6372:
-          v3 = *((unsigned __int8 *)&in_header + 8);
-          v4 = *((unsigned __int16 *)&in_header + 5);
-          load_times[v3] = v4;
-          gssCommsPostListen(v4, v3, &v33);
+        case PACKET_ID_SEND_HERE:
+          load_times[in_header.byConsoleNode] = in_header.unFrameId;
+          //TODO network
+          //gssCommsPostListen();
           continue;
-        case 0x686C6374:
-          i = *((unsigned __int16 *)&in_header + 5);
-          if ((unsigned __int16)i == frame_number) {
-            v5 = player_to_car[0];
-            v34 = player_to_car_variable_1;
-            v6 = &copy_multiple[16 * (((_WORD)writeptr - 1) & 0x1FF)];
-            qmemcpy(&copy_multiple[16 * writeptr + player_to_car[0]], &v6[player_to_car[0]], sizeof(int));
-            v7 = &v6[v34];
-            v8 = &copy_multiple[16 * writeptr];
-            qmemcpy(&v8[v34], v7, sizeof(int));
+        case PACKET_ID_MULTIPLE:
+          unFrameId2 = in_header.unFrameId;
+          if (unFrameId2 == frame_number) {
+            iCarIdx = player_to_car[1];
+            pCopyMultipleAtWritePtrMinus1 = copy_multiple[(writeptr - 1) & 0x1FF];
+            memcpy(
+              &copy_multiple[writeptr][player_to_car[0]],
+              &pCopyMultipleAtWritePtrMinus1[player_to_car[0]],
+              sizeof(copy_multiple[writeptr][player_to_car[0]]));
+            memcpy(
+              &copy_multiple[writeptr][iCarIdx],
+              &pCopyMultipleAtWritePtrMinus1[iCarIdx],
+              sizeof(copy_multiple[writeptr][iCarIdx]));
             network_timeout = frames;
             ++ticks_received;
             ++frame_number;
-            v9 = ((_WORD)writeptr + 1) & 0x1FF;
-            writeptr = v9;
+            writeptr = (writeptr + 1) & 0x1FF;
             next_resync = -1;
-            gssCommsPostListen(v9, v8, v5);
+            //TODO network
+            //gssCommsPostListen();
             continue;
           }
-          if (i <= frame_number)
+          if (unFrameId2 <= frame_number)
             goto LABEL_54;
           ++lost_message;
-          gssCommsPostListen(i, 12, &v33);
-          if (*((unsigned __int16 *)&in_header + 5) - frame_number <= 500) {
-            i = frames;
+          //TODO network
+          //gssCommsPostListen();
+          if (in_header.unFrameId - frame_number <= 500) {
             if (frames <= next_resync) {
             LABEL_54:
-              gssCommsPostListen(i, v0, v1);
+              ;
+              //TODO network
+              //gssCommsPostListen();
             } else {
-              if (gssCommsGetType())
-                gssclrrx();
+              //TODO network
+              //if (gssCommsGetType())
+              //  gssclrrx();
             LABEL_17:
               ++sync_errors;
               send_resync(frame_number);
               next_resync = frames + 16;
-              gssCommsPostListen(frames + 16, v0, v1);
+              //TODO network
+              //gssCommsPostListen();
             }
           } else {
-            i = send_network_sync_error();
+            send_network_sync_error();
           LABEL_13:
             network_sync_error = -1;
-            gssCommsPostListen(i, 12, &v33);
+            //TODO network
+            //gssCommsPostListen();
           }
           break;
         default:
@@ -925,7 +891,7 @@ void receive_multiple()
           goto LABEL_54;
       }
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 
 int exiting = 0;            //000A3170
 int champ_mode = 0;         //000A3178
+int cd_error = 0;           //000A317C
 int game_svga = 0;          //000A31B0
 int game_size = 64;         //000A31B4
 int game_view[2] = { 0, 0 }; //000A31B8
