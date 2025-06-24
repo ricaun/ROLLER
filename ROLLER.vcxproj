@@ -113,20 +113,21 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\external\SDL3-3.2.14\include;.\external\SDL3_image-3.2.4\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\external\SDL3-3.2.14\include;.\external\SDL3_image-3.2.4\include;.\external\wildmidi-0.4.6\include</AdditionalIncludeDirectories>
       <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\external\SDL3-3.2.14\lib\x64;.\external\SDL3_image-3.2.4\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3_image.lib;SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\external\SDL3-3.2.14\lib\x64;.\external\SDL3_image-3.2.4\lib\x64;.\external\wildmidi-0.4.6\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3_image.lib;SDL3.lib;libWildMidi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>echo Copying SDL dlls...
 echo f | xcopy .\external\SDL3-3.2.14\lib\x64\SDL3.dll .\$(OutDir) /R /Y /d /i
 echo f | xcopy .\external\SDL3_image-3.2.4\lib\x64\SDL3_image.dll .\$(OutDir) /R /Y /d /i
+echo f | xcopy .\external\wildmidi-0.4.6\lib\x64\libWildMidi.dll .\$(OutDir) /R /Y /d /i
 if %errorlevel% NEQ 0 goto Failed
 
 echo Copying icon...
