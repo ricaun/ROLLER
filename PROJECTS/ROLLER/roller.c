@@ -592,16 +592,17 @@ void UpdateSDL()
 
     SDL_Log("Run: %s\n", midipath);
 
+    if (false) {
     // Start the MIDI player
-    //fluid_player_play(player);
+      fluid_player_play(player);
+
+      while (fluid_player_get_status(player) == FLUID_PLAYER_PLAYING) {
+        SDL_Log("Status: %i\n", fluid_player_get_status(player));
+        Sleep(1000); // Wait for 1 second
+      }
+    }
 
     //play_midi_file(midipath);
-
-    //while (fluid_player_get_status(player) == FLUID_PLAYER_PLAYING) {
-    //  SDL_Log("Status: %i\n", fluid_player_get_status(player));
-    //  Sleep(1000); // Wait for 1 second
-    //}
-
     //play_midi_file("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.mid");
 
 
@@ -641,35 +642,45 @@ loadcompactedfilepart(&musicbuffer, len);*/
     //mixer_options = WM_MO_LOG_VOLUME | WM_MO_ENHANCED_RESAMPLING | WM_MO_REVERB | WM_MO_LOOP | WM_MO_SAVEASTYPE0 | WM_MO_ROUNDTEMPO | WM_MO_STRIPSILENCE | WM_MO_TEXTASLYRIC;
 
 
-    //rate = 44100;
+    //rate = 62100;
 
-    // create file path for config file
-    char *home_dir = SDL_GetBasePath();
-    if (home_dir) {
-      snprintf(config_file, sizeof(config_file), "%swildmidi.cfg", home_dir);
-      SDL_free(home_dir);
-    } else {
-      SDL_Log("Failed to get base path: %s", SDL_GetError());
-      snprintf(config_file, sizeof(config_file), "wildmidi.cfg");
-    }
+    //// create file path for config file
+    //char *home_dir = SDL_GetBasePath();
+    //if (home_dir) {
+    //  snprintf(config_file, sizeof(config_file), "%swildmidi.cfg", home_dir);
+    //  SDL_free(home_dir);
+    //} else {
+    //  SDL_Log("Failed to get base path: %s", SDL_GetError());
+    //  snprintf(config_file, sizeof(config_file), "wildmidi.cfg");
+    //}
 
-    // write default config file if it doesn't exist
-    FILE *file = fopen(config_file, "r");
-    if (!file) {
-      SDL_Log("Config file not found, creating default config: %s", config_file);
-      file = fopen(config_file, "w");
-      if (file) {
-        fputs(config_txt, file);
-        fclose(file);
-      } else {
-        SDL_Log("Failed to create config file: %s", SDL_GetError());
-        return;
-      }
-    } else {
-      fclose(file);
-    }
+    //// write default config file if it doesn't exist
+    //FILE *file = fopen(config_file, "r");
+    //if (!file) {
+    //  SDL_Log("Config file not found, creating default config: %s", config_file);
+    //  file = fopen(config_file, "w");
+    //  if (file) {
+    //    fputs(config_txt, file);
+    //    fclose(file);
+    //  } else {
+    //    SDL_Log("Failed to create config file: %s", SDL_GetError());
+    //    return;
+    //  }
+    //} else {
+    //  fclose(file);
+    //}
 
-    if (WildMidi_Init(config_file, rate, mixer_options) == -1) {
+    //char *home_dir = SDL_GetBasePath();
+    //snprintf(config_file, sizeof(config_file), "%smidi\\wildmidi.cfg", home_dir);
+    //SDL_free(home_dir);
+
+    //if (WildMidi_Init(config_file, rate, mixer_options) == -1) {
+    //  SDL_Log(stderr, "WildMidi_GetError: %s\r\n", WildMidi_GetError());
+    //  WildMidi_ClearError();
+    //  return;
+    //}
+
+    if (WildMidi_Init("..\\midi\\wildmidi.cfg", rate, mixer_options) == -1) {
       SDL_Log(stderr, "WildMidi_GetError: %s\r\n", WildMidi_GetError());
       WildMidi_ClearError();
       return;
@@ -717,7 +728,7 @@ loadcompactedfilepart(&musicbuffer, len);*/
       uint32_t len = 0;
       int32_t res = 0;
 
-      uint32_t samples = 16384*10;
+      uint32_t samples = 16384;
       //samples = wm_info->approx_total_samples;
       output_buffer = malloc(samples);
       if (output_buffer != NULL)
@@ -747,14 +758,14 @@ loadcompactedfilepart(&musicbuffer, len);*/
         //SDL_Log("Res: %i Samples: %i", res, wm_info->current_sample);
         //PlayAudioDataWait(output_buffer, res);
 
-        float volume = 1.0f;
+        float volume = 0.5f;
         SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
         SDL_PutAudioStreamData(stream, output_buffer, res);
         SDL_ResumeAudioStreamDevice(stream);
 
 
         total_pcm_bytes += res;
-        
+
       }
 
       SDL_Log("Total: %i", total_pcm_bytes);
