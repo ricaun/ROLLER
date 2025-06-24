@@ -282,10 +282,10 @@ int send_network_sync_error()
 
 //-------------------------------------------------------------------------------------------------
 
-void send_resync(int iResync)
+void send_resync(int iFrameNumber)
 {
   if (network_on) {
-    resync = iResync;
+    resync = iFrameNumber;
     p_header.byConsoleNode = (uint8)wConsoleNode;
     p_header.uiId = PACKET_ID_RESYNC;
     //TODO network

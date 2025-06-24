@@ -128,7 +128,7 @@ void close_network();
 int send_net_error();
 int send_game_error(int result);
 int send_network_sync_error();
-void send_resync(int iResync);
+void send_resync(int iFrameNumber);
 void send_nocd_error();
 void send_quit();
 void send_ready();
