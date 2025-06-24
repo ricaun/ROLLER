@@ -3488,6 +3488,7 @@ void initmusic()
 
     strncpy(Sample[i], szBuf, 15);
     Sample[i][14] = '\0';
+    SDL_Log("Sample[%d] = %s", i, Sample[i]);
   }
 
   // read song filenames
@@ -3501,6 +3502,7 @@ void initmusic()
 
     strncpy(Song[i], szBuf, 15);
     Song[i][14] = '\0';
+    SDL_Log("Song[%d] = %s", i, Song[i]);
   }
 
   // read GMSong/CDSong values for each track (+5 entries)

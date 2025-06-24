@@ -11,7 +11,7 @@
 #include <wildmidi/wildmidi_lib.h>
 
 const char *config_txt =
-"dir /usr/share/midi/freepats\n"
+"dir ../usr/share/midi/freepats\n"
 "\n"
 "# Automatically generated on Sun Feb 19 19:22:39 EST 2006\n"
 "# by http://freepats.opensrc.org/mkcfg.sh.txt\n"
@@ -457,7 +457,7 @@ void UpdateSDL()
 
     // Set the SoundFont rendering output mode
     tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, 44100, -10.0f);
-   
+
     tml_message *g_MidiMessage = TinyMidiLoader;
 
 
@@ -512,7 +512,7 @@ void UpdateSDL()
 
     while (g_MidiMessage->next != NULL) {
       //if (g_MidiMessage->type == TML_PROGRAM_CHANGE)
-      SDL_Log("TinyMidiLoader %i - program: %i - channel: %i  key: %i  -- time: %i", g_MidiMessage->type, g_MidiMessage->program, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->time);
+      //SDL_Log("TinyMidiLoader %i - program: %i - channel: %i  key: %i  -- time: %i", g_MidiMessage->type, g_MidiMessage->program, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->time);
 
       switch (g_MidiMessage->type) {
         case TML_PROGRAM_CHANGE: //channel program (preset) change (special handling for 10th MIDI channel with drums)
@@ -539,7 +539,41 @@ void UpdateSDL()
 
     SDL_Log("Finish");
 
-    //return;
+    uint8 *songBuffer;
+    uint32 songLen;
+    //int songId = 9; // OPTIONS
+    int songId = 8; // TITLE
+
+
+    //songLen = getcompactedfilelength(&Song[GMSong[songId]]);
+    //SDL_Log("Song: %s - %i", Song[GMSong[songId]], songLen);
+
+    SDL_Log("Song[%i]: %s", songId, Song[GMSong[songId]]);
+    loadfile(&Song[GMSong[songId]], &songBuffer, &songLen, 0);
+
+
+
+    //loadcompactedfile(&Song[GMSong[songId]], &musicbuffer);
+
+    //The `loadcompactedfilepart` method have some issue.I was not able to `unmagle` the `.hmp` file.I actually use the[clsUnmangler.cs](https://github.com/ninjatobob/Whiptools/blob/master/Whiptools/clsUnmangler.cs) convert the file.
+
+    //Is based in this one I guess : https://gist.github.com/samunders-core/1acaadc064f203e4f2ab769c7dfabeda
+
+    //The code below should work, but fails to unmangle the song file.
+    //  ```c
+    //  uint8 *musicbuffer;
+    //int songId = 0;
+    //uint32 uiSize = getcompactedfilelength(&Song[GMSong[songId]]);
+    //SDL_Log("Song: %s - %i", Song[GMSong[songId]], uiSize);
+
+    //loadcompactedfile(&Song[GMSong[songId]], &musicbuffer);
+    //```
+
+
+    //loadfile(".\\FATAL.KC", &musicbuffer, &uiSize, 0);
+
+    //loadcompactedfile(".\\FATAL.KC", &musicbuffer);
+
 
 
     // Load soundfont
@@ -559,7 +593,7 @@ void UpdateSDL()
     SDL_Log("Run: %s\n", midipath);
 
     // Start the MIDI player
-    fluid_player_play(player);
+    //fluid_player_play(player);
 
     //play_midi_file(midipath);
 
@@ -570,10 +604,7 @@ void UpdateSDL()
 
     //play_midi_file("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.mid");
 
-//uint8 *musicbuffer;
-//int songId = 1;
-//uint32 uiSize = getcompactedfilelength(&Song[GMSong[songId]]);
-//SDL_Log("Song: %s - %i", Song[GMSong[songId]], uiSize);
+
 
 
 /*int len = initmangle(&Song[GMSong[songId]])*4;
@@ -584,15 +615,18 @@ musicbuffer = malloc(len);
 memset(musicbuffer, 0, len);
 loadcompactedfilepart(&musicbuffer, len);*/
 
+    /*uint8 *musicbuffer;
+    int songId = 1;
+    uint32 uiSize = getcompactedfilelength(&Song[GMSong[songId]]);
+    SDL_Log("Song: %s - %i", Song[GMSong[songId]], uiSize);
 
+    loadcompactedfile(&Song[GMSong[songId]], &musicbuffer);*/
 
-//loadcompactedfile(&Song[GMSong[songId]] ,&musicbuffer);
+    //play_midi_file("D:\\Games\\Fatal\\Whiptools\\Whiptools\\bin\\Debug\\app.publish\\INGAME1.HMP.TXT");
+    //play_midi_file("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.mid");
+    //play_midi_file("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.hmp");
 
-//play_midi_file("D:\\Games\\Fatal\\Whiptools\\Whiptools\\bin\\Debug\\app.publish\\INGAME1.HMP.TXT");
-//play_midi_file("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.mid");
-//play_midi_file("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.hmp");
-
-//SDL_Log(" WildMidi_GetError: %s\r\n", WildMidi_GetError());
+    //SDL_Log(" WildMidi_GetError: %s\r\n", WildMidi_GetError());
 
     long libraryver = WildMidi_GetVersion();
     SDL_Log("Initializing libWildMidi %ld.%ld.%ld\n\n",
@@ -650,9 +684,11 @@ loadcompactedfilepart(&musicbuffer, len);*/
 
     //midi *midi_ptr = WildMidi_Open("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.hmp");
     //midi *midi_ptr = WildMidi_Open("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\song.mid");
-    midi *midi_ptr = WildMidi_Open("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.hmp");
+    //midi *midi_ptr = WildMidi_Open("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\TITLE.HMP.mid");
 
     //midi *midi_ptr = WildMidi_Open("C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\song.mid");
+
+    midi *midi_ptr = WildMidi_OpenBuffer(songBuffer, songLen);
 
     SDL_Log(" WildMidi_Open");
     if (midi_ptr == NULL) {
@@ -677,24 +713,51 @@ loadcompactedfilepart(&musicbuffer, len);*/
       SDL_Log("Mix Options %i", wm_info->mixer_options);
 
 
-      //int8_t *output_buffer;
-      //uint32_t len = 0;
-      //int32_t res = 0;
+      void *output_buffer;
+      uint32_t len = 0;
+      int32_t res = 0;
 
-      //uint32_t samples = 16000;
-      //output_buffer = malloc(samples);
-      //memset(output_buffer, 0, samples);
+      uint32_t samples = 16384*10;
+      //samples = wm_info->approx_total_samples;
+      output_buffer = malloc(samples);
+      if (output_buffer != NULL)
+        memset(output_buffer, 0, samples);
 
-      ////res = WildMidi_GetOutput(midi_ptr, output_buffer, samples);
-      //uint32_t total_pcm_bytes = 0;
 
-      //while ((res = WildMidi_GetOutput(midi_ptr, output_buffer, samples)) > 0) {
-      //  SDL_Log("Res: %i Samples: %i", res, wm_info->current_sample);
-      //  PlayAudioDataWait(output_buffer, res);
-      //  total_pcm_bytes += res;
-      //}
+      SDL_AudioSpec wav_spec;
+      wav_spec.channels = 2; // Stereo
+      wav_spec.freq = rate; // Sample rate
+      wav_spec.format = SDL_AUDIO_S16; // 8-bit unsigned audio
 
-      //SDL_Log("Total: %i", total_pcm_bytes);
+      SDL_AudioStream *stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, NULL, NULL);
+      if (!stream) {
+        SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
+        return;
+      }
+
+
+      //res = WildMidi_GetOutput(midi_ptr, output_buffer, samples);
+      uint32_t total_pcm_bytes = 0;
+
+      while ((res = WildMidi_GetOutput(midi_ptr, output_buffer, samples)) > 0) {
+ /*       for (size_t i = 0; i < samples; i++) {
+          SDL_Log("%i = %i", i, output_buffer[i]);
+        }*/
+        wm_info->current_sample += res;
+        //SDL_Log("Res: %i Samples: %i", res, wm_info->current_sample);
+        //PlayAudioDataWait(output_buffer, res);
+
+        float volume = 1.0f;
+        SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
+        SDL_PutAudioStreamData(stream, output_buffer, res);
+        SDL_ResumeAudioStreamDevice(stream);
+
+
+        total_pcm_bytes += res;
+        
+      }
+
+      SDL_Log("Total: %i", total_pcm_bytes);
 
       ////SDL_Log("Res: %i Samples: %i", res, wm_info->current_sample);
 
@@ -718,7 +781,7 @@ loadcompactedfilepart(&musicbuffer, len);*/
       //  SDL_Log("GetError: %s\r\n", WildMidi_GetError());
       //  WildMidi_ClearError();
       //} else {
-      //  snprintf(config_file, sizeof(config_file), "%ssample-test2.mid", home_dir);
+      //  snprintf(config_file, sizeof(config_file), "%srun.mid", home_dir);
       //  SDL_Log("Create! %s", config_file);
       //  file = fopen(config_file, "wb");
 
