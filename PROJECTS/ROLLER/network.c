@@ -208,25 +208,22 @@ void close_network()
 
 //-------------------------------------------------------------------------------------------------
 
-int send_net_error()
+void send_net_error()
 {
-  return 0; /*
-  int result; // eax
   int i; // esi
 
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    p_header_variable_1 = 1751933804;
-    result = wConsoleNode;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = PACKET_ID_NET_ERROR;
     if (wConsoleNode == master) {
       for (i = 0; i < network_on; ++i) {
-        result = wConsoleNode;
-        if (i != wConsoleNode)
-          result = gssCommsSendData(i);
+        if (i != wConsoleNode) {
+          //TODO network
+          //gssCommsSendData(&p_header, sizeof(tSyncHeader), p_data, 0, i);
+        }
       }
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
