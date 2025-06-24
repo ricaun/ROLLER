@@ -152,6 +152,12 @@ const char *config_txt =
 ;
 
 
+#define TML_IMPLEMENTATION
+#include "tml.h"
+
+#define TSF_IMPLEMENTATION
+#include "tsf.h"
+
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 
@@ -322,6 +328,48 @@ void play_midi_file(const char *midi_filename)
   mciSendCommand(deviceID, MCI_PLAY, 0, (DWORD_PTR)&mciPlayParms);
 }
 
+// Holds the global instance pointer
+static tsf *g_TinySoundFont;
+
+// Holds global MIDI playback state
+static double g_Msec;               //current playback time
+static tml_message *g_MidiMessage;  //next message to be played
+
+// Callback function called by the audio thread
+static void AudioCallback(void *data, Uint8 *stream, int len)
+{
+        //Number of samples to process
+  int SampleBlock, SampleCount = (len / (2 * sizeof(float))); //2 output channels
+  for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(float)))) {
+          //We progress the MIDI playback and then process TSF_RENDER_EFFECTSAMPLEBLOCK samples at once
+    if (SampleBlock > SampleCount) SampleBlock = SampleCount;
+
+    //Loop through all MIDI messages which need to be played up until the current playback time
+    for (g_Msec += SampleBlock * (1000.0 / 44100.0); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+      switch (g_MidiMessage->type) {
+        case TML_PROGRAM_CHANGE: //channel program (preset) change (special handling for 10th MIDI channel with drums)
+          tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+          break;
+        case TML_NOTE_ON: //play a note
+          tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+          break;
+        case TML_NOTE_OFF: //stop a note
+          tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+          break;
+        case TML_PITCH_BEND: //pitch wheel modification
+          tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+          break;
+        case TML_CONTROL_CHANGE: //MIDI controller messages
+          tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+          break;
+      }
+    }
+
+    // Render the block of audio samples in float format
+    tsf_render_float(g_TinySoundFont, (float *)stream, SampleBlock, 0);
+  }
+}
+
 void UpdateSDL()
 {
   if (debug) {
@@ -373,13 +421,9 @@ void UpdateSDL()
         //char *soundfont_path = "C:\\Users\\ricau\\Downloads\\SoundFont\\VintageDreamsWaves-v2.sf2"; // Path to your SoundFont file
 
     //char *soundfont_path = "C:\\Users\\ricau\\Downloads\\SoundFont\\gm.sf2"; // Path to your SoundFont file
-    char *soundfont_path = "C:\\Windows\\System32\\drivers\\gm.dls";
+    //char *soundfont_path = "C:\\Windows\\System32\\drivers\\gm.dls";
 
-    // Load soundfont
-    if (fluid_synth_sfload(synth, soundfont_path, 1) == FLUID_FAILED) {
-      SDL_Log("Failed to load SoundFont: %s\n", soundfont_path);
-      return 1;
-    }
+    char *soundfont_path = "C:\\Users\\ricau\\Downloads\\SoundFont\\GMGSx.sf2"; // Path to your SoundFont file
 
     char *midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\TITLE.HMP.mid"; // Path to your MIDI file
     //midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\OPTIONS.HMP.mid"; // Path to your MIDI file
@@ -390,6 +434,120 @@ void UpdateSDL()
     midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\INGAME2.HMP.mid";
     midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\INGAME3.HMP.mid";
     midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\INGAME4.HMP.mid";
+    midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\t.mid";
+    midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\song.mid";
+
+    midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\TITLE.HMP.mid"; // Path to your MIDI file
+
+    midipath = "C:\\Users\\ricau\\Downloads\\wildmidi-0.4.6-win64\\Music\\TITLE.HMP.mid";
+
+    tml_message *TinyMidiLoader = tml_load_filename(midipath);
+    tsf *g_TinySoundFont = tsf_load_filename(soundfont_path);
+
+    if (!TinyMidiLoader) {
+      SDL_Log("Could not load MIDI file\n");
+    }
+
+    if (!g_TinySoundFont) {
+      SDL_Log("Could not load SoundFont\n");
+    }
+
+    //Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+
+    // Set the SoundFont rendering output mode
+    tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, 44100, -10.0f);
+   
+    tml_message *g_MidiMessage = TinyMidiLoader;
+
+
+    //// Holds global MIDI playback state
+    //static double g_Msec;               //current playback time
+    //Uint8 *stream;
+    //int len;
+    ////Number of samples to process
+    //int SampleBlock, SampleCount = (len / (2 * sizeof(float))); //2 output channels
+    //for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(float)))) {
+    //        //We progress the MIDI playback and then process TSF_RENDER_EFFECTSAMPLEBLOCK samples at once
+    //  if (SampleBlock > SampleCount) SampleBlock = SampleCount;
+
+    //  //Loop through all MIDI messages which need to be played up until the current playback time
+    //  for (g_Msec += SampleBlock * (1000.0 / 44100.0); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+    //    switch (g_MidiMessage->type) {
+    //      case TML_PROGRAM_CHANGE: //channel program (preset) change (special handling for 10th MIDI channel with drums)
+    //        tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+    //        break;
+    //      case TML_NOTE_ON: //play a note
+    //        tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+    //        break;
+    //      case TML_NOTE_OFF: //stop a note
+    //        tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+    //        break;
+    //      case TML_PITCH_BEND: //pitch wheel modification
+    //        tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+    //        break;
+    //      case TML_CONTROL_CHANGE: //MIDI controller messages
+    //        tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+    //        break;
+    //    }
+    //  }
+
+    //  // Render the block of audio samples in float format
+    //  tsf_render_float(g_TinySoundFont, (float *)stream, SampleBlock, 0);
+    //}
+
+#define SAMPLE_RATE 44100
+#define BLOCK_SIZE 64
+
+    double time = 0;
+    double delta = 1.0 / SAMPLE_RATE;
+    double currTempo = 120.0; // BPM
+    double secondsPerBeat = 60.0 / currTempo;
+    double ticksPerBeat = 120.0; // default, overridden by tml
+
+    tml_message *seq = TinyMidiLoader;
+
+
+    float buffer[BLOCK_SIZE * 2];
+
+    while (g_MidiMessage->next != NULL) {
+      //if (g_MidiMessage->type == TML_PROGRAM_CHANGE)
+      SDL_Log("TinyMidiLoader %i - program: %i - channel: %i  key: %i  -- time: %i", g_MidiMessage->type, g_MidiMessage->program, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->time);
+
+      switch (g_MidiMessage->type) {
+        case TML_PROGRAM_CHANGE: //channel program (preset) change (special handling for 10th MIDI channel with drums)
+          tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+          break;
+        case TML_NOTE_ON: //play a note
+          tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+          break;
+        case TML_NOTE_OFF: //stop a note
+          tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+          break;
+        case TML_PITCH_BEND: //pitch wheel modification
+          tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+          break;
+        case TML_CONTROL_CHANGE: //MIDI controller messages
+          tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+          break;
+      }
+
+      //tsf_render_float(g_TinySoundFont, (float *)stream, SampleBlock, 0);
+
+      g_MidiMessage = g_MidiMessage->next;
+    }
+
+    SDL_Log("Finish");
+
+    //return;
+
+
+    // Load soundfont
+    if (fluid_synth_sfload(synth, soundfont_path, 1) == FLUID_FAILED) {
+      SDL_Log("Failed to load SoundFont: %s\n", soundfont_path);
+      return 1;
+    }
+
 
     // https://github.com/schellingb/TinySoundFont/blob/main/examples/example3.c
 

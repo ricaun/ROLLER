@@ -293,8 +293,10 @@ exit 1</Command>
     <ClInclude Include="PROJECTS\ROLLER\roller.h" />
     <ClInclude Include="PROJECTS\ROLLER\sound.h" />
     <ClInclude Include="PROJECTS\ROLLER\svgacpy.h" />
+    <ClInclude Include="PROJECTS\ROLLER\tml.h" />
     <ClInclude Include="PROJECTS\ROLLER\tower.h" />
     <ClInclude Include="PROJECTS\ROLLER\transfrm.h" />
+    <ClInclude Include="PROJECTS\ROLLER\tsf.h" />
     <ClInclude Include="PROJECTS\ROLLER\types.h" />
     <ClInclude Include="PROJECTS\ROLLER\userfns.h" />
     <ClInclude Include="PROJECTS\ROLLER\view.h" />
