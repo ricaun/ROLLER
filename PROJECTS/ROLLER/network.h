@@ -101,6 +101,16 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+#pragma pack(push, 1)
+typedef struct
+{
+  int32 iData;
+  int16 nChecksum;
+} tDataPacket;
+#pragma pack(pop)
+
+//-------------------------------------------------------------------------------------------------
+
 extern int net_type;
 extern int net_started;
 extern int gamers_playing[4];
@@ -108,7 +118,7 @@ extern int test_mini[2];
 extern int test_multiple[16];
 extern tRecordPacket p_record;
 extern int net_players[16];
-extern int16 player_checks[8192];
+extern int16 player_checks[512][16];
 extern int address[64];
 extern int player_ready[16];
 extern int syncptr;
@@ -126,6 +136,8 @@ extern int message_received;
 extern int my_age;
 extern int message_number;
 extern int message_node;
+extern int read_check;
+extern int write_check;
 extern int network_mistake;
 extern int pauser;
 extern uint32 broadcast_mode;
@@ -135,6 +147,7 @@ extern int master;
 extern tSyncHeader in_header;
 extern int active_nodes;
 extern int net_quit;
+extern tDataPacket slave_data;
 extern char p_data[14];
 extern int16 wConsoleNode;
 
@@ -153,7 +166,7 @@ void send_record_to_master(int iRecordIdx);
 void send_record_to_slaves(int iRecordIdx);
 void send_mes(int iNetworkMessageIdx, int iNode);
 void send_seed(int iRandomSeed);
-int send_single(int result);
+void send_single(int iData);
 void send_pause();
 void send_slot();
 void transmitpausetoslaves();

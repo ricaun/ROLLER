@@ -17,7 +17,7 @@ int test_mini[2];           //001786C0
 int test_multiple[16];      //001786C8
 tRecordPacket p_record;     //00178708
 int net_players[16];        //00178718
-int16 player_checks[8192];  //00178758
+int16 player_checks[512][16]; //00178758
 int address[64];            //0017C758
 int player_ready[16];       //0017C858
 int syncptr;                //0017C928
@@ -35,6 +35,8 @@ int message_received;       //0017C960
 int my_age;                 //0017C964
 int message_number;         //0017C968
 int message_node;           //0017C96C
+int read_check;             //0017C970
+int write_check;            //0017C974
 int network_mistake;        //0017C97C
 int pauser;                 //0017C980
 uint32 broadcast_mode;      //0017C984
@@ -44,6 +46,7 @@ int master;                 //0017C9A0
 tSyncHeader in_header;      //0017C9A4
 int active_nodes;           //0017C9B0
 int net_quit;               //0017C9B4
+tDataPacket slave_data;     //0017C9B8
 char p_data[14];            //0017C9BE
 int16 wConsoleNode;         //0017C9DA
 
@@ -477,26 +480,45 @@ void send_seed(int iRandomSeed)
 
 //-------------------------------------------------------------------------------------------------
 
-int send_single(int result)
+void send_single(int iData)
 {
-  return 0; /*
-  if (network_on) {
-    p_header_variable_2 = player1_car;
-    slave_data = result;
-    p_header_variable_1 = 1751933797;
-    if (read_check == write_check || read_check < 0)
-      *((_WORD *)&slave_data + 2) = -512;
-    else
-      slave_data_variable_2 = ((player_checks[16 * read_check + player1_car] & 0x7F) << 9) | read_check & 0x1FF;
-    gssCommsSendData(master);
-    player_checks[16 * read_check + player1_car] = -1;
-    result = read_check;
-    if (read_check != write_check && read_check >= 0) {
-      result = ((_WORD)read_check + 1) & 0x1FF;
-      read_check = result;
-    }
+  if (!network_on) return;
+
+  // Initialize header and data packet
+  p_header.uiId = PACKET_ID_SINGLE;
+  p_header.byConsoleNode = (uint8)player1_car;
+
+  slave_data.iData = iData;
+
+  // Calculate checksum or sequence number if valid read position
+  if (read_check == write_check || read_check < 0) {
+    // Invalid state - set default value
+    slave_data.nChecksum = 0xFE00;
+  } else {
+    // Compute special value using player_checks array
+    short nChecksum = player_checks[read_check][player1_car];
+
+    // Create composite value:
+    // - Lower 7 bits of checksum shifted to bits 9-15
+    // - Bit 8 from read_check
+    // - Lower 8 bits from read_check
+    unsigned int uiComposite = (nChecksum & 0x7F) << 9;
+    uiComposite |= (read_check & 0x100);  // Bit 8
+    uiComposite |= (read_check & 0xFF);    // Bits 0-7
+
+    slave_data.nChecksum = (short)uiComposite;
   }
-  return result;*/
+
+  //TODO network
+  //gssCommsSendData(&p_header, sizeof(p_header), slave_data, sizeof(tDataPacket), master);
+
+  // Mark check as processed
+  player_checks[read_check][player1_car] = -1;  // 0xFFFF
+
+  // Advance read position if valid and not caught up
+  if (read_check != write_check && read_check >= 0) {
+    read_check = (read_check + 1) & 0x1FF;  // Wrap around at 512
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
