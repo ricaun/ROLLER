@@ -19,6 +19,8 @@ int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
 
+bool MIDIDigi_Start(const char *config_file);
+
 int DIGISampleStart(tSampleData *data);
 bool DIGISampleDone(int index);
 int DIGISampleAvailable(int index);

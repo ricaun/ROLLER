@@ -6,6 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
+#include <wildmidi/wildmidi_lib.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -128,6 +129,11 @@ int InitSDL()
     g_pController2 = SDL_OpenGamepad(1);
   }
 
+
+  if (!MIDIDigi_Start(".\\bin\\midi\\wildmidi.cfg")){
+    SDL_Log("Failed to initialize WildMidi. Please check your configuration file (wildmidi.cfg).");
+  }
+
   return SDL_APP_SUCCESS;
 }
 
@@ -176,6 +182,27 @@ void UpdateSDL()
     }
   }
   UpdateSDLWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool MIDIDigi_Start(const char *config_file)
+{
+  long version = WildMidi_GetVersion();
+  SDL_Log("Initializing libWildMidi %ld.%ld.%ld",
+                      (version >> 16) & 255,
+                      (version >> 8) & 255,
+                      (version) & 255);
+
+  uint16_t rate = 44100; // Sample rate
+  uint16_t mixer_options = 0;
+
+  if (WildMidi_Init(config_file, rate, mixer_options) == -1) {
+    SDL_Log("WildMidi_GetError: %s", WildMidi_GetError());
+    WildMidi_ClearError();
+    return false;
+  }
+  return true;
 }
 
 //-------------------------------------------------------------------------------------------------
