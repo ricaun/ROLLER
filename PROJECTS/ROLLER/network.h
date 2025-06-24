@@ -4,6 +4,15 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+#define PACKET_ID_TRANSMIT_INIT 0x686C6361
+#define PACKET_ID_PLAYER_CARS   0x686C6366
+#define PACKET_ID_SEED          0x686C6368
+#define PACKET_ID_PLAYER_INFO   0x686C636A
+#define PACKET_ID_RECORD        0x686C636B
+#define PACKET_ID_MESSAGE       0x686C6373
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   uint32 uiUnk1;
@@ -67,6 +76,18 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  char szMessage[32];
+  char szPlayerName[9];
+  //padding byte
+  //padding byte
+  //padding byte
+  int iNetworkSlot;
+} tMessagePacket;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int net_type;
 extern int net_started;
 extern int gamers_playing[4];
@@ -123,7 +144,7 @@ int CheckNewNodes();
 void FoundNodes();
 void SendPlayerInfo();
 int prepare_net_message(int result, int a2);
-void SendAMessage(int a1, int a2, int a3, int a4);
+void SendAMessage();
 void BroadcastNews();
 int remove_messages(int Header, int a2, void *a3, int a4);
 int reset_network(int a1);

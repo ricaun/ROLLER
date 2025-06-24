@@ -4,7 +4,10 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern int send_message_to;
+extern char rec_mes_buf[32];
 extern int result_order[16];
+extern int send_status;
 extern int restart_net;
 
 //-------------------------------------------------------------------------------------------------

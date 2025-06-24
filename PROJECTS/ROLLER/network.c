@@ -373,7 +373,7 @@ void send_record_to_master(int iRecordIdx)
 {
   if (network_on) {
     p_header.byConsoleNode = (uint8)wConsoleNode;
-    p_header.uiId = 0x686C636B;
+    p_header.uiId = PACKET_ID_RECORD;
     p_record.fRecordLap = RecordLaps[iRecordIdx];
     strncpy(p_record.szRecordName, RecordNames[iRecordIdx], sizeof(p_record.szRecordName));
     p_record.unRecordCar = RecordCars[iRecordIdx];
@@ -390,7 +390,7 @@ void send_record_to_slaves(int iRecordIdx)
 {
   if (network_on) {
     p_header.byConsoleNode = (uint8)wConsoleNode;
-    p_header.uiId = 0x686C636B;
+    p_header.uiId = PACKET_ID_RECORD;
     p_record.fRecordLap = RecordLaps[iRecordIdx];
     strncpy(p_record.szRecordName, RecordNames[iRecordIdx], sizeof(p_record.szRecordName));
     p_record.unRecordCar = RecordCars[iRecordIdx];
@@ -473,7 +473,7 @@ void send_seed(int iRandomSeed)
 {
   if (network_on) {
     test_seed = iRandomSeed;
-    p_header.uiId = 0x686C6368;
+    p_header.uiId = PACKET_ID_SEED;
     p_header.byConsoleNode = (uint8)wConsoleNode;
     for (int i = 0;  i < network_on; ++i) {
       if (i != wConsoleNode) {
@@ -1119,7 +1119,7 @@ void do_sync_stuff(void)
   if (net_type == 0) {
     // Full sync: send all cars to all nodes
     while (syncleft > 0) {
-      in_header.uiId = 0x686C6366;
+      in_header.uiId = PACKET_ID_PLAYER_CARS;
       in_header.byConsoleNode = byConsoleNode;
       in_header.unFrameId = unFrame;
 
@@ -1139,7 +1139,7 @@ void do_sync_stuff(void)
   } else {
     // Minimal sync: send only player-to-car pairs
     while (syncleft > 0) {
-      in_header.uiId = 0x686C6366;
+      in_header.uiId = PACKET_ID_PLAYER_CARS;
       in_header.byConsoleNode = byConsoleNode;
       in_header.unFrameId = unFrame;
 
@@ -1176,7 +1176,7 @@ int TransmitInit()
   iSuccess = -1;
   if (network_on) {
     header.byConsoleNode = player1_car;
-    header.uiId = 0x686C6361;
+    header.uiId = PACKET_ID_TRANSMIT_INIT;
     initPacket.iTrackLoad = TrackLoad;
     name_copy(initPacket.szPlayerName, player_names[wConsoleNode]);
     initPacket.address[0] = address[0];
@@ -1892,7 +1892,7 @@ void SendPlayerInfo()
     
     //setup header
     p_header.byConsoleNode = (uint8)wConsoleNode;
-    p_header.uiId = 0x686C636A;
+    p_header.uiId = PACKET_ID_PLAYER_INFO;
 
     //send to all nodes
     for (int i = 0; i < network_on; ++i) {
@@ -1917,45 +1917,35 @@ int prepare_net_message(int result, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-void SendAMessage(int a1, int a2, int a3, int a4)
-{/*
-  int i; // eax
-  _BYTE v5[4]; // [esp+0h] [ebp-50h]
-  int v6; // [esp+4h] [ebp-4Ch]
-  _BYTE v7[12]; // [esp+28h] [ebp-28h] BYREF
-  int v8; // [esp+34h] [ebp-1Ch]
-  int v9; // [esp+3Ch] [ebp-14h]
-  char v10; // [esp+40h] [ebp-10h]
-  int v11; // [esp+44h] [ebp-Ch]
-  int v12; // [esp+48h] [ebp-8h]
+void SendAMessage()
+{
+  int iNode; // [esp+4h] [ebp-4Ch]
+  tMessagePacket messagePacket; // [esp+8h] [ebp-48h] BYREF
+  tSyncHeader syncHeader; // [esp+38h] [ebp-18h] BYREF
 
-  v12 = a4;
-  v11 = a2;
   if (!broadcast_mode && send_message_to >= 0) {
-    v10 = gssCommsNetAddrToNode(&address);
-    v9 = 1751933811;
-    name_copy((int)v7, &player_names[9 * player1_car]);
-    for (i = 0; i < 32; *((_BYTE *)v7 + i + 31) = rec_mes_buf_variable_8[i]) {
-      i += 8;
-      v5[i] = rec_mes_buf_variable_1[i];
-      v5[i + 1] = rec_mes_buf_variable_2[i];
-      v5[i + 2] = rec_mes_buf_variable_3[i];
-      v5[i + 3] = rec_mes_buf_variable_4[i];
-      *((_BYTE *)v7 + i + 28) = rec_mes_buf_variable_5[i];
-      *((_BYTE *)v7 + i + 29) = rec_mes_buf_variable_6[i];
-      *((_BYTE *)v7 + i + 30) = rec_mes_buf_variable_7[i];
-    }
-    v8 = network_slot;
-    if (send_message_to)
-      v6 = gssCommsNetAddrToNode((char *)&address + 16 * send_message_to);
-    else
-      v6 = 21;
-    if (gssCommsSendData(v6))
-      send_status = 18;
-    else
+    //TODO network
+    syncHeader.byConsoleNode = -1;// gssCommsNetAddrToNode(address);
+    syncHeader.uiId = PACKET_ID_MESSAGE;
+    name_copy(messagePacket.szPlayerName, player_names[player1_car]);
+
+    strncpy(messagePacket.szMessage, rec_mes_buf, sizeof(messagePacket.szMessage));
+
+    messagePacket.iNetworkSlot = network_slot;
+
+    //TODO network
+    //if (send_message_to)
+    //  iNode = gssCommsNetAddrToNode(&address[send_message_to]);
+    //else
+      iNode = 21;
+
+    //TODO network
+    //if (gssCommsSendData(&syncHeader, sizeof(tSyncHeader), &messagePacket, sizeof(tMessagePacket), iNode))
+    //  send_status = 18;
+    //else
       send_status = -18;
     send_message_to = -1;
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
