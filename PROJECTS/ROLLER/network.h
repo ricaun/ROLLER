@@ -7,20 +7,22 @@
 #define PACKET_ID_TRANSMIT_INIT 0x686C6361
 #define PACKET_ID_SEND_MES      0x686C6363
 #define PACKET_ID_QUIT          0x686C6364
+#define PACKET_ID_SINGLE        0x686C6365
 #define PACKET_ID_PLAYER_CARS   0x686C6366
 #define PACKET_ID_READY         0x686C6367
 #define PACKET_ID_SEED          0x686C6368
 #define PACKET_ID_PAUSE         0x686C6369
 #define PACKET_ID_PLAYER_INFO   0x686C636A
 #define PACKET_ID_RECORD        0x686C636B
-#define PACKET_ID_NOCD          0x686C636F
 #define PACKET_ID_NET_ERROR     0x686C636C
 #define PACKET_ID_SYNC_ERROR    0x686C636D
 #define PACKET_ID_GAME_ERROR    0x686C636E
+#define PACKET_ID_NOCD          0x686C636F
 #define PACKET_ID_RESYNC        0x686C6370
 #define PACKET_ID_SLOT          0x686C6371
 #define PACKET_ID_SEND_HERE     0x686C6372
 #define PACKET_ID_MESSAGE       0x686C6373
+#define PACKET_ID_MULTIPLE      0x686C6374
 
 //-------------------------------------------------------------------------------------------------
 
@@ -156,7 +158,7 @@ void receive_multiple();
 void receive_all_singles();
 void do_sync_stuff();
 int TransmitInit();
-int StartNode(int a1);
+void StartNode(int iNode);
 int CheckNewNodes();
 void FoundNodes();
 void SendPlayerInfo();

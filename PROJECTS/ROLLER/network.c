@@ -1241,22 +1241,18 @@ int TransmitInit()
 
 //-------------------------------------------------------------------------------------------------
 
-int StartNode(int a1)
+void StartNode(int iNode)
 {
-  return 0; /*
-  int NetworkAddr; // eax
-  int result; // eax
-
   my_age = 0;
-  NetworkAddr = gssCommsGetNetworkAddr(&address, a1);
-  result = gssCommsGetConsoleNode(NetworkAddr);
+  //TODO network
+  //gssCommsGetNetworkAddr(address);
+  //gssCommsGetConsoleNode();
   network_on = 1;
-  if (a1 || network_slot < 0)
-    broadcast_mode = -456;
+  if (iNode || network_slot < 0)
+    broadcast_mode = 0xFFFFFE38;
   else
     broadcast_mode = -1;
   tick_on = -1;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
