@@ -178,6 +178,19 @@ void ShutdownSDL()
   free(s_pRGBBuffer);
 }
 
+uint8 songId = 4;
+void playMusic()
+{
+  MIDIDigi_ClearBuffer();
+  uint8 *songBuffer;
+  uint32 songLen;
+  SDL_Log("Song[%i]: %s", songId, Song[songId]);
+  loadfile(&Song[songId], &songBuffer, &songLen, 0);
+  MIDIDigi_PlayBuffer(songBuffer, songLen);
+  free(songBuffer);
+  songId = (songId + 1) % 9;
+}
+
 //-------------------------------------------------------------------------------------------------
 
 void UpdateSDL()
@@ -198,13 +211,7 @@ void UpdateSDL()
           PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
           PlayAudioSampleWait(SOUND_SAMPLE_GO);
         } else if (e.key.key == SDLK_M) {
-          uint8 *songBuffer;
-          uint32 songLen;
-          uint8 songId = 4;
-          SDL_Log("Song[%i]: %s", songId, Song[songId]);
-          loadfile(&Song[songId], &songBuffer, &songLen, 0);
-          MIDIDigi_PlayBuffer(songBuffer, songLen);
-          free(songBuffer);
+          playMusic();
         } else if (e.key.key == SDLK_F11) {
           ToggleFullscreen();
         } else if (e.key.key == SDLK_RETURN) {
@@ -303,11 +310,19 @@ void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
   WildMidi_Close(midi_ptr);
 }
 
-void MIDIDigi_Shutdown()
+void MIDIDigi_ClearBuffer()
 {
   if (midi_stream != NULL) {
     SDL_PauseAudioStreamDevice(midi_stream);
     SDL_ClearAudioStream(midi_stream);
+  }
+}
+
+void MIDIDigi_Shutdown()
+{
+  if (midi_stream != NULL) {
+    SDL_PauseAudioStreamDevice(midi_stream);
+    SDL_DestroyAudioStream(midi_stream);
     midi_stream = NULL;
   }
   WildMidi_Shutdown();
@@ -394,7 +409,7 @@ void DIGISampleClear(int index)
 
   if (digi_stream[index]) {
     SDL_PauseAudioStreamDevice(digi_stream[index]);
-    SDL_ClearAudioStream(digi_stream[index]);
+    SDL_DestroyAudioStream(digi_stream[index]);
     digi_stream[index] = NULL;
   }
 }
