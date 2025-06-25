@@ -19,6 +19,11 @@ int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
 
+bool MIDIDigi_Init(const char *config_file);
+void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length);
+void MIDIDigi_ClearBuffer();
+void MIDIDigi_Shutdown();
+
 int DIGISampleStart(tSampleData *data);
 bool DIGISampleDone(int index);
 int DIGISampleAvailable(int index);
@@ -26,6 +31,7 @@ void DIGISampleClear(int index);
 
 void PlayAudioSampleWait(int iIndex);
 void PlayAudioDataWait(Uint8 *buffer, Uint32 length);
+bool ROLLERfexists(const char *szFile);
 FILE *ROLLERfopen(const char *szFile, const char *szMode); //tries to open file with both all caps and all lower case
 int ROLLERopen(const char *szFile, int iOpenFlags); //tries to open file with both all caps and all lower case
 uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *userdata);

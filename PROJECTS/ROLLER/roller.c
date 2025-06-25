@@ -6,9 +6,12 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
+#include <wildmidi/wildmidi_lib.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
+#include <direct.h>
+#define chdir _chdir
 #define open _open
 #define close _close
 #else
@@ -106,6 +109,29 @@ int InitSDL()
     return SDL_APP_FAILURE;
   }
 
+  // Change to the base path of the application
+  char *home_dir = SDL_GetBasePath();
+  if (home_dir) {
+    chdir(home_dir);
+    SDL_free(home_dir);
+  }
+
+  // check if the ./FATDATA/FATAL.INI to ensure the game can run
+  if (!ROLLERfexists("./FATDATA/FATAL.INI")) {
+    SDL_ShowMessageBox(&(SDL_MessageBoxData)
+    {
+      .title = "ROLLER",
+        .message = "The folder FATDATA does not exist.",
+        .flags = SDL_MESSAGEBOX_ERROR,
+        .numbuttons = 1,
+        .buttons = (SDL_MessageBoxButtonData[]){
+          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
+      },
+    }, NULL);
+    ShutdownSDL();
+    quick_exit(0);
+  }
+
   if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, SDL_WINDOW_RESIZABLE, &s_pWindow, &s_pRenderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -128,6 +154,11 @@ int InitSDL()
     g_pController2 = SDL_OpenGamepad(1);
   }
 
+  // Initialize MIDI with WildMidi
+  if (!MIDIDigi_Init(".\\midi\\wildmidi.cfg")) {
+    SDL_Log("Failed to initialize WildMidi. Please check your configuration file .\\midi\\wildmidi.cfg.");
+  }
+
   return SDL_APP_SUCCESS;
 }
 
@@ -135,6 +166,8 @@ int InitSDL()
 
 void ShutdownSDL()
 {
+  MIDIDigi_Shutdown();
+
   if (g_pController1) SDL_CloseGamepad(g_pController1);
   if (g_pController2) SDL_CloseGamepad(g_pController2);
   SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
@@ -143,6 +176,19 @@ void ShutdownSDL()
   SDL_DestroyWindow(s_pWindow);
   SDL_DestroyTexture(s_pWindowTexture);
   free(s_pRGBBuffer);
+}
+
+uint8 songId = 4;
+void playMusic()
+{
+  MIDIDigi_ClearBuffer();
+  uint8 *songBuffer;
+  uint32 songLen;
+  SDL_Log("Song[%i]: %s", songId, Song[songId]);
+  loadfile(&Song[songId], &songBuffer, &songLen, 0);
+  MIDIDigi_PlayBuffer(songBuffer, songLen);
+  free(songBuffer);
+  songId = (songId + 1) % 9;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -164,6 +210,8 @@ void UpdateSDL()
           PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
           PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
           PlayAudioSampleWait(SOUND_SAMPLE_GO);
+        } else if (e.key.key == SDLK_M) {
+          playMusic();
         } else if (e.key.key == SDLK_F11) {
           ToggleFullscreen();
         } else if (e.key.key == SDLK_RETURN) {
@@ -176,6 +224,108 @@ void UpdateSDL()
     }
   }
   UpdateSDLWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+#define MIDI_RATE 44100 // not sure if this is the correct rate
+SDL_AudioStream *midi_stream;
+
+bool MIDIDigi_Init(const char *config_file)
+{
+  long version = WildMidi_GetVersion();
+  SDL_Log("Initializing libWildMidi %ld.%ld.%ld",
+                      (version >> 16) & 255,
+                      (version >> 8) & 255,
+                      (version) & 255);
+
+  uint16_t rate = MIDI_RATE;
+  uint16_t mixer_options = 0;
+
+  if (WildMidi_Init(config_file, rate, mixer_options) == -1) {
+    SDL_Log("WildMidi_GetError: %s", WildMidi_GetError());
+    WildMidi_ClearError();
+    return false;
+  }
+
+  SDL_AudioSpec wav_spec;
+  wav_spec.channels = 2;
+  wav_spec.freq = MIDI_RATE;
+  wav_spec.format = SDL_AUDIO_S16;
+
+  midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, NULL, NULL);
+
+  return true;
+}
+
+void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
+{
+  midi *midi_ptr = WildMidi_OpenBuffer(midi_buffer, midi_length);
+  if (!midi_ptr) {
+    SDL_Log("WildMidi_OpenBuffer failed: %s", WildMidi_GetError());
+    return;
+  }
+
+  struct _WM_Info *wm_info = WildMidi_GetInfo(midi_ptr);
+  if (wm_info) {
+
+    int apr_mins = wm_info->approx_total_samples / (MIDI_RATE * 60);
+    int apr_secs = (wm_info->approx_total_samples % (MIDI_RATE * 60)) / MIDI_RATE;
+
+    SDL_Log("[Approx %2um %2us Total]", apr_mins, apr_secs);
+
+    SDL_Log("Total Samples %i", wm_info->approx_total_samples);
+    SDL_Log("Current Samples %i", wm_info->current_sample);
+    SDL_Log("Total Midi time %i", wm_info->total_midi_time);
+    SDL_Log("Mix Options %i", wm_info->mixer_options);
+  }
+
+  SDL_AudioStream *stream = midi_stream;
+
+  if (stream != NULL) {
+    float volume = 0.5f;
+    SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
+
+    void *output_buffer;
+    uint32_t len = 0;
+    int32_t res = 0;
+    uint32_t samples = 16384;
+
+    output_buffer = malloc(samples);
+    if (output_buffer != NULL)
+      memset(output_buffer, 0, samples);
+
+    uint32_t total_pcm_bytes = 0;
+
+    while ((res = WildMidi_GetOutput(midi_ptr, output_buffer, samples)) > 0) {
+      SDL_PutAudioStreamData(stream, output_buffer, res);
+      total_pcm_bytes += res;
+    }
+
+    SDL_ResumeAudioStreamDevice(stream);
+
+    SDL_Log("Total: %i", total_pcm_bytes);
+  }
+
+  WildMidi_Close(midi_ptr);
+}
+
+void MIDIDigi_ClearBuffer()
+{
+  if (midi_stream != NULL) {
+    SDL_PauseAudioStreamDevice(midi_stream);
+    SDL_ClearAudioStream(midi_stream);
+  }
+}
+
+void MIDIDigi_Shutdown()
+{
+  if (midi_stream != NULL) {
+    SDL_PauseAudioStreamDevice(midi_stream);
+    SDL_DestroyAudioStream(midi_stream);
+    midi_stream = NULL;
+  }
+  WildMidi_Shutdown();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -220,7 +370,7 @@ int DIGISampleStart(tSampleData *data)
   SDL_SetAudioStreamFrequencyRatio(digi_stream[index], 1.0); // pitch
 
   // Set the gain for the audio stream
-  SDL_SetAudioStreamGain(digi_stream[index], volume); 
+  SDL_SetAudioStreamGain(digi_stream[index], volume);
 
   // Put audio data into the stream
   SDL_PutAudioStreamData(digi_stream[index], ((Uint8 *)data->pSample), data->iLength);
@@ -259,7 +409,7 @@ void DIGISampleClear(int index)
 
   if (digi_stream[index]) {
     SDL_PauseAudioStreamDevice(digi_stream[index]);
-    SDL_ClearAudioStream(digi_stream[index]);
+    SDL_DestroyAudioStream(digi_stream[index]);
     digi_stream[index] = NULL;
   }
 }
@@ -297,6 +447,18 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
   }
 
   SDL_ClearAudioStream(stream);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+bool ROLLERfexists(const char *szFile)
+{
+  FILE *fp = ROLLERfopen(szFile, "r");
+  if (fp) {
+    fclose(fp);
+    return true;
+  }
+  return false;
 }
 
 //-------------------------------------------------------------------------------------------------
