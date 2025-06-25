@@ -204,7 +204,7 @@ void UpdateSDL()
 
 //--------------------------------------------------------------------------------------------------
 
-#define MIDI_RATE 44100
+#define MIDI_RATE 44100 // not sure if this is the correct rate
 SDL_AudioStream *midi_stream;
 
 bool MIDIDigi_Init(const char *config_file)
