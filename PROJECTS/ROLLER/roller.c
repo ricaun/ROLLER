@@ -145,7 +145,7 @@ int InitSDL()
   // Move the window to the display where the mouse is currently located
   float mouseX, mouseY;
   SDL_GetGlobalMouseState(&mouseX, &mouseY);
-  int displayIndex = SDL_GetDisplayForPoint(&(SDL_Point) { mouseX, mouseY });
+  int displayIndex = SDL_GetDisplayForPoint(&(SDL_Point) { (int)mouseX, (int)mouseY });
   int sdl_window_centered = SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
   SDL_SetWindowPosition(s_pWindow, sdl_window_centered, sdl_window_centered);
 
