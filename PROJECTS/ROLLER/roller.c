@@ -110,10 +110,10 @@ int InitSDL()
   }
 
   // Change to the base path of the application
-  char *home_dir = SDL_GetBasePath();
+  const char *home_dir = SDL_GetBasePath();
   if (home_dir) {
     chdir(home_dir);
-    SDL_free(home_dir);
+    SDL_free((void*)home_dir);
   }
 
   // check if the ./FATDATA/FATAL.INI to ensure the game can run
@@ -185,7 +185,7 @@ void playMusic()
   uint8 *songBuffer;
   uint32 songLen;
   SDL_Log("Song[%i]: %s", songId, Song[songId]);
-  loadfile(&Song[songId], &songBuffer, &songLen, 0);
+  loadfile((const char *)&Song[songId], &songBuffer, &songLen, 0);
   MIDIDigi_PlayBuffer(songBuffer, songLen);
   free(songBuffer);
   songId = (songId + 1) % 9;

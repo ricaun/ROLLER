@@ -167,12 +167,12 @@ typedef struct
 
 typedef struct
 {
-  int iPitch1;
-  int iVolume1;
-  int iPitch2;
-  int iVolume2;
-  int iPitch3;
-  int iVolume3;
+  int iEnginePitch;   //ENGINE.RAW
+  int iEngineVol;
+  int iEngine2Pitch;  //ENGINE2.RAW
+  int iEngine2Vol;
+  int iSkidPitch;     //SKID1.RAW
+  int iSkidVol;
   int iPan;
 } tEngineSoundData;
 
