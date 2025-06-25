@@ -29,7 +29,7 @@ int MIDIGetMasterVolume();
 int DIGISampleStart(tSampleData *data);
 bool DIGISampleDone(int index);
 int DIGISampleAvailable(int index);
-void DIGISampleClear(int index);
+void DIGIStopSample(int index);
 void DIGISetMasterVolume(int volume);
 int DIGIGetMasterVolume();
 

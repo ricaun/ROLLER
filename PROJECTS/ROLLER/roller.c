@@ -469,7 +469,7 @@ int DIGIGetMasterVolume()
   return DIGIMasterVolume;
 }
 
-void DIGISampleClear(int index)
+void DIGIStopSample(int index)
 {
   if (index < 0 || index >= NUM_DIGI_STREAMS) {
     SDL_Log("Invalid stream index: %d", index);
