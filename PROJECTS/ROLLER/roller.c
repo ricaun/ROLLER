@@ -109,6 +109,29 @@ int InitSDL()
     return SDL_APP_FAILURE;
   }
 
+  // Change to the base path of the application
+  char *home_dir = SDL_GetBasePath();
+  if (home_dir) {
+    chdir(home_dir);
+    SDL_free(home_dir);
+  }
+
+  // check if the ./FATDATA/FATAL.INI to ensure the game can run
+  if (!ROLLERfexists("./FATDATA/FATAL.INI")) {
+    SDL_ShowMessageBox(&(SDL_MessageBoxData)
+    {
+      .title = "ROLLER",
+        .message = "The folder FATDATA does not exist.",
+        .flags = SDL_MESSAGEBOX_ERROR,
+        .numbuttons = 1,
+        .buttons = (SDL_MessageBoxButtonData[]){
+          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
+      },
+    }, NULL);
+    ShutdownSDL();
+    quick_exit(0);
+  }
+
   if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, SDL_WINDOW_RESIZABLE, &s_pWindow, &s_pRenderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -131,13 +154,7 @@ int InitSDL()
     g_pController2 = SDL_OpenGamepad(1);
   }
 
-  // Change to the base path of the application
-  char *home_dir = SDL_GetBasePath();
-  if (home_dir) {
-    chdir(home_dir);
-    SDL_free(home_dir);
-  }
-
+  // Initialize MIDI with WildMidi
   if (!MIDIDigi_Init(".\\midi\\wildmidi.cfg")) {
     SDL_Log("Failed to initialize WildMidi. Please check your configuration file .\\midi\\wildmidi.cfg.");
   }
@@ -415,6 +432,18 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
   }
 
   SDL_ClearAudioStream(stream);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+bool ROLLERfexists(const char *szFile)
+{
+  FILE *fp = ROLLERfopen(szFile, "r");
+  if (fp) {
+    fclose(fp);
+    return true;
+  }
+  return false;
 }
 
 //-------------------------------------------------------------------------------------------------
