@@ -19,7 +19,9 @@ int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
 
-bool MIDIDigi_Start(const char *config_file);
+bool MIDIDigi_Init(const char *config_file);
+void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length);
+void MIDIDigi_Shutdown();
 
 int DIGISampleStart(tSampleData *data);
 bool DIGISampleDone(int index);

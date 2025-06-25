@@ -10,6 +10,8 @@
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
+#include <direct.h>
+#define chdir _chdir
 #define open _open
 #define close _close
 #else
@@ -129,9 +131,15 @@ int InitSDL()
     g_pController2 = SDL_OpenGamepad(1);
   }
 
+  // Change to the base path of the application
+  char *home_dir = SDL_GetBasePath();
+  if (home_dir) {
+    chdir(home_dir);
+    SDL_free(home_dir);
+  }
 
-  if (!MIDIDigi_Start(".\\bin\\midi\\wildmidi.cfg")){
-    SDL_Log("Failed to initialize WildMidi. Please check your configuration file (wildmidi.cfg).");
+  if (!MIDIDigi_Init(".\\midi\\wildmidi.cfg")) {
+    SDL_Log("Failed to initialize WildMidi. Please check your configuration file .\\midi\\wildmidi.cfg.");
   }
 
   return SDL_APP_SUCCESS;
@@ -141,6 +149,8 @@ int InitSDL()
 
 void ShutdownSDL()
 {
+  MIDIDigi_Shutdown();
+
   if (g_pController1) SDL_CloseGamepad(g_pController1);
   if (g_pController2) SDL_CloseGamepad(g_pController2);
   SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
@@ -170,6 +180,14 @@ void UpdateSDL()
           PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
           PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
           PlayAudioSampleWait(SOUND_SAMPLE_GO);
+        } else if (e.key.key == SDLK_M) {
+          uint8 *songBuffer;
+          uint32 songLen;
+          uint8 songId = 4;
+          SDL_Log("Song[%i]: %s", songId, Song[songId]);
+          loadfile(&Song[songId], &songBuffer, &songLen, 0);
+          MIDIDigi_PlayBuffer(songBuffer, songLen);
+          free(songBuffer);
         } else if (e.key.key == SDLK_F11) {
           ToggleFullscreen();
         } else if (e.key.key == SDLK_RETURN) {
@@ -186,7 +204,10 @@ void UpdateSDL()
 
 //--------------------------------------------------------------------------------------------------
 
-bool MIDIDigi_Start(const char *config_file)
+#define MIDI_RATE 44100
+SDL_AudioStream *midi_stream;
+
+bool MIDIDigi_Init(const char *config_file)
 {
   long version = WildMidi_GetVersion();
   SDL_Log("Initializing libWildMidi %ld.%ld.%ld",
@@ -194,7 +215,7 @@ bool MIDIDigi_Start(const char *config_file)
                       (version >> 8) & 255,
                       (version) & 255);
 
-  uint16_t rate = 44100; // Sample rate
+  uint16_t rate = MIDI_RATE;
   uint16_t mixer_options = 0;
 
   if (WildMidi_Init(config_file, rate, mixer_options) == -1) {
@@ -202,7 +223,77 @@ bool MIDIDigi_Start(const char *config_file)
     WildMidi_ClearError();
     return false;
   }
+
+  SDL_AudioSpec wav_spec;
+  wav_spec.channels = 2;
+  wav_spec.freq = MIDI_RATE;
+  wav_spec.format = SDL_AUDIO_S16;
+
+  midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, NULL, NULL);
+
   return true;
+}
+
+void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
+{
+  midi *midi_ptr = WildMidi_OpenBuffer(midi_buffer, midi_length);
+  if (!midi_ptr) {
+    SDL_Log("WildMidi_OpenBuffer failed: %s", WildMidi_GetError());
+    return;
+  }
+
+  struct _WM_Info *wm_info = WildMidi_GetInfo(midi_ptr);
+  if (wm_info) {
+
+    int apr_mins = wm_info->approx_total_samples / (MIDI_RATE * 60);
+    int apr_secs = (wm_info->approx_total_samples % (MIDI_RATE * 60)) / MIDI_RATE;
+
+    SDL_Log("[Approx %2um %2us Total]", apr_mins, apr_secs);
+
+    SDL_Log("Total Samples %i", wm_info->approx_total_samples);
+    SDL_Log("Current Samples %i", wm_info->current_sample);
+    SDL_Log("Total Midi time %i", wm_info->total_midi_time);
+    SDL_Log("Mix Options %i", wm_info->mixer_options);
+  }
+
+  SDL_AudioStream *stream = midi_stream;
+
+  if (stream != NULL) {
+    float volume = 0.5f;
+    SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
+
+    void *output_buffer;
+    uint32_t len = 0;
+    int32_t res = 0;
+    uint32_t samples = 16384;
+
+    output_buffer = malloc(samples);
+    if (output_buffer != NULL)
+      memset(output_buffer, 0, samples);
+
+    uint32_t total_pcm_bytes = 0;
+
+    while ((res = WildMidi_GetOutput(midi_ptr, output_buffer, samples)) > 0) {
+      SDL_PutAudioStreamData(stream, output_buffer, res);
+      total_pcm_bytes += res;
+    }
+
+    SDL_ResumeAudioStreamDevice(stream);
+
+    SDL_Log("Total: %i", total_pcm_bytes);
+  }
+
+  WildMidi_Close(midi_ptr);
+}
+
+void MIDIDigi_Shutdown()
+{
+  if (midi_stream != NULL) {
+    SDL_PauseAudioStreamDevice(midi_stream);
+    SDL_ClearAudioStream(midi_stream);
+    midi_stream = NULL;
+  }
+  WildMidi_Shutdown();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -247,7 +338,7 @@ int DIGISampleStart(tSampleData *data)
   SDL_SetAudioStreamFrequencyRatio(digi_stream[index], 1.0); // pitch
 
   // Set the gain for the audio stream
-  SDL_SetAudioStreamGain(digi_stream[index], volume); 
+  SDL_SetAudioStreamGain(digi_stream[index], volume);
 
   // Put audio data into the stream
   SDL_PutAudioStreamData(digi_stream[index], ((Uint8 *)data->pSample), data->iLength);
