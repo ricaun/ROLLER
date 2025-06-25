@@ -23,11 +23,15 @@ bool MIDIDigi_Init(const char *config_file);
 void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length);
 void MIDIDigi_ClearBuffer();
 void MIDIDigi_Shutdown();
+void MIDISetMasterVolume(int volume);
+int MIDIGetMasterVolume();
 
 int DIGISampleStart(tSampleData *data);
 bool DIGISampleDone(int index);
 int DIGISampleAvailable(int index);
 void DIGISampleClear(int index);
+void DIGISetMasterVolume(int volume);
+int DIGIGetMasterVolume();
 
 void PlayAudioSampleWait(int iIndex);
 void PlayAudioDataWait(Uint8 *buffer, Uint32 length);

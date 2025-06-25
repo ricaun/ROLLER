@@ -3563,6 +3563,7 @@ void fade_palette(int iTargetBrightness)
 
   if (iTargetBrightness == 32 && soundon) {
     //sosDIGISetMasterVolume(DIGIHandle, 0x7FFF);
+    DIGISetMasterVolume(0x7FFF); // Set max volume for sound effects
   }
 
   int iCurrentBrightness = palette_brightness;
@@ -3610,14 +3611,16 @@ void fade_palette(int iTargetBrightness)
       if (iTargetBrightness == 0 && !holdmusic) {
         if (musicon) {
           //sosMIDISetMasterVolume(((MusicVolume * iStep) >> 5) & 0xFF);
+          MIDISetMasterVolume(((MusicVolume * iStep) >> 5) & 0xFF);
         }
 
         if (soundon) {
           //sosDIGISetMasterVolume(DIGIHandle, (iVolumeStep >> 5));
+          DIGISetMasterVolume(iVolumeStep >> 5);
         }
 
         if (MusicCD) {
-          //SetAudioVolume(((MusicVolume * iStep) >> 5) & 0xFF);
+          SetAudioVolume(((MusicVolume * iStep) >> 5) & 0xFF);
         }
       }
 
