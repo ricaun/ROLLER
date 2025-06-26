@@ -1554,8 +1554,8 @@ void stop()
 {
   if (MusicCard) {
     if (SongPtr) {
-      //sosMIDIStopSong(SongHandle, a2);
-      //sosMIDIResetSong(SongHandle, a2, (unsigned int)&InitSong);
+      //sosMIDIStopSong(SongHandle);
+      //sosMIDIResetSong(SongHandle);
     }
   }
 }
@@ -3437,25 +3437,20 @@ int startmusic(int result)
 
 //-------------------------------------------------------------------------------------------------
 
-int stopmusic(int a1, int a2)
+void stopmusic()
 {
-  return 0; /*
-  int result; // eax
-
-  if (MusicCD && track_playing)
-    return StopTrack();
-  if (MusicCard && SongPtr) {
+  if (MusicCD && track_playing) {
+    StopTrack();
+  } else if (MusicCard && SongPtr) {
     if (MusicCard) {
       if (SongPtr) {
-        sosMIDIStopSong(SongHandle, a2, &InitSong);
-        sosMIDIResetSong();
+        //sosMIDIStopSong(SongHandle);
+        //sosMIDIResetSong(SongHandle);
       }
     }
-    sosMIDIUnInitSong(SongHandle);
-    result = 0;
+    //sosMIDIUnInitSong(*(unsigned int *)&SongHandle);
     SongPtr = 0;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3981,7 +3976,7 @@ int resetsamplearray()
 
 //-------------------------------------------------------------------------------------------------
 
-void reinitmusic(int a1, int a2)
+void reinitmusic()
 {
   int iSong; // eax
 
@@ -3998,8 +3993,8 @@ void reinitmusic(int a1, int a2)
     StopTrack();
   } else if (MusicCard) {
     if (SongPtr) {
-      stop(a1, a2);
-      //sosMIDIUnInitSong(SongHandle);
+      stop();
+      //sosMIDIUnInitSong(*(unsigned int *)&SongHandle);
       SongPtr = 0;
     }
   }
@@ -4016,9 +4011,11 @@ void waitsampledone(int iSampleIdx)
   if (SamplePtr[iSampleIdx] == 0)
     return;
 
-  for (size_t i = 0; i < 16; i++) {
+  for (int i = 0; i < 16; i++) {
     int iSampleHandle = SampleHandleCar[iSampleIdx].handles[i];
-    while (!DIGISampleDone(iSampleHandle)) {}
+    while (!DIGISampleDone(iSampleHandle)) {
+      UpdateSDL(); //added by ROLLER
+    }
   }
 
   return;

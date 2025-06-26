@@ -1284,10 +1284,10 @@ void getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimu
   float fRollRotatedY = -fRollProjX * tsin[*piAzimuth] + fRollProjY * tcos[*piAzimuth];
 
   // Apply elevation rotation
-  float fFinalX = fRollRotatedX * tsin[*piElevation] - fRollProjZ * tcos[*piElevation];
+  float fBankX = fRollRotatedX * tsin[*piElevation] - fRollProjZ * tcos[*piElevation];
 
   // Calculate bank
-  *piBank = getangle(fRollRotatedY, fFinalX);
+  *piBank = getangle(fRollRotatedY, fBankX);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1343,7 +1343,7 @@ void getlocalangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimu
   // Apply elevation rotation
   float fBankX = fRollRotatedX * tsin[*piElevation] - fRollProjZ * tcos[*piElevation];
 
-  // Calculate final banking angle
+  // Calculate bank
   *piBank = getangle(fRollRotatedY, fBankX);
 }
 
