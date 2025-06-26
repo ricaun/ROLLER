@@ -2523,7 +2523,7 @@ void dospeechsample(int iSampleIdx, int iVolume)
   if (iSampleHandle != -1) {
     if (!DIGISampleDone(iSampleHandle)) {
       // Stop previous sample if it's still playing
-      DIGISampleClear(iSampleHandle);
+      DIGIStopSample(iSampleHandle);
       SampleHandleCar[iSampleIdx].handles[0] = -1;
       HandleSample[iSampleHandle] = -1;
     }
@@ -2566,7 +2566,7 @@ void loadfrontendsample(char *fileName)
 
   // Clear any existing frontend speech sample
   if (frontendspeechhandle != -1) {
-    DIGISampleClear(frontendspeechhandle);
+    DIGIStopSample(frontendspeechhandle);
     frontendspeechhandle = -1;
   }
 
@@ -2655,7 +2655,7 @@ void remove_frontendspeech()
 {
   // Clear any existing frontend speech sample
   if (frontendspeechhandle != -1) {
-    DIGISampleClear(frontendspeechhandle);
+    DIGIStopSample(frontendspeechhandle);
     frontendspeechhandle = -1;
   }
 
@@ -2720,7 +2720,7 @@ void sfxsample(int iSample, int iVol)
   if (iOldHandle != -1) {
     // cli(); Disable interrupts
     if (!DIGISampleDone(iOldHandle)) {
-      DIGISampleClear(iOldHandle);
+      DIGIStopSample(iOldHandle);
       SampleHandleCar[iSample].handles[0] = -1;
       HandleSample[iOldHandle] = -1;
     }
@@ -3105,6 +3105,7 @@ void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
     if (iVolume == 0) {
       // Stop playing sample
       //sosDIGIStopSample(DIGIHandle, iHandle);
+      DIGIStopSample(iHandle);
       HandleSample[iHandle] = -1;
       SampleHandleCar[iSampleIdx].handles[iCarIdx] = -1;
       return;
@@ -3558,6 +3559,7 @@ void fade_palette(int iTargetBrightness)
 
   if (iTargetBrightness == 32 && soundon) {
     //sosDIGISetMasterVolume(DIGIHandle, 0x7FFF);
+    DIGISetMasterVolume(0x7FFF); // Set max volume for sound effects
   }
 
   int iCurrentBrightness = palette_brightness;
@@ -3605,14 +3607,16 @@ void fade_palette(int iTargetBrightness)
       if (iTargetBrightness == 0 && !holdmusic) {
         if (musicon) {
           //sosMIDISetMasterVolume(((MusicVolume * iStep) >> 5) & 0xFF);
+          MIDISetMasterVolume(((MusicVolume * iStep) >> 5) & 0xFF);
         }
 
         if (soundon) {
           //sosDIGISetMasterVolume(DIGIHandle, (iVolumeStep >> 5));
+          DIGISetMasterVolume(iVolumeStep >> 5);
         }
 
         if (MusicCD) {
-          //SetAudioVolume(((MusicVolume * iStep) >> 5) & 0xFF);
+          SetAudioVolume(((MusicVolume * iStep) >> 5) & 0xFF);
         }
       }
 

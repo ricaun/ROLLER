@@ -190,6 +190,7 @@ uint8 songId = 4;
 void playMusic()
 {
   MIDIDigi_ClearBuffer();
+  MIDISetMasterVolume(127);
   uint8 *songBuffer;
   uint32 songLen;
   SDL_Log("Song[%i]: %s", songId, Song[songId]);
@@ -235,9 +236,11 @@ void UpdateSDL()
 }
 
 //--------------------------------------------------------------------------------------------------
+#pragma region MIDI
 
 #define MIDI_RATE 44100 // not sure if this is the correct rate
 SDL_AudioStream *midi_stream;
+float midi_volume;
 
 bool MIDIDigi_Init(const char *config_file)
 {
@@ -262,6 +265,7 @@ bool MIDIDigi_Init(const char *config_file)
   wav_spec.format = SDL_AUDIO_S16;
 
   midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, NULL, NULL);
+  midi_volume = 1.0f; // Default volume
 
   return true;
 }
@@ -280,19 +284,20 @@ void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
     int apr_mins = wm_info->approx_total_samples / (MIDI_RATE * 60);
     int apr_secs = (wm_info->approx_total_samples % (MIDI_RATE * 60)) / MIDI_RATE;
 
-    SDL_Log("[Approx %2um %2us Total]", apr_mins, apr_secs);
+    SDL_Log("MIDIDigi_PlayBuffer: [Approx %2um %2us Total]", apr_mins, apr_secs);
 
-    SDL_Log("Total Samples %i", wm_info->approx_total_samples);
-    SDL_Log("Current Samples %i", wm_info->current_sample);
-    SDL_Log("Total Midi time %i", wm_info->total_midi_time);
-    SDL_Log("Mix Options %i", wm_info->mixer_options);
+    SDL_Log("MIDIDigi_PlayBuffer: Total Samples %i", wm_info->approx_total_samples);
+    SDL_Log("MIDIDigi_PlayBuffer: Current Samples %i", wm_info->current_sample);
+    SDL_Log("MIDIDigi_PlayBuffer: Total Midi time %i", wm_info->total_midi_time);
+    SDL_Log("MIDIDigi_PlayBuffer: Mix Options %i", wm_info->mixer_options);
   }
 
   SDL_AudioStream *stream = midi_stream;
 
   if (stream != NULL) {
-    float volume = 0.5f;
-    SDL_SetAudioStreamGain(stream, volume); // Set the gain for the audio stream
+    float master_volume = (float)MIDIGetMasterVolume() / 127.0f; // Normalize to [0.0, 1.0] range
+    SDL_SetAudioStreamGain(stream, midi_volume * master_volume); // Set the gain for the audio stream
+    SDL_Log("MIDIDigi_PlayBuffer: Volume: %f", midi_volume * master_volume);
 
     void *output_buffer;
     uint32_t len = 0;
@@ -312,7 +317,7 @@ void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
 
     SDL_ResumeAudioStreamDevice(stream);
 
-    SDL_Log("Total: %i", total_pcm_bytes);
+    SDL_Log("MIDIDigi_PlayBuffer: Total: %i", total_pcm_bytes);
   }
 
   WildMidi_Close(midi_ptr);
@@ -336,9 +341,38 @@ void MIDIDigi_Shutdown()
   WildMidi_Shutdown();
 }
 
+int MIDIMasterVolume = 127; // Default master volume (0-127)
+/// <summary>
+/// Set the master volume for MIDI playback. (0-127)
+/// </summary>
+void MIDISetMasterVolume(int volume)
+{
+  if (volume > 127) volume = 127;
+  if (volume < 0) volume = 0;
+  MIDIMasterVolume = volume;
+
+  SDL_Log("ROLLER_MIDISetMasterVolume: %i", volume);
+
+  float master_volume = (float)volume / 127.0f; // Normalize to [0.0, 1.0] range
+
+  // Change the gain for the MIDI stream
+  SDL_SetAudioStreamGain(midi_stream, midi_volume * master_volume);
+}
+
+/// <summary>
+/// Get the current master volume level for MIDI playback. (0-127)
+/// </summary>
+int MIDIGetMasterVolume()
+{
+  return MIDIMasterVolume;
+}
+
+#pragma endregion
 //-------------------------------------------------------------------------------------------------
+#pragma region DIGI
 #define NUM_DIGI_STREAMS 32
 SDL_AudioStream *digi_stream[NUM_DIGI_STREAMS];
+float digi_volume[NUM_DIGI_STREAMS];
 
 int DIGISampleStart(tSampleData *data)
 {
@@ -377,8 +411,12 @@ int DIGISampleStart(tSampleData *data)
   // Set pitch in the stream
   SDL_SetAudioStreamFrequencyRatio(digi_stream[index], 1.0); // pitch
 
+  // Remember the volume for this stream
+  digi_volume[index] = volume;
+
   // Set the gain for the audio stream
-  SDL_SetAudioStreamGain(digi_stream[index], volume);
+  float master_volume = (float)DIGIGetMasterVolume() / 0x7FFF; // Normalize to [0.0, 1.0] range
+  SDL_SetAudioStreamGain(digi_stream[index], volume * master_volume);
 
   // Put audio data into the stream
   SDL_PutAudioStreamData(digi_stream[index], ((Uint8 *)data->pSample), data->iLength);
@@ -408,7 +446,38 @@ int DIGISampleAvailable(int index)
   return 0;
 }
 
-void DIGISampleClear(int index)
+int DIGIMasterVolume = 0x7FFF; // Default master volume (0-0x7FFF)
+/// <summary>
+/// Set the master volume for all digital audio streams.
+/// </summary>
+/// <param name="volume">Volume level (0-0x7FFF).</param>
+void DIGISetMasterVolume(int volume)
+{
+  if (volume > 0x7FFF) volume = 0x7FFF;
+  if (volume < 0) volume = 0;
+  DIGIMasterVolume = volume;
+
+  SDL_Log("ROLLER_DIGISetMasterVolume: %x", volume);
+
+  float normalized_volume = (float)volume / 0x7FFF; // Normalize to [0.0, 1.0] range
+
+  for (size_t i = 0; i < NUM_DIGI_STREAMS; i++) {
+    if (digi_stream[i]) {
+      SDL_SetAudioStreamGain(digi_stream[i], digi_volume[i] * normalized_volume);
+    }
+  }
+}
+
+/// <summary>
+/// Get the current master volume level.
+/// </summary>
+/// <returns>The master volume level (0-0x7FFF).</returns>
+int DIGIGetMasterVolume()
+{
+  return DIGIMasterVolume;
+}
+
+void DIGIStopSample(int index)
 {
   if (index < 0 || index >= NUM_DIGI_STREAMS) {
     SDL_Log("Invalid stream index: %d", index);
@@ -456,7 +525,7 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
 
   SDL_ClearAudioStream(stream);
 }
-
+#pragma endregion
 //-------------------------------------------------------------------------------------------------
 
 bool ROLLERfexists(const char *szFile)
