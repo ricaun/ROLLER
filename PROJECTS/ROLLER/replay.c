@@ -3838,9 +3838,9 @@ void initsoundlag(uint32 uiTicks)
   for (int iCarIdx = 0; iCarIdx < iNumCars; iCarIdx++) {
     // Initialize all 6 entries for this car
     for (int iEntryIdx = 0; iEntryIdx < 6; iEntryIdx++) {
-      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iEnginePitch = -1;
-      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iEngine2Pitch = -1;
-      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iSkidPitch = -1;
+      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iEngineVol = -1;
+      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iEngine2Vol = -1;
+      enginedelay[iCarIdx].engineSoundData[iEntryIdx].iSkid1Vol = -1;
     }
   }
 

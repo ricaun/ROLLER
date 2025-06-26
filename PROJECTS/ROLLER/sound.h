@@ -171,8 +171,8 @@ typedef struct
   int iEngineVol;
   int iEngine2Pitch;  //ENGINE2.RAW
   int iEngine2Vol;
-  int iSkidPitch;     //SKID1.RAW
-  int iSkidVol;
+  int iSkid1Pitch;    //SKID1.RAW
+  int iSkid1Vol;
   int iPan;
 } tEngineSoundData;
 
@@ -180,9 +180,8 @@ typedef struct
 
 typedef struct
 {
-  int header[6];
   tEngineSoundData engineSoundData[6];
-  int remaining[176];
+  int remaining[182];
 } tCarSoundData;
 
 //-------------------------------------------------------------------------------------------------
