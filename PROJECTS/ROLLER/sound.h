@@ -314,7 +314,7 @@ void freefatalsample();
 void releasesamples();
 int play();
 void stop();
-int devicespecificinit(int a1, int a2, int a3, int a4);
+void devicespecificinit();
 int initgus();
 void devicespecificuninit();
 void readsoundconfig();

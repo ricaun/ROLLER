@@ -1562,72 +1562,65 @@ void stop()
 
 //-------------------------------------------------------------------------------------------------
 
-int devicespecificinit(int a1, int a2, int a3, int a4)
+void devicespecificinit()
 {
-  return 0; /*
-  int result; // eax
-  int inited; // eax
   int i; // esi
-  _BYTE v7[12]; // [esp+0h] [ebp-14h] BYREF
-  int v8; // [esp+Ch] [ebp-8h]
+  unsigned int uiSize;
 
-  v8 = a4;
-  result = MusicCard - 40961;
   switch (MusicCard) {
     case 40961:
-      printf(&aIngresettingSc[3]);
-      fflush(&__iob_variable_1);
-      sosMIDISendMIDIData(MIDIHandle, 11, &SCreset, __DS__);
-      result = printf(&sound_c_variable_3);
+      printf("Resetting SCC-1...");
+      fflush(stdout);
+      //sosMIDISendMIDIData(MIDIHandle, 11, (int)&SCreset, __DS__);
+      printf("OK\n");
       break;
     case 40962:
     case 40969:
-      printf(&aTCloadingInstr[3]);
-      fflush(&__iob_variable_1);
-      loadfile(aMelodicBnk, &FMInstruments, v7, 0);
+      printf("Loading Instrument bank file...");
+      fflush(stdout);
+      loadfile("melodic.bnk", &FMInstruments, &uiSize, 0);
       if (FMInstruments) {
-        printf(&sound_c_variable_3);
-        sosMIDISetInsData(MIDIHandle, 1, FMInstruments, __DS__);
+        printf("OK\n");
+        //sosMIDISetInsData(MIDIHandle, 1, (int)FMInstruments, __DS__);
       } else {
-        printf(aFailed);
+        printf("Failed\n");
         MusicCard = 0;
       }
-      printf(aLoadingDrumsBa);
-      fflush(&__iob_variable_1);
-      loadfile(aDrumBnk, &FMDrums, v7, 0);
+      printf("Loading Drums bank file...");
+      fflush(stdout);
+      loadfile("drum.bnk", &FMDrums, &uiSize, 0);
       if (FMDrums) {
-        printf(&sound_c_variable_3);
-        result = sosMIDISetInsData(MIDIHandle, 1, FMDrums, __DS__);
+        printf("OK\n");
+        //sosMIDISetInsData(MIDIHandle, 1, (int)FMDrums, __DS__);
       } else {
-        result = printf(aFailed);
+        printf("Failed\n");
         MusicCard = 0;
       }
       if (!MusicCard) {
-        inited = sosMIDIUnInitDriver(MIDIHandle, 1);
-        result = sosMIDIUnInitSystem(inited);
+        //sosMIDIUnInitDriver(MIDIHandle, 1);
+        //sosMIDIUnInitSystem();
       }
       break;
     case 40964:
-      printf(aResettingLapc1);
-      sosMIDISendMIDIData(MIDIHandle, 11, &MT32reset, __DS__);
-      fflush(&__iob_variable_1);
-      loadfile(aMt32mapMtx, &MT32Data, v7, 0);
+      printf("Resetting LAPC-1...");
+      //sosMIDISendMIDIData(MIDIHandle, 11, (int)&MT32reset, __DS__);
+      fflush(stdout);
+      loadfile("mt32map.mtx", &MT32Data, &uiSize, 0);
       if (MT32Data) {
-        fflush(&__iob_variable_1);
+        fflush(stdout);
         for (i = 0; i != 1104; i += 138) {
-          sosMIDISendMIDIData(MIDIHandle, 138, i + MT32Data, __DS__);
-          printf(sound_c_variable_13);
-          fflush(&__iob_variable_1);
+          //sosMIDISendMIDIData(MIDIHandle, 138, (int)MT32Data + i, __DS__);
+          printf(".");
+          fflush(stdout);
         }
-        result = printf(&sound_c_variable_3);
+        printf("OK\n");
       } else {
-        result = printf(aFailed);
+        printf("Failed\n");
       }
       break;
     default:
-      return result;
+      return;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
