@@ -86,7 +86,7 @@ char SampleExt[64];         //0016310A
 int HandleCar[32];          //00163B8C
 int HandleSample[32];       //00163C0C
 tCarSoundData enginedelay[16]; //00163C8C
-int car_to_player[8][2];    //0016748C
+int car_to_player[16];    //0016748C
 int player_to_car[16];      //001674CC
 int load_times[16];         //0016760C
 int copy_multiple[512][16]; //0016764C

@@ -4633,9 +4633,9 @@ void check_cars()
 
     // Assign player index to car_to_player[iCarId][slot]
     if (allocated_cars[iCarId] == 1) {
-      car_to_player[iCarId][0] = i;
+      car_to_player[2 * iCarId] = i;
     } else {
-      car_to_player[iCarId][1] = i;
+      car_to_player[2 * iCarId + 1] = i;
     }
   }
 }

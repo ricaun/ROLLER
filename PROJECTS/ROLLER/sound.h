@@ -167,12 +167,12 @@ typedef struct
 
 typedef struct
 {
-  int iPitch1;
-  int iVolume1;
-  int iPitch2;
-  int iVolume2;
-  int iPitch3;
-  int iVolume3;
+  int iEnginePitch;   //ENGINE.RAW
+  int iEngineVol;
+  int iEngine2Pitch;  //ENGINE2.RAW
+  int iEngine2Vol;
+  int iSkid1Pitch;    //SKID1.RAW
+  int iSkid1Vol;
   int iPan;
 } tEngineSoundData;
 
@@ -180,9 +180,7 @@ typedef struct
 
 typedef struct
 {
-  int header[6];
-  tEngineSoundData engineSoundData[6];
-  int remaining[176];
+  tEngineSoundData engineSoundData[32];
 } tCarSoundData;
 
 //-------------------------------------------------------------------------------------------------
@@ -257,7 +255,7 @@ extern char SampleExt[64];
 extern int HandleCar[32];
 extern int HandleSample[32];
 extern tCarSoundData enginedelay[16];
-extern int car_to_player[8][2];
+extern int car_to_player[16];
 extern int player_to_car[16];
 extern int load_times[16];
 extern int copy_multiple[512][16];
