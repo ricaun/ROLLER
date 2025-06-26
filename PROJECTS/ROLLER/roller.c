@@ -163,8 +163,8 @@ int InitSDL()
   }
 
   // Initialize MIDI with WildMidi
-  if (!MIDIDigi_Init(".\\midi\\wildmidi.cfg")) {
-    SDL_Log("Failed to initialize WildMidi. Please check your configuration file .\\midi\\wildmidi.cfg.");
+  if (!MIDIDigi_Init("./midi/wildmidi.cfg")) {
+    SDL_Log("Failed to initialize WildMidi. Please check your configuration file ./midi/wildmidi.cfg.");
   }
 
   return SDL_APP_SUCCESS;
