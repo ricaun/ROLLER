@@ -82,6 +82,7 @@ CREATE_OBJ_DIR:
 
 ROLLER: $(OBJ) Makefile
 	mkdir -p $(OUTPUTDIR)
+	cp -R ./midi $(OUTPUTDIR)/midi
 	$(CC) $(ARCHFLAGS) $(CFLAGS) $(LDFLAGS) -o $(OUTPUTDIR)/$@ $(OBJ) $(LIBS)
 
 clean:
