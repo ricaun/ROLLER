@@ -180,8 +180,7 @@ typedef struct
 
 typedef struct
 {
-  tEngineSoundData engineSoundData[6];
-  int remaining[182];
+  tEngineSoundData engineSoundData[32];
 } tCarSoundData;
 
 //-------------------------------------------------------------------------------------------------
@@ -256,7 +255,7 @@ extern char SampleExt[64];
 extern int HandleCar[32];
 extern int HandleSample[32];
 extern tCarSoundData enginedelay[16];
-extern int car_to_player[8][2];
+extern int car_to_player[16];
 extern int player_to_car[16];
 extern int load_times[16];
 extern int copy_multiple[512][16];

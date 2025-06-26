@@ -893,7 +893,7 @@ void receive_all_singles()
     //while (gssCommsGetHeader(&in_header, sizeof(tSyncHeader), &pData)) {
     while (false) {
       byConsoleNode = in_header.byConsoleNode;
-      if (net_players[car_to_player[0][byConsoleNode]]) {
+      if (net_players[car_to_player[byConsoleNode]]) {
         switch (in_header.uiId) {
           case PACKET_ID_TRANSMIT_INIT:
             //TODO network
@@ -923,7 +923,7 @@ void receive_all_singles()
             //TODO network
             //gssCommsGetBlock(pData, &slave_data, 6);
             copy_multiple[writeptr][in_header.byConsoleNode] = slave_data.iData;
-            net_time[car_to_player[0][in_header.byConsoleNode]] = frames;
+            net_time[car_to_player[in_header.byConsoleNode]] = frames;
             //TODO network
             //gssCommsPostListen();
             continue;
