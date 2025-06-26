@@ -1634,11 +1634,10 @@ int devicespecificinit(int a1, int a2, int a3, int a4)
 
 int initgus()
 {
-  return 0; /*
-  printf(&aCedownloadingG[2]);
-  fflush(&__iob_variable_1);
-  system((int)&aCLoadpatsQIfat[1]);
-  return printf(aDone);*/
+  printf("DownLoading  GRAVIS patches...");
+  fflush(stdout);
+  system("..\\LOADPATS  -Q -IFATALPAT.INI >NUL");
+  return printf("Done\n");
 }
 
 //-------------------------------------------------------------------------------------------------

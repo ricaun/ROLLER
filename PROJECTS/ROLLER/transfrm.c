@@ -1235,7 +1235,7 @@ int getpitchchange(int a1, int a2, int a3)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//outputs represent angles relative to the chunk's geometry, not absolute world orientation
 void getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimuth, int *piElevation, int *piBank)
 {
   // Get chunk data
@@ -1291,7 +1291,7 @@ void getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimu
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//outputs represent local orientation relative to chunk's basis
 void getlocalangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimuth, int *piElevation, int *piBank)
 {
   // Get chunk data containing reference points
@@ -1303,15 +1303,15 @@ void getlocalangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimu
   float fCosYaw = tcos[iYaw];
   float fSinYaw = tsin[iYaw];
 
-  // Compute base vector components
-  float fDirX = fCosPitch * fCosYaw;
-  float fDirY = fCosPitch * fSinYaw;
-  float fDirZ = fSinPitch;
+  // Compute basis vector weights
+  float fWeightX = fCosPitch * fCosYaw;
+  float fWeightY = fCosPitch * fSinYaw;
+  float fWeightZ = fSinPitch;
 
   // Project reference points onto direction vector
-  float fProjX = pData->pointAy[0].fX * fDirX + pData->pointAy[1].fX * fDirY + pData->pointAy[2].fX * fDirZ;
-  float fProjY = pData->pointAy[0].fY * fDirX + pData->pointAy[1].fY * fDirY + pData->pointAy[2].fY * fDirZ;
-  float fProjZ = pData->pointAy[0].fZ * fDirX + pData->pointAy[1].fZ * fDirY + pData->pointAy[2].fZ * fDirZ;
+  float fProjX = pData->pointAy[0].fX * fWeightX + pData->pointAy[1].fX * fWeightY + pData->pointAy[2].fX * fWeightZ;
+  float fProjY = pData->pointAy[0].fY * fWeightX + pData->pointAy[1].fY * fWeightY + pData->pointAy[2].fY * fWeightZ;
+  float fProjZ = pData->pointAy[0].fZ * fWeightX + pData->pointAy[1].fZ * fWeightY + pData->pointAy[2].fZ * fWeightZ;
 
   // Calculate azimuth
   *piAzimuth = getangle(fProjX, fProjY);
@@ -1327,14 +1327,14 @@ void getlocalangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimu
   float fRollSin = -tsin[iRoll] * TRIG_SCALE;
 
   // Apply pitch and yaw transformations to roll vector
-  float fRollVecX = (-fRollSin * fSinPitch) * fCosYaw - fRollCos * fSinYaw;
-  float fRollVecY = (-fRollSin * fSinPitch) * fSinYaw + fRollCos * fCosYaw;
-  float fRollVecZ = fRollSin * fCosPitch;
+  float fRollWeightX = (-fRollSin * fSinPitch) * fCosYaw - fRollCos * fSinYaw;
+  float fRollWeightY = (-fRollSin * fSinPitch) * fSinYaw + fRollCos * fCosYaw;
+  float fRollWeightZ = fRollSin * fCosPitch;
 
   // Project reference points onto roll-adjusted vector
-  float fRollProjX = pData->pointAy[0].fX * fRollVecX + pData->pointAy[1].fX * fRollVecY + pData->pointAy[2].fX * fRollVecZ;
-  float fRollProjY = pData->pointAy[0].fY * fRollVecX + pData->pointAy[1].fY * fRollVecY + pData->pointAy[2].fY * fRollVecZ;
-  float fRollProjZ = pData->pointAy[0].fZ * fRollVecX + pData->pointAy[1].fZ * fRollVecY + pData->pointAy[2].fZ * fRollVecZ;
+  float fRollProjX = pData->pointAy[0].fX * fRollWeightX + pData->pointAy[1].fX * fRollWeightY + pData->pointAy[2].fX * fRollWeightZ;
+  float fRollProjY = pData->pointAy[0].fY * fRollWeightX + pData->pointAy[1].fY * fRollWeightY + pData->pointAy[2].fY * fRollWeightZ;
+  float fRollProjZ = pData->pointAy[0].fZ * fRollWeightX + pData->pointAy[1].fZ * fRollWeightY + pData->pointAy[2].fZ * fRollWeightZ;
 
   // Apply azimuth rotation
   float fRollRotatedX = fRollProjX * tcos[*piAzimuth] + fRollProjY * tsin[*piAzimuth];
