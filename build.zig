@@ -11,6 +11,12 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const wildmidi = b.dependency("wildmidi", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const wildmidi_lib = wildmidi.artifact("wildmidi");
+
     const sdl_image = b.dependency("SDL_image", .{
         .target = target,
         .optimize = optimize,
@@ -31,6 +37,7 @@ pub fn build(b: *std.Build) void {
     });
     exe_mod.linkLibrary(sdl_lib);
     exe_mod.linkLibrary(sdl_image_lib);
+    exe_mod.linkLibrary(wildmidi_lib);
 
     exe_mod.addCSourceFiles(.{
         .files = &.{
