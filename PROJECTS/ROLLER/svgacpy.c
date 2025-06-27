@@ -1,6 +1,7 @@
 #include "svgacpy.h"
 #include "3d.h"
 #include <assert.h>
+#include <string.h>
 //-------------------------------------------------------------------------------------------------
 
 int Vbytesperline;  //00178068
@@ -208,7 +209,7 @@ void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight)
 
     // Copy full rows
     for (int row = 0; row < iRowsInWindow; row++) {
-        // Copy entire width
+      // Copy entire width
       memcpy(pVideoPtr, pSrc, iWidth);
       pVideoPtr += Vbytesperline;
       pSrc += winw;
@@ -239,7 +240,11 @@ void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight)
     // Handle remainder if row crosses window boundary
     if (iSegment1 < iWidth) {
       int iSegment2 = iWidth - iSegment1;
-      vesa_set_window(iWindowIdx + 1);
+      //union REGS regs;
+      //regs.x.ax = 0x4F05;      // VESA function 05h: Window Control
+      //regs.x.bx = 0x0000;      // BH=0 (Window A), BL=0 (Set window position)
+      //regs.x.dx = iWindowIdx + 1;  // Window position in granularity units
+      //int386(0x10, &regs, &regs);
       memcpy((unsigned char *)0xA0000, pSrc + iSegment1, iSegment2);
       iWindowOffset = iSegment2;
       pVideoPtr = (unsigned char *)0xA0000 + iSegment2;
