@@ -9,10 +9,10 @@ extern int winrange;
 
 //-------------------------------------------------------------------------------------------------
 
-int vesastart(uint32 uiX, uint32 uiY);
+int vesastart(int iX, int iY);
 int tryvesa(int iModeNumber);
-int VESASource(int a1, int a2, int a3);
-int VESADest(int a1, int a2, int a3);
+void *VESASource(int iX, int iY, int iOffset);
+void *VESADest(int iX, int iY, int iOffset);
 int VESAmode(int *vesaModes, int iSvgaPossible);
 void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight);
 

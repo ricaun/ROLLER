@@ -9,10 +9,10 @@ int winrange;       //0017806C
 
 //-------------------------------------------------------------------------------------------------
 
-int vesastart(uint32 uiX, uint32 uiY)
+int vesastart(int iX, int iY)
 {
-  //RMI.ecx = uiX;
-  //RMI.edx = uiY;
+  //RMI.ecx = iX;
+  //RMI.edx = iY;
   //RMI.es = vmode_inf >> 4;                      // Convert vmode_inf to segment address
   //RMI.ebx = 0;                                  // Subfunction: Set Display Start
   //RMI.eax = 0x4F07;                             // VESA Function: Set/Get Display Start
@@ -53,44 +53,66 @@ int tryvesa(int iModeNumber)
 
 //-------------------------------------------------------------------------------------------------
 
-int VESASource(int a1, int a2, int a3)
+void *VESASource(int iX, int iY, int iOffset)
 {
-  return 0; /*
-  int v3; // ecx
-  int v4; // esi
-  _DWORD v6[11]; // [esp+0h] [ebp-2Ch] BYREF
+  //// Get bytes per pixel from VESA mode info
+  //unsigned char bpp_byte = *(unsigned char *)(vmode_inf[0] + 0x19);
+  //int iBytesPerPixel = bpp_byte >> 3;  // Convert bits to bytes
+  //
+  //// Calculate buffer offset: y * pitch + x * bpp + additional offset
+  //int iBufferOffset = iY * Vbytesperline + iX * iBytesPerPixel + iOffset;
+  //
+  //// Calculate window index and window-relative offset
+  //int iWindowIndex = iBufferOffset / winrange;
+  //int iWindowOffset = iBufferOffset % winrange;
+  //
+  //// Set new window if needed
+  //if (iWindowIndex != vmode_inf[1]) {
+  //  union REGS regs;
+  //  regs.x.ax = 0x4F05;      // VESA function: Window Control
+  //  regs.x.bx = 0x0001;      // Set window (subfunction 1 for source)
+  //  regs.x.dx = window_index; // Window position
+  //  int386(0x10, &regs);    // Call VESA BIOS
+  //
+  //  vmode_inf[1] = window_index; // Update current window index
+  //}
+  //
+  //// Return pointer to source location
+  //return (uint8 *)VesaSBase + iWindowOffset;
 
-  v3 = Vbytesperline * a3 + ((int)*(unsigned __int8 *)(vmode_inf + 25) >> 3) * a2 + a1;
-  v4 = v3 / winrange;
-  if (v3 / winrange != vmode_inf_variable_1) {
-    v6[3] = v3 / winrange;
-    v6[1] = 1;
-    v6[0] = 20229;
-    int386(16, (int)v6, (int)v6);
-    vmode_inf_variable_1 = v4;
-  }
-  return v3 % winrange + VesaSBase;*/
+  return NULL;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int VESADest(int a1, int a2, int a3)
+void *VESADest(int iX, int iY, int iOffset)
 {
-  return 0; /*
-  int v3; // ecx
-  int v4; // esi
-  _DWORD v6[11]; // [esp+0h] [ebp-2Ch] BYREF
+  //// Get bytes per pixel from VESA mode info
+  //unsigned char bpp_byte = *(unsigned char *)(vmode_inf + 0x19);
+  //int iBytesPerPixel = bpp_byte >> 3;  // Convert bits to bytes
+  //
+  //// Calculate buffer offset: y * pitch + x * bpp + additional offset
+  //int iBufferOffset = iY * Vbytesperline + iX * iBytesPerPixel + iOffset;
+  //
+  //// Calculate window index and window-relative offset
+  //int window_index = iBufferOffset / winrange;
+  //int window_offset = iBufferOffset % winrange;
+  //
+  //// Set new window if needed
+  //if (window_index != vmode_inf[2]) {
+  //  union REGS regs;
+  //  regs.x.ax = 0x4F05;      // VESA function: Window Control
+  //  regs.x.bx = 0x0000;      // Set window (subfunction 0 for destination)
+  //  regs.x.dx = window_index; // Window position
+  //  int386(0x10, &regs);    // Call VESA BIOS
+  //
+  //  vmode_inf[2] = window_index; // Update current window index
+  //}
+  //
+  //// Return pointer to destination location
+  //return (char *)VesaDBase + window_offset;
 
-  v3 = Vbytesperline * a3 + ((int)*(unsigned __int8 *)(vmode_inf + 25) >> 3) * a2 + a1;
-  v4 = v3 / winrange;
-  if (v3 / winrange != vmode_inf_variable_2) {
-    v6[3] = v3 / winrange;
-    v6[1] = 0;
-    v6[0] = 20229;
-    int386(16, (int)v6, (int)v6);
-    vmode_inf_variable_2 = v4;
-  }
-  return v3 % winrange + VesaDBase;*/
+  return NULL;
 }
 
 //-------------------------------------------------------------------------------------------------
