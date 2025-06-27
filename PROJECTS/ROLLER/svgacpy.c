@@ -1,5 +1,6 @@
 #include "svgacpy.h"
 #include "3d.h"
+#include <assert.h>
 //-------------------------------------------------------------------------------------------------
 
 int Vbytesperline;  //00178068
@@ -7,19 +8,24 @@ int winrange;       //0017806C
 
 //-------------------------------------------------------------------------------------------------
 
-int vesastart(int a1, int a2)
+int vesastart(uint32 uiX, uint32 uiY)
 {
-  return 0; /*
-  RMI_variable_3 = a1;
-  RMI_variable_2 = a2;
-  RMI_variable_5 = vmode_inf >> 4;
-  RMI_variable_1 = 0;
-  RMI_variable_4 = 20231;
-  realmode(16, a2, 20231, 0);
-  if ((unsigned __int8)RMI_variable_4 == 79)
-    return BYTE1(RMI_variable_4) != 0;
-  puts(aVesaFunctionNo);
-  return 2;*/
+  //RMI.ecx = uiX;
+  //RMI.edx = uiY;
+  //RMI.es = vmode_inf >> 4;                      // Convert vmode_inf to segment address
+  //RMI.ebx = 0;                                  // Subfunction: Set Display Start
+  //RMI.eax = 0x4F07;                             // VESA Function: Set/Get Display Start
+  //
+  //// Make real-mode interrupt call
+  //realmode(0x10u);
+  //
+  //// Check VESA function support
+  //if (LOBYTE(RMI.eax) == 0x4F)
+  //  return BYTE1(RMI.eax) != 0;                 // Check function success status
+  //puts("VESA function not supported.");
+  //return 2;
+
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -175,6 +181,10 @@ int VESAmode(int *vesaModes, int iSvgaPossible)
 
 void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight)
 {
+  //added by ROLLER, we should not be calling this function!
+  assert(0);
+  return;
+
   // Calculate initial video memory offset
   int iOffset = iX * Vbytesperline + iY;
   int iWindowIdx = iOffset / winrange;
