@@ -6,7 +6,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
-#include <wildmidi/wildmidi_lib.h>
+//#include <wildmidi/wildmidi_lib.h>
+#include "../../external/wildmidi-0.4.6/include/wildmidi/wildmidi_lib.h"
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
