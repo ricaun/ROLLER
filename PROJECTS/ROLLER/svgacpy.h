@@ -10,7 +10,7 @@ extern int winrange;
 //-------------------------------------------------------------------------------------------------
 
 int vesastart(uint32 uiX, uint32 uiY);
-int tryvesa(int a1, int a2, int a3, int a4);
+int tryvesa(int iModeNumber);
 int VESASource(int a1, int a2, int a3);
 int VESADest(int a1, int a2, int a3);
 int VESAmode(int *vesaModes, int iSvgaPossible);

@@ -31,18 +31,24 @@ int vesastart(uint32 uiX, uint32 uiY)
 
 //-------------------------------------------------------------------------------------------------
 
-int tryvesa(int a1, int a2, int a3, int a4)
+int tryvesa(int iModeNumber)
 {
-  return 0; /*
-  RMI_variable_3 = a1;
-  RMI_variable_5 = vmode_inf >> 4;
-  RMI_variable_4 = 20225;
-  RMI = 0;
-  realmode(16, 0, 20225, a4);
-  if ((unsigned __int8)RMI_variable_4 == 79)
-    return BYTE1(RMI_variable_4) != 0;
-  puts(aVesaFunctionNo);
-  return 2;*/
+  //RMI.ecx = iModeNumber;                        // VESA mode number to query
+  //RMI.es = vmode_inf >> 4;                      // Convert vmode_inf to segment address
+  //RMI.eax = 0x4F01;                             // VESA Function: Get Mode Information
+  //RMI.edi = 0;                                  // Offset part of buffer pointer
+  //
+  //// Make real-mode interrupt call
+  //realmode(0x10u);
+  //
+  //// Check VESA function support
+  //if (LOBYTE(RMI.eax) == 0x4F)
+  //  return BYTE1(RMI.eax) != 0;                 // Check function success status
+  //
+  //puts("VESA function not supported.");
+  //return 2;
+
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
