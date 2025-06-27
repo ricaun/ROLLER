@@ -146,6 +146,18 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#define REPLAY_BUFFER_SIZE  512
+#define DELAY_BUFFER_SIZE   32
+
+//-------------------------------------------------------------------------------------------------
+
+// Flag constants for copy_multiple data
+#define FLAG_DISCONNECT      0x0400
+#define FLAG_MASTER_CHANGE   0x0800
+#define FLAG_FINISHED        0x1000
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   DWORD edi, esi, ebp, reserved, ebx, edx, ecx, eax;
@@ -210,6 +222,20 @@ typedef struct
   int iX2Count;
   int iY2Count;
 } tJoyPos;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  uint16 unInput;
+  uint16 unFlags;
+} tCarInputData;
+
+typedef union
+{
+  tCarInputData data;
+  uint32 uiFullData;
+}tCopyData;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -281,7 +307,7 @@ extern tCarSoundData enginedelay[16];
 extern int car_to_player[16];
 extern int player_to_car[16];
 extern int load_times[16];
-extern int copy_multiple[512][16];
+extern tCopyData copy_multiple[512][16];
 extern int unmangleinpoff;
 extern uint8 *unmangledst;
 extern int unmangleoverflow;
@@ -294,17 +320,20 @@ extern void *FMDrums;
 extern void *FMInstruments;
 extern int network_sync_error;
 extern int ticks_received;
+extern int network_limit;
 extern int MIDIHandle;
-extern tColor *pal_addr;
 extern int DIGIHandle;
 extern volatile int frames;
 extern char Song[20][15];
 extern uint32 tickhandle;
 extern DPMI_RMI RMI;
+extern tColor *pal_addr;
 extern int user_inp;
 extern int nummusictracks;
 extern int winchampsong;
 extern int winsong;
+extern int delaywritex;
+extern int delayreadx;
 extern int leaderboardsong;
 extern int optionssong;
 extern int titlesong;
@@ -329,7 +358,7 @@ void resetpal();
 void Initialise_SOS();
 void updatejoy();
 void readuserdata(int iPlayer);
-int tickhandler(int a1, int a2, int a3, int a4);
+void tickhandler();
 void claim_ticktimer(unsigned int uiRateHz);
 void release_ticktimer();
 void Uninitialise_SOS();

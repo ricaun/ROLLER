@@ -19,11 +19,13 @@ int replaydirection = 0;  //000A6418
 int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
 int replayspeed;          //0018EE40
+int replayframes;         //0018EE48
 int currentreplayframe;   //0018EE54
 int lastreplayframe;      //0018EE58
 int introfiles;           //0018EE70
 char newrepsample[16];    //0018DC68
 char repsample[16];       //0018DC78
+int slowing;              //0018EE64
 int rewinding;            //0018EE68
 int forwarding;           //0018EE6C
 

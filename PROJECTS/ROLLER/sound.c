@@ -10,6 +10,7 @@
 #include "roller.h"
 #include "control.h"
 #include "network.h"
+#include "replay.h"
 #include <memory.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
@@ -96,7 +97,7 @@ tCarSoundData enginedelay[16]; //00163C8C
 int car_to_player[16];    //0016748C
 int player_to_car[16];      //001674CC
 int load_times[16];         //0016760C
-int copy_multiple[512][16]; //0016764C
+tCopyData copy_multiple[512][16]; //0016764C
 int unmangleinpoff;         //0016F64C
 uint8 *unmangledst;         //0016F650
 int unmangleoverflow;       //0016F654
@@ -109,17 +110,20 @@ void *FMDrums;              //0016F670
 void *FMInstruments;        //0016F674
 int network_sync_error;     //0016F678
 int ticks_received;         //0016F680
+int network_limit;          //0016F684
 int MIDIHandle;             //0016F68C
-tColor *pal_addr;           //0016F86C
 int DIGIHandle;             //0016F690
 volatile int frames;        //0016F694
 char Song[20][15];          //0016F708
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
+tColor *pal_addr;           //0016F86C
 int user_inp;               //0016F87C
 int nummusictracks;         //0016F8A8
 int winchampsong;           //0016F8AC
 int winsong;                //0016F8B0
+int delaywritex;            //0016F8B4
+int delayreadx;             //0016F8B8
 int leaderboardsong;        //0016F8BC
 int optionssong;            //0016F8C0
 int titlesong;              //0016F8C4
@@ -746,531 +750,396 @@ void readuserdata(int iPlayer)
 
 //-------------------------------------------------------------------------------------------------
 
-int tickhandler(int a1, int a2, int a3, int a4)
+void tickhandler()
 {
-  return 0; /*
-  int v4; // eax
-  int v5; // eax
-  int v6; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  unsigned int v14; // eax
-  int v15; // eax
-  unsigned int v16; // eax
-  int v17; // eax
-  int v18; // eax
-  int v19; // edx
-  int v20; // eax
-  int v21; // edi
-  int v22; // esi
-  int v23; // eax
-  int v24; // edi
-  int *v25; // ebp
-  int *v26; // esi
-  int *v27; // esi
-  int v28; // edi
-  int *v29; // ebp
-  int *v30; // esi
-  int *v31; // esi
-  int *v32; // esi
-  int *v33; // esi
-  int v34; // edi
-  int *v35; // ebp
-  int *v36; // esi
-  _BYTE retaddr[8]; // [esp+18h] [ebp+0h]
-
   if (network_on && syncleft) {
-    v4 = do_sync_stuff(a1, a2, a3, a4);
+    do_sync_stuff();
+    return;
+  }
+
+  // Initialize network state
+  if (network_on) {
+    net_loading = 0;
   } else {
-    a4 = network_on;
-    if (network_on)
-      net_loading = 0;
-    else
-      broadcast_mode = 0;
-    ++frames;
-    if (replaytype == 2) {
-      if (forwarding) {
-        if (slowing) {
-          replayspeed = 4 * replayspeed / 5;
-          if (replayspeed < 256) {
-            ROldStatus();
-            slowing = 0;
-          }
-        } else {
-          replayspeed = (17 * replayspeed - (__CFSHL__((17 * replayspeed) >> 31, 4) + 16 * ((17 * replayspeed) >> 31))) >> 4;
-          if (replayspeed > 0x2000)
-            replayspeed = 0x2000;
+    broadcast_mode = 0;
+  }
+  frames++;
+
+  // Replay speed control
+  if (replaytype == 2) {
+    if (forwarding) {
+      if (slowing) {
+        replayspeed = (4 * replayspeed) / 5;
+        if (replayspeed < 256) {
+          ROldStatus();
+          slowing = 0;
+        }
+      } else {
+        replayspeed = (17 * replayspeed) / 16;
+        if (replayspeed > REPLAY_SPEED_MAX) {
+          replayspeed = REPLAY_SPEED_MAX;
         }
       }
-      if (rewinding) {
-        if (slowing) {
-          replayspeed = 4 * replayspeed / 5;
-          if (replayspeed > -256) {
-            a4 = 0;
-            ROldStatus();
-            slowing = 0;
-          }
-        } else {
-          replayspeed = (17 * replayspeed - (__CFSHL__((17 * replayspeed) >> 31, 4) + 16 * ((17 * replayspeed) >> 31))) >> 4;
-          if (replayspeed < -8192)
-            replayspeed = -8192;
+    }
+
+    if (rewinding) {
+      if (slowing) {
+        replayspeed = (4 * replayspeed) / 5;
+        if (replayspeed > -256) {
+          ROldStatus();
+          slowing = 0;
+        }
+      } else {
+        replayspeed = (17 * replayspeed) / 16;
+        if (replayspeed < REPLAY_SPEED_MIN) {
+          replayspeed = REPLAY_SPEED_MIN;
         }
       }
-      a2 = (replayspeed + fraction) >> 31 << 8;
-      v5 = (replayspeed + fraction - (__CFSHL__((replayspeed + fraction) >> 31, 8) + a2)) >> 8;
-      ticks += v5;
-      a3 = replayspeed + fraction - (v5 << 8);
-      fraction = a3;
-      if (ticks < 0)
-        ticks = 0;
-      if (replayframes - 1 < ticks)
-        ticks = replayframes - 1;
-      if (!ticks && fraction < 0)
-        fraction = ticks;
-      v4 = replayframes - 1;
-      if (replayframes - 1 == ticks && fraction >= 0)
-        fraction = 0;
-    } else {
-      v4 = ticks++;
-      if (!paused && !frontend_on)
-        v4 = updatejoy();
     }
-    if (tick_on && network_on && (replaytype == 2 || game_type > 2)) {
-      v6 = CheckNewNodes(v4);
-      v7 = SendAMessage(v6);
-      v4 = BroadcastNews(v7);
+
+    // Calculate tick advancement
+    int iTotal = replayspeed + fraction;
+    int iTickAdvance = iTotal / 256;
+    fraction = iTotal % 256;
+
+    // Update and clamp tick position
+    ticks += iTickAdvance;
+    if (ticks < 0) ticks = 0;
+    if (ticks >= replayframes) ticks = replayframes - 1;
+
+    // Handle boundary conditions
+    if (ticks == 0 && fraction < 0) fraction = 0;
+    if (ticks == replayframes - 1 && fraction > 0) fraction = 0;
+  }
+  // Handle normal game mode
+  else {
+    ticks++;
+    if (!paused && !frontend_on) {
+      updatejoy();
     }
-    if (tick_on && replaytype != 2 && game_type < 3) {
+  }
+
+  // Network message processing
+  if (tick_on) {
+    if (network_on && (replaytype == 2 || game_type > 2)) {
+      CheckNewNodes();
+      SendAMessage();
+      BroadcastNews();
+    } else if (replaytype != 2 && game_type < 3) {
       if (frontend_on) {
         if (network_on) {
-          v8 = CheckNewNodes(v4);
-          v9 = SendAMessage(v8);
-          v4 = BroadcastNews(v9);
+          CheckNewNodes();
+          SendAMessage();
+          BroadcastNews();
         }
       } else {
         if (network_on && winner_mode) {
-          v10 = CheckNewNodes(v4);
-          v11 = SendAMessage(v10);
-          v4 = BroadcastNews(v11);
+          CheckNewNodes();
+          SendAMessage();
+          BroadcastNews();
         }
+        // Single player mode
         if (!network_on || winner_mode) {
-          if (start_race) {
-            v4 = paused;
-            if (!paused) {
-              readuserdata(0);
-              last_inp = user_inp;
-              a2 = 4 * (__int16)player1_car + (writeptr << 6);
-              *(int *)((char *)copy_multiple + a2) = user_inp;
-              if (player_type == 2) {
-                readuserdata(1);
-                last_inp_variable_1 = user_inp;
-                a2 = (writeptr << 6) + 4 * player2_car;
-                *(int *)((char *)copy_multiple + a2) = user_inp;
-              }
-              v4 = ((_WORD)writeptr + 1) & 0x1FF;
-              writeptr = v4;
-              if (soundon && !paused) {
-                if (delayread < delaywrite) {
-                  delayreadx = delayread & 0x1F;
-                  if (player_type == 2) {
-                    v32 = &enginedelay[224 * ViewType[0] + 7 * delayreadx];
-                    if (v32[1] >= 0) {
-                      a4 = *v32;
-                      loopsample(v32[6]);
-                    }
-                    if (v32[3] >= 0) {
-                      a4 = v32[2];
-                      loopsample(v32[6]);
-                    }
-                    if (v32[5] >= 0) {
-                      a4 = v32[4];
-                      loopsample(v32[6]);
-                    }
-                    a3 = delayreadx;
-                    v33 = &enginedelay[224 * ViewType_variable_1 + 7 * delayreadx];
-                    if (v33[1] >= 0) {
-                      a3 = v33[1];
-                      a4 = *v33;
-                      loopsample(v33[6]);
-                    }
-                    a2 = v33[3];
-                    if (a2 >= 0) {
-                      a4 = v33[2];
-                      a3 = v33[3];
-                      a2 = 1;
-                      loopsample(v33[6]);
-                    }
-                    if (v33[5] >= 0) {
-                      a2 = 3;
-                      a4 = v33[4];
-                      a3 = v33[5];
-                      loopsample(v33[6]);
-                    }
-                  } else if (allengines) {
-                    a2 = numcars;
-                    v28 = 0;
-                    if (numcars > 0) {
-                      v29 = enginedelay;
-                      do {
-                        v30 = &v29[7 * delayreadx];
-                        if (v30[1] >= 0) {
-                          a4 = *v30;
-                          a3 = v30[1];
-                          loopsample(v30[6]);
-                        }
-                        if (v30[3] >= 0) {
-                          a4 = v30[2];
-                          a3 = v30[3];
-                          loopsample(v30[6]);
-                        }
-                        a2 = v30[5];
-                        if (a2 >= 0) {
-                          a4 = v30[4];
-                          a3 = v30[5];
-                          a2 = 3;
-                          loopsample(v30[6]);
-                        }
-                        ++v28;
-                        v29 += 224;
-                      } while (v28 < numcars);
-                    }
-                  } else {
-                    a2 = ViewType[0];
-                    a3 = delayreadx;
-                    v31 = &enginedelay[224 * ViewType[0] + 7 * delayreadx];
-                    if (v31[1] >= 0) {
-                      a4 = *v31;
-                      a3 = v31[1];
-                      a2 = 0;
-                      loopsample(v31[6]);
-                    }
-                    if (v31[3] >= 0) {
-                      a2 = 1;
-                      a4 = v31[2];
-                      a3 = v31[3];
-                      loopsample(v31[6]);
-                    }
-                    if (v31[5] >= 0) {
-                      a2 = 3;
-                      a3 = v31[5];
-                      a4 = v31[4];
-                      loopsample(v31[6]);
-                    }
+          if (start_race && !paused) {
+
+            // Process player 1 input
+            readuserdata(0);
+            last_inp[0] = user_inp;
+            copy_multiple[writeptr][player1_car].uiFullData = user_inp;
+
+            // Process player 2 input if present
+            if (player_type == 2) {
+              readuserdata(1);
+              last_inp[1] = user_inp;
+              copy_multiple[writeptr][player2_car].uiFullData = user_inp;
+            }
+
+            // Update write pointer
+            writeptr = (writeptr + 1) % REPLAY_BUFFER_SIZE;
+
+            // Process sound if enabled
+            if (soundon && !paused) {
+              if (delayread < delaywrite) {
+                delayreadx = delayread % DELAY_BUFFER_SIZE;
+
+                if (player_type == 2) {
+                  // Process both players
+                  tEngineSoundData *pSound = &enginedelay[ViewType[0]].engineSoundData[delayreadx];
+                  if (pSound->iEngineVol >= 0)
+                    loopsample(ViewType[0], SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+                  if (pSound->iEngine2Vol >= 0)
+                    loopsample(ViewType[0], SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+                  if (pSound->iSkid1Vol >= 0)
+                    loopsample(ViewType[0], SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
+                  pSound = &enginedelay[ViewType[1]].engineSoundData[delayreadx];
+                  if (pSound->iEngineVol >= 0)
+                    loopsample(ViewType[1], SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+                  if (pSound->iEngine2Vol >= 0)
+                    loopsample(ViewType[1], SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+                  if (pSound->iSkid1Vol >= 0)
+                    loopsample(ViewType[1], SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
+                } else if (allengines) {
+                  // Process all cars
+                  for (int i = 0; i < numcars; i++) {
+                    tEngineSoundData *pSound = &enginedelay[i].engineSoundData[delayreadx];
+                    if (pSound->iEngineVol >= 0)
+                      loopsample(i, SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+                    if (pSound->iEngine2Vol >= 0)
+                      loopsample(i, SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+                    if (pSound->iSkid1Vol >= 0)
+                      loopsample(i, SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
                   }
+                } else {
+                  // Process only player 1
+                  tEngineSoundData *pSound = &enginedelay[ViewType[0]].engineSoundData[delayreadx];
+                  if (pSound->iEngineVol >= 0)
+                    loopsample(ViewType[0], SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+                  if (pSound->iEngine2Vol >= 0)
+                    loopsample(ViewType[0], SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+                  if (pSound->iSkid1Vol >= 0)
+                    loopsample(ViewType[0], SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
                 }
-                v4 = delaywrite - delayread;
-                if (delaywrite - delayread >= 6)
-                  v4 = delayread++;
+
+                // Advance buffer
+                if (delaywrite - delayread >= 6) {
+                  delayread++;
+                }
               }
             }
           }
         } else {
+          // Handle multiplayer mode
           ticks_received = 0;
-          a4 = master;
+
+          // Handle master node
           if (wConsoleNode == master) {
-            a2 = 0;
-            if (network_on > 0) {
-              v12 = master ^ wConsoleNode;
-              do {
-                if (paused) {
-                  a3 = frames;
-                  *(int *)((char *)net_time + v12) = frames;
-                }
-                if (a2 != master
-                  && *(int *)((char *)net_players + v12)
-                  && network_limit + *(int *)((char *)net_time + v12) < frames
-                  && !send_finished) {
-                  network_error = 222;
-                }
-                v12 += 4;
-                ++a2;
-              } while (a2 < network_on);
-            }
-            if (network_error && network_error != 666)
-              send_net_error();
-            if (network_on - 1 == start_multiple) {
-              v13 = numcars;
-              qmemcpy(&copy_multiple[16 * writeptr], &copy_multiple[16 * (((_WORD)writeptr - 1) & 0x1FF)], 0x40u);
-              a4 = 0;
-              if (v13 > 0) {
-                v14 = 0;
-                a3 = 4 * numcars;
-                do {
-                  if ((copy_multiple[16 * writeptr + v14 / 4] & 0x4000000) != 0) {
-                    LOWORD(a4) = HIWORD(copy_multiple[16 * writeptr + v14 / 4]);
-                    BYTE1(a4) ^= 4u;
-                    HIWORD(copy_multiple[16 * writeptr + v14 / 4]) = a4;
-                  }
-                  if ((copy_multiple[16 * writeptr + v14 / 4] & 0x8000000) != 0) {
-                    LOWORD(a4) = HIWORD(copy_multiple[16 * writeptr + v14 / 4]);
-                    BYTE1(a4) = BYTE1(a4) ^ 8 | 4;
-                    HIWORD(copy_multiple[16 * writeptr + v14 / 4]) = a4;
-                  }
-                  v14 += 4;
-                } while ((int)v14 < a3);
+            // Check player timeouts
+            for (int i = 0; i < network_on; i++) {
+              if (paused) {
+                net_time[i] = frames;
               }
+              if (i != master && net_players[i] &&
+                  (frames > net_time[i] + network_limit) &&
+                  !send_finished) {
+                network_error = 222;
+              }
+            }
+
+            // Handle network errors
+            if (network_error && network_error != 666) {
+              send_net_error();
+            }
+
+            // Full player count reached
+            if (network_on - 1 == start_multiple) {
+              // Copy previous frame data
+              memcpy(copy_multiple[writeptr],
+                     copy_multiple[(writeptr - 1 + REPLAY_BUFFER_SIZE) % REPLAY_BUFFER_SIZE],
+                     sizeof(tCopyData) * MAX_CARS);
+
+              // Reset connection flags
+              for (int i = 0; i < numcars; i++) {
+                uint16 unFlags = copy_multiple[writeptr][i].data.unFlags;
+
+                if (copy_multiple[writeptr][i].uiFullData & 0x4000000) {
+                  unFlags ^= FLAG_DISCONNECT;
+                }
+                if (copy_multiple[writeptr][i].uiFullData & 0x8000000) {
+                  unFlags = (unFlags ^ FLAG_MASTER_CHANGE) | FLAG_DISCONNECT;
+                }
+                copy_multiple[writeptr][i].data.unFlags = unFlags;
+              }
+
+              // Process player input
               readuserdata(0);
-              a2 = user_inp;
-              copy_multiple[16 * writeptr + (__int16)player1_car] = user_inp;
-              last_inp = a2;
+              copy_multiple[writeptr][player1_car].uiFullData = user_inp;
+              last_inp[0] = user_inp;
+
               receive_all_singles();
             }
+
+            // Countdown handling
             if (countdown >= 0) {
-              a2 = 0;
               active_nodes = 0;
-              if (network_on > 0) {
-                v15 = 0;
-                do {
-                  if (player_ready[v15])
-                    ++active_nodes;
-                  if (player_ready[v15] == 666 && net_players[v15]) {
-                    a4 = writeptr << 6;
-                    HIWORD(copy_multiple[16 * writeptr + player_to_car[v15]]) |= 0x400u;
-                    a3 = 0;
-                    net_players[v15] = 0;
-                  }
-                  ++v15;
-                  ++a2;
-                } while (a2 < network_on);
+              for (int i = 0; i < network_on; i++) {
+                if (player_ready[i]) active_nodes++;
+                if (player_ready[i] == 666 && net_players[i]) {
+                  copy_multiple[writeptr][player_to_car[i]].data.unFlags |= FLAG_DISCONNECT;
+                  net_players[i] = 0;
+                }
               }
             }
-            v4 = active_nodes;
+
+            // Send data when all nodes are ready
             if (active_nodes == network_on) {
               net_loading = 0;
-              v4 = network_on - 1;
               if (network_on - 1 != start_multiple || !paused) {
-                if (start_race) {
-                  if (!paused) {
-                    if (send_finished) {
-                      a4 = numcars;
-                      if (numcars > 0) {
-                        a3 = 4 * numcars;
-                        v16 = 0;
-                        do {
-                          LOWORD(a4) = HIWORD(copy_multiple[16 * writeptr + v16 / 4]);
-                          BYTE1(a4) |= 0x10u;
-                          a2 = writeptr << 6;
-                          v16 += 4;
-                          load_times_variable_1[32 * writeptr + v16 / 2] = a4;
-                        } while ((int)v16 < a3);
-                      }
-                    }
+                if (start_race && !paused && send_finished && numcars > 0) {
+                  for (int i = 0; i < numcars; i++) {
+                    copy_multiple[writeptr][i].data.unFlags |= FLAG_FINISHED;
                   }
                 }
                 send_multiple();
-                v4 = network_on - 1;
+                
+                // Handle master transition
                 if (network_on - 1 == start_multiple) {
-                  v17 = start_multiple ^ v4;
-                  a3 = 4 * numcars;
-                  while (1) {
-                    a2 = writeptr << 6;
-                    if (v17 >= a3)
-                      break;
-                    if ((*((_BYTE *)copy_multiple + a2 + v17 + 3) & 4) != 0) {
-                      a4 = 0;
-                      net_players[*(int *)((char *)car_to_player + v17)] = 0;
+                  for (int i = 0; i < numcars; i++) {
+                    if (copy_multiple[writeptr][i].data.unFlags & FLAG_DISCONNECT) {
+                      net_players[car_to_player[i]] = 0;
                       network_timeout = frames;
                     }
-                    v17 += 4;
                   }
-                  if ((*((_BYTE *)&copy_multiple[(__int16)player1_car] + a2 + 3) & 8) != 0) {
+
+                  if (copy_multiple[writeptr][player1_car].data.unFlags & FLAG_MASTER_CHANGE) {
+                    // Reset network state
                     read_check = -1;
                     write_check = -1;
+                    memset(player_checks, -1, sizeof(player_checks));
+
+                    // Find new master
                     net_players[master] = 0;
-                    while (!net_players[master])
-                      ++master;
-                    v18 = 0;
-                    if (network_on > 0) {
-                      v19 = 0;
-                      do {
-                        HIWORD(a3) = HIWORD(frames);
-                        ++v19;
-                        ++v18;
-                        lastpan_variable_1[v19] = frames;
-                      } while (v18 < network_on);
+                    while (!net_players[master] && master < MAX_PLAYERS) {
+                      master++;
                     }
-                    LOWORD(a3) = HIWORD(copy_multiple[16 * (writeptr & 0x1FF) + (__int16)player1_car]);
-                    BYTE1(a3) ^= 4u;
-                    a2 = (((_WORD)writeptr + 1) & 0x1FF) << 6;
-                    *(_WORD *)((char *)&copy_multiple[(__int16)player1_car] + a2 + 2) = a3;
+
+                    // Reset timers
+                    for (int i = 0; i < network_on; i++) {
+                      net_time[i] = frames;
+                    }
+
+                    // Update flags
+                    uint16 unFlags = copy_multiple[writeptr][player1_car].data.unFlags;
+                    unFlags ^= FLAG_DISCONNECT;
+                    copy_multiple[(writeptr + 1) % REPLAY_BUFFER_SIZE][player1_car].data.unFlags = unFlags;
+
                     network_timeout = frames;
                   }
-                  writeptr = ((_WORD)writeptr + 1) & 0x1FF;
-                  v4 = ticks_received++;
+
+                  writeptr = (writeptr + 1) % REPLAY_BUFFER_SIZE;
+                  ticks_received++;
                 }
               }
             }
           } else if (wConsoleNode > master && net_players[wConsoleNode]) {
-            if (paused)
+            if (paused) {
               network_timeout = frames;
-            if (network_limit + network_timeout < frames && human_finishers < players)
+            }
+            if (frames > network_timeout + network_limit && human_finishers < players) {
               network_error = 123;
+            }
+
             readuserdata(0);
             send_single(user_inp);
-            last_inp = user_inp;
+            last_inp[0] = user_inp;
+
             receive_multiple();
-            v4 = (((_WORD)writeptr - 1) & 0x1FF) << 6;
-            a2 = player_to_car[master];
-            if ((*((_BYTE *)&copy_multiple[a2] + v4 + 3) & 8) != 0) {
+
+            // Handle master change
+            if (copy_multiple[(writeptr - 1 + REPLAY_BUFFER_SIZE) % REPLAY_BUFFER_SIZE][player_to_car[master]].uiFullData & 0x8000000) {
               read_check = -1;
               write_check = -1;
-              a3 = 0x4000;
               memset(player_checks, -1, sizeof(player_checks));
-              a2 = 0;
+
               net_players[master] = 0;
-              while (!net_players[master])
-                ++master;
+              while (!net_players[master] && master < MAX_PLAYERS) {
+                master++;
+              }
+
               active_nodes = network_on;
               start_multiple = network_on - 1;
-              v20 = 0;
-              if (network_on > 0) {
-                a2 = 0;
-                do {
-                  a3 = frames;
-                  a2 += 4;
-                  ++v20;
-                  *(int *)((char *)lastpan_variable_1 + a2) = frames;
-                } while (v20 < network_on);
+
+              for (int i = 0; i < network_on; i++) {
+                net_time[i] = frames;
               }
-              v4 = frames;
               network_timeout = frames;
             }
-            a4 = numcars;
-            v21 = 0;
-            if (numcars > 0) {
-              v22 = 0;
-              do {
-                if ((copy_multiple[16 * (((_WORD)writeptr - 1) & 0x1FF) + v22] & 0x10000000) != 0)
-                  network_error = 0;
-                v4 = (((_WORD)writeptr - 1) & 0x1FF) << 6;
-                if ((*((_BYTE *)&copy_multiple[v22] + v4 + 3) & 4) != 0) {
-                  net_players[car_to_player[v22]] = 0;
-                  network_timeout = frames;
-                  a2 = -1;
-                  memset(player_checks, -1, sizeof(player_checks));
-                  a3 = 0;
-                  read_check = 0;
-                  v4 = 0;
-                  write_check = 0;
-                }
-                ++v21;
-                ++v22;
-              } while (v21 < numcars);
+
+            // Check for disconnections
+            for (int i = 0; i < numcars; i++) {
+              uint32 uiData = copy_multiple[(writeptr - 1 + REPLAY_BUFFER_SIZE) % REPLAY_BUFFER_SIZE][i].uiFullData;
+
+              if (uiData & 0x10000000) {
+                network_error = 0;  // Reset error on valid data
+              }
+              if (uiData & 0x4000000) {
+                net_players[car_to_player[i]] = 0;
+                network_timeout = frames;
+                memset(player_checks, -1, sizeof(player_checks));
+                read_check = 0;
+                write_check = 0;
+              }
             }
           } else {
+            // Handle disconnected state
             read_check = -1;
             write_check = -1;
+
             readuserdata(0);
-            last_inp = user_inp;
-            v23 = (__int16)player1_car;
-            a3 = (writeptr << 6) + v23 * 4;
-            *(int *)((char *)copy_multiple + a3) = user_inp;
-            LOWORD(a3) = HIWORD(copy_multiple[16 * writeptr + v23]);
-            BYTE1(a3) |= 4u;
-            a2 = writeptr << 6;
-            HIWORD(copy_multiple[16 * writeptr + v23]) = a3;
-            v4 = ((_WORD)writeptr + 1) & 0x1FF;
-            writeptr = v4;
+            last_inp[0] = user_inp;
+            copy_multiple[writeptr][player1_car].uiFullData = user_inp;
+
+            // Set disconnect flag
+            uint16 unFlags = copy_multiple[writeptr][player1_car].data.unFlags;
+            unFlags ;
+            copy_multiple[writeptr][player1_car].data.unFlags |= FLAG_DISCONNECT;
+
+            writeptr = (writeptr + 1) % REPLAY_BUFFER_SIZE;
           }
-          if (soundon) {
-            v24 = paused;
-            if (!paused) {
-              if (delayread < delaywrite) {
-                delayreadx = delayread & 0x1F;
-                if (allengines) {
-                  if (numcars > 0) {
-                    v25 = enginedelay;
-                    do {
-                      v26 = &v25[7 * delayreadx];
-                      if (v26[1] >= 0) {
-                        a3 = v26[1];
-                        loopsample(v26[6]);
-                      }
-                      if (v26[3] >= 0) {
-                        a3 = v26[3];
-                        loopsample(v26[6]);
-                      }
-                      a2 = v26[5];
-                      if (a2 >= 0) {
-                        a3 = v26[5];
-                        a2 = 3;
-                        loopsample(v26[6]);
-                      }
-                      a4 = numcars;
-                      ++v24;
-                      v25 += 224;
-                    } while (v24 < numcars);
-                  }
-                } else {
-                  a2 = ViewType[0];
-                  v27 = &enginedelay[224 * ViewType[0] + 7 * delayreadx];
-                  a3 = v27[1];
-                  if (a3 >= 0) {
-                    a2 = 0;
-                    a4 = *v27;
-                    loopsample(v27[6]);
-                  }
-                  if (v27[3] >= 0) {
-                    a2 = 1;
-                    a3 = v27[3];
-                    a4 = v27[2];
-                    loopsample(v27[6]);
-                  }
-                  if (v27[5] >= 0) {
-                    a3 = v27[5];
-                    a4 = v27[4];
-                    a2 = 3;
-                    loopsample(v27[6]);
-                  }
-                }
+
+          // Process sound
+          if (soundon && !paused) {
+            if (delayread >= delaywrite) return;
+
+            delayreadx = delayread % DELAY_BUFFER_SIZE;
+
+            if (allengines) {
+              for (int i = 0; i < numcars; i++) {
+                tEngineSoundData *pSound = &enginedelay[i].engineSoundData[delayreadx];
+                if (pSound->iEngineVol >= 0)
+                  loopsample(i, SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+                if (pSound->iEngine2Vol >= 0)
+                  loopsample(i, SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+                if (pSound->iSkid1Vol >= 0)
+                  loopsample(i, SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
               }
-              v4 = ticks_received;
-              delayread += ticks_received;
+            } else {
+              tEngineSoundData *pSound = &enginedelay[ViewType[0]].engineSoundData[delayreadx];
+              if (pSound->iEngineVol >= 0)
+                loopsample(ViewType[0], SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+              if (pSound->iEngine2Vol >= 0)
+                loopsample(ViewType[0], SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+              if (pSound->iSkid1Vol >= 0)
+                loopsample(ViewType[0], SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
             }
+
+            // Advance by ticks received
+            delayread += ticks_received;
           }
         }
       }
-    }
-    if (replaytype == 2 && replayspeed == 256) {
-      if (delayread < delaywrite) {
-        delayreadx = delayread & 0x1F;
-        v34 = 0;
-        if (numcars > 0) {
-          v35 = enginedelay;
-          do {
-            v36 = &v35[7 * delayreadx];
-            if (v36[1] >= 0) {
-              a4 = *v36;
-              a3 = v36[1];
-              loopsample(v36[6]);
-            }
-            if (v36[3] >= 0) {
-              a4 = v36[2];
-              a3 = v36[3];
-              loopsample(v36[6]);
-            }
-            if (v36[5] >= 0) {
-              a4 = v36[4];
-              a3 = v36[5];
-              loopsample(v36[6]);
-            }
-            a2 = numcars;
-            ++v34;
-            v35 += 224;
-          } while (v34 < numcars);
-        }
-      }
-      v4 = delaywrite - delayread;
-      if (delaywrite - delayread >= 6)
-        v4 = delayread++;
     }
   }
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(v4, a2, a3, a4);*/
+
+  // Replay sound processing
+  if (replaytype == 2 && replayspeed == REPLAY_NORMAL_SPEED) {
+    if (delayread < delaywrite) {
+      int delayreadx = delayread % DELAY_BUFFER_SIZE;
+
+      for (int i = 0; i < numcars; i++) {
+        tEngineSoundData *pSound = &enginedelay[i].engineSoundData[delayreadx];
+        if (pSound->iEngineVol >= 0)
+          loopsample(i, SOUND_SAMPLE_ENGINE, pSound->iEngineVol, pSound->iEnginePitch, pSound->iPan);
+        if (pSound->iEngine2Vol >= 0)
+          loopsample(i, SOUND_SAMPLE_ENGINE2, pSound->iEngine2Vol, pSound->iEngine2Pitch, pSound->iPan);
+        if (pSound->iSkid1Vol >= 0)
+          loopsample(i, SOUND_SAMPLE_SKID1, pSound->iSkid1Vol, pSound->iSkid1Pitch, pSound->iPan);
+      }
+
+      if (delaywrite - delayread >= 6) {
+        delayread++;
+      }
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -4,17 +4,25 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+#define REPLAY_SPEED_MIN      -8192
+#define REPLAY_SPEED_MAX      8192
+#define REPLAY_NORMAL_SPEED   256
+
+//-------------------------------------------------------------------------------------------------
+
 extern int replayspeeds[9];
 extern int replaysetspeed;
 extern int replaydirection;
 extern int lastfile;
 extern int lastautocut;
 extern int replayspeed;
+extern int replayframes;
 extern int currentreplayframe;
 extern int lastreplayframe;
 extern int introfiles;
 extern char newrepsample[16];
 extern char repsample[16];
+extern int slowing;
 extern int rewinding;
 extern int forwarding;
 

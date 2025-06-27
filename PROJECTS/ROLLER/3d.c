@@ -94,6 +94,7 @@ int tick_on;                //0013FA70
 int oldmode;                //0013FA74
 int start_race;             //0013FA80
 int NoOfLaps;               //0013FA84
+int human_finishers;        //0013FA88
 int countdown;              //0013FA90
 int max_mem;                //0013FAA4
 int scrmode;                //0013FAB4
@@ -107,6 +108,7 @@ int winner_mode;            //0013FB08
 int network_mes_mode;       //0013FB0C
 int network_slot;           //0013FB14
 int w95;                    //0013FB30
+int send_finished;          //0013FB40
 int winh;                   //0013FB68
 int winw;                   //0013FB6C
 int VIEWDIST;               //0013FB70

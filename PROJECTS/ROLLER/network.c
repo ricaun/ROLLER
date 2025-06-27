@@ -16,7 +16,7 @@ int slave_pause = 0;        //000A6108
 int net_started = 0;        //000A610C
 int next_resync = 0;        //000A6110
 int gamers_playing[4];      //00178470
-int test_mini[2];           //001786C0
+uint32 test_mini[2];        //001786C0
 int test_multiple[16];      //001786C8
 tRecordPacket p_record;     //00178708
 int net_players[16];        //00178718
@@ -462,7 +462,7 @@ void send_seed(int iRandomSeed)
 
 //-------------------------------------------------------------------------------------------------
 
-void send_single(int iData)
+void send_single(uint32 uiData)
 {
   if (!network_on) return;
 
@@ -470,7 +470,7 @@ void send_single(int iData)
   p_header.uiId = PACKET_ID_SINGLE;
   p_header.byConsoleNode = (uint8)player1_car;
 
-  slave_data.iData = iData;
+  slave_data.uiData = uiData;
 
   // Calculate checksum or sequence number if valid read position
   if (read_check == write_check || read_check < 0) {
@@ -717,7 +717,7 @@ void receive_multiple()
             //TODO network
             //gssCommsGetBlock(pPacket, test_mini, 8);
             for (int i = 0; i < 2; ++i) {
-              copy_multiple[writeptr][player_to_car[i]] = test_mini[i];
+              copy_multiple[writeptr][player_to_car[i]].uiFullData = test_mini[i];
             }
           } else {
             if (network_on > 0) {
@@ -922,7 +922,7 @@ void receive_all_singles()
           case PACKET_ID_SINGLE:
             //TODO network
             //gssCommsGetBlock(pData, &slave_data, 6);
-            copy_multiple[writeptr][in_header.byConsoleNode] = slave_data.iData;
+            copy_multiple[writeptr][in_header.byConsoleNode].uiFullData = slave_data.uiData;
             net_time[car_to_player[in_header.byConsoleNode]] = frames;
             //TODO network
             //gssCommsPostListen();
@@ -1025,7 +1025,7 @@ void receive_all_singles()
 
 void do_sync_stuff(void)
 {
-  int *pCopy;
+  uint32 *pCopy;
   uint8 byConsoleNode = (uint8)wConsoleNode;
   uint16 unFrame = syncframe;
 
@@ -1039,7 +1039,7 @@ void do_sync_stuff(void)
       // Pack data for all cars
       pCopy = test_multiple;
       for (int i = 0; i < numcars; i++)
-        *pCopy++ = copy_multiple[syncptr][player_to_car[i]];
+        *pCopy++ = copy_multiple[syncptr][player_to_car[i]].uiFullData;
 
       // Send 64 bytes (16 * 4-byte ints)
       //if (!gssCommsSendData(&in_header, 12, syncnode, test_multiple, 64))
@@ -1059,7 +1059,7 @@ void do_sync_stuff(void)
       // Pack data for player-to-car mappings
       pCopy = test_mini;
       for (int i = 0; i < 2; i++) {
-        *pCopy++ = copy_multiple[syncptr][player_to_car[i]];
+        *pCopy++ = copy_multiple[syncptr][player_to_car[i]].uiFullData;
       }
 
       // Send 8 bytes (2 * 4-byte ints)

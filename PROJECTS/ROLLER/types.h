@@ -17,6 +17,8 @@
 #define TWO_PI 6.28318530718
 #define HZ_TO_MS(x) 1000/x
 #define TRIG_SCALE 25600.0f
+#define MAX_CARS 16
+#define MAX_PLAYERS 16
 
 //-------------------------------------------------------------------------------------------------
 

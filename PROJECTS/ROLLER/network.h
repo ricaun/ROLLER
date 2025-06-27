@@ -104,7 +104,7 @@ typedef struct
 #pragma pack(push, 1)
 typedef struct
 {
-  int32 iData;
+  uint32 uiData;
   int16 nChecksum;
 } tDataPacket;
 #pragma pack(pop)
@@ -117,7 +117,7 @@ extern int slave_pause;
 extern int net_started;
 extern int next_resync;
 extern int gamers_playing[4];
-extern int test_mini[2];
+extern uint32 test_mini[2];
 extern int test_multiple[16];
 extern tRecordPacket p_record;
 extern int net_players[16];
@@ -174,7 +174,7 @@ void send_record_to_master(int iRecordIdx);
 void send_record_to_slaves(int iRecordIdx);
 void send_mes(int iNetworkMessageIdx, int iNode);
 void send_seed(int iRandomSeed);
-void send_single(int iData);
+void send_single(uint32 uiData);
 void send_pause();
 void send_slot();
 void transmitpausetoslaves();
