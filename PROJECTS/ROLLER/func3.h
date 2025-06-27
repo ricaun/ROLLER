@@ -12,6 +12,15 @@ extern int restart_net;
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iWidth;
+  int iHeight;
+  int iDataOffset;
+} tBlockHeader;
+
+//-------------------------------------------------------------------------------------------------
+
 int winner_screen(int a1, char a2, void *a3);
 int StoreResult();
 void RaceResult(int a1, int a2, int a3, char *a4);
@@ -42,20 +51,10 @@ void loadtracksample(int track_number);
 void *front_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6);
 int scale_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6, int a7);
 int front_text(int a1, uint8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8);
-uint8 scale_text(
-        int a1,
-        char *a2,
-        int a3,
-        int a4,
-        int a5,
-        int a6,
-        char a7,
-        unsigned int a8,
-        int a9,
-        int a10);
+uint8 scale_text(int a1, char *a2, int a3,  int a4, int a5, int a6, char a7, unsigned int a8, int a9, int a10);
 int clear_screen(int a1, int a2);
 void display_picture(void *pDest, const void *pSrc);
-uint8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6);
+void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int iY, int iTransparentColor);
 uint8 *load_picture(const char *szFile);
 int AllocateCars(int a1);
 void check_cars();

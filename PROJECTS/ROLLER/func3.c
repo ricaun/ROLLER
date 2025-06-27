@@ -4301,39 +4301,23 @@ void display_picture(void *pDest, const void *pSrc)
 
 //-------------------------------------------------------------------------------------------------
 
-uint8 *display_block(int a1, int a2, int a3, unsigned int a4, int a5, int a6)
+void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int iY, int iTransparentColor)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); return 0;
-  /*
-  int v7; // ebp
-  int v8; // edx
-  int v9; // ebx
-  unsigned __int8 *result; // eax
-  unsigned __int8 *v11; // esi
-  unsigned int v12; // edx
-  int j; // ebx
-  unsigned __int8 v14; // cl
-  int v16; // [esp+8h] [ebp-18h]
-  int i; // [esp+Ch] [ebp-14h]
+  uint8 *pPixelData = (uint8 *)pSrc + pSrc[iBlockIdx].iDataOffset;
+  uint8 *pDestItr = &pDest[640 * iY + iX];
 
-  v7 = *(_DWORD *)(a2 + 12 * a3);
-  v8 = 3 * a3;
-  v9 = *(_DWORD *)(a2 + 12 * a3 + 4);
-  result = (unsigned __int8 *)(a1 + a4 + 640 * a5);
-  v11 = (unsigned __int8 *)(*(_DWORD *)(a2 + 4 * v8 + 8) + a2);
-  v16 = v9;
-  for (i = 0; i < v16; ++i) {
-    v12 = a4;
-    for (j = 0; j < v7; ++result) {
-      v14 = *v11++;
-      if (v12 < 0x280 && (a6 < 0 || v14 != a6))
-        *result = v14;
-      ++v12;
+  // Process each row
+  for (int i = 0; i < pSrc[iBlockIdx].iHeight; ++i) {
+    // Process each column
+    for (int j = 0; j < pSrc[iBlockIdx].iWidth; ++pDestItr) {
+      uint8 byColor = *pPixelData++;
+      if (iX < 0x280 && (iTransparentColor < 0 || byColor != iTransparentColor))
+        *pDestItr = byColor;
+      ++iX;
       ++j;
     }
-    result += 640 - v7;
+    pDestItr += 640 - pSrc[iBlockIdx].iWidth;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
