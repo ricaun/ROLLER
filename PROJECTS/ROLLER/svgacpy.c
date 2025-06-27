@@ -225,9 +225,7 @@ int VESAmode(int *vesaModeAy)
 
 void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight)
 {
-  //added by ROLLER, we should not be calling this function!
-  assert(0);
-  return;
+  return; //added by ROLLER
 
   // Calculate initial video memory offset
   int iOffset = iX * Vbytesperline + iY;
