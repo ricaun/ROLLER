@@ -1,4 +1,10 @@
 #include "svgacpy.h"
+#include "3d.h"
+//-------------------------------------------------------------------------------------------------
+
+int Vbytesperline;  //00178068
+int winrange;       //0017806C
+
 //-------------------------------------------------------------------------------------------------
 
 int vesastart(int a1, int a2)
@@ -167,66 +173,79 @@ int VESAmode(int *vesaModes, int iSvgaPossible)
 
 //-------------------------------------------------------------------------------------------------
 
-int svgacopy(uint8 *pBuf, int16 iX, int16 iY, int iWidth, int iHeight)
+void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight)
 {
-  return 0;
-  /*
-  int v6; // edx
-  int v7; // eax
-  int i; // edx
-  int v9; // edx
-  int v10; // eax
-  __int16 v11; // di
-  char *v13; // [esp-4h] [ebp-40h]
-  union REGS regs; // [esp+0h] [ebp-3Ch] BYREF
-  int v15; // [esp+1Ch] [ebp-20h]
-  char *v16; // [esp+20h] [ebp-1Ch]
-  int v17; // [esp+24h] [ebp-18h]
-  int v18; // [esp+28h] [ebp-14h]
-  unsigned __int8 v19; // [esp+2Ch] [ebp-10h]
+  // Calculate initial video memory offset
+  int iOffset = iX * Vbytesperline + iY;
+  int iWindowIdx = iOffset / winrange;
+  int iWindowOffset = iOffset % winrange;
+  uint8 *pVideoPtr = (uint8 *)0xA0000 + iWindowOffset;
 
-  v18 = iWidth;
-  v19 = (iY * Vbytesperline + iX) / winrange;
-  v6 = (iY * Vbytesperline + iX) % winrange;
-  v16 = (char *)&off_A0000 + v6;
-  v15 = v6;
-  regs.x.edx = v19;
-  *(_QWORD *)&regs.x.eax = 20229LL;
-  int386(16, &regs, &regs);
-  do {
-    v7 = (winrange - v15) / Vbytesperline;
-    if (v7 >= (__int16)iHeight)
-      LOWORD(v7) = iHeight;
-    for (i = 0; (__int16)i < (__int16)v7; --iHeight) {
-      v13 = v16;
-      qmemcpy(v16, pBuf, (__int16)v18);
-      ++i;
-      v16 = &v13[Vbytesperline];
-      pBuf += winw;
+  // Set initial VESA window
+  //union REGS regs;
+  //regs.x.ax = 0x4F05;      // VESA function 05h: Window Control
+  //regs.x.bx = 0x0000;      // BH=0 (Window A), BL=0 (Set window position)
+  //regs.x.dx = iWindowIdx;  // Window position in granularity units
+  //int386(0x10, &regs, &regs);
+
+  while (iHeight > 0) {
+    // Calculate rows that fit in current window
+    int iBytesLeft = winrange - iWindowOffset;
+    int iRowsInWindow = iBytesLeft / Vbytesperline;
+
+    if (iRowsInWindow <= 0) iRowsInWindow = 1;  // At least 1 partial row
+    if (iRowsInWindow > iHeight) iRowsInWindow = iHeight;
+
+    // Copy full rows
+    for (int row = 0; row < iRowsInWindow; row++) {
+        // Copy entire width
+      memcpy(pVideoPtr, pSrc, iWidth);
+      pVideoPtr += Vbytesperline;
+      pSrc += winw;
     }
-    if ((_WORD)iHeight) {
-      v9 = Vbytesperline * ((__int16)v7 + 1) + v15;
-      v15 = v9 % winrange;
-      v10 = (__int16)v18;
-      if (Vbytesperline - v9 % winrange < (__int16)v18)
-        v10 = Vbytesperline - v9 % winrange;
-      v17 = v10;
-      qmemcpy(v16, pBuf, (__int16)v10);
-      ++v19;
-      *(_QWORD *)&regs.x.eax = 20229LL;
-      regs.x.edx = v19;
-      v11 = v18;
-      int386(16, &regs, &regs);
-      if ((_WORD)v17 != v11)
-        qmemcpy(&off_A0000, &pBuf[(__int16)v17], v11 - (__int16)v17);
-      v16 = (char *)&off_A0000 + v15;
-      pBuf += winw;
-      --iHeight;
+
+    iHeight -= iRowsInWindow;
+    if (iHeight <= 0) break;
+
+    // Update position for next segment
+    iOffset += iRowsInWindow * Vbytesperline;
+    iWindowIdx = iOffset / winrange;
+    iWindowOffset = iOffset % winrange;
+
+    // Set new VESA window
+    //union REGS regs;
+    //regs.x.ax = 0x4F05;      // VESA function 05h: Window Control
+    //regs.x.bx = 0x0000;      // BH=0 (Window A), BL=0 (Set window position)
+    //regs.x.dx = iWindowIdx;  // Window position in granularity units
+    //int386(0x10, &regs, &regs);
+    pVideoPtr = (uint8 *)0xA0000 + iWindowOffset;
+
+    // Handle partial row at window boundary
+    int iSegment1 = Vbytesperline - iWindowOffset;
+    if (iSegment1 > iWidth) iSegment1 = iWidth;
+
+    memcpy(pVideoPtr, pSrc, iSegment1);
+
+    // Handle remainder if row crosses window boundary
+    if (iSegment1 < iWidth) {
+      int iSegment2 = iWidth - iSegment1;
+      vesa_set_window(iWindowIdx + 1);
+      memcpy((unsigned char *)0xA0000, pSrc + iSegment1, iSegment2);
+      iWindowOffset = iSegment2;
+      pVideoPtr = (unsigned char *)0xA0000 + iSegment2;
     }
-  } while ((_WORD)iHeight);
-  *(_QWORD *)&regs.x.eax = 20229LL;
-  regs.x.edx = 0;
-  return int386(16, &regs, &regs);*/
+
+    // Move to next row
+    pSrc += winw;
+    iHeight--;
+  }
+
+  // Reset to window 0 before returning
+  //union REGS regs;
+  //regs.x.ax = 0x4F05;      // VESA function 05h: Window Control
+  //regs.x.bx = 0x0000;      // BH=0 (Window A), BL=0 (Set window position)
+  //regs.x.dx = 0;           // Window position in granularity units
+  //int386(0x10, &regs, &regs);
 }
 
 //-------------------------------------------------------------------------------------------------
