@@ -595,9 +595,7 @@ uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *us
 
 uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
 {
-  tickhandler(0, 0, 0, 0);
-  ++ticks; //TODO remove
-  ++frames; //TODO remove
+  tickhandler();
 
   ullCurrSDLTicksNS = SDL_GetTicksNS();
   int64 llNSSinceLast = (int64)ullCurrSDLTicksNS - (int64)ullLastSDLTicksNS;
