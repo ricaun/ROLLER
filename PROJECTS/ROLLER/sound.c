@@ -242,46 +242,43 @@ bool loadDOS(const char *szFilename, void **out_buffer)
 
 //-------------------------------------------------------------------------------------------------
 
-int claimDOS(int a1, void *a2)
+int claimDOS(int iSizeParagraphs, uint32 *uiSelectorOut)
 {
-  return 0; /*
-  int v3; // ecx
-  unsigned __int16 v5; // dx
-  int v6; // [esp+0h] [ebp-34h] BYREF
-  __int16 v7; // [esp+4h] [ebp-30h]
-  unsigned __int16 v8; // [esp+Ch] [ebp-28h]
-  int v9; // [esp+18h] [ebp-1Ch]
-  _BYTE v10[24]; // [esp+1Ch] [ebp-18h] BYREF
-
-  v3 = ((a1 - (__CFSHL__(a1 >> 31, 4) + 16 * (a1 >> 31))) >> 4) + 1;
-  memset(v10, 0, 12);
-  v7 = v3;
-  LOWORD(v6) = 256;
-  int386x(49, (int)&v6, (int)&v6, (int)v10);
-  if (v9) {
-    *a2 = -1;
-    return 0;
-  } else {
-    v5 = v6;
-    *a2 = v8;
-    return 16 * v5;
-  }*/
+  //int iRequestedParagraphs; // ecx
+  //uint16 ax; // dx
+  //union REGS regs; // [esp+0h] [ebp-34h] BYREF
+  //struct SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
+  //
+  //// Calculate adjusted size in paragraphs
+  //iRequestedParagraphs = ((iSizeParagraphs - (__CFSHL__(iSizeParagraphs >> 31, 4) + 16 * (iSizeParagraphs >> 31))) >> 4)
+  //  + 1;
+  //memset(&sregs, 0, sizeof(sregs));
+  //regs.w.bx = iRequestedParagraphs;
+  //regs.w.ax = 0x100;                            // AX = 0x100 (Allocate DOS Memory Block)
+  //int386x(0x31, &regs, &regs, &sregs);
+  //
+  //// // Check if allocation failed (carry flag set)
+  //if (regs.x.cflag) {
+    *uiSelectorOut = -1;                        // Return error indicator
+    return 0;                                   // Failed allocation
+  //} else {
+  //  ax = regs.w.ax;
+  //  *uiSelectorOut = regs.w.dx;                 // Store real-mode segment
+  //  return 16 * ax;                             // Return linear address (real-mode segment * 16)
+  //}
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int releaseDOS(int16 a1, int a2, int a3, int a4)
+void releaseDOS(uint16 nSegment)
 {
-  return 0; /*
-  _WORD v6[14]; // [esp+0h] [ebp-34h] BYREF
-  _BYTE v7[16]; // [esp+1Ch] [ebp-18h] BYREF
-  int v8; // [esp+2Ch] [ebp-8h]
-
-  v8 = a4;
-  memset(v7, 0, 12);
-  v6[6] = a1;
-  v6[0] = 257;
-  return int386x(49, (int)v6, (int)v6, (int)v7);*/
+  //union REGS regs; // [esp+0h] [ebp-34h] BYREF
+  //struct SREGS sregs; // [esp+1Ch] [ebp-18h] BYREF
+  //
+  //memset(&sregs, 0, sizeof(sregs));
+  //regs.w.dx = nSegment;
+  //regs.w.ax = 0x101;                            // EAX = 0x101 (Function: Free DOS Memory Block)
+  //int386x(0x31, &regs, &regs, &sregs);
 }
 
 //-------------------------------------------------------------------------------------------------

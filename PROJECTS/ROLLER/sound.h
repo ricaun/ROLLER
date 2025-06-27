@@ -321,8 +321,8 @@ extern int network_error;
 
 void realmode(uint8 byRealModeInterrupt);
 bool loadDOS(const char *szFilename, void **out_buffer);
-int claimDOS(int a1, void *a2);
-int releaseDOS(int16 a1, int a2, int a3, int a4);
+int claimDOS(int iSizeParagraphs, uint32 *uiSelectorOut);
+void releaseDOS(uint16 nSegment);
 bool setpal(const char *szFilename);
 void blankpal();
 void resetpal();
