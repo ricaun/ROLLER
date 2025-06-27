@@ -569,8 +569,8 @@ void readuserdata(int iPlayer)
   rud_steer[iPlayer] = iMaxSteering;
 
   // Process acceleration and brake inputs
-  uint8 byAccelKey = userkey[iKeyOffset + 2];  // Acceleration key
-  uint8 byBrakeKey = userkey[iKeyOffset + 3];  // Brake key
+  uint8 byAccelKey = userkey[iKeyOffset + 2];  // Acceleration key USERKEY_P1UP or USERKEY_P2UP
+  uint8 byBrakeKey = userkey[iKeyOffset + 3];  // Brake key USERKEY_P1DOWN or USERKEY_P2DOWN
   int iAccelState = 0;
 
   if ((byAccelKey > 0x83 && joyvalue[byAccelKey] > 0xC8) ||
@@ -583,8 +583,8 @@ void readuserdata(int iPlayer)
   }
 
   // Process steering input
-  uint8 byLeftKey = userkey[iKeyOffset];      // Steer left
-  uint8 byRightKey = userkey[iKeyOffset + 1]; // Steer right
+  uint8 byLeftKey = userkey[iKeyOffset];      // Steer left USERKEY_P1LEFT or USERKEY_P2LEFT
+  uint8 byRightKey = userkey[iKeyOffset + 1]; // Steer right USERKEY_P1RIGHT or USERKEYP2RIGHT
 
   if (byLeftKey > 0x83) {
     // Joystick steering processing
@@ -654,30 +654,30 @@ void readuserdata(int iPlayer)
   rud_swheel[iPlayer] = iSteeringValue;
 
   // Build button flags
-  if (iAccelState > 0) iButtonFlags |= 0x01;  // Accelerate flag
-  if (iAccelState < 0) iButtonFlags |= 0x02;  // Brake flag
+  if (iAccelState > 0) iButtonFlags |= BUTTON_FLAG_ACCEL;  // Accelerate flag
+  if (iAccelState < 0) iButtonFlags |= BUTTON_FLAG_BRAKE;  // Brake flag
 
   // Process special buttons
   uint8 bySpecialKey = iPlayer ? userkey[USERKEY_P2CHEAT] : userkey[USERKEY_P2DOWNGEAR];  // P2downgear or P2cheat
   if ((bySpecialKey > 0x83 && joyvalue[bySpecialKey] > 0xC8) ||
       (bySpecialKey <= 0x83 && keys[bySpecialKey])) {
-    iButtonFlags |= 0x20;  // Special action flag
+    iButtonFlags |= BUTTON_FLAG_SPECIAL;  // Special action flag
   }
 
   // Process gear shifting
-  uint8 byGearUpKey = userkey[iKeyOffset + 4];
-  uint8 byGearDownKey = userkey[iKeyOffset + 5];
+  uint8 byGearUpKey = userkey[iKeyOffset + 4]; //USERKEY_P1UPGEAR or USERKEY_P2UPGEAR
+  uint8 byGearDownKey = userkey[iKeyOffset + 5]; //USERKEY_P1DOWNGEAR or USERKEY_P2DOWNGEAR
   int iGearChange = 0;
 
   if ((byGearUpKey > 0x83 && joyvalue[byGearUpKey] > 0xC8) ||
       (byGearUpKey <= 0x83 && keys[byGearUpKey])) {
     iGearChange = 1;
-    iButtonFlags |= 0x04;  // Gear up flag
+    iButtonFlags |= BUTTON_FLAG_UPGEAR;  // Gear up flag
   }
   if ((byGearDownKey > 0x83 && joyvalue[byGearDownKey] > 0xC8) ||
       (byGearDownKey <= 0x83 && keys[byGearDownKey])) {
     iGearChange = -1;
-    iButtonFlags |= 0x08;  // Gear down flag
+    iButtonFlags |= BUTTON_FLAG_DOWNGEAR;  // Gear down flag
   }
 
   // Update gear state
@@ -688,10 +688,10 @@ void readuserdata(int iPlayer)
   // Process strategy buttons (F1-F4)
   if (lastsample < 0) {
     int iStrategyFlags = 0;
-    if (keys[63]) iStrategyFlags |= 0x40;   // F1
-    if (keys[64]) iStrategyFlags |= 0x80;   // F2
-    if (keys[65]) iStrategyFlags |= 0x100;  // F3
-    if (keys[66]) iStrategyFlags |= 0x200;  // F4
+    if (keys[63]) iStrategyFlags |= BUTTON_FLAG_F1;  // F1
+    if (keys[64]) iStrategyFlags |= BUTTON_FLAG_F2;  // F2
+    if (keys[65]) iStrategyFlags |= BUTTON_FLAG_F3;  // F3
+    if (keys[66]) iStrategyFlags |= BUTTON_FLAG_F4;  // F4
 
     // Handle network messages for strategy buttons
     if (iStrategyFlags) {
@@ -714,10 +714,10 @@ void readuserdata(int iPlayer)
           int iMessageType = -1;
 
           // Map strategy flags to message types
-          if (iStrategyFlags & 0x40) iMessageType = 0;      // F1 -> Message 0
-          else if (iStrategyFlags & 0x80) iMessageType = 1; // F2 -> Message 1
-          else if (iStrategyFlags & 0x100) iMessageType = 2; // F3 -> Message 2
-          else if (iStrategyFlags & 0x200) iMessageType = 3; // F4 -> Message 3
+          if (iStrategyFlags & BUTTON_FLAG_F1) iMessageType = 0;      // F1 -> Message 0
+          else if (iStrategyFlags & BUTTON_FLAG_F2) iMessageType = 1; // F2 -> Message 1
+          else if (iStrategyFlags & BUTTON_FLAG_F3) iMessageType = 2; // F3 -> Message 2
+          else if (iStrategyFlags & BUTTON_FLAG_F4) iMessageType = 3; // F4 -> Message 3
 
           if (iMessageType != -1) {
             send_mes(iMessageType, iTargetNode);
@@ -737,9 +737,9 @@ void readuserdata(int iPlayer)
   if (I_Want_Out && !already_quit) {
     already_quit = -1;
     if (wConsoleNode == master) {
-      iButtonFlags |= 0x0800;  // Master quit flag
+      iButtonFlags |= BUTTON_FLAG_MASTER_QUIT;  // Master quit flag
     } else {
-      iButtonFlags |= 0x0400;  // Client quit flag
+      iButtonFlags |= BUTTON_FLAG_SLAVE_QUIT;  // Client quit flag
     }
   }
 

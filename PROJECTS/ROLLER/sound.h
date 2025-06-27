@@ -132,6 +132,20 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#define BUTTON_FLAG_ACCEL       0x0001
+#define BUTTON_FLAG_BRAKE       0x0002
+#define BUTTON_FLAG_UPGEAR      0x0004
+#define BUTTON_FLAG_DOWNGEAR    0x0008
+#define BUTTON_FLAG_SPECIAL     0x0020
+#define BUTTON_FLAG_F1          0x0040
+#define BUTTON_FLAG_F2          0x0080
+#define BUTTON_FLAG_F3          0x0100
+#define BUTTON_FLAG_F4          0x0200
+#define BUTTON_FLAG_SLAVE_QUIT  0x0400
+#define BUTTON_FLAG_MASTER_QUIT 0x0800
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   DWORD edi, esi, ebp, reserved, ebx, edx, ecx, eax;
