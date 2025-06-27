@@ -117,93 +117,108 @@ void *VESADest(int iX, int iY, int iOffset)
 
 //-------------------------------------------------------------------------------------------------
 
-int VESAmode(int *vesaModes, int iSvgaPossible)
+int VESAmode(int *vesaModeAy)
 {
-  return 0x101;
-  /*
-  int v2; // ecx
-  int v5; // ebx
-  unsigned int v6; // ecx
-  __int16 *i; // edx
-  int v8; // eax
-  int v9; // ecx
-  unsigned __int16 v10; // ax
-  union REGS regs; // [esp+0h] [ebp-3Ch] BYREF
-  struct SREGS v12; // [esp+1Ch] [ebp-20h] BYREF
-  int iSvgaPossible2; // [esp+30h] [ebp-Ch]
-  int v14; // [esp+34h] [ebp-8h]
+  //int iRetVal; // ebx
+  //int16 *pnModes; // edx
+  //int iMode; // eax
+  //int iNextMode; // ecx
+  //uint16 unModeInf; // ax
+  //union REGS regs; // [esp+0h] [ebp-3Ch] BYREF
+  //struct SREGS sregs; // [esp+1Ch] [ebp-20h] BYREF
+  //memset(&sregs, 0, sizeof(sregs));
+  //
+  //// Initialize VESA controller info if needed
+  //if (!vesa_inf) {
+  //  // Allocate DOS memory for VESA info
+  //  regs.w.ax = 0x100;
+  //  regs.w.bx = 0x10;
+  //  int386x(0x31, &regs, &regs, &sregs);
+  //  vesa_inf = (char *)(16 * regs.w.ax);        // Convert segment to linear address
+  //  if (regs.x.cflag) {
+  //    puts("Internal error : VESA display could not allocate core memory.");
+  //    return -1;
+  //  }
+  //
+  //  // Get VESA controller information
+  //  RMI.edi = 0;                                // Offset 0 in segment
+  //  RMI.es = (16 * regs.w.ax) >> 4;             // Segment part
+  //  RMI.eax = 0x4F00;                           // VESA get controller info
+  //  realmode(0x10u);
+  //
+  //  // Check for VESA support
+  //  if (LOBYTE(RMI.eax) != 0x4F)
+  //    goto LABEL_5;
+  //  if (BYTE1(RMI.eax)) {
+  //  LABEL_7:
+  //    puts("VESA function call failed.");
+  //    return -1;
+  //  }
+  //
+  //  // Verify VESA signature
+  //  if (strncmp(vesa_inf, "VESA", 4))
+  //    puts("Internal error : VESA not initialised.");
+  //}
+  //
+  //// Initialize mode info buffer if needed
+  //if (vmode_inf[0]
+  //  || (regs.w.ax = 0x100,
+  //      regs.w.bx = 0x10,
+  //      int386x(0x31, &regs, &regs, &sregs),
+  //      vmode_inf[0] = 16 * regs.w.ax,
+  //      !regs.x.cflag)) {
+  //  iRetVal = -1;
+  //  if (*vesaModeAy != -1) {
+  //    do {
+  //      if (iRetVal != -1)
+  //        break;
+  //
+  //      // Get pointer to mode list from VESA info
+  //      for (pnModes = (int16 *)(((*(int *)(vesa_inf + 14) >> 12) & 0xFFFF0)
+  //                               + (unsigned __int16)*(_DWORD *)(vesa_inf + 14)); ; ++pnModes) {
+  //        iMode = *pnModes;
+  //        if (iMode == -1)
+  //          break;
+  //        if (iMode == *vesaModeAy && !tryvesa(iMode)) {
+  //          iRetVal = *pnModes;
+  //          break;
+  //        }
+  //      }
+  //      iNextMode = vesaModeAy[1];
+  //      ++vesaModeAy;
+  //    } while (iNextMode != -1);
+  //  }
+  //  if (iRetVal <= -1) {
+  //    puts(NoSupportedVesaMode);                // No supported VESA mode available.
+  //  } else {
+  //    // Set up mode parameters
+  //    winrange = *(__int16 *)(vmode_inf[0] + 4) << 10;// Win size in KB -> bytes
+  //    Vbytesperline = *(__int16 *)(vmode_inf[0] + 16);// Bytes per scanline
+  //
+  //    // Calculate base addresses (segment * 16)
+  //    unModeInf = *(_WORD *)(vmode_inf[0] + 10);
+  //    VesaSBase = 16 * *(unsigned __int16 *)(vmode_inf[0] + 8);
+  //    RMI.ebx = iRetVal;
+  //    VesaDBase = 16 * unModeInf;
+  //    RMI.eax = 0x4F02;
+  //    realmode(0x10u);
+  //
+  //    // Verify mode set success
+  //    if (LOBYTE(RMI.eax) != 0x4F) {
+  //    LABEL_5:
+  //      puts("VESA function not supported.");
+  //      return -1;
+  //    }
+  //    if (BYTE1(RMI.eax))
+  //      goto LABEL_7;
+  //  }
+  //  return iRetVal;
+  //} else {
+  //  puts("Internal error : VESA display could not allocate core memory.");
+  //  return -1;
+  //}
 
-  v14 = v2;
-  iSvgaPossible2 = iSvgaPossible;
-  memset(&v12, 0, sizeof(v12));
-  if (!vesa_inf) {
-    regs.w.ax = 256;
-    regs.w.bx = 16;
-    int386x(49, &regs, &regs, &v12);
-    vesa_inf = 16 * regs.w.ax;
-    if (regs.x.cflag) {
-      puts(aInternalErrorV);
-      return -1;
-    }
-    RMI.edi = 0;
-    RMI.es = (16 * regs.w.ax) >> 4;
-    RMI.eax = 20224;
-    realmode(0x10u);
-    if (LOBYTE(RMI.eax) != 79)
-      goto LABEL_5;
-    if (BYTE1(RMI.eax)) {
-    LABEL_7:
-      puts(aVesaFunctionCa);
-      return -1;
-    }
-    if (strncmp(vesa_inf, aVesa, 4))
-      puts(aInternalErrorV_0);
-  }
-  if (vmode_inf
-    || (regs.w.ax = 256, regs.w.bx = 16, int386x(49, &regs, &regs, &v12), vmode_inf = 16 * regs.w.ax, !regs.x.cflag)) {
-    v5 = -1;
-    if (*vesaModes != -1) {
-      do {
-        if (v5 != -1)
-          break;
-        v6 = (unsigned int)&unk_FFFF0 & (*(int *)(vesa_inf + 14) >> 12);
-        for (i = (__int16 *)(v6 + (unsigned __int16)*(_DWORD *)(vesa_inf + 14)); ; ++i) {
-          v8 = *i;
-          if (v8 == -1)
-            break;
-          if (v8 == *vesaModes && !tryvesa(v8, (int)i, -1, v6)) {
-            v5 = *i;
-            break;
-          }
-        }
-        v9 = vesaModes[1];
-        ++vesaModes;
-      } while (v9 != -1);
-    }
-    if (v5 <= -1) {
-      puts(&aConoSupportedV[2]);
-    } else {
-      winrange = *(__int16 *)(vmode_inf + 4) << 10;
-      Vbytesperline = *(__int16 *)(vmode_inf + 16);
-      v10 = *(_WORD *)(vmode_inf + 10);
-      VesaSBase = 16 * *(unsigned __int16 *)(vmode_inf + 8);
-      RMI.ebx = v5;
-      VesaDBase = 16 * v10;
-      RMI.eax = 20226;
-      realmode(0x10u);
-      if (LOBYTE(RMI.eax) != 79) {
-      LABEL_5:
-        puts(aVesaFunctionNo);
-        return -1;
-      }
-      if (BYTE1(RMI.eax))
-        goto LABEL_7;
-    }
-    return v5;
-  } else {
-    puts(aInternalErrorV_1);
-    return -1;
-  }*/
+  return 0x101; //added by ROLLER, pretend to be VESA mode 0x101
 }
 
 //-------------------------------------------------------------------------------------------------

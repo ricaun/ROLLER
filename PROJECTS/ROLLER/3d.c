@@ -191,13 +191,11 @@ void copypic(uint8 *pSrc, uint8 *pDest)
 
 void init_screen()
 {
-  int iSvgaPossible; // edx
   int iVesaMode; // ebx
   int i; // esi
   int16 nY; // bx
   int vesaModes[9]; // [esp+0h] [ebp-24h] BYREF
 
-  iSvgaPossible = svga_possible;
   vesaModes[0] = 0x100;
   vesaModes[1] = 0x101;
   vesaModes[2] = -1;
@@ -211,7 +209,7 @@ void init_screen()
   }
   if (SVGA_ON && current_mode != -1) {
     current_mode = -1;
-    iVesaMode = VESAmode(vesaModes, iSvgaPossible);
+    iVesaMode = VESAmode(vesaModes);
     scrmode = iVesaMode;
     if (iVesaMode == -1) {
       if (firstrun) {

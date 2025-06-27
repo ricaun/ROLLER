@@ -13,7 +13,7 @@ int vesastart(int iX, int iY);
 int tryvesa(int iModeNumber);
 void *VESASource(int iX, int iY, int iOffset);
 void *VESADest(int iX, int iY, int iOffset);
-int VESAmode(int *vesaModes, int iSvgaPossible);
+int VESAmode(int *vesaModeAy);
 void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight);
 
 //-------------------------------------------------------------------------------------------------
