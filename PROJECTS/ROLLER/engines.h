@@ -38,17 +38,18 @@ typedef struct
   int iUnk13;
   int iUnk14;
   int iUnk15;
-  int iUnk16;
-  int iUnk17;
+  int iMaxTurnRate;
+  int iTurnDecayRate;
   int iUnk18;
-  int iUnk19;
+  int iWheelCenteringRate;
   int iUnk20;
-  int iUnk21;
+  int iSteeringSensitivity;
   float fUnk22;
   float fUnk23;
   float fUnk24;
   float fUnk25;
 } tCarEngine;
+
 
 //-------------------------------------------------------------------------------------------------
 

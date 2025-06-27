@@ -4,23 +4,23 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
-typedef struct
+typedef enum
 {
-  uint8 byP1left;
-  uint8 byP1right;
-  uint8 byP1up;
-  uint8 byP1down;
-  uint8 byP1upgear;
-  uint8 byP1downgear;
-  uint8 byP1cheat;
-  uint8 byP2left;
-  uint8 byP2right;
-  uint8 byP2up;
-  uint8 byP2down;
-  uint8 byP2upgear;
-  uint8 byP2downgear;
-  uint8 byP2cheat;
-} tUserKey;
+  USERKEY_P1LEFT = 0,
+  USERKEY_P1RIGHT = 1,
+  USERKEY_P1UP = 2,
+  USERKEY_P1DOWN = 3,
+  USERKEY_P1UPGEAR = 4,
+  USERKEY_P1DOWNGEAR = 5,
+  USERKEY_P1CHEAT = 6,
+  USERKEY_P2LEFT = 7,
+  USERKEY_P2RIGHT = 8,
+  USERKEY_P2UP = 9,
+  USERKEY_P2DOWN = 10,
+  USERKEY_P2UPGEAR = 11,
+  USERKEY_P2DOWNGEAR = 12,
+  USERKEY_P2CHEAT = 13
+} eUserKey;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ extern int write_key;
 extern int read_key;
 extern uint8 mapping[];
 extern int twoparter;
-extern tUserKey userkey;
+extern int userkey[14];
 extern uint8 key_buffer[];
 extern char config_buffer[8192];
 extern char language_buffer[8192];

@@ -43,6 +43,7 @@ void *front_vga[16] = { NULL }; //000A5324
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
 int champorder[16];       //0016FAC8
+int human_control[16];    //0016FB48
 int total_wins[16];       //0016FB88
 int allocated_cars[14];   //0016FBC8
 int total_kills[16];      //0016FC40

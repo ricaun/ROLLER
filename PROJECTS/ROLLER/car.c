@@ -37,6 +37,7 @@ tCarBox CarBox;                 //0017F2F0
 tCar Car[16];                   //0017F8F0
 int car_texs_loaded[16];        //00181E30
 tStoreEngine StoreEngines[14];  //00188200
+int finished_car[16];           //00188470
 int LoadCarTextures;            //0018852C
 
 //-------------------------------------------------------------------------------------------------

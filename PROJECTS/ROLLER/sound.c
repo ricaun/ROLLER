@@ -9,6 +9,7 @@
 #include "car.h"
 #include "roller.h"
 #include "control.h"
+#include "network.h"
 #include <memory.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
@@ -35,6 +36,7 @@ int soundon = -1;           //000A46A4
 int allengines = -1;        //000A46A8
 int cheat_samples = 0;      //000A46AC
 int palette_brightness = 32;//000A46B0
+int last_inp[2] = { 0, 0 }; //000A46BC
 void *pal_selector = (void *)-1; //000A46B4
 char SourcePath[64] = { 0 }; //000A46C4
 char DestinationPath[64] = { 0 }; //000A4704
@@ -59,6 +61,8 @@ int GMSong[21] = { 0, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0 }; //000
 tSampleData SampleData = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 18176, 0, 0, 0 }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1701995379 } }; //000A484C
 tSampleData SampleFixed = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 256, 0, 0, 0, }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A48C4
 tSampleData SamplePanned = { NULL, 0u, 0, 0, 2, 32767, 0, { 0, 0, 0, 768, 0, 0, 0, }, 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }; //000A493C
+uint8 rud_gr[2] = { 0, 0 }; //000A4A08
+uint8 rud_strat[2] = { 0, 0 }; //000A4A0A
 int Joy1used = 0;           //000A4A0C
 int Joy2used = 0;           //000A4A0C
 int fraction = 0;           //000A4A14
@@ -75,6 +79,9 @@ int lastpan[16];            //00160478
 int net_time[16];           //001604B8
 int joyvalue[8];            //001604F8
 tJoyPos rud_Joy_pos;        //00160518
+int rud_turn[2];            //00160538
+int rud_swheel[2];          //00160540
+int rud_steer[2];           //00160548
 uint32 SampleLen[120];      //00160560
 uint8 *SamplePtr[120];      //00160750
 tSampleHandleCar SampleHandleCar[120]; //00160930
@@ -109,6 +116,7 @@ volatile int frames;        //0016F694
 char Song[20][15];          //0016F708
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
+int user_inp[2];            //0016F87C
 int nummusictracks;         //0016F8A8
 int winchampsong;           //0016F8AC
 int winsong;                //0016F8B0
@@ -121,6 +129,7 @@ int numsamples;             //0016F8D0
 int cheatsample;            //0016F8D4
 int languages;              //0016F8D8
 int net_loading;            //0016F8DC
+int already_quit;           //0016F8E0
 int network_error;          //0017C97C
 
 //-------------------------------------------------------------------------------------------------
@@ -535,258 +544,207 @@ void updatejoy()
 
 //-------------------------------------------------------------------------------------------------
 
-int readuserdata(int result)
+void readuserdata(int iPlayer)
 {
-  return 0; /*
-  int v1; // ecx
-  int v2; // esi
-  int v3; // ebx
-  int v4; // esi
-  unsigned int v5; // eax
-  unsigned int v6; // eax
-  unsigned __int8 v7; // bl
-  int v8; // ebp
-  int v9; // edx
-  int v10; // eax
-  int v11; // ebx
-  int v12; // edi
-  int v13; // edx
-  int v14; // ebx
-  int v15; // edx
-  int v16; // eax
-  int v17; // edx
-  int v18; // edx
-  unsigned int v19; // eax
-  unsigned int v20; // ebx
-  int v21; // eax
-  int v22; // eax
-  int v23; // ebx
-  int v24; // eax
-  unsigned int v25; // edx
-  unsigned int v26; // edx
-  int v27; // edx
-  int v28; // eax
-  char v29; // [esp+0h] [ebp-1Ch]
-
-  v1 = result;
+  // Skip processing during countdown phase
   if (countdown >= 140) {
-    user_inp_variable_1 = 0;
-    user_inp = 0;
-    return result;
+    user_inp[iPlayer] = 0;//user_inp[0] =?
+    return;
   }
-  v2 = 3 * result;
-  result *= 4;
-  v3 = *(int *)((char *)p_eng + result);
-  v4 = 2 * v2;
-  if (!v3) {
-    user_inp = 0;
-    user_inp_variable_1 = 0;
-    return result;
+
+  // Calculate key indices for this player (6 keys per player)
+  int iKeyOffset = iPlayer * 6;
+  tCarEngine *pEngine = (tCarEngine *)p_eng[iPlayer];
+
+  // Early exit if no engine data
+  if (!pEngine) {
+    user_inp[iPlayer] = 0;//user_inp[0] =?
+    return;
   }
-  *(int *)((char *)rud_steer + result) = *(_DWORD *)(v3 + 92) << 8;
-  v29 = 0;
-  *(int *)((char *)rud_swheel + result) = *(__int16 *)((char *)&last_inp + result);
-  v5 = (unsigned __int8)userkey_variable_2[v4];
-  if (v5 > 0x83) {
-    if ((unsigned int)musicbuffer_variable_1[v5] <= 0xC8)
-      goto LABEL_9;
-  } else if (!keys[v5]) {
-    goto LABEL_9;
+
+  // Initialize input state
+  int iButtonFlags = 0;
+  int iSteeringValue = last_inp[iPlayer];
+  int iMaxSteering = pEngine->iSteeringSensitivity << 8;
+  rud_steer[iPlayer] = iMaxSteering;
+
+  // Process acceleration and brake inputs
+  uint8 byAccelKey = userkey[iKeyOffset + 2];  // Acceleration key
+  uint8 byBrakeKey = userkey[iKeyOffset + 3];  // Brake key
+  int iAccelState = 0;
+
+  if ((byAccelKey > 0x83 && joyvalue[byAccelKey] > 0xC8) ||
+      (byAccelKey <= 0x83 && keys[byAccelKey])) {
+    iAccelState = 1;  // Accelerate
   }
-  v29 = 1;
-LABEL_9:
-  v6 = (unsigned __int8)userkey_variable_3[v4];
-  if (v6 > 0x83) {
-    if ((unsigned int)musicbuffer_variable_1[v6] <= 0xC8)
-      goto LABEL_14;
-  } else if (!keys[v6]) {
-    goto LABEL_14;
+  if ((byBrakeKey > 0x83 && joyvalue[byBrakeKey] > 0xC8) ||
+      (byBrakeKey <= 0x83 && keys[byBrakeKey])) {
+    iAccelState = iAccelState == 1 ? -1 : -2;  // Brake or both
   }
-  v29 -= 2;
-LABEL_14:
-  v7 = userkey[v4];
-  if (v7 > 0x83u) {
-    v19 = (unsigned int)(80 * musicbuffer_variable_1[v7]) >> 8;
-    if (v19 > 0x102)
-      v19 = 258;
-    v20 = (unsigned int)(80 * musicbuffer_variable_1[(unsigned __int8)userkey_variable_1[v4]]) >> 8;
-    v21 = (int)(p_joyk1[v1] * ((int)(v19 * v19 * v19) >> 8) + p_joyk2[v1] * v19) >> 16;
-    if (v20 > 0x102)
-      v20 = 258;
-    rud_swheel[v1] = v21 - ((int)(p_joyk1[v1] * ((int)(v20 * v20 * v20) >> 8) + p_joyk2[v1] * v20) >> 16);
-    v22 = -rud_steer[v1];
-    if (v22 > rud_swheel[v1])
-      rud_swheel[v1] = v22;
-    v10 = v1;
-    v12 = rud_steer[v1];
-    if (rud_swheel[v1] > v12)
-      goto LABEL_43;
-  } else if (keys[v7]) {
-    v8 = rud_turn[v1];
-    if (v8 >= 0)
-      rud_turn[v1] = 32 * *(_DWORD *)(p_eng[v1] + 76) + v8;
-    else
-      rud_turn[v1] = (int)(abs32(rud_swheel[v1])
-                         * ((*(_DWORD *)(p_eng[v1] + 72) << 8) - 32 * *(_DWORD *)(p_eng[v1] + 76)))
-      / rud_steer[v1];
-    v9 = *(_DWORD *)(p_eng[v1] + 72) << 8;
-    if (v9 < rud_turn[v1])
-      rud_turn[v1] = v9;
-    v10 = v1;
-    v11 = rud_turn[v1] + rud_swheel[v1];
-    v12 = rud_steer[v1];
-    rud_swheel[v1] = v11;
-    if (v11 > v12)
-      LABEL_43:
-    rud_swheel[v10] = v12;
-  } else if (keys[(unsigned __int8)userkey_variable_1[v4]]) {
-    if (rud_turn[v1] >= 0)
-      rud_turn[v1] += 32 * *(_DWORD *)(p_eng[v1] + 76);
-    else
-      rud_turn[v1] = (int)(abs32(rud_swheel[v1])
-                         * ((*(_DWORD *)(p_eng[v1] + 72) << 8) - 32 * *(_DWORD *)(p_eng[v1] + 76)))
-      / rud_steer[v1];
-    v13 = *(_DWORD *)(p_eng[v1] + 72) << 8;
-    if (v13 < rud_turn[v1])
-      rud_turn[v1] = v13;
-    v14 = rud_swheel[v1] - rud_turn[v1];
-    v15 = -rud_steer[v1];
-    rud_swheel[v1] = v14;
-    if (v15 > v14)
-      rud_swheel[v1] = v15;
+
+  // Process steering input
+  uint8 byLeftKey = userkey[iKeyOffset];      // Steer left
+  uint8 byRightKey = userkey[iKeyOffset + 1]; // Steer right
+
+  if (byLeftKey > 0x83) {
+    // Joystick steering processing
+    int iJoyLeft = (80 * joyvalue[byLeftKey]) >> 8;
+    int iJoyRight = (80 * joyvalue[byRightKey]) >> 8;
+
+    if (iJoyLeft > 0x102) iJoyLeft = 0x102;
+    if (iJoyRight > 0x102) iJoyRight = 0x102;
+
+    int iLeftEffect = (p_joyk1[iPlayer] * ((iJoyLeft * iJoyLeft * iJoyLeft) >> 8) + p_joyk2[iPlayer] * iJoyLeft);
+    int iRightEffect = (p_joyk1[iPlayer] * ((iJoyRight * iJoyRight * iJoyRight) >> 8) + p_joyk2[iPlayer] * iJoyRight);
+
+    iSteeringValue = (iLeftEffect - iRightEffect) >> 16;
+
+    // Clamp steering to valid range
+    if (iSteeringValue < -iMaxSteering) iSteeringValue = -iMaxSteering;
+    if (iSteeringValue > iMaxSteering) iSteeringValue = iMaxSteering;
   } else {
-    v16 = rud_swheel[v1];
-    rud_turn[v1] = -1;
-    if (v16 <= 0) {
-      v18 = (*(_DWORD *)(p_eng[v1] + 84) << 8) + rud_swheel[v1];
-      rud_swheel[v1] = v18;
-      if (v18 > 0)
-        rud_swheel[v1] = 0;
-    } else {
-      v17 = rud_swheel[v1] - (*(_DWORD *)(p_eng[v1] + 84) << 8);
-      rud_swheel[v1] = v17;
-      if (v17 < 0)
-        rud_swheel[v1] = 0;
-    }
-  }
-  user_inp = rud_swheel[v1];
-  v23 = v29 > 0;
-  if (v29 < 0)
-    LOBYTE(v23) = v23 | 2;
-  v24 = v23;
-  if (v1) {
-    if ((unsigned __int8)userkey_variable_13 > 0x83u) {
-      if ((unsigned int)musicbuffer_variable_1[(unsigned __int8)userkey_variable_13] <= 0xC8)
-        goto LABEL_57;
-    } else if (!keys[(unsigned __int8)userkey_variable_13]) {
-      goto LABEL_57;
-    }
-  } else if ((unsigned __int8)userkey_variable_12 > 0x83u) {
-    if ((unsigned int)musicbuffer_variable_1[(unsigned __int8)userkey_variable_12] <= 0xC8)
-      goto LABEL_57;
-  } else if (!keys[(unsigned __int8)userkey_variable_12]) {
-    goto LABEL_57;
-  }
-  LOBYTE(v24) = v23 | 0x20;
-  v23 = v24;
-LABEL_57:
-  v25 = (unsigned __int8)userkey_variable_4[v4];
-  result = 0;
-  if (v25 > 0x83) {
-    if ((unsigned int)musicbuffer_variable_1[v25] <= 0xC8)
-      goto LABEL_62;
-  } else if (!keys[v25]) {
-    goto LABEL_62;
-  }
-  result = 1;
-LABEL_62:
-  v26 = (unsigned __int8)userkey_variable_5[v4];
-  if (v26 > 0x83) {
-    if ((unsigned int)musicbuffer_variable_1[v26] <= 0xC8)
-      goto LABEL_67;
-  } else if (!keys[v26]) {
-    goto LABEL_67;
-  }
-  result = -1;
-LABEL_67:
-  if (!result)
-    rud_gr[v1] = 0;
-  if (rud_gr[v1])
-    result = 0;
-  if (result > 0) {
-    LOBYTE(v23) = v23 | 4;
-    rud_gr[v1] = -1;
-  }
-  if (result < 0) {
-    LOBYTE(v23) = v23 | 8;
-    rud_gr[v1] = -1;
-  }
-  if (lastsample >= 0)
-    goto LABEL_107;
-  result = 0;
-  if (keys_variable_6) {
-    result = 64;
-  } else if (keys_variable_7) {
-    result = 128;
-  } else if (keys_variable_8) {
-    result = 256;
-  } else if (keys_variable_9) {
-    result = 512;
-  }
-  if (!result)
-    rud_strat[v1] = 0;
-  if (rud_strat[v1])
-    result = 0;
-  if (!result)
-    goto LABEL_107;
-  if (network_on) {
-    message_node = network_mes_mode;
-    if (network_mes_mode >= 0) {
-      if (human_control[message_node])
-        message_node = car_to_player[message_node];
-      else
-        message_node = -2;
-    }
-    if (message_node > -2 && !finished_car[(__int16)player1_car]) {
-      if ((result & 0x40) != 0) {
-        v27 = message_node;
-        v28 = 0;
-      } else if ((result & 0x80u) == 0) {
-        if ((result & 0x100) != 0) {
-          v27 = message_node;
-          v28 = 2;
-        } else {
-          if ((result & 0x200) == 0) {
-          LABEL_105:
-            result = 0;
-            goto LABEL_106;
-          }
-          v27 = message_node;
-          v28 = 3;
-        }
+    // Keyboard steering processing
+    if (keys[byLeftKey]) {
+      // Process left steering
+      int iTurnRate = rud_turn[iPlayer];
+
+      if (iTurnRate >= 0) {
+        // Apply turn decay
+        iTurnRate += 32 * pEngine->iTurnDecayRate;
       } else {
-        v27 = message_node;
-        v28 = 1;
+        // Calculate new turn rate
+        int iDecay = (pEngine->iMaxTurnRate << 8) - (32 * pEngine->iTurnDecayRate);
+        int iAbsSteer = abs(iSteeringValue);
+        iTurnRate = (iDecay * iAbsSteer) / iMaxSteering;
       }
-      send_mes(v28, v27, v23);
-      goto LABEL_105;
+
+      // Apply turn rate and clamp
+      iSteeringValue += iTurnRate;
+      if (iSteeringValue > iMaxSteering) iSteeringValue = iMaxSteering;
+    } else if (keys[byRightKey]) {
+      // Process right steering (mirror of left)
+      int iTurnRate = rud_turn[iPlayer];
+
+      if (iTurnRate <= 0) {
+        iTurnRate -= 32 * pEngine->iTurnDecayRate;
+      } else {
+        int iDecay = (pEngine->iMaxTurnRate << 8) - (32 * pEngine->iTurnDecayRate);
+        int iAbsSteer = abs(iSteeringValue);
+        iTurnRate = -(iDecay * iAbsSteer) / iMaxSteering;
+      }
+
+      iSteeringValue += iTurnRate;
+      if (iSteeringValue < -iMaxSteering) iSteeringValue = -iMaxSteering;
+    } else {
+      // Center steering when no input
+      rud_turn[iPlayer] = -1;
+      int iCentering = pEngine->iWheelCenteringRate << 8;
+
+      if (iSteeringValue > 0) {
+        iSteeringValue -= iCentering;
+        if (iSteeringValue < 0) iSteeringValue = 0;
+      } else if (iSteeringValue < 0) {
+        iSteeringValue += iCentering;
+        if (iSteeringValue > 0) iSteeringValue = 0;
+      }
     }
   }
-LABEL_106:
-  LOWORD(v23) = result | v23;
-  rud_strat[v1] = -1;
-LABEL_107:
-  if (I_Want_Out && !already_quit) {
-    I_Want_Out = 0;
-    already_quit = -1;
-    result = wConsoleNode;
-    if (wConsoleNode == master)
-      BYTE1(v23) |= 8u;
-    else
-      BYTE1(v23) |= 4u;
+
+  // Update steering state
+  rud_swheel[iPlayer] = iSteeringValue;
+
+  // Build button flags
+  if (iAccelState > 0) iButtonFlags |= 0x01;  // Accelerate flag
+  if (iAccelState < 0) iButtonFlags |= 0x02;  // Brake flag
+
+  // Process special buttons
+  uint8 bySpecialKey = iPlayer ? userkey[USERKEY_P2CHEAT] : userkey[USERKEY_P2DOWNGEAR];  // P2downgear or P2cheat
+  if ((bySpecialKey > 0x83 && joyvalue[bySpecialKey] > 0xC8) ||
+      (bySpecialKey <= 0x83 && keys[bySpecialKey])) {
+    iButtonFlags |= 0x20;  // Special action flag
   }
-  user_inp_variable_1 = v23;
-  return result;*/
+
+  // Process gear shifting
+  uint8 byGearUpKey = userkey[iKeyOffset + 4];
+  uint8 byGearDownKey = userkey[iKeyOffset + 5];
+  int iGearChange = 0;
+
+  if ((byGearUpKey > 0x83 && joyvalue[byGearUpKey] > 0xC8) ||
+      (byGearUpKey <= 0x83 && keys[byGearUpKey])) {
+    iGearChange = 1;
+    iButtonFlags |= 0x04;  // Gear up flag
+  }
+  if ((byGearDownKey > 0x83 && joyvalue[byGearDownKey] > 0xC8) ||
+      (byGearDownKey <= 0x83 && keys[byGearDownKey])) {
+    iGearChange = -1;
+    iButtonFlags |= 0x08;  // Gear down flag
+  }
+
+  // Update gear state
+  if (iGearChange != 0) {
+    rud_gr[iPlayer] = -1;  // Gear changed
+  }
+
+  // Process strategy buttons (F1-F4)
+  if (lastsample < 0) {
+    int iStrategyFlags = 0;
+    if (keys[63]) iStrategyFlags |= 0x40;   // F1
+    if (keys[64]) iStrategyFlags |= 0x80;   // F2
+    if (keys[65]) iStrategyFlags |= 0x100;  // F3
+    if (keys[66]) iStrategyFlags |= 0x200;  // F4
+
+    // Handle network messages for strategy buttons
+    if (iStrategyFlags) {
+      rud_strat[iPlayer] = -1;  // Mark strategy button pressed
+
+      if (network_on) {
+        int iTargetNode = network_mes_mode;
+
+        // Validate target node for messaging
+        if (iTargetNode >= 0) {
+          if (human_control[iTargetNode]) {
+            iTargetNode = car_to_player[iTargetNode];
+          } else {
+            iTargetNode = -2;  // Invalid target
+          }
+        }
+
+        // Send message if valid target and player hasn't finished
+        if (iTargetNode > -2 && !finished_car[player1_car]) {
+          int iMessageType = -1;
+
+          // Map strategy flags to message types
+          if (iStrategyFlags & 0x40) iMessageType = 0;      // F1 -> Message 0
+          else if (iStrategyFlags & 0x80) iMessageType = 1; // F2 -> Message 1
+          else if (iStrategyFlags & 0x100) iMessageType = 2; // F3 -> Message 2
+          else if (iStrategyFlags & 0x200) iMessageType = 3; // F4 -> Message 3
+
+          if (iMessageType != -1) {
+            send_mes(iMessageType, iTargetNode);
+          }
+        }
+      }
+
+      // Add strategy flags to button state
+      iButtonFlags |= iStrategyFlags;
+    } else {
+      // Strategy buttons not pressed
+      rud_strat[iPlayer] = 0;
+    }
+  }
+
+  // Handle quit request
+  if (I_Want_Out && !already_quit) {
+    already_quit = -1;
+    if (wConsoleNode == master) {
+      iButtonFlags |= 0x0800;  // Master quit flag
+    } else {
+      iButtonFlags |= 0x0400;  // Client quit flag
+    }
+  }
+
+  // Store final input state
+  user_inp[iPlayer] = (iButtonFlags << 16) | (iSteeringValue & 0xFFFF); //user_inp[0] =?
 }
 
 //-------------------------------------------------------------------------------------------------

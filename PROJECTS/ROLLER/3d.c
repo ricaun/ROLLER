@@ -37,6 +37,7 @@ uint32 mem_used;            //000A32E8
 int gosound = 3;            //000A3334
 int current_mode = 666;     //000A333C
 int names_on = 1;           //000A3340
+tCarEngine *p_eng[2] = { NULL, NULL }; //000A3498
 int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
 int paused = 0;             //000A34C4
@@ -61,6 +62,8 @@ float ptan[16384];          //001110F0
 float tcos[16384];          //00121128
 char buffer[128];           //00131228
 uint8 blank_line[640];      //001312A8
+int p_joyk1[2];             //0013E048
+int p_joyk2[2];             //0013E050
 tMemBlock mem_blocks[128];  //0013E058
 volatile int ticks;         //0013E92C
 float tatn[1025];           //0013E95C
@@ -99,7 +102,9 @@ int fatal_ini_loaded;       //0013FADC
 int machine_speed;          //0013FAE0
 int netCD;                  //0013FAE4
 int localCD;                //0013FAE8
+int I_Want_Out;             //0013FAF0
 int winner_mode;            //0013FB08
+int network_mes_mode;       //0013FB0C
 int network_slot;           //0013FB14
 int w95;                    //0013FB30
 int winh;                   //0013FB68

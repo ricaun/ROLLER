@@ -2,6 +2,7 @@
 #define _ROLLER_3D_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include "engines.h"
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
@@ -59,6 +60,7 @@ extern int hibuffers;
 extern uint32 mem_used;
 extern int current_mode;
 extern int names_on;
+extern tCarEngine *p_eng[2];
 extern int SVGA_ON;
 extern int TrackLoad;
 extern int paused;
@@ -83,6 +85,8 @@ extern float ptan[16384];
 extern float tcos[16384];
 extern char buffer[128];
 extern uint8 blank_line[640];
+extern int p_joyk1[2];
+extern int p_joyk2[2];
 extern tMemBlock mem_blocks[128];
 extern volatile int ticks;
 extern float tatn[1025];
@@ -121,7 +125,9 @@ extern int fatal_ini_loaded;
 extern int machine_speed;
 extern int netCD;
 extern int localCD;
+extern int I_Want_Out;
 extern int winner_mode;
+extern int network_mes_mode;
 extern int network_slot;
 extern int w95;
 extern int winh;

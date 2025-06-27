@@ -40,7 +40,7 @@ uint8 mapping[] =           //000A3AF8
   0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 int twoparter = 0;          //000A3B78
-tUserKey userkey = { 44u, 45u, 20u, 33u, 19u, 32u, 79u, 80u, 73u, 77u, 72u, 76u, 21u, 79u }; //000A410C
+int userkey[14] = {44u, 45u, 20u, 33u, 19u, 32u, 79u, 80u, 73u, 77u, 72u, 76u, 21u, 79u}; //000A410C
 uint8 key_buffer[64];       //0013FB90
 char config_buffer[8192];   //0013FBD8
 char language_buffer[8192]; //00141BD8
@@ -3256,20 +3256,20 @@ void save_fatal_config()
     fprintf(fp, "Size=%d\n", 2 * game_size);
   fprintf(fp, "View=%i\n", game_view[0]);
   fprintf(fp, "Names=%i\n", names_on ? 1 : 0);
-  fprintf(fp, "P1left=%i\n", userkey.byP1left);
-  fprintf(fp, "P1right=%i\n", userkey.byP1right);
-  fprintf(fp, "P1up=%i\n", userkey.byP1up);
-  fprintf(fp, "P1down=%i\n", userkey.byP1down);
-  fprintf(fp, "P1upgear=%i\n", userkey.byP1upgear);
-  fprintf(fp, "P1downgear=%i\n", userkey.byP1downgear);
-  fprintf(fp, "P1cheat=%i\n", userkey.byP2downgear);
-  fprintf(fp, "P2left=%i\n", userkey.byP1cheat);
-  fprintf(fp, "P2right=%i\n", userkey.byP2left);
-  fprintf(fp, "P2up=%i\n", userkey.byP2right);
-  fprintf(fp, "P2down=%i\n", userkey.byP2up);
-  fprintf(fp, "P2upgear=%i\n", userkey.byP2down);
-  fprintf(fp, "P2downgear=%i\n", userkey.byP2upgear);
-  fprintf(fp, "P2cheat=%i\n", userkey.byP2cheat);
+  fprintf(fp, "P1left=%i\n", userkey[USERKEY_P1LEFT]);
+  fprintf(fp, "P1right=%i\n", userkey[USERKEY_P1RIGHT]);
+  fprintf(fp, "P1up=%i\n", userkey[USERKEY_P1UP]);
+  fprintf(fp, "P1down=%i\n", userkey[USERKEY_P1DOWN]);
+  fprintf(fp, "P1upgear=%i\n", userkey[USERKEY_P1UPGEAR]);
+  fprintf(fp, "P1downgear=%i\n", userkey[USERKEY_P1DOWNGEAR]);
+  fprintf(fp, "P1cheat=%i\n", userkey[USERKEY_P1CHEAT]);
+  fprintf(fp, "P2left=%i\n", userkey[USERKEY_P2LEFT]);
+  fprintf(fp, "P2right=%i\n", userkey[USERKEY_P2RIGHT]);
+  fprintf(fp, "P2up=%i\n", userkey[USERKEY_P2UP]);
+  fprintf(fp, "P2down=%i\n", userkey[USERKEY_P2DOWN]);
+  fprintf(fp, "P2upgear=%i\n", userkey[USERKEY_P2UPGEAR]);
+  fprintf(fp, "P2downgear=%i\n", userkey[USERKEY_P2DOWNGEAR]);
+  fprintf(fp, "P2cheat=%i\n", userkey[USERKEY_P2CHEAT]);
   fprintf(fp, "Joy1X=%i\n", x1ok != 0);
   fprintf(fp, "Joy1Y=%i\n", y1ok != 0);
   fprintf(fp, "Joy2X=%i\n", x2ok != 0);
@@ -3452,20 +3452,20 @@ void load_fatal_config()
       getconfigvalue(pData, "Names", &names_on, 0, 2);
 
       // Read keyboard mappings
-      getconfigvalueuc(pData, "P1left", &userkey.byP1left, 0, 139);
-      getconfigvalueuc(pData, "P1right", &userkey.byP1right, 0, 139);
-      getconfigvalueuc(pData, "P1up", &userkey.byP1up, 0, 139);
-      getconfigvalueuc(pData, "P1down", &userkey.byP1down, 0, 139);
-      getconfigvalueuc(pData, "P1upgear", &userkey.byP1upgear, 0, 139);
-      getconfigvalueuc(pData, "P1downgear", &userkey.byP1downgear, 0, 139);
-      getconfigvalueuc(pData, "P1cheat", &userkey.byP1cheat, 0, 139);
-      getconfigvalueuc(pData, "P2left", &userkey.byP2left, 0, 139);
-      getconfigvalueuc(pData, "P2right", &userkey.byP2right, 0, 139);
-      getconfigvalueuc(pData, "P2up", &userkey.byP2up, 0, 139);
-      getconfigvalueuc(pData, "P2down", &userkey.byP2down, 0, 139);
-      getconfigvalueuc(pData, "P2upgear", &userkey.byP2upgear, 0, 139);
-      getconfigvalueuc(pData, "P2downgear", &userkey.byP2downgear, 0, 139);
-      getconfigvalueuc(pData, "P2cheat", &userkey.byP2cheat, 0, 139);
+      getconfigvalueuc(pData, "P1left",     (uint8 *)&userkey[USERKEY_P1LEFT], 0, 139);
+      getconfigvalueuc(pData, "P1right",    (uint8 *)&userkey[USERKEY_P1RIGHT], 0, 139);
+      getconfigvalueuc(pData, "P1up",       (uint8 *)&userkey[USERKEY_P1UP], 0, 139);
+      getconfigvalueuc(pData, "P1down",     (uint8 *)&userkey[USERKEY_P1DOWN], 0, 139);
+      getconfigvalueuc(pData, "P1upgear",   (uint8 *)&userkey[USERKEY_P1UPGEAR], 0, 139);
+      getconfigvalueuc(pData, "P1downgear", (uint8 *)&userkey[USERKEY_P1DOWNGEAR], 0, 139);
+      getconfigvalueuc(pData, "P1cheat",    (uint8 *)&userkey[USERKEY_P1CHEAT], 0, 139);
+      getconfigvalueuc(pData, "P2left",     (uint8 *)&userkey[USERKEY_P2LEFT], 0, 139);
+      getconfigvalueuc(pData, "P2right",    (uint8 *)&userkey[USERKEY_P2RIGHT], 0, 139);
+      getconfigvalueuc(pData, "P2up",       (uint8 *)&userkey[USERKEY_P2UP], 0, 139);
+      getconfigvalueuc(pData, "P2down",     (uint8 *)&userkey[USERKEY_P2DOWN], 0, 139);
+      getconfigvalueuc(pData, "P2upgear",   (uint8 *)&userkey[USERKEY_P2UPGEAR], 0, 139);
+      getconfigvalueuc(pData, "P2downgear", (uint8 *)&userkey[USERKEY_P2DOWNGEAR], 0, 139);
+      getconfigvalueuc(pData, "P2cheat",    (uint8 *)&userkey[USERKEY_P2CHEAT], 0, 139);
 
       // Read joystick configuration
       int iTemp;

@@ -42,6 +42,7 @@ extern void *title_vga;
 extern void *front_vga[16];
 extern char player_names[16][9];
 extern int champorder[16];
+extern int human_control[16];
 extern int total_wins[16];
 extern int allocated_cars[14];
 extern int total_kills[16];
