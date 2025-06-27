@@ -337,7 +337,7 @@ void loadsamples();
 void loadfatalsample();
 void freefatalsample();
 void releasesamples();
-int play();
+void play();
 void stop();
 void devicespecificinit();
 int initgus();

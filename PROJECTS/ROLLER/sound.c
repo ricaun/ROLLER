@@ -1489,21 +1489,17 @@ void releasesamples()
 
 //-------------------------------------------------------------------------------------------------
 
-int play()
+void play()
 {
-  return 0; /*
-  int result; // eax
-
   if (musicon) {
     if (SongPtr) {
-      InitSong_variable_1 = __DS__;
-      InitSong = SongPtr;
-      InitSong_variable_3 = 0;
-      InitSong_variable_2 = 0;
-      return sosMIDIStartSong(SongHandle);
+      //InitSong.nSection = __DS__;
+      //InitSong.pData = (void *)SongPtr;
+      //InitSong.nUnk2 = 0;
+      //InitSong.iUnk1 = 0;
+      //return sosMIDIStartSong(*(int *)&SongHandle);
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
