@@ -4109,54 +4109,31 @@ void modexclearscreen()
 
 void copyscreenmodex(uint8 *pSrc, uint8 *pDest)
 {
-  /*
-  int v3; // esi
-  int v4; // edi
-  int v5; // ebx
-  uint8 *v6; // eax
-  uint8 *v7; // edx
-  uint8 *v8; // edx
-  uint8 v9; // cl
-  uint8 *v10; // eax
-  uint8 v11; // cl
-  uint8 v12; // cl
-  uint8 v13; // cl
-  uint8 v14; // cl
+  int x, iBlock;
+  for (x = 0; x < 320; x++) {
+    int iPlane = x & 3;               // Determine current plane (0-3)
+    int iPlaneMask = 1 << iPlane;     // Create bit mask for the plane
 
-  v3 = 0;
-  v4 = 0;
-  do {
-    __outbyte(0x3C4u, 2u);
-    v5 = 0;
-    __outbyte(0x3C5u, 1 << (v3 & 3));
-    v6 = &pSrc[v4];
-    v7 = &pDest[v3 >> 2];
-    do {
-      v8 = v7 + 80;
-      v9 = *v6;
-      v10 = v6 + 640;
-      v5 += 5;
-      *(v8 - 80) = v9;
-      v8 += 80;
-      v11 = *v10;
-      v10 += 640;
-      *(v8 - 80) = v11;
-      v8 += 80;
-      v12 = *v10;
-      v10 += 640;
-      *(v8 - 80) = v12;
-      v8 += 80;
-      v13 = *v10;
-      v10 += 640;
-      *(v8 - 80) = v13;
-      v7 = v8 + 80;
-      v14 = *v10;
-      v6 = v10 + 640;
-      *(v7 - 80) = v14;
-    } while (v5 < 400);
-    ++v3;
-    v4 += 2;
-  } while (v3 < 320);*/
+    // Set VGA sequencer map mask
+    //outportb(0x3C4, 2);              // Select map mask register
+    //outportb(0x3C5, iPlaneMask);     // Enable writes to current plane
+
+    unsigned char *pSrcCol = pSrc + (x << 1);  // Source column (every other pixel)
+    unsigned char *pDestCol = pDest + (x >> 2); // Destination column group
+
+    // Process 80 blocks (each block = 5 rows)
+    for (iBlock = 0; iBlock < 80; iBlock++) {
+        // Write 5 rows in unrolled fashion
+      pDestCol[0]   = pSrcCol[0];     // Row 0
+      pDestCol[80]  = pSrcCol[640];   // Row 1
+      pDestCol[160] = pSrcCol[1280];  // Row 2
+      pDestCol[240] = pSrcCol[1920];  // Row 3
+      pDestCol[320] = pSrcCol[2560];  // Row 4
+
+      pSrcCol += 3200;  // Advance source by 5 rows (5 * 640)
+      pDestCol += 400;   // Advance destination by 5 rows (5 * 80)
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
