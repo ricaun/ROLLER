@@ -113,15 +113,15 @@ void title_screens()
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
 #if _DEBUG
-  cheat_mode = 0x202; // enable speech in debug mode
+  cheat_mode = CHEAT_MODE_DEATH_MODE; // enable speech in debug mode
 #endif
   copypic(scrbuf, (uint8 *)screen);
   loadfatalsample();
   fade_palette(32);
-  if ((cheat_mode & 0x202) != 0)
+  if ((cheat_mode & (CHEAT_MODE_KILLER_OPPONENTS | CHEAT_MODE_DEATH_MODE)) != 0)
     dospeechsample(SOUND_SAMPLE_FATAL, 0x8000);
   disable_keyboard();
-  if ((cheat_mode & 0x202) != 0)
+  if ((cheat_mode & (CHEAT_MODE_KILLER_OPPONENTS | CHEAT_MODE_DEATH_MODE)) != 0)
     waitsampledone(SOUND_SAMPLE_FATAL);
 #if _DEBUG
   //loadtracksample(1);

@@ -1606,76 +1606,73 @@ void setdirectory(const char *szAppPath)
 
 //-------------------------------------------------------------------------------------------------
 
-int FindShades()
+void FindShades()
 {
-  return 0;
-  /*
-  int v0; // ecx
-  int v1; // edi
-  int v2; // esi
-  int v3; // ebp
-  int v4; // esi
-  int v5; // edx
-  int v6; // edi
-  int v7; // ebx
-  int v8; // ecx
-  int v9; // eax
-  int result; // eax
-  int v11; // [esp+0h] [ebp-34h]
-  int v12; // [esp+4h] [ebp-30h]
-  int v13; // [esp+8h] [ebp-2Ch]
-  int v14; // [esp+Ch] [ebp-28h]
-  int v15; // [esp+10h] [ebp-24h]
-  int v16; // [esp+18h] [ebp-1Ch]
+  int iMaxOffset = 0x401;      // Initial max offset for inner loop
+  int iColorIdx = 1;           // Color index (1-255)
+  int iColor = 3;              // Palette byte offset (starts at color index 1)
 
-  v12 = 1;
-  v11 = 1025;
-  v13 = 3;
-  do {
-    v0 = (unsigned __int8)palette[v13];
-    v1 = (unsigned __int8)palette_variable_1[v13];
-    v2 = (unsigned __int8)palette_variable_2[v13];
-    v16 = v0 / 5;
-    v14 = v1 / 5;
-    v15 = v2 / 5;
-    v3 = v12;
-    do {
-      v0 -= v16;
-      if (v0 < 0)
-        v0 = 0;
-      v1 -= v14;
-      if (v1 < 0)
-        v1 = 0;
-      v2 -= v15;
-      if (v2 < 0)
-        v2 = 0;
-      v3 += 256;
-      TrackScreenXYZ_variable_12[v3] = nearest_colour(v0, v1, v2);
-    } while (v3 != v11);
-    v4 = (unsigned __int8)palette[v13];
-    v5 = (unsigned __int8)palette_variable_1[v13];
-    v6 = (unsigned __int8)palette_variable_3 - v4;
-    v7 = (unsigned __int8)palette_variable_2[v13];
-    if (v6 < -15)
-      v6 = -15;
-    if (v6 > 15)
-      v6 = 15;
-    v8 = (unsigned __int8)palette_variable_4 - v5;
-    if (v8 < -15)
-      v8 = -15;
-    if (v8 > 15)
-      v8 = 15;
-    v9 = (unsigned __int8)palette_variable_5 - v7;
-    if (v9 < -15)
-      v9 = -15;
-    if (v9 > 15)
-      v9 = 15;
-    result = nearest_colour(v6 + v4, v8 + v5, v9 + v7);
-    shade_palette_variable_1[v12++] = result;
-    v13 += 3;
-    ++v11;
-  } while (v12 < 256);
-  return result;*/
+  while (iColorIdx < 256) {      // Process 255 colors (1-255)
+    // Read base color components
+    uint8 byR0 = palette[iColor].byR;
+    uint8 byG0 = palette[iColor].byG;
+    uint8 byB0 = palette[iColor].byB;
+
+    // Calculate step sizes for shading
+    int32 iStepR = byR0 / 5;
+    int32 iStepB = byB0 / 5;
+    int32 iStepG = byG0 / 5;
+
+    // Initialize current color values
+    int32 iCurrentR = byR0;
+    int32 iCurrentB = byB0;
+    int32 iCurrentG = byG0;
+
+    // Generate 4 progressive shades
+    int32 iCurrentOffset = iColorIdx;
+    while (iCurrentOffset <= iMaxOffset) {
+      // Reduce components and clamp to 0
+      iCurrentR -= iStepR;
+      if (iCurrentR < 0) iCurrentR = 0;
+
+      iCurrentB -= iStepB;
+      if (iCurrentB < 0) iCurrentB = 0;
+
+      iCurrentG -= iStepG;
+      if (iCurrentG < 0) iCurrentG = 0;
+
+      // Find nearest palette index and store in shade block
+      int iColorIdx = nearest_colour(iCurrentR, iCurrentB, iCurrentG);
+      shade_palette[iCurrentOffset] = iColorIdx;
+
+      // Move to next shade block (256-byte stride)
+      iCurrentOffset += 256;
+    }
+
+    // Generate special blend shade using color 0xDB (teal in PALETTE.PAL) as reference
+    int iDeltaR = palette[0xDB].byR - byR0;
+    int iDeltaB = palette[0xDB].byB - byB0;
+    int iDeltaG = palette[0xDB].byG - byG0;
+
+    // Clamp deltas to [-15, 15]
+    iDeltaR = (iDeltaR < -15) ? -15 : (iDeltaR > 15) ? 15 : iDeltaR;
+    iDeltaB = (iDeltaB < -15) ? -15 : (iDeltaB > 15) ? 15 : iDeltaB;
+    iDeltaG = (iDeltaG < -15) ? -15 : (iDeltaG > 15) ? 15 : iDeltaG;
+
+    // Calculate blended color
+    int iBlendR = byR0 + iDeltaR;
+    int iBlendB = byB0 + iDeltaB;
+    int iBlendG = byG0 + iDeltaG;
+
+    // Store in Block 4 (overwriting last progressive shade)
+    uint8 byBlendIdx = nearest_colour(iBlendR, iBlendB, iBlendG);
+    shade_palette[iColorIdx + 0x400] = byBlendIdx;
+
+    // Update control variables for next color
+    iColorIdx++;
+    iMaxOffset++;
+    iColor += 3;  // Advance to next color in palette
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

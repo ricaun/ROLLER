@@ -15,36 +15,36 @@ typedef struct
 {
   tVec3 pos;
   int16 nCurrChunk;
-  int16 nUnk4;
-  int16 nUnk5;
-  int16 nUnk6;
-  int16 nDirection;
+  int16 nChunk2;
+  int16 nRoll;
+  int16 nPitch;
+  int16 nYaw;
   int16 nPadding1;
   float fMaxSpeed;
+  float fUnk4;
+  int iUnk5;
+  int iUnk6;
+  int iUnk7;
+  int iUnk8;
   float fUnk9;
+  tVec3 pos2;
+  int nYaw3;
   int iUnk10;
-  int iUnk11;
-  int iUnk12;
-  int iUnk13;
-  int iUnk14;
-  tVec3 pos2; //used in collision detection
-  int iUnk15;
-  int iUnk16;
   int iUnk17;
   int iUnk18;
-  int iPadding2;
+  int iUnk18_2;
   float fUnk19;
   int iPadding3;
   int iUnk20;
-  int iPadding4;
+  int iUnk20_2;
   int16 nUnk21;
   uint8 byCarDesignIdx;
   uint8 byUnk23;
   uint8 byUnk24;
   uint8 byPadding5;
   int16 nUnk25;
-  int iPadding6;
-  float fUnk26;
+  int iUnk25_2;
+  float fMaxSpeed2;
   int iUnk27;
   float fUnk28;
   float fPower;
@@ -54,16 +54,16 @@ typedef struct
   uint8 byUnk33;
   int iUnk34;
   int iUnk35;
-  int iPadding7;
-  int iPadding8;
+  int iUnk35_2;
+  int iUnk35_3;
   int iUnk36;
-  int iPadding9;
+  int iUnk36_2;
   int iUnk37;
   int iUnk38;
-  int iPadding10;
-  int iPadding11;
-  int iPadding12;
-  int iPadding13;
+  int iUnk38_1;
+  int iUnk38_2;
+  int iUnk38_3;
+  int iUnk38_4;
   float fUnk39;
   uint8 byUnk40;
   uint8 byUnk41;
@@ -77,7 +77,7 @@ typedef struct
   int iUnk49;
   int iUnk50;
   int iUnk51;
-  int iUnk52;
+  float iUnk52;
   float fUnk53;
   int iUnk54;
   int iUnk55;
@@ -101,12 +101,14 @@ typedef struct
   int16 nUnk71;
   int iUnk72;
   float fUnk73;
-  int iPadding16;
+  int iUnk73_2;
   int iUnk74;
   uint8 byUnk75;
   uint8 byUnk76;
-  int16 nPadding17;
+  uint8 byUnk77;
+  uint8 byPadding17;
 } tCar;
+
 
 //-------------------------------------------------------------------------------------------------
 

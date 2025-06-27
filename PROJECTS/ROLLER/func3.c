@@ -4311,7 +4311,7 @@ void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int 
     // Process each column
     for (int j = 0; j < pSrc[iBlockIdx].iWidth; ++pDestItr) {
       uint8 byColor = *pPixelData++;
-      if (iX < 0x280 && (iTransparentColor < 0 || byColor != iTransparentColor))
+      if (iX < 640 && (iTransparentColor < 0 || byColor != iTransparentColor))
         *pDestItr = byColor;
       ++iX;
       ++j;

@@ -56,6 +56,7 @@ int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
 tData localdata[500];       //000BEA10
 tGroundPt GroundPt[500];    //000CE410
+uint8 shade_palette[4096];  //000FFDD0
 tColor palette[256];        //00100DD0
 float tsin[16384];          //001010F0
 float ptan[16384];          //001110F0

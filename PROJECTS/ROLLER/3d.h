@@ -79,6 +79,7 @@ extern int firstrun;
 extern int language;
 extern tData localdata[500];
 extern tGroundPt GroundPt[500];
+extern uint8 shade_palette[4096];
 extern tColor palette[256];
 extern float tsin[16384];
 extern float ptan[16384];
