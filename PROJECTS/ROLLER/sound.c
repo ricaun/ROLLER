@@ -116,7 +116,7 @@ volatile int frames;        //0016F694
 char Song[20][15];          //0016F708
 uint32 tickhandle;          //0016F834
 DPMI_RMI RMI;               //0016F838
-int user_inp[2];            //0016F87C
+int user_inp;               //0016F87C
 int nummusictracks;         //0016F8A8
 int winchampsong;           //0016F8AC
 int winsong;                //0016F8B0
@@ -548,7 +548,7 @@ void readuserdata(int iPlayer)
 {
   // Skip processing during countdown phase
   if (countdown >= 140) {
-    user_inp[iPlayer] = 0;//user_inp[0] =?
+    user_inp = 0;
     return;
   }
 
@@ -558,7 +558,7 @@ void readuserdata(int iPlayer)
 
   // Early exit if no engine data
   if (!pEngine) {
-    user_inp[iPlayer] = 0;//user_inp[0] =?
+    user_inp = 0;
     return;
   }
 
@@ -744,7 +744,7 @@ void readuserdata(int iPlayer)
   }
 
   // Store final input state
-  user_inp[iPlayer] = (iButtonFlags << 16) | (iSteeringValue & 0xFFFF); //user_inp[0] =?
+  user_inp = (iButtonFlags << 16) | (iSteeringValue & 0xFFFF);
 }
 
 //-------------------------------------------------------------------------------------------------

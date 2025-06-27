@@ -287,7 +287,7 @@ extern volatile int frames;
 extern char Song[20][15];
 extern uint32 tickhandle;
 extern DPMI_RMI RMI;
-extern int user_inp[2];
+extern int user_inp;
 extern int nummusictracks;
 extern int winchampsong;
 extern int winsong;
