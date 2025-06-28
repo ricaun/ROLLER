@@ -50,7 +50,14 @@ void name_copy(char *szDest, char *szSrc);
 void loadtracksample(int track_number);
 void front_letter(tBlockHeader *pFont, uint8 byCharIdx, int *iX, int *iY, const char *szStr, uint8 byColorReplace);
 int scale_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6, int a7);
-int front_text(int a1, uint8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8);
+void front_text(tBlockHeader *pFont,
+                const char *szText,
+                const uint8 *mappingTable,
+                int *pCharVOffsets,
+                int iX,
+                int iY,
+                uint8 byColorReplace,
+                int iAlignment);
 uint8 scale_text(int a1, char *a2, int a3,  int a4, int a5, int a6, char a7, unsigned int a8, int a9, int a10);
 int clear_screen(int a1, int a2);
 void display_picture(void *pDest, const void *pSrc);

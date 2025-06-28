@@ -4081,68 +4081,86 @@ int scale_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6, int a7)
 
 //-------------------------------------------------------------------------------------------------
 
-int front_text(int a1, uint8 *a2, int a3, int a4, int a5, int a6, char a7, unsigned int a8)
+void front_text(
+    tBlockHeader *pFont,
+    const char *szText,
+    const uint8 *mappingTable,
+    int *pCharVOffsets,
+    int iX,
+    int iY,
+    uint8 byColorReplace,
+    int iAlignment)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7); (void)(a8);
-  return 0;
-  /*
-  unsigned __int8 *v9; // esi
-  int result; // eax
-  int v12; // edx
-  int v13; // ebx
-  int v14; // ebx
-  int v15; // [esp+0h] [ebp-20h]
-  int v16; // [esp+4h] [ebp-1Ch] BYREF
-  int v17; // [esp+8h] [ebp-18h] BYREF
-  int v18; // [esp+Ch] [ebp-14h]
-  int v19; // [esp+10h] [ebp-10h]
+  int iCurrX = iX;
+  int iCurrY = iY;
+  const char *p = szText;
 
-  v9 = a2;
-  v18 = a4;
-  result = (int)a2;
-  v17 = a5;
-  v16 = a6;
-  if (a8 && a8 <= 2) {
-    v12 = 0;
-    if (*v9) {
-      do {
-        v13 = *(unsigned __int8 *)result++;
-        v14 = *(unsigned __int8 *)(a3 + v13);
-        if (v14 == 255)
-          v12 += 8;
-        else
-          v12 += *(_DWORD *)(12 * v14 + a1) + 1;
-      } while (*(_BYTE *)result);
+  // Precompute text width for alignment
+  if (iAlignment == 1 || iAlignment == 2) {
+    int iTotalWidth = 0;
+    const char *q = p;
+
+    while (*q) {
+      uint8 c = *q++;
+      uint8 byMapped = mappingTable[c];
+
+      if (byMapped == 0xFF) {
+        iTotalWidth += 8;  // Tab-like character
+      } else {
+        // Get character width from font data
+        tBlockHeader *pBlock = &pFont[byMapped];
+        iTotalWidth += pBlock->iWidth + 1;  // Width + 1px spacing
+      }
     }
-    if (a8 == 2) {
-      v17 -= v12;
-    } else {
-      result = v12 / 2;
-      v17 -= v12 / 2;
+
+    // Apply alignment adjustment
+    if (iAlignment == 2) {      // Right alignment
+      iCurrX -= iTotalWidth;
+    } else if (iAlignment == 1) { // Center alignment
+      iCurrX -= iTotalWidth / 2;
     }
   }
-  v19 = 0;
-  do {
-    LOBYTE(result) = *v9;
-    if (*v9) {
-      if ((_BYTE)result != 10) {
-        result = *v9;
-        if (*(_BYTE *)(a3 + result) == 0xFF) {
-          v17 += 8;
-        } else {
-          v15 = v16;
-          v16 += *(_DWORD *)(v18 + 4 * *(unsigned __int8 *)(a3 + *v9));
-          front_letter(a1, *v9, &v17, &v16, a3, a7);
-          result = v15;
-          v16 = v15;
-        }
-      }
+
+  // Render each character
+  int iContinue = 1;
+  while (iContinue) {
+    uint8 c = *p;
+
+    if (c == '\0') {  // End of string
+      iContinue = -1;  // Set exit flag
+    } else if (c == '\n') {  // Newline character
+        // Skip to next character (no rendering)
     } else {
-      v19 = -1;
+      uint8 byMapped = mappingTable[c];
+
+      if (byMapped == 0xFF) {  // Special character (tab-like)
+        iCurrX += 8;
+      } else {
+        // Get vertical offset for this character
+        int iVOffset = pCharVOffsets[byMapped];
+
+        // Calculate character-specific Y position
+        int iCharY = iCurrY + iVOffset;
+
+        // Draw the character
+        front_letter(
+            pFont,          // Font data
+            c,              // Character to draw
+            &iCurrX,        // Current X position (updated)
+            &iCharY,        // Character-specific Y position
+            mappingTable,   // Character mapping
+            byColorReplace  // Color replacement
+        );
+      }
     }
-    ++v9;
-  } while (!v19);
-  return result;*/
+
+    p++;  // Move to next character
+
+    // Exit loop if end flag is set
+    if (iContinue == -1) {
+      break;
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
