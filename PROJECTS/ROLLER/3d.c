@@ -44,7 +44,7 @@ int paused = 0;             //000A34C4
 int network_on = 0;         //000A3510
 int mirror = 0;             //000A3524
 void *screen = NULL; //= 0xA0000; //000A3538
-void *scrbuf = NULL;        //000A353C
+uint8 *scrbuf = NULL;        //000A353C
 void *mirbuf = NULL;        //000A3540
 void *texture_vga = NULL;   //000A3544
 void *building_vga = NULL;  //000A3548

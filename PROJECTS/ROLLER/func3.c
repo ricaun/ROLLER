@@ -3982,46 +3982,44 @@ void loadtracksample(int track_number)
 
 //-------------------------------------------------------------------------------------------------
 
-void *front_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6)
+void front_letter(tBlockHeader *pFont, uint8 byCharIdx, int *iX, int *iY, const char *szStr, uint8 byColorReplace)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a6); (void)(a5);
-  return 0;
-  /*
-  int v6; // edx
-  _DWORD *result; // eax
-  int v8; // esi
-  int v9; // ebp
-  char *v10; // ebx
-  char *v11; // eax
-  int i; // edi
-  int j; // edx
-  char v14; // cl
+  // Get character from string
+  uint8 c = szStr[byCharIdx];
 
-  v6 = *(unsigned __int8 *)(a5 + a2);
-  if (v6 == 255) {
-    result = a3;
-    *a3 += 8;
-  } else {
-    v8 = *(_DWORD *)(a1 + 12 * v6);
-    v9 = *(_DWORD *)(a1 + 12 * v6 + 4);
-    v10 = (char *)(a1 + *(_DWORD *)(a1 + 12 * v6 + 8));
-    v11 = (char *)(*a3 + scrbuf + 640 * *a4);
-    for (i = 0; i < v9; v11 += 640 - v8) {
-      for (j = 0; j < v8; ++v11) {
-        v14 = *v10++;
-        if (v14) {
-          if (v14 == -113)
-            v14 = a6;
-          *v11 = v14;
-        }
-        ++j;
-      }
-      ++i;
-    }
-    result = a3;
-    *a3 += v8 + 1;
+  // Handle special character 0xFF (tab)
+  if (c == 0xFF) {
+    *iX += 8;
+    return;
   }
-  return result;*/
+
+  // Get character data from font
+  tBlockHeader *pBlock = &pFont[c];
+  uint8 *pPixelData = (uint8 *)pFont + pBlock->iDataOffset;
+
+  // Calculate screen position
+  uint8 *pDest = &scrbuf[*iX + *iY * 640];
+
+  // Draw character
+  for (int y = 0; y < pBlock->iHeight; y++) {
+    for (int x = 0; x < pBlock->iWidth; x++) {
+      uint8 byPixel = *pPixelData++;
+
+      if (byPixel != 0) {  // Skip transparent pixels
+        if (byPixel == 0x8F) {  // Special color replacement
+          *pDest = byColorReplace;
+        } else {
+          *pDest = byPixel;
+        }
+      }
+      pDest++;
+    }
+    // Move to next screen row
+    pDest += 640 - pBlock->iWidth;
+  }
+
+  // Update x position (character width + 1 pixel spacing)
+  *iX = *iX + pBlock->iWidth + 1;
 }
 
 //-------------------------------------------------------------------------------------------------

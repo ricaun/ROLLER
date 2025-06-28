@@ -67,7 +67,7 @@ extern int paused;
 extern int network_on;
 extern int mirror;
 extern void *screen;
-extern void *scrbuf;
+extern uint8 *scrbuf;
 extern void *mirbuf;
 extern void *texture_vga;
 extern void *building_vga;
