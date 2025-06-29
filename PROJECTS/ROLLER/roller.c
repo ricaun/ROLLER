@@ -342,11 +342,28 @@ void MIDIDigi_Shutdown()
   WildMidi_Shutdown();
 }
 
-int MIDIMasterVolume = 127; // Default master volume (0-127)
+void MIDIInitSong(tInitSong *data)
+{
+  SDL_Log("MIDIInitSong: TODO - Length: %i", data->iLength);
+  MIDIDigi_PlayBuffer(((uint8 *)data->pData), data->iLength);
+}
+
+void MIDIStartSong()
+{
+  SDL_Log("MIDIStartSong: TODO");
+}
+
+void MIDIStopSong()
+{
+  SDL_Log("MIDIStopSong: TODO");
+  MIDIDigi_ClearBuffer();
+}
+
+int8 MIDIMasterVolume = 127; // Default master volume (0-127)
 /// <summary>
 /// Set the master volume for MIDI playback. (0-127)
 /// </summary>
-void MIDISetMasterVolume(int volume)
+void MIDISetMasterVolume(int8 volume)
 {
   if (volume > 127) volume = 127;
   if (volume < 0) volume = 0;
