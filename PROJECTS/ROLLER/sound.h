@@ -196,7 +196,7 @@ typedef struct
   void *pData;
   int nUnk2;
   int iUnk1;
-  int32 iLength; // add by ROLLER: length of the song in bytes
+  int iLength; // add by ROLLER: length of the data song in bytes
 } tInitSong;
 
 //-------------------------------------------------------------------------------------------------
