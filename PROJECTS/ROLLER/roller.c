@@ -164,7 +164,7 @@ int InitSDL()
   }
 
   // Initialize MIDI with WildMidi
-  if (!MIDIDigi_Init("./midi/wildmidi.cfg")) {
+  if (!MIDI_Init("./midi/wildmidi.cfg")) {
     SDL_Log("Failed to initialize WildMidi. Please check your configuration file ./midi/wildmidi.cfg.");
   }
 
@@ -175,7 +175,7 @@ int InitSDL()
 
 void ShutdownSDL()
 {
-  MIDIDigi_Shutdown();
+  MIDI_Shutdown();
 
   if (g_pController1) SDL_CloseGamepad(g_pController1);
   if (g_pController2) SDL_CloseGamepad(g_pController2);
@@ -268,10 +268,10 @@ void MIDI_AudioStreamCallback(void *userdata, SDL_AudioStream *stream, int addit
   }
 }
 
-bool MIDIDigi_Init(const char *config_file)
+bool MIDI_Init(const char *config_file)
 {
   long version = WildMidi_GetVersion();
-  SDL_Log("Initializing libWildMidi %ld.%ld.%ld",
+  SDL_Log("MIDI_Init: Initializing libWildMidi %ld.%ld.%ld",
                       (version >> 16) & 255,
                       (version >> 8) & 255,
                       (version) & 255);
@@ -280,7 +280,7 @@ bool MIDIDigi_Init(const char *config_file)
   uint16_t mixer_options = 0;
 
   if (WildMidi_Init(config_file, rate, mixer_options) == -1) {
-    SDL_Log("WildMidi_GetError: %s", WildMidi_GetError());
+    SDL_Log("MIDI_Init: WildMidi_GetError: %s", WildMidi_GetError());
     WildMidi_ClearError();
     return false;
   }
@@ -362,31 +362,46 @@ void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
 
 void MIDIDigi_ClearBuffer()
 {
-  if (midi_stream != NULL) {
+  if (midi_stream) {
     SDL_PauseAudioStreamDevice(midi_stream);
     SDL_ClearAudioStream(midi_stream);
   }
+  MIDI_CloseMidiBuffer();
 }
 
-void MIDIDigi_Shutdown()
+void MIDI_Shutdown()
 {
-  if (midi_stream != NULL) {
+  if (midi_stream) {
     SDL_PauseAudioStreamDevice(midi_stream);
     SDL_DestroyAudioStream(midi_stream);
     midi_stream = NULL;
   }
+  MIDI_CloseMidiBuffer();
   WildMidi_Shutdown();
 }
 
-void MIDIInitSong(tInitSong *data)
+/// <summary>
+/// Close midi buffer
+/// </summary>
+void MIDI_CloseMidiBuffer()
 {
-  SDL_Log("MIDIInitSong: Midi - Length: %i", data->iLength);
-  //MIDIDigi_PlayBuffer(((uint8 *)data->pData), data->iLength);
-
   if (midi_music) {
     WildMidi_Close(midi_music);
     midi_music = NULL;
   }
+}
+
+/// <summary>
+/// Initializes a MIDI song for playback using the provided song data.
+/// This function closes any currently loaded MIDI song, opens the new song buffer,
+/// enables looping, logs song information, and sets the audio stream volume.
+/// </summary>
+/// <param name="data">Pointer to a tInitSong structure containing the MIDI song data and its length.</param>
+void MIDIInitSong(tInitSong *data)
+{
+  SDL_Log("MIDIInitSong: Midi - Length: %i", data->iLength);
+
+  MIDI_CloseMidiBuffer();
 
   midi_music = WildMidi_OpenBuffer(((uint8 *)data->pData), data->iLength);
   if (!midi_music) {
@@ -454,7 +469,7 @@ void MIDISetMasterVolume(int8 volume)
   if (volume < 0) volume = 0;
   MIDIMasterVolume = volume;
 
-  SDL_Log("ROLLER_MIDISetMasterVolume: %i", volume);
+  SDL_Log("MIDISetMasterVolume: %i", volume);
 
   float master_volume = (float)volume / 127.0f; // Normalize to [0.0, 1.0] range
 
