@@ -114,7 +114,7 @@ int InitSDL()
   const char *home_dir = SDL_GetBasePath();
   if (home_dir) {
     chdir(home_dir);
-    SDL_free((void*)home_dir);
+    SDL_free((void *)home_dir);
   }
 
   // check if the ./FATDATA/FATAL.INI to ensure the game can run
@@ -195,7 +195,7 @@ void playMusic()
   uint8 *songBuffer;
   uint32 songLen;
   SDL_Log("Song[%i]: %s", songId, Song[songId]);
-  loadfile((const char *)&Song[songId], (void*)&songBuffer, &songLen, 0);
+  loadfile((const char *)&Song[songId], (void *)&songBuffer, &songLen, 0);
   MIDIDigi_PlayBuffer(songBuffer, songLen);
   free(songBuffer);
   songId = (songId + 1) % 9;
@@ -242,6 +242,31 @@ void UpdateSDL()
 #define MIDI_RATE 44100 // not sure if this is the correct rate
 SDL_AudioStream *midi_stream;
 float midi_volume;
+midi *midi_music;
+
+void MIDI_AudioStreamCallback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
+{
+  //int available = SDL_GetAudioStreamAvailable(stream);
+  //SDL_Log("MIDI_AudioStreamCallback[%i]: %i - %i", available, additional_amount, total_amount);
+
+  //if (available != 0) return;
+
+  if (midi_music) {
+    void *output_buffer;
+    int32_t res = 0;
+    uint32_t samples = total_amount;
+
+    output_buffer = malloc(samples);
+    if (output_buffer != NULL)
+      memset(output_buffer, 0, samples);
+
+    if ((res = WildMidi_GetOutput(midi_music, output_buffer, samples)) > 0) {
+      SDL_PutAudioStreamData(stream, output_buffer, res);
+    }
+
+    free(output_buffer);
+  }
+}
 
 bool MIDIDigi_Init(const char *config_file)
 {
@@ -265,7 +290,7 @@ bool MIDIDigi_Init(const char *config_file)
   wav_spec.freq = MIDI_RATE;
   wav_spec.format = SDL_AUDIO_S16;
 
-  midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, NULL, NULL);
+  midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, MIDI_AudioStreamCallback, NULL);
   midi_volume = 1.0f; // Default volume
 
   return true;
@@ -278,6 +303,11 @@ void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
     SDL_Log("WildMidi_OpenBuffer failed: %s", WildMidi_GetError());
     return;
   }
+
+  // Enable Loop
+  WildMidi_SetOption(midi_ptr, WM_MO_LOOP, WM_MO_LOOP);
+  // Disable Loop
+  WildMidi_SetOption(midi_ptr, WM_MO_LOOP, 0);
 
   struct _WM_Info *wm_info = WildMidi_GetInfo(midi_ptr);
   if (wm_info) {
@@ -314,7 +344,13 @@ void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length)
     while ((res = WildMidi_GetOutput(midi_ptr, output_buffer, samples)) > 0) {
       SDL_PutAudioStreamData(stream, output_buffer, res);
       total_pcm_bytes += res;
+      if (total_pcm_bytes > 64e6) {
+        SDL_Log("MIDIDigi_PlayBuffer: Stopping put audio stream due to large buffer size.");
+        break;
+      }
     }
+
+    free(output_buffer);
 
     SDL_ResumeAudioStreamDevice(stream);
 
@@ -344,19 +380,68 @@ void MIDIDigi_Shutdown()
 
 void MIDIInitSong(tInitSong *data)
 {
-  SDL_Log("MIDIInitSong: TODO - Length: %i", data->iLength);
-  MIDIDigi_PlayBuffer(((uint8 *)data->pData), data->iLength);
+  SDL_Log("MIDIInitSong: Midi - Length: %i", data->iLength);
+  //MIDIDigi_PlayBuffer(((uint8 *)data->pData), data->iLength);
+
+  if (midi_music) {
+    WildMidi_Close(midi_music);
+    midi_music = NULL;
+  }
+
+  midi_music = WildMidi_OpenBuffer(((uint8 *)data->pData), data->iLength);
+  if (!midi_music) {
+    SDL_Log("MIDIInitSong: WildMidi_OpenBuffer failed: %s", WildMidi_GetError());
+    return;
+  }
+  // Enable WildMidi_GetOutput Loop
+  WildMidi_SetOption(midi_music, WM_MO_LOOP, WM_MO_LOOP);
+
+  // Get Info
+  struct _WM_Info *wm_info = WildMidi_GetInfo(midi_music);
+  if (wm_info) {
+
+    int apr_mins = wm_info->approx_total_samples / (MIDI_RATE * 60);
+    int apr_secs = (wm_info->approx_total_samples % (MIDI_RATE * 60)) / MIDI_RATE;
+
+    SDL_Log("MIDIInitSong: Approx %2um %2us Total", apr_mins, apr_secs);
+
+    SDL_Log("MIDIInitSong: Total Samples %i", wm_info->approx_total_samples);
+    SDL_Log("MIDIInitSong: Current Samples %i", wm_info->current_sample);
+    SDL_Log("MIDIInitSong: Total Midi time %i", wm_info->total_midi_time);
+    SDL_Log("MIDIInitSong: Mix Options %i", wm_info->mixer_options);
+  }
+
+  if (!midi_stream) {
+    SDL_Log("MIDIInitSong: 'midi_stream' is not initialized.");
+    return;
+  }
+
+  // Set Volume Stream
+  float master_volume = (float)MIDIGetMasterVolume() / 127.0f; // Normalize to [0.0, 1.0] range
+  SDL_SetAudioStreamGain(midi_stream, midi_volume * master_volume); // Set the gain for the audio stream
+  SDL_Log("MIDIInitSong: Volume: %f", midi_volume * master_volume);
 }
 
 void MIDIStartSong()
 {
-  SDL_Log("MIDIStartSong: TODO");
+  if (!midi_stream) {
+    SDL_Log("MIDIStartSong: 'midi_stream' is not initialized.");
+    return;
+  }
+
+  SDL_Log("MIDIStartSong: Play Audio Stream.");
+  SDL_ResumeAudioStreamDevice(midi_stream);
 }
 
 void MIDIStopSong()
 {
-  SDL_Log("MIDIStopSong: TODO");
-  MIDIDigi_ClearBuffer();
+  if (!midi_stream) {
+    SDL_Log("MIDIStopSong: 'midi_stream' is not initialized.");
+    return;
+  }
+
+  SDL_Log("MIDIStopSong: Pause Audio Stream.");
+  SDL_PauseAudioStreamDevice(midi_stream);
 }
 
 int8 MIDIMasterVolume = 127; // Default master volume (0-127)
