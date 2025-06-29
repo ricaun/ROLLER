@@ -502,29 +502,29 @@ int DIGISampleStart(tSampleData *data)
     }
   }
   if (index < 0) {
-    SDL_Log("No available audio stream slots for digital sample.");
+    SDL_Log("DIGISampleStart: No available audio stream slots for digital sample.");
     return index; // No available stream slots
   }
 
   float volume = (float)data->iVolume / 0x7FFF; // Convert volume to [0.0, 1.0] range
   // show data info
-  SDL_Log("ROLLER_DIGIStartSample: %i, length: %i, offset: %i, volume: %f, pitch: %i, pan: %i", data->iSampleIndex, data->iLength, data->iByteOffset, volume, data->iPitch, data->iPan);
+  SDL_Log("DIGISampleStart: %i, length: %i, offset: %i, volume: %f, pitch: %i, pan: %i", data->iSampleIndex, data->iLength, data->iByteOffset, volume, data->iPitch, data->iPan);
 
   if (!digi_stream[index]) {
     SDL_AudioSpec spec;
     spec.channels = 1; // Mono
     spec.freq = 11025; // Sample rate
     spec.format = SDL_AUDIO_U8; // 8-bit unsigned audio
-    SDL_Log("ROLLER_DIGIStartSample: channels: %i, freq: %i, format: %i", spec.channels, spec.freq, spec.format);
+    SDL_Log("DIGISampleStart: channels: %i, freq: %i, format: %i", spec.channels, spec.freq, spec.format);
     digi_stream[index] = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
     if (!digi_stream[index]) {
-      SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
+      SDL_Log("DIGISampleStart: Couldn't create audio stream: %s", SDL_GetError());
       return -1;
     }
   }
 
   SDL_AudioDeviceID device = SDL_GetAudioStreamDevice(digi_stream[index]);
-  SDL_Log("ROLLER_DIGIStartSample: device: %u", device);
+  SDL_Log("DIGISampleStart: device: %u", device);
 
   // Set pitch in the stream
   SDL_SetAudioStreamFrequencyRatio(digi_stream[index], 1.0); // pitch
@@ -540,7 +540,7 @@ int DIGISampleStart(tSampleData *data)
   SDL_PutAudioStreamData(digi_stream[index], ((Uint8 *)data->pSample), data->iLength);
   SDL_ResumeAudioStreamDevice(digi_stream[index]);
 
-  SDL_Log("ROLLER_DIGIStartSample: index: %d", index);
+  SDL_Log("DIGISampleStart: index: %d", index);
   return index;
 }
 
@@ -575,7 +575,7 @@ void DIGISetMasterVolume(int volume)
   if (volume < 0) volume = 0;
   DIGIMasterVolume = volume;
 
-  SDL_Log("ROLLER_DIGISetMasterVolume: %x", volume);
+  SDL_Log("DIGISetMasterVolume: %x", volume);
 
   float normalized_volume = (float)volume / 0x7FFF; // Normalize to [0.0, 1.0] range
 
@@ -598,7 +598,7 @@ int DIGIGetMasterVolume()
 void DIGIStopSample(int index)
 {
   if (index < 0 || index >= NUM_DIGI_STREAMS) {
-    SDL_Log("Invalid stream index: %d", index);
+    SDL_Log("DIGIStopSample: Invalid stream index: %d", index);
     return;
   }
 
