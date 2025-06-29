@@ -76,7 +76,6 @@ int holdmusic = 0;          //000A4A4C
 int start_cd;               //0013FA9C 
 uint8 unmangleinbuf[1024];  //00149EF0
 uint8_t *musicbuffer;       //0014EBF8
-uint32_t musiclength; //Add by ROLLER
 int lastvolume[16];         //001603F8
 int lastpitch[16];          //00160438
 int lastpan[16];            //00160478
@@ -3227,6 +3226,7 @@ void startmusic(int iSong)
   }
 
   if (musicon) {
+    uint32_t musiclength;
     loadfile((const char *)&Song[GMSong[iMusic]], (void *)&musicbuffer, &musiclength, 0);
     SongPtr = (int)&musicbuffer;
     if (&musicbuffer) {
@@ -3238,13 +3238,8 @@ void startmusic(int iSong)
       MIDIInitSong(&InitSong);
       free(musicbuffer);
 
-      if (musicon) {
-        if (SongPtr) {
-          // Play the song in the MIDI system
-          MIDIStartSong();
-        }
-      }
-
+      // Play the song in the MIDI system
+      MIDIStartSong();
     }
   }
   /*
