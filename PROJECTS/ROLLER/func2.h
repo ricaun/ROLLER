@@ -22,6 +22,21 @@ typedef enum
   USERKEY_P2CHEAT = 13
 } eUserKey;
 
+
+//-------------------------------------------------------------------------------------------------
+
+struct DPMI_MemInfo
+{
+  uint32 largestFreeBlock;
+  uint32 maxUnlockedPages;
+  uint32 maxLockedPages;
+  uint32 totalLinearPages;
+  uint32 totalUnlockedPages;
+  uint32 totalFreePages;
+  uint32 totalPhysicalPages;
+  uint32 freeLinearPages;
+};
+
 //-------------------------------------------------------------------------------------------------
 
 extern int write_key;
@@ -59,7 +74,7 @@ int fatkbhit();
 int fatgetch();
 void release_key_int();
 int clear_border(int a1, int a2, int a3, int a4);
-int DisplayFree();
+void DisplayFree();
 void setdirectory(const char *szAppPath);
 void FindShades();
 int nearest_colour(int iR, int iB, int iG);

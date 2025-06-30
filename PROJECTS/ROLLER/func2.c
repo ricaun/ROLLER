@@ -1525,37 +1525,31 @@ int clear_border(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int DisplayFree()
+void DisplayFree()
 {
-  return 0;
-  /*
-  int result; // eax
-  int v1; // [esp+0h] [ebp-88h] BYREF
-  int v2; // [esp+1Ch] [ebp-6Ch]
-  _DWORD v3[7]; // [esp+50h] [ebp-38h] BYREF
-  _WORD v4[14]; // [esp+6Ch] [ebp-1Ch] BYREF
-
-  memset(v4, 0, 12);
-  v3[0] = 1280;
-  v4[0] = __DS__;
-  v3[5] = &v1;
-  int386x(49, (int)v3, (int)v3, (int)v4);
-  printf(aLargestBlockD);
-  printf(aTotalFreeD);
-  no_mem = 0;
-  lots_of_mem = 0;
-  if (v2 << 12 >= 4500000) {
-    result = printf(aRunning8MegVer);
-    gfx_size = 0;
-    lots_of_mem = -1;
-  } else {
-    printf(aRunning4MegVer);
-    gfx_size = 1;
-    result = v2 << 12;
-    if (v2 << 12 < 2000000)
-      no_mem = -1;
-  }
-  return result;*/
+  //DPMI_MemInfo memInfo; // [esp+0h] [ebp-88h] BYREF
+  //union REGS regs; // [esp+50h] [ebp-38h] BYREF
+  //struct SREGS sregs; // [esp+6Ch] [ebp-1Ch] BYREF
+  //
+  //memset(&sregs, 0, sizeof(sregs));
+  //regs.x.eax = 0x500;
+  //sregs.es = __DS__;
+  //regs.x.edi = (unsigned int)&memInfo;
+  //int386x(0x31, &regs, &regs, &sregs);
+  //printf("\nLargest block: %d\n", memInfo.largestFreeBlock);
+  //printf("Total free   : %d\n\n", memInfo.freeLinearPages << 12);
+  //no_mem = 0;
+  //lots_of_mem = 0;
+  //if ((int)(memInfo.freeLinearPages << 12) >= 4500000) {
+  //  printf("RUNNING 8 MEG VERSION.\n");
+  //  gfx_size = 0;
+  //  lots_of_mem = -1;
+  //} else {
+  //  printf("RUNNING 4 MEG VERSION.\n");
+  //  gfx_size = 1;
+  //  if ((int)(memInfo.freeLinearPages << 12) < 2000000)
+  //    no_mem = -1;
+  //}
 }
 
 //-------------------------------------------------------------------------------------------------
