@@ -55,7 +55,7 @@ int MusicVolume = 108;      //000A4790
 int MusicCard = 0;          //000A4794
 int MusicCD = 0;            //000A4798
 int MusicPort = 0;          //000A479C
-int SongPtr = 0;            //000A47A0
+uint8 *SongPtr = NULL;      //000A47A0
 int SongHandle = 0;         //000A47A4
 int CDSong[20] = { 10, 10, 10, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0 }; //000A47A8
 int GMSong[21] = { 0, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0 }; //000A47F8
@@ -75,7 +75,7 @@ int bitaccept = 0;          //000A4A40
 int holdmusic = 0;          //000A4A4C
 int start_cd;               //0013FA9C 
 uint8 unmangleinbuf[1024];  //00149EF0
-uint8_t *musicbuffer;       //0014EBF8
+uint8 *musicbuffer;         //0014EBF8
 int lastvolume[16];         //001603F8
 int lastpitch[16];          //00160438
 int lastpan[16];            //00160478
@@ -3228,7 +3228,7 @@ void startmusic(int iSong)
   if (musicon) {
     uint32_t musiclength;
     loadfile((const char *)&Song[GMSong[iMusic]], (void *)&musicbuffer, &musiclength, 0);
-    SongPtr = (int)&musicbuffer;
+    SongPtr = musicbuffer;
     if (&musicbuffer) {
       // Init song in the MIDI system
       tInitSong InitSong = {

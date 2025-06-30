@@ -276,7 +276,7 @@ extern int MusicVolume;
 extern int MusicCard;
 extern int MusicCD;
 extern int MusicPort;
-extern int SongPtr;
+extern uint8 *SongPtr;
 extern int SongHandle;
 extern int CDSong[20];
 extern int GMSong[21];
