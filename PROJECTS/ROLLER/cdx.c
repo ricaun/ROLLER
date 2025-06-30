@@ -24,8 +24,10 @@ void *iobuffer;           //001A1CEC
 void *cdbuffer;           //001A1CF0
 int16 ioselector;         //001A1E88
 int16 cdselector;         //001A1E8C
-int drive;                //001A1F9F
+tIOControlBlock io;       //001A1ED0
+DPMI_RMI RMIcd;           //001A1EEC
 char volscale[129];       //001A1F1E
+int drive;                //001A1F9F
 
 //-------------------------------------------------------------------------------------------------
 
@@ -128,31 +130,40 @@ void GetCDStatus()
 
 void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 {
-  /*
-  char *v3; // edi
+  char *pIoBuffer; // edi
 
-  io_variable_2 = bySubCommand;
-  io_variable_3 = 0;
-  io_variable_8 = 0;
-  io = uiSize + 13;
-  io_variable_1 = 0;
-  io_variable_5 = 0;
-  io_variable_9 = 0;
-  io_variable_7 = uiSize;
-  qmemcpy(cdbuffer, pBuffer, uiSize);
-  v3 = (char *)iobuffer;
-  io_variable_6 = (int)((char *)cdbuffer - __CFSHL__((int)cdbuffer >> 31, 4) + -16 * ((int)cdbuffer >> 31)) >> 4 << 16;
-  qmemcpy(iobuffer, &io, 0x18u);
-  qmemcpy(v3 + 24, &io + 24, 2u);
+  io.bySubCommand = bySubCommand;
+  io.unFlags2 = 0;
+  io.unCount = 0;
+  io.byCommand = uiSize + 13;
+  io.byFlags1 = 0;
+  io.byStatus = 0;
+  io.uiLba = 0;
+  io.unSector = uiSize;
+
+  // Copy input buffer to CD buffer
+  memcpy(cdbuffer, pBuffer, uiSize);
+  pIoBuffer = (char *)iobuffer;
+
+  // segment_of(cdbuffer)
+  int32 addr = (int32)(int64)cdbuffer;
+  int32 sign_mask = addr >> 31;
+  int32 adjustment = sign_mask & 15;
+  int32 segment = (addr + adjustment) >> 4;
+  io.uiDataOffset = (uint32)segment << 16;
+
+  memcpy(iobuffer, &io, sizeof(tIOControlBlock));
+
+  // Prepare real mode call structure
   memset(&RMIcd, 0, sizeof(RMIcd));
-  RMIcd.ecx = (unsigned __int8)drive;
+  RMIcd.ecx = (uint8)drive;           // CD drive number
   RMIcd.ebx = 0;
-  RMIcd.es = (int)((char *)iobuffer - __CFSHL__((int)iobuffer >> 31, 4) + -16 * ((int)iobuffer >> 31)) >> 4;
-  RMIcd.eax = 5392;
-  intRM(0x2Fu);
-  qmemcpy(pBuffer, cdbuffer, uiSize);
-  qmemcpy(&io, iobuffer, 0x18u);
-  qmemcpy(&io + 24, (char *)iobuffer + 24, 2u);*/
+  RMIcd.es = (uint16)(((int64)iobuffer + ((int64)iobuffer < 0 ? 15 : 0)) >> 4); // segment_of(iobuffer)
+  RMIcd.eax = 0x1510;                           // (Function: Get CD-ROM Drive Information)
+  intRM(0x2Fu);                                 // Get address of the driver for a specific CD-ROM drive
+  memcpy(pBuffer, cdbuffer, uiSize);
+
+  memcpy(&io, iobuffer, sizeof(tIOControlBlock));
 }
 
 //-------------------------------------------------------------------------------------------------
