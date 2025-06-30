@@ -24,11 +24,13 @@ int last_track;           //001A1B50
 int first_track;          //001A1B54
 int sector_size;          //001A1B58
 int tracklengths[99];     //001A1B5C
+int track_duration;       //001A1CE8
 void *iobuffer;           //001A1CEC
 void *cdbuffer;           //001A1CF0
 int trackstarts[99];      //001A1CF8
 int16 ioselector;         //001A1E88
 int16 cdselector;         //001A1E8C
+tAudioControlParams play; //001A1EB8
 tIOControlBlock io;       //001A1ED0
 DPMI_RMI RMIcd;           //001A1EEC
 char volscale[129];       //001A1F1E
@@ -253,56 +255,53 @@ void GetAudioInfo()
 
 //-------------------------------------------------------------------------------------------------
 
-int PlayTrack(int a1)
+void PlayTrack(int iTrack)
 {
-  return 0; /*
-  int result; // eax
+  // Prepare audio control structure
+  play.byPlayFlag = 1;
+  play.uiStartSector = trackstarts[iTrack];
+  play.uiSectorCount = tracklengths[iTrack];
 
-  play_variable_4 = 1;
-  play_variable_5 = trackstarts[a1];
-  play_variable_6 = tracklengths[a1];
-  AudioIOCTL(132, -1);
+  // Execute audio command
+  AudioIOCTL(0x84u);
+
+  // Update global state
   track_playing = -1;
-  result = tracklengths[a1];
-  last_audio_track = a1;
-  track_duration = result;
-  return result;*/
+  last_audio_track = iTrack;
+  track_duration = tracklengths[iTrack];
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int PlayTrack4(int a1)
+void PlayTrack4(int iStartTrack)
 {
-  return 0; /*
-  int v2; // ebx
-  int v3; // ecx
-  int v4; // ecx
-  int v5; // ebx
-  int result; // eax
+  // Calculate total duration of four tracks
+  uint32 uiTotalDuration = tracklengths[iStartTrack] +
+    tracklengths[iStartTrack + 1] + tracklengths[iStartTrack + 2] + tracklengths[iStartTrack + 3];
 
-  v2 = tracklengths[a1];
-  v3 = tracklengths_variable_1[a1];
-  play_variable_4 = 1;
-  v4 = v3 + v2 + tracklengths_variable_2[a1];
-  v5 = tracklengths_variable_3[a1];
-  play_variable_5 = trackstarts[a1];
-  track_duration = v5 + v4;
-  play_variable_6 = v5 + v4;
-  result = AudioIOCTL(132, a1);
-  track_playing = -1;
-  last_audio_track = a1;
-  return result;*/
+  // Prepare audio control structure
+  play.byPlayFlag = 1;  // Play command flag
+  play.uiStartSector = trackstarts[iStartTrack];  // Start sector
+  play.uiSectorCount = uiTotalDuration;  // Sector count
+
+  // Execute audio command
+  AudioIOCTL(0x84);  // 0x84 = Play Audio command
+
+  // Update global state
+  track_duration = uiTotalDuration;
+  track_playing = -1; // Indicate track is starting
+  last_audio_track = iStartTrack;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void RepeatTrack()
-{/*
-  play.subCmd.reserved2[8] = 1;
-  play.subCmd.start_lba = trackstarts[last_audio_track];
-  play.subCmd.duration = track_duration;
+{
+  play.byPlayFlag = 1;
+  play.uiStartSector = trackstarts[last_audio_track];
+  play.uiSectorCount = track_duration;
   AudioIOCTL(0x84u);
-  track_playing = -1;*/
+  track_playing = -1;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -340,26 +339,33 @@ int SetAudioVolume(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-void AudioIOCTL(uint8 bySubCommand)
+void AudioIOCTL(uint8 bySubcommand)
 {
-  /*
-  char *pIoBuffer; // edi
+  // Prepare audio control structure
+  play.byCommand = 0x16;            // Audio command group
+  play.bySubcommand = bySubcommand; // Specific audio function
+  play.byParam0 = 0;                // Clear parameter 1
+  play.unParam1 = 0;                // Clear parameter 2
 
-  pIoBuffer = (char *)iobuffer;
-  play_variable_2 = bySubCommand;
-  play = 0x16;                                  // Send Audio Command
-  play_variable_1 = 0;
-  play_variable_3 = 0;
-  qmemcpy(iobuffer, &play, 0x14u);
-  qmemcpy(pIoBuffer + 20, (char *)&play + 20, 2u);
-  memset(&RMIcd, 0, sizeof(RMIcd));
-  RMIcd.ecx = (unsigned __int8)drive;           // CD drive number
-  RMIcd.eax = 0x1510;                           //  (Function: Get CD-ROM Drive Information)
-  RMIcd.es = (int)((char *)iobuffer - __CFSHL__((int)iobuffer >> 31, 4) + -16 * ((int)iobuffer >> 31)) >> 4;// segment_of(iobuffer)
-  RMIcd.ebx = 0;
-  intRM(0x2Fu);                                 // Get address of the driver for a specific CD-ROM drive
-  qmemcpy(&play, iobuffer, 0x14u);
-  qmemcpy((char *)&play + 20, (char *)iobuffer + 20, 2u);*/
+  // Copy control structure to I/O buffer
+  memcpy(iobuffer, &play, sizeof(tAudioControlParams));
+
+  // Prepare DPMI request structure
+  memset(&RMIcd, 0, sizeof(DPMI_RMI));
+  RMIcd.eax = 0x1510;                  // CD-ROM IOCTL function
+  RMIcd.ecx = drive;                   // Current CD-ROM drive
+
+  // Convert linear address to segment:offset format
+  uint32 uiLinearAddr = (uint32)(uint64)iobuffer;
+  uint16 unSegment = (uiLinearAddr >> 4) & 0xFFFF;  // Segment calculation
+  RMIcd.es = unSegment;                      // Set segment register
+  RMIcd.ebx = 0;                           // Offset = 0
+
+  // Execute real-mode interrupt
+  intRM(0x2F);  // CD-ROM driver interrupt
+
+  // Copy results back from I/O buffer
+  memcpy(&play, iobuffer, sizeof(tAudioControlParams));
 }
 
 //-------------------------------------------------------------------------------------------------
