@@ -55,6 +55,19 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+#pragma pack(push, 1)
+typedef struct
+{
+  uint8 byCommand;
+  uint8 byFlags1;
+  uint8 bySubCommand;
+  uint16 unFlags2;
+  uint8 reserved[6];
+} tAudioFinished;
+#pragma pack(pop)
+
+//-------------------------------------------------------------------------------------------------
+
 extern int track_playing;
 extern int last_audio_track;
 extern int numCDdrives;
@@ -78,8 +91,8 @@ extern int drive;
 //-------------------------------------------------------------------------------------------------
 
 int FinishedAudio();
-int OpenDoor();
-void CloseDoor(int a1, int a2);
+void OpenDoor();
+void CloseDoor();
 void ResetDrive();
 void GetCDStatus();
 void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer);

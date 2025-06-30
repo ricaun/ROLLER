@@ -40,41 +40,34 @@ int drive;                //001A1F9F
 
 int FinishedAudio()
 {
-  return 0; /*
-  int result; // eax
-  char v1[20]; // [esp+0h] [ebp-14h] BYREF
+  tAudioFinished audioFinished; // [esp+0h] [ebp-14h] BYREF
+  audioFinished.byCommand = 12;
 
-  v1[0] = 12;
-  WriteIOCTL(3, 11, v1);
-  if ((io_variable_4 & 2) != 0)
+  WriteIOCTL(3u, 0xBu, &audioFinished);
+
+  // Check if audio is still playing (bit 1 of status byte)
+  if ((io.unFlags2 & 0x200) != 0)
     return 0;
-  result = -1;
+
   track_playing = 0;
-  return result;*/
+  return -1;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int OpenDoor()
+void OpenDoor()
 {
-  return 0; /*
-  _BYTE v1[12]; // [esp+0h] [ebp-Ch] BYREF
-
-  v1[0] = 0;
-  return WriteIOCTL(12, 1, v1);*/
+  uint8 byCommand = 0;  // Open door command
+  WriteIOCTL(0x0C, 1, &byCommand);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CloseDoor(int a1, int a2)
+void CloseDoor()
 {
-  /*
-  char v2[12]; // [esp+0h] [ebp-Ch] BYREF
-
-  *(_DWORD *)&v2[4] = a2;
-  v2[0] = 5;
-  WriteIOCTL(12, 1, v2);
-  ResetDrive();*/
+  uint8 byCommand = 5;  // Close door command
+  WriteIOCTL(0xCu, 1u, &byCommand);
+  ResetDrive();
 }
 
 //-------------------------------------------------------------------------------------------------
