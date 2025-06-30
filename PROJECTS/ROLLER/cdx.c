@@ -364,7 +364,7 @@ void AudioIOCTL(uint8 bySubcommand)
   intRM(0x2F);  // CD-ROM driver interrupt
 
   // Copy results back from I/O buffer
-  memcpy(&play, iobuffer, sizeof(tAudioControlParams));
+  memcpy(&playControl, iobuffer, sizeof(tAudioControlParams));
 }
 
 //-------------------------------------------------------------------------------------------------
