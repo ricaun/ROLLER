@@ -20,8 +20,13 @@ int track_playing = 0;    //000A7510
 int last_audio_track = 0; //000A7514
 int numCDdrives = 0;      //000A7518
 int firstCDdrive;         //001A1B4C
+int last_track;           //001A1B50
+int first_track;          //001A1B54
+int sector_size;          //001A1B58
+int tracklengths[99];     //001A1B5C
 void *iobuffer;           //001A1CEC
 void *cdbuffer;           //001A1CF0
+int trackstarts[99];      //001A1CF8
 int16 ioselector;         //001A1E88
 int16 cdselector;         //001A1E8C
 tIOControlBlock io;       //001A1ED0
@@ -191,62 +196,59 @@ void *AllocDOSMemory(int iSizeBytes, int16 *pOutSegment)
 
 //-------------------------------------------------------------------------------------------------
 
-int GetAudioInfo(int a1, int a2, int a3, int a4)
+void GetAudioInfo()
 {
-  return 0; /*
-  int v4; // ecx
-  int v5; // esi
-  int v6; // ebx
-  int result; // eax
-  int v8; // esi
-  int v9; // ecx
-  int v10; // edx
-  int v11; // esi
-  int v12; // edi
-  _DWORD v13[100]; // [esp+0h] [ebp-1B4h]
-  _BYTE v14[2]; // [esp+190h] [ebp-24h] BYREF
-  int v15; // [esp+192h] [ebp-22h]
-  char v16; // [esp+198h] [ebp-1Ch] BYREF
-  unsigned __int8 v17; // [esp+199h] [ebp-1Bh]
-  unsigned __int8 v18; // [esp+19Ah] [ebp-1Ah]
-  int v19; // [esp+19Bh] [ebp-19h]
-  int v20; // [esp+1ACh] [ebp-8h]
+  uint8 buffer[7];
+  uint32 track_sectors[100];  // Temporary storage for track sectors (including lead-out)
 
-  v20 = a4;
-  v16 = 10;
-  WriteIOCTL(3, 7u, &v16);
-  first_track = v17;
-  v4 = v17;
-  last_track = v18;
-  if (v17 <= (int)v18) {
-    v5 = v17;
-    do {
-      v14[0] = 11;
-      v14[1] = v4;
-      WriteIOCTL(3, 7u, v14);
-      ++v5;
-      ++v4;
-      v13[v5] = (unsigned __int8)v15 + 4500 * (v15 >> 16) + 75 * BYTE1(v15) - 150;
-      v6 = last_track;
-      thevtoc[v5] = v15;
-    } while (v4 <= v6);
+  // Read TOC header to get first/last tracks and lead-out position
+  buffer[0] = 0x0A;
+  WriteIOCTL(3, 7, buffer);
+
+  uint32 uiLeadOutPacked = *(uint32 *)&buffer[3];  // Packed MSF format
+
+  // Store first/last track numbers in global variables
+  first_track = buffer[1];
+  last_track = buffer[2];
+
+  // Process audio tracks
+  if (first_track <= last_track) {
+    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+      // Read track start position
+      buffer[0] = 0x0B;
+      buffer[1] = byTrack;
+      WriteIOCTL(3, 7, buffer);
+      uint32 uiTrackPacked = *(uint32 *)&buffer[2];  // Packed MSF format
+
+      // Convert MSF to sector number (minutes/seconds/frames)
+      uint32 uiMinutes = (uiTrackPacked >> 16) & 0xFF;
+      uint32 uiSeconds = (uiTrackPacked >> 8) & 0xFF;
+      uint32 uiFrames = uiTrackPacked & 0xFF;
+      uint32 uiSector = (uiMinutes * 4500) + (uiSeconds * 75) + uiFrames - 150;
+
+      // Store in global trackstarts array (indexed by track number)
+      trackstarts[byTrack] = uiSector;
+      // Cache sector in local array for length calculation
+      track_sectors[byTrack] = uiSector;
+    }
   }
-  result = last_track;
-  v8 = 4 * last_track;
-  v13[last_track + 2] = 4500 * (v19 >> 16) + 75 * BYTE1(v19) + (unsigned __int8)v19 - 150;
-  v9 = first_track;
-  if (first_track <= result) {
-    result = 4 * first_track;
-    v10 = v8;
-    do {
-      v11 = *(_DWORD *)((char *)&v13[2] + result);
-      v12 = *(_DWORD *)((char *)&v13[1] + result);
-      result += 4;
-      ++v9;
-      *(int *)((char *)&sector_size + result) = v11 - v12;
-    } while (result <= v10);
+
+  // Convert lead-out MSF to sectors
+  uint32 uiLeadMin = (uiLeadOutPacked >> 16) & 0xFF;
+  uint32 uiLeadSec = (uiLeadOutPacked >> 8) & 0xFF;
+  uint32 uiLeadFrame = uiLeadOutPacked & 0xFF;
+  uint32 uiLeadOutSector = (uiLeadMin * 4500) + (uiLeadSec * 75) + uiLeadFrame - 150;
+  track_sectors[last_track + 1] = uiLeadOutSector;  // Store after last track
+
+  // Calculate track lengths
+  if (first_track <= last_track) {
+    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+      // Track length = next start position - current start position
+      uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
+      // Store in global tracklengths array (indexed by track number)
+      tracklengths[byTrack] = uiLength;
+    }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

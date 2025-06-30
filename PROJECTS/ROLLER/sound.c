@@ -3209,7 +3209,7 @@ void startmusic(int iSong)
   int cdSongId; // Track ID for CD audio
   if (MusicCD && musicon) {
     ResetDrive();
-    //GetAudioInfo(audioInfo, iMusic, musicOrTitle, MusicCD);
+    GetAudioInfo();
     if (cd_cheat) {
       cdSongId = cd_cheat;
     } else {
@@ -3242,75 +3242,6 @@ void startmusic(int iSong)
       MIDIStartSong();
     }
   }
-  /*
-  int v1; // edx
-  int v2; // ebx
-  int v3; // edx
-  int v4; // eax
-  int v5; // eax
-
-  v1 = result;
-  v2 = 0;
-  if (MusicCD && track_playing) {
-    result = StopTrack();
-  } else if (MusicCard && SongPtr) {
-    stop(result, result, 0, MusicCD);
-    sosMIDIUnInitSong(SongHandle);
-    result = 0;
-    SongPtr = 0;
-  }
-  if (musicon)
-    result = sosMIDISetMasterVolume((unsigned __int8)MusicVolume);
-  if (MusicCD)
-    result = SetAudioVolume(MusicVolume);
-  if (v1 >= 0) {
-    v2 = -1;
-    result = (nummusictracks + v1 - 1) / nummusictracks;
-    v3 = (nummusictracks + v1 - 1) % nummusictracks;
-  } else {
-    v3 = -v1;
-  }
-  if (MusicCD && musicon) {
-    ResetDrive();
-    GetAudioInfo();
-    if (cd_cheat) {
-      v4 = cd_cheat;
-    } else {
-      if (v2) {
-        PlayTrack4(CDSong[v3], v3);
-      LABEL_22:
-        result = frames;
-        start_cd = frames;
-        return result;
-      }
-      v4 = CDSong[v3];
-    }
-    PlayTrack(v4, v3, v2);
-    goto LABEL_22;
-  }
-  if (musicon) {
-    initmangle((char *)&Song + 15 * GMSong[v3]);
-    v5 = loadcompactedfilepart(&musicbuffer, 1000000000);
-    result = uninitmangle(v5);
-    SongPtr = (int)&musicbuffer;
-    if (&musicbuffer) {
-      InitSong_variable_1 = __DS__;
-      InitSong_variable_3 = 0;
-      InitSong_variable_2 = 0;
-      InitSong = (int)&musicbuffer;
-      result = sosMIDIInitSong((char)&SongHandle, (unsigned __int16)__DS__);
-      if (musicon) {
-        if (SongPtr) {
-          InitSong_variable_1 = __DS__;
-          InitSong = SongPtr;
-          InitSong_variable_2 = 0;
-          InitSong_variable_3 = 0;
-          return sosMIDIStartSong(SongHandle);
-        }
-      }
-    }
-  }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
