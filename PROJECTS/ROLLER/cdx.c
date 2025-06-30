@@ -130,8 +130,6 @@ void GetCDStatus()
 
 void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 {
-  char *pIoBuffer; // edi
-
   io.bySubCommand = bySubCommand;
   io.unFlags2 = 0;
   io.unCount = 0;
@@ -143,7 +141,6 @@ void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 
   // Copy input buffer to CD buffer
   memcpy(cdbuffer, pBuffer, uiSize);
-  pIoBuffer = (char *)iobuffer;
 
   // segment_of(cdbuffer)
   int32 addr = (int32)(int64)cdbuffer;
