@@ -314,27 +314,33 @@ void StopTrack()
 
 //-------------------------------------------------------------------------------------------------
 
-int SetAudioVolume(int a1)
+void SetAudioVolume(int iVolume)
 {
-  return 0; /*
-  int v1; // eax
-  _BYTE v3[20]; // [esp+0h] [ebp-14h] BYREF
+  int iUseVolume; // eax
+  tVolumeControl volCtrl; // [esp+0h] [ebp-14h] BYREF
 
-  v1 = 2 * a1;
-  if (v1 < 1)
-    v1 = 1;
-  if (v1 > 255)
-    LOBYTE(v1) = -1;
-  v3[2] = v1;
-  v3[4] = v1;
-  v3[6] = v1;
-  v3[8] = v1;
-  v3[0] = 3;
-  v3[1] = 0;
-  v3[3] = 1;
-  v3[5] = 2;
-  v3[7] = 3;
-  return WriteIOCTL(12, 9u, v3);*/
+  // Double the volume level (range expansion)
+  iUseVolume = 2 * iVolume;
+
+  // Clamp volume to [1, 255]
+  if (iUseVolume < 1)
+    iUseVolume = 1;
+  if (iUseVolume > 255)
+    iUseVolume = 255;
+
+  // Prepare volume control struct
+  volCtrl.byVolChMaster = iUseVolume;
+  volCtrl.byVolLeft = iUseVolume;
+  volCtrl.byVolRight = iUseVolume;
+  volCtrl.unused = iUseVolume;                  // set but ignored?
+  volCtrl.byCommand = 3;
+  volCtrl.byChannelBase = 0;
+  volCtrl.byChannelLeft = 1;
+  volCtrl.byChannelRight = 2;
+  volCtrl.byTerminator = 3;
+
+  // Send volume command
+  WriteIOCTL(0xCu, 9u, &volCtrl);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -40,6 +40,21 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint8 byCommand;
+  uint8 byChannelBase;
+  uint8 byVolChMaster;
+  uint8 byChannelLeft;
+  uint8 byVolLeft;
+  uint8 byChannelRight;
+  uint8 byVolRight;
+  uint8 byTerminator;
+  uint8 unused;
+} tVolumeControl;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int track_playing;
 extern int last_audio_track;
 extern int numCDdrives;
@@ -74,7 +89,7 @@ void PlayTrack(int iTrack);
 void PlayTrack4(int iStartTrack);
 void RepeatTrack();
 void StopTrack();
-int SetAudioVolume(int a1);
+void SetAudioVolume(int iVolume);
 void AudioIOCTL(uint8 bySubCommand);
 void FreeDOSMemory(uint16 unSegment);
 void intRM(uint8 byInterruptNumber);
