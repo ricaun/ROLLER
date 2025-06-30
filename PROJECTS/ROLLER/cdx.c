@@ -30,7 +30,7 @@ void *cdbuffer;           //001A1CF0
 int trackstarts[99];      //001A1CF8
 int16 ioselector;         //001A1E88
 int16 cdselector;         //001A1E8C
-tAudioControlParams play; //001A1EB8
+tAudioControlParams playControl; //001A1EB8 renamed from "play" by ROLLER
 tIOControlBlock io;       //001A1ED0
 DPMI_RMI RMIcd;           //001A1EEC
 char volscale[129];       //001A1F1E
@@ -258,9 +258,9 @@ void GetAudioInfo()
 void PlayTrack(int iTrack)
 {
   // Prepare audio control structure
-  play.byPlayFlag = 1;
-  play.uiStartSector = trackstarts[iTrack];
-  play.uiSectorCount = tracklengths[iTrack];
+  playControl.byPlayFlag = 1;
+  playControl.uiStartSector = trackstarts[iTrack];
+  playControl.uiSectorCount = tracklengths[iTrack];
 
   // Execute audio command
   AudioIOCTL(0x84u);
@@ -280,9 +280,9 @@ void PlayTrack4(int iStartTrack)
     tracklengths[iStartTrack + 1] + tracklengths[iStartTrack + 2] + tracklengths[iStartTrack + 3];
 
   // Prepare audio control structure
-  play.byPlayFlag = 1;  // Play command flag
-  play.uiStartSector = trackstarts[iStartTrack];  // Start sector
-  play.uiSectorCount = uiTotalDuration;  // Sector count
+  playControl.byPlayFlag = 1;  // Play command flag
+  playControl.uiStartSector = trackstarts[iStartTrack];  // Start sector
+  playControl.uiSectorCount = uiTotalDuration;  // Sector count
 
   // Execute audio command
   AudioIOCTL(0x84);  // 0x84 = Play Audio command
@@ -297,9 +297,9 @@ void PlayTrack4(int iStartTrack)
 
 void RepeatTrack()
 {
-  play.byPlayFlag = 1;
-  play.uiStartSector = trackstarts[last_audio_track];
-  play.uiSectorCount = track_duration;
+  playControl.byPlayFlag = 1;
+  playControl.uiStartSector = trackstarts[last_audio_track];
+  playControl.uiSectorCount = track_duration;
   AudioIOCTL(0x84u);
   track_playing = -1;
 }
@@ -342,13 +342,13 @@ int SetAudioVolume(int a1)
 void AudioIOCTL(uint8 bySubcommand)
 {
   // Prepare audio control structure
-  play.byCommand = 0x16;            // Audio command group
-  play.bySubcommand = bySubcommand; // Specific audio function
-  play.byParam0 = 0;                // Clear parameter 1
-  play.unParam1 = 0;                // Clear parameter 2
+  playControl.byCommand = 0x16;            // Audio command group
+  playControl.bySubcommand = bySubcommand; // Specific audio function
+  playControl.byParam0 = 0;                // Clear parameter 1
+  playControl.unParam1 = 0;                // Clear parameter 2
 
   // Copy control structure to I/O buffer
-  memcpy(iobuffer, &play, sizeof(tAudioControlParams));
+  memcpy(iobuffer, &playControl, sizeof(tAudioControlParams));
 
   // Prepare DPMI request structure
   memset(&RMIcd, 0, sizeof(DPMI_RMI));

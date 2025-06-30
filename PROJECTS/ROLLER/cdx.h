@@ -54,7 +54,7 @@ extern void *cdbuffer;
 extern int trackstarts[99];
 extern int16 ioselector;
 extern int16 cdselector;
-extern tAudioControlParams play;
+extern tAudioControlParams playControl;
 extern tIOControlBlock io;
 extern DPMI_RMI RMIcd;
 extern char volscale[129];
