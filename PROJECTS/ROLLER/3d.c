@@ -451,7 +451,7 @@ void doexit()
   fre(&cargen_vga);
   fre(&texture_vga);
   fre(&building_vga);
-  fre(&scrbuf);
+  fre((void**)&scrbuf);
   release_key_int();
   Uninitialise_SOS();
   releasesamples();
