@@ -4359,9 +4359,8 @@ uint8 *load_picture(const char *szFile)
 
 //-------------------------------------------------------------------------------------------------
 
-int AllocateCars(int a1)
+int AllocateCars()
 {
-  (void)(a1);
   return 0;
   /*
   int result; // eax

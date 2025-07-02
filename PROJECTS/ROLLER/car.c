@@ -38,6 +38,7 @@ tCar Car[16];                   //0017F8F0
 int car_texs_loaded[16];        //00181E30
 tStoreEngine StoreEngines[14];  //00188200
 int finished_car[16];           //00188470
+int grid[16];                   //001884B0
 int LoadCarTextures;            //0018852C
 
 //-------------------------------------------------------------------------------------------------

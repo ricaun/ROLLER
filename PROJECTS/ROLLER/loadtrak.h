@@ -7,7 +7,9 @@
 
 extern uint8 TrackSelect;
 extern char *delims;
+extern int cur_laps[6];
 extern int meof;
+extern float cur_TrackZ;
 
 //-------------------------------------------------------------------------------------------------
 

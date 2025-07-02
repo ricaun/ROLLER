@@ -26,6 +26,7 @@
 //-------------------------------------------------------------------------------------------------
 
 int exiting = 0;            //000A3170
+int dontrestart = 0;        //000A3174
 int champ_mode = 0;         //000A3178
 int cd_error = 0;           //000A317C
 int game_svga = 0;          //000A31B0
@@ -38,6 +39,7 @@ int gosound = 3;            //000A3334
 int current_mode = 666;     //000A333C
 int names_on = 1;           //000A3340
 tCarEngine *p_eng[2] = { NULL, NULL }; //000A3498
+int messages = 0;           //000A34A8
 int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
 int paused = 0;             //000A34C4
@@ -81,6 +83,7 @@ float viewx;                //0013F9A4
 float viewy;                //0013F9A8
 float viewz;                //0013F9AC
 char keys[140];             //0013F9B4
+int oldmode;                //0013FA40
 int clear_borders;          //0013FA44
 float DDX;                  //0013FA48
 float DDY;                  //0013FA4C
@@ -92,7 +95,9 @@ int test_f3;                //0013FA60
 int print_data;             //0013FA68
 int demo_control;           //0013FA6C
 int tick_on;                //0013FA70
-int oldmode;                //0013FA74
+int old_mode;               //0013FA74
+int demo_mode;              //0013FA78
+int demo_count;             //0013FA7C
 int start_race;             //0013FA80
 int NoOfLaps;               //0013FA84
 int human_finishers;        //0013FA88

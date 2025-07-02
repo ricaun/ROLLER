@@ -6,6 +6,13 @@
 #include "sound.h"
 #include "roller.h"
 #include "car.h"
+#include "moving.h"
+#include "network.h"
+#include "loadtrak.h"
+#include "control.h"
+#include "drawtrk3.h"
+#include "cdx.h"
+#include "polytex.h"
 #include <fcntl.h>
 #include <string.h>
 #ifdef IS_WINDOWS
@@ -20,6 +27,8 @@
 //-------------------------------------------------------------------------------------------------
 
 int false_starts = -1;    //000A4AB8
+int head_x = 186;         //000A4AC0
+int head_y = 8;           //000A4AC4
 char network_messages[5][14] = { //000A4AC8
   "SLOWCOACH",
   "OUT OF MY WAY",
@@ -35,18 +44,123 @@ int player_type = 0;      //000A4CB8
 int cup_won = 0;          //000A4CBC
 int game_type = 0;        //000A4CC0
 int replay_record = 1;    //000A5304
+int last_replay = -1;     //000A5308
 int last_type = 0;        //000A530C
 int network_champ_on = 0; //000A5318
 void *font_vga = NULL;    //000A531C
 void *title_vga = NULL;   //000A5320
 void *front_vga[16] = { NULL }; //000A5324
+int font1_offsets[104] =  //000A5364
+{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, -2, 0, 0, 0, 0, 0, 0, -2, -2, 0, 0,
+  -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, -2, -2,
+  0, 0, 0, 0, 0, 0, -2, 0, -1, -4, 0, -4,
+  0, -4, -4, -4, -4, -4, -5, 0, -4, -4, -4,
+  -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 0,
+  -4, 0, -4, -4, -4, -4, -4, 0, 0, 0
+};
+char font1_ascii[256] =   //000A5504
+{
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0x24, 0x25, 0x3E, 0x27, 0x28, 0x2A, 0x3D,
+  0x2C, 0x2D, 0x2B, 0x2F, 0x3F, 0x38, 0x40, 0x41, 0x1A, 0x1B,
+  0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x32, 0x3C,
+  0x35, 0x39, 0x36, 0x37, 0x33, 0x00, 0x01, 0x02, 0x03, 0x04,
+  0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+  0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+  0x19, 0x3A, 0x43, 0x3B, 0x29, 0x2E, 0xFF, 0x00, 0x01, 0x02,
+  0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
+  0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+  0x17, 0x18, 0x19, 0x30, 0x42, 0x31, 0x34, 0xFF, 0x67, 0xFF,
+  0xFF, 0x4B, 0x4D, 0x4A, 0x4C, 0xFF, 0x52, 0x53, 0x50, 0x57,
+  0x56, 0x54, 0x4D, 0x4E, 0x51, 0x4F, 0x4F, 0x5A, 0x5C, 0x5A,
+  0x62, 0x61, 0x47, 0x5B, 0x63, 0xFF, 0x26, 0xFF, 0xFF, 0x44,
+  0x49, 0x55, 0x58, 0x60, 0x5E, 0x5E, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0x45, 0x46, 0x5D, 0x64, 0x65, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x66, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x48, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x5F, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+int font2_offsets[96] =   //000A5604
+{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, -1, 0, 0, 0, -2, 0, 0, -2, -2, 0, 0,
+  0, 0, -2, -2, 0, 0, 0, 0, 0, 0, 0, -1,
+  0, 0, 0, 0, 0, 0, 0, -2, -2, -2, -2, 0,
+  -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 0,
+  -2, -2, -2, -3, -2, -2, 0, 0, 0, 0, 0, 0
+};
+char font2_ascii[256] =     //000A5784
+{
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0x24, 0x25, 0x3C, 0x27, 0x28, 0x2A, 0x3B,
+  0x2C, 0x2D, 0x2B, 0x2F, 0x37, 0x3F, 0x38, 0x39, 0x1A, 0x1B,
+  0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x5A, 0x3A,
+  0x36, 0x40, 0x35, 0x34, 0x31, 0x00, 0x01, 0x02, 0x03, 0x04,
+  0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+  0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+  0x19, 0x3D, 0xFF, 0x3E, 0x29, 0x2E, 0xFF, 0x00, 0x01, 0x02,
+  0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
+  0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+  0x17, 0x18, 0x19, 0x32, 0xFF, 0x33, 0x30, 0xFF, 0x42, 0xFF,
+  0xFF, 0x44, 0x46, 0x43, 0xFF, 0xFF, 0xFF, 0x48, 0x59, 0x4A,
+  0xFF, 0x4B, 0xFF, 0xFF, 0x49, 0xFF, 0x41, 0x4E, 0x50, 0x4C,
+  0x56, 0x58, 0xFF, 0xFF, 0x57, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x45, 0x49, 0x4F, 0x55, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0x47, 0x54, 0x53, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x51, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x52, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+tPoint sel_posns[12] =
+{
+  { 33, 60 },
+  { 33, 82 },
+  { 33, 104 },
+  { 33, 126 },
+  { 33, 148 },
+  { 33, 170 },
+  { 33, 192 },
+  { 33, 214 },
+  { 33, 236 },
+  { 33, 258 },
+  { 33, 280 },
+  { 33, 336 }
+};
+int no_clear = 0;         //000A5E84
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
+int teamorder[8];         //0016FAA8
 int champorder[16];       //0016FAC8
+int team_wins[16];        //0016FB08
 int human_control[16];    //0016FB48
 int total_wins[16];       //0016FB88
 int allocated_cars[14];   //0016FBC8
+int team_kills[16];       //0016FC00
 int total_kills[16];      //0016FC40
+int team_points[8];       //0016FC80
+int championship_points[16]; //0016FCA0
+int team_fasts[16];       //0016FCE0
+int total_fasts[16];      //0016FD20
 int non_competitors[16];  //0016FDE0
 int player_started[16];   //0016FE20
 int player_invul[16];     //0016FE60
@@ -153,235 +267,202 @@ void copy_screens()
 
 //-------------------------------------------------------------------------------------------------
 
-void select_screen(int a1)
+void select_screen()
 {
-  (void)(a1);
-  /*
-  int v1; // ecx
-  int Cars; // eax
-  int v3; // ebp
-  int v4; // edx
-  int v5; // edi
-  int v6; // ebx
-  int v7; // eax
-  int v8; // eax
-  int Shades; // eax
-  int v10; // edx
-  int v11; // ecx
-  int i; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15; // ebx
-  int v16; // edx
-  int v17; // ebx
-  char *v18; // edx
-  int v19; // eax
-  int v20; // edx
-  int v21; // eax
-  int v22; // eax
-  __int64 v23; // rax
-  double v24; // st7
-  __int64 v25; // rtt
-  int v26; // ecx
-  int v27; // ebx
-  int v28; // ebx
-  __int64 v29; // rax
+  int iMenuSelection; // esi
+  int iContinue; // ebp
+  int iQuitConfirmed; // edi
+  int iPlayer1Car; // eax
+  int iNoClear; // eax
+  int iPlayer; // edx
+  uint8 *pBuf; // edx
+  int iPlayer1Car2; // eax
+  eCarType carType; // eax
+  eCarType carType2; // ebx
+  int iCarTexLoaded; // ecx
+  int iLoadCarTextures; // edx
+  void **ppCartexVgaItr2; // edx
+  eCarType cartype3; // eax
+  eCarType cartype4; // ebx
+  int iCarTexLoaded2; // edx
+  int v17; // eax
+  int iBlockIdx2; // ebx
+  int iPlayerIdx; // edx
+  int iPlayerIdx2; // eax
+  uint8 **v26; // edx
+  void **v27; // eax
+  eCarType v28; // eax
+  eCarType v29; // ebx
   int v30; // edx
-  int v31; // eax
+  int v31; // ecx
   int v32; // eax
-  char *v33; // edx
-  _DWORD *v34; // eax
-  _DWORD *v35; // eax
-  int v36; // eax
-  int v37; // ebx
-  int v38; // edx
-  int v39; // ecx
-  int v40; // eax
-  int v41; // edx
-  char *v42; // edx
-  _DWORD *v43; // eax
-  _DWORD *v44; // eax
-  int v45; // eax
-  int v46; // ebx
-  int v47; // edx
-  unsigned __int8 v48; // al
-  unsigned __int8 v49; // al
-  char *v50; // edx
-  int v51; // eax
-  int v52; // eax
-  int v53; // eax
-  int v54; // eax
-  int v55; // eax
-  int v56; // eax
-  int v57; // ebx
+  int v33; // edx
+  uint8 **ppCartexVgaItr_1; // edx
+  void **ppCartexVgaToFree; // eax
+  eCarType iCar; // eax
+  eCarType v38; // ebx
+  int iCartexLoaded; // ecx
+  int iLoadCarTextures_1; // edx
+  unsigned __int8 iKey; // al
+  unsigned __int8 iKey2; // al
+  void **v43; // edx
+  eCarType carType_1; // eax
+  eCarType v45; // ebx
+  int iCartexLoaded2; // edx
+  int iControl; // edx
+  uint8 **ppFrontVgaItr; // edx
+  void **pFrontVgaToFre; // eax
+  uint8 **ppCartexVgaItr; // edx
+  void **pCartexVgaToFre; // eax
+  int j; // eax
+  int v54; // edx
+  int iMaxRacerOffset; // esi
+  int iGridOffset; // ecx
+  int iRacersIdx; // esi
   int v58; // edx
-  __int16 v59; // ax
-  int v60; // edx
+  int iRacersOffset2; // ecx
+  int iMaxRacersOffset2; // edi
   int v61; // ebx
-  int v62; // eax
-  int *v63; // edx
-  int *v64; // eax
-  char *v65; // edx
-  _DWORD *v66; // eax
-  _DWORD *v67; // eax
-  int v68; // edx
-  int v69; // edx
-  int v70; // esi
-  int v71; // ecx
-  int v72; // esi
-  int v73; // ecx
-  int v74; // edi
-  int v75; // ebx
-  int v76; // esi
-  int v77; // ebp
-  int j; // ebx
-  int v79; // eax
-  int v80; // ecx
-  int v81; // eax
-  int v82; // edi
-  int k; // esi
-  int v84; // ebx
-  int v85; // ecx
-  __int64 v86; // [esp+0h] [ebp-54h]
-  int v87; // [esp+Ch] [ebp-48h]
-  int v88; // [esp+10h] [ebp-44h]
-  char *v89; // [esp+1Ch] [ebp-38h]
-  char *v90; // [esp+28h] [ebp-2Ch]
-  int v91; // [esp+2Ch] [ebp-28h]
-  int v92; // [esp+30h] [ebp-24h]
-  int v93; // [esp+34h] [ebp-20h]
+  unsigned int v62; // eax
+  int iRacers; // esi
+  int iRacersOffset; // ebp
+  int k; // ebx
+  int v69 = 0; // edi
+  int m; // esi
+  int v71; // edx
+  int v72; // ebx
+  int iGridIdx; // eax
+  int n; // eax
+  int v75; // ecx
+  int v76; // edx
+  int iInitScreen; // [esp+0h] [ebp-54h]
+  __int16 iFrames; // [esp+4h] [ebp-50h]
+  int v79; // [esp+Ch] [ebp-48h]
+  int iBlockIdx; // [esp+10h] [ebp-44h]
+  int iLoadCarTex2; // [esp+2Ch] [ebp-28h]
+  int v82; // [esp+30h] [ebp-24h]
+  int iLoadCarTextures2; // [esp+34h] [ebp-20h]
 
+  // Initialize game state
   time_to_start = 0;
   StartPressed = 0;
-  v1 = -1;
-  load_language_file((int)&aSelectEng[1], 0);
-  load_language_file((int)&aPconfigEng[1], 1);
-  LODWORD(v86) = -1;
+  load_language_file("select.eng", 0);
+  load_language_file("config.eng", 1);
+  iInitScreen = -1;
   restart_net = 0;
   if (!time_to_start) {
     while (1) {
       cup_won = (textures_off & 0x1000) != 0;
       if ((textures_off & 0x20000) != 0)
-        LOBYTE(cup_won) = cup_won | 2;
+        cup_won = cup_won | 2;
       loadfatalsample();
-      v3 = 0;
-      v87 = 0;
-      LOWORD(player1_car) = 0;
+      iContinue = 0;
+      v79 = 0;
+      player1_car = 0;
       player2_car = 1;
       if (!network_on) {
         players = 1;
-        if ((_DWORD)v86)
+        if (iInitScreen)
           tick_on = 0;
       }
       front_fade = 0;
       frontend_on = -1;
       p_tex_size = gfx_size;
-      front_vga[0] = load_picture(&aFrontendBm[1]);
-      front_vga_variable_1 = load_picture(aSelheadBm);
-      front_vga_variable_2 = load_picture(&aFont2Bm[1]);
-      front_vga_variable_3 = load_picture(&aCarnamesBm[3]);
-      front_vga_variable_4 = load_picture(aOpticon2Bm);
-      front_vga_variable_5 = load_picture(aSeliconsBm);
-      front_vga_variable_6 = load_picture(aSelexitBm);
-      front_vga_variable_10 = load_picture(&aZfont1Bm[1]);
-      v4 = v86;
-      fade_palette(0, v86, 1, v1);
-      v5 = 0;
+
+      // Load graphical assets
+      front_vga[0] = load_picture("frontend.bm");
+      front_vga[1] = load_picture("selhead.bm");
+      front_vga[2] = load_picture("font2.bm");
+      front_vga[3] = load_picture("carnames.bm");
+      front_vga[4] = load_picture("opticon2.bm");
+      front_vga[5] = load_picture("selicons.bm");
+      front_vga[6] = load_picture("selexit.bm");
+      front_vga[15] = load_picture("font1.bm");
+      fade_palette(0);
+      iQuitConfirmed = 0;
       SVGA_ON = -1;
-      if ((_DWORD)v86)
-        init_screen(-1, v86, 1);
-      v6 = 0;
+      if (iInitScreen)
+        init_screen();
       winx = 0;
       winw = XMAX;
       winy = 0;
       winh = YMAX;
       mirror = 0;
-      setpal((int)&aCdfrontendPal[3], v86, 0, (_BYTE *)v1);
+      setpal("frontend.pal");
       if (network_on) {
         Players_Cars[0] = my_car;
-        name_copy((int)&player_names[9 * (__int16)player1_car], my_name);
-        v7 = (__int16)player1_car;
-        manual_control[(__int16)player1_car] = my_control;
-        v4 = my_invul;
-        player_invul[v7] = my_invul;
+        name_copy(player_names[player1_car], my_name);
+        iPlayer1Car = player1_car;
+        manual_control[player1_car] = my_control;
+        player_invul[iPlayer1Car] = my_invul;
         player_type = 1;
         if ((!game_type || game_type == 2) && last_replay != 2) {
-          v8 = no_clear;
+          iNoClear = no_clear;
           if (!no_clear && network_on > 0) {
-            v6 = -1;
-            v4 = 0;
+            iPlayer = 0;
             do {
-              *(int *)((char *)Players_Cars + v4) = -1;
-              v4 += 4;
-              ++v8;
-            } while (v8 < network_on);
+              Players_Cars[iPlayer++] = -1;
+              ++iNoClear;
+            } while (iNoClear < network_on);
           }
         }
       }
       if (game_type >= 3)
         game_type = last_type;
       replaytype = 0;
-      if (network_on && (_DWORD)v86) {
-        remove_messages(-1, v4, v6);
+      if (network_on && iInitScreen) {
+        remove_messages(-1);
         reset_network(0);
       }
       tick_on = -1;
-      Shades = FindShades();
-      check_cars(Shades);
-      Car_variable_7[0] = 0;
-      Car_variable_5[0] = 0;
-      Car[0] = 0.0;
-      Car_variable_1[0] = 0.0;
-      Car_variable_2[0] = 0.0;
+      FindShades();
+      check_cars();
+      Car[0].nYaw = 0;
+      Car[0].nRoll = 0;
+      Car[0].pos.fX = 0.0;
+      Car[0].pos.fY = 0.0;
+      Car[0].pos.fZ = 0.0;
       intro = 0;
-      Car_variable_6[0] = 0;
-      v10 = trybuffer((unsigned int)&loc_493E0);
-      front_vga_variable_7[0] = v10;
-      a1 = 8;
+      Car[0].nPitch = 0;
+      pBuf = (uint8 *)trybuffer(300000u);
+      front_vga[7] = pBuf;
+      iMenuSelection = 8;
       if (no_mem)
         goto LABEL_24;
-      if (v10)
+      if (pBuf)
         gfx_size = no_mem;
       else
         LABEL_24:
       gfx_size = 1;
-      fre(front_vga_variable_7);
-      v11 = 0;
+      fre((void **)&front_vga[7]);
       set_starts(0);
       car_texs_loaded[0] = 0;
-      car_texs_loaded_variable_1 = -1;
-      for (i = 2; i != 16; SmokePt_variable_22[i] = -1) {
-        i += 7;
-        SmokePt_variable_16[i] = -1;
-        SmokePt_variable_17[i] = -1;
-        SmokePt_variable_18[i] = -1;
-        SmokePt_variable_19[i] = -1;
-        SmokePt_variable_20[i] = -1;
-        SmokePt_variable_21[i] = -1;
+      for (int i = 0; i < 16; ++i) {
+        car_texs_loaded[i] = -1;
       }
-      v13 = Players_Cars[(__int16)player1_car];
-      v88 = v13;
+      iPlayer1Car2 = Players_Cars[player1_car];
+      iBlockIdx = iPlayer1Car2;
       LoadCarTextures = 0;
       if (game_type == 1) {
-        loadtrack(TrackLoad, -1);
-        fre(&front_vga_variable_3);
-        front_vga_variable_3 = load_picture(aTrknameBm);
-        front_vga_variable_8 = load_picture(&aBonustrkBm[1]);
-        front_vga_variable_9 = load_picture(aCupiconsBm);
-      } else if (v13 >= 0) {
-        v14 = CarDesigns_variable_5[7 * v13];
-        v15 = v14;
-        v11 = car_texs_loaded[v14];
-        v16 = 1;
-        if (v11 == -1) {
-          LoadCarTexture(v14, 1, (char *)(v15 * 4));
-          car_texmap[v88] = 1;
-          car_texs_loaded[v15] = 1;
-          v16 = 2;
+        //loadtrack((_DWORD *)TrackLoad, -1);
+        fre((void **)&front_vga[3]);
+        front_vga[3] = load_picture("trkname.bm");
+        front_vga[13] = load_picture("bonustrk.bm");
+        front_vga[14] = load_picture("cupicons.bm");
+      } else if (iPlayer1Car2 >= 0) {
+        carType = CarDesigns[iPlayer1Car2].carType;
+        carType2 = carType;
+        iCarTexLoaded = car_texs_loaded[carType];
+        iLoadCarTextures = 1;
+        if (iCarTexLoaded == -1) {
+          LoadCarTexture(carType, 1);
+          car_texmap[iBlockIdx] = 1;
+          car_texs_loaded[carType2] = 1;
+          iLoadCarTextures = 2;
         } else {
-          car_texmap[v88] = v11;
+          car_texmap[iBlockIdx] = iCarTexLoaded;
         }
-        LoadCarTextures = v16;
+        LoadCarTextures = iLoadCarTextures;
       }
       NoOfTextures = 255;
       if (SVGA_ON)
@@ -390,337 +471,430 @@ void select_screen(int a1)
         scr_size = 64;
       if (!dontrestart)
         startmusic(optionssong);
-      v17 = -1;
       dontrestart = 0;
       holdmusic = -1;
       ticks = 0;
       frames = 0;
-      if (network_on && (_DWORD)v86) {
+      if (network_on && iInitScreen) {
         broadcast_mode = -667;
         while (broadcast_mode)
           ;
-        name_copy((int)&player_names[9 * (__int16)player1_car], my_name);
+        name_copy(player_names[player1_car], my_name);
       }
-      v90 = (char *)&cartex_vga + 64;
-      v89 = (char *)&cartex_vga + 64;
-    LABEL_46:
-      if (!v3)
+    LABEL_45:
+      if (!iContinue)
         break;
-      my_car = Players_Cars[(__int16)player1_car];
-      name_copy((int)my_name, &player_names[9 * (__int16)player1_car]);
-      v60 = manual_control[(__int16)player1_car];
-      v61 = quit_game;
-      my_invul = player_invul[(__int16)player1_car];
-      my_control = v60;
+      my_car = Players_Cars[player1_car];
+      name_copy(my_name, player_names[player1_car]);
+      iControl = manual_control[player1_car];
+      my_invul = player_invul[player1_car];
+      my_control = iControl;
       last_replay = replaytype;
       if (quit_game && network_on) {
         broadcast_mode = -666;
         while (broadcast_mode)
           ;
-        v11 = 0;
         tick_on = 0;
         ticks = 0;
         while (ticks < 3)
           ;
-        close_network(replaytype, v60, quit_game);
+        close_network();
       }
       releasesamples();
-      if (game_type != 4 && game_type != 3) {
-        v11 = 0;
-        holdmusic = 0;
-      }
-      fade_palette(0, v60, v61, v11);
       if (game_type != 4 && game_type != 3)
-        stopmusic(v62, v60);
+        holdmusic = 0;
+      fade_palette(0);
+      if (game_type != 4 && game_type != 3)
+        stopmusic();
       front_fade = 0;
-      Players_Cars[(__int16)player1_car] = v88;
-      v63 = front_vga;
+      Players_Cars[player1_car] = iBlockIdx;
+
+      // for (int i = 0; i < 16; ++i) {
+      //   fre(&front_vga[i]);
+      // }
+      ppFrontVgaItr = (uint8 **)front_vga;
       do {
-        v64 = v63++;
-        fre(v64);
-      } while (v63 != &front_vga[16]);
-      if (v88 >= 0) {
-        v65 = (char *)&cartex_vga;
+        pFrontVgaToFre = (void **)ppFrontVgaItr++;
+        fre(pFrontVgaToFre);
+      } while (ppFrontVgaItr != (uint8**)&front_vga[16]);
+
+      if (iBlockIdx >= 0) {
+        // for (int i = 0; i < 16; ++i) {
+        //   fre(&cartex_vga[i]);
+        // }
+        ppCartexVgaItr = (uint8 **)cartex_vga;
         do {
-          v66 = v65;
-          v65 += 4;
-          v67 = fre(v66);
-        } while (v65 != (char *)&cartex_vga + 64);
-        remove_mapsels(v67);
+          pCartexVgaToFre = (void **)ppCartexVgaItr++;
+          fre(pCartexVgaToFre);
+        } while (ppCartexVgaItr != (uint8 **)&cartex_vga[16]);
+        remove_mapsels();
       }
-      Cars = p_tex_size;
-      v1 = quit_game;
       gfx_size = p_tex_size;
       no_clear = 0;
       if (!quit_game && !intro) {
-        Cars = check_cars(p_tex_size);
+        check_cars();
         if (network_on) {
-          if (a1 == 8 && !intro)
-            Cars = NetworkWait(Cars);
+          if (iMenuSelection == 8 && !intro)
+            NetworkWait();
         }
       }
-      if (a1 < 8 || !network_on || intro)
+      if (iMenuSelection < 8 || !network_on || intro)
         time_to_start = 45;
       if (time_to_start)
-        goto LABEL_223;
+        goto LABEL_232;
     }
-    LODWORD(v86) = 0;
+    iInitScreen = 0;
     if (switch_types) {
       game_type = switch_types - 1;
       switch_types = 0;
       if (!game_type && competitors == 1)
         competitors = 16;
-      v17 = v88;
-      if (v88 >= 0) {
-        car_texs_loaded[CarDesigns_variable_5[7 * v88]] = -1;
-        v18 = (char *)&cartex_vga;
-        do {
-          fre(v18);
-          v18 += 4;
-        } while (v18 != v89);
-        remove_mapsels(v89);
+      if (iBlockIdx >= 0) {
+        car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
+        ppCartexVgaItr2 = (void **)cartex_vga;
+        do
+          fre(ppCartexVgaItr2++);
+        while (ppCartexVgaItr2 != (void **)&cartex_vga[16]);
+        remove_mapsels();
       }
       if (game_type == 1) {
-        loadtrack(TrackLoad, -1);
-        fre(&front_vga_variable_3);
-        fre(&front_vga_variable_8);
-        fre(&front_vga_variable_9);
-        front_vga_variable_3 = load_picture(aTrknameBm);
-        front_vga_variable_8 = load_picture(&aBonustrkBm[1]);
-        front_vga_variable_9 = load_picture(aCupiconsBm);
-        Race = ((_BYTE)TrackLoad - 1) & 7;
+        //loadtrack((_DWORD *)TrackLoad, -1);
+        fre((void **)&front_vga[3]);
+        fre((void **)&front_vga[13]);
+        fre((void **)&front_vga[14]);
+        front_vga[3] = load_picture("trkname.bm");
+        front_vga[13] = load_picture("bonustrk.bm");
+        front_vga[14] = load_picture("cupicons.bm");
+        //Race = ((_BYTE)TrackLoad - 1) & 7;
       } else {
-        fre(&front_vga_variable_3);
-        fre(&front_vga_variable_8);
-        fre(&front_vga_variable_9);
-        v17 = v88;
-        front_vga_variable_3 = load_picture(&aCarnamesBm[3]);
-        if (v88 >= 0) {
-          v19 = CarDesigns_variable_5[7 * v88];
-          v17 = 4 * v19;
-          v93 = 1;
-          v20 = car_texs_loaded[v19];
-          if (v20 == -1) {
-            LoadCarTexture(v19, 1, (char *)v17);
-            *(int *)((char *)car_texs_loaded + v17) = 1;
-            v17 = 2;
-            car_texmap[v88] = 1;
-            v93 = 2;
+        fre((void **)&front_vga[3]);
+        fre((void **)&front_vga[13]);
+        fre((void **)&front_vga[14]);
+        front_vga[3] = load_picture("carnames.bm");
+        if (iBlockIdx >= 0) {
+          cartype3 = CarDesigns[iBlockIdx].carType;
+          cartype4 = cartype3;
+          iLoadCarTextures2 = 1;
+          iCarTexLoaded2 = car_texs_loaded[cartype3];
+          if (iCarTexLoaded2 == -1) {
+            LoadCarTexture(cartype3, 1);
+            car_texs_loaded[cartype4] = 1;
+            car_texmap[iBlockIdx] = 1;
+            iLoadCarTextures2 = 2;
           } else {
-            car_texmap[v88] = v20;
+            car_texmap[iBlockIdx] = iCarTexLoaded2;
           }
-          LoadCarTextures = v93;
+          LoadCarTextures = iLoadCarTextures2;
         }
         network_champ_on = 0;
       }
     }
-    HIDWORD(v86) = frames;
-    v21 = 0;
+    iFrames = frames;
     frames = 0;
-    if (ticks > 1080 && !v5 && !network_on) {
-      v21 = 2;
+    if (ticks > 1080 && !iQuitConfirmed && !network_on) {
       intro = -1;
-      v3 = -1;
+      iContinue = -1;
       replaytype = 2;
     }
-    check_cars(v21);
-    display_picture(scrbuf, front_vga[0], v17);
-    display_block(head_y, 0);
-    display_block(2, 0);
-    display_block(334, 0);
-    if (a1 < 8)
-      front_text(sel_posns[2 * a1], sel_posns_variable_1[2 * a1], 143, 0);
-    front_text(sel_posns_variable_2 + 132, sel_posns_variable_3 + 7, 143, 2);
-    front_text(sel_posns_variable_6 + 132, sel_posns_variable_7 + 7, 143, 2);
-    front_text(sel_posns[0] + 132, sel_posns_variable_1[0] + 7, 143, 2);
-    front_text(sel_posns_variable_4 + 132, sel_posns_variable_5 + 7, 143, 2);
-    front_text(sel_posns_variable_8 + 132, sel_posns_variable_9 + 7, 143, 2);
-    front_text(sel_posns_variable_10 + 132, sel_posns_variable_11 + 7, 143, 2);
-    front_text(sel_posns_variable_12 + 132, sel_posns_variable_13 + 7, 143, 2);
-    front_text(sel_posns_variable_14 + 132, sel_posns_variable_15 + 7, 143, 2);
-    if (game_type == 1) {
-      display_block(300, 0);
-      if (TrackLoad <= 0)
-        front_text(190, 350, 143, 0);
-      else
-        display_block(356, 0);
-      show_3dmap(cur_TrackZ, 1280, v87);
-      if (game_type < 2) {
-        v22 = cur_laps[level];
-        NoOfLaps = v22;
-        if (competitors == 2)
-          NoOfLaps = v22 / 2;
-        sprintf(&buffer, "%s: %i", language_buffer_variable_71, NoOfLaps);
-        front_text(420, 16, 143, 1);
-        v23 = front_text(420, 34, 143, 1);
-        if (RecordCars[TrackLoad] < 0) {
-          sprintf(&buffer, "%s", &RecordNames[9 * TrackLoad]);
-        } else {
-          v24 = RecordLaps[TrackLoad] * flt_A1A6B;
-          _CHP(TrackLoad, HIDWORD(v23));
-          LODWORD(v25) = (int)v24;
-          HIDWORD(v25) = (int)v24 >> 31;
-          v26 = v25 / 6000;
-          LODWORD(v25) = (int)v24;
-          v27 = (int)(v25 / 100) % 60;
-          LODWORD(v25) = (int)v24;
-          sprintf(
-            &buffer,
-            "%s - %s - %02i:%02i:%02i",
-            &RecordNames[9 * TrackLoad],
-            &CompanyNames[20 * (RecordCars[TrackLoad] & 0xF)],
-            v26,
-            v27,
-            (unsigned int)(v25 % 100));
-        }
-        front_text(420, 52, 143, 1);
-      }
-    } else if (v88 >= 0) {
-      if (v88 == 12)
-        DrawCar(6000.0, 1280, 0);
-      else
-        DrawCar(2200.0, 1280, 0);
-      if (v88 < 8)
-        display_block(356, 0);
+    check_cars();
+    display_picture(scrbuf, front_vga[0]);
+    display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+    if (iMenuSelection >= 8) {
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 3, 52, 334, 0);
+    } else {
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 1, 52, 334, 0);
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        "~",
+        font2_ascii,
+        font2_offsets,
+        sel_posns[iMenuSelection].x,
+        sel_posns[iMenuSelection].y,
+        0x8Fu,
+        0);
     }
-    display_block(247, 0);
-    display_block(247, 0);
-    switch (a1) {
+    if (game_type == 1) {
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        language_buffer,
+        font2_ascii,
+        font2_offsets,
+        sel_posns[1].x + 132,
+        sel_posns[1].y + 7,
+        0x8Fu,
+        2u);
+      if (Race)
+        front_text(
+          (tBlockHeader *)front_vga[2],
+          &language_buffer[128],
+          font2_ascii,
+          font2_offsets,
+          sel_posns[3].x + 132,
+          sel_posns[3].y + 7,
+          0x8Fu,
+          2u);
+      else
+        front_text(
+          (tBlockHeader *)front_vga[2],
+          &language_buffer[64],
+          font2_ascii,
+          font2_offsets,
+          sel_posns[3].x + 132,
+          sel_posns[3].y + 7,
+          0x8Fu,
+          2u);
+    } else {
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[256],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[1].x + 132,
+        sel_posns[1].y + 7,
+        0x8Fu,
+        2u);
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[320],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[3].x + 132,
+        sel_posns[3].y + 7,
+        0x8Fu,
+        2u);
+    }
+    front_text(
+      (tBlockHeader *)front_vga[2],
+      &language_buffer[192],
+      font2_ascii,
+      font2_offsets,
+      sel_posns[0].x + 132,
+      sel_posns[0].y + 7,
+      0x8Fu,
+      2u);
+    front_text(
+      (tBlockHeader *)front_vga[2],
+      config_buffer,
+      font2_ascii,
+      font2_offsets,
+      sel_posns[2].x + 132,
+      sel_posns[2].y + 7,
+      0x8Fu,
+      2u);
+    front_text(
+      (tBlockHeader *)front_vga[2],
+      &language_buffer[384],
+      font2_ascii,
+      font2_offsets,
+      sel_posns[4].x + 132,
+      sel_posns[4].y + 7,
+      0x8Fu,
+      2u);
+    front_text(
+      (tBlockHeader *)front_vga[2],
+      &language_buffer[448],
+      font2_ascii,
+      font2_offsets,
+      sel_posns[5].x + 132,
+      sel_posns[5].y + 7,
+      0x8Fu,
+      2u);
+    front_text(
+      (tBlockHeader *)front_vga[2],
+      &language_buffer[512],
+      font2_ascii,
+      font2_offsets,
+      sel_posns[6].x + 132,
+      sel_posns[6].y + 7,
+      0x8Fu,
+      2u);
+    front_text(
+      (tBlockHeader *)front_vga[2],
+      &config_buffer[640],
+      font2_ascii,
+      font2_offsets,
+      sel_posns[7].x + 132,
+      sel_posns[7].y + 7,
+      0x8Fu,
+      2u);
+    if (game_type == 1) {
+      //display_block(
+      //  scrbuf,
+      //  (tBlockHeader *)front_vga[14],
+      //  (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3,
+      //  500,
+      //  300,
+      //  0);
+      if (TrackLoad <= 0) {
+        if (TrackLoad)
+          front_text((tBlockHeader *)front_vga[2], "EDITOR", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
+        else
+          front_text((tBlockHeader *)front_vga[2], "TRACK ZERO", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
+      } else if (TrackLoad >= 17) {
+        display_block(scrbuf, (tBlockHeader *)front_vga[13], TrackLoad - 17, 190, 356, 0);
+      } else {
+        display_block(scrbuf, (tBlockHeader *)front_vga[3], TrackLoad - 1, 190, 356, 0);
+      }
+      show_3dmap(cur_TrackZ, 1280, v79);
+      if (game_type < 2) {
+        v17 = cur_laps[level];
+        NoOfLaps = v17;
+        if (competitors == 2)
+          NoOfLaps = v17 / 2;
+        sprintf(buffer, "%s: %i", &language_buffer[4544], NoOfLaps);
+        front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 16, 0x8Fu, 1u);
+        front_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4608],
+          font1_ascii,
+          font1_offsets,
+          420,
+          34,
+          0x8Fu,
+          1u);
+        if (RecordCars[TrackLoad] < 0) {
+          sprintf(buffer, "%s", RecordNames[TrackLoad]);
+        } else {
+          //v18 = RecordLaps[TrackLoad] * 100.0;
+          //_CHP();
+          //LODWORD(v19) = (int)v18;
+          //HIDWORD(v19) = (int)v18 >> 31;
+          //v20 = v19 / 6000;
+          //LODWORD(v19) = (int)v18;
+          //v21 = (int)(v19 / 100) % 60;
+          //LODWORD(v19) = (int)v18;
+          //sprintf(
+          //  buffer,
+          //  "%s - %s - %02i:%02i:%02i",
+          //  RecordNames[TrackLoad],
+          //  CompanyNames[RecordCars[TrackLoad] & 0xF],
+          //  v20,
+          //  v21,
+          //  (unsigned int)(v19 % 100));
+        }
+        front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 52, 0x8Fu, 1u);
+      }
+    } else if (iBlockIdx >= 0) {
+      //if (iBlockIdx == 12)
+      //  DrawCar((int)(scrbuf + 34640), 12, 6000.0, 1280, 0);
+      //else
+      //  DrawCar((int)(scrbuf + 34640), iBlockIdx, 2200.0, 1280, 0);
+      //if (iBlockIdx < 8)
+      //  display_block(scrbuf, (tBlockHeader *)front_vga[3], iBlockIdx, 190, 356, 0);
+    }
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
+    switch (iMenuSelection) {
       case 1:
         if (game_type == 1)
-          v28 = 8;
+          iBlockIdx2 = 8;
         else
-          v28 = 1;
-        v11 = 76;
-        v29 = display_block(257, -1);
+          iBlockIdx2 = 1;
+        display_block(scrbuf, (tBlockHeader *)front_vga[4], iBlockIdx2, 76, 257, -1);
         break;
       case 3:
         if (game_type == 1 && Race > 0)
-          goto LABEL_93;
-        v28 = 3;
-        v11 = 76;
-        v29 = display_block(257, -1);
+          goto LABEL_102;
+        display_block(scrbuf, (tBlockHeader *)front_vga[4], 3, 76, 257, -1);
         break;
       case 6:
-      LABEL_93:
-        v28 = 9;
-        v11 = 76;
-        v29 = display_block(257, -1);
+      LABEL_102:
+        display_block(scrbuf, (tBlockHeader *)front_vga[4], 9, 76, 257, -1);
         break;
       case 7:
-        v28 = 6;
-        v11 = 76;
-        v29 = display_block(257, -1);
+        display_block(scrbuf, (tBlockHeader *)front_vga[4], 6, 76, 257, -1);
         break;
       case 8:
-        v28 = 7;
-        v11 = 76;
-        v29 = display_block(257, -1);
+        display_block(scrbuf, (tBlockHeader *)front_vga[4], 7, 76, 257, -1);
         break;
       default:
-        v11 = 76;
-        v28 = a1;
-        v29 = display_block(257, -1);
+        display_block(scrbuf, (tBlockHeader *)front_vga[4], iMenuSelection, 76, 257, -1);
         break;
     }
-    if (v88 < 0) {
-      v28 = (int)&font1_ascii;
-      v11 = (int)&font1_offsets;
-      v29 = front_text(400, 200, 231, 1);
-    }
-    if (v5) {
-      v28 = (int)&font1_ascii;
-      v11 = (int)&font1_offsets;
-      v29 = front_text(400, 250, 231, 1);
-    }
-    show_received_mesage(v29, HIDWORD(v29), v28, v11);
-    copypic((char *)scrbuf, (int)screen);
+    if (iBlockIdx < 0)
+      front_text((tBlockHeader *)front_vga[15], &language_buffer[4160], font1_ascii, font1_offsets, 400, 200, 0xE7u, 1u);
+    if (iQuitConfirmed)
+      front_text((tBlockHeader *)front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 250, 0xE7u, 1u);
+    show_received_mesage();
+    copypic(scrbuf, (uint8 *)screen);
     if (switch_same > 0) {
-      if (game_type != 1 && switch_same - 666 != v88) {
-        if (v88 >= 0) {
-          car_texs_loaded[CarDesigns_variable_5[7 * v88]] = -1;
-          v33 = (char *)&cartex_vga;
+      if (game_type != 1 && switch_same - 666 != iBlockIdx) {
+        if (iBlockIdx >= 0) {
+          car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
+          v26 = (uint8 **)cartex_vga;
           do {
-            v34 = v33;
-            v33 += 4;
-            v35 = fre(v34);
-          } while (v33 != (char *)&cartex_vga + 64);
-          remove_mapsels(v35);
+            v27 = (void **)v26++;
+            fre(v27);
+          } while (v26 != (uint8 **)&cartex_vga[16]);
+          remove_mapsels();
         }
-        v36 = CarDesigns_variable_5[7 * switch_same - 4662];
-        v37 = v36;
-        v92 = 1;
-        v38 = car_texs_loaded[v36];
-        v39 = switch_same - 666;
-        if (v38 == -1) {
-          LoadCarTexture(v36, 1, (char *)(v37 * 4));
-          car_texs_loaded[v37] = 1;
-          car_texmap[v39] = 1;
-          v92 = 2;
+        v28 = CarDesigns[switch_same - 666].carType;
+        v29 = v28;
+        v82 = 1;
+        v30 = car_texs_loaded[v28];
+        v31 = switch_same - 666;
+        if (v30 == -1) {
+          LoadCarTexture(v28, 1);
+          car_texs_loaded[v29] = 1;
+          car_texmap[v31] = 1;
+          v82 = 2;
         } else {
-          car_texmap[v39] = v38;
+          car_texmap[v31] = v30;
         }
-        LoadCarTextures = v92;
+        LoadCarTextures = v82;
       }
-      v40 = 0;
+      v32 = 0;
       if (players > 0) {
-        v41 = 0;
+        v33 = 0;
         do {
-          infinite_laps[++v41] = switch_same - 666;
-          ++v40;
-        } while (v40 < players);
+          v33 += 4;
+          *(int *)((char *)&infinite_laps + v33) = switch_same - 666;
+          ++v32;
+        } while (v32 < players);
       }
-      v11 = cheat_mode;
-      BYTE1(v11) = BYTE1(cheat_mode) | 0x40;
-      cheat_mode = v11;
-      v88 = switch_same - 666;
+      cheat_mode |= 0x00004000;
+      iBlockIdx = switch_same - 666;
     } else if (switch_same < 0) {
-      v11 = 0;
       switch_same = 0;
-      v30 = 0;
+      iPlayerIdx = 0;
       if (players > 0) {
-        v31 = 0;
+        iPlayerIdx2 = 0;
         do {
-          Players_Cars[v31++] = -1;
-          ++v30;
-        } while (v30 < players);
+          Players_Cars[iPlayerIdx2++] = -1;
+          ++iPlayerIdx;
+        } while (iPlayerIdx < players);
       }
-      v32 = cheat_mode;
-      BYTE1(v32) = BYTE1(cheat_mode) & 0xBF;
-      cheat_mode = v32;
+      cheat_mode |= 0x0000BF00;
     }
     if (switch_sets) {
-      if (game_type != 1) {
-        v11 = v88;
-        if (v88 >= 0) {
-          v42 = (char *)&cartex_vga;
-          car_texs_loaded[CarDesigns_variable_5[7 * v88]] = -1;
-          do {
-            v43 = v42;
-            v42 += 4;
-            v44 = fre(v43);
-          } while (v42 != (char *)&cartex_vga + 64);
-          remove_mapsels(v44);
-          v45 = CarDesigns_variable_5[7 * v88];
-          v46 = v45;
-          v11 = car_texs_loaded[v45];
-          v47 = 1;
-          if (v11 == -1) {
-            LoadCarTexture(v45, 1, (char *)(v46 * 4));
-            car_texmap[v88] = 1;
-            car_texs_loaded[v46] = 1;
-            v47 = 2;
-          } else {
-            car_texmap[v88] = v11;
-          }
-          LoadCarTextures = v47;
+      if (game_type != 1 && iBlockIdx >= 0) {
+        ppCartexVgaItr_1 = (uint8**)cartex_vga;
+        car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
+        do {
+          ppCartexVgaToFree = (void **)ppCartexVgaItr_1++;
+          fre(ppCartexVgaToFree);
+        } while (ppCartexVgaItr_1 != (uint8 **)&cartex_vga[16]);
+        remove_mapsels();
+        iCar = CarDesigns[iBlockIdx].carType;
+        v38 = iCar;
+        iCartexLoaded = car_texs_loaded[iCar];
+        iLoadCarTextures_1 = 1;
+        if (iCartexLoaded == -1) {
+          LoadCarTexture(iCar, 1);
+          car_texmap[iBlockIdx] = 1;
+          car_texs_loaded[v38] = 1;
+          iLoadCarTextures_1 = 2;
+        } else {
+          car_texmap[iBlockIdx] = iCartexLoaded;
         }
+        LoadCarTextures = iLoadCarTextures_1;
       }
       switch_sets = 0;
     }
     if (!front_fade) {
       front_fade = -1;
-      fade_palette(32, 0, -1, v11);
+      fade_palette(32);
       frames = 0;
       if (network_on) {
         while (broadcast_mode)
@@ -734,80 +908,78 @@ void select_screen(int a1)
     while (1) {
       while (1) {
         if (!fatkbhit()) {
-          v59 = Car_variable_7[0] + 32 * WORD2(v86);
-          HIBYTE(v59) &= 0x3Fu;
-          Car_variable_7[0] = v59;
-          v17 = v87;
-          v87 = ((_WORD)v87 + 32 * WORD2(v86)) & 0x3FFF;
-          goto LABEL_46;
+          //iNewYaw = Car[0].nYaw + 32 * iFrames;
+          //HIBYTE(iNewYaw) &= 0x3Fu;
+          //Car[0].nYaw = iNewYaw;
+          //v79 = ((_WORD)v79 + 32 * iFrames) & 0x3FFF;
+          goto LABEL_45;
         }
-        v11 = 0;
         ticks = 0;
-        v48 = fatgetch();
-        if (v5)
+        iKey = fatgetch();
+        if (iQuitConfirmed)
           break;
-        if (v48) {
-          if (v48 == 13) {
-            if (v88 >= 0) {
-              v50 = (char *)&cartex_vga;
-              car_texs_loaded[CarDesigns_variable_5[7 * v88]] = -1;
-              do {
-                fre(v50);
-                v50 += 4;
-              } while (v50 != v90);
-              remove_mapsels(v90);
+        if (iKey) {
+          if (iKey == 13)                     // KEY_ENTER
+          {
+            if (iBlockIdx >= 0) {
+              v43 = (void **)cartex_vga;
+              car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
+              do
+                fre(v43++);
+              while (v43 != (void **)&cartex_vga[16]);
+              remove_mapsels();
             }
-            fre(&front_vga_variable_3);
-            fre(&front_vga_variable_8);
-            fre(&front_vga_variable_9);
-            switch (a1) {
+            fre((void **)&front_vga[3]);
+            fre((void **)&front_vga[13]);
+            fre((void **)&front_vga[14]);
+            switch (iMenuSelection) {
               case 0:
-                v52 = sfxsample(v86);
-                select_car(v52);
+                sfxsample(83, 0x8000);
+                select_car();
                 break;
               case 1:
-                v51 = sfxsample(v86);
+                sfxsample(83, 0x8000);
                 if (game_type == 1)
-                  select_disk(v51);
+                  select_disk();
                 else
-                  select_track(v51);
+                  select_track();
                 break;
               case 2:
-                v53 = sfxsample(v86);
-                select_configure(v53);
+                sfxsample(83, 0x8000);
+                select_configure();
                 break;
               case 3:
-                v54 = sfxsample(v86);
+                sfxsample(83, 0x8000);
                 if (game_type == 1 && Race > 0) {
                   last_type = game_type;
                   game_type = 3;
-                  v3 = -1;
+                  iContinue = -1;
                 } else {
-                  select_players(v54);
+                  select_players();
                 }
                 break;
               case 4:
-                v55 = sfxsample(v86);
-                select_type(v55);
+                sfxsample(83, 0x8000);
+                select_type();
                 break;
               case 5:
-                v3 = -1;
-                sfxsample(v86);
+                iContinue = -1;
+                sfxsample(83, 0x8000);
                 replaytype = 2;
                 break;
               case 6:
                 last_type = game_type;
                 game_type = 4;
-                v3 = -1;
+                iContinue = -1;
                 break;
               case 7:
-                v5 = -1;
-                sfxsample(v86);
+                iQuitConfirmed = -1;
+                sfxsample(83, 0x8000);
                 break;
               case 8:
-                if (v88 >= 0) {
-                  v3 = -1;
-                  sfxsample(v86);
+                if (iBlockIdx >= 0) {
+                  iContinue = -1;
+                  sfxsample(87, 0x8000);
                   netCD = 0;
                   if (soundon && ticks + 108 > ticks) {
                     while (ticks + 108 > ticks)
@@ -821,64 +993,64 @@ void select_screen(int a1)
               default:
                 break;
             }
-            fre(&front_vga_variable_3);
-            fre(&front_vga_variable_8);
-            fre(&front_vga_variable_9);
-            v88 = Players_Cars[(__int16)player1_car];
+            fre((void **)&front_vga[3]);
+            fre((void **)&front_vga[13]);
+            fre((void **)&front_vga[14]);
+            iBlockIdx = Players_Cars[player1_car];
             if (game_type == 1) {
-              loadtrack(TrackLoad, -1);
-              front_vga_variable_3 = load_picture(aTrknameBm);
-              front_vga_variable_8 = load_picture(&aBonustrkBm[1]);
-              front_vga_variable_9 = load_picture(aCupiconsBm);
+              //loadtrack((_DWORD *)TrackLoad, -1);
+              front_vga[3] = load_picture("trkname.bm");
+              front_vga[13] = load_picture("bonustrk.bm");
+              front_vga[14] = load_picture("cupicons.bm");
             } else {
-              front_vga_variable_3 = load_picture(&aCarnamesBm[3]);
-              if (v88 >= 0) {
-                v56 = CarDesigns_variable_5[7 * v88];
-                v91 = 1;
-                v57 = v56;
-                v58 = car_texs_loaded[v56];
-                if (v58 == -1) {
-                  LoadCarTexture(v56, 1, (char *)(v57 * 4));
-                  car_texs_loaded[v57] = 1;
-                  car_texmap[v88] = 1;
-                  v91 = 2;
+              front_vga[3] = load_picture("carnames.bm");
+              if (iBlockIdx >= 0) {
+                carType_1 = CarDesigns[iBlockIdx].carType;
+                iLoadCarTex2 = 1;
+                v45 = carType_1;
+                iCartexLoaded2 = car_texs_loaded[carType_1];
+                if (iCartexLoaded2 == -1) {
+                  LoadCarTexture(carType_1, 1);
+                  car_texs_loaded[v45] = 1;
+                  car_texmap[iBlockIdx] = 1;
+                  iLoadCarTex2 = 2;
                 } else {
-                  car_texmap[v88] = v58;
+                  car_texmap[iBlockIdx] = iCartexLoaded2;
                 }
-                LoadCarTextures = v91;
+                LoadCarTextures = iLoadCarTex2;
               }
             }
-            v11 = 0;
             ticks = 0;
             frames = 0;
           }
         } else {
-          v49 = fatgetch();
-          if (v49 >= 0x48u) {
-            if (v49 <= 0x48u) {
-              if (--a1 < 0)
-                a1 = 0;
-            } else if (v49 == 80 && ++a1 > 8) {
-              a1 = 8;
+          iKey2 = fatgetch();
+          if (iKey2 >= 0x48u) {
+            if (iKey2 <= 0x48u)               // KEY_DOWN
+            {
+              if (--iMenuSelection < 0)
+                iMenuSelection = 0;
+            } else if (iKey2 == 80 && ++iMenuSelection > 8)// KEY_UP
+            {
+              iMenuSelection = 8;
             }
           }
         }
       }
-      if (v48 < 0x59u) {
-        if (!v48)
+      if (iKey < 0x59u) {
+        if (!iKey)
           fatgetch();
-      LABEL_146:
-        v5 = 0;
+      LABEL_155:
+        iQuitConfirmed = 0;
       } else {
-        if (v48 > 0x59u && v48 != 121)
-          goto LABEL_146;
-        v3 = -1;
+        if (iKey > 0x59u && iKey != 0x79)
+          goto LABEL_155;
+        iContinue = -1;
         quit_game = -1;
       }
     }
   }
-LABEL_223:
-  v68 = 0;
+LABEL_232:
   tick_on = -1;
   messages = -1;
   demo_count = 0;
@@ -886,129 +1058,120 @@ LABEL_223:
   old_mode = -1;
   demo_mode = 0;
   if (replaytype != 2 && !quit_game && game_type < 3)
-    Cars = AllocateCars(Cars);
-  if (a1 == 8) {
-    if (time_to_start) {
-      Cars = intro;
-      if (!intro) {
-        localCD = -1;
-        if (replaytype != 2) {
-          if (player_type && player_type != 2) {
-            localCD = cdpresent();
-            if (localCD)
-              netCD = -1;
-          } else {
-            localCD = cdpresent();
-            if (!localCD)
-              cd_error = -1;
-          }
-        }
-        Race = ((_BYTE)TrackLoad - 1) & 7;
-        if (game_type == 1 && !Race) {
-          memset(championship_points, 0, sizeof(championship_points));
-          memset(team_points, 0, 64);
-          memset(total_kills, 0, 64);
-          memset(total_fasts, 0, 64);
-          memset(total_wins, 0, 64);
-          memset(team_kills, 0, 64);
-          memset(team_fasts, 0, sizeof(team_fasts));
-          memset(team_wins, 0, 64);
-        }
+    AllocateCars();
+  if (iMenuSelection == 8 && time_to_start && !intro) {
+    localCD = -1;
+    if (replaytype != 2) {
+      if (player_type && player_type != 2) {
+        localCD = cdpresent();
+        if (localCD)
+          netCD = -1;
+      } else {
+        localCD = cdpresent();
+        if (!localCD)
+          cd_error = -1;
+      }
+    }
+    //Race = ((_BYTE)TrackLoad - 1) & 7;
+    if (game_type == 1 && !Race) {
+      memset(championship_points, 0, sizeof(championship_points));
+      memset(team_points, 0, sizeof(team_points));
+      memset(total_kills, 0, sizeof(total_kills));
+      memset(total_fasts, 0, sizeof(total_fasts));
+      memset(total_wins, 0, sizeof(total_wins));
+      memset(team_kills, 0, sizeof(team_kills));
+      memset(team_fasts, 0, sizeof(team_fasts));
+      memset(team_wins, 0, sizeof(team_wins));
+    }
+    racers = competitors;
+    if (competitors == 2) {
+      racers = players;
+      if (players < 2)
         racers = competitors;
-        if (competitors == 2) {
-          racers = players;
-          if (players < 2)
-            racers = competitors;
-        }
-        if (competitors == 1)
-          racers = players;
-        Cars = racers;
-        v69 = 0;
-        if (racers > 0) {
-          v70 = 4 * racers;
+    }
+    if (competitors == 1)
+      racers = players;
+    j = racers;
+    v54 = 0;
+    if (racers > 0) {
+      iMaxRacerOffset = 4 * racers;
+      iGridOffset = 0;
+      do {
+        for (j = 4 * v54; *(int *)((char *)non_competitors + j); j += 4)
+          ++v54;
+        grid[iGridOffset / 4u] = v54;
+        iGridOffset += 4;
+        ++v54;
+      } while (iGridOffset < iMaxRacerOffset);
+    }
+    iRacersIdx = racers;
+    v58 = 0;
+    if (racers < numcars) {
+      iRacersOffset2 = 4 * racers;
+      iMaxRacersOffset2 = 4 * numcars;
+      do {
+        for (j = 4 * v58; !*(int *)((char *)non_competitors + j); j += 4)
+          ++v58;
+        ++iRacersIdx;
+        grid[iRacersOffset2 / 4u] = v58;
+        iRacersOffset2 += 4;
+        ++v58;
+      } while (iRacersOffset2 < iMaxRacersOffset2);
+    }
+    if (game_type == 1 && Race > 0) {
+      if (racers > 0) {
+        v61 = 4 * racers;
+        v62 = 0;
+        do {
+          v62 += 4;
+          finished_car[v62 / 4 + 15] = teamorder[v62 / 4 + 7];
+        } while ((int)v62 < v61);
+      }
+    } else {
+      iRacers = racers;
+      iRacersOffset = 6 * racers;
+      for (k = 0; k < iRacersOffset; grid[j] = v69) {
+        //v66 = rand(j);
+        //v67 = (iRacers * v66 - (__CFSHL__((iRacers * v66) >> 31, 15) + ((iRacers * v66) >> 31 << 15))) >> 15;
+        //v68 = rand(v67);
+        //j = (iRacers * v68 - (__CFSHL__((iRacers * v68) >> 31, 15) + ((iRacers * v68) >> 31 << 15))) >> 15;
+        //v69 = grid[v67];
+        //grid[v67] = grid[j];
+        ++k;
+      }
+      for (m = 0; m < players; ++m) {
+        if (level && (cheat_mode & 2) == 0)
+          v71 = racers - 2 * level * players;
+        else
+          v71 = racers - players;
+        if (v71 < 0)
           v71 = 0;
-          do {
-            for (Cars = 4 * v69; *(int *)((char *)non_competitors + Cars); Cars += 4)
-              ++v69;
-            grid[v71 / 4u] = v69;
-            v71 += 4;
-            ++v69;
-          } while (v71 < v70);
-        }
-        v72 = racers;
-        v68 = 0;
-        if (racers < numcars) {
-          v73 = 4 * racers;
-          v74 = 4 * numcars;
-          do {
-            for (Cars = 4 * v68; !*(int *)((char *)non_competitors + Cars); Cars += 4)
-              ++v68;
-            ++v72;
-            grid[v73 / 4u] = v68;
-            v73 += 4;
-            ++v68;
-          } while (v73 < v74);
-        }
-        if (game_type == 1 && Race > 0) {
-          v68 = racers;
-          if (racers > 0) {
-            v75 = 4 * racers;
-            Cars = 0;
-            do {
-              Cars += 4;
-              v68 = *(int *)((char *)teamorder_variable_1 + Cars);
-              *(int *)((char *)finished_car_variable_1 + Cars) = v68;
-            } while (Cars < v75);
+        v72 = 0;
+        for (iGridIdx = 0; !human_control[grid[iGridIdx]]; ++iGridIdx)
+          ++v72;
+        if (v72 < v71) {
+          for (n = v71; ; ++n) {
+            v75 = grid[n];
+            if (!human_control[v75])
+              break;
+            ++v71;
           }
-        } else {
-          v76 = racers;
-          v77 = 6 * racers;
-          for (j = 0; j < v77; grid[Cars] = v82) {
-            v79 = rand(Cars);
-            v80 = (v76 * v79 - (__CFSHL__((v76 * v79) >> 31, 15) + ((v76 * v79) >> 31 << 15))) >> 15;
-            v81 = rand(v80);
-            Cars = (v76 * v81 - (__CFSHL__((v76 * v81) >> 31, 15) + ((v76 * v81) >> 31 << 15))) >> 15;
-            v68 = 4 * v80;
-            v82 = grid[v80];
-            grid[v80] = grid[Cars];
-            ++j;
-          }
-          for (k = 0; k < players; ++k) {
-            if (level && (cheat_mode & 2) == 0)
-              v68 = racers - 2 * level * players;
-            else
-              v68 = racers - players;
-            if (v68 < 0)
-              v68 = 0;
-            v84 = 0;
-            for (Cars = 0; !human_control[*(int *)((char *)grid + Cars)]; Cars += 4)
-              ++v84;
-            if (v84 < v68) {
-              for (Cars = 4 * v68; ; Cars += 4) {
-                v85 = *(int *)((char *)grid + Cars);
-                if (!human_control[v85])
-                  break;
-                ++v68;
-              }
-              v68 = grid[v84];
-              grid[v84] = v85;
-              *(int *)((char *)grid + Cars) = v68;
-            }
-          }
+          v76 = grid[v72];
+          grid[v72] = v75;
+          grid[n] = v76;
         }
       }
     }
   }
   StartPressed = 0;
   if (game_type != 4 && game_type != 3)
-    stopmusic(Cars, v68);*/
+    stopmusic();
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void select_disk(int a1, int a2, int a3)
+void select_disk()
 {
-  (void)(a1); (void)(a2); (void)(a3);
   /*
   unsigned int v3; // edi
   int v4; // eax
@@ -1309,9 +1472,8 @@ void select_disk(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int select_car(int a1, int a2, unsigned int a3, int a4)
+int select_car()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   return 0;
   /*
   unsigned __int64 picture; // kr00_8
@@ -1834,9 +1996,8 @@ int select_car(int a1, int a2, unsigned int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void select_configure(int a1, int a2, int a3, int a4)
+void select_configure()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   /*
   int v4; // ebx
   int i; // ecx
@@ -4090,9 +4251,8 @@ int front_volumebar(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void select_players(int a1, int a2, int a3, int a4)
+void select_players()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   /*
   unsigned int v4; // esi
   int v5; // edi
@@ -4431,10 +4591,9 @@ void select_players(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void *select_type(int a1, int a2, int a3, int a4)
+void select_type()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
+  return;
   /*
   __int64 picture; // rax
   int v5; // edi
@@ -5044,10 +5203,9 @@ void *select_type(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void *select_track(int a1, int a2, int a3, int a4)
+void select_track()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
+  return;
   /*
   int v4; // edi
   int v5; // ebp
@@ -5378,9 +5536,8 @@ void reset_params()
 
 //-------------------------------------------------------------------------------------------------
 
-int NetworkWait(int a1, int a2, int a3, int a4)
+int NetworkWait()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
   return 0;
   /*
   int v4; // ebx

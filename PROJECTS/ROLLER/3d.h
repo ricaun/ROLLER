@@ -50,6 +50,7 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern int exiting;
+extern int dontrestart;
 extern int champ_mode;
 extern int cd_error;
 extern int game_svga;
@@ -61,6 +62,7 @@ extern uint32 mem_used;
 extern int current_mode;
 extern int names_on;
 extern tCarEngine *p_eng[2];
+extern int messages;
 extern int SVGA_ON;
 extern int TrackLoad;
 extern int paused;
@@ -104,6 +106,7 @@ extern float viewx;
 extern float viewy;
 extern float viewz;
 extern char keys[140];
+extern int oldmode;
 extern int clear_borders;
 extern float DDX;
 extern float DDY;
@@ -115,7 +118,9 @@ extern int test_f3;
 extern int print_data;
 extern int demo_control;
 extern int tick_on;
-extern int oldmode;
+extern int old_mode;
+extern int demo_mode;
+extern int demo_count;
 extern int start_race;
 extern int NoOfLaps;
 extern int human_finishers;

@@ -25,7 +25,17 @@
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int x;
+  int y;
+} tPoint;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int false_starts;
+extern int head_x;
+extern int head_y;
 extern char network_messages[5][14];
 extern int competitors;
 extern int manual_control[16];
@@ -35,17 +45,32 @@ extern int player_type;
 extern int cup_won;
 extern int game_type;
 extern int replay_record;
+extern int last_replay;
 extern int last_type;
 extern int network_champ_on;
 extern void *font_vga;
 extern void *title_vga;
 extern void *front_vga[16];
+extern int font1_offsets[104];
+extern char font1_ascii[256];
+extern int font2_offsets[96];
+extern char font2_ascii[256];
+extern tPoint sel_posns[12];
+extern int no_clear;
+extern char cheat_names[32][9];
 extern char player_names[16][9];
+extern int teamorder[8];
 extern int champorder[16];
+extern int team_wins[16];
 extern int human_control[16];
 extern int total_wins[16];
 extern int allocated_cars[14];
+extern int team_kills[16];
 extern int total_kills[16];
+extern int team_points[8];
+extern int championship_points[16];
+extern int team_fasts[16];
+extern int total_fasts[16];
 extern int non_competitors[16];
 extern int player_started[16];
 extern int player_invul[16];
@@ -80,18 +105,18 @@ extern char my_name[14];
 
 void title_screens();
 void copy_screens();
-void select_screen(int a1);
-void select_disk(int a1, int a2, int a3);
-int select_car(int a1, int a2, unsigned int a3, int a4);
-void select_configure(int a1, int a2, int a3, int a4);
+void select_screen();
+void select_disk();
+int select_car();
+void select_configure();
 int front_displaycalibrationbar(int result, int a2, int a3);
 int front_volumebar(int a1, int a2, int a3);
-void select_players(int a1, int a2, int a3, int a4);
-void *select_type(int a1, int a2, int a3, int a4);
-void *select_track(int a1, int a2, int a3, int a4);
+void select_players();
+void select_type();
+void select_track();
 void save_params();
 void reset_params();
-int NetworkWait(int a1, int a2, int a3, int a4);
+int NetworkWait();
 void loadcheatnames();
 int CheckNames(char *szPlayerName, int iPlayerIdx);
 void restart_net_game();
