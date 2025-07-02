@@ -303,8 +303,8 @@ void select_screen()
   eCarType v38; // ebx
   int iCartexLoaded; // ecx
   int iLoadCarTextures_1; // edx
-  unsigned __int8 iKey; // al
-  unsigned __int8 iKey2; // al
+  uint8 iKey; // al
+  uint8 iKey2; // al
   void **v43; // edx
   eCarType carType_1; // eax
   eCarType v45; // ebx
@@ -336,7 +336,7 @@ void select_screen()
   int v75; // ecx
   int v76; // edx
   int iInitScreen; // [esp+0h] [ebp-54h]
-  __int16 iFrames; // [esp+4h] [ebp-50h]
+  int16 iFrames; // [esp+4h] [ebp-50h]
   int v79; // [esp+Ch] [ebp-48h]
   int iBlockIdx; // [esp+10h] [ebp-44h]
   int iLoadCarTex2; // [esp+2Ch] [ebp-28h]
