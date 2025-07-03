@@ -4319,20 +4319,38 @@ void display_picture(void *pDest, const void *pSrc)
 
 void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int iY, int iTransparentColor)
 {
-  uint8 *pPixelData = (uint8 *)pSrc + pSrc[iBlockIdx].iDataOffset;
-  uint8 *pDestItr = &pDest[640 * iY + iX];
+  int iBlockWidth; // ebp
+  int iPixelDataOffset; // edx
+  int iBlockHeight; // ebx
+  uint8 *pDestItr; // eax
+  uint8 *pPixelData; // esi
+  int iX2; // edx
+  int j; // ebx
+  uint8 byColor; // cl
+  int iBlockHeight2; // [esp+8h] [ebp-18h]
+  int i; // [esp+Ch] [ebp-14h]
+
+  iBlockWidth = pSrc[iBlockIdx].iWidth;
+  iPixelDataOffset = iBlockIdx;
+  iBlockHeight = pSrc[iBlockIdx].iHeight;
+  pDestItr = &pDest[640 * iY + iX];
+  pPixelData = (uint8 *)pSrc + pSrc[iPixelDataOffset].iDataOffset;
+  iBlockHeight2 = iBlockHeight;
 
   // Process each row
-  for (int i = 0; i < pSrc[iBlockIdx].iHeight; ++i) {
+  for (i = 0; i < iBlockHeight2; ++i) {
+    iX2 = iX;
     // Process each column
-    for (int j = 0; j < pSrc[iBlockIdx].iWidth; ++pDestItr) {
-      uint8 byColor = *pPixelData++;
-      if (iX < 640 && (iTransparentColor < 0 || byColor != iTransparentColor))
+    for (j = 0; j < iBlockWidth; ++pDestItr) {
+      byColor = *pPixelData++;
+
+      // Skip transparent color if specified and draw pixel if within horizontal screen bounds
+      if ((unsigned int)iX2 < 0x280 && (iTransparentColor < 0 || byColor != iTransparentColor))
         *pDestItr = byColor;
-      ++iX;
+      ++iX2;
       ++j;
     }
-    pDestItr += 640 - pSrc[iBlockIdx].iWidth;
+    pDestItr += 640 - iBlockWidth;
   }
 }
 
