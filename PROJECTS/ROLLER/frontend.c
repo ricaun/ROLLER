@@ -986,9 +986,10 @@ void select_screen()
                   iContinue = -1;
                   sfxsample(87, 0x8000);
                   netCD = 0;
-                  if (soundon && ticks + 108 > ticks) {
-                    while (ticks + 108 > ticks)
-                      ;
+                  int iTargetTicks = ticks + 108;
+                  if (soundon) {
+                    while (iTargetTicks > ticks)
+                      UpdateSDL();
                   }
                   while (fatkbhit()) {
                     UpdateSDL(); //added by ROLLER
@@ -1154,7 +1155,7 @@ LABEL_232:
         if (v71 < 0)
           v71 = 0;
         v72 = 0;
-        for (iGridIdx = 0; !human_control[grid[iGridIdx]]; ++iGridIdx)
+        for (iGridIdx = 0; !human_control[grid[iGridIdx]] && iGridIdx < 16; ++iGridIdx)
           ++v72;
         if (v72 < v71) {
           for (n = v71; ; ++n) {
