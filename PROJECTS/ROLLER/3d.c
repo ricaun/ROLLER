@@ -1031,8 +1031,8 @@ int main(int argc, const char **argv, const char **envp)
     if (restart_net) {
       restart_net_game();
     } else {
-      //while (!time_to_start)
-      //  select_screen(0);
+      while (!time_to_start)
+        select_screen(0);
     }
     restart_net = 0;
     countdown = 144;
@@ -1757,9 +1757,6 @@ int champion_race()
 
 void play_game(int a1, int a2, int a3)
 {
-#if _DEBUG
-  startmusic(titlesong); // Add by ROLLER to start music in debug mode
-#endif
   /*
   int v3; // eax
   int v4; // ecx

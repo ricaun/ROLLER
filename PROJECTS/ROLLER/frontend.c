@@ -26,6 +26,9 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
+char szSelectEng[] = "select.eng"; //000A1980 symbol name added by ROLLER
+char szConfigEng[] = "config.eng"; //000A198C symbol name added by ROLLER
+
 int false_starts = -1;    //000A4AB8
 int head_x = 186;         //000A4AC0
 int head_y = 8;           //000A4AC4
@@ -346,8 +349,8 @@ void select_screen()
   // Initialize game state
   time_to_start = 0;
   StartPressed = 0;
-  load_language_file("select.eng", 0);
-  load_language_file("config.eng", 1);
+  load_language_file(szSelectEng, 0);
+  load_language_file(szConfigEng, 1);
   iInitScreen = -1;
   restart_net = 0;
   if (!time_to_start) {
@@ -478,7 +481,7 @@ void select_screen()
       if (network_on && iInitScreen) {
         broadcast_mode = -667;
         while (broadcast_mode)
-          ;
+          UpdateSDL(); //added by ROLLER
         name_copy(player_names[player1_car], my_name);
       }
     LABEL_45:
@@ -898,15 +901,17 @@ void select_screen()
       frames = 0;
       if (network_on) {
         while (broadcast_mode)
-          ;
+          UpdateSDL(); //added by ROLLER
         broadcast_mode = -1;
         while (broadcast_mode)
-          ;
+          UpdateSDL(); //added by ROLLER
       }
     }
     print_data = 0;
     while (1) {
+      UpdateSDL(); //added by ROLLER
       while (1) {
+        UpdateSDL(); //added by ROLLER
         if (!fatkbhit()) {
           //iNewYaw = Car[0].nYaw + 32 * iFrames;
           //HIBYTE(iNewYaw) &= 0x3Fu;
@@ -985,8 +990,10 @@ void select_screen()
                     while (ticks + 108 > ticks)
                       ;
                   }
-                  while (fatkbhit())
+                  while (fatkbhit()) {
+                    UpdateSDL(); //added by ROLLER
                     fatgetch();
+                  }
                   replaytype = replay_record;
                 }
                 break;

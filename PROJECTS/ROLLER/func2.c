@@ -4319,7 +4319,7 @@ void check_machine_speed()
 
 //-------------------------------------------------------------------------------------------------
 
-void load_language_file(const char *szFilename, int iUseConfigBuffer)
+void load_language_file(char *szFilename, int iUseConfigBuffer)
 {
   FILE *pFile;
   char *szExt;
@@ -4329,19 +4329,20 @@ void load_language_file(const char *szFilename, int iUseConfigBuffer)
 
   // look for ".eng" in filename
   szExt = strstr(szFilename, ".eng");
+  if (szExt) {
+    // get translation text extension string based on language index
+    szTextExt = (char *)TextExt + language * 4;
 
-  // get translation text extension string based on language index
-  szTextExt = (char *)TextExt + language * 4;
-
-  // copy this text extension after the ".eng" part in the filename
-  szFileExt = szExt + 1;  // skip the dot
-  while (*szTextExt) {
-    *szFileExt++ = *szTextExt++;
-    if (*szTextExt == 0)
-      break;
-    *szFileExt++ = *szTextExt++;
+    // copy this text extension after the ".eng" part in the filename
+    szFileExt = szExt + 1;  // skip the dot
+    while (*szTextExt) {
+      *szFileExt++ = *szTextExt++;
+      if (*szTextExt == 0)
+        break;
+      *szFileExt++ = *szTextExt++;
+    }
+    *szFileExt = '\0';
   }
-  *szFileExt = '\0';
 
   // try opening the language file
   pFile = ROLLERfopen(szFilename, "r");
