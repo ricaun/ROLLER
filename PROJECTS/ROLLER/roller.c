@@ -299,6 +299,34 @@ void UpdateSDL()
 {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
+    if (e.type == SDL_EVENT_QUIT) {
+      quit_game = 1;
+      doexit();
+    }
+    if (e.type == SDL_EVENT_KEY_DOWN) {
+      if (e.key.key == SDLK_ESCAPE) {
+        quit_game = 1;
+      } else if (e.key.key == SDLK_SPACE) {
+        //PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
+        PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
+        PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
+        PlayAudioSampleWait(SOUND_SAMPLE_GO);
+        continue;
+      } else if (e.key.key == SDLK_M) {
+        playMusic();
+        continue;
+      } else if (e.key.key == SDLK_F11) {
+        ToggleFullscreen();
+        continue;
+      } else if (e.key.key == SDLK_RETURN) {
+        SDL_Keymod mod = SDL_GetModState();
+        if (mod & (SDL_KMOD_LALT | SDL_KMOD_RALT)) {
+          ToggleFullscreen();
+          continue;
+        }
+      }
+    }
+
     if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_KEY_UP) {
       SDL_Scancode sc = e.key.scancode;
 
@@ -324,32 +352,6 @@ void UpdateSDL()
         }
         key_handler(byRawCode);
       }
-    }
-
-    switch (e.type) {
-      case SDL_EVENT_QUIT:
-        quit_game = 1;
-        doexit();
-        break;
-      case SDL_EVENT_KEY_DOWN:
-        if (e.key.key == SDLK_ESCAPE) {
-          quit_game = 1;
-        } else if (e.key.key == SDLK_SPACE) {
-          //PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
-          PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
-          PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
-          PlayAudioSampleWait(SOUND_SAMPLE_GO);
-        } else if (e.key.key == SDLK_M) {
-          playMusic();
-        } else if (e.key.key == SDLK_F11) {
-          ToggleFullscreen();
-        } else if (e.key.key == SDLK_RETURN) {
-          SDL_Keymod mod = SDL_GetModState();
-          if (mod & (SDL_KMOD_LALT | SDL_KMOD_RALT)) {
-            ToggleFullscreen();
-          }
-        }
-        break;
     }
   }
   UpdateSDLWindow();
