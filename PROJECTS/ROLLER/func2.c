@@ -1582,71 +1582,80 @@ void setdirectory(const char *szAppPath)
 
 void FindShades()
 {
-  int iMaxOffset = 0x401;      // Initial max offset for inner loop
-  int iColorIdx = 1;           // Color index (1-255)
-  int iColor = 3;              // Palette byte offset (starts at color index 1)
+  int iR; // ecx
+  int iB; // edi
+  int iG; // esi
+  int iColorOffset; // ebp
+  int iR2; // esi
+  int iB2; // edx
+  int iDeltaR; // edi
+  int iG2; // ebx
+  int iDeltaB; // ecx
+  int iDeltaG; // eax
+  int iMaxOffset; // [esp+0h] [ebp-34h]
+  int iColorIdx; // [esp+4h] [ebp-30h]
+  int iColor; // [esp+8h] [ebp-2Ch]
+  int iStepB; // [esp+Ch] [ebp-28h]
+  int iStepG; // [esp+10h] [ebp-24h]
+  int iStepR; // [esp+18h] [ebp-1Ch]
 
-  while (iColorIdx < 256) {      // Process 255 colors (1-255)
+  iColorIdx = 1;
+  iMaxOffset = 1025;
+  iColor = 1;
+  do {
     // Read base color components
-    uint8 byR0 = palette[iColor].byR;
-    uint8 byG0 = palette[iColor].byG;
-    uint8 byB0 = palette[iColor].byB;
+    iR = palette[iColor].byR;
+    iB = palette[iColor].byB;
+    iG = palette[iColor].byG;
 
     // Calculate step sizes for shading
-    int32 iStepR = byR0 / 5;
-    int32 iStepB = byB0 / 5;
-    int32 iStepG = byG0 / 5;
-
-    // Initialize current color values
-    int32 iCurrentR = byR0;
-    int32 iCurrentB = byB0;
-    int32 iCurrentG = byG0;
+    iStepR = iR / 5;
+    iStepB = iB / 5;
+    iStepG = iG / 5;
+    iColorOffset = iColorIdx;
 
     // Generate 4 progressive shades
-    int32 iCurrentOffset = iColorIdx;
-    while (iCurrentOffset <= iMaxOffset) {
-      // Reduce components and clamp to 0
-      iCurrentR -= iStepR;
-      if (iCurrentR < 0) iCurrentR = 0;
+    do {
+      iR -= iStepR;
+      if (iR < 0)
+        iR = 0;
+      iB -= iStepB;
+      if (iB < 0)
+        iB = 0;
+      iG -= iStepG;
+      if (iG < 0)
+        iG = 0;
+      iColorOffset += 256;                      // Move to next shade block (256-byte stride)
+      shade_palette[iColorOffset] = nearest_colour(iR, iB, iG);
+    } while (iColorOffset != iMaxOffset);
 
-      iCurrentB -= iStepB;
-      if (iCurrentB < 0) iCurrentB = 0;
-
-      iCurrentG -= iStepG;
-      if (iCurrentG < 0) iCurrentG = 0;
-
-      // Find nearest palette index and store in shade block
-      int iColorIdx = nearest_colour(iCurrentR, iCurrentB, iCurrentG);
-      shade_palette[iCurrentOffset] = iColorIdx;
-
-      // Move to next shade block (256-byte stride)
-      iCurrentOffset += 256;
-    }
-
-    // Generate special blend shade using color 0xDB (teal in PALETTE.PAL) as reference
-    int iDeltaR = palette[0xDB].byR - byR0;
-    int iDeltaB = palette[0xDB].byB - byB0;
-    int iDeltaG = palette[0xDB].byG - byG0;
+    // Generate special blend shade using color 0xDB as reference
+    iR2 = palette[iColor].byR;
+    iB2 = palette[iColor].byB;
+    iDeltaR = palette[0xDB].byR - iR2;          // teal in PALETTE.PAL
+    iG2 = palette[iColor].byG;
 
     // Clamp deltas to [-15, 15]
-    iDeltaR = (iDeltaR < -15) ? -15 : (iDeltaR > 15) ? 15 : iDeltaR;
-    iDeltaB = (iDeltaB < -15) ? -15 : (iDeltaB > 15) ? 15 : iDeltaB;
-    iDeltaG = (iDeltaG < -15) ? -15 : (iDeltaG > 15) ? 15 : iDeltaG;
-
-    // Calculate blended color
-    int iBlendR = byR0 + iDeltaR;
-    int iBlendB = byB0 + iDeltaB;
-    int iBlendG = byG0 + iDeltaG;
+    if (iDeltaR < -15)
+      iDeltaR = -15;
+    if (iDeltaR > 15)
+      iDeltaR = 15;
+    iDeltaB = palette[0xDB].byB - iB2;
+    if (iDeltaB < -15)
+      iDeltaB = -15;
+    if (iDeltaB > 15)
+      iDeltaB = 15;
+    iDeltaG = palette[0xDB].byG - iG2;
+    if (iDeltaG < -15)
+      iDeltaG = -15;
+    if (iDeltaG > 15)
+      iDeltaG = 15;
 
     // Store in Block 4 (overwriting last progressive shade)
-    uint8 byBlendIdx = nearest_colour(iBlendR, iBlendB, iBlendG);
-    shade_palette[iColorIdx + 0x400] = byBlendIdx;
-
-    // Update control variables for next color
-    iColorIdx++;
-    iMaxOffset++;
-    iColor += 3;  // Advance to next color in palette
-  }
+    shade_palette[iColorIdx++ + 0x400] = nearest_colour(iDeltaR + iR2, iDeltaB + iB2, iDeltaG + iG2);
+    ++iColor;
+    ++iMaxOffset;
+  } while (iColorIdx < 256);
 }
 
 //-------------------------------------------------------------------------------------------------
