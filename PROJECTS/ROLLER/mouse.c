@@ -1,175 +1,177 @@
 #include "mouse.h"
+#include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
-int initmouse()
+void initmouse()
 {
-  int result = 0;
-#ifdef IS_WATCOM
-  int result; // eax
-  REGS registers; // [esp+0h] [ebp-24h] BYREF
-
-  registers.w.ax = 0;
-  result = int386(51, &registers, &registers);
-  mouse = registers.h.al;
-#endif
-  return result;
+  //REGS registers; // [esp+0h] [ebp-24h] BYREF
+  //registers.w.ax = 0;                           // function 0 = reset mouse and get status
+  //int386(0x33, &registers, &registers);         // 0x33 = mouse services
+  //mouse = registers.h.al;                       // mouse installed flag
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int mousexy()
+void mousexy()
 {
-  int result = 0;
-/*
-  int iMouseX; // ecx
-  int iMouseY; // esi
-  int result; // eax
-  REGS registers; // [esp+0h] [ebp-2Ch] BYREF
-  int v8; // [esp+24h] [ebp-8h]
-
-  v8 = a4;
-  registers.w.ax = 11;
-  int386(51, &registers, &registers);
-  dxmouse = (__int16)registers.w.cx;
-  dymouse = (__int16)registers.w.dx;
-  iMouseX = (__int16)registers.w.cx + mousex;
-  iMouseY = mousey - (__int16)registers.w.dx;
-  if (iMouseX > XMAX - 1)
-    iMouseX = XMAX - 1;
-  result = YMAX - 1;
-  if (iMouseY > YMAX - 1)
-    iMouseY = YMAX - 1;
-  if (iMouseX < 0)
-    iMouseX = 0;
-  if (iMouseY < 0)
-    iMouseY = 0;
-  mousey = iMouseY;
-  mousex = iMouseX;
-  */
-  return result;
+  //int iMouseX; // ecx
+  //int iMouseY; // esi
+  //REGS registers; // [esp+0h] [ebp-2Ch] BYREF
+  //
+  //registers.w.ax = 0xB;                         // 0xb = Get Mouse Motion Counters
+  //int386(0x33, &registers, &registers);         // 0x33 = mouse services
+  //
+  //// get mouse x and y deltas
+  //dxmouse = (int16)registers.w.cx;
+  //dymouse = (int16)registers.w.dx;
+  //
+  //// calculate new mouse position
+  //iMouseX = (int16)registers.w.cx + mousex;
+  //iMouseY = mousey - (int16)registers.w.dx;
+  //
+  //// clamp to screen bounds
+  //if (iMouseX > XMAX - 1)
+  //  iMouseX = XMAX - 1;
+  //if (iMouseY > YMAX - 1)
+  //  iMouseY = YMAX - 1;
+  //if (iMouseX < 0)
+  //  iMouseX = 0;
+  //if (iMouseY < 0)
+  //  iMouseY = 0;
+  //
+  //// store updated position
+  //mousey = iMouseY;
+  //mousex = iMouseX;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int mousebut(uint16 a1, int a2, int a3, int a4)
+int mousebut(uint16 unMask)
 {
-  return 0; /*
-  _WORD v6[16]; // [esp+0h] [ebp-28h] BYREF
-  int v7; // [esp+20h] [ebp-8h]
-
-  v7 = a4;
-  if (!mouse)
-    return 0;
-  v6[0] = 5;
-  v6[2] = 0;
-  int386(51, (int)v6, (int)v6);
-  return a1 & v6[0];*/
+  //REGS regs; // [esp+0h] [ebp-28h] BYREF
+  //if (!mouse)
+  //  return 0;
+  //regs.w.ax = 5;                                // Function 5: Get button status
+  //regs.w.bx = 0;
+  //int386(0x33, &regs, &regs);                   // 0x33 = mouse services
+  //return unMask & regs.w.ax;                    // Return masked button status
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int checkmouse(int a1, int a2, int a3, int a4)
+void checkmouse()
 {
-  return 0; /*
-  int result; // eax
-  char v5; // cl
-  _WORD v6[14]; // [esp+0h] [ebp-2Ch] BYREF
-  char v7; // [esp+1Ch] [ebp-10h]
-  int v8; // [esp+24h] [ebp-8h]
-
-  v8 = a4;
-  v7 = mpressed;
-  if (mouse) {
-    v6[0] = 5;
-    v6[2] = 0;
-    result = int386(51, (int)v6, (int)v6);
-    v5 = v6[0] & 3;
-  } else {
-    v5 = 0;
-  }
-  mpressed = v5;
-  if (v5) {
-    if (v7)
-      jpressed = 0;
-    else
-      jpressed = -1;
-  } else {
-    jpressed = 0;
-  }
-  return result;*/
+  //char byCurrPressed; // cl
+  //REGS regs; // [esp+0h] [ebp-2Ch] BYREF
+  //char byPrevPressed; // [esp+1Ch] [ebp-10h]
+  //
+  //byPrevPressed = mpressed;
+  //if (mouse) {
+  //  regs.w.ax = 5;                              // Function 5: Get button status
+  //  regs.w.bx = 0;
+  //  int386(0x33, &regs, &regs);                 // 0x33 = Mouse driver interrupt
+  //  byCurrPressed = regs.h.al & 3;              // Mask to left+right button bits
+  //} else {
+  //  byCurrPressed = 0;
+  //}
+  //mpressed = byCurrPressed;
+  //if (byCurrPressed) {
+  //  if (byPrevPressed)
+  //    jpressed = 0;                             // Held down, not new
+  //  else
+  //    jpressed = -1;                            // New press
+  //} else {
+  //  jpressed = 0;                               // Not pressed
+  //}
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int drmouse(int a1, int a2, int a3, int a4)
+void drmouse(int iX0, int iY0, uint8 *pData, uint8 *pScreenBase)
 {
-  return 0; /*
-  int v4; // edi
-  int v5; // ebx
-  int v7; // eax
-  unsigned __int8 *v8; // ebx
-  int v9; // ebp
+  int iScreenWidth; // edi
+  uint8 *pDataPlus1; // ebx
+  int iHotX; // eax
+  uint8 *pDataItr2; // ebx
+  int iYItr; // ebp
   int v10; // esi
-  _BYTE *v11; // edx
+  uint8 *pRowPtr; // edx
   int i; // eax
-  int v13; // ecx
-  int result; // eax
-  int v15; // [esp+0h] [ebp-1Ch]
-  int v16; // [esp+4h] [ebp-18h]
-  int v17; // [esp+8h] [ebp-14h]
+  int iPixel; // ecx
+  uint8 *pScreenBuf; // [esp+0h] [ebp-1Ch]
+  int iYEnd; // [esp+4h] [ebp-18h]
+  int iXStart; // [esp+8h] [ebp-14h]
 
-  v4 = XMAX;
-  v5 = a3 + 1;
-  v7 = *(unsigned __int8 *)(v5 - 1);
-  v8 = (unsigned __int8 *)(v5 + 1);
-  v17 = a1 - v7;
-  v9 = a2 - *(v8 - 1);
-  v15 = a1 - v7 + a4;
-  v10 = a1 - v7 + 16;
-  v16 = v9 + 16;
+  iScreenWidth = XMAX;
+  pDataPlus1 = pData + 1;
+
+  // Read cursor hotspot offset from image data
+  iHotX = *(pDataPlus1 - 1);
+  pDataItr2 = pDataPlus1 + 1;
+
+  // Calculate top-left position accounting for hotspot
+  iXStart = iX0 - iHotX;
+  iYItr = iY0 - *(pDataItr2 - 1);
+
+  // Offset into screen buffer
+  pScreenBuf = &pScreenBase[iX0 - iHotX];
+
+  // Calculate bounding box (16x16 image)
+  v10 = iX0 - iHotX + 16;
+  iYEnd = iYItr + 16;
   do {
-    v11 = (_BYTE *)(v15 + v4 * v9);
-    for (i = v17; i < v10; ++v11) {
-      v13 = *v8++;
-      if (v13 && i > 0 && i < v4)
-        *v11 = v13;
+    // Row start pos in screen buf
+    pRowPtr = &pScreenBuf[iScreenWidth * iYItr];
+
+    // Iterate through cursor columns
+    for (i = iXStart; i < v10; ++pRowPtr) {
+      iPixel = *pDataItr2++;
+
+      // Draw non-transparent pixels within horizontal scren bounds
+      if (iPixel && i > 0 && i < iScreenWidth)
+        *pRowPtr = iPixel;                      // draw pixel to screen
       ++i;
     }
-    result = v16;
-    ++v9;
-  } while (v9 != v16);
-  XMAX = v4;
-  return result;*/
+    ++iYItr;
+  } while (iYItr != iYEnd);
+  XMAX = iScreenWidth;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void *plotmouse()
+void plotmouse()
 {
-  return 0; /*
-  int v0; // ecx
-  int v1; // esi
-  _BYTE *result; // eax
+  int iScreenWidth; // ecx
+  int iMouseX; // esi
+  uint8 *pScreenBuf; // eax
 
-  v0 = XMAX;
-  v1 = mousex;
-  result = (_BYTE *)(XMAX * (199 - mousey) + mousex + scrbuf);
+  iScreenWidth = XMAX;
+  iMouseX = mousex;
+
+  // Get the location of the mouse in scrbuf (320x200)
+  pScreenBuf = &scrbuf[mousex + XMAX * (199 - mousey)];
+
+  // Draw a crosshair mouse cursor, color 0x8F (white in PALETTE.PAL)
+
+  // horizontal arms (with bounds checking)
   if (mousex > 3)
-    *(result - 4) = -113;
-  if (v1 > 2)
-    *(result - 3) = -113;
-  *result = -113;
-  if (v1 < v0 - 3)
-    result[3] = -113;
-  if (v1 < v0 - 4)
-    result[4] = -113;
-  result[-4 * v0] = -113;
-  result[-3 * v0] = -113;
-  result[3 * v0] = -113;
-  result[4 * v0] = -113;
-  mousex = v1;
-  XMAX = v0;
-  return result;*/
+    *(pScreenBuf - 4) = 0x8F;
+  if (iMouseX > 2)
+    *(pScreenBuf - 3) = 0x8F;
+  *pScreenBuf = 0x8F;
+  if (iMouseX < iScreenWidth - 3)
+    pScreenBuf[3] = 0x8F;
+  if (iMouseX < iScreenWidth - 4)
+    pScreenBuf[4] = 0x8F;
+
+  // vertical arms (no Y bounds checking)
+  pScreenBuf[-4 * iScreenWidth] = 0x8F;
+  pScreenBuf[-3 * iScreenWidth] = 0x8F;
+  pScreenBuf[3 * iScreenWidth] = 0x8F;
+  pScreenBuf[4 * iScreenWidth] = 0x8F;
+  mousex = iMouseX;
+  XMAX = iScreenWidth;
 }
 
 //-------------------------------------------------------------------------------------------------

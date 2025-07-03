@@ -4,12 +4,12 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
-int initmouse();
-int mousexy();
-int mousebut(uint16 a1, int a2, int a3, int a4);
-int checkmouse(int a1, int a2, int a3, int a4);
-int drmouse(int a1, int a2, int a3, int a4);
-void *plotmouse();
+void initmouse();
+void mousexy();
+int mousebut(uint16 unMask);
+void checkmouse();
+void drmouse(int iX0, int iY0, uint8 *pData, uint8 *pScreenBase);
+void plotmouse();
 
 //-------------------------------------------------------------------------------------------------
 #endif
