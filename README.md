@@ -16,6 +16,7 @@ Note: wdump symbol offsets do not account for DOS4GW.EXE. Load FATAL.EXE_split_d
 ## External Dependencies Used:
 * SDL3.2.14: https://github.com/libsdl-org/SDL
 * SDL_Image3.2.4: https://github.com/libsdl-org/SDL_image
+* WildMIDI 0.4.6: https://github.com/Mindwerks/wildmidi
 
 ## Installation
 
@@ -36,6 +37,7 @@ make
 ### Prerequisites
 * SDL3
 * SDL3_Image
+* WildMIDI
 
 ## Build Zig
 
