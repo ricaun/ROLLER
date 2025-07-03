@@ -205,7 +205,7 @@ void GetAudioInfo()
 
   // Process audio tracks
   if (first_track <= last_track) {
-    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+    for (uint8 byTrack = first_track; byTrack <= last_track && byTrack < 99; byTrack++) {
       // Read track start position
       buffer[0] = 0x0B;
       buffer[1] = byTrack;
@@ -234,7 +234,7 @@ void GetAudioInfo()
 
   // Calculate track lengths
   if (first_track <= last_track) {
-    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+    for (uint8 byTrack = first_track; byTrack <= last_track && byTrack < 99; byTrack++) {
       // Track length = next start position - current start position
       uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
       // Store in global tracklengths array (indexed by track number)
