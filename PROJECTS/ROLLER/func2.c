@@ -3167,36 +3167,26 @@ char display_paused()
 
 void enable_keyboard()
 {
-  /*
-  int v0; // eax
+  // Process all pending events first to ensure buffer is current
+  UpdateSDL();
 
-  while (1) {
-    if (write_key == read_key && !twoparter)
-      v0 = read_key ^ write_key;
-    else
-      v0 = -1;
-    if (!v0)
-      JUMPOUT(0x183C2);
+  // Flush the keyboard buffer
+  while (write_key != read_key || twoparter != 0) {
     fatgetch();
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void disable_keyboard()
 {
-  /*
-  int v0; // eax
+  // Process all pending events first to ensure buffer is current
+  UpdateSDL();
 
-  while (1) {
-    if (write_key == read_key && !twoparter)
-      v0 = read_key ^ write_key;
-    else
-      v0 = -1;
-    if (!v0)
-      JUMPOUT(0x183C2);
+  // Flush the keyboard buffer
+  while (write_key != read_key || twoparter != 0) {
     fatgetch();
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
