@@ -783,8 +783,8 @@ void select_screen()
       //  DrawCar((int)(scrbuf + 34640), 12, 6000.0, 1280, 0);
       //else
       //  DrawCar((int)(scrbuf + 34640), iBlockIdx, 2200.0, 1280, 0);
-      //if (iBlockIdx < 8)
-      //  display_block(scrbuf, (tBlockHeader *)front_vga[3], iBlockIdx, 190, 356, 0);
+      if (iBlockIdx < 8)
+        display_block(scrbuf, (tBlockHeader *)front_vga[3], iBlockIdx, 190, 356, 0);
     }
     display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
     display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
@@ -913,10 +913,10 @@ void select_screen()
       while (1) {
         UpdateSDL(); //added by ROLLER
         if (!fatkbhit()) {
-          //iNewYaw = Car[0].nYaw + 32 * iFrames;
-          //HIBYTE(iNewYaw) &= 0x3Fu;
-          //Car[0].nYaw = iNewYaw;
-          //v79 = ((_WORD)v79 + 32 * iFrames) & 0x3FFF;
+          int iNewYaw = Car[0].nYaw + 32 * iFrames;
+          iNewYaw &= 0x3FFFFFFF;
+          Car[0].nYaw = iNewYaw;
+          v79 = ((int16)v79 + 32 * iFrames) & 0x3FFF;
           goto LABEL_45;
         }
         ticks = 0;
