@@ -66,7 +66,7 @@ void claim_key_int();
 int fatkbhit();
 int fatgetch();
 void release_key_int();
-int clear_border(int a1, int a2, int a3, int a4);
+void clear_border(int x, int y, int iWidth, int iLines);
 void DisplayFree();
 void setdirectory(const char *szAppPath);
 void FindShades();

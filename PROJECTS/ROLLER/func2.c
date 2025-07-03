@@ -1471,36 +1471,36 @@ void release_key_int()
 
 //-------------------------------------------------------------------------------------------------
 
-int clear_border(int a1, int a2, int a3, int a4)
+void clear_border(int x, int y, int iWidth, int iLines)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  int v4; // edi
-  int v5; // ebp
-  int v6; // esi
-  int v7; // ebx
-  int result; // eax
-  int v9; // [esp+0h] [ebp-10h]
+  int iOldWinX; // edi
+  int iOldWinY; // ebp
+  int iOldWinH; // esi
+  int iLine; // ebx
+  int iOldWinW; // [esp+0h] [ebp-10h]
 
-  v4 = winx;
-  v5 = winy;
-  v9 = winw;
-  winx = a1;
-  winy = a2;
-  winw = a3;
-  v6 = winh;
-  v7 = 0;
-  for (winh = 1; v7 < a4; ++winy) {
-    copypic(blank_line, (int)screen);
-    ++v7;
+  iOldWinX = winx;
+  iOldWinY = winy;
+  iOldWinW = winw;
+
+  // Set temporary window dimensions
+  winx = x;
+  winy = y;
+  winw = iWidth;
+  iOldWinH = winh;
+  iLine = 0;
+
+  // Clear each specified line
+  for (winh = 1; iLine < iLines; ++winy) {
+    copypic(blank_line, (uint8 *)screen);
+    ++iLine;
   }
-  result = v9;
-  winh = v6;
-  winx = v4;
-  winy = v5;
-  winw = v9;
-  return result;*/
+
+  // Restore original window state
+  winh = iOldWinH;
+  winx = iOldWinX;
+  winy = iOldWinY;
+  winw = iOldWinW;
 }
 
 //-------------------------------------------------------------------------------------------------
