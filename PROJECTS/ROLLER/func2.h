@@ -61,14 +61,7 @@ int print_damage(uint8 *a1, int *a2, int a3);
 int print_pos(int result, int a2, int a3);
 void free_game_memory();
 int readmode();
-void key_handler(
-        int a1,
-        int a2,
-        int a3,
-        int a4,
-        int a5,
-        int a6,
-        int a7);
+void key_handler(uint8 byScancode);
 void claim_key_int();
 int fatkbhit();
 int fatgetch();

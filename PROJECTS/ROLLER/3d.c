@@ -43,6 +43,7 @@ int messages = 0;           //000A34A8
 int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
 int paused = 0;             //000A34C4
+int pause_request = 0;      //000A34C8
 int network_on = 0;         //000A3510
 int mirror = 0;             //000A3524
 void *screen = NULL; //= 0xA0000; //000A3538

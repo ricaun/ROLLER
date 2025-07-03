@@ -66,6 +66,7 @@ extern int messages;
 extern int SVGA_ON;
 extern int TrackLoad;
 extern int paused;
+extern int pause_request;
 extern int network_on;
 extern int mirror;
 extern void *screen;

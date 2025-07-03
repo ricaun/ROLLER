@@ -23,6 +23,9 @@
 
 int write_key = 0;          //000A39E4
 int read_key = 0;           //000A39E8
+int zoom_ascii_variable_1 = 0; //000A3AEC no symbols for these?
+int zoom_ascii_variable_2 = 0; //000A3AF0 no symbols for these?
+int zoom_ascii_variable_3 = 0; //000A3AF4 no symbols for these?
 uint8 mapping[] =           //000A3AF8
 {
   0x7F, 0x1B, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
@@ -1367,76 +1370,46 @@ int readmode()
 
 //-------------------------------------------------------------------------------------------------
 
-void key_handler(
-        int a1,
-        int a2,
-        int a3,
-        int a4,
-        int a5,
-        int a6,
-        int a7)
+void key_handler(uint8 byScancode)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
-  /*
-  int v7; // eax
-  int v8; // ebx
-  int v9; // esi
-  _UNKNOWN *retaddr; // [esp+0h] [ebp+0h] BYREF
-
-  ((void(__fastcall *)(int, int, int, int, _DWORD, _DWORD, _DWORD, _DWORD, int, int, int, int, _UNKNOWN **, int, int, int))loc_7A9C0)(
-    a1,
-    a2,
-    a4,
-    a3,
-    (unsigned __int16)__GS__,
-    (unsigned __int16)__FS__,
-    (unsigned __int16)__ES__,
-    (unsigned __int16)__DS__,
-    a1,
-    a2,
-    a3,
-    a4,
-    &retaddr,
-    a5,
-    a6,
-    a7);
-  v7 = 0;
-  LOBYTE(v7) = __inbyte(0x60u);
-  if (!frontend_on && !intro) {
-    zoom_ascii_variable_1 = zoom_ascii_variable_2;
-    v8 = zoom_ascii_variable_3;
-    v9 = zoom_ascii_variable_2;
-    zoom_ascii_variable_2 = zoom_ascii_variable_3;
-    zoom_ascii_variable_3 = v7;
-    if (v9 == 225 && v8 == 29 && v7 == 69)
-      pause_request = -1;
-  }
-  if ((v7 & 0x80u) == 0) {
-    keys[v7] = 1;
-    switch (v7) {
-      case 'H':
-      case 'K':
-      case 'M':
-      case 'P':
-        key_buffer[write_key++] = 0;
-        write_key &= 0x3Fu;
-        key_buffer[write_key++] = v7;
-        goto LABEL_13;
-      default:
-        key_buffer[write_key++] = v7;
-        write_key &= 0x3Fu;
-        if (read_key != write_key)
-          break;
-        --write_key;
-      LABEL_13:
-        write_key &= 0x3Fu;
-        break;
-    }
+  // Handle key press/release
+  if (byScancode & 0x80) {
+    // Key release
+    uint8 byCode = byScancode & 0x7F;
+    keys[byCode] = 0;
   } else {
-    keys[v7 & 0x7F] = 0;
+      // Key press
+    keys[byScancode] = 1;
+
+    // Pause sequence detection
+    if (!frontend_on && !intro) {
+      zoom_ascii_variable_1 = zoom_ascii_variable_2;
+      zoom_ascii_variable_2 = zoom_ascii_variable_3;
+      zoom_ascii_variable_3 = byScancode;
+
+      if (zoom_ascii_variable_1 == 0xE1 &&
+          zoom_ascii_variable_2 == 0x1D &&
+          zoom_ascii_variable_3 == 0x45) {
+        pause_request = 0xFFFFFFFF;
+      }
+    }
+
+    // Buffer handling
+    if (byScancode >= 0x48 && byScancode <= 0x50) {
+      // Special keys (arrows/numpad) - store as two bytes
+      key_buffer[write_key] = 0;
+      write_key = (write_key + 1) % 64;
+      key_buffer[write_key] = byScancode;
+      write_key = (write_key + 1) % 64;
+    } else {
+      // Normal keys
+      uint32 uiNext = (write_key + 1) % 64;
+      if (uiNext != read_key) {  // Only store if buffer not full
+        key_buffer[write_key] = byScancode;
+        write_key = uiNext;
+      }
+    }
   }
-  __outbyte(0x20u, 0x20u);
-  __asm { iret }*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1465,20 +1438,27 @@ int fatgetch()
   int iResult; // eax
 
   iTwoParter = twoparter;
+  // If we have a stored key part from a previous call
   if (twoparter) {
     iResult = twoparter;
-    iTwoParter = 0;
+    iTwoParter = 0;                             // clear stored value
   } else {
+
+    // Wait until keys are available in the buffer
     while (write_key == read_key)
-      ;
-    iResult = mapping[key_buffer[read_key++]];
+      UpdateSDL(); //added by ROLLER
+
+    // Read next scancode from buffer and get mapped character
+    iResult = (char)mapping[key_buffer[read_key++]];
     read_key &= 0x3Fu;
+
+    // Handle special keys
     if (iResult < 0) {
-      iTwoParter = -iResult;
-      iResult = 0;
+      iTwoParter = -iResult;                    // Convert to positive value
+      iResult = 0;                              // Return 0 for this call, special key value will be returned next call
     }
   }
-  twoparter = iTwoParter;
+  twoparter = iTwoParter;                       // Store special key for next call
   return iResult;
 }
 
