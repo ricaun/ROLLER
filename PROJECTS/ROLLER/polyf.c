@@ -1,4 +1,10 @@
 #include "polyf.h"
+#include "3d.h"
+#include "polytex.h"
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
 int twpoly(void *a1, int16 a2)
@@ -240,939 +246,158 @@ int16 POLYFLAT(int a1, int *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-void poly(int *a1, int a2, int16 a3)
-{/*
-  unsigned int v3; // ebp
-  int v5; // edi
-  int v6; // ecx
-  int v7; // ebx
-  int v8; // eax
-  int *v9; // eax
-  int v10; // ecx
-  int v11; // ebx
-  __int16 v12; // ax
-  int v13; // eax
-  int v14; // ecx
-  __int16 v15; // ax
-  int v16; // ecx
-  int v17; // ebx
-  int v18; // edx
-  int v19; // edx
-  __int16 v20; // ebx^2
-  int v21; // edx
-  int *v22; // eax
-  int v23; // ebx
-  int v24; // edx
-  int v25; // edx
-  int v26; // ebx
-  _BOOL1 v27; // zf
-  __int16 v28; // ax
-  int v29; // ebx
-  int v30; // ebx
-  __int16 v31; // bx
-  __int16 v32; // ebx^2
-  int v33; // edx
-  __int16 v34; // ax
-  int v35; // edx
-  int v36; // edx
-  int v37; // edx
-  unsigned int v38; // ebx
-  int v39; // edx
-  int v40; // eax
-  int v41; // edx
-  __int16 v42; // ebx^2
-  int v43; // edx
-  __int16 v44; // ax
-  int v45; // edx
-  int v46; // edx
-  int v47; // edx
-  int v48; // edx
-  int v49; // eax
-  int v50; // ecx
-  int v51; // eax
-  int v52; // edx
-  __int16 v53; // ebx^2
-  int v54; // edx
-  __int16 v55; // ax
-  int v56; // edx
-  int v57; // edx
-  int v58; // edx
-  int v59; // edx
-  __int16 v60; // ebx^2
-  int v61; // edx
-  __int16 v62; // ax
-  int v63; // edx
-  int v64; // edx
-  int v65; // edx
-  int v67; // [esp+0h] [ebp-68h]
-  int v68; // [esp+0h] [ebp-68h]
-  int v69; // [esp+4h] [ebp-64h]
-  int v70; // [esp+4h] [ebp-64h]
-  int v71; // [esp+4h] [ebp-64h]
-  int v72; // [esp+4h] [ebp-64h]
-  int v73; // [esp+8h] [ebp-60h]
-  int v74; // [esp+Ch] [ebp-5Ch]
-  int v75; // [esp+14h] [ebp-54h]
-  int v76; // [esp+18h] [ebp-50h]
-  int v77; // [esp+1Ch] [ebp-4Ch]
-  int v78; // [esp+20h] [ebp-48h]
-  int v79; // [esp+24h] [ebp-44h]
-  int v80; // [esp+28h] [ebp-40h]
-  int v81; // [esp+2Ch] [ebp-3Ch]
-  int v82; // [esp+30h] [ebp-38h]
-  int v83; // [esp+30h] [ebp-38h]
-  int v84; // [esp+30h] [ebp-38h]
-  int v85; // [esp+30h] [ebp-38h]
-  int v86; // [esp+30h] [ebp-38h]
-  int v87; // [esp+30h] [ebp-38h]
-  int v88; // [esp+30h] [ebp-38h]
-  int v89; // [esp+30h] [ebp-38h]
-  int v90; // [esp+34h] [ebp-34h]
-  int v91; // [esp+34h] [ebp-34h]
-  int v92; // [esp+34h] [ebp-34h]
-  int v93; // [esp+34h] [ebp-34h]
-  int v94; // [esp+34h] [ebp-34h]
-  int v95; // [esp+34h] [ebp-34h]
-  int v96; // [esp+34h] [ebp-34h]
-  int v97; // [esp+34h] [ebp-34h]
-  int v98; // [esp+38h] [ebp-30h]
-  int v99; // [esp+38h] [ebp-30h]
-  int v100; // [esp+3Ch] [ebp-2Ch]
-  int v101; // [esp+3Ch] [ebp-2Ch]
-  int v102; // [esp+40h] [ebp-28h]
-  int v103; // [esp+44h] [ebp-24h]
-  int v105; // [esp+4Ch] [ebp-1Ch]
-  int v106; // [esp+50h] [ebp-18h]
+void poly(tPoint *vertices, int iVertexCount, int16 nColor)
+{
+  int iWinWidth = winw;
+  int iWinHeight = winh;
+  uint8 *pScrBuf = scrptr;
 
-  v3 = winw;
-  v5 = 0;
-  v80 = *a1;
-  v77 = *a1;
-  v103 = 1;
-  v79 = a1[1];
-  v78 = v79;
-  while (1) {
-    LOWORD(v8) = v103;
-    if ((__int16)v103 >= (__int16)a2)
-      break;
-    v6 = a1[2 * (__int16)v103];
-    v7 = a1[2 * (__int16)v103 + 1];
-    if (v6 <= v77) {
-      if (v6 < v80)
-        v80 = a1[2 * (__int16)v103];
-    } else {
-      v77 = a1[2 * (__int16)v103];
-    }
-    if (v7 <= v78) {
-      if (v7 < v79) {
-        v5 = v103;
-        v79 = a1[2 * (__int16)v103 + 1];
-      }
-    } else {
-      v78 = a1[2 * (__int16)v103 + 1];
-    }
-    ++v103;
-  }
-  if (v77 < 0)
-    goto LABEL_257;
-  if (v78 < 0)
-    goto LABEL_257;
-  if (winw <= v80)
-    goto LABEL_257;
-  LOWORD(v8) = v79;
-  if (v79 >= winh)
-    goto LABEL_257;
-  v9 = &a1[2 * (__int16)v5];
-  v10 = v9[1];
-  v102 = v5;
-  if (v10 >= 0) {
-    HIWORD(v99) = *(_WORD *)v9;
-    HIWORD(v101) = *(_WORD *)v9;
-    LOWORD(v99) = -1;
-    LOWORD(v101) = 0;
-    LOWORD(v92) = 0;
-    LOWORD(v84) = 0;
-    while (1) {
-      HIWORD(v19) = HIWORD(a2);
-      ++v5;
-      v20 = HIWORD(v101);
-      if ((_WORD)v5 == (_WORD)a2)
-        v5 ^= a2;
-      v8 = (int)&a1[2 * (__int16)v5];
-      LOWORD(v19) = *(_WORD *)(v8 + 4) - v10;
-      v106 = v19;
-      if ((_WORD)v19)
-        break;
-      if ((_WORD)v5 == (_WORD)v102)
-        goto LABEL_119;
-      HIWORD(v101) = *(_WORD *)v8;
-    }
-    HIWORD(v84) = *(_WORD *)v8 - HIWORD(v101);
-    if (v84 >= 0) {
-      ++HIWORD(v84);
-      v83 = v84 / ((__int16)v19 + 1);
-    } else {
-      --HIWORD(v84);
-      v68 = (__int16)v19 + 1;
-      v101 += v84 / v68;
-      v83 = v84 / v68;
-      ++HIWORD(v101);
-    }
-    while (1) {
-      v21 = --v102;
-      if ((__int16)v102 == -1)
-        v102 = a2 - 1;
-      v22 = &a1[2 * (__int16)v102];
-      LOWORD(v21) = *((_WORD *)v22 + 2) - v10;
-      v105 = v21;
-      if ((_WORD)v21)
-        break;
-      if ((_WORD)v5 == (_WORD)v102) {
-        LOWORD(v8) = -1;
-        HIWORD(v101) = v20;
-        goto LABEL_119;
-      }
-      HIWORD(v99) = *(_WORD *)v22;
-    }
-    HIWORD(v92) = *(_WORD *)v22 - HIWORD(v99);
-    if (v92 <= 0) {
-      --HIWORD(v92);
-      v91 = v92 / ((__int16)v21 + 1);
-      ++HIWORD(v99);
-    } else {
-      ++HIWORD(v92);
-      v23 = (__int16)v21 + 1;
-      v24 = v92 / v23 + v99;
-      v91 = v92 / v23;
-      v99 = v24;
-    }
-  } else {
-    v11 = v9[1];
-    v81 = v11;
-    LOWORD(v90) = 0;
-    LOWORD(v82) = 0;
-    LOWORD(v100) = 0;
-    LOWORD(v98) = -1;
-    do {
-      v12 = a1[2 * (__int16)v5++];
-      HIWORD(v100) = v12;
-      if ((_WORD)v5 == (_WORD)a2)
-        v5 ^= a2;
-      v13 = a1[2 * (__int16)v5 + 1];
-      v14 = v81;
-      v81 = v13;
-    } while (v13 < 0);
-    if (!v13) {
-      do {
-        v15 = a1[2 * (__int16)v5++];
-        HIWORD(v100) = v15;
-        if ((_WORD)v5 == (_WORD)a2)
-          v5 ^= a2;
-        v8 = a1[2 * (__int16)v5 + 1];
-        v14 = v81;
-        v81 = v8;
-      } while (!v8);
-      if (v8 < 0)
-        goto LABEL_257;
-    }
-    HIWORD(v82) = LOWORD(a1[2 * (__int16)v5]) - HIWORD(v100);
-    v106 = v81;
-    if (v82 >= 0) {
-      ++HIWORD(v82);
-      v83 = v82 / ((__int16)v81 - v14 + 1);
-    } else {
-      --HIWORD(v82);
-      v67 = (__int16)v81 - v14 + 1;
-      v100 += v82 / v67;
-      v83 = v82 / v67;
-      ++HIWORD(v100);
-    }
-    v101 = v100 - v83 * v14;
-    do {
-      HIWORD(v98) = a1[2 * (__int16)v102--];
-      if ((__int16)v102 == -1)
-        v102 = a2 - 1;
-      v16 = v11;
-      v11 = a1[2 * (__int16)v102 + 1];
-    } while (v11 < 0);
-    if (!v11) {
-      do {
-        HIWORD(v98) = a1[2 * (__int16)v102--];
-        if ((__int16)v102 == -1)
-          v102 = a2 - 1;
-        LOWORD(v8) = v102;
-        v16 = v11;
-        v11 = a1[2 * (__int16)v102 + 1];
-      } while (!v11);
-      if (v11 < 0)
-        goto LABEL_257;
-    }
-    HIWORD(v90) = LOWORD(a1[2 * (__int16)v102]) - HIWORD(v98);
-    v105 = v11;
-    if (v90 <= 0) {
-      --HIWORD(v90);
-      v91 = v90 / ((__int16)v11 - v16 + 1);
-      ++HIWORD(v98);
-    } else {
-      ++HIWORD(v90);
-      v17 = (__int16)v11 - v16 + 1;
-      v18 = v90 / v17 + v98;
-      v91 = v90 / v17;
-      v98 = v18;
-    }
-    v99 = v98 - v91 * v16;
-    v10 = 0;
-  }
-  while (SHIWORD(v101) >= winw || SHIWORD(v99) <= 0) {
-    LOWORD(v8) = v83;
-    v25 = v83 + v101;
-    ++v10;
-    v99 += v91;
-    HIWORD(v26) = HIWORD(v106);
-    v101 += v83;
-    LOWORD(v26) = v106 - 1;
-    v27 = (_WORD)v106 == 1;
-    v106 = v26;
-    if (v27) {
-      while ((_WORD)v5 != (_WORD)v102) {
-        v28 = a1[2 * (__int16)v5++];
-        HIWORD(v101) = v28;
-        if ((_WORD)v5 == (_WORD)a2)
-          v5 ^= a2;
-        v8 = (int)&a1[2 * (__int16)v5];
-        LOWORD(v25) = *(_WORD *)(v8 + 4);
-        v25 -= v10;
-        v106 = v25;
-        if ((__int16)v25 > 0) {
-          HIWORD(v85) = *(_WORD *)v8 - HIWORD(v101);
-          LOWORD(v85) = 0;
-          LOWORD(v101) = 0;
-          if (v85 >= 0) {
-            ++HIWORD(v85);
-            v30 = (__int16)v25 + 1;
-            v25 = v85 % v30;
-            v83 = v85 / v30;
-          } else {
-            --HIWORD(v85);
-            v29 = (__int16)v25 + 1;
-            v25 = v85 % v29;
-            v101 += v85 / v29;
-            v83 = v85 / v29;
-            ++HIWORD(v101);
-          }
-          goto LABEL_72;
-        }
-        if ((v25 & 0x8000u) != 0)
-          goto LABEL_257;
-      }
-      goto LABEL_257;
-    }
-  LABEL_72:
-    HIWORD(v8) = HIWORD(v105);
-    LOWORD(v8) = v105 - 1;
-    v27 = (_WORD)v105 == 1;
-    v105 = v8;
-    if (v27) {
-      while (1) {
-        v31 = v102;
-        if ((_WORD)v5 == (_WORD)v102)
-          goto LABEL_257;
-        HIWORD(v99) = a1[2 * (__int16)v102--];
-        if ((__int16)(v31 - 1) == -1)
-          v102 = a2 - 1;
-        v8 = (int)&a1[2 * (__int16)v102];
-        LOWORD(v25) = *(_WORD *)(v8 + 4);
-        v25 -= v10;
-        v105 = v25;
-        if ((__int16)v25 > 0) {
-          HIWORD(v93) = *(_WORD *)v8 - HIWORD(v99);
-          LOWORD(v93) = 0;
-          LOWORD(v99) = -1;
-          if (v93 <= 0) {
-            --HIWORD(v93);
-            v8 = v93 / ((__int16)v25 + 1);
-            v91 = v8;
-            ++HIWORD(v99);
-          } else {
-            ++HIWORD(v93);
-            v91 = v93 / ((__int16)v25 + 1);
-            LOWORD(v8) = v91;
-            v99 += v91;
-          }
-          break;
-        }
-        if ((v25 & 0x8000u) != 0)
-          goto LABEL_257;
-      }
-    }
-    if (v10 >= winh)
-      goto LABEL_257;
-  }
-  while (1) {
-    if (SHIWORD(v101) < v3) {
-      LOWORD(v8) = HIWORD(v99);
-      if (SHIWORD(v99) <= v3)
-        goto LABEL_91;
-      goto LABEL_181;
-    }
-    LOWORD(v8) = HIWORD(v101);
-    if (SHIWORD(v101) >= (int)v3)
-      goto LABEL_257;
-    LOWORD(v8) = HIWORD(v99);
-    if (SHIWORD(v99) > v3) {
-    LABEL_222:
-      if (SHIWORD(v99) > 0)
-        goto LABEL_223;
-      goto LABEL_257;
-    }
-    while (1) {
-    LABEL_136:
-      LOWORD(v8) = HIWORD(v99);
-      if (SHIWORD(v99) > 0) {
-        winw = v3;
-        memset(v3 * v10 + scrptr, a3, SHIWORD(v99));
-        v3 = winw;
-      } else if (v99 < 0) {
-        goto LABEL_257;
-      }
-      ++v10;
-      v41 = v83 + v101;
-      v101 = v41;
-      HIWORD(v8) = HIWORD(v106);
-      v99 += v91;
-      v42 = HIWORD(v41);
-      LOWORD(v8) = v106 - 1;
-      v27 = (_WORD)v106 == 1;
-      v106 = v8;
-      if (v27) {
-        if ((_WORD)v5 == (_WORD)v102) {
-          HIWORD(v101) = HIWORD(v41);
-        LABEL_165:
-          if (v10 >= winh)
-            goto LABEL_257;
-          if (SHIWORD(v101) < v3) {
-            LOWORD(v8) = HIWORD(v101);
-            if (SHIWORD(v101) >= (int)v3)
-              goto LABEL_257;
-            LOWORD(v8) = HIWORD(v99);
-            if (SHIWORD(v99) <= v3)
-              goto LABEL_127;
-            goto LABEL_214;
-          }
-          LOWORD(v8) = HIWORD(v99);
-          if (SHIWORD(v99) <= v3) {
-          LABEL_173:
-            if (SHIWORD(v99) > 0) {
-              v49 = v3 * v10;
-              v39 = a3;
-              v50 = scrptr;
-              v38 = SHIWORD(v99);
-              goto LABEL_255;
-            }
-            goto LABEL_257;
-          }
-        LABEL_253:
-          if (SHIWORD(v99) <= 0)
-            goto LABEL_257;
-          goto LABEL_254;
-        }
-        while (1) {
-          HIWORD(v43) = HIWORD(a2);
-          v44 = a1[2 * (__int16)v5++];
-          HIWORD(v101) = v44;
-          if ((_WORD)v5 == (_WORD)a2)
-            v5 ^= a2;
-          v8 = (int)&a1[2 * (__int16)v5];
-          LOWORD(v43) = *(_WORD *)(v8 + 4);
-          v45 = v43 - v10;
-          v106 = v45;
-          if ((__int16)v45 > 0)
-            break;
-          if ((v45 & 0x8000u) != 0)
-            goto LABEL_257;
-          if ((_WORD)v5 == (_WORD)v102) {
-            HIWORD(v101) = v42;
-            goto LABEL_165;
-          }
-        }
-        HIWORD(v87) = *(_WORD *)v8 - HIWORD(v101);
-        LOWORD(v87) = 0;
-        LOWORD(v101) = 0;
-        if (v87 >= 0) {
-          ++HIWORD(v87);
-          v83 = v87 / ((__int16)v45 + 1);
-        } else {
-          --HIWORD(v87);
-          v70 = (__int16)v45 + 1;
-          v101 += v87 / v70;
-          v83 = v87 / v70;
-          ++HIWORD(v101);
-        }
-      }
-      LOWORD(v8) = v99;
-      HIWORD(v46) = HIWORD(v105);
-      v74 = v99;
-      LOWORD(v46) = v105 - 1;
-      v27 = (_WORD)v105 == 1;
-      v105 = v46;
-      if (v27) {
-        while (1) {
-          v47 = v102;
-          if ((_WORD)v5 == (_WORD)v102) {
-            LOWORD(v8) = v74;
-            HIWORD(v101) = v42;
-            HIWORD(v99) = HIWORD(v74);
-            goto LABEL_165;
-          }
-          HIWORD(v99) = a1[2 * (__int16)v102--];
-          if ((__int16)(v47 - 1) == -1)
-            v102 = a2 - 1;
-          v8 = (int)&a1[2 * (__int16)v102];
-          LOWORD(v47) = *(_WORD *)(v8 + 4);
-          v48 = v47 - v10;
-          v105 = v48;
-          if ((__int16)v48 > 0)
-            break;
-          if ((v48 & 0x8000u) != 0)
-            goto LABEL_257;
-        }
-        HIWORD(v95) = *(_WORD *)v8 - HIWORD(v99);
-        LOWORD(v95) = 0;
-        LOWORD(v99) = -1;
-        if (v95 <= 0) {
-          --HIWORD(v95);
-          v8 = v95 / ((__int16)v48 + 1);
-          v91 = v8;
-          ++HIWORD(v99);
-        } else {
-          ++HIWORD(v95);
-          v91 = v95 / ((__int16)v48 + 1);
-          LOWORD(v8) = v91;
-          v99 += v91;
-        }
-      }
-      if (v10 >= winh) {
-        winw = v3;
-        return v8;
-      }
-      if (SHIWORD(v101) < v3)
-        break;
-      LOWORD(v8) = HIWORD(v99);
-      if (SHIWORD(v99) > v3)
-        goto LABEL_222;
-    }
-    LOWORD(v8) = HIWORD(v101);
-    if (SHIWORD(v101) >= (int)v3)
-      goto LABEL_257;
-    LOWORD(v8) = HIWORD(v99);
-    if (SHIWORD(v99) <= v3)
-      goto LABEL_91;
-  LABEL_181:
-    if (SHIWORD(v99) <= 0)
-      goto LABEL_257;
-  LABEL_182:
-    winw = v3;
-    v51 = v3 * v10++ + scrptr + SHIWORD(v101);
-    memset(v51, a3, v3 - SHIWORD(v101));
-    v3 = winw;
-    v52 = v83 + v101;
-    v101 = v52;
-    HIWORD(v8) = HIWORD(v106);
-    v99 += v91;
-    v53 = HIWORD(v52);
-    LOWORD(v8) = v106 - 1;
-    v27 = (_WORD)v106 == 1;
-    v106 = v8;
-    if (v27) {
-      if ((_WORD)v5 == (_WORD)v102) {
-        HIWORD(v101) = HIWORD(v52);
-      LABEL_207:
-        if (v10 >= winh)
-          goto LABEL_257;
-        if (SHIWORD(v101) < (unsigned int)winw) {
-          LOWORD(v8) = HIWORD(v99);
-          if (SHIWORD(v99) > (unsigned int)winw)
-            goto LABEL_215;
-        LABEL_126:
-          if (SHIWORD(v99) <= 0)
-            goto LABEL_257;
-          goto LABEL_127;
-        }
-        LOWORD(v8) = HIWORD(v101);
-        if (SHIWORD(v101) >= winw)
-          goto LABEL_257;
-      LABEL_251:
-        LOWORD(v8) = HIWORD(v99);
-        if (SHIWORD(v99) <= v3) {
-          if (SHIWORD(v99) <= 0)
-            goto LABEL_257;
-          goto LABEL_173;
-        }
-      LABEL_254:
-        v49 = v3 * v10;
-        v39 = a3;
-        v50 = scrptr;
-        v38 = v3;
-        goto LABEL_255;
-      }
-      while (1) {
-        HIWORD(v54) = HIWORD(a2);
-        v55 = a1[2 * (__int16)v5++];
-        HIWORD(v101) = v55;
-        if ((_WORD)v5 == (_WORD)a2)
-          v5 ^= a2;
-        v8 = (int)&a1[2 * (__int16)v5];
-        LOWORD(v54) = *(_WORD *)(v8 + 4);
-        v56 = v54 - v10;
-        v106 = v56;
-        if ((__int16)v56 > 0)
-          break;
-        if ((v56 & 0x8000u) != 0)
-          goto LABEL_257;
-        if ((_WORD)v5 == (_WORD)v102) {
-          HIWORD(v101) = v53;
-          goto LABEL_207;
-        }
-      }
-      HIWORD(v88) = *(_WORD *)v8 - HIWORD(v101);
-      LOWORD(v88) = 0;
-      LOWORD(v101) = 0;
-      if (v88 >= 0) {
-        ++HIWORD(v88);
-        v83 = v88 / ((__int16)v56 + 1);
-      } else {
-        --HIWORD(v88);
-        v71 = (__int16)v56 + 1;
-        v101 += v88 / v71;
-        v83 = v88 / v71;
-        ++HIWORD(v101);
-      }
-    }
-    LOWORD(v8) = v99;
-    HIWORD(v57) = HIWORD(v105);
-    v76 = v99;
-    LOWORD(v57) = v105 - 1;
-    v27 = (_WORD)v105 == 1;
-    v105 = v57;
-    if (!v27)
-      goto LABEL_205;
-    while (1) {
-      v58 = v102;
-      if ((_WORD)v5 == (_WORD)v102) {
-        LOWORD(v8) = v76;
-        HIWORD(v101) = v53;
-        HIWORD(v99) = HIWORD(v76);
-        goto LABEL_207;
-      }
-      HIWORD(v99) = a1[2 * (__int16)v102--];
-      if ((__int16)(v58 - 1) == -1)
-        v102 = a2 - 1;
-      v8 = (int)&a1[2 * (__int16)v102];
-      LOWORD(v58) = *(_WORD *)(v8 + 4);
-      v59 = v58 - v10;
-      v105 = v59;
-      if ((__int16)v59 > 0)
-        break;
-      if ((v59 & 0x8000u) != 0)
-        goto LABEL_257;
-    }
-    HIWORD(v96) = *(_WORD *)v8 - HIWORD(v99);
-    LOWORD(v96) = 0;
-    LOWORD(v99) = -1;
-    if (v96 <= 0) {
-      --HIWORD(v96);
-      v8 = v96 / ((__int16)v59 + 1);
-      v91 = v8;
-      ++HIWORD(v99);
-    } else {
-      ++HIWORD(v96);
-      v91 = v96 / ((__int16)v59 + 1);
-      LOWORD(v8) = v91;
-      v99 += v91;
-    }
-  LABEL_205:
-    if (v10 >= winh)
-      return v8;
-    if (SHIWORD(v101) >= (unsigned int)winw)
-      break;
-    LOWORD(v8) = HIWORD(v99);
-    if (SHIWORD(v99) > (unsigned int)winw)
-      goto LABEL_182;
-  LABEL_90:
-    if (SHIWORD(v99) <= 0)
-      goto LABEL_257;
-  LABEL_91:
-    LOWORD(v8) = HIWORD(v101);
-    if ((__int16)(HIWORD(v99) - HIWORD(v101)) > 0) {
-      winw = v3;
-      memset(v3 * v10 + SHIWORD(v101) + scrptr, a3, (__int16)(HIWORD(v99) - HIWORD(v101)));
-      v3 = winw;
-    } else if ((__int16)(HIWORD(v99) - HIWORD(v101)) < 0) {
-      goto LABEL_257;
-    }
-    LOWORD(v8) = v83;
-    v101 += v83;
-    v99 += v91;
-    v32 = HIWORD(v101);
-    HIWORD(v33) = HIWORD(v106);
-    ++v10;
-    LOWORD(v33) = v106 - 1;
-    v27 = (_WORD)v106 == 1;
-    v106 = v33;
-    if (v27) {
-      if ((_WORD)v5 != (_WORD)v102) {
-        while (1) {
-          v34 = a1[2 * (__int16)v5++];
-          HIWORD(v101) = v34;
-          if ((_WORD)v5 == (_WORD)a2)
-            v5 ^= a2;
-          v8 = (int)&a1[2 * (__int16)v5];
-          LOWORD(v33) = *(_WORD *)(v8 + 4);
-          v33 -= v10;
-          v106 = v33;
-          if ((__int16)v33 > 0)
-            break;
-          if ((v33 & 0x8000u) != 0)
-            goto LABEL_257;
-          if ((_WORD)v5 == (_WORD)v102) {
-            HIWORD(v101) = v32;
-            goto LABEL_119;
-          }
-        }
-        HIWORD(v86) = *(_WORD *)v8 - HIWORD(v101);
-        LOWORD(v86) = 0;
-        LOWORD(v101) = 0;
-        if (v86 >= 0) {
-          ++HIWORD(v86);
-          v83 = v86 / ((__int16)v33 + 1);
-        } else {
-          --HIWORD(v86);
-          v69 = (__int16)v33 + 1;
-          v101 += v86 / v69;
-          v83 = v86 / v69;
-          ++HIWORD(v101);
-        }
-        goto LABEL_106;
-      }
-    LABEL_119:
-      if (v10 >= winh)
-        goto LABEL_257;
-      if (SHIWORD(v101) < v3) {
-        LOWORD(v8) = HIWORD(v99);
-        if (SHIWORD(v99) <= v3) {
-        LABEL_127:
-          LOWORD(v8) = HIWORD(v99) - HIWORD(v101);
-          if ((__int16)(HIWORD(v99) - HIWORD(v101)) > 0) {
-            v38 = (__int16)v8;
-            v39 = a3;
-            v40 = SHIWORD(v101) + scrptr + v3 * v10;
-            goto LABEL_256;
-          }
-          goto LABEL_257;
-        }
-      LABEL_214:
-        if (SHIWORD(v99) > 0)
-          goto LABEL_215;
-        goto LABEL_257;
-      }
-      LOWORD(v8) = HIWORD(v101);
-      if (SHIWORD(v101) >= (int)v3)
-        goto LABEL_257;
-      LOWORD(v8) = HIWORD(v99);
-      if (SHIWORD(v99) <= v3)
-        goto LABEL_173;
-      goto LABEL_253;
-    }
-  LABEL_106:
-    LOWORD(v8) = v99;
-    HIWORD(v35) = HIWORD(v105);
-    v73 = v99;
-    LOWORD(v35) = v105 - 1;
-    v27 = (_WORD)v105 == 1;
-    v105 = v35;
-    if (v27) {
-      while (1) {
-        v36 = v102;
-        if ((_WORD)v5 == (_WORD)v102) {
-          LOWORD(v8) = v73;
-          HIWORD(v101) = v32;
-          HIWORD(v99) = HIWORD(v73);
-          goto LABEL_119;
-        }
-        HIWORD(v99) = a1[2 * (__int16)v102--];
-        if ((__int16)(v36 - 1) == -1)
-          v102 = a2 - 1;
-        v8 = (int)&a1[2 * (__int16)v102];
-        LOWORD(v36) = *(_WORD *)(v8 + 4);
-        v37 = v36 - v10;
-        v105 = v37;
-        if ((__int16)v37 > 0)
-          break;
-        if ((v37 & 0x8000u) != 0)
-          goto LABEL_257;
-      }
-      HIWORD(v94) = *(_WORD *)v8 - HIWORD(v99);
-      LOWORD(v94) = 0;
-      LOWORD(v99) = -1;
-      if (v94 <= 0) {
-        --HIWORD(v94);
-        v8 = v94 / ((__int16)v37 + 1);
-        v91 = v8;
-        ++HIWORD(v99);
-      } else {
-        ++HIWORD(v94);
-        v91 = v94 / ((__int16)v37 + 1);
-        LOWORD(v8) = v91;
-        v99 += v91;
-      }
-    }
-    if (v10 >= winh) {
-      winw = v3;
-      return v8;
+  // Find bounding box and top vertex
+  int iMinX = vertices[0].x;
+  int iMaxX = vertices[0].x;
+  int iMinY = vertices[0].y;
+  int iMaxY = vertices[0].y;
+  short nTopIdx = 0;
+
+  for (short i = 1; i < iVertexCount; i++) {
+    if (vertices[i].x > iMaxX) iMaxX = vertices[i].x;
+    if (vertices[i].x < iMinX) iMinX = vertices[i].x;
+    if (vertices[i].y > iMaxY) iMaxY = vertices[i].y;
+    if (vertices[i].y < iMinY) {
+      iMinY = vertices[i].y;
+      nTopIdx = i;
     }
   }
-  LOWORD(v8) = HIWORD(v101);
-  if (SHIWORD(v101) >= winw)
-    goto LABEL_257;
-  LOWORD(v8) = HIWORD(v99);
-  if (SHIWORD(v99) <= (unsigned int)winw) {
-  LABEL_135:
-    if (SHIWORD(v99) > 0)
-      goto LABEL_136;
-    goto LABEL_257;
+
+  // Check if polygon is completely off-screen
+  if (iMaxX < 0 || iMaxY < 0 || iMinX >= iWinWidth || iMinY >= iWinHeight) {
+    return;
   }
-  while (1) {
-  LABEL_223:
-    winw = v3;
-    memset(v3 * v10 + scrptr, a3, v3);
-    LOWORD(v8) = v91;
-    ++v10;
-    v101 += v83;
-    v99 += v91;
-    v60 = HIWORD(v101);
-    HIWORD(v61) = HIWORD(v106);
-    v3 = winw;
-    LOWORD(v61) = v106 - 1;
-    v27 = (_WORD)v106 == 1;
-    v106 = v61;
-    if (!v27)
-      goto LABEL_234;
-    if ((_WORD)v5 == (_WORD)v102)
-      break;
-    while (1) {
-      v62 = a1[2 * (__int16)v5++];
-      HIWORD(v101) = v62;
-      if ((_WORD)v5 == (_WORD)a2)
-        v5 ^= a2;
-      v8 = (int)&a1[2 * (__int16)v5];
-      LOWORD(v61) = *(_WORD *)(v8 + 4);
-      v61 -= v10;
-      v106 = v61;
-      if ((__int16)v61 > 0)
-        break;
-      if ((v61 & 0x8000u) != 0)
-        goto LABEL_257;
-      if ((_WORD)v5 == (_WORD)v102) {
-        HIWORD(v101) = v60;
-        goto LABEL_247;
-      }
-    }
-    HIWORD(v89) = *(_WORD *)v8 - HIWORD(v101);
-    LOWORD(v89) = 0;
-    LOWORD(v101) = 0;
-    if (v89 >= 0) {
-      ++HIWORD(v89);
-      v83 = v89 / ((__int16)v61 + 1);
-    } else {
-      --HIWORD(v89);
-      v72 = (__int16)v61 + 1;
-      v101 += v89 / v72;
-      v83 = v89 / v72;
-      ++HIWORD(v101);
-    }
-  LABEL_234:
-    LOWORD(v8) = v99;
-    HIWORD(v63) = HIWORD(v105);
-    v75 = v99;
-    LOWORD(v63) = v105 - 1;
-    v27 = (_WORD)v105 == 1;
-    v105 = v63;
-    if (v27) {
-      while (1) {
-        v64 = v102;
-        if ((_WORD)v5 == (_WORD)v102) {
-          LOWORD(v8) = v75;
-          HIWORD(v101) = v60;
-          HIWORD(v99) = HIWORD(v75);
-          goto LABEL_247;
-        }
-        HIWORD(v99) = a1[2 * (__int16)v102--];
-        if ((__int16)(v64 - 1) == -1)
-          v102 = a2 - 1;
-        v8 = (int)&a1[2 * (__int16)v102];
-        LOWORD(v64) = *(_WORD *)(v8 + 4);
-        v65 = v64 - v10;
-        v105 = v65;
-        if ((__int16)v65 > 0)
-          break;
-        if ((v65 & 0x8000u) != 0)
-          goto LABEL_257;
-      }
-      HIWORD(v97) = *(_WORD *)v8 - HIWORD(v99);
-      LOWORD(v97) = 0;
-      LOWORD(v99) = -1;
-      if (v97 <= 0) {
-        --HIWORD(v97);
-        v8 = v97 / ((__int16)v65 + 1);
-        v91 = v8;
-        ++HIWORD(v99);
-      } else {
-        ++HIWORD(v97);
-        v91 = v97 / ((__int16)v65 + 1);
-        LOWORD(v8) = v91;
-        v99 += v91;
-      }
-    }
-    if (v10 >= winh)
-      return v8;
-    if (SHIWORD(v101) < (unsigned int)winw) {
-      LOWORD(v8) = HIWORD(v101);
-      if (SHIWORD(v101) >= winw)
-        goto LABEL_257;
-      LOWORD(v8) = HIWORD(v99);
-      if (SHIWORD(v99) <= (unsigned int)winw)
-        goto LABEL_90;
-      goto LABEL_182;
-    }
-    LOWORD(v8) = HIWORD(v99);
-    if (SHIWORD(v99) <= (unsigned int)winw)
-      goto LABEL_135;
+
+  // Initialize edge tracking
+  short nLeftIdx = nTopIdx;
+  short nRightIdx = nTopIdx;
+  short nCurrY = iMinY;
+
+  // Left edge tracking
+  int iLeftX = vertices[nTopIdx].x;
+  int iLeftDx = 0;
+  int iLeftErr = 0;
+  int iLeftRemain = 0;
+
+  // Right edge tracking
+  int iRightX = vertices[nTopIdx].x;
+  int iRightDx = 0;
+  int iRightErr = 0;
+  int iRightRemain = 0;
+
+  // Initialize edges
+  // Find first downward left edge
+  short nNextLeft = (nLeftIdx + 1) % iVertexCount;
+  while (vertices[nNextLeft].y == nCurrY) {
+    nLeftIdx = nNextLeft;
+    nNextLeft = (nLeftIdx + 1) % iVertexCount;
   }
-LABEL_247:
-  if (v10 >= winh)
-    goto LABEL_257;
-  if (SHIWORD(v101) >= (unsigned int)winw)
-    goto LABEL_251;
-  LOWORD(v8) = HIWORD(v101);
-  if (SHIWORD(v101) >= winw)
-    goto LABEL_257;
-  LOWORD(v8) = HIWORD(v99);
-  if (SHIWORD(v99) <= (unsigned int)winw)
-    goto LABEL_126;
-LABEL_215:
-  v50 = v3 * v10;
-  v38 = v3 - SHIWORD(v101);
-  v49 = scrptr + SHIWORD(v101);
-  v39 = a3;
-LABEL_255:
-  v40 = v50 + v49;
-LABEL_256:
-  winw = v3;
-  LOWORD(v8) = memset(v40, v39, v38);
-  v3 = winw;
-LABEL_257:
-  winw = v3;
-  return v8;*/
+  iLeftRemain = vertices[nNextLeft].y - nCurrY;
+  iLeftDx = vertices[nNextLeft].x - vertices[nLeftIdx].x;
+  if (iLeftRemain != 0) {
+    iLeftErr = abs(iLeftDx) % abs(iLeftRemain);
+    iLeftDx = iLeftDx / iLeftRemain;
+  }
+
+  // Find first downward right edge
+  short nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
+  while (vertices[nNextRight].y == nCurrY) {
+    nRightIdx = nNextRight;
+    nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
+  }
+  iRightRemain = vertices[nNextRight].y - nCurrY;
+  iRightDx = vertices[nNextRight].x - vertices[nRightIdx].x;
+  if (iRightRemain != 0) {
+    iRightErr = abs(iRightDx) % abs(iRightRemain);
+    iRightDx = iRightDx / iRightRemain;
+  }
+
+  // Main scanline loop
+  while (nCurrY < iWinHeight) {
+      // Draw horizontal line between edges
+    if (iLeftX < iWinWidth && iRightX > 0 && iLeftX < iRightX) {
+      int iStartX = max(iLeftX, 0);
+      int iEndX = min(iRightX, iWinWidth);
+      if (iStartX < iEndX) {
+        uint8 *pDest = pScrBuf + nCurrY * iWinWidth + iStartX;
+        memset(pDest, nColor, iEndX - iStartX);
+      }
+    }
+
+    // Update left edge
+    iLeftErr += iLeftDx;
+    while (iLeftErr >= 1) {
+      iLeftX++;
+      iLeftErr--;
+    }
+    while (iLeftErr <= -1) {
+      iLeftX--;
+      iLeftErr++;
+    }
+
+    // Update right edge
+    iRightErr += iRightDx;
+    while (iRightErr >= 1) {
+      iRightX++;
+      iRightErr--;
+    }
+    while (iRightErr <= -1) {
+      iRightX--;
+      iRightErr++;
+    }
+
+    // Move to next scanline
+    nCurrY++;
+    iLeftRemain--;
+    iRightRemain--;
+
+    // Switch to next left edge if current finished
+    if (iLeftRemain == 0) {
+      nLeftIdx = nNextLeft;
+      nNextLeft = (nLeftIdx + 1) % iVertexCount;
+
+      // Skip horizontal edges
+      while (vertices[nNextLeft].y == nCurrY) {
+        nLeftIdx = nNextLeft;
+        nNextLeft = (nLeftIdx + 1) % iVertexCount;
+      }
+
+      iLeftRemain = vertices[nNextLeft].y - nCurrY;
+      iLeftDx = vertices[nNextLeft].x - vertices[nLeftIdx].x;
+      if (iLeftRemain != 0) {
+        iLeftErr = abs(iLeftDx) % abs(iLeftRemain);
+        iLeftDx = iLeftDx / iLeftRemain;
+      }
+    }
+
+    // Switch to next right edge if current finished
+    if (iRightRemain == 0) {
+      nRightIdx = nNextRight;
+      nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
+
+      // Skip horizontal edges
+      while (vertices[nNextRight].y == nCurrY) {
+        nRightIdx = nNextRight;
+        nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
+      }
+
+      iRightRemain = vertices[nNextRight].y - nCurrY;
+      iRightDx = vertices[nNextRight].x - vertices[nRightIdx].x;
+      if (iRightRemain != 0) {
+        iRightErr = abs(iRightDx) % abs(iRightRemain);
+        iRightDx = iRightDx / iRightRemain;
+      }
+    }
+
+    // Check if polygon is complete
+    if (nLeftIdx == nRightIdx) break;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
