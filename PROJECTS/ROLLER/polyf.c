@@ -5,182 +5,176 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <float.h>
 //-------------------------------------------------------------------------------------------------
 
-int twpoly(void *a1, int16 a2)
+void twpoly(tPoint *vertices, int16 nColor)
 {
-  return 0; /*
-  __int16 v3; // ax
-  __int16 v4; // di
-  __int16 v5; // si
-  __int16 v6; // bx
-  int v7; // eax
-  __int16 v8; // fps
-  _BOOL1 v9; // c0
-  char v10; // c2
-  _BOOL1 v11; // c3
-  double v12; // st6
-  double v13; // st7
-  int v14; // eax
-  int v15; // ebp
-  int v16; // edx
-  _WORD *v17; // eax
-  int v18; // ebx
-  double v19; // st6
-  double v20; // st7
-  int v21; // eax
-  int v23; // eax
-  int v24; // ebp
-  __int16 v25; // fps
-  _BOOL1 v26; // c0
-  char v27; // c2
-  _BOOL1 v28; // c3
-  double v29; // st7
-  int v30; // eax
-  int v31; // ebp
-  double v32; // st7
-  int v33; // eax
-  int v34; // [esp+0h] [ebp-68h]
-  int v35; // [esp+4h] [ebp-64h]
-  int v36; // [esp+8h] [ebp-60h]
-  int v37; // [esp+8h] [ebp-60h]
-  int v38; // [esp+8h] [ebp-60h]
-  int v39; // [esp+Ch] [ebp-5Ch]
-  int v40; // [esp+Ch] [ebp-5Ch]
-  int v41; // [esp+Ch] [ebp-5Ch]
-  int v42; // [esp+10h] [ebp-58h]
-  int v43; // [esp+14h] [ebp-54h]
-  int v44; // [esp+20h] [ebp-48h]
-  float v45; // [esp+24h] [ebp-44h]
-  float v46; // [esp+28h] [ebp-40h]
-  float v47; // [esp+2Ch] [ebp-3Ch]
-  float v48; // [esp+30h] [ebp-38h]
-  int v49; // [esp+34h] [ebp-34h]
-  __int16 v50; // [esp+38h] [ebp-30h]
-  __int16 v51; // [esp+3Ch] [ebp-2Ch]
-  __int16 v52; // [esp+40h] [ebp-28h]
-  __int16 v53; // [esp+44h] [ebp-24h]
-  __int16 v54; // [esp+48h] [ebp-20h]
-  __int16 v55; // [esp+4Ch] [ebp-1Ch]
+  int16 nEdge1Dx; // ax
+  int16 nEdge2Dx; // di
+  int16 nEdge2Dy; // si
+  int16 nEdge3Dy; // bx
+  double dIntersectionX2; // st6
+  double dIntersectionY2; // st7
+  int iNumVerts; // edx
+  tPoint *vertices2; // eax
+  int16 nColor2; // bx
+  double dIntersectionX; // st6
+  double dIntersectionY; // st7
+  int iCrossProductResult2; // ebp
+  double dIntersectionY3; // st7
+  int16 nColor3; // bp
+  double dIntersectionY4; // st7
+  tPoint pTempPoint2; // [esp+0h] [ebp-68h]
+  tPoint pTempPoint5; // [esp+8h] [ebp-60h]
+  tPoint pTempPoint3; // [esp+8h] [ebp-60h]
+  tPoint pTempPoint4; // [esp+8h] [ebp-60h]
+  tPoint pTempPoint; // [esp+10h] [ebp-58h]
+  int iCrossProductResult2_2; // [esp+20h] [ebp-48h]
+  float fCrossProduct2; // [esp+24h] [ebp-44h]
+  float fCrossProduct1; // [esp+28h] [ebp-40h]
+  float fIntersectionParam2; // [esp+2Ch] [ebp-3Ch]
+  float fIntersectionParam; // [esp+30h] [ebp-38h]
+  int iCrossProductResult1; // [esp+34h] [ebp-34h]
+  int16 nEdge1Dy; // [esp+38h] [ebp-30h]
+  int16 nSumEdge23Dy; // [esp+3Ch] [ebp-2Ch]
+  int16 nSumEdge23Dx; // [esp+40h] [ebp-28h]
+  int16 SumEdge23Dy2; // [esp+44h] [ebp-24h]
+  int16 nSumEdge23Dx2; // [esp+48h] [ebp-20h]
+  int16 nEdge3Dx; // [esp+4Ch] [ebp-1Ch]
 
-  v3 = a1[4] - *a1;
-  v4 = a1[8] - *a1;
-  v55 = a1[12] - a1[8];
-  v52 = v4 + v55;
-  v54 = v3 - v4;
-  v50 = a1[6] - a1[2];
-  v5 = a1[10] - a1[2];
-  v6 = a1[14] - a1[10];
-  v51 = v5 + v6;
-  v53 = v50 - v5;
-  v49 = 0;
-  v44 = 0;
-  v46 = (float)(v6 * v3 - v50 * v55);
-  if ((LODWORD(v46) & 0x7FFFFFFF) != 0) {
-    v7 = v50 * v4 - v5 * v3;
-    v49 = v7;
-    v48 = (double)v7 / v46;
-    if (v48 > 0.0) {
-      v9 = v48 > 1.0;
-      v10 = 0;
-      v11 = 1.0 == v48;
-      LOWORD(v7) = v8;
-      if (v48 < 1.0) {
-        v42 = *(_DWORD *)a1;
-        v43 = *((_DWORD *)a1 + 1);
-        if (v49 <= 0) {
-          *(_DWORD *)a1 = *((_DWORD *)a1 + 4);
-          *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 5);
-          v19 = (double)v55 * v48 + (double)*((int *)a1 + 4);
-          _CHP(v7, a2);
-          *((_DWORD *)a1 + 4) = (int)v19;
-          v20 = v48 * (double)v6 + (double)*((int *)a1 + 5);
-          _CHP(v21, a2);
-          *((_DWORD *)a1 + 5) = (int)v20;
-          poly(a1, 3, a2);
-          *(_DWORD *)a1 = *((_DWORD *)a1 + 6);
-          *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 7);
-          *((_DWORD *)a1 + 2) = v42;
-          *((_DWORD *)a1 + 3) = v43;
-          return poly(a1, 3, a2);
-        }
-        *(_DWORD *)a1 = *((_DWORD *)a1 + 2);
-        *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 3);
-        *((_DWORD *)a1 + 2) = *((_DWORD *)a1 + 4);
-        *((_DWORD *)a1 + 3) = *((_DWORD *)a1 + 5);
-        v12 = (double)v55 * v48 + (double)*((int *)a1 + 4);
-        _CHP(v7, a2);
-        *((_DWORD *)a1 + 4) = (int)v12;
-        v13 = v48 * (double)v6 + (double)*((int *)a1 + 5);
-        _CHP(v14, a2);
-        *((_DWORD *)a1 + 5) = (int)v13;
-        v15 = a2;
-        poly(a1, 3, a2);
-        *(_DWORD *)a1 = *((_DWORD *)a1 + 6);
-        *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 7);
-        v16 = 3;
-        v17 = a1;
-        v18 = v15;
-        *((_DWORD *)a1 + 2) = v42;
-        *((_DWORD *)a1 + 3) = v43;
-        return poly(v17, v16, v18);
+  nEdge1Dx = (int16)(vertices[1].x) - (int16)(vertices->x);
+  nEdge2Dx = (int16)(vertices[2].x) - (int16)(vertices->x);
+  nEdge3Dx = (int16)(vertices[3].x) - (int16)(vertices[2].x);
+  nSumEdge23Dx = nEdge2Dx + nEdge3Dx;
+  nSumEdge23Dx2 = nEdge1Dx - nEdge2Dx;
+  nEdge1Dy = (int16)(vertices[1].y) - (int16)(vertices->y);
+  nEdge2Dy = (int16)(vertices[2].y) - (int16)(vertices->y);
+  nEdge3Dy = (int16)(vertices[3].y) - (int16)(vertices[2].y);
+  nSumEdge23Dy = nEdge2Dy + nEdge3Dy;
+  SumEdge23Dy2 = nEdge1Dy - nEdge2Dy;
+  iCrossProductResult1 = 0;
+  iCrossProductResult2_2 = 0;
+  fCrossProduct1 = (float)(nEdge3Dy * nEdge1Dx - nEdge1Dy * nEdge3Dx);
+
+  // Check if quadrilateral is concave by testing edge intersections
+  if (fabsf(fCrossProduct1) > FLT_EPSILON)
+  {
+    iCrossProductResult1 = nEdge1Dy * nEdge2Dx - nEdge2Dy * nEdge1Dx;
+    fIntersectionParam = (float)((double)iCrossProductResult1 / (double)fCrossProduct1);
+
+    // Valid intersection point found 0 < t < 1
+    if (fIntersectionParam > 0.0 && fIntersectionParam < 1.0) {
+      pTempPoint = *vertices;
+      if (iCrossProductResult1 <= 0) {
+        // Case 1: Split into triangles P01-P1-P* and P0-P*-P3
+        *vertices = vertices[2];                // move P2 to P0 position
+
+        // Calculate intersection point P*
+        dIntersectionX = (double)nEdge3Dx * fIntersectionParam + (double)vertices[2].x;
+        dIntersectionX = round(dIntersectionX); //_CHP()
+        vertices[2].x = (int)dIntersectionX;
+        dIntersectionY = fIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
+        dIntersectionY = round(dIntersectionY); //_CHP()
+        vertices[2].y = (int)dIntersectionY;
+
+        // Render first triangle (P2, P3, P*)
+        poly(vertices, 3, nColor);
+
+        // Prepare second triangle (P0, P*, P3)
+        *vertices = vertices[3];                // Original P3
+        vertices[1] = pTempPoint;               // Original P0
+        poly(vertices, 3, nColor);
+        return;
       }
+      // Case 2: Split into triangles P0-P1-P* and P1-P2-P*
+      *vertices = vertices[1];                  // Move P1 to P0 position
+      vertices[1] = vertices[2];                // Move P2 to P1 position
+
+      // Calculate intersection point P*
+      dIntersectionX2 = (double)nEdge3Dx * fIntersectionParam + (double)vertices[2].x;
+      dIntersectionX2 = round(dIntersectionX2); //_CHP();
+      vertices[2].x = (int)dIntersectionX2;
+      dIntersectionY2 = fIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
+      dIntersectionY2 = round(dIntersectionY2); //_CHP();
+      vertices[2].y = (int)dIntersectionY2;
+
+      // Render first triangle (P1, P2, P*)
+      poly(vertices, 3, nColor);
+
+      // Prepare second triangle (P0, P*, P3)
+      *vertices = vertices[3];                  // Original P3
+      iNumVerts = 3;
+      vertices2 = vertices;
+      nColor2 = nColor;
+      vertices[1] = pTempPoint;                 // Original P0
+      goto LABEL_18;
     }
   }
-  v23 = v53 * v52 - v51 * v54;
-  v45 = (float)v23;
-  if ((LODWORD(v45) & 0x7FFFFFFF) == 0
-    || (v24 = v4 * v51 - v5 * v52, v44 = v24, v47 = (double)v24 / v45, v47 <= 0.0)
-    || (v26 = v47 > 1.0, v27 = 0, v28 = 1.0 == v47, LOWORD(v23) = v25, v47 >= 1.0)) {
-    if (v49 < 0 || v44 > 0) {
-      v34 = *((_DWORD *)a1 + 2);
-      v35 = *((_DWORD *)a1 + 3);
-      *((_DWORD *)a1 + 2) = *((_DWORD *)a1 + 6);
-      *((_DWORD *)a1 + 3) = *((_DWORD *)a1 + 7);
-      *((_DWORD *)a1 + 6) = v34;
-      *((_DWORD *)a1 + 7) = v35;
+
+  // Secondary concave test using different edge combination
+  fCrossProduct2 = (float)(SumEdge23Dy2 * nSumEdge23Dx - nSumEdge23Dy * nSumEdge23Dx2);
+  if (fabsf(fCrossProduct2) > FLT_EPSILON
+    || (iCrossProductResult2 = nEdge2Dx * nSumEdge23Dy - nEdge2Dy * nSumEdge23Dx,
+        iCrossProductResult2_2 = iCrossProductResult2,
+        fIntersectionParam2 = (float)((double)iCrossProductResult2 / (double)fCrossProduct2),
+        fIntersectionParam2 <= 0.0)             // Valid intersection point found (0 < t < 1)
+    || fIntersectionParam2 >= 1.0) {
+
+    // Convex quadrilateral handling
+    if (iCrossProductResult1 < 0 || iCrossProductResult2_2 > 0) {
+      // Swap P1 and P3 to fix winding order
+      pTempPoint2 = vertices[1];
+      vertices[1] = vertices[3];
+      vertices[3] = pTempPoint2;
     }
-    v18 = a2;
-    v17 = a1;
-    v16 = 4;
-    return poly(v17, v16, v18);
+    nColor2 = nColor;
+    vertices2 = vertices;
+    iNumVerts = 4;
+  LABEL_18:
+      // Render as convex quadrilateral
+    poly(vertices2, iNumVerts, nColor2);
+    return;
   }
-  if (v24 <= 0) {
-    v37 = *(_DWORD *)a1;
-    v40 = *((_DWORD *)a1 + 1);
-    *(_DWORD *)a1 = *((_DWORD *)a1 + 2);
-    *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 3);
-    *((_DWORD *)a1 + 2) = v37;
-    *((_DWORD *)a1 + 3) = v40;
-    v38 = *((_DWORD *)a1 + 4);
-    v41 = *((_DWORD *)a1 + 5);
-    _CHP(v23, a2);
-    *((_DWORD *)a1 + 4) = (int)((double)v54 * v47 + (double)v38);
-    v32 = v47 * (double)v53 + (double)*((int *)a1 + 5);
-    _CHP(v33, a2);
-    *((_DWORD *)a1 + 5) = (int)v32;
-    v31 = a2;
-    poly(a1, 3, a2);
-    *((_DWORD *)a1 + 2) = *((_DWORD *)a1 + 6);
-    *((_DWORD *)a1 + 3) = *((_DWORD *)a1 + 7);
-    *(_DWORD *)a1 = v38;
-    *((_DWORD *)a1 + 1) = v41;
+  if (iCrossProductResult2 <= 0) {
+    // Case 3: Swap vertices and split
+    pTempPoint3 = *vertices;
+    *vertices = vertices[1];                    // Swap P0 and P1
+    vertices[1] = pTempPoint3;
+    pTempPoint4 = vertices[2];
+    //_CHP();
+    // Calculate intersection point P*
+    vertices[2].x = (int)((double)nSumEdge23Dx2 * fIntersectionParam2 + (double)pTempPoint4.x);
+    dIntersectionY4 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)vertices[2].y;
+    dIntersectionY4 = round(dIntersectionY4); //_CHP();
+    vertices[2].y = (int)dIntersectionY4;
+    nColor3 = nColor;
+
+    // Render first triangle
+    poly(vertices, 3, nColor);
+
+    // Prepare second triangle
+    vertices[1] = vertices[3];
+    *vertices = pTempPoint4;
   } else {
-    v36 = *((_DWORD *)a1 + 4);
-    v39 = *((_DWORD *)a1 + 5);
-    _CHP(v23, a2);
-    *((_DWORD *)a1 + 4) = (int)((double)v54 * v47 + (double)v36);
-    v29 = v47 * (double)v53 + (double)*((int *)a1 + 5);
-    _CHP(v30, a2);
-    *((_DWORD *)a1 + 5) = (int)v29;
-    v31 = a2;
-    poly(a1, 3, a2);
-    *(_DWORD *)a1 = *((_DWORD *)a1 + 6);
-    *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 7);
-    *((_DWORD *)a1 + 2) = v36;
-    *((_DWORD *)a1 + 3) = v39;
+    // Case 4: Standard split at intersection
+    pTempPoint5 = vertices[2];
+    //_CHP();
+    // Calculate intersection point P*
+    vertices[2].x = (int)((double)nSumEdge23Dx2 * fIntersectionParam2 + (double)pTempPoint5.x);
+    dIntersectionY3 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)vertices[2].y;
+    dIntersectionY3 = round(dIntersectionY3); //_CHP();
+    vertices[2].y = (int)dIntersectionY3;
+    nColor3 = nColor;
+
+    // Render first triangle
+    poly(vertices, 3, nColor);
+
+    // Prepare second triangle
+    *vertices = vertices[3];                    // Original P3
+    vertices[1] = pTempPoint5;                  // Original P2
   }
-  return poly(a1, 3, v31);*/
+  poly(vertices, 3, nColor3);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -246,158 +240,228 @@ int16 POLYFLAT(int a1, int *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-void poly(tPoint *vertices, int iVertexCount, int16 nColor)
+void poly(tPoint *vertices, int iVertexCount, int16 nfillColor)
 {
-  int iWinWidth = winw;
-  int iWinHeight = winh;
-  uint8 *pScrBuf = scrptr;
+  // Preserve original screen width since it might be modified during drawing
+  int iOriginalScreenWidth = winw;
 
-  // Find bounding box and top vertex
-  int iMinX = vertices[0].x;
-  int iMaxX = vertices[0].x;
-  int iMinY = vertices[0].y;
-  int iMaxY = vertices[0].y;
-  short nTopIdx = 0;
+  // Vertex indices and bounding box variables
+  int iTopVertexIndex = 0;          // Index of top-most vertex
+  int iMinX = vertices[0].x;        // Minimum polygon X
+  int iMaxX = vertices[0].x;        // Maximum polygon X
+  int iMinY = vertices[0].y;        // Minimum polygon Y
+  int iMaxY = vertices[0].y;        // Maximum polygon Y
 
-  for (short i = 1; i < iVertexCount; i++) {
-    if (vertices[i].x > iMaxX) iMaxX = vertices[i].x;
-    if (vertices[i].x < iMinX) iMinX = vertices[i].x;
-    if (vertices[i].y > iMaxY) iMaxY = vertices[i].y;
-    if (vertices[i].y < iMinY) {
-      iMinY = vertices[i].y;
-      nTopIdx = i;
+  // Edge tracking variables
+  int iCurrentScanlineY;            // Current scanline being processed
+  int iLeftEdgeX;                   // Current left edge X position
+  int iRightEdgeX;                  // Current right edge X position
+  int iLeftEdgeDx;                  // Left edge X step per scanline
+  int iRightEdgeDx;                 // Right edge X step per scanline
+  int iLeftEdgeRemaining;           // Scanlines remaining for current left edge segment
+  int iRightEdgeRemaining;          // Scanlines remaining for current right edge segment
+  int iLeftVertexIndex;             // Current left vertex index
+  int iRightVertexIndex;            // Current right vertex index
+  int iLeftErrorTerm;               // Bresenham error term for left edge
+  int iRightErrorTerm;              // Bresenham error term for right edge
+
+  // Temporary variables for intermediate calculations
+  int iDeltaX;
+  int iDeltaY;
+  tPoint *pCurrentVertex;
+
+  // find bounding box and top vertex
+  for (int i = 1; i < iVertexCount; i++) {
+    int iVertexX = vertices[i].x;
+    int iVertexY = vertices[i].y;
+
+    // Update bounding box coordinates
+    if (iVertexX > iMaxX) iMaxX = iVertexX;
+    if (iVertexX < iMinX) iMinX = iVertexX;
+    if (iVertexY > iMaxY) iMaxY = iVertexY;
+    if (iVertexY < iMinY) {
+      iMinY = iVertexY;
+      iTopVertexIndex = i;
     }
   }
 
-  // Check if polygon is completely off-screen
-  if (iMaxX < 0 || iMaxY < 0 || iMinX >= iWinWidth || iMinY >= iWinHeight) {
-    return;
+  // Early exit for off-screen polygons
+  if (iMaxX < 0 || iMaxY < 0 || iOriginalScreenWidth <= iMinX || iMinY >= winh) {
+    goto RESTORE_AND_RETURN;
   }
+
+  // Initialize starting points
+  pCurrentVertex = &vertices[iTopVertexIndex];
+  iCurrentScanlineY = pCurrentVertex->y;
+  iLeftVertexIndex = iTopVertexIndex;
+  iRightVertexIndex = iTopVertexIndex;
 
   // Initialize edge tracking
-  short nLeftIdx = nTopIdx;
-  short nRightIdx = nTopIdx;
-  short nCurrY = iMinY;
+  if (iCurrentScanlineY >= 0) {
+    // starting at or below screen top
+    iLeftEdgeX = pCurrentVertex->x;
+    iRightEdgeX = pCurrentVertex->x;
 
-  // Left edge tracking
-  int iLeftX = vertices[nTopIdx].x;
-  int iLeftDx = 0;
-  int iLeftErr = 0;
-  int iLeftRemain = 0;
+    // Initialize left edge
+    do {
+      iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
+    } while (vertices[iLeftVertexIndex].y == iCurrentScanlineY);
 
-  // Right edge tracking
-  int iRightX = vertices[nTopIdx].x;
-  int iRightDx = 0;
-  int iRightErr = 0;
-  int iRightRemain = 0;
+    iLeftEdgeRemaining = vertices[iLeftVertexIndex].y - iCurrentScanlineY;
+    iLeftEdgeDx = vertices[iLeftVertexIndex].x - iLeftEdgeX;
 
-  // Initialize edges
-  // Find first downward left edge
-  short nNextLeft = (nLeftIdx + 1) % iVertexCount;
-  while (vertices[nNextLeft].y == nCurrY) {
-    nLeftIdx = nNextLeft;
-    nNextLeft = (nLeftIdx + 1) % iVertexCount;
+    // Initialize right edge
+    do {
+      iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
+    } while (vertices[iRightVertexIndex].y == iCurrentScanlineY);
+
+    iRightEdgeRemaining = vertices[iRightVertexIndex].y - iCurrentScanlineY;
+    iRightEdgeDx = vertices[iRightVertexIndex].x - iRightEdgeX;
+
+    // Calculate Bresenham error terms
+    iLeftErrorTerm = abs(iLeftEdgeDx) % abs(iLeftEdgeRemaining);
+    iRightErrorTerm = abs(iRightEdgeDx) % abs(iRightEdgeRemaining);
+
+    // Precompute step values
+    iLeftEdgeDx /= iLeftEdgeRemaining;
+    iRightEdgeDx /= iRightEdgeRemaining;
+  } else {
+      // starting above screen top (negative Y)
+    int iInitialY = pCurrentVertex->y;
+
+    // Traverse downward to find first visible edge segment
+    do {
+      iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
+    } while (vertices[iLeftVertexIndex].y < 0);
+
+    // Calculate edge parameters for left side
+    iDeltaY = vertices[iLeftVertexIndex].y - iInitialY;
+    iDeltaX = vertices[iLeftVertexIndex].x - vertices[iTopVertexIndex].x;
+    iLeftEdgeRemaining = iDeltaY;
+    iLeftEdgeDx = iDeltaX / iDeltaY;
+    iLeftErrorTerm = iDeltaX % iDeltaY;
+
+    // Adjust starting position for negative Y
+    iLeftEdgeX = vertices[iTopVertexIndex].x - iLeftEdgeDx * iInitialY;
+
+    // Repeat for right edge
+    do {
+      iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
+    } while (vertices[iRightVertexIndex].y < 0);
+
+    // Calculate edge parameters for right side
+    iDeltaY = vertices[iRightVertexIndex].y - iInitialY;
+    iDeltaX = vertices[iRightVertexIndex].x - vertices[iTopVertexIndex].x;
+    iRightEdgeRemaining = iDeltaY;
+    iRightEdgeDx = iDeltaX / iDeltaY;
+    iRightErrorTerm = iDeltaX % iDeltaY;
+
+    // Adjust starting position for negative Y
+    iRightEdgeX = vertices[iTopVertexIndex].x - iRightEdgeDx * iInitialY;
+    iCurrentScanlineY = 0;  // Start at top of screen
   }
-  iLeftRemain = vertices[nNextLeft].y - nCurrY;
-  iLeftDx = vertices[nNextLeft].x - vertices[nLeftIdx].x;
-  if (iLeftRemain != 0) {
-    iLeftErr = abs(iLeftDx) % abs(iLeftRemain);
-    iLeftDx = iLeftDx / iLeftRemain;
-  }
 
-  // Find first downward right edge
-  short nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
-  while (vertices[nNextRight].y == nCurrY) {
-    nRightIdx = nNextRight;
-    nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
-  }
-  iRightRemain = vertices[nNextRight].y - nCurrY;
-  iRightDx = vertices[nNextRight].x - vertices[nRightIdx].x;
-  if (iRightRemain != 0) {
-    iRightErr = abs(iRightDx) % abs(iRightRemain);
-    iRightDx = iRightDx / iRightRemain;
-  }
+  // Main scanline processing loop
+  while (iCurrentScanlineY < winh) {
+    // Clipping and drawing
+    if (iLeftEdgeX < iOriginalScreenWidth &&
+        iRightEdgeX > 0 &&
+        iLeftEdgeX < iRightEdgeX) {
 
-  // Main scanline loop
-  while (nCurrY < iWinHeight) {
-      // Draw horizontal line between edges
-    if (iLeftX < iWinWidth && iRightX > 0 && iLeftX < iRightX) {
-      int iStartX = max(iLeftX, 0);
-      int iEndX = min(iRightX, iWinWidth);
-      if (iStartX < iEndX) {
-        uint8 *pDest = pScrBuf + nCurrY * iWinWidth + iStartX;
-        memset(pDest, nColor, iEndX - iStartX);
+      // Calculate clipped segment boundaries
+      int iStartX = (iLeftEdgeX > 0) ? iLeftEdgeX : 0;
+      int iEndX = (iRightEdgeX < iOriginalScreenWidth) ? iRightEdgeX : iOriginalScreenWidth;
+      int iSegmentLength = iEndX - iStartX;
+
+      // Only draw if segment is visible
+      if (iSegmentLength > 0) {
+        uint8 *pDest = scrptr + iCurrentScanlineY * iOriginalScreenWidth + iStartX;
+        memset(pDest, nfillColor, iSegmentLength);
       }
     }
 
-    // Update left edge
-    iLeftErr += iLeftDx;
-    while (iLeftErr >= 1) {
-      iLeftX++;
-      iLeftErr--;
+    // Update edge positions
+    // Update left edge with Bresenham algorithm
+    iLeftErrorTerm += iLeftEdgeDx;
+    while (iLeftErrorTerm >= 1) {
+      iLeftEdgeDx++;
+      iLeftErrorTerm--;
     }
-    while (iLeftErr <= -1) {
-      iLeftX--;
-      iLeftErr++;
+    while (iLeftErrorTerm <= -1) {
+      iLeftEdgeDx--;
+      iLeftErrorTerm++;
     }
 
-    // Update right edge
-    iRightErr += iRightDx;
-    while (iRightErr >= 1) {
-      iRightX++;
-      iRightErr--;
+    // Update right edge with Bresenham algorithm
+    iRightErrorTerm += iRightEdgeDx;
+    while (iRightErrorTerm >= 1) {
+      iRightEdgeDx++;
+      iRightErrorTerm--;
     }
-    while (iRightErr <= -1) {
-      iRightX--;
-      iRightErr++;
+    while (iRightErrorTerm <= -1) {
+      iRightEdgeDx--;
+      iRightErrorTerm++;
     }
 
     // Move to next scanline
-    nCurrY++;
-    iLeftRemain--;
-    iRightRemain--;
+    iCurrentScanlineY++;
+    iLeftEdgeRemaining--;
+    iRightEdgeRemaining--;
 
-    // Switch to next left edge if current finished
-    if (iLeftRemain == 0) {
-      nLeftIdx = nNextLeft;
-      nNextLeft = (nLeftIdx + 1) % iVertexCount;
+    // Edge segment transition
+    // Check if left edge segment is exhausted
+    if (iLeftEdgeRemaining == 0) {
+      // Move to next vertex
+      iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
 
       // Skip horizontal edges
-      while (vertices[nNextLeft].y == nCurrY) {
-        nLeftIdx = nNextLeft;
-        nNextLeft = (nLeftIdx + 1) % iVertexCount;
+      while (vertices[(iLeftVertexIndex + 1) % iVertexCount].y == iCurrentScanlineY) {
+        iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
       }
 
-      iLeftRemain = vertices[nNextLeft].y - nCurrY;
-      iLeftDx = vertices[nNextLeft].x - vertices[nLeftIdx].x;
-      if (iLeftRemain != 0) {
-        iLeftErr = abs(iLeftDx) % abs(iLeftRemain);
-        iLeftDx = iLeftDx / iLeftRemain;
+      // Calculate new edge parameters
+      tPoint *pNextVertex = &vertices[(iLeftVertexIndex + 1) % iVertexCount];
+      iLeftEdgeRemaining = pNextVertex->y - iCurrentScanlineY;
+      iLeftEdgeDx = pNextVertex->x - vertices[iLeftVertexIndex].x;
+
+      // Reinitialize Bresenham parameters
+      if (iLeftEdgeRemaining != 0) {
+        iLeftErrorTerm = abs(iLeftEdgeDx) % abs(iLeftEdgeRemaining);
+        iLeftEdgeDx /= iLeftEdgeRemaining;
       }
     }
 
-    // Switch to next right edge if current finished
-    if (iRightRemain == 0) {
-      nRightIdx = nNextRight;
-      nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
+    // Check if right edge segment is exhausted
+    if (iRightEdgeRemaining == 0) {
+      // Move to next vertex
+      iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
 
       // Skip horizontal edges
-      while (vertices[nNextRight].y == nCurrY) {
-        nRightIdx = nNextRight;
-        nNextRight = (nRightIdx - 1 + iVertexCount) % iVertexCount;
+      while (vertices[(iRightVertexIndex - 1 + iVertexCount) % iVertexCount].y == iCurrentScanlineY) {
+        iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
       }
 
-      iRightRemain = vertices[nNextRight].y - nCurrY;
-      iRightDx = vertices[nNextRight].x - vertices[nRightIdx].x;
-      if (iRightRemain != 0) {
-        iRightErr = abs(iRightDx) % abs(iRightRemain);
-        iRightDx = iRightDx / iRightRemain;
+      // Calculate new edge parameters
+      tPoint *pNextVertex = &vertices[(iRightVertexIndex - 1 + iVertexCount) % iVertexCount];
+      iRightEdgeRemaining = pNextVertex->y - iCurrentScanlineY;
+      iRightEdgeDx = pNextVertex->x - vertices[iRightVertexIndex].x;
+
+      // Reinitialize Bresenham parameters
+      if (iRightEdgeRemaining != 0) {
+        iRightErrorTerm = abs(iRightEdgeDx) % abs(iRightEdgeRemaining);
+        iRightEdgeDx /= iRightEdgeRemaining;
       }
     }
 
-    // Check if polygon is complete
-    if (nLeftIdx == nRightIdx) break;
+    // Stop processing if edges meet
+    if (iLeftVertexIndex == iRightVertexIndex) {
+      break;
+    }
   }
+
+RESTORE_AND_RETURN:
+  // Restore original screen width before returning
+  winw = iOriginalScreenWidth;
 }
 
 //-------------------------------------------------------------------------------------------------
