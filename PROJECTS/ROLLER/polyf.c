@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <float.h>
+#include <stdbool.h>
 //-------------------------------------------------------------------------------------------------
 
 void twpoly(tPoint *vertices, int16 nColor)
@@ -230,7 +231,7 @@ int16 POLYFLAT(int a1, int *a2)
     if ((v4 & 0x200000) != 0) {
       LOWORD(v3) = shadow_poly(v3 + 2, v3[1], (unsigned __int8)v4);
     } else if ((v4 & 0x4000) != 0) {
-      LOWORD(v3) = twpoly((_WORD *)v3 + 4, (unsigned __int8)v4);
+      LOWORD(v3) = twpoly((int16 *)v3 + 4, (unsigned __int8)v4);
     } else {
       LOWORD(v3) = poly(v3 + 2, v3[1], (unsigned __int8)v4);
     }
@@ -466,660 +467,761 @@ RESTORE_AND_RETURN:
 
 //-------------------------------------------------------------------------------------------------
 
-int16 shadow_poly(int *a1, int a2, int a3)
+void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
 {
-  return 0; /*
-  unsigned int v3; // ebp
-  int v5; // edi
-  int v6; // esi
-  int v7; // eax
-  int v8; // ebx
-  int *v9; // eax
-  int v10; // ebx
-  int v11; // edi
-  __int16 v12; // ax
-  int v13; // eax
-  int v14; // ebx
-  __int16 v15; // ax
-  int v16; // eax
-  int v17; // edx
-  __int16 v18; // ax
-  int v19; // eax
-  int v20; // ebx
-  __int16 v21; // ax
-  int v22; // eax
-  int v23; // edx
-  _WORD *v24; // edx
-  int v25; // eax
-  int v26; // edx
-  int v27; // eax
-  int v28; // edx
-  _BOOL1 v29; // zf
-  int v30; // edx
-  __int16 v31; // ax
-  int v32; // eax
-  __int16 v33; // ax
-  int v34; // edx
-  int v35; // edx
-  __int16 v36; // ax
-  int v37; // eax
-  __int16 v38; // ax
-  int k; // edx
-  int v40; // edx
-  int v41; // edx
-  __int16 v42; // ax
-  int v43; // eax
-  __int16 v44; // ax
-  signed int j; // edx
-  int v46; // edx
-  int v47; // edx
-  __int16 v48; // ax
-  int v49; // eax
-  __int16 v50; // ax
-  int v51; // edx
-  int v52; // edx
-  __int16 v53; // ax
-  int v54; // eax
-  __int16 v55; // ax
-  int v57; // [esp+4h] [ebp-6Ch]
-  int v58; // [esp+8h] [ebp-68h]
-  int m; // [esp+10h] [ebp-60h]
-  signed int i; // [esp+14h] [ebp-5Ch]
-  char *v61; // [esp+1Ch] [ebp-54h]
-  int v62; // [esp+20h] [ebp-50h]
-  _BYTE *v63; // [esp+24h] [ebp-4Ch]
-  _BYTE *v64; // [esp+28h] [ebp-48h]
-  _BYTE *v65; // [esp+2Ch] [ebp-44h]
-  _BYTE *v66; // [esp+30h] [ebp-40h]
-  int v67; // [esp+34h] [ebp-3Ch]
-  int v68; // [esp+38h] [ebp-38h]
-  int v70; // [esp+40h] [ebp-30h]
-  int v71; // [esp+40h] [ebp-30h]
-  int v72; // [esp+40h] [ebp-30h]
-  int v73; // [esp+40h] [ebp-30h]
-  int v74; // [esp+40h] [ebp-30h]
-  int v75; // [esp+40h] [ebp-30h]
-  int v76; // [esp+40h] [ebp-30h]
-  int v77; // [esp+40h] [ebp-30h]
-  int v78; // [esp+44h] [ebp-2Ch]
-  int v79; // [esp+44h] [ebp-2Ch]
-  int v80; // [esp+44h] [ebp-2Ch]
-  int v81; // [esp+44h] [ebp-2Ch]
-  int v82; // [esp+44h] [ebp-2Ch]
-  int v83; // [esp+44h] [ebp-2Ch]
-  int v84; // [esp+44h] [ebp-2Ch]
-  int v85; // [esp+44h] [ebp-2Ch]
-  int v86; // [esp+48h] [ebp-28h]
-  int v87; // [esp+48h] [ebp-28h]
-  int v88; // [esp+4Ch] [ebp-24h]
-  int v89; // [esp+4Ch] [ebp-24h]
-  int v90; // [esp+50h] [ebp-20h]
-  int v91; // [esp+54h] [ebp-1Ch]
-  int v92; // [esp+58h] [ebp-18h]
+  int iOldWinW; // ebp
+  int iMinX; // edi
+  int iMinYIdx; // esi
+  int iVertX; // ebx
+  int iY; // eax
+  tPoint *pMinYVert; // eax
+  int iCurrScanline; // ebx
+  int iBackwardIdx; // edi
+  int16 nTempX; // ax
+  int iTempY_1; // eax
+  int iTempY_2; // ebx
+  int16 nTempX_1; // ax
+  int iCalculatedStep_1; // eax
+  int iCalculatedStep; // eax
+  int iStepOffset; // edx
+  int16 nTempX_2; // ax
+  int iTempY_3; // eax
+  int iTempY_4; // ebx
+  int16 nTempX_3; // ax
+  int iRightCalcStep; // eax
+  int iRightCalculatedStep; // eax
+  int iRightStepOffset; // edx
+  tPoint *pVertex; // edx
+  int iStep_3; // eax
+  int iStep; // eax
+  int iRemainder_1; // edx
+  tPoint *pVertex_1; // eax
+  int iStep_1; // eax
+  int iRightEdgeUpdate; // edx
+  int iTempVal; // eax
+  bool bZeroFlag; // zf
+  int iVertexX; // edx
+  int16 nTempX_4; // ax
+  tPoint *pVertex_10; // eax
+  int iNewStep; // eax
+  int iTempVal_7; // eax
+  int16 nTempX_5; // ax
+  tPoint *pVertex_2; // eax
+  int iStep_4; // eax
+  int iStepOffset_1; // edx
+  int iVertexIdx_2; // edx
+  int16 nTempX_13; // ax
+  tPoint *pVertex_9; // eax
+  int iNewStep_4; // eax
+  int iTempVal_6; // eax
+  int16 nTempX_14; // ax
+  tPoint *pVertex_8; // eax
+  int iStep_7; // eax
+  int iPixelIdx_2; // edx
+  int iStep_2; // edx
+  int nTempX_10; // edx
+  int16 nTempX_11; // ax
+  tPoint *pVertex_6; // eax
+  int iNewStep_3; // eax
+  int iTempVal_5; // eax
+  int16 nTempX_12; // ax
+  tPoint *pVertex_7; // eax
+  int iStep_8; // eax
+  int iPixelIdx_1; // edx
+  int iRightEdgeTemp_1; // edx
+  int iTempVal_3; // eax
+  int iTempY_5; // edx
+  int16 nTempX_8; // ax
+  tPoint *pVertex_4; // eax
+  int iNewStep_2; // eax
+  int iTempVal_4; // eax
+  int16 nTempX_9; // ax
+  tPoint *pVertex_5; // eax
+  int iStep_6; // eax
+  int iRightEdgeTemp; // edx
+  int iTempVal_1; // eax
+  int iVertexIdx_1; // edx
+  int16 nTempX_6; // ax
+  tPoint *pVertex_11; // eax
+  int iNewStep_1; // eax
+  int iTempVal_2; // eax
+  int16 nTempX_7; // ax
+  tPoint *pVertex_3; // eax
+  int iStep_5; // eax
+  int iMaxY; // [esp+4h] [ebp-6Ch]
+  int iMaxX; // [esp+8h] [ebp-68h]
+  int iPixelIdx_3; // [esp+10h] [ebp-60h]
+  int iPixelIdx; // [esp+14h] [ebp-5Ch]
+  char *pShadePalette; // [esp+1Ch] [ebp-54h]
+  int iMinY; // [esp+20h] [ebp-50h]
+  uint8 *pDest4; // [esp+24h] [ebp-4Ch]
+  uint8 *pDest3; // [esp+28h] [ebp-48h]
+  uint8 *pDest2; // [esp+2Ch] [ebp-44h]
+  uint8 *pDest; // [esp+30h] [ebp-40h]
+  int iTempY; // [esp+34h] [ebp-3Ch]
+  int iTempY2; // [esp+38h] [ebp-38h]
+  int iRemainder; // [esp+40h] [ebp-30h]
+  int iRightEdgeDx; // [esp+40h] [ebp-30h]
+  int iLeftEdgeDx; // [esp+40h] [ebp-30h]
+  int iTempEdgeDx; // [esp+40h] [ebp-30h]
+  int iTempEdgeDx2; // [esp+40h] [ebp-30h]
+  int iTempEdgeDx3; // [esp+40h] [ebp-30h]
+  int iTempEdgeDx4; // [esp+40h] [ebp-30h]
+  int iTempEdgeDx5; // [esp+40h] [ebp-30h]
+  int iLeftEdgeDxTemp; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDx_1; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDxTemp2; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDxTemp3; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDxTemp4; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDxTemp5; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDxTemp6; // [esp+44h] [ebp-2Ch]
+  int iLeftEdgeDxTemp7; // [esp+44h] [ebp-2Ch]
+  int iRightEdgeXTemp; // [esp+48h] [ebp-28h]
+  int iRightEdgeX; // [esp+48h] [ebp-28h]
+  int iLeftEdgeXTemp; // [esp+4Ch] [ebp-24h]
+  int iLeftEdgeX; // [esp+4Ch] [ebp-24h]
+  int iVertexIdx; // [esp+50h] [ebp-20h]
+  int iRightRemain; // [esp+54h] [ebp-1Ch]
+  int iLeftRemain; // [esp+58h] [ebp-18h]
+  int16 nSegmentWidth; // [esp+5Ch] [ebp-14h]
 
-  v3 = winw;
-  v5 = *a1;
-  v6 = 0;
-  v58 = *a1;
-  v61 = (char *)&shade_palette + 256 * a3;
-  v7 = a1[1];
-  v90 = 1;
-  v62 = v7;
-  v57 = v7;
-  while ((__int16)v90 < a2) {
-    v8 = a1[2 * (__int16)v90];
-    v7 = a1[2 * (__int16)v90 + 1];
-    if (v8 <= v58) {
-      if (v8 < v5)
-        v5 = a1[2 * (__int16)v90];
+  iOldWinW = winw;
+  iMinX = vertices->x;
+  iMinYIdx = 0;
+  iMaxX = vertices->x;
+  pShadePalette = &shade_palette[256 * iPaletteIndex];
+  iVertexIdx = 1;
+  iMinY = vertices->y;
+  iMaxY = iMinY;
+
+  // Find bouding box and min Y vertex
+  while ((int16)iVertexIdx < iNumVertices) {
+    iVertX = vertices[(int16)iVertexIdx].x;
+    iY = vertices[(int16)iVertexIdx].y;
+
+    // Update X boundaries
+    if (iVertX <= iMaxX) {
+      if (iVertX < iMinX)
+        iMinX = vertices[(int16)iVertexIdx].x;
     } else {
-      v58 = a1[2 * (__int16)v90];
+      iMaxX = vertices[(int16)iVertexIdx].x;
     }
-    if (v7 <= v57) {
-      if (v7 < v62) {
-        v6 = v90;
-        v62 = a1[2 * (__int16)v90 + 1];
+
+    // Update Y boundaries and get min Y vertex index
+    if (iY <= iMaxY) {
+      if (iY < iMinY) {
+        iMinYIdx = iVertexIdx;
+        iMinY = vertices[(int16)iVertexIdx].y;
       }
     } else {
-      v57 = a1[2 * (__int16)v90 + 1];
+      iMaxY = vertices[(int16)iVertexIdx].y;
     }
-    ++v90;
+    ++iVertexIdx;
   }
-  if (v58 < 0)
-    goto LABEL_177;
-  if (v57 < 0)
-    goto LABEL_177;
-  if (v5 >= winw)
-    goto LABEL_177;
-  LOWORD(v7) = v62;
-  if (v62 >= winh)
-    goto LABEL_177;
-  v9 = &a1[2 * (__int16)v6];
-  v10 = v9[1];
-  v11 = v6;
-  if (v10 >= 0) {
-    HIWORD(v87) = *(_WORD *)v9;
-    HIWORD(v89) = *(_WORD *)v9;
-    LOWORD(v72) = 0;
-    LOWORD(v87) = 0;
-    LOWORD(v80) = 0;
-    LOWORD(v89) = 0;
+
+  // Check if polygon is completely off-screen
+  if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
+    goto RESTORE_AND_RETURN;
+
+  pMinYVert = &vertices[(int16)iMinYIdx];
+  iCurrScanline = pMinYVert->y;
+  iBackwardIdx = iMinYIdx;
+
+  if (iCurrScanline >= 0) {
+    // Initialize edges starting from min Y vertex (16.16 fixed point)
+    iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | ((pMinYVert->x & 0xFFFF) << 16);
+    iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | ((pMinYVert->x & 0xFFFF) << 16);
+    iLeftEdgeDx &= 0xFFFF0000;
+    iRightEdgeX &= 0xFFFF0000;
+    iLeftEdgeDxTemp2 &= 0xFFFF0000;
+    iLeftEdgeX &= 0xFFFF0000;
+
     while (1) {
-      if ((__int16)++v6 == a2)
-        v6 = 0;
-      v7 = 8 * (__int16)v6;
-      v24 = (_WORD *)((char *)a1 + v7);
-      LOWORD(v7) = *(_WORD *)((char *)a1 + v7 + 4) - v10;
-      v92 = v7;
-      if ((_WORD)v7)
-        break;
-      if ((_WORD)v6 == (_WORD)v11)
-        goto LABEL_177;
-      HIWORD(v89) = *v24;
+      // Process left edge
+      if ((int16)++iMinYIdx == iNumVertices)
+        iMinYIdx = 0;
+      iStep_3 = 8 * (int16)iMinYIdx;
+      pVertex = (tPoint *)((char *)vertices + iStep_3);
+      
+      int16 *yArray = (int16 *)&vertices->y;
+      int16 yValue = yArray[iStep_3 / 2];
+      iStep_3 = (iStep_3 & 0xFFFF0000) | ((yValue - iCurrScanline) & 0xFFFF);
+
+      iLeftRemain = iStep_3;
+      if ((int16)iStep_3)
+        break;                                  // found non-horizontal edge
+      if ((int16)iMinYIdx == (int16)iBackwardIdx)
+        goto RESTORE_AND_RETURN;
+      iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | ((pVertex->x & 0xFFFF) << 16);
     }
-    HIWORD(v80) = *v24 - HIWORD(v89);
-    v25 = v80 / (__int16)v7;
-    v26 = v80 % (__int16)v92;
-    v79 = v25;
-    if (v25 < 0)
-      v89 += v25;
+
+    // Calculate left edge step
+    iLeftEdgeDxTemp2 = (iLeftEdgeDxTemp2 & 0x0000FFFF) | (((pVertex->x & 0xFFFF) - (iLeftEdgeX >> 16)) << 16);
+    iStep = iLeftEdgeDxTemp2 / (int16)iStep_3;
+    iRemainder_1 = iLeftEdgeDxTemp2 % (int16)iLeftRemain;
+    iLeftEdgeDx_1 = iStep;
+    if (iStep < 0)
+      iLeftEdgeX += iStep;                      // adjust for negative slope
+                                                // 
     while (1) {
-      if ((__int16)--v11 == -1)
-        v11 = a2 - 1;
-      v7 = (int)&a1[2 * (__int16)v11];
-      LOWORD(v26) = *(_WORD *)(v7 + 4) - v10;
-      v91 = v26;
-      if ((_WORD)v26)
+      // Process right edge
+      if ((int16)--iBackwardIdx == -1)
+        iBackwardIdx = iNumVertices - 1;
+      pVertex_1 = &vertices[(int16)iBackwardIdx];
+      iRemainder_1 = (iRemainder_1 & 0xFFFF0000) | (((pVertex_1->y & 0xFFFF) - iCurrScanline) & 0xFFFF);// deltaY
+      iRightRemain = iRemainder_1;
+      if ((int16)iRemainder_1)                // found non-horizontal edge
         break;
-      if ((_WORD)v6 == (_WORD)v11)
-        goto LABEL_177;
-      HIWORD(v87) = *(_WORD *)v7;
+      if ((int16)iMinYIdx == (int16)iBackwardIdx)
+        goto RESTORE_AND_RETURN;
+      iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | ((pVertex_1->x & 0xFFFF) << 16);
     }
-    HIWORD(v72) = *(_WORD *)v7 - HIWORD(v87);
-    v27 = v72 / (__int16)v26;
-    v71 = v27;
-    if (v27 > 0)
-      v87 += v27;
+
+    // Calculate right edge step
+    iLeftEdgeDx = (iLeftEdgeDx & 0x0000FFFF) | (((pVertex_1->x & 0xFFFF) - (iRightEdgeX >> 16)) << 16);
+    iStep_1 = iLeftEdgeDx / (int16)iRemainder_1;
+    iRightEdgeDx = iStep_1;
+    if (iStep_1 > 0)
+      iRightEdgeX += iStep_1;
   } else {
-    v67 = v9[1];
-    v68 = v67;
-    LOWORD(v86) = 0;
-    LOWORD(v70) = 0;
-    LOWORD(v88) = 0;
-    LOWORD(v78) = 0;
+    // handle starting above screen
+    iTempY = pMinYVert->y;
+    iTempY2 = iTempY;
+    iRightEdgeXTemp &= 0xFFFF0000;
+    iRemainder &= 0xFFFF0000;
+    iLeftEdgeXTemp &= 0xFFFF0000;
+    iLeftEdgeDxTemp &= 0xFFFF0000;
+
+    // Find first visible left vertex
     do {
-      v12 = a1[2 * (__int16)v6++];
-      HIWORD(v88) = v12;
-      if ((__int16)v6 == a2)
-        v6 = 0;
-      v13 = a1[2 * (__int16)v6 + 1];
-      v14 = v68;
-      v68 = v13;
-    } while (v13 < 0);
-    if (!v13) {
+      nTempX = vertices[(int16)iMinYIdx++].x;
+      iLeftEdgeXTemp = (iLeftEdgeXTemp & 0x0000FFFF) | (nTempX << 16);
+      if ((int16)iMinYIdx == iNumVertices)
+        iMinYIdx = 0;
+      iTempY_1 = vertices[(int16)iMinYIdx].y;
+      iTempY_2 = iTempY2;
+      iTempY2 = iTempY_1;
+    } while (iTempY_1 < 0);
+
+    // Handle zero-length segments
+    if (!iTempY_1) {
       do {
-        v15 = a1[2 * (__int16)v6++];
-        HIWORD(v88) = v15;
-        if ((__int16)v6 == a2)
-          v6 = 0;
-        v7 = a1[2 * (__int16)v6 + 1];
-        v14 = v68;
-        v68 = v7;
-      } while (!v7);
-      if (v7 < 0)
-        goto LABEL_177;
+        nTempX_1 = vertices[(int16)iMinYIdx++].x;
+        iLeftEdgeXTemp = (iLeftEdgeXTemp & 0x0000FFFF) | (nTempX_1 << 16);
+        if ((int16)iMinYIdx == iNumVertices)
+          iMinYIdx = 0;
+        iCalculatedStep_1 = vertices[(int16)iMinYIdx].y;
+        iTempY_2 = iTempY2;
+        iTempY2 = iCalculatedStep_1;
+      } while (!iCalculatedStep_1);
+      if (iCalculatedStep_1 < 0)
+        goto RESTORE_AND_RETURN;
     }
-    HIWORD(v78) = LOWORD(a1[2 * (__int16)v6]) - HIWORD(v88);
-    v92 = v68;
-    v16 = v78 / ((__int16)v68 - v14);
-    v17 = v88 - v16 * v14;
-    v79 = v16;
-    v89 = v17;
-    if (v16 < 0)
-      v89 = v16 + v17;
+
+    // Calculate left edge parameters for clipped start
+    iLeftEdgeDxTemp = (iLeftEdgeDxTemp & 0x0000FFFF) | (((vertices[(int16)iMinYIdx].x & 0xFFFF) - (iLeftEdgeXTemp >> 16)) << 16);
+    iLeftRemain = iTempY2;
+    iCalculatedStep = iLeftEdgeDxTemp / ((int16)iTempY2 - iTempY_2);
+    iStepOffset = iLeftEdgeXTemp - iCalculatedStep * iTempY_2;
+    iLeftEdgeDx_1 = iCalculatedStep;
+    iLeftEdgeX = iStepOffset;
+    if (iCalculatedStep < 0)
+      iLeftEdgeX = iCalculatedStep + iStepOffset;
+
+    // Find first visible right vertex
     do {
-      v18 = a1[2 * (__int16)v11--];
-      HIWORD(v86) = v18;
-      if ((__int16)v11 == -1)
-        v11 = a2 - 1;
-      v19 = a1[2 * (__int16)v11 + 1];
-      v20 = v67;
-      v67 = v19;
-    } while (v19 < 0);
-    if (!v19) {
+      nTempX_2 = vertices[(int16)iBackwardIdx--].x;
+      iRightEdgeXTemp = (iRightEdgeXTemp & 0x0000FFFF) | (nTempX_2 << 16);
+      if ((int16)iBackwardIdx == -1)
+        iBackwardIdx = iNumVertices - 1;
+      iTempY_3 = vertices[(int16)iBackwardIdx].y;
+      iTempY_4 = iTempY;
+      iTempY = iTempY_3;
+    } while (iTempY_3 < 0);
+
+    // Handle zero-length segments
+    if (!iTempY_3) {
       do {
-        v21 = a1[2 * (__int16)v11--];
-        HIWORD(v86) = v21;
-        if ((__int16)v11 == -1)
-          v11 = a2 - 1;
-        v7 = a1[2 * (__int16)v11 + 1];
-        v20 = v67;
-        v67 = v7;
-      } while (!v7);
-      if (v7 < 0)
-        goto LABEL_177;
+        nTempX_3 = vertices[(int16)iBackwardIdx--].x;
+        iRightEdgeXTemp = (iRightEdgeXTemp & 0x0000FFFF) | (nTempX_3 << 16);
+        if ((int16)iBackwardIdx == -1)
+          iBackwardIdx = iNumVertices - 1;
+        iRightCalcStep = vertices[(int16)iBackwardIdx].y;
+        iTempY_4 = iTempY;
+        iTempY = iRightCalcStep;
+      } while (!iRightCalcStep);
+      if (iRightCalcStep < 0)
+        goto RESTORE_AND_RETURN;
     }
-    HIWORD(v70) = LOWORD(a1[2 * (__int16)v11]) - HIWORD(v86);
-    v91 = v67;
-    v22 = v70 / ((__int16)v67 - v20);
-    v23 = v86 - v22 * v20;
-    v71 = v22;
-    v87 = v23;
-    if (v22 > 0)
-      v87 = v22 + v23;
-    v10 = 0;
+
+    // Calculate right edge parameters for clipped start
+    iRemainder = ((vertices[(int16)iBackwardIdx].x & 0xFFFF) - (iRightEdgeXTemp >> 16)) << 16;
+    iRightRemain = iTempY;
+    iRightCalculatedStep = iRemainder / ((int16)iTempY - iTempY_4);
+    iRightStepOffset = iRightEdgeXTemp - iRightCalculatedStep * iTempY_4;
+    iRightEdgeDx = iRightCalculatedStep;
+    iRightEdgeX = iRightStepOffset;
+    if (iRightCalculatedStep > 0)
+      iRightEdgeX = iRightCalculatedStep + iRightStepOffset;
+    iCurrScanline = 0;                          // Start rendering at top of screen
   }
-  while (SHIWORD(v89) >= winw || v87 < 0 || v89 > v87) {
-    v89 += v79;
-    ++v10;
-    v28 = v71 + v87;
-    HIWORD(v7) = HIWORD(v92);
-    v87 += v71;
-    LOWORD(v7) = v92 - 1;
-    v29 = (_WORD)v92 == 1;
-    v92 = v7;
-    if (v29) {
-      while ((_WORD)v6 != (_WORD)v11) {
-        HIWORD(v30) = HIWORD(a2);
-        v31 = a1[2 * (__int16)v6++];
-        HIWORD(v89) = v31;
-        if ((__int16)v6 == a2)
-          v6 = 0;
-        v7 = (int)&a1[2 * (__int16)v6];
-        LOWORD(v30) = *(_WORD *)(v7 + 4);
-        v92 = v30 - v10;
-        if ((__int16)(v30 - v10) > 0) {
-          HIWORD(v81) = *(_WORD *)v7 - HIWORD(v89);
-          LOWORD(v89) = 0;
-          LOWORD(v81) = 0;
-          v32 = v81 / (__int16)v92;
-          v28 = v81 % (__int16)v92;
-          v79 = v32;
-          if (v32 < 0)
-            v89 += v32;
-          goto LABEL_64;
+
+  // Edge processing and clipping
+  while (((iLeftEdgeX >> 16) & 0xFFFF) >= winw || iRightEdgeX < 0 || iLeftEdgeX > iRightEdgeX) {
+    // Advance edges
+    iLeftEdgeX += iLeftEdgeDx_1;
+    ++iCurrScanline;
+    iRightEdgeUpdate = iRightEdgeDx + iRightEdgeX;
+    iTempVal = (iTempVal & 0x0000FFFF) | (iLeftRemain & 0xFFFF0000);
+    iRightEdgeX += iRightEdgeDx;
+    iTempVal = (iTempVal & 0xFFFF0000) | ((iLeftRemain - 1) & 0xFFFF);
+    bZeroFlag = (int16)iLeftRemain == 1;
+    iLeftRemain = iTempVal;
+
+    // Process left edge segment completion
+    if (bZeroFlag) {
+      while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+        iVertexX = (iVertexX & 0x0000FFFF) | (iNumVertices & 0xFFFF0000);
+        nTempX_4 = vertices[(int16)iMinYIdx++].x;
+        iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | (nTempX_4 << 16);
+        if ((int16)iMinYIdx == iNumVertices)
+          iMinYIdx = 0;
+        pVertex_10 = &vertices[(int16)iMinYIdx];
+        iVertexX = (iVertexX & 0xFFFF0000) | (pVertex_10->y & 0xFFFF);
+        iLeftRemain = iVertexX - iCurrScanline;
+        if ((int16)(iVertexX - iCurrScanline) > 0) {
+          iLeftEdgeDxTemp3 = (iLeftEdgeDxTemp3 & 0x0000FFFF) | (((pVertex_10->x & 0xFFFF) - (iLeftEdgeX >> 16)) << 16);
+          iLeftEdgeX &= 0xFFFF0000;
+          iLeftEdgeDxTemp3 &= 0xFFFF0000;
+          iNewStep = iLeftEdgeDxTemp3 / (int16)iLeftRemain;
+          iRightEdgeUpdate = iLeftEdgeDxTemp3 % (int16)iLeftRemain;
+          iLeftEdgeDx_1 = iNewStep;
+          if (iNewStep < 0)
+            iLeftEdgeX += iNewStep;
+          goto EDGE_ADVANCE_1;
         }
       }
-      goto LABEL_177;
+      goto RESTORE_AND_RETURN;
     }
-  LABEL_64:
-    HIWORD(v7) = HIWORD(v91);
-    LOWORD(v7) = v91 - 1;
-    v29 = (_WORD)v91 == 1;
-    v91 = v7;
-    if (v29) {
-      while ((_WORD)v6 != (_WORD)v11) {
-        v33 = a1[2 * (__int16)v11--];
-        HIWORD(v87) = v33;
-        if ((__int16)v11 == -1)
-          v11 = a2 - 1;
-        v7 = (int)&a1[2 * (__int16)v11];
-        LOWORD(v28) = *(_WORD *)(v7 + 4);
-        v28 -= v10;
-        v91 = v28;
-        if ((__int16)v28 > 0) {
-          HIWORD(v73) = *(_WORD *)v7 - HIWORD(v87);
-          LOWORD(v87) = 0;
-          LOWORD(v73) = 0;
-          v7 = v73 / (__int16)v28;
-          v71 = v7;
-          if (v7 > 0)
-            v87 += v7;
-          goto LABEL_71;
+  EDGE_ADVANCE_1:
+    iTempVal_7 = (iTempVal_7 & 0x0000FFFF) | (iRightRemain & 0xFFFF0000);
+    iTempVal_7 = (iTempVal_7 & 0xFFFF0000) | ((iRightRemain - 1) & 0xFFFF);
+    bZeroFlag = (int16)iRightRemain == 1;
+    iRightRemain = iTempVal_7;
+
+    // Process right edge segment completion
+    if (bZeroFlag) {
+      while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+        nTempX_5 = vertices[(int16)iBackwardIdx--].x;
+        iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | (nTempX_5 << 16);
+        if ((int16)iBackwardIdx == -1)
+          iBackwardIdx = iNumVertices - 1;
+        pVertex_2 = &vertices[(int16)iBackwardIdx];
+        iRightEdgeUpdate = (iRightEdgeUpdate & 0xFFFF0000) | (pVertex_2->y & 0xFFFF);
+        iRightEdgeUpdate -= iCurrScanline;
+        iRightRemain = iRightEdgeUpdate;
+        if ((int16)iRightEdgeUpdate > 0) {
+          iTempEdgeDx = (iTempEdgeDx & 0x0000FFFF) | (((pVertex_2->x & 0xFFFF) - (iRightEdgeX >> 16)) << 16);
+          iRightEdgeX &= 0xFFFF0000;
+          iTempEdgeDx &= 0xFFFF0000;
+          iStep_4 = iTempEdgeDx / (int16)iRightEdgeUpdate;
+          iRightEdgeDx = iStep_4;
+          if (iStep_4 > 0)
+            iRightEdgeX += iStep_4;
+          goto EDGE_ADVANCE_2;
         }
       }
-      goto LABEL_177;
+      goto RESTORE_AND_RETURN;
     }
-  LABEL_71:
-    if (v10 >= winh)
-      goto LABEL_177;
+  EDGE_ADVANCE_2:
+      // Screen boundary check
+    if (iCurrScanline >= winh)
+      goto RESTORE_AND_RETURN;
   }
-  do {
-    if (SHIWORD(v89) >= v3) {
-      LOWORD(v7) = HIWORD(v89);
-      if (SHIWORD(v89) >= (int)v3)
-        goto LABEL_177;
-      LOWORD(v7) = HIWORD(v87);
-      if (SHIWORD(v87) < v3)
-        goto LABEL_107;
-    LABEL_158:
-      if (v87 < 0)
-        goto LABEL_177;
+  // Check right edge against screen
+  while (1) {
+    if (((int16)(iLeftEdgeX >> 16)) >= iOldWinW) {
+      if (((int16)(iLeftEdgeX >> 16)) >= iOldWinW)    // Left-clipped scanline
+        goto RESTORE_AND_RETURN;
+      if (((int16)(iRightEdgeX >> 16)) < iOldWinW)
+        goto RENDER_LEFT_VISIBLE_SEGMENT;
+    FULL_WIDTH_RENDER:
+      if (iRightEdgeX < 0)
+        goto RESTORE_AND_RETURN;
       while (1) {
-      LABEL_159:
-        v66 = (_BYTE *)(v3 * v10 + scrptr);
-        for (i = 0; (int)v3 > i; ++i) {
-          *v66 = v61[(unsigned __int8)*v66];
-          ++v66;
+        // Fully on-screen scanline
+      FULL_WIDTH_LOOP:
+        pDest = &scrptr[iOldWinW * iCurrScanline];
+        for (iPixelIdx = 0; iOldWinW > iPixelIdx; ++iPixelIdx) {
+          *pDest = pShadePalette[*pDest];
+          ++pDest;
         }
-        v89 += v79;
-        ++v10;
-        v51 = v71 + v87;
-        HIWORD(v7) = HIWORD(v92);
-        v87 += v71;
-        LOWORD(v7) = v92 - 1;
-        v29 = (_WORD)v92 == 1;
-        v92 = v7;
-        if (v29) {
-          while ((_WORD)v6 != (_WORD)v11) {
-            HIWORD(v52) = HIWORD(a2);
-            v53 = a1[2 * (__int16)v6++];
-            HIWORD(v89) = v53;
-            if ((__int16)v6 == a2)
-              v6 = 0;
-            v7 = (int)&a1[2 * (__int16)v6];
-            LOWORD(v52) = *(_WORD *)(v7 + 4);
-            v92 = v52 - v10;
-            if ((__int16)(v52 - v10) > 0) {
-              HIWORD(v85) = *(_WORD *)v7 - HIWORD(v89);
-              LOWORD(v89) = 0;
-              LOWORD(v85) = 0;
-              v54 = v85 / (__int16)v92;
-              v51 = v85 % (__int16)v92;
-              v79 = v54;
-              if (v54 < 0)
-                v89 += v54;
-              goto LABEL_169;
+
+        // Advance to next scanline
+        iLeftEdgeX += iLeftEdgeDx_1;
+        ++iCurrScanline;
+        iRightEdgeTemp = iRightEdgeDx + iRightEdgeX;
+        iTempVal_1 = (iTempVal_1 & 0x0000FFFF) | (iLeftRemain & 0xFFFF0000);
+        iRightEdgeX += iRightEdgeDx;
+        iTempVal_1 = (iTempVal_1 & 0xFFFF0000) | ((iLeftRemain - 1) & 0xFFFF);
+        bZeroFlag = (int16)iLeftRemain == 1;
+        iLeftRemain = iTempVal_1;
+
+        // Left edge segment completion
+        if (bZeroFlag) {
+          while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+            iVertexIdx_1 = (iVertexIdx_1 & 0x0000FFFF) | (iNumVertices & 0xFFFF0000);
+            nTempX_6 = vertices[(int16)iMinYIdx++].x;
+            iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | (nTempX_6 << 16);
+            if ((int16)iMinYIdx == iNumVertices)
+              iMinYIdx = 0;
+            pVertex_11 = &vertices[(int16)iMinYIdx];
+            iVertexIdx_1 = (iVertexIdx_1 & 0xFFFF0000) | (pVertex_11->y & 0xFFFF);
+            iLeftRemain = iVertexIdx_1 - iCurrScanline;
+            if ((int16)(iVertexIdx_1 - iCurrScanline) > 0) {
+              iLeftEdgeDxTemp7 = (iLeftEdgeDxTemp7 & 0x0000FFFF) | (((pVertex_11->x & 0xFFFF) - (iLeftEdgeX >> 16)) << 16);
+              iLeftEdgeX &= 0xFFFF0000;
+              iLeftEdgeDxTemp7 &= 0xFFFF0000;
+              iNewStep_1 = iLeftEdgeDxTemp7 / (int16)iLeftRemain;
+              iRightEdgeTemp = iLeftEdgeDxTemp7 % (int16)iLeftRemain;
+              iLeftEdgeDx_1 = iNewStep_1;
+              if (iNewStep_1 < 0)
+                iLeftEdgeX += iNewStep_1;
+              goto LEFT_EDGE_COMPLETE;
             }
           }
-          goto LABEL_177;
+          goto RESTORE_AND_RETURN;
         }
-      LABEL_169:
-        HIWORD(v7) = HIWORD(v91);
-        LOWORD(v7) = v91 - 1;
-        v29 = (_WORD)v91 == 1;
-        v91 = v7;
-        if (v29)
+      LEFT_EDGE_COMPLETE:
+        iTempVal_2 = (iTempVal_2 & 0x0000FFFF) | (iRightRemain & 0xFFFF0000);
+        iTempVal_2 = (iTempVal_2 & 0xFFFF0000) | ((iRightRemain - 1) & 0xFFFF);
+        bZeroFlag = (int16)iRightRemain == 1;
+        iRightRemain = iTempVal_2;
+
+        // Process right edge segment
+        if (bZeroFlag) {
+          while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+            nTempX_7 = vertices[(int16)iBackwardIdx--].x;
+            iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | (nTempX_7 << 16);
+            if ((int16)iBackwardIdx == -1)
+              iBackwardIdx = iNumVertices - 1;
+            pVertex_3 = &vertices[(int16)iBackwardIdx];
+            iRightEdgeTemp = (iRightEdgeTemp & 0xFFFF0000) | (pVertex_3->y & 0xFFFF);
+            iRightEdgeTemp -= iCurrScanline;
+            iRightRemain = iRightEdgeTemp;
+            if ((int16)iRightEdgeTemp > 0) {
+              iTempEdgeDx5 = (iTempEdgeDx5 & 0x0000FFFF) | (((pVertex_3->x & 0xFFFF) - (iRightEdgeX >> 16)) << 16);
+              iRightEdgeX &= 0xFFFF0000;
+              iTempEdgeDx5 &= 0xFFFF0000;
+              iStep_5 = iTempEdgeDx5 / (int16)iRightEdgeTemp;
+              iRightEdgeDx = iStep_5;
+              if (iStep_5 > 0)
+                iRightEdgeX += iStep_5;
+              goto SCANLINE_CHECK;
+            }
+          }
+          goto RESTORE_AND_RETURN;
+        }
+      SCANLINE_CHECK:
+              // Exit if at bottom of screen
+        if (iCurrScanline >= winh)
+          goto RESTORE_AND_RETURN;
+        // Check if left edge is on-screen
+        if (((int16)(iLeftEdgeX >> 16)) < iOldWinW)
           break;
-      LABEL_176:
-        if (v10 >= winh)
-          goto LABEL_177;
-        if (SHIWORD(v89) < v3) {
-          LOWORD(v7) = HIWORD(v89);
-          if (SHIWORD(v89) >= (int)v3)
-            goto LABEL_177;
-          LOWORD(v7) = HIWORD(v87);
-          if (SHIWORD(v87) >= v3)
-            goto LABEL_133;
-        LABEL_79:
-          if (v87 < 0)
-            goto LABEL_177;
-          goto LABEL_80;
-        }
-        LOWORD(v7) = HIWORD(v87);
-        if (SHIWORD(v87) < v3)
-          goto LABEL_106;
+        // Check if right edge is off-screen right
+        if (((int16)(iRightEdgeX >> 16)) < iOldWinW)
+          goto RENDER_RIGHT_VISIBLE;
       }
-      while ((_WORD)v6 != (_WORD)v11) {
-        v55 = a1[2 * (__int16)v11--];
-        HIWORD(v87) = v55;
-        if ((__int16)v11 == -1)
-          v11 = a2 - 1;
-        v7 = (int)&a1[2 * (__int16)v11];
-        LOWORD(v51) = *(_WORD *)(v7 + 4);
-        v51 -= v10;
-        v91 = v51;
-        if ((__int16)v51 > 0) {
-          HIWORD(v77) = *(_WORD *)v7 - HIWORD(v87);
-          LOWORD(v87) = 0;
-          LOWORD(v77) = 0;
-          v7 = v77 / (__int16)v51;
-          v71 = v7;
-          if (v7 > 0)
-            v87 += v7;
-          goto LABEL_176;
-        }
-      }
-    LABEL_177:
-      winw = v3;
-      return v7;
-    }
-    for (LOWORD(v7) = HIWORD(v87); SHIWORD(v87) >= v3; LOWORD(v7) = HIWORD(v87)) {
-      if (v87 < 0)
-        goto LABEL_177;
-      while (1) {
-      LABEL_133:
-        v64 = (_BYTE *)(v3 * v10 + scrptr + SHIWORD(v89));
-        for (j = 0; (int)(v3 - SHIWORD(v89)) > j; ++j) {
-          *v64 = v61[(unsigned __int8)*v64];
-          ++v64;
-        }
-        v89 += v79;
-        ++v10;
-        v46 = v71 + v87;
-        HIWORD(v7) = HIWORD(v92);
-        v87 += v71;
-        LOWORD(v7) = v92 - 1;
-        v29 = (_WORD)v92 == 1;
-        v92 = v7;
-        if (v29) {
-          while ((_WORD)v6 != (_WORD)v11) {
-            HIWORD(v47) = HIWORD(a2);
-            v48 = a1[2 * (__int16)v6++];
-            HIWORD(v89) = v48;
-            if ((__int16)v6 == a2)
-              v6 = 0;
-            v7 = (int)&a1[2 * (__int16)v6];
-            LOWORD(v47) = *(_WORD *)(v7 + 4);
-            v92 = v47 - v10;
-            if ((__int16)(v47 - v10) > 0) {
-              HIWORD(v84) = *(_WORD *)v7 - HIWORD(v89);
-              LOWORD(v89) = 0;
-              LOWORD(v84) = 0;
-              v49 = v84 / (__int16)v92;
-              v46 = v84 % (__int16)v92;
-              v79 = v49;
-              if (v49 < 0)
-                v89 += v49;
-              goto LABEL_143;
-            }
+      // Verify left edge position
+      if (((int16)(iLeftEdgeX >> 16)) >= iOldWinW)
+        goto RESTORE_AND_RETURN;
+      // Verify right edge position
+      if (((int16)(iRightEdgeX >> 16)) >= iOldWinW)
+        goto RIGHT_CLIPPED_RENDER;
+    RENDER_LEFT_VISIBLE:
+      if (iRightEdgeX < 0)
+        goto RESTORE_AND_RETURN;
+    } else {
+
+      // Handle right-clipped scanlines
+      while (((int16)(iRightEdgeX >> 16)) >= iOldWinW) {
+        if (iRightEdgeX < 0)
+          goto RESTORE_AND_RETURN;
+        while (1) {
+          // Right clipped scanline processing
+        RIGHT_CLIPPED_RENDER:
+          pDest3 = &scrptr[((int16)(iLeftEdgeX >> 16)) + iOldWinW * iCurrScanline];
+          for (iPixelIdx_1 = 0; iOldWinW - ((int16)(iLeftEdgeX >> 16)) > iPixelIdx_1; ++iPixelIdx_1) {
+            *pDest3 = pShadePalette[*pDest3];
+            ++pDest3;
           }
-          goto LABEL_177;
-        }
-      LABEL_143:
-        HIWORD(v7) = HIWORD(v91);
-        LOWORD(v7) = v91 - 1;
-        v29 = (_WORD)v91 == 1;
-        v91 = v7;
-        if (v29) {
-          while ((_WORD)v6 != (_WORD)v11) {
-            v50 = a1[2 * (__int16)v11--];
-            HIWORD(v87) = v50;
-            if ((__int16)v11 == -1)
-              v11 = a2 - 1;
-            v7 = (int)&a1[2 * (__int16)v11];
-            LOWORD(v46) = *(_WORD *)(v7 + 4);
-            v46 -= v10;
-            v91 = v46;
-            if ((__int16)v46 > 0) {
-              HIWORD(v76) = *(_WORD *)v7 - HIWORD(v87);
-              LOWORD(v87) = 0;
-              LOWORD(v76) = 0;
-              v7 = v76 / (__int16)v46;
-              v71 = v7;
-              if (v7 > 0)
-                v87 += v7;
-              goto LABEL_150;
+          // Advance to next scanline
+          iLeftEdgeX += iLeftEdgeDx_1;
+          ++iCurrScanline;
+          iRightEdgeTemp_1 = iRightEdgeDx + iRightEdgeX;
+          iTempVal_3 = (iTempVal_3 & 0x0000FFFF) | (iLeftRemain & 0xFFFF0000);
+          iRightEdgeX += iRightEdgeDx;
+          iTempVal_3 = (iTempVal_3 & 0xFFFF0000) | ((iLeftRemain - 1) & 0xFFFF);
+          bZeroFlag = (int16)iLeftRemain == 1;
+          iLeftRemain = iTempVal_3;
+
+          // Process left edge segment completion
+          if (bZeroFlag) {
+            while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+              iTempY_5 = (iTempY_5 & 0x0000FFFF) | (iNumVertices & 0xFFFF0000);
+              nTempX_8 = vertices[(int16)iMinYIdx++].x;
+              iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | ((nTempX_8 & 0xFFFF) << 16);
+              if ((int16)iMinYIdx == iNumVertices)
+                iMinYIdx = 0;
+              pVertex_4 = &vertices[(int16)iMinYIdx];
+              iTempY_5 = (iTempY_5 & 0xFFFF0000) | (pVertex_4->y & 0xFFFF);
+              iLeftRemain = iTempY_5 - iCurrScanline;
+              if ((int16)(iTempY_5 - iCurrScanline) > 0) {
+                iLeftEdgeDxTemp6 = (iLeftEdgeDxTemp6 & 0x0000FFFF) | (((pVertex_4->x & 0xFFFF) - (iLeftEdgeX >> 16)) << 16);
+                iLeftEdgeX &= 0xFFFF0000;
+                iLeftEdgeDxTemp6 &= 0xFFFF0000;
+                iNewStep_2 = iLeftEdgeDxTemp6 / (int16)iLeftRemain;
+                iRightEdgeTemp_1 = iLeftEdgeDxTemp6 % (int16)iLeftRemain;
+                iLeftEdgeDx_1 = iNewStep_2;
+                if (iNewStep_2 < 0)
+                  iLeftEdgeX += iNewStep_2;
+                goto LEFT_EDGE_COMPLETE_2;
+              }
             }
+            goto RESTORE_AND_RETURN;
           }
-          goto LABEL_177;
-        }
-      LABEL_150:
-        if (v10 >= winh) {
-          winw = v3;
-          return v7;
-        }
-        if (SHIWORD(v89) >= v3)
-          break;
-        LOWORD(v7) = HIWORD(v87);
-        if (SHIWORD(v87) < v3)
-          goto LABEL_79;
-      }
-      LOWORD(v7) = HIWORD(v89);
-      if (SHIWORD(v89) >= (int)v3)
-        goto LABEL_177;
-      LOWORD(v7) = HIWORD(v87);
-      if (SHIWORD(v87) >= v3)
-        goto LABEL_159;
-    LABEL_106:
-      if (v87 < 0)
-        goto LABEL_177;
-      while (1) {
-      LABEL_107:
-        v65 = (_BYTE *)(scrptr + v3 * v10);
-        for (k = 0; SHIWORD(v87) + 1 > k; ++k) {
-          *v65 = v61[(unsigned __int8)*v65];
-          ++v65;
-        }
-        LOWORD(v7) = v71;
-        v89 += v79;
-        v87 += v71;
-        HIWORD(v40) = HIWORD(v92);
-        ++v10;
-        LOWORD(v40) = v92 - 1;
-        v29 = (_WORD)v92 == 1;
-        v92 = v40;
-        if (v29) {
-          while ((_WORD)v6 != (_WORD)v11) {
-            HIWORD(v41) = HIWORD(a2);
-            v42 = a1[2 * (__int16)v6++];
-            HIWORD(v89) = v42;
-            if ((__int16)v6 == a2)
-              v6 = 0;
-            v7 = (int)&a1[2 * (__int16)v6];
-            LOWORD(v41) = *(_WORD *)(v7 + 4);
-            v92 = v41 - v10;
-            if ((__int16)(v41 - v10) > 0) {
-              HIWORD(v83) = *(_WORD *)v7 - HIWORD(v89);
-              LOWORD(v89) = 0;
-              LOWORD(v83) = 0;
-              v43 = v83 / (__int16)v92;
-              v40 = v83 % (__int16)v92;
-              v79 = v43;
-              if (v43 < 0)
-                v89 += v43;
-              goto LABEL_117;
+        LEFT_EDGE_COMPLETE_2:
+          iTempVal_4 = (iTempVal_4 & 0x0000FFFF) | (iRightRemain & 0xFFFF0000);
+          iTempVal_4 = (iTempVal_4 & 0xFFFF0000) | ((iRightRemain - 1) & 0xFFFF);
+          bZeroFlag = (int16)iRightRemain == 1;
+          iRightRemain = iTempVal_4;
+
+          // Process right edge segment completion
+          if (bZeroFlag) {
+            while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+              nTempX_9 = vertices[(int16)iBackwardIdx--].x;
+              iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | ((nTempX_9 & 0xFFFF) << 16);
+              if ((int16)iBackwardIdx == -1)
+                iBackwardIdx = iNumVertices - 1;
+              pVertex_5 = &vertices[(int16)iBackwardIdx];
+              iRightEdgeTemp_1 = (iRightEdgeTemp_1 & 0xFFFF0000) | (pVertex_5->y & 0xFFFF);
+              iRightEdgeTemp_1 -= iCurrScanline;
+              iRightRemain = iRightEdgeTemp_1;
+              if ((int16)iRightEdgeTemp_1 > 0) {
+                iTempEdgeDx4 = (iTempEdgeDx4 & 0x0000FFFF) | (((pVertex_5->x & 0xFFFF) - (iRightEdgeX >> 16)) << 16);
+                iRightEdgeX &= 0xFFFF0000;
+                iTempEdgeDx4 &= 0xFFFF0000;
+                iStep_6 = iTempEdgeDx4 / (int16)iRightEdgeTemp_1;
+                iRightEdgeDx = iStep_6;
+                if (iStep_6 > 0)
+                  iRightEdgeX += iStep_6;
+                goto SCANLINE_CHECK_2;
+              }
             }
+            goto RESTORE_AND_RETURN;
           }
-          goto LABEL_177;
+        SCANLINE_CHECK_2:
+                  // Exit if at bottom of screen
+          if (iCurrScanline >= winh) {
+            winw = iOldWinW;
+            return;
+          }
+          // Check if left edge is off-screen right
+          if (((int16)(iLeftEdgeX >> 16)) >= iOldWinW)
+            break;
+          // Check if right edge is on-screen
+          if (((int16)(iRightEdgeX >> 16)) < iOldWinW)
+            goto RENDER_LEFT_VISIBLE;
         }
-      LABEL_117:
-        HIWORD(v7) = HIWORD(v91);
-        LOWORD(v7) = v91 - 1;
-        v29 = (_WORD)v91 == 1;
-        v91 = v7;
-        if (v29) {
-          while ((_WORD)v6 != (_WORD)v11) {
-            v44 = a1[2 * (__int16)v11--];
-            HIWORD(v87) = v44;
-            if ((__int16)v11 == -1)
-              v11 = a2 - 1;
-            v7 = (int)&a1[2 * (__int16)v11];
-            LOWORD(v40) = *(_WORD *)(v7 + 4);
-            v40 -= v10;
-            v91 = v40;
-            if ((__int16)v40 > 0) {
-              HIWORD(v75) = *(_WORD *)v7 - HIWORD(v87);
-              LOWORD(v87) = 0;
-              LOWORD(v75) = 0;
-              v7 = v75 / (__int16)v40;
-              v71 = v7;
-              if (v7 > 0)
-                v87 += v7;
-              goto LABEL_124;
+
+        // Handle partially visible scanlines
+        if (((int16)(iLeftEdgeX >> 16)) >= iOldWinW)
+          goto RESTORE_AND_RETURN;
+        if (((int16)(iRightEdgeX >> 16)) >= iOldWinW)
+          goto FULL_WIDTH_LOOP;
+      RENDER_RIGHT_VISIBLE:
+        if (iRightEdgeX < 0)
+          goto RESTORE_AND_RETURN;
+        while (1) {
+          // Left-visible scanline processing
+        RENDER_LEFT_VISIBLE_SEGMENT:
+          pDest2 = &scrptr[iOldWinW * iCurrScanline];
+          for (iPixelIdx_2 = 0; ((int16)(iRightEdgeX >> 16)) + 1 > iPixelIdx_2; ++iPixelIdx_2) {
+            *pDest2 = pShadePalette[*pDest2];
+            ++pDest2;
+          }
+
+          // Advance to next scanline
+          iLeftEdgeX += iLeftEdgeDx_1;
+          iRightEdgeX += iRightEdgeDx;
+          iStep_2 = (iStep_2 & 0x0000FFFF) | (iLeftRemain & 0xFFFF0000);
+          ++iCurrScanline;
+          iStep_2 = (iStep_2 & 0xFFFF0000) | ((iLeftRemain - 1) & 0xFFFF);
+          bZeroFlag = (int16)iLeftRemain == 1;
+          iLeftRemain = iStep_2;
+
+          // Process left edge segment completion
+          if (bZeroFlag) {
+            while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+              nTempX_10 = (nTempX_10 & 0x0000FFFF) | (iNumVertices & 0xFFFF0000);
+              nTempX_11 = vertices[(int16)iMinYIdx++].x;
+              iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | ((nTempX_11 & 0xFFFF) << 16);
+              if ((int16)iMinYIdx == iNumVertices)
+                iMinYIdx = 0;
+              pVertex_6 = &vertices[(int16)iMinYIdx];
+              nTempX_10 = (nTempX_10 & 0xFFFF0000) | (pVertex_6->y & 0xFFFF);
+              iLeftRemain = nTempX_10 - iCurrScanline;
+              if ((int16)(nTempX_10 - iCurrScanline) > 0) {
+                iLeftEdgeDxTemp5 = (iLeftEdgeDxTemp5 & 0x0000FFFF) | ((((pVertex_6->x & 0xFFFF) - (iLeftEdgeX >> 16)) & 0xFFFF) << 16);
+                iLeftEdgeX &= 0xFFFF0000;
+                iLeftEdgeDxTemp5 &= 0xFFFF0000;
+                iNewStep_3 = iLeftEdgeDxTemp5 / (int16)iLeftRemain;
+                iStep_2 = iLeftEdgeDxTemp5 % (int16)iLeftRemain;
+                iLeftEdgeDx_1 = iNewStep_3;
+                if (iNewStep_3 < 0)
+                  iLeftEdgeX += iNewStep_3;
+                goto LEFT_EDGE_COMPLETE_3;
+              }
             }
+            goto RESTORE_AND_RETURN;
           }
-          goto LABEL_177;
+        LEFT_EDGE_COMPLETE_3:
+          iTempVal_5 = (iTempVal_5 & 0x0000FFFF) | (iRightRemain & 0xFFFF0000);
+          iTempVal_5 = (iTempVal_5 & 0xFFFF0000) | ((iRightRemain - 1) & 0xFFFF);
+          bZeroFlag = (int16)iRightRemain == 1;
+          iRightRemain = iTempVal_5;
+
+          // Process right edge segment completion
+          if (bZeroFlag) {
+            while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+              nTempX_12 = vertices[(int16)iBackwardIdx--].x;
+              iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | ((nTempX_12 & 0xFFFF) << 16);
+              if ((int16)iBackwardIdx == -1)
+                iBackwardIdx = iNumVertices - 1;
+              pVertex_7 = &vertices[(int16)iBackwardIdx];
+              iStep_2 = (iStep_2 & 0xFFFF0000) | (pVertex_7->y & 0xFFFF);
+              iStep_2 -= iCurrScanline;
+              iRightRemain = iStep_2;
+              if ((int16)iStep_2 > 0) {
+                iTempEdgeDx3 = (iTempEdgeDx3 & 0x0000FFFF) | ((((pVertex_7->x & 0xFFFF) - (iRightEdgeX >> 16)) & 0xFFFF) << 16);
+                iRightEdgeX &= 0xFFFF0000;
+                iTempEdgeDx3 &= 0xFFFF0000;
+                iStep_8 = iTempEdgeDx3 / (int16)iStep_2;
+                iRightEdgeDx = iStep_8;
+                if (iStep_8 > 0)
+                  iRightEdgeX += iStep_8;
+                goto SCANLINE_CHECK_3;
+              }
+            }
+            goto RESTORE_AND_RETURN;
+          }
+        SCANLINE_CHECK_3:
+                  // Exit if at bottom of screen
+          if (iCurrScanline >= winh) {
+            winw = iOldWinW;
+            return;
+          }
+          // Check if left edge is on-screen
+          if (((int16)(iLeftEdgeX >> 16)) < iOldWinW)
+            break;
+          // Check if right edge is off-screen right
+          if (((int16)(iRightEdgeX >> 16)) >= iOldWinW)
+            goto FULL_WIDTH_RENDER;
         }
-      LABEL_124:
-        if (v10 >= winh) {
-          winw = v3;
-          return v7;
-        }
-        if (SHIWORD(v89) < v3)
-          break;
-        LOWORD(v7) = HIWORD(v87);
-        if (SHIWORD(v87) >= v3)
-          goto LABEL_158;
+        // Verify left edge position
+        if (((int16)(iLeftEdgeX >> 16)) >= iOldWinW)
+          goto RESTORE_AND_RETURN;
       }
-      LOWORD(v7) = HIWORD(v89);
-      if (SHIWORD(v89) >= (int)v3)
-        goto LABEL_177;
     }
-  LABEL_80:
-    LOWORD(v7) = HIWORD(v87) - HIWORD(v89) + 1;
-    if ((v7 & 0x8000u) != 0)
-      goto LABEL_177;
-    v63 = (_BYTE *)(v3 * v10 + SHIWORD(v89) + scrptr);
-    for (m = 0; (__int16)v7 > m; ++m) {
-      *v63 = v61[(unsigned __int8)*v63];
-      ++v63;
+
+    // Calculate visible segment width
+    nSegmentWidth = (int16)(((uint16)(iRightEdgeX >> 16)) - ((uint16)(iLeftEdgeX >> 16)) + 1);
+    if (nSegmentWidth < 0)                    // Negative width check
+      goto RESTORE_AND_RETURN;
+
+    // Process visible scanline segment
+    pDest4 = &scrptr[((int16)(iLeftEdgeX >> 16)) + iOldWinW * iCurrScanline];
+    for (iPixelIdx_3 = 0; nSegmentWidth > iPixelIdx_3; ++iPixelIdx_3) {
+      *pDest4 = pShadePalette[*pDest4];         // Apply palette
+      ++pDest4;
     }
-    LOWORD(v7) = v71;
-    v89 += v79;
-    v87 += v71;
-    HIWORD(v34) = HIWORD(v92);
-    ++v10;
-    LOWORD(v34) = v92 - 1;
-    v29 = (_WORD)v92 == 1;
-    v92 = v34;
-    if (v29) {
-      while ((_WORD)v6 != (_WORD)v11) {
-        HIWORD(v35) = HIWORD(a2);
-        v36 = a1[2 * (__int16)v6++];
-        HIWORD(v89) = v36;
-        if ((__int16)v6 == a2)
-          v6 = 0;
-        v7 = (int)&a1[2 * (__int16)v6];
-        LOWORD(v35) = *(_WORD *)(v7 + 4);
-        v92 = v35 - v10;
-        if ((__int16)(v35 - v10) > 0) {
-          HIWORD(v82) = *(_WORD *)v7 - HIWORD(v89);
-          LOWORD(v89) = 0;
-          LOWORD(v82) = 0;
-          v37 = v82 / (__int16)v92;
-          v34 = v82 % (__int16)v92;
-          v79 = v37;
-          if (v37 < 0)
-            v89 += v37;
-          goto LABEL_91;
+
+    // Advance to next scanline
+    iLeftEdgeX += iLeftEdgeDx_1;
+    iRightEdgeX += iRightEdgeDx;
+    iStepOffset_1 = (iStepOffset_1 & 0x0000FFFF) | (iLeftRemain & 0xFFFF0000);
+    ++iCurrScanline;
+    iStepOffset_1 = (iStepOffset_1 & 0xFFFF0000) | ((iLeftRemain - 1) & 0xFFFF);
+    bZeroFlag = (int16)iLeftRemain == 1;
+    iLeftRemain = iStepOffset_1;
+
+    // Process left edge segment completion
+    if (bZeroFlag)
+      break;
+  PROCESS_RIGHT_EDGE:
+      // Process right edge segment
+    iTempVal_6 = (iTempVal_6 & 0x0000FFFF) | (iRightRemain & 0xFFFF0000);
+    iTempVal_6 = (iTempVal_6 & 0xFFFF0000) | ((iRightRemain - 1) & 0xFFFF);
+    bZeroFlag = (int16)iRightRemain == 1;
+    iRightRemain = iTempVal_6;
+
+    // Process right edge segment completion
+    if (bZeroFlag) {
+      while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+        nTempX_14 = vertices[(int16)iBackwardIdx--].x;
+        iRightEdgeX = (iRightEdgeX & 0x0000FFFF) | (nTempX_14 << 16);
+        if ((int16)iBackwardIdx == -1)
+          iBackwardIdx = iNumVertices - 1;
+        pVertex_8 = &vertices[(int16)iBackwardIdx];
+        iStepOffset_1 = (iStepOffset_1 & 0xFFFF0000) | (pVertex_8->y & 0xFFFF);
+        iStepOffset_1 -= iCurrScanline;
+        iRightRemain = iStepOffset_1;
+        if ((int16)iStepOffset_1 > 0) {
+          iTempEdgeDx2 = (iTempEdgeDx2 & 0x0000FFFF) | ((((pVertex_8->x & 0xFFFF) - ((iRightEdgeX >> 16) & 0xFFFF)) & 0xFFFF) << 16);
+          iRightEdgeX &= 0xFFFF0000;
+          iTempEdgeDx2 &= 0xFFFF0000;
+          iStep_7 = iTempEdgeDx2 / (int16)iStepOffset_1;
+          iRightEdgeDx = iStep_7;
+          if (iStep_7 > 0)
+            iRightEdgeX += iStep_7;
+          goto NEXT_SCANLINE;
         }
       }
-      goto LABEL_177;
+      goto RESTORE_AND_RETURN;
     }
-  LABEL_91:
-    HIWORD(v7) = HIWORD(v91);
-    LOWORD(v7) = v91 - 1;
-    v29 = (_WORD)v91 == 1;
-    v91 = v7;
-    if (v29) {
-      while ((_WORD)v6 != (_WORD)v11) {
-        v38 = a1[2 * (__int16)v11--];
-        HIWORD(v87) = v38;
-        if ((__int16)v11 == -1)
-          v11 = a2 - 1;
-        v7 = (int)&a1[2 * (__int16)v11];
-        LOWORD(v34) = *(_WORD *)(v7 + 4);
-        v34 -= v10;
-        v91 = v34;
-        if ((__int16)v34 > 0) {
-          HIWORD(v74) = *(_WORD *)v7 - HIWORD(v87);
-          LOWORD(v87) = 0;
-          LOWORD(v74) = 0;
-          v7 = v74 / (__int16)v34;
-          v71 = v7;
-          if (v7 > 0)
-            v87 += v7;
-          goto LABEL_98;
-        }
-      }
-      goto LABEL_177;
+  NEXT_SCANLINE:
+      // Exit if at bottom of screen
+    if (iCurrScanline >= winh) {
+      winw = iOldWinW;
+      return;
     }
-  LABEL_98:
-    ;
-  } while (v10 < winh);
-  winw = v3;
-  return v7;*/
+  }
+
+  // Process left edge segment completion
+  while ((int16)iMinYIdx != (int16)iBackwardIdx) {
+    iVertexIdx_2 = (iVertexIdx_2 & 0x0000FFFF) | (iNumVertices & 0xFFFF0000);
+    nTempX_13 = vertices[(int16)iMinYIdx++].x;
+    iLeftEdgeX = (iLeftEdgeX & 0x0000FFFF) | (nTempX_13 << 16);
+    if ((int16)iMinYIdx == iNumVertices)
+      iMinYIdx = 0;
+    pVertex_9 = &vertices[(int16)iMinYIdx];
+    iVertexIdx_2 = (iVertexIdx_2 & 0xFFFF0000) | (pVertex_9->y & 0xFFFF);
+    iLeftRemain = iVertexIdx_2 - iCurrScanline;
+    if ((int16)(iVertexIdx_2 - iCurrScanline) > 0) {
+      iLeftEdgeDxTemp4 = (iLeftEdgeDxTemp4 & 0x0000FFFF) | ((((pVertex_9->x & 0xFFFF) - ((iLeftEdgeX >> 16) & 0xFFFF)) & 0xFFFF) << 16);
+      iLeftEdgeX &= 0xFFFF0000;
+      iLeftEdgeDxTemp4 &= 0xFFFF0000;
+      iNewStep_4 = iLeftEdgeDxTemp4 / (int16)iLeftRemain;
+      iStepOffset_1 = iLeftEdgeDxTemp4 % (int16)iLeftRemain;
+      iLeftEdgeDx_1 = iNewStep_4;
+      if (iNewStep_4 < 0)
+        iLeftEdgeX += iNewStep_4;
+      goto PROCESS_RIGHT_EDGE;
+    }
+  }
+RESTORE_AND_RETURN:
+  winw = iOldWinW;
 }
 
 //-------------------------------------------------------------------------------------------------
