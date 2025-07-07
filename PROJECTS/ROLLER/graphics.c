@@ -117,136 +117,147 @@ void linexyz(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, c
 
 //-------------------------------------------------------------------------------------------------
 
-char compout(int a1, int a2, int a3, int a4, int a5, int a6, char a7)
+void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 {
-  return 0;/*
-  int v7; // ebp
-  char v8; // cl
-  char v9; // dl
-  char result; // al
-  int v11; // ecx
-  int v12; // eax
-  char *v13; // ecx
-  char v14; // dl
-  int v15; // [esp+8h] [ebp-28h]
-  char v17; // [esp+10h] [ebp-20h]
-  char v18; // [esp+14h] [ebp-1Ch] BYREF
-  char v19; // [esp+18h] [ebp-18h] BYREF
-  char v20; // [esp+1Ch] [ebp-14h]
-  char v21; // [esp+20h] [ebp-10h]
+  int iNewX; // edi
+  int iNewY; // esi
+  int iX0_1; // ebp
+  char byOutcode0; // cl
+  char byOutcode1; // dl
+  int iDy; // ecx
+  int iYOffset; // eax
+  char *p_byOutcode; // ecx
+  char byOutcode; // dl
+  int iDx; // [esp+8h] [ebp-28h]
+  char byUseOutcode; // [esp+10h] [ebp-20h]
+  char byOutcode1_1; // [esp+14h] [ebp-1Ch] BYREF
+  char byOutcode0_1; // [esp+18h] [ebp-18h] BYREF
+  char byDone; // [esp+1Ch] [ebp-14h]
+  char byDraw; // [esp+20h] [ebp-10h]
 
-  v7 = a1;
-  v8 = 0;
-  v21 = 0;
-  v20 = 0;
-  if (a3 < winh) {
-    if (a3 < 0)
-      v8 = 4;
+  iX0_1 = iX0;
+  byOutcode0 = 0;
+  byDraw = 0;
+  byDone = 0;
+
+  // Get region code for point 0
+  if (iY0 < winh) {
+    if (iY0 < 0)
+      byOutcode0 = 4;                           // bottom
   } else {
-    v8 = 8;
+    byOutcode0 = 8;                             // top
   }
-  if (a1 < winw) {
-    if (a1 < 0)
-      ++v8;
+  if (iX0 < winw) {
+    if (iX0 < 0)
+      ++byOutcode0;                             // left
   } else {
-    v8 += 2;
+    byOutcode0 += 2;                            // right
   }
-  v19 = v8;
-  v9 = 0;
-  if (a6 < winh) {
-    if (a6 < 0)
-      v9 = 4;
+  byOutcode0_1 = byOutcode0;
+  byOutcode1 = 0;
+
+  // Get region code for point 1
+  if (iY1 < winh) {
+    if (iY1 < 0)
+      byOutcode1 = 4;                           // bottom
   } else {
-    v9 = 8;
+    byOutcode1 = 8;                             // top
   }
-  if (a2 < winw) {
-    if (a2 < 0)
-      ++v9;
+  if (iX1 < winw) {
+    if (iX1 < 0)
+      ++byOutcode1;                             // left
   } else {
-    v9 += 2;
+    byOutcode1 += 2;                            // right
   }
-  v18 = v9;
+  byOutcode1_1 = byOutcode1;
+
+  // Clipping loop (Cohen-Sutherland algorithm)
   do {
-    if (!v19 && !v18) {
-      result = -1;
-      v21 = -1;
-      v20 = -1;
+    // Both points inside screen, draw line
+    if (!byOutcode0_1 && !byOutcode1_1) {
+      byDraw = -1;
+      byDone = -1;
       continue;
     }
-    result = v18;
-    if (((unsigned __int8)v18 & (unsigned __int8)v19) != 0) {
-      v20 = -1;
+    // Both points outside screen, don't draw line
+    if (((unsigned __int8)byOutcode1_1 & (unsigned __int8)byOutcode0_1) != 0) {
+      byDone = -1;
       continue;
     }
-    if (v19)
-      v17 = v19;
+
+    // Select point to clip
+    if (byOutcode0_1)
+      byUseOutcode = byOutcode0_1;
     else
-      v17 = v18;
-    v15 = a2 - v7;
-    v11 = a6 - a3;
-    if ((v17 & 8) != 0) {
-      a5 = winh - 1;
-      a4 = v15 * (winh - 1 - a3) / v11 + v7;
+      byUseOutcode = byOutcode1_1;
+
+    // Calculate intersection with window boundary
+    iDx = iX1 - iX0_1;
+    iDy = iY1 - iY0;
+    if ((byUseOutcode & 8) != 0)              // top
+    {
+      iNewY = winh - 1;
+      iNewX = iDx * (winh - 1 - iY0) / iDy + iX0_1;
     } else {
-      if ((v17 & 4) == 0) {
-        if ((v17 & 2) != 0) {
-          a4 = winw - 1;
-          v12 = v11 * (winw - 1 - v7) / v15;
+      if ((byUseOutcode & 4) == 0)            // bottom
+      {
+        if ((byUseOutcode & 2) != 0)          // right
+        {
+          iNewX = winw - 1;
+          iYOffset = iDy * (winw - 1 - iX0_1) / iDx;
         } else {
-          if ((v17 & 1) == 0)
+          if ((byUseOutcode & 1) == 0)        // left
             goto LABEL_35;
-          v12 = v11 * -v7 / v15;
-          a4 = 0;
+          iYOffset = iDy * -iX0_1 / iDx;
+          iNewX = 0;
         }
-        a5 = a3 + v12;
+        iNewY = iY0 + iYOffset;
         goto LABEL_35;
       }
-      a5 = 0;
-      a4 = v15 * -a3 / v11 + v7;
+      iNewY = 0;
+      iNewX = iDx * -iY0 / iDy + iX0_1;
     }
   LABEL_35:
-    if (v17 == v19) {
-      v13 = &v19;
-      v7 = a4;
-      a3 = a5;
-      result = a4;
-      v14 = 0;
-      if (a5 < winh) {
-        if (a5 < 0)
-          v14 = 4;
+      // Update clipped point and recompute outcode
+    if (byUseOutcode == byOutcode0_1) {
+      p_byOutcode = &byOutcode0_1;
+      iX0_1 = iNewX;
+      iY0 = iNewY;
+      byOutcode = 0;
+      if (iNewY < winh) {
+        if (iNewY < 0)
+          byOutcode = 4;
       } else {
-        v14 = 8;
+        byOutcode = 8;
       }
-      if (a4 < winw) {
-        if (a4 < 0)
-          ++v14;
+      if (iNewX < winw) {
+        if (iNewX < 0)
+          ++byOutcode;
       } else {
-        v14 += 2;
+        byOutcode += 2;
       }
     } else {
-      v13 = &v18;
-      a2 = a4;
-      a6 = a5;
-      result = a4;
-      v14 = 0;
-      if (a5 < winh) {
-        if (a5 < 0)
-          v14 = 4;
+      p_byOutcode = &byOutcode1_1;
+      iX1 = iNewX;
+      iY1 = iNewY;
+      byOutcode = 0;
+      if (iNewY < winh) {
+        if (iNewY < 0)
+          byOutcode = 4;
       } else {
-        v14 = 8;
+        byOutcode = 8;
       }
-      if (a4 < winw) {
-        if (a4 < 0)
-          ++v14;
+      if (iNewX < winw) {
+        if (iNewX < 0)
+          ++byOutcode;
       } else {
-        v14 += 2;
+        byOutcode += 2;
       }
     }
-    *v13 = v14;
-  } while (!v20);
-  if (v21)
-    return line(a6, a7);
-  return result;*/
+    *p_byOutcode = byOutcode;
+  } while (!byDone);
+  if (byDraw)
+    line(pScrBuf, iX0_1, iY0, iX1, iY1, byColor);
 }
 
 //-------------------------------------------------------------------------------------------------

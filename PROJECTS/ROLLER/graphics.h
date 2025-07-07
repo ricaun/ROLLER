@@ -11,7 +11,7 @@ extern int NoOfTextures;
 
 void plotxyz(float a1, float a2, float a3, char a4);
 void linexyz(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, char a7);
-char compout(int a1, int a2, int a3, int a4, int a5, int a6, char a7);
+void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, char byColor);
 void LoadPanel();
 int InitRemaps();
