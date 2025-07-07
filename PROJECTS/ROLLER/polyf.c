@@ -1,6 +1,7 @@
 #include "polyf.h"
 #include "3d.h"
 #include "polytex.h"
+#include "drawtrk3.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -180,63 +181,72 @@ void twpoly(tPoint *vertices, int16 nColor)
 
 //-------------------------------------------------------------------------------------------------
 
-int16 POLYFLAT(int a1, int *a2)
+void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams)
 {
-  return 0; /*
-  _DWORD *v3; // eax
-  int v4; // ebx
-  int v5; // edx
-  int v6; // ecx
-  int v7; // ebp
-  int v8; // edx
-  int v9; // ecx
-  int v10; // edx
-  int v11; // ecx
-  int v12; // edx
-  int v13; // ecx
-  int v15; // [esp+0h] [ebp-18h]
+  uint32 uiSurfaceType; // ebx
+  int iX0; // edx
+  int iY0; // ecx
+  int iY1; // ebp
+  int iDx; // edx
+  int iDy; // ecx
+  int iX0_1; // edx
+  int iY0_1; // ecx
+  int iX1_1; // edx
+  int iY1_1; // ecx
+  int iX1; // [esp+0h] [ebp-18h]
 
-  v3 = a2;
-  v4 = *a2;
-  if ((((unsigned int)&loc_1FFFD + 3) & *a2) == 0) {
-    if ((v4 & 0x2000) != 0) {
-      v5 = a2[2];
-      v6 = v3[3];
-      v15 = v5 - v3[4];
-      v7 = v6 - v3[5];
-      if (v3[4] == v3[6] && v3[5] == v3[7]) {
-        v8 = v5 - v3[8];
-        v9 = v6 - v3[9];
+  uiSurfaceType = polyParams->uiSurfaceType;
+  if ((polyParams->uiSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0)
+  {
+    if ((uiSurfaceType & SURFACE_FLAG_FLIP_BACKFACE) != 0)
+    {
+      iX0 = polyParams->vertices[0].x;
+      iY0 = polyParams->vertices[0].y;
+      iX1 = iX0 - polyParams->vertices[1].x;
+      iY1 = iY0 - polyParams->vertices[1].y;
+
+      // Determine comparison points (p2 or p3)
+      if (polyParams->vertices[1].x == polyParams->vertices[2].x
+        && polyParams->vertices[1].y == polyParams->vertices[2].y) {
+        iDx = iX0 - polyParams->vertices[3].x;
+        iDy = iY0 - polyParams->vertices[3].y;
       } else {
-        v8 = v5 - v3[6];
-        v9 = v6 - v3[7];
+        iDx = iX0 - polyParams->vertices[2].x;
+        iDy = iY0 - polyParams->vertices[2].y;
       }
-      if (v15 * v9 > v7 * v8) {
-        v10 = v3[2];
-        v3[2] = v3[8];
-        v3[8] = v10;
-        v11 = v3[3];
-        v3[3] = v3[9];
-        v3[9] = v11;
-        v12 = v3[4];
-        v3[4] = v3[6];
-        v3[6] = v12;
-        v13 = v3[5];
-        v3[5] = v3[7];
-        v3[7] = v13;
+
+      // Backface detection using cross product
+      if (iX1 * iDy > iY1 * iDx) {
+        // Swap vertices to flip polygon orientation
+        iX0_1 = polyParams->vertices[0].x;
+        // Swap P0 and P3
+        polyParams->vertices[0].x = polyParams->vertices[3].x;
+        polyParams->vertices[3].x = iX0_1;
+        iY0_1 = polyParams->vertices[0].y;
+        polyParams->vertices[0].y = polyParams->vertices[3].y;
+        polyParams->vertices[3].y = iY0_1;
+        // Swap P1 and P2
+        iX1_1 = polyParams->vertices[1].x;
+        polyParams->vertices[1].x = polyParams->vertices[2].x;
+        polyParams->vertices[2].x = iX1_1;
+        iY1_1 = polyParams->vertices[1].y;
+        polyParams->vertices[1].y = polyParams->vertices[2].y;
+        polyParams->vertices[2].y = iY1_1;
       }
     }
-    scrptr = a1;
+    scrptr = pScrBuf;
     ++num_pols;
-    if ((v4 & 0x200000) != 0) {
-      LOWORD(v3) = shadow_poly(v3 + 2, v3[1], (unsigned __int8)v4);
-    } else if ((v4 & 0x4000) != 0) {
-      LOWORD(v3) = twpoly((int16 *)v3 + 4, (unsigned __int8)v4);
-    } else {
-      LOWORD(v3) = poly(v3 + 2, v3[1], (unsigned __int8)v4);
+    if ((uiSurfaceType & SURFACE_FLAG_TRANSPARENT) != 0)      // shadow polygon
+    {
+      shadow_poly(polyParams->vertices, polyParams->uiNumVerts, (uint8)uiSurfaceType);
+    } else if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
+    {
+      twpoly(polyParams->vertices, (uint8)uiSurfaceType);// potentially concave quad
+    } else                                        // solid polygon
+    {
+      poly(polyParams->vertices, polyParams->uiNumVerts, (uint8)uiSurfaceType);
     }
   }
-  return (int16)v3;*/
 }
 
 //-------------------------------------------------------------------------------------------------

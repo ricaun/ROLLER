@@ -22,6 +22,35 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#define SURFACE_FLAG_WALL_31       0x80000000
+#define SURFACE_FLAG_BOUNCE_30     0x40000000
+#define SURFACE_FLAG_ECHO          0x20000000
+#define SURFACE_FLAG_28            0x10000000 //todo
+#define SURFACE_FLAG_27            0x08000000 //todo
+#define SURFACE_FLAG_26            0x04000000 //todo
+#define SURFACE_FLAG_PIT           0x02000000
+#define SURFACE_FLAG_YELLOW_MAP    0x01000000
+#define SURFACE_FLAG_23            0x00800000 //todo
+#define SURFACE_FLAG_WALL_22       0x00400000
+#define SURFACE_FLAG_TRANSPARENT   0x00200000
+#define SURFACE_FLAG_BOUNCE_20     0x00100000
+#define SURFACE_FLAG_NON_MAGNETIC  0x00080000
+#define SURFACE_FLAG_FLIP_VERT     0x00040000
+#define SURFACE_FLAG_SKIP_RENDER   0x00020000
+#define SURFACE_FLAG_TEXTURE_PAIR  0x00010000
+#define SURFACE_FLAG_ANMS_LIVERY   0x00008000
+#define SURFACE_FLAG_CONCAVE       0x00004000
+#define SURFACE_FLAG_FLIP_BACKFACE 0x00002000
+#define SURFACE_FLAG_FLIP_HORIZ    0x00001000
+#define SURFACE_FLAG_BACK          0x00000800
+#define SURFACE_FLAG_PARTIAL_TRANS 0x00000400
+#define SURFACE_FLAG_ANMS_LOOKUP   0x00000200
+#define SURFACE_FLAG_APPLY_TEXTURE 0x00000100
+#define SURFACE_MASK_FLAGS         0xFFFFFF00
+#define SURFACE_MASK_TEXTURE_INDEX 0x000000FF
+
+//-------------------------------------------------------------------------------------------------
+
 #if defined(IS_WINDOWS)
 typedef signed char      int8;
 typedef signed short     int16;
@@ -44,6 +73,9 @@ typedef unsigned int       DWORD;
 typedef unsigned short     WORD;
 #endif
 
+//-------------------------------------------------------------------------------------------------
+
+//16.16 point math helpers
 typedef int32 fixed16_16;
 #define TO_FIXED(x) ((fixed16_16)((x) * 65536.0f))
 #define FROM_FIXED(x) ((float)(x) / 65536.0f)
