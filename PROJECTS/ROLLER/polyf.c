@@ -236,233 +236,1070 @@ int16 POLYFLAT(int a1, int *a2)
       LOWORD(v3) = poly(v3 + 2, v3[1], (unsigned __int8)v4);
     }
   }
-  return (__int16)v3;*/
+  return (int16)v3;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void poly(tPoint *vertices, int iVertexCount, int16 nfillColor)
+void poly(tPoint *vertices, int iVertexCount, int16 nColor)
 {
-  // Preserve original screen width since it might be modified during drawing
-  int iOriginalScreenWidth = winw;
+  int iOldWinW; // ebp
+  int iMinYIdx; // edi
+  int iCurrX; // ecx
+  int iCurrY; // ebx
+  tPoint *pTopVertex; // eax
+  int iScanlineY; // ecx
+  int iY; // ebx
+  int16 nX; // ax
+  int y; // eax
+  int v13; // ecx
+  int16 nX_1; // ax
+  int v15; // eax
+  int v16; // ecx
+  int v17; // ebx
+  int v18; // edx
+  int iLeftEdgeRemaining; // edx
+  int16 v20; // ebx^2
+  tPoint *pNextLeftPt; // eax
+  int v22; // edx
+  tPoint *pVertex; // eax
+  int v24; // ebx
+  int v25; // edx
+  int v26; // edx
+  int v27; // ebx
+  bool bZeroFlag; // zf
+  int16 nv29; // ax
+  tPoint *pVertex_1; // eax
+  int v31; // ebx
+  int v32; // ebx
+  int v33; // eax
+  int16 nv34; // bx
+  tPoint *pVertex_2; // eax
+  int16 nv36; // ebx^2
+  int v37; // edx
+  int16 nv38; // ax
+  tPoint *pVertex_7; // eax
+  int v40; // edx
+  int v41; // edx
+  tPoint *pVertex_8; // eax
+  int v43; // edx
+  int iPixelCount; // ebx
+  int iColor; // edx
+  uint8 *pDest_1; // eax
+  int v47; // edx
+  int v48; // eax
+  int16 nv49; // ebx^2
+  int v50; // edx
+  int16 nv51; // ax
+  tPoint *pVertex_3; // eax
+  int v53; // edx
+  int v54; // edx
+  int v55; // edx
+  tPoint *pVertex_4; // eax
+  int v57; // edx
+  int v58; // eax
+  uint8 *pScrBuf; // ecx
+  uint8 *pDest; // eax
+  int v61; // edx
+  int v62; // eax
+  int16 nv63; // ebx^2
+  int v64; // edx
+  int16 nv65; // ax
+  tPoint *pVertex_5; // eax
+  int v67; // edx
+  int v68; // edx
+  int v69; // edx
+  tPoint *pVertex_6; // eax
+  int v71; // edx
+  int16 nv72; // ebx^2
+  int v73; // edx
+  int16 nv74; // ax
+  tPoint *pVertex_9; // eax
+  int v76; // edx
+  int v77; // edx
+  tPoint *pVertex_10; // eax
+  int v79; // edx
+  int v80; // [esp+0h] [ebp-68h]
+  int v81; // [esp+0h] [ebp-68h]
+  int v82; // [esp+4h] [ebp-64h]
+  int v83; // [esp+4h] [ebp-64h]
+  int v84; // [esp+4h] [ebp-64h]
+  int v85; // [esp+4h] [ebp-64h]
+  int16 nLeftXStep; // [esp+Ah] [ebp-5Eh]
+  int16 nRightXStep; // [esp+Eh] [ebp-5Ah]
+  int16 nv88; // [esp+16h] [ebp-52h]
+  int16 nv89; // [esp+1Ah] [ebp-4Eh]
+  int iMaxX; // [esp+1Ch] [ebp-4Ch]
+  int iMaxY; // [esp+20h] [ebp-48h]
+  int iMinY; // [esp+24h] [ebp-44h]
+  int iMinX; // [esp+28h] [ebp-40h]
+  int v94; // [esp+2Ch] [ebp-3Ch]
+  int v95; // [esp+30h] [ebp-38h]
+  int v96; // [esp+30h] [ebp-38h]
+  int v97; // [esp+30h] [ebp-38h]
+  int v98; // [esp+30h] [ebp-38h]
+  int v99; // [esp+30h] [ebp-38h]
+  int v100; // [esp+30h] [ebp-38h]
+  int v101; // [esp+30h] [ebp-38h]
+  int v102; // [esp+30h] [ebp-38h]
+  int v103; // [esp+34h] [ebp-34h]
+  int v104; // [esp+34h] [ebp-34h]
+  int v105; // [esp+34h] [ebp-34h]
+  int v106; // [esp+34h] [ebp-34h]
+  int v107; // [esp+34h] [ebp-34h]
+  int v108; // [esp+34h] [ebp-34h]
+  int v109; // [esp+34h] [ebp-34h]
+  int v110; // [esp+34h] [ebp-34h]
+  int iLeftX; // [esp+38h] [ebp-30h]
+  int iLeftXFixed; // [esp+38h] [ebp-30h]
+  int v113; // [esp+3Ch] [ebp-2Ch]
+  int v114; // [esp+3Ch] [ebp-2Ch]
+  int iMinYIdx2; // [esp+40h] [ebp-28h]
+  int i; // [esp+44h] [ebp-24h]
+  int iLeftRemaining_1; // [esp+4Ch] [ebp-1Ch]
+  int iLeftRemaining; // [esp+50h] [ebp-18h]
 
-  // Vertex indices and bounding box variables
-  int iTopVertexIndex = 0;          // Index of top-most vertex
-  int iMinX = vertices[0].x;        // Minimum polygon X
-  int iMaxX = vertices[0].x;        // Maximum polygon X
-  int iMinY = vertices[0].y;        // Minimum polygon Y
-  int iMaxY = vertices[0].y;        // Maximum polygon Y
+  iOldWinW = winw;
+  iMinYIdx = 0;
+
+  // Find the bounding box and top vertex
+  iMinX = vertices->x;
+  iMaxX = vertices->x;
+  i = 1;
+  iMinY = vertices->y;
+  iMaxY = iMinY;
+  // Loop through all vertices to find min/max X/Y
+  while ((int16)i < (int16)iVertexCount) {
+    iCurrX = vertices[(int16)i].x;
+    iCurrY = vertices[(int16)i].y;
+    // Update X bounds
+    if (iCurrX <= iMaxX) {
+      if (iCurrX < iMinX)
+        iMinX = vertices[(int16)i].x;
+    } else {
+      iMaxX = vertices[(int16)i].x;
+    }
+    // Update Y bounds and find top vertex
+    if (iCurrY <= iMaxY) {
+      if (iCurrY < iMinY) {
+        iMinYIdx = i;
+        iMinY = vertices[(int16)i].y;
+      }
+    } else {
+      iMaxY = vertices[(int16)i].y;
+    }
+    ++i;
+  }
+
+  // Check if polygon is outside visible area
+  if (iMaxX < 0 || iMaxY < 0 || winw <= iMinX || iMinY >= winh)
+    goto CLEANUP_AND_RETURN;
 
   // Edge tracking variables
-  int iCurrentScanlineY;            // Current scanline being processed
-  int iLeftEdgeX;                   // Current left edge X position
-  int iRightEdgeX;                  // Current right edge X position
-  int iLeftEdgeDx;                  // Left edge X step per scanline
-  int iRightEdgeDx;                 // Right edge X step per scanline
-  int iLeftEdgeRemaining;           // Scanlines remaining for current left edge segment
-  int iRightEdgeRemaining;          // Scanlines remaining for current right edge segment
-  int iLeftVertexIndex;             // Current left vertex index
-  int iRightVertexIndex;            // Current right vertex index
-  int iLeftErrorTerm;               // Bresenham error term for left edge
-  int iRightErrorTerm;              // Bresenham error term for right edge
+  pTopVertex = &vertices[(int16)iMinYIdx];
+  iScanlineY = pTopVertex->y;                   // Start at top vertex Y
+  iMinYIdx2 = iMinYIdx;                         // Save top vertex index
 
-  // Temporary variables for intermediate calculations
-  int iDeltaX;
-  int iDeltaY;
-  tPoint *pCurrentVertex;
-
-  // find bounding box and top vertex
-  for (int i = 1; i < iVertexCount; i++) {
-    int iVertexX = vertices[i].x;
-    int iVertexY = vertices[i].y;
-
-    // Update bounding box coordinates
-    if (iVertexX > iMaxX) iMaxX = iVertexX;
-    if (iVertexX < iMinX) iMinX = iVertexX;
-    if (iVertexY > iMaxY) iMaxY = iVertexY;
-    if (iVertexY < iMinY) {
-      iMinY = iVertexY;
-      iTopVertexIndex = i;
-    }
-  }
-
-  // Early exit for off-screen polygons
-  if (iMaxX < 0 || iMaxY < 0 || iOriginalScreenWidth <= iMinX || iMinY >= winh) {
-    goto RESTORE_AND_RETURN;
-  }
-
-  // Initialize starting points
-  pCurrentVertex = &vertices[iTopVertexIndex];
-  iCurrentScanlineY = pCurrentVertex->y;
-  iLeftVertexIndex = iTopVertexIndex;
-  iRightVertexIndex = iTopVertexIndex;
-
-  // Initialize edge tracking
-  if (iCurrentScanlineY >= 0) {
-    // starting at or below screen top
-    iLeftEdgeX = pCurrentVertex->x;
-    iRightEdgeX = pCurrentVertex->x;
+  // Case 1: starting at or below top of screen
+  if (iScanlineY >= 0) {
+    // Initialize left edge with top vertex X (16.16 fixed point format)
+    SET_HIWORD(iLeftXFixed, pTopVertex->x);
+    SET_HIWORD(v114, pTopVertex->x);
+    SET_LOWORD(iLeftXFixed, -1);                   // Initialize fraction to -1 for correct rounding
+    SET_LOWORD(v114, 0);                           // Initialize fraction to 0
+    SET_LOWORD(v105, 0);                           // Clear loword
+    SET_LOWORD(v97, 0);                            // Clear loword
 
     // Initialize left edge
-    do {
-      iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
-    } while (vertices[iLeftVertexIndex].y == iCurrentScanlineY);
-
-    iLeftEdgeRemaining = vertices[iLeftVertexIndex].y - iCurrentScanlineY;
-    iLeftEdgeDx = vertices[iLeftVertexIndex].x - iLeftEdgeX;
+    while (1) {
+      SET_HIWORD(iLeftEdgeRemaining, GET_HIWORD(iVertexCount));// Unused hiword
+      ++iMinYIdx;                               // Move to next vertex (ccw)
+      v20 = GET_HIWORD(v114);                       // Save current leftX
+      // Wrap vertex idx if needed
+      if ((int16)iMinYIdx == (int16)iVertexCount)
+        iMinYIdx ^= iVertexCount;
+      pNextLeftPt = &vertices[(int16)iMinYIdx];
+      // Calculate scanlines until next verted
+      SET_LOWORD(iLeftEdgeRemaining, GET_LOWORD(pNextLeftPt->y) - iScanlineY);
+      iLeftRemaining = iLeftEdgeRemaining;
+      if ((int16)iLeftEdgeRemaining)          // if edge has visible length
+        break;
+      // Skip horizontal edges
+      if ((int16)iMinYIdx == (int16)iMinYIdx2)
+        goto FINAL_SCANLINE_CHECK;              // Back to start vertex
+      SET_HIWORD(v114, pNextLeftPt->x);            // Update current X
+    }
+    // Calculate left edge slope (dx/dy in fixed point)
+    SET_HIWORD(v97, GET_LOWORD(pNextLeftPt->x) - GET_HIWORD(v114));// dx
+    if (v97 >= 0) {
+      INC_HIWORD(v97);                            // Adjust for positive slope
+      v96 = v97 / ((int16)iLeftEdgeRemaining + 1);// dx/dy
+    } else {
+      DEC_HIWORD(v97);                            // Adjust for negative slope
+      v81 = (int16)iLeftEdgeRemaining + 1;
+      v114 += v97 / v81;                        // update X with quotient
+      v96 = v97 / v81;                          // dx/dy
+      INC_HIWORD(v114);                           // Adjust for rounding
+    }
 
     // Initialize right edge
-    do {
-      iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
-    } while (vertices[iRightVertexIndex].y == iCurrentScanlineY);
-
-    iRightEdgeRemaining = vertices[iRightVertexIndex].y - iCurrentScanlineY;
-    iRightEdgeDx = vertices[iRightVertexIndex].x - iRightEdgeX;
-
-    // Calculate Bresenham error terms
-    iLeftErrorTerm = abs(iLeftEdgeDx) % abs(iLeftEdgeRemaining);
-    iRightErrorTerm = abs(iRightEdgeDx) % abs(iRightEdgeRemaining);
-
-    // Precompute step values
-    iLeftEdgeDx /= iLeftEdgeRemaining;
-    iRightEdgeDx /= iRightEdgeRemaining;
+    while (1) {
+      v22 = --iMinYIdx2;                        // Move to previous vertex clockwise
+      if ((int16)iMinYIdx2 == -1)           // Wrap vertex idx
+        iMinYIdx2 = iVertexCount - 1;
+      pVertex = &vertices[(int16)iMinYIdx2];
+      // Calculate scanlines until next vertex
+      SET_LOWORD(v22, GET_LOWORD(pVertex->y) - iScanlineY);
+      iLeftRemaining_1 = v22;
+      if ((int16)v22)                         // If edge has visible length
+        break;
+      // Skip horizontal edges
+      if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+        SET_HIWORD(v114, v20);                     // Restore saved left X
+        goto FINAL_SCANLINE_CHECK;
+      }
+      SET_HIWORD(iLeftXFixed, pVertex->x);         // Update current X
+    }
+    // Calculate right edge slope (dx/dy in fixed point)
+    SET_HIWORD(v105, GET_LOWORD(pVertex->x) - GET_HIWORD(iLeftXFixed));// dx
+    if (v105 <= 0) {
+      DEC_HIWORD(v105);                           // Adjust for negative slope
+      v104 = v105 / ((int16)v22 + 1);         // dx/dy
+      INC_HIWORD(iLeftXFixed);                    // Adjust for rounding
+    } else {
+      INC_HIWORD(v105);                           // Adjust for positive slope
+      v24 = (int16)v22 + 1;
+      v25 = v105 / v24 + iLeftXFixed;           // Udpate X with quotient
+      v104 = v105 / v24;                        // dx/dy
+      iLeftXFixed = v25;                        // Store updated X
+    }
   } else {
-      // starting above screen top (negative Y)
-    int iInitialY = pCurrentVertex->y;
+    // Case 2: starting above top of screen
 
-    // Traverse downward to find first visible edge segment
+    // Initialize left edge above screen
+    iY = pTopVertex->y;
+    v94 = iY;                                   // Save starting Y
+    SET_LOWORD(v103, 0);                           // Clear loword
+    SET_LOWORD(v95, 0);                            // Clear loword
+    SET_LOWORD(v113, 0);                           // Clear loword
+    SET_LOWORD(iLeftX, -1);                        // Initialize fraction for right edge
+
+    // Find first vertex at or below screen top
     do {
-      iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
-    } while (vertices[iLeftVertexIndex].y < 0);
+      nX = vertices[(int16)iMinYIdx++].x;
+      SET_HIWORD(v113, nX);                        // Store current X
+      if ((int16)iMinYIdx == (int16)iVertexCount)
+        iMinYIdx ^= iVertexCount;
+      y = vertices[(int16)iMinYIdx].y;
+      v13 = v94;
+      v94 = y;                                  // Update current Y
+    } while (y < 0);                            // Until Y >= 0
 
-    // Calculate edge parameters for left side
-    iDeltaY = vertices[iLeftVertexIndex].y - iInitialY;
-    iDeltaX = vertices[iLeftVertexIndex].x - vertices[iTopVertexIndex].x;
-    iLeftEdgeRemaining = iDeltaY;
-    iLeftEdgeDx = iDeltaX / iDeltaY;
-    iLeftErrorTerm = iDeltaX % iDeltaY;
+    // Handle case where we land exactly on screen top
+    if (!y) {
+      do {
+        nX_1 = vertices[(int16)iMinYIdx++].x;
+        SET_HIWORD(v113, nX_1);
+        if ((int16)iMinYIdx == (int16)iVertexCount)
+          iMinYIdx ^= iVertexCount;
+        v15 = vertices[(int16)iMinYIdx].y;
+        v13 = v94;
+        v94 = v15;
+      } while (!v15);                           // Skip horizontal edges
+      if (v15 < 0)
+        goto CLEANUP_AND_RETURN;                // All vertices above screen
+    }
+    // Calculate left edge slope (dx/dy)
+    SET_HIWORD(v95, GET_LOWORD(vertices[(int16)iMinYIdx].x) - GET_HIWORD(v113));
+    iLeftRemaining = v94;
+    if (v95 >= 0) {
+      INC_HIWORD(v95);
+      v96 = v95 / ((int16)v94 - v13 + 1);     // dx/dy
+    } else {
+      DEC_HIWORD(v95);
+      v80 = (int16)v94 - v13 + 1;
+      v113 += v95 / v80;                        // Update X with quotient
+      v96 = v95 / v80;                          // dx/dy
+      INC_HIWORD(v113);                           // Adjust for rounding
+    }
+    // Extrapolate left edge to Y=0
+    v114 = v113 - v96 * v13;
 
-    // Adjust starting position for negative Y
-    iLeftEdgeX = vertices[iTopVertexIndex].x - iLeftEdgeDx * iInitialY;
-
-    // Repeat for right edge
+    // Initialize right edge above screen
     do {
-      iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
-    } while (vertices[iRightVertexIndex].y < 0);
+      SET_HIWORD(iLeftX, vertices[(int16)iMinYIdx2--].x);
+      if ((int16)iMinYIdx2 == -1)
+        iMinYIdx2 = iVertexCount - 1;
+      v16 = iY;
+      iY = vertices[(int16)iMinYIdx2].y;
+    } while (iY < 0);                           // Until Y >= 0
 
-    // Calculate edge parameters for right side
-    iDeltaY = vertices[iRightVertexIndex].y - iInitialY;
-    iDeltaX = vertices[iRightVertexIndex].x - vertices[iTopVertexIndex].x;
-    iRightEdgeRemaining = iDeltaY;
-    iRightEdgeDx = iDeltaX / iDeltaY;
-    iRightErrorTerm = iDeltaX % iDeltaY;
-
-    // Adjust starting position for negative Y
-    iRightEdgeX = vertices[iTopVertexIndex].x - iRightEdgeDx * iInitialY;
-    iCurrentScanlineY = 0;  // Start at top of screen
+    // Handle case where we land exactly on screen top
+    if (!iY) {
+      do {
+        SET_HIWORD(iLeftX, vertices[(int16)iMinYIdx2--].x);
+        if ((int16)iMinYIdx2 == -1)
+          iMinYIdx2 = iVertexCount - 1;
+        v16 = iY;
+        iY = vertices[(int16)iMinYIdx2].y;
+      } while (!iY);                            // Skip horizontal edges
+      if (iY < 0)
+        goto CLEANUP_AND_RETURN;                // All vertices above screen
+    }
+    // Calculate right edge slope (dx/dy)
+    SET_HIWORD(v103, GET_LOWORD(vertices[(int16)iMinYIdx2].x) - GET_HIWORD(iLeftX));
+    iLeftRemaining_1 = iY;
+    if (v103 <= 0) {
+      DEC_HIWORD(v103);
+      v104 = v103 / ((int16)iY - v16 + 1);    // dx/dy
+      INC_HIWORD(iLeftX);                         // Adjust for rounding
+    } else {
+      INC_HIWORD(v103);
+      v17 = (int16)iY - v16 + 1;
+      v18 = v103 / v17 + iLeftX;                // Update X with quotient
+      v104 = v103 / v17;                        // dx/dy
+      iLeftX = v18;                             // Store updated X
+    }
+    // Extrapolate right edge to Y=0
+    iLeftXFixed = iLeftX - v104 * v16;
+    iScanlineY = 0;                             // Start at top of screen
   }
 
-  // Main scanline processing loop
-  while (iCurrentScanlineY < winh) {
-    // Clipping and drawing
-    if (iLeftEdgeX < iOriginalScreenWidth &&
-        iRightEdgeX > 0 &&
-        iLeftEdgeX < iRightEdgeX) {
+  // Main scanline loop - skip lines until we enter visible area
+  while (GET_SHIWORD(v114) >= winw || GET_SHIWORD(iLeftXFixed) <= 0) {
+    v26 = v96 + v114;                           // Advance left edge
+    ++iScanlineY;                               // Move to next scanline
+    iLeftXFixed += v104;                        // Advance right edge
+    SET_HIWORD(v27, GET_HIWORD(iLeftRemaining));       // Unused
+    v114 += v96;                                // Commit left edge advance
+    SET_LOWORD(v27, iLeftRemaining - 1);           // Decrement edge length
+    bZeroFlag = (int16)iLeftRemaining == 1;
+    iLeftRemaining = v27;                       // Update remaining scanlines
 
-      // Calculate clipped segment boundaries
-      int iStartX = (iLeftEdgeX > 0) ? iLeftEdgeX : 0;
-      int iEndX = (iRightEdgeX < iOriginalScreenWidth) ? iRightEdgeX : iOriginalScreenWidth;
-      int iSegmentLength = iEndX - iStartX;
+    // Handle left edge completion
+    if (bZeroFlag) {
+      while ((int16)iMinYIdx != (int16)iMinYIdx2) {
+        nv29 = vertices[(int16)iMinYIdx++].x; // Next vertex X
+        SET_HIWORD(v114, nv29);                    // Set new X
+        if ((int16)iMinYIdx == (int16)iVertexCount)
+          iMinYIdx ^= iVertexCount;             // Wrap index
+        pVertex_1 = &vertices[(int16)iMinYIdx];
+        SET_LOWORD(v26, pVertex_1->y);             // Next vertex Y
+        v26 -= iScanlineY;                      // Remaining scanlines
+        iLeftRemaining = v26;
+        if ((int16)v26 > 0)                 // valid edge segment
+        {
+          SET_HIWORD(v98, GET_LOWORD(pVertex_1->x) - GET_HIWORD(v114));// dx
+          SET_LOWORD(v98, 0);                      // clear fraction
+          SET_LOWORD(v114, 0);                     // clear fraction
+          if (v98 >= 0) {
+            INC_HIWORD(v98);                      // Adjust positive slope
+            v32 = (int16)v26 + 1;
+            v26 = v98 % v32;                    // remainder (unused)
+            v96 = v98 / v32;                    // dx/dy
+          } else {
+            DEC_HIWORD(v98);                      // Adjust negative slope
+            v31 = (int16)v26 + 1;
+            v26 = v98 % v31;                    // Remainder (unused)
+            v114 += v98 / v31;                  // Update X
+            v96 = v98 / v31;                    // dx/dy
+            INC_HIWORD(v114);                     // Adjust for rounding
+          }
+          goto UPDATE_RIGHT_EDGE;               // Process right edge next
+        }
+        if ((v26 & 0x8000u) != 0)             // Negative = done
+          goto CLEANUP_AND_RETURN;
+      }
+      goto CLEANUP_AND_RETURN;                  // No more vertices
+    }
+  UPDATE_RIGHT_EDGE:
+    SET_HIWORD(v33, GET_HIWORD(iLeftRemaining_1));     // Unused
+    SET_LOWORD(v33, iLeftRemaining_1 - 1);         // Decrement edge length
+    bZeroFlag = (int16)iLeftRemaining_1 == 1;
+    iLeftRemaining_1 = v33;                     // Update remaining scanlines
 
-      // Only draw if segment is visible
-      if (iSegmentLength > 0) {
-        uint8 *pDest = scrptr + iCurrentScanlineY * iOriginalScreenWidth + iStartX;
-        memset(pDest, nfillColor, iSegmentLength);
+    // Handle right edge completion
+    if (bZeroFlag) {
+      while (1) {
+        nv34 = iMinYIdx2;                       // Current index
+        if ((int16)iMinYIdx == (int16)iMinYIdx2)
+          goto CLEANUP_AND_RETURN;              // Back to start vertex
+        SET_HIWORD(iLeftXFixed, vertices[(int16)iMinYIdx2--].x);// Prev vertex
+        if ((int16)(nv34 - 1) == -1)
+          iMinYIdx2 = iVertexCount - 1;         // Wrap index
+        pVertex_2 = &vertices[(int16)iMinYIdx2];
+        SET_LOWORD(v26, pVertex_2->y);             // Next vertex Y
+        v26 -= iScanlineY;                      // Remaining scanlines
+        iLeftRemaining_1 = v26;
+        if ((int16)v26 > 0)                 // Valid edge segment
+        {
+          SET_HIWORD(v106, GET_LOWORD(pVertex_2->x) - GET_HIWORD(iLeftXFixed));// dx
+          SET_LOWORD(v106, 0);                     // clear fraction
+          SET_LOWORD(iLeftXFixed, -1);             // reset fraction
+          if (v106 <= 0) {
+            DEC_HIWORD(v106);                     // Adjust for negative slope
+            v104 = v106 / ((int16)v26 + 1);   // dx/dy
+            INC_HIWORD(iLeftXFixed);              // Adjust for rounding
+          } else {
+            INC_HIWORD(v106);                     // Adjust for positive slope
+            v104 = v106 / ((int16)v26 + 1);   // dx/dy
+            iLeftXFixed += v104;                // Udpate X
+          }
+          break;
+        }
+        if ((v26 & 0x8000u) != 0)             // Negative = done
+          goto CLEANUP_AND_RETURN;
       }
     }
+    if (iScanlineY >= winh)                   // Past bottom of screen
+      goto CLEANUP_AND_RETURN;
+  }                                             // 
+                                                // 
+  while (1) {
+    // Main drawing loop
 
-    // Update edge positions
-    // Update left edge with Bresenham algorithm
-    iLeftErrorTerm += iLeftEdgeDx;
-    while (iLeftErrorTerm >= 1) {
-      iLeftEdgeDx++;
-      iLeftErrorTerm--;
+    // Handle clipping
+    if (GET_SHIWORD(v114) < iOldWinW)             // left edge visible
+    {
+      if (GET_SHIWORD(iLeftXFixed) <= iOldWinW)   // right edge visible
+        goto DRAW_SCANLINE_SEGMENT;
+      goto HANDLE_RIGHT_CLIPPING;
     }
-    while (iLeftErrorTerm <= -1) {
-      iLeftEdgeDx--;
-      iLeftErrorTerm++;
+    if (GET_SHIWORD(v114) >= (int)iOldWinW)       // left edge off right
+      goto CLEANUP_AND_RETURN;
+    if (GET_SHIWORD(iLeftXFixed) > iOldWinW)      // right edge off right
+    {
+    HANDLE_RIGHT_CLIPPING_2:
+      if (GET_SHIWORD(iLeftXFixed) > 0)
+        goto DRAW_RIGHT_CLIPPED;
+      goto CLEANUP_AND_RETURN;
     }
-
-    // Update right edge with Bresenham algorithm
-    iRightErrorTerm += iRightEdgeDx;
-    while (iRightErrorTerm >= 1) {
-      iRightEdgeDx++;
-      iRightErrorTerm--;
-    }
-    while (iRightErrorTerm <= -1) {
-      iRightEdgeDx--;
-      iRightErrorTerm++;
-    }
-
-    // Move to next scanline
-    iCurrentScanlineY++;
-    iLeftEdgeRemaining--;
-    iRightEdgeRemaining--;
-
-    // Edge segment transition
-    // Check if left edge segment is exhausted
-    if (iLeftEdgeRemaining == 0) {
-      // Move to next vertex
-      iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
-
-      // Skip horizontal edges
-      while (vertices[(iLeftVertexIndex + 1) % iVertexCount].y == iCurrentScanlineY) {
-        iLeftVertexIndex = (iLeftVertexIndex + 1) % iVertexCount;
+    while (1) {
+      // Draw visible scanline segment
+    DRAW_SCANLINE_SEGMENT_2:
+      if (GET_SHIWORD(iLeftXFixed) > 0)           // right edge visible
+      {
+        winw = iOldWinW;
+        // Fill entire scanline segment
+        memset(&scrptr[iOldWinW * iScanlineY], nColor, GET_SHIWORD(iLeftXFixed));
+        iOldWinW = winw;
+      } else if (iLeftXFixed < 0)               // Right edge off left
+      {
+        goto CLEANUP_AND_RETURN;
       }
+      // Advance to next scanline
+      ++iScanlineY;
+      v47 = v96 + v114;                         // advance left edge
+      v114 = v47;                               // commit advance
+      SET_HIWORD(v48, GET_HIWORD(iLeftRemaining));     // unused
+      iLeftXFixed += v104;                      // advance right edge
+      nv49 = GET_HIWORD(v47);                       // save new left x
+      SET_LOWORD(v48, iLeftRemaining - 1);         // decrement edge length
+      bZeroFlag = (int16)iLeftRemaining == 1;
+      iLeftRemaining = v48;                     // update remaining
 
-      // Calculate new edge parameters
-      tPoint *pNextVertex = &vertices[(iLeftVertexIndex + 1) % iVertexCount];
-      iLeftEdgeRemaining = pNextVertex->y - iCurrentScanlineY;
-      iLeftEdgeDx = pNextVertex->x - vertices[iLeftVertexIndex].x;
+      // Handle left edge completion
+      if (bZeroFlag) {
+        if ((int16)iMinYIdx == (int16)iMinYIdx2)// back to start
+        {
+          SET_HIWORD(v114, GET_HIWORD(v47));           // restore X
+        FINAL_SCANLINE_CHECK_2:
+          if (iScanlineY >= winh)             // past bottom
+            goto CLEANUP_AND_RETURN;
+          if (GET_SHIWORD(v114) < iOldWinW)       // left visible
+          {
+            if (GET_SHIWORD(v114) >= (int)iOldWinW)// left off right
+              goto CLEANUP_AND_RETURN;
+            if (GET_SHIWORD(iLeftXFixed) <= iOldWinW)// right visible
+              goto DRAW_FINAL_SCANLINE_2;
+            goto HANDLE_RIGHT_CLIPPING_FINAL;
+          }
+          if (GET_SHIWORD(iLeftXFixed) <= iOldWinW)// right visible
+          {
+          DRAW_LEFT_CLIPPED:
+            if (GET_SHIWORD(iLeftXFixed) > 0)     // right edge on screen
+            {
+              v58 = iOldWinW * iScanlineY;      // screen offset
+              iColor = nColor;
+              pScrBuf = scrptr;
+              iPixelCount = GET_SHIWORD(iLeftXFixed);
+              goto FILL_SCANLINE;
+            }
+            goto CLEANUP_AND_RETURN;            // nothing to draw
+          }
+        LABEL_253:
+          if (GET_SHIWORD(iLeftXFixed) <= 0)      // Right edge beyond screen right
+            goto CLEANUP_AND_RETURN;
+          goto FILL_FULL_WIDTH;
+        }
+        // Continue processing left edge after completion
+        while (1) {
+          SET_HIWORD(v50, GET_HIWORD(iVertexCount));   // unused
+          nv51 = vertices[(int16)iMinYIdx++].x;// next vertex X
+          SET_HIWORD(v114, nv51);                  // update left edge x
+          // wrap vertex index
+          if ((int16)iMinYIdx == (int16)iVertexCount)
+            iMinYIdx ^= iVertexCount;
+          pVertex_3 = &vertices[(int16)iMinYIdx];
+          SET_LOWORD(v50, pVertex_3->y);           // next vertex y
+          v53 = v50 - iScanlineY;               // scanlines in new edge
+          iLeftRemaining = v53;                 // store new edge length
+          // Check if edge has positive length
+          if ((int16)v53 > 0)
+            break;
+          // Skip negative/zero length edges
+          if ((v53 & 0x8000u) != 0)           // negative length
+            goto CLEANUP_AND_RETURN;
+          // Check if back to start vertex
+          if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+            SET_HIWORD(v114, nv49);                // restore left X
+            goto FINAL_SCANLINE_CHECK_2;
+          }
+        }
+        // Calculate new left edge slope
+        SET_HIWORD(v100, GET_LOWORD(pVertex_3->x) - GET_HIWORD(v114));// dx
+        SET_LOWORD(v100, 0);                       // clear fraction
+        SET_LOWORD(v114, 0);                       // clear fraction
+        if (v100 >= 0) {
+          INC_HIWORD(v100);                       // Adjust for positive slope
+          v96 = v100 / ((int16)v53 + 1);      // dx/dy
+        } else {
+          DEC_HIWORD(v100);                       // Adjust for negative slope
+          v83 = (int16)v53 + 1;
+          v114 += v100 / v83;                   // update X
+          v96 = v100 / v83;                     // dx/dy
+          INC_HIWORD(v114);                       // adjust for rounding
+        }
+      }
+      // Update right edge tracking
+      SET_HIWORD(v54, GET_HIWORD(iLeftRemaining_1));   // unused
+      nRightXStep = GET_HIWORD(iLeftXFixed);        // save current right x
+      SET_LOWORD(v54, iLeftRemaining_1 - 1);       // decrement edge length
+      bZeroFlag = (int16)iLeftRemaining_1 == 1;
+      iLeftRemaining_1 = v54;                   // update remaining scanlines
 
-      // Reinitialize Bresenham parameters
-      if (iLeftEdgeRemaining != 0) {
-        iLeftErrorTerm = abs(iLeftEdgeDx) % abs(iLeftEdgeRemaining);
-        iLeftEdgeDx /= iLeftEdgeRemaining;
+      // Handle right edge completion
+      if (bZeroFlag) {
+        while (1) {
+          v55 = iMinYIdx2;                      // current index
+          // Check if back to start vertex
+          if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+            SET_HIWORD(v114, nv49);                // restore left X
+            SET_HIWORD(iLeftXFixed, nRightXStep);  // restore right X
+            goto FINAL_SCANLINE_CHECK_2;
+          }
+          // Move to previous vertex
+          SET_HIWORD(iLeftXFixed, vertices[(int16)iMinYIdx2--].x);
+          // Wrap index
+          if ((int16)(v55 - 1) == -1)
+            iMinYIdx2 = iVertexCount - 1;
+          pVertex_4 = &vertices[(int16)iMinYIdx2];
+          SET_LOWORD(v55, pVertex_4->y);           // next vertex y
+          v57 = v55 - iScanlineY;               // scanlines in new edge
+          iLeftRemaining_1 = v57;               // store new edge length
+          // Check if edge has positive length
+          if ((int16)v57 > 0)
+            break;
+          // skip negative/zero length edges
+          if ((v57 & 0x8000u) != 0)           // negative length
+            goto CLEANUP_AND_RETURN;
+        }
+        // Calcualte new right edge slope
+        SET_HIWORD(v108, GET_LOWORD(pVertex_4->x) - GET_HIWORD(iLeftXFixed));// dx
+        SET_LOWORD(v108, 0);                       // clear fraction
+        SET_LOWORD(iLeftXFixed, -1);               // reset fraction
+        if (v108 <= 0) {
+          DEC_HIWORD(v108);                       // adjust for negative slope
+          v104 = v108 / ((int16)v57 + 1);     // dx/dy
+          INC_HIWORD(iLeftXFixed);                // adjust for rounding
+        } else {
+          INC_HIWORD(v108);                       // adjust for positive slope
+          v104 = v108 / ((int16)v57 + 1);     // dx/dy
+          iLeftXFixed += v104;                  // update X
+        }
+      }
+      // Check if below screen bottom
+      if (iScanlineY >= winh) {
+        winw = iOldWinW;
+        return;
+      }
+      // Check if left edge visible
+      if (GET_SHIWORD(v114) < iOldWinW)
+        break;                                  // enter drawing phase
+      // handle right edge beyond screen right
+      if (GET_SHIWORD(iLeftXFixed) > iOldWinW)
+        goto HANDLE_RIGHT_CLIPPING_2;
+    }
+    if (GET_SHIWORD(v114) >= (int)iOldWinW)       // left edge beyond right
+      goto CLEANUP_AND_RETURN;
+    if (GET_SHIWORD(iLeftXFixed) <= iOldWinW)     // right edge visible
+      goto DRAW_SCANLINE_SEGMENT;
+  HANDLE_RIGHT_CLIPPING:
+    if (GET_SHIWORD(iLeftXFixed) <= 0)            // right edge not visible
+      goto CLEANUP_AND_RETURN;
+  FILL_RIGHT_CLIPPED:
+
+      // Draw from left edge to screen right
+    winw = iOldWinW;
+    pDest = &scrptr[GET_SHIWORD(v114) + iOldWinW * iScanlineY++];
+    memset(pDest, nColor, iOldWinW - GET_SHIWORD(v114));
+    iOldWinW = winw;
+    v61 = v96 + v114;                           // advance left edge
+    v114 = v61;
+    SET_HIWORD(v62, GET_HIWORD(iLeftRemaining));       // unused
+    iLeftXFixed += v104;                        // advance right edge
+    nv63 = GET_HIWORD(v61);                         // save new left x
+    SET_LOWORD(v62, iLeftRemaining - 1);           // decrement edge length
+    bZeroFlag = (int16)iLeftRemaining == 1;
+    iLeftRemaining = v62;                       // update remaining
+
+    // Handle left edge completion
+    if (bZeroFlag) {
+      if ((int16)iMinYIdx == (int16)iMinYIdx2)// back to start
+      {
+        SET_HIWORD(v114, GET_HIWORD(v61));             // restore left x
+      SCANLINE_END_CHECK:
+        if (iScanlineY >= winh)               // past bottom
+          goto CLEANUP_AND_RETURN;
+        if (GET_SHIWORD(v114) < winw)// left visible
+        {
+          if (GET_SHIWORD(iLeftXFixed) > winw)// right clipped
+            goto HANDLE_RIGHT_CLIPPING_FINAL_2;
+        DRAW_FINAL_SCANLINE:
+          if (GET_SHIWORD(iLeftXFixed) <= 0)      // right not visible
+            goto CLEANUP_AND_RETURN;
+          goto DRAW_FINAL_SCANLINE_2;
+        }
+        if (GET_SHIWORD(v114) >= winw)
+          goto CLEANUP_AND_RETURN;
+      HANDLE_LEFT_CLIPPING:
+              // Handle left edge beyond right but right visible
+        if (GET_SHIWORD(iLeftXFixed) <= iOldWinW) {
+          if (GET_SHIWORD(iLeftXFixed) <= 0)      // right not visible
+            goto CLEANUP_AND_RETURN;            // draw from 0 to right edge
+          goto DRAW_LEFT_CLIPPED;
+        }
+      FILL_FULL_WIDTH:
+              // Fill entire screen width
+        v58 = iOldWinW * iScanlineY;            // screen offset
+        iColor = nColor;
+        pScrBuf = scrptr;
+        iPixelCount = iOldWinW;                 // full width
+        goto FILL_SCANLINE;
+      }
+      // Find next valid left edge
+      while (1) {
+        SET_HIWORD(v64, GET_HIWORD(iVertexCount));     // unused
+        nv65 = vertices[(int16)iMinYIdx++].x; // next vertex x
+        SET_HIWORD(v114, nv65);                    // update left x
+        // wrap index
+        if ((int16)iMinYIdx == (int16)iVertexCount)
+          iMinYIdx ^= iVertexCount;
+        pVertex_5 = &vertices[(int16)iMinYIdx];
+        SET_LOWORD(v64, pVertex_5->y);             // next vertex y
+        v67 = v64 - iScanlineY;                 // scanlines in edge
+        iLeftRemaining = v67;                   // store edge length
+        // check for valid edge
+        if ((int16)v67 > 0)
+          break;
+        // skip negative/zero length edges
+        if ((v67 & 0x8000u) != 0)             // negative length
+          goto CLEANUP_AND_RETURN;
+        // check if back to start
+        if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+          SET_HIWORD(v114, nv63);                  // restore left x
+          goto SCANLINE_END_CHECK;
+        }
+      }
+      // calculate new left edge slope
+      SET_HIWORD(v101, GET_LOWORD(pVertex_5->x) - GET_HIWORD(v114));// dx
+      SET_LOWORD(v101, 0);                         // clear fraction
+      SET_LOWORD(v114, 0);                         // clear fraction
+      if (v101 >= 0) {
+        INC_HIWORD(v101);                         // adjust for positive slope
+        v96 = v101 / ((int16)v67 + 1);        // dx/dy
+      } else {
+        DEC_HIWORD(v101);                         // adjust for negative slope
+        v84 = (int16)v67 + 1;
+        v114 += v101 / v84;                     // update x
+        v96 = v101 / v84;                       // dx/dy
+        INC_HIWORD(v114);                         // adjust for rounding
       }
     }
+    // Update right edge tracking
+    SET_HIWORD(v68, GET_HIWORD(iLeftRemaining_1));     // unused
+    nv89 = GET_HIWORD(iLeftXFixed);                 // save right x
+    SET_LOWORD(v68, iLeftRemaining_1 - 1);         // decrement edge length
+    bZeroFlag = (int16)iLeftRemaining_1 == 1;
+    iLeftRemaining_1 = v68;                     // udpate remaining
 
-    // Check if right edge segment is exhausted
-    if (iRightEdgeRemaining == 0) {
-      // Move to next vertex
-      iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
+    // handle right edge completion
+    if (!bZeroFlag)
+      goto CONTINUE_SCANLINE;                   // continue normally
 
-      // Skip horizontal edges
-      while (vertices[(iRightVertexIndex - 1 + iVertexCount) % iVertexCount].y == iCurrentScanlineY) {
-        iRightVertexIndex = (iRightVertexIndex - 1 + iVertexCount) % iVertexCount;
+    // find next valid right edge
+    while (1) {
+      v69 = iMinYIdx2;                          // current index
+      // check if back to start
+      if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+        SET_HIWORD(v114, nv63);                    // restore left x
+        SET_HIWORD(iLeftXFixed, nv89);             // restore right x
+        goto SCANLINE_END_CHECK;
       }
-
-      // Calculate new edge parameters
-      tPoint *pNextVertex = &vertices[(iRightVertexIndex - 1 + iVertexCount) % iVertexCount];
-      iRightEdgeRemaining = pNextVertex->y - iCurrentScanlineY;
-      iRightEdgeDx = pNextVertex->x - vertices[iRightVertexIndex].x;
-
-      // Reinitialize Bresenham parameters
-      if (iRightEdgeRemaining != 0) {
-        iRightErrorTerm = abs(iRightEdgeDx) % abs(iRightEdgeRemaining);
-        iRightEdgeDx /= iRightEdgeRemaining;
-      }
+      // move to previous vertex
+      SET_HIWORD(iLeftXFixed, vertices[(int16)iMinYIdx2--].x);
+      // wrap index
+      if ((int16)(v69 - 1) == -1)
+        iMinYIdx2 = iVertexCount - 1;
+      pVertex_6 = &vertices[(int16)iMinYIdx2];
+      SET_LOWORD(v69, pVertex_6->y);               // next vertex y
+      v71 = v69 - iScanlineY;                   // scanlines in edge
+      iLeftRemaining_1 = v71;                   // store edge length
+      // check for valid edge
+      if ((int16)v71 > 0)
+        break;
+      // skip negative/zero length edges
+      if ((v71 & 0x8000u) != 0)               // negative length
+        goto CLEANUP_AND_RETURN;
     }
-
-    // Stop processing if edges meet
-    if (iLeftVertexIndex == iRightVertexIndex) {
+    // calculate new right edge slope
+    SET_HIWORD(v109, GET_LOWORD(pVertex_6->x) - GET_HIWORD(iLeftXFixed));// dx
+    SET_LOWORD(v109, 0);                           // clear fraction
+    SET_LOWORD(iLeftXFixed, -1);                   // reset fraction
+    if (v109 <= 0) {
+      DEC_HIWORD(v109);                           // adjust negative slope
+      v104 = v109 / ((int16)v71 + 1);         // dx/dy
+      INC_HIWORD(iLeftXFixed);                    // adjust for rounding
+    } else {
+      INC_HIWORD(v109);                           // adjust positive slope
+      v104 = v109 / ((int16)v71 + 1);         // dx/dy
+      iLeftXFixed += v104;                      // update x
+    }
+  CONTINUE_SCANLINE:
+      // check if below screen bottom
+    if (iScanlineY >= winh)
+      return;
+    // check if left edge beyond right
+    if (GET_SHIWORD(v114) >= winw)
       break;
+    // check if right edge beyond right
+    if (GET_SHIWORD(iLeftXFixed) > winw)
+      goto FILL_RIGHT_CLIPPED;                  // fill from left to screen right
+  DRAW_SCANLINE:                                  // draw between left and right edges
+    if (GET_SHIWORD(iLeftXFixed) <= 0)            // right edge not visible
+      goto CLEANUP_AND_RETURN;
+  DRAW_SCANLINE_SEGMENT:
+      // calculate span between edges
+    if ((int16)(GET_HIWORD(iLeftXFixed) - GET_HIWORD(v114)) > 0) {
+      winw = iOldWinW;
+      // fill between edges
+      memset(&scrptr[GET_SHIWORD(v114) + iOldWinW * iScanlineY], nColor, (int16)(GET_HIWORD(iLeftXFixed) - GET_HIWORD(v114)));
+      iOldWinW = winw;
+    }
+    // Handle inverted edges (shouldn't happen)
+    else if ((int16)(GET_HIWORD(iLeftXFixed) - GET_HIWORD(v114)) < 0) {
+      goto CLEANUP_AND_RETURN;
+    }
+    // Advance edges
+    v114 += v96;                                // advance left edge
+    iLeftXFixed += v104;                        // advance right edge
+    nv36 = GET_HIWORD(v114);                        // save new left x
+    SET_HIWORD(v37, GET_HIWORD(iLeftRemaining));       // unused
+    ++iScanlineY;                               // next scanline
+    SET_LOWORD(v37, iLeftRemaining - 1);           // decrement edge length
+    bZeroFlag = (int16)iLeftRemaining == 1;
+    iLeftRemaining = v37;                       // update remaining
+
+    // handle left edge completion
+    if (bZeroFlag) {
+      if ((int16)iMinYIdx != (int16)iMinYIdx2) {
+        // find next valid left edge
+        while (1) {
+          nv38 = vertices[(int16)iMinYIdx++].x;// next vertex x
+          SET_HIWORD(v114, nv38);                  // update left x
+          if ((int16)iMinYIdx == (int16)iVertexCount)
+            iMinYIdx ^= iVertexCount;
+          pVertex_7 = &vertices[(int16)iMinYIdx];
+          SET_LOWORD(v37, pVertex_7->y);           // next vertex y
+          v37 -= iScanlineY;                    // scanlines in edge
+          iLeftRemaining = v37;                 // store edge length
+          // check for valid edge
+          if ((int16)v37 > 0)
+            break;
+          // skip negative/zero length edges
+          if ((v37 & 0x8000u) != 0)           // negative length
+            goto CLEANUP_AND_RETURN;
+          // check if back to start
+          if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+            SET_HIWORD(v114, nv36);                // restore left x
+            goto FINAL_SCANLINE_CHECK;
+          }
+        }
+        // calculate new left edge slope
+        SET_HIWORD(v99, GET_LOWORD(pVertex_7->x) - GET_HIWORD(v114));// dx
+        SET_LOWORD(v99, 0);                        // clear fraction
+        SET_LOWORD(v114, 0);                       // clear fraction
+        if (v99 >= 0) {
+          INC_HIWORD(v99);                        // adjust positive slope
+          v96 = v99 / ((int16)v37 + 1);       // dx/dy
+        } else {
+          DEC_HIWORD(v99);                        // adjust negative slope
+          v82 = (int16)v37 + 1;
+          v114 += v99 / v82;                    // update x
+          v96 = v99 / v82;                      // dx/dy
+          INC_HIWORD(v114);                       // adjust for rounding
+        }
+        goto UPDATE_RIGHT_EDGE_STEP;            // process right edge
+      }
+    FINAL_SCANLINE_CHECK:
+      if (iScanlineY >= winh)                 // past bottom
+        goto CLEANUP_AND_RETURN;
+      if (GET_SHIWORD(v114) < iOldWinW)           // left visible
+      {
+        if (GET_SHIWORD(iLeftXFixed) <= iOldWinW) // right visible
+        {
+          // draw between edges if valid span
+        DRAW_FINAL_SCANLINE_2:
+          if ((int16)(GET_HIWORD(iLeftXFixed) - GET_HIWORD(v114)) > 0) {
+            iPixelCount = (int16)(GET_HIWORD(iLeftXFixed) - GET_HIWORD(v114));
+            iColor = nColor;
+            pDest_1 = &scrptr[GET_SHIWORD(v114) + iOldWinW * iScanlineY];
+            goto FILL_SCANLINE_FINAL;
+          }
+          goto CLEANUP_AND_RETURN;
+        }
+      HANDLE_RIGHT_CLIPPING_FINAL:
+              // handle right edge beyond right
+        if (GET_SHIWORD(iLeftXFixed) > 0)
+          goto HANDLE_RIGHT_CLIPPING_FINAL_2;
+        goto CLEANUP_AND_RETURN;
+      }
+      // left edge beyond right
+      if (GET_SHIWORD(v114) >= (int)iOldWinW)
+        goto CLEANUP_AND_RETURN;
+      // right edge clipped
+      if (GET_SHIWORD(iLeftXFixed) <= iOldWinW)
+        goto DRAW_LEFT_CLIPPED;
+      goto LABEL_253;
+    }
+  UPDATE_RIGHT_EDGE_STEP:
+      // udpate right edge tracking
+    SET_HIWORD(v40, GET_HIWORD(iLeftRemaining_1));     // unused
+    nLeftXStep = GET_HIWORD(iLeftXFixed);           // save right x
+    SET_LOWORD(v40, iLeftRemaining_1 - 1);         // decrement edge length
+    bZeroFlag = (int16)iLeftRemaining_1 == 1;
+    iLeftRemaining_1 = v40;                     // update remaining
+
+    // handle right edge completion
+    if (bZeroFlag) {
+      while (1) {
+        v41 = iMinYIdx2;                        // current index
+        // check if back to start
+        if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+          SET_HIWORD(v114, nv36);                  // restore left x
+          SET_HIWORD(iLeftXFixed, nLeftXStep);     // restore right x
+          goto FINAL_SCANLINE_CHECK;
+        }
+        // move to prev vertex
+        SET_HIWORD(iLeftXFixed, vertices[(int16)iMinYIdx2--].x);
+        // wrap index
+        if ((int16)(v41 - 1) == -1)
+          iMinYIdx2 = iVertexCount - 1;
+        pVertex_8 = &vertices[(int16)iMinYIdx2];
+        SET_LOWORD(v41, pVertex_8->y);             // next vertex y
+        v43 = v41 - iScanlineY;                 // scanlines in edge
+        iLeftRemaining_1 = v43;                 // store edge length
+        // check for valid edge
+        if ((int16)v43 > 0)
+          break;
+        // skip negative/zero length edges
+        if ((v43 & 0x8000u) != 0)             // negative length
+          goto CLEANUP_AND_RETURN;
+      }
+      // calculate new right edge slope
+      SET_HIWORD(v107, GET_LOWORD(pVertex_8->x) - GET_HIWORD(iLeftXFixed));// dx
+      SET_LOWORD(v107, 0);                         // clear fraction
+      SET_LOWORD(iLeftXFixed, -1);                 // reset fraction
+      if (v107 <= 0) {
+        DEC_HIWORD(v107);                         // adjust negative slope
+        v104 = v107 / ((int16)v43 + 1);       // dx/dy
+        INC_HIWORD(iLeftXFixed);                  // adjust for rounding
+      } else {
+        INC_HIWORD(v107);                         // adjust positive slope
+        v104 = v107 / ((int16)v43 + 1);       // dx/dy
+        iLeftXFixed += v104;                    // update x
+      }
+    }
+    // check if below screen bottom
+    if (iScanlineY >= winh) {
+      winw = iOldWinW;
+      return;
     }
   }
+  // exit if left edge beyond right
+  if (GET_SHIWORD(v114) >= winw)
+    goto CLEANUP_AND_RETURN;
+  // handle right edge beyond right
+  if (GET_SHIWORD(iLeftXFixed) <= winw) {
+  LABEL_135:
+    if (GET_SHIWORD(iLeftXFixed) > 0)             // right edge visible
+      goto DRAW_SCANLINE_SEGMENT_2;
+    goto CLEANUP_AND_RETURN;
+  }
+  while (1) {
+    // fill entire scanline width
+  DRAW_RIGHT_CLIPPED:
+    winw = iOldWinW;
+    memset(&scrptr[iOldWinW * iScanlineY++], nColor, iOldWinW);
+    v114 += v96;                                // advance left edge
+    iLeftXFixed += v104;                        // advance right edge
+    nv72 = GET_HIWORD(v114);                        // save new left x
+    SET_HIWORD(v73, GET_HIWORD(iLeftRemaining));       // unused
+    iOldWinW = winw;
+    SET_LOWORD(v73, iLeftRemaining - 1);           // decrement edge length
+    bZeroFlag = (int16)iLeftRemaining == 1;
+    iLeftRemaining = v73;                       // update remaining
 
-RESTORE_AND_RETURN:
-  // Restore original screen width before returning
-  winw = iOriginalScreenWidth;
+    // handle left edge completion
+    if (!bZeroFlag)
+      goto UPDATE_LEFT_EDGE;                    // continue normally
+
+    // back to start
+    if ((int16)iMinYIdx == (int16)iMinYIdx2)
+      break;
+
+    // find next valid left edge
+    while (1) {
+      nv74 = vertices[(int16)iMinYIdx++].x;   // next vertex x
+      SET_HIWORD(v114, nv74);                      // update left x
+      // wrap index
+      if ((int16)iMinYIdx == (int16)iVertexCount)
+        iMinYIdx ^= iVertexCount;
+      pVertex_9 = &vertices[(int16)iMinYIdx];
+      SET_LOWORD(v73, pVertex_9->y);               // next vertex y
+      v73 -= iScanlineY;                        // scanlines in edge
+      iLeftRemaining = v73;                     // store edge length
+      // check for valid edge
+      if ((int16)v73 > 0)
+        break;
+      // skip negative/zero length edges
+      if ((v73 & 0x8000u) != 0)               // negative length
+        goto CLEANUP_AND_RETURN;
+      // check if back at start
+      if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+        SET_HIWORD(v114, nv72);                    // restore left x
+        goto SCANLINE_END_CHECK_2;
+      }
+    }
+    // calculate new left edge slope
+    SET_HIWORD(v102, GET_LOWORD(pVertex_9->x) - GET_HIWORD(v114));// dx
+    SET_LOWORD(v102, 0);                           // clear fraction
+    SET_LOWORD(v114, 0);                           // clear fraction
+    if (v102 >= 0) {
+      INC_HIWORD(v102);                           // adjust positive slope
+      v96 = v102 / ((int16)v73 + 1);          // dx/dy
+    } else {
+      DEC_HIWORD(v102);                           // adjust negative slope
+      v85 = (int16)v73 + 1;
+      v114 += v102 / v85;                       // update x
+      v96 = v102 / v85;                         // dx/dy
+      INC_HIWORD(v114);                           // adjust for rounding
+    }
+  UPDATE_LEFT_EDGE:
+      // Update right edge tracking
+    SET_HIWORD(v76, GET_HIWORD(iLeftRemaining_1));     // unused
+    nv88 = GET_HIWORD(iLeftXFixed);                 // save right x
+    SET_LOWORD(v76, iLeftRemaining_1 - 1);         // decrement edge length
+    bZeroFlag = (int16)iLeftRemaining_1 == 1;
+    iLeftRemaining_1 = v76;                     // update remaining
+
+    // handle right edge completion
+    if (bZeroFlag) {
+      while (1) {
+        v77 = iMinYIdx2;                        // current index
+        // check if back to start
+        if ((int16)iMinYIdx == (int16)iMinYIdx2) {
+          SET_HIWORD(v114, nv72);                  // restore left x
+          SET_HIWORD(iLeftXFixed, nv88);           // restore right x
+          goto SCANLINE_END_CHECK_2;
+        }
+        // move to prev vertex
+        SET_HIWORD(iLeftXFixed, vertices[(int16)iMinYIdx2--].x);
+        // wrap index
+        if ((int16)(v77 - 1) == -1)
+          iMinYIdx2 = iVertexCount - 1;
+        pVertex_10 = &vertices[(int16)iMinYIdx2];
+        SET_LOWORD(v77, pVertex_10->y);            // next vertex y
+        v79 = v77 - iScanlineY;                 // scanlines in edge
+        iLeftRemaining_1 = v79;                 // store edge length
+        // check for valid edge
+        if ((int16)v79 > 0)
+          break;
+        // skip negative/zero length edges
+        if ((v79 & 0x8000u) != 0)             // negative length
+          goto CLEANUP_AND_RETURN;
+      }
+      // calculate new right edge slope
+      SET_HIWORD(v110, GET_LOWORD(pVertex_10->x) - GET_HIWORD(iLeftXFixed));// dx
+      SET_LOWORD(v110, 0);                         // clear fraction
+      SET_LOWORD(iLeftXFixed, -1);                 // reset fraction
+      if (v110 <= 0) {
+        DEC_HIWORD(v110);                         // adjust negative slope
+        v104 = v110 / ((int16)v79 + 1);       // dx/dy
+        INC_HIWORD(iLeftXFixed);                  // adjust for rounding
+      } else {
+        INC_HIWORD(v110);                         // adjust positive slope
+        v104 = v110 / ((int16)v79 + 1);       // dx/dy
+        iLeftXFixed += v104;                    // update x
+      }
+    }
+    // check if below screen bottom
+    if (iScanlineY >= winh)
+      return;
+    // check visibility and draw
+    if (GET_SHIWORD(v114) < winw) {
+      if (GET_SHIWORD(v114) >= winw)              // left beyond right
+        goto CLEANUP_AND_RETURN;
+      if (GET_SHIWORD(iLeftXFixed) <= winw)// right visible
+        goto DRAW_SCANLINE;
+      goto FILL_RIGHT_CLIPPED;
+    }
+    // handle left edge clipped
+    if (GET_SHIWORD(iLeftXFixed) <= winw)
+      goto LABEL_135;                           // draw from 0 to right edge
+  }
+SCANLINE_END_CHECK_2:
+  // final visibility checks
+  if (iScanlineY >= winh)                     // past bottom
+    goto CLEANUP_AND_RETURN;
+  if (GET_SHIWORD(v114) >= winw)    // left beyond right
+    goto HANDLE_LEFT_CLIPPING;
+  if (GET_SHIWORD(v114) >= winw)                  // left beyond right
+    goto CLEANUP_AND_RETURN;
+  if (GET_SHIWORD(iLeftXFixed) <= winw)// right visible
+    goto DRAW_FINAL_SCANLINE;
+HANDLE_RIGHT_CLIPPING_FINAL_2:
+  // fill from left edge to screen right
+
+  //pScrBuf = (uint8 *)(iOldWinW * iScanlineY);
+  //iPixelCount = iOldWinW - GET_SHIWORD(v114);
+  //v58 = (int)&scrptr[GET_SHIWORD(v114)];
+  //iColor = nColor;
+
+  //weird pointer math fixed
+  pScrBuf = scrptr + GET_SHIWORD(v114);
+  iPixelCount = iOldWinW - GET_SHIWORD(v114);
+  v58 = iOldWinW * iScanlineY;
+  iColor = nColor;
+
+FILL_SCANLINE:
+  pDest_1 = &pScrBuf[v58];
+FILL_SCANLINE_FINAL:
+  winw = iOldWinW;
+  memset(pDest_1, iColor, iPixelCount);
+  iOldWinW = winw;
+CLEANUP_AND_RETURN:
+  winw = iOldWinW;
 }
 
 //-------------------------------------------------------------------------------------------------
