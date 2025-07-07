@@ -1,4 +1,6 @@
 #include "graphics.h"
+#include "3d.h"
+#include <stdbool.h>
 //-------------------------------------------------------------------------------------------------
 
 int gfx_size;     //00149740
@@ -249,97 +251,104 @@ char compout(int a1, int a2, int a3, int a4, int a5, int a6, char a7)
 
 //-------------------------------------------------------------------------------------------------
 
-char *line(int a1, int a2, int a3, int a4, int a5, char a6)
+void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, char byColor)
 {
-  return 0;/*
-  int v6; // ebp
-  _BYTE *result; // eax
-  int v8; // esi
-  int v9; // esi
-  int v10; // edi
-  int v11; // esi
-  int v12; // esi
-  int v13; // ebx
-  int v14; // edx
-  _BOOL1 i; // cc
-  int v16; // ebx
-  int v17; // edx
-  int v18; // [esp+4h] [ebp-10h]
+  int iOldWinw; // ebp
+  int iTempX; // esi
+  int iTempY; // esi
+  int iDx; // edi
+  uint8 *pDest; // eax
+  int iDy; // esi
+  int iDy_1; // esi
+  int iError_2; // ebx
+  int iError_3; // edx
+  bool bAboveTarget; // cc
+  int iError_1; // ebx
+  int iError; // edx
+  int iTempX2; // [esp+4h] [ebp-10h]
 
-  v6 = winw;
-  v18 = a4;
-  if (a2 == a4 && a3 == a5) {
-    result = (_BYTE *)(a4 + a1);
-    result[winw * a3] = a6;
+  iOldWinw = winw;
+  iTempX2 = iX1;
+
+  // single point check
+  if (iX0 == iX1 && iY0 == iY1) {
+    pScrBuf[iX1 + winw * iY0] = byColor;        // draw pixel
   } else {
-    if (a2 > a4) {
-      v8 = a2;
-      a2 = a4;
-      v18 = v8;
-      v9 = a3;
-      a3 = a5;
-      a5 = v9;
+    // Swap points if needed to ensure left to right drawing
+    if (iX0 > iX1) {
+      iTempX = iX0;
+      iX0 = iX1;
+      iTempX2 = iTempX;
+      iTempY = iY0;
+      iY0 = iY1;
+      iY1 = iTempY;
     }
-    v10 = v18 - a2;
-    result = (_BYTE *)(a2 + a1 + winw * a3);
-    v11 = a5 - a3;
-    if (a5 - a3 >= 0) {
-      if (v10 <= v11) {
-        v17 = v11 >> 1;
-        while (a3 <= a5) {
-          ++a3;
-          v17 -= v10;
-          *result = a6;
-          result += v6;
-          if (v17 < 0) {
-            ++result;
-            v17 += v11;
+    iDx = iTempX2 - iX0;
+    pDest = &pScrBuf[iX0 + winw * iY0];
+    iDy = iY1 - iY0;
+
+    // positive slope
+    if (iY1 - iY0 >= 0) {
+      // steep slope (|m| > 1)
+      if (iDx <= iDy) {
+        iError = iDy >> 1;
+        while (iY0 <= iY1) {
+          ++iY0;
+          iError -= iDx;
+          *pDest = byColor;                     // draw pixel
+          pDest += iOldWinw;                    // move down
+          if (iError < 0) {
+            ++pDest;                            // move right
+            iError += iDy;
           }
         }
-      } else {
-        v16 = (v18 - a2) >> 1;
-        while (a2 <= v18) {
-          ++result;
-          ++a2;
-          v16 -= v11;
-          *(result - 1) = a6;
-          if (v16 < 0) {
-            v16 += v10;
-            result += v6;
+      } else                                      // gentle slope (|m| <= 1)
+      {
+        iError_1 = (iTempX2 - iX0) >> 1;
+        while (iX0 <= iTempX2) {
+          ++pDest;                              // move right
+          ++iX0;
+          iError_1 -= iDy;
+          *(pDest - 1) = byColor;               // draw pixel
+          if (iError_1 < 0) {
+            iError_1 += iDx;
+            pDest += iOldWinw;                  // move down
           }
         }
       }
-    } else {
-      v12 = a3 - a5;
-      if (v10 <= a3 - a5) {
-        v14 = v12 >> 1;
-        for (i = a3 < a5; !i; i = a3 < a5) {
-          --a3;
-          v14 -= v10;
-          *result = a6;
-          result -= v6;
-          if (v14 < 0) {
-            ++result;
-            v14 += v12;
+    } else                                        // negative slope
+    {
+      iDy_1 = iY0 - iY1;
+      // steep slope (|m| > 1)
+      if (iDx <= iY0 - iY1) {
+        iError_3 = iDy_1 >> 1;
+        for (bAboveTarget = iY0 < iY1; !bAboveTarget; bAboveTarget = iY0 < iY1) {
+          --iY0;
+          iError_3 -= iDx;
+          *pDest = byColor;                     // draw pixel
+          pDest -= iOldWinw;                    // move up
+          if (iError_3 < 0) {
+            ++pDest;                            // move right
+            iError_3 += iDy_1;
           }
         }
-      } else {
-        v13 = (v18 - a2) >> 1;
-        while (a2 <= v18) {
-          ++result;
-          ++a2;
-          v13 -= v12;
-          *(result - 1) = a6;
-          if (v13 < 0) {
-            v13 += v10;
-            result -= v6;
+      } else                                      // gentle slope (|m| <= 1)
+      {
+        iError_2 = (iTempX2 - iX0) >> 1;
+        while (iX0 <= iTempX2) {
+          ++pDest;                              // move right
+          ++iX0;
+          iError_2 -= iDy_1;
+          *(pDest - 1) = byColor;               // draw pixel
+          if (iError_2 < 0) {
+            iError_2 += iDx;
+            pDest -= iOldWinw;                  // move up
           }
         }
       }
     }
   }
-  winw = v6;
-  return result;*/
+  winw = iOldWinw;
 }
 
 //-------------------------------------------------------------------------------------------------
