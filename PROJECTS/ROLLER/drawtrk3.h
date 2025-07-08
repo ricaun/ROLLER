@@ -1,9 +1,24 @@
 #ifndef _ROLLER_DRAWTRK3_H
 #define _ROLLER_DRAWTRK3_H
 //-------------------------------------------------------------------------------------------------
+#include "polyf.h"
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
 
+extern int showsub;
 extern int view_limit;
+extern int divtype;
+extern int polyysize;
+extern int polyxsize;
+extern uint8 *subptr;
+extern int fliptype;
+extern int subpolytype;
+extern tPolyParams *subpoly;
+extern int tex_wid;
+extern int flatpol;
+extern int min_sub_size;
 extern int num_pols;
+extern int small_poly;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -26,31 +41,8 @@ void subdivide(
         float a14,
         int a15,
         int a16);
-int dodivide(
-        float a1,
-        float a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12,
-        int a13,
-        int a14,
-        int a15,
-        int a16,
-        int a17,
-        int a18,
-        int a19,
-        int a20,
-        int a21,
-        int a22,
-        int a23,
-        int a24);
+void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D, float fX1_3D, float fY1_3D, float fZ1_3D, float fX2_3D, float fY2_3D, float fZ2_3D, float fX3_3D, float fY3_3D, float fZ3_3D,
+        int iScreenX0, int iScreenY0, int iScreenX1, int iScreenY1, int iScreenX2, int iScreenY2, int iScreenX3, int iScreenY3, int iTexU, int iTexV, int iTexWid, int iTexHgt);
 int facing_ok(
         float a1,
         float a2,

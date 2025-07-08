@@ -1,10 +1,24 @@
 #include "drawtrk3.h"
 #include "polytex.h"
 #include "graphics.h"
+#include "3d.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
+int showsub = 0;    //000A34A0
 int view_limit = 0; //000A41B8
+int divtype = 0;    //000A41BC
+int polyysize;      //00144468
+int polyxsize;      //0014446C
+uint8 *subptr;      //00144474
+int fliptype;       //00144478
+int subpolytype;    //0014447C
+tPolyParams *subpoly; //00144480
+int tex_wid;        //00144484
+int flatpol;        //00144488
+int min_sub_size;   //00144698
 int num_pols;       //001446A8
+int small_poly;     //001446AC
 
 //-------------------------------------------------------------------------------------------------
 
@@ -4758,1226 +4772,1262 @@ LABEL_10:
 
 //-------------------------------------------------------------------------------------------------
 
-int dodivide(
-        float a1,
-        float a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12,
-        int a13,
-        int a14,
-        int a15,
-        int a16,
-        int a17,
-        int a18,
-        int a19,
-        int a20,
-        int a21,
-        int a22,
-        int a23,
-        int a24)
+void dodivide(
+        float fX0_3D,
+        float fY0_3D,
+        float fZ0_3D,
+        float fX1_3D,
+        float fY1_3D,
+        float fZ1_3D,
+        float fX2_3D,
+        float fY2_3D,
+        float fZ2_3D,
+        float fX3_3D,
+        float fY3_3D,
+        float fZ3_3D,
+        int iScreenX0,
+        int iScreenY0,
+        int iScreenX1,
+        int iScreenY1,
+        int iScreenX2,
+        int iScreenY2,
+        int iScreenX3,
+        int iScreenY3,
+        int iTexU,
+        int iTexV,
+        int iTexWid,
+        int iTexHgt)
 {
-  (void)a1;
-  (void)a2;
-  (void)a3;
-  (void)a4;
-  (void)a5;
-  (void)a6;
-  (void)a7;
-  (void)a8;
-  (void)a9;
-  (void)a10;
-  (void)a11;
-  (void)a12;
-  (void)a13;
-  (void)a14;
-  (void)a15;
-  (void)a16;
-  (void)a17;
-  (void)a18;
-  (void)a19;
-  (void)a20;
-  (void)a21;
-  (void)a22;
-  (void)a23;
-  (void)a24;/*
-  int v29; // edx
-  float v30; // eax
-  float v31; // eax
-  float v32; // eax
-  float v33; // eax
-  float v34; // eax
-  float v35; // eax
-  int result; // eax
-  int v37; // eax
-  int v38; // eax
-  int v39; // eax
-  int v40; // eax
-  int v41; // eax
-  int v42; // eax
-  int v43; // eax
-  int v44; // edx
-  int v45; // edx
-  int v46; // eax
-  int v47; // eax
-  __int16 v48; // fps
-  _BOOL1 v49; // c0
-  char v50; // c2
-  _BOOL1 v51; // c3
-  int v52; // eax
-  double v53; // st7
-  double v54; // st6
-  double v55; // st5
-  double v56; // st4
-  double v57; // st7
-  int v58; // eax
-  int v59; // eax
-  __int16 v60; // fps
-  _BOOL1 v61; // c0
-  char v62; // c2
-  _BOOL1 v63; // c3
-  double v64; // st7
-  double v65; // st6
-  double v66; // st5
-  double v67; // st4
-  double v68; // st7
-  int v69; // eax
-  __int16 v70; // fps
-  _BOOL1 v71; // c0
-  char v72; // c2
-  _BOOL1 v73; // c3
-  double v74; // st7
-  double v75; // st6
-  double v76; // st5
-  double v77; // st4
-  double v78; // st7
-  int v79; // eax
-  int v80; // eax
-  __int16 v81; // fps
-  _BOOL1 v82; // c0
-  char v83; // c2
-  _BOOL1 v84; // c3
-  double v85; // st7
-  double v86; // st6
-  double v87; // st5
-  double v88; // st4
-  double v89; // st7
-  int v90; // eax
-  __int16 v91; // fps
-  _BOOL1 v92; // c0
-  char v93; // c2
-  _BOOL1 v94; // c3
-  int v95; // eax
-  double v96; // st7
-  double v97; // st6
-  double v98; // st5
-  double v99; // st4
-  double v100; // st7
-  int v101; // eax
-  int v102; // eax
-  __int16 v103; // fps
-  _BOOL1 v104; // c0
-  char v105; // c2
-  _BOOL1 v106; // c3
-  double v107; // st7
-  double v108; // st6
-  double v109; // st5
-  double v110; // st4
-  double v111; // st7
-  int v112; // eax
-  int v113; // eax
-  __int16 v114; // fps
-  _BOOL1 v115; // c0
-  char v116; // c2
-  _BOOL1 v117; // c3
-  double v118; // st7
-  double v119; // st6
-  double v120; // st5
-  double v121; // st4
-  double v122; // st7
-  int v123; // eax
-  int v124; // eax
-  __int16 v125; // fps
-  _BOOL1 v126; // c0
-  char v127; // c2
-  _BOOL1 v128; // c3
-  double v129; // st7
-  double v130; // st6
-  double v131; // st5
-  double v132; // st4
-  double v133; // st7
-  int v134; // eax
-  int v135; // eax
-  __int16 v136; // fps
-  _BOOL1 v137; // c0
-  char v138; // c2
-  _BOOL1 v139; // c3
-  double v140; // st7
-  double v141; // st6
-  double v142; // st5
-  double v143; // st4
-  double v144; // st7
-  int v145; // eax
-  int v146; // edx
-  int v147; // [esp-28h] [ebp-180h]
-  int v148; // [esp+Ch] [ebp-14Ch]
-  float v149; // [esp+10h] [ebp-148h]
-  float v150; // [esp+14h] [ebp-144h]
-  float v151; // [esp+18h] [ebp-140h]
-  int v152; // [esp+1Ch] [ebp-13Ch]
-  int v153; // [esp+28h] [ebp-130h]
-  int v154; // [esp+30h] [ebp-128h]
-  float v155; // [esp+3Ch] [ebp-11Ch]
-  float v156; // [esp+54h] [ebp-104h]
-  int v157; // [esp+5Ch] [ebp-FCh]
-  int v158; // [esp+64h] [ebp-F4h]
-  int v159; // [esp+78h] [ebp-E0h]
-  float v160; // [esp+7Ch] [ebp-DCh]
-  int v161; // [esp+8Ch] [ebp-CCh]
-  int v162; // [esp+90h] [ebp-C8h]
-  int v163; // [esp+94h] [ebp-C4h]
-  int v164; // [esp+98h] [ebp-C0h]
-  float v165; // [esp+9Ch] [ebp-BCh]
-  float v166; // [esp+A0h] [ebp-B8h]
-  int v167; // [esp+A4h] [ebp-B4h]
-  float v168; // [esp+A8h] [ebp-B0h]
-  float v169; // [esp+ACh] [ebp-ACh]
-  float v170; // [esp+B0h] [ebp-A8h]
-  float v171; // [esp+B4h] [ebp-A4h]
-  float v172; // [esp+B8h] [ebp-A0h]
-  float v173; // [esp+BCh] [ebp-9Ch]
-  float v174; // [esp+C0h] [ebp-98h]
-  float v175; // [esp+C4h] [ebp-94h]
-  float v176; // [esp+C8h] [ebp-90h]
-  int v177; // [esp+CCh] [ebp-8Ch]
-  int v178; // [esp+D0h] [ebp-88h]
-  int v179; // [esp+D4h] [ebp-84h]
-  int v180; // [esp+D8h] [ebp-80h]
-  int v181; // [esp+E4h] [ebp-74h]
-  int v182; // [esp+E8h] [ebp-70h]
-  int v183; // [esp+ECh] [ebp-6Ch]
-  int v184; // [esp+F0h] [ebp-68h]
-  int v185; // [esp+F4h] [ebp-64h]
-  int v186; // [esp+FCh] [ebp-5Ch]
-  int v187; // [esp+100h] [ebp-58h]
-  int v188; // [esp+104h] [ebp-54h]
-  float v189; // [esp+108h] [ebp-50h]
-  float v190; // [esp+10Ch] [ebp-4Ch]
-  float v191; // [esp+110h] [ebp-48h]
-  float v192; // [esp+114h] [ebp-44h]
-  float v193; // [esp+118h] [ebp-40h]
-  float v194; // [esp+11Ch] [ebp-3Ch]
-  float v195; // [esp+120h] [ebp-38h]
-  float v196; // [esp+124h] [ebp-34h]
-  float v197; // [esp+128h] [ebp-30h]
-  int v198; // [esp+12Ch] [ebp-2Ch]
-  float v199; // [esp+130h] [ebp-28h]
-  float v200; // [esp+134h] [ebp-24h]
-  float v201; // [esp+138h] [ebp-20h]
-  int v202; // [esp+13Ch] [ebp-1Ch]
+  int iCullFlag; // edx
+  float fMaxZ; // eax
+  float fMaxZ_temp; // eax
+  float fMaxZ_final; // eax
+  float fMinZ; // eax
+  float fMinZ_temp; // eax
+  float fMinZ_final; // eax
+  int iMaxScreenX; // eax
+  int iMaxScreenX_temp; // eax
+  int iMinScreenX; // eax
+  int iMinScreenX_temp; // eax
+  int iMaxScreenY; // eax
+  int iMaxScreenY_temp; // eax
+  int iMinScreenY; // eax
+  int iMinScreenY_temp; // eax
+  tPolyParams *pPolyParams; // edx
+  int iPolyType; // eax
+  uint8 *pFrameBuf; // eax
+  double dViewDist; // st7
+  double dInvZ; // st6
+  double dScreenScale; // st5
+  double dProjX; // st4
+  double dProjY; // st7
+  double dViewDist_1; // st7
+  double dInvZ_1; // st6
+  double dScreenScale_1; // st5
+  double dProjX_1; // st4
+  double dProjY_1; // st7
+  double dViewDist_2; // st7
+  double dInvZ_2; // st6
+  double dScreenScale_2; // st5
+  double dProjX_2; // st4
+  double dProjY_2; // st7
+  double dViewDist_3; // st7
+  double dInvZ_3; // st6
+  double dScreenScale_3; // st5
+  double dProjX_3; // st4
+  double dProjY_3; // st7
+  double dViewDist_4; // st7
+  double dInvZ_4; // st6
+  double dScreenScale_4; // st5
+  double dProjX_4; // st4
+  double dProjY_4; // st7
+  double dViewDist_5; // st7
+  double dInvZ_5; // st6
+  double dScreenScale_5; // st5
+  double dProjX_5; // st4
+  double dProjY_5; // st7
+  double dViewDist_6; // st7
+  double dInvZ_6; // st6
+  double dScreenScale_6; // st5
+  double dProjX_6; // st4
+  double dProjY_6; // st7
+  double dViewDist_7; // st7
+  double dInvZ_7; // st6
+  double dScreenScale_7; // st5
+  double dProjX_7; // st4
+  double dProjY_7; // st7
+  double dViewDist_8; // st7
+  double dInvZ_8; // st6
+  double dScreenScale_8; // st5
+  double dProjX_8; // st4
+  double dProjY_8; // st7
+  int iTexU_right; // edx
+  int iScreenCenterY; // [esp-28h] [ebp-180h]
+  tPolyParams *pPolyParamsLocal; // [esp+Ch] [ebp-14Ch]
+  float fMidZ_Edge01; // [esp+10h] [ebp-148h]
+  float fMidZ_Edge23; // [esp+14h] [ebp-144h]
+  float fMidZ_Edge03; // [esp+18h] [ebp-140h]
+  int iRenderFlag; // [esp+1Ch] [ebp-13Ch]
+  int iMaxScreenCoord; // [esp+28h] [ebp-130h]
+  int iMinScreenCoord; // [esp+30h] [ebp-128h]
+  float fMinZ_edge; // [esp+3Ch] [ebp-11Ch]
+  float fMaxZ_quad; // [esp+54h] [ebp-104h]
+  int iMaxScreenX_quad; // [esp+5Ch] [ebp-FCh]
+  int iMinScreenY_quad; // [esp+64h] [ebp-F4h]
+  int iScreenCenterX_calc; // [esp+78h] [ebp-E0h]
+  float fMidZ_quad; // [esp+7Ch] [ebp-DCh]
+  int iScreenY_mid30; // [esp+8Ch] [ebp-CCh]
+  int iScreenX_mid30; // [esp+90h] [ebp-C8h]
+  int iScreenY_mid12; // [esp+94h] [ebp-C4h]
+  int iScreenX_mid23; // [esp+98h] [ebp-C0h]
+  float fX_mid01; // [esp+9Ch] [ebp-BCh]
+  float fY_mid01; // [esp+A0h] [ebp-B8h]
+  int iScreenX_mid12; // [esp+A4h] [ebp-B4h]
+  float fZ_mid30; // [esp+A8h] [ebp-B0h]
+  float fY_mid30; // [esp+ACh] [ebp-ACh]
+  float fX_mid30; // [esp+B0h] [ebp-A8h]
+  float fZ_mid12; // [esp+B4h] [ebp-A4h]
+  float fY_mid12; // [esp+B8h] [ebp-A0h]
+  float fX_mid12; // [esp+BCh] [ebp-9Ch]
+  float fZ_mid12_1; // [esp+C0h] [ebp-98h]
+  float fY_mid12_1; // [esp+C4h] [ebp-94h]
+  float fX_mid12_1; // [esp+C8h] [ebp-90h]
+  int iScreenY_mid12_1; // [esp+CCh] [ebp-8Ch]
+  int iScreenX_mid12_1; // [esp+D0h] [ebp-88h]
+  int iScreenX_subdiv1; // [esp+D4h] [ebp-84h]
+  int iTexV_bottom; // [esp+D8h] [ebp-80h]
+  int iScreenY_mid01; // [esp+E4h] [ebp-74h]
+  int iScreenY_mid23; // [esp+E8h] [ebp-70h]
+  int iScreenX_mid01; // [esp+ECh] [ebp-6Ch]
+  int iScreenY_mid30_1; // [esp+F0h] [ebp-68h]
+  int iScreenX_mid23_1; // [esp+F4h] [ebp-64h]
+  int iScreenY_mid30_2; // [esp+FCh] [ebp-5Ch]
+  int iScreenX_mid12_2; // [esp+100h] [ebp-58h]
+  int iScreenX_mid30_1; // [esp+104h] [ebp-54h]
+  float fY_mid12_2; // [esp+108h] [ebp-50h]
+  float fZ_mid12_2; // [esp+10Ch] [ebp-4Ch]
+  float fZ_mid30_1; // [esp+110h] [ebp-48h]
+  float fX_mid30_1; // [esp+114h] [ebp-44h]
+  float fX_mid12_2; // [esp+118h] [ebp-40h]
+  float fY_mid30_1; // [esp+11Ch] [ebp-3Ch]
+  float fY_mid23; // [esp+120h] [ebp-38h]
+  float fZ_mid23; // [esp+124h] [ebp-34h]
+  float fX_mid23; // [esp+128h] [ebp-30h]
+  int iScreenY_center; // [esp+12Ch] [ebp-2Ch]
+  float fX_center; // [esp+130h] [ebp-28h]
+  float fY_center; // [esp+134h] [ebp-24h]
+  float fZ_center; // [esp+138h] [ebp-20h]
+  int iScreenX_center; // [esp+13Ch] [ebp-1Ch]
 
   while (2) {
-    v29 = 0;
-    divtype = 0;
-    if (a3 <= (double)a6)
-      v30 = a6;
+    iCullFlag = 0;
+    divtype = 0;                                // Reset subdivision type
+
+    // Find maximum Z value among all 4 verts
+    if (fZ0_3D <= (double)fZ1_3D)
+      fMaxZ = fZ1_3D;
     else
-      v30 = a3;
-    v156 = v30;
-    if (a9 <= (double)a12)
-      v31 = a12;
+      fMaxZ = fZ0_3D;
+    fMaxZ_quad = fMaxZ;
+
+    if (fZ2_3D <= (double)fZ3_3D)
+      fMaxZ_temp = fZ3_3D;
     else
-      v31 = a9;
-    if (v156 <= (double)v31) {
-      if (a9 <= (double)a12)
-        v32 = a12;
+      fMaxZ_temp = fZ2_3D;
+    if (fMaxZ_quad <= (double)fMaxZ_temp) {
+      if (fZ2_3D <= (double)fZ3_3D)
+        fMaxZ_final = fZ3_3D;
       else
-        v32 = a9;
-    } else if (a3 <= (double)a6) {
-      v32 = a6;
+        fMaxZ_final = fZ2_3D;
+    } else if (fZ0_3D <= (double)fZ1_3D) {
+      fMaxZ_final = fZ1_3D;
     } else {
-      v32 = a3;
+      fMaxZ_final = fZ0_3D;
     }
-    if (v32 < (double)drawtrk3_c_variable_9)
-      v29 = -1;
-    if (a3 >= (double)a6)
-      v33 = a6;
+
+    // Cull if polygon is too close to camera (Z < 80)
+    if (fMaxZ_final < 80.0)
+      iCullFlag = -1;
+    if (fZ0_3D >= (double)fZ1_3D)
+      fMinZ = fZ1_3D;
     else
-      v33 = a3;
-    v155 = v33;
-    if (a9 >= (double)a12)
-      v34 = a12;
+      fMinZ = fZ0_3D;
+    fMinZ_edge = fMinZ;
+
+    if (fZ2_3D >= (double)fZ3_3D)
+      fMinZ_temp = fZ3_3D;
     else
-      v34 = a9;
-    if (v155 >= (double)v34) {
-      if (a9 >= (double)a12)
-        v35 = a12;
+      fMinZ_temp = fZ2_3D;
+
+    if (fMinZ_edge >= (double)fMinZ_temp) {
+      if (fZ2_3D >= (double)fZ3_3D)
+        fMinZ_final = fZ3_3D;
       else
-        v35 = a9;
-    } else if (a3 >= (double)a6) {
-      v35 = a6;
+        fMinZ_final = fZ2_3D;
+    } else if (fZ0_3D >= (double)fZ1_3D) {
+      fMinZ_final = fZ1_3D;
     } else {
-      v35 = a3;
+      fMinZ_final = fZ0_3D;
     }
-    if (v35 >= 1.0) {
-      if (a15 >= a13)
-        v153 = a15;
+
+    // Check if polygon is far enough away from camera
+    if (fMinZ_final >= 1.0) {
+      // Find bounding box of screen coords
+      // Max X coord
+      if (iScreenX1 >= iScreenX0)
+        iMaxScreenCoord = iScreenX1;
       else
-        v153 = a13;
-      v37 = a17;
-      if (a17 <= a19)
-        v37 = a19;
-      if (v153 <= v37) {
-        v38 = a17;
-        if (a17 <= a19)
-          v38 = a19;
+        iMaxScreenCoord = iScreenX0;
+      iMaxScreenX = iScreenX2;
+      if (iScreenX2 <= iScreenX3)
+        iMaxScreenX = iScreenX3;
+      if (iMaxScreenCoord <= iMaxScreenX) {
+        iMaxScreenX_temp = iScreenX2;
+        if (iScreenX2 <= iScreenX3)
+          iMaxScreenX_temp = iScreenX3;
       } else {
-        v38 = a13;
-        if (a15 >= a13)
-          v38 = a15;
+        iMaxScreenX_temp = iScreenX0;
+        if (iScreenX1 >= iScreenX0)
+          iMaxScreenX_temp = iScreenX1;
       }
-      if (v38 < 0)
-        v29 = -1;
-      if (a15 <= a13)
-        v157 = a15;
+
+      // cull if bounding box is completely off-screen (left)
+      if (iMaxScreenX_temp < 0)
+        iCullFlag = -1;
+
+      // Minimum X coord
+      if (iScreenX1 <= iScreenX0)
+        iMaxScreenX_quad = iScreenX1;
       else
-        v157 = a13;
-      v39 = a17;
-      if (a17 >= a19)
-        v39 = a19;
-      if (v157 >= v39) {
-        v40 = a17;
-        if (a17 >= a19)
-          v40 = a19;
+        iMaxScreenX_quad = iScreenX0;
+      iMinScreenX = iScreenX2;
+      if (iScreenX2 >= iScreenX3)
+        iMinScreenX = iScreenX3;
+      if (iMaxScreenX_quad >= iMinScreenX) {
+        iMinScreenX_temp = iScreenX2;
+        if (iScreenX2 >= iScreenX3)
+          iMinScreenX_temp = iScreenX3;
       } else {
-        v40 = a13;
-        if (a15 <= a13)
-          v40 = a15;
+        iMinScreenX_temp = iScreenX0;
+        if (iScreenX1 <= iScreenX0)
+          iMinScreenX_temp = iScreenX1;
       }
-      if (v40 >= winw)
-        v29 = -1;
-      if (a14 <= a16)
-        v158 = a16;
+
+      // Cull if bounding box is completely off-screen (right)
+      if (iMinScreenX_temp >= winw)
+        iCullFlag = -1;
+
+      // Maximum Y coord
+      if (iScreenY0 <= iScreenY1)
+        iMinScreenY_quad = iScreenY1;
       else
-        v158 = a14;
-      v41 = a18;
-      if (a18 <= a20)
-        v41 = a20;
-      if (v158 <= v41) {
-        v42 = a18;
-        if (a18 <= a20)
-          v42 = a20;
-      } else if (a14 <= a16) {
-        v42 = a16;
+        iMinScreenY_quad = iScreenY0;
+      iMaxScreenY = iScreenY2;
+      if (iScreenY2 <= iScreenY3)
+        iMaxScreenY = iScreenY3;
+      if (iMinScreenY_quad <= iMaxScreenY) {
+        iMaxScreenY_temp = iScreenY2;
+        if (iScreenY2 <= iScreenY3)
+          iMaxScreenY_temp = iScreenY3;
+      } else if (iScreenY0 <= iScreenY1) {
+        iMaxScreenY_temp = iScreenY1;
       } else {
-        v42 = a14;
+        iMaxScreenY_temp = iScreenY0;
       }
-      if (v42 < 0)
-        v29 = -1;
-      if (a14 >= a16)
-        v154 = a16;
+
+      // Cull if bounding box is completely off-screen (top)
+      if (iMaxScreenY_temp < 0)
+        iCullFlag = -1;
+
+      // Minimum Y coord
+      if (iScreenY0 >= iScreenY1)
+        iMinScreenCoord = iScreenY1;
       else
-        v154 = a14;
-      v43 = a18;
-      if (a18 >= a20)
-        v43 = a20;
-      if (v154 >= v43) {
-        result = a18;
-        if (a18 >= a20)
-          result = a20;
-      } else if (a14 >= a16) {
-        result = a16;
+        iMinScreenCoord = iScreenY0;
+      iMinScreenY = iScreenY2;
+      if (iScreenY2 >= iScreenY3)
+        iMinScreenY = iScreenY3;
+      if (iMinScreenCoord >= iMinScreenY) {
+        iMinScreenY_temp = iScreenY2;
+        if (iScreenY2 >= iScreenY3)
+          iMinScreenY_temp = iScreenY3;
+      } else if (iScreenY0 >= iScreenY1) {
+        iMinScreenY_temp = iScreenY1;
       } else {
-        result = a14;
+        iMinScreenY_temp = iScreenY0;
       }
-      if (result >= winh)
-        v29 = -1;
-      v152 = -1;
+
+      // Cull if bounding box is completely off-screen (bottom)
+      if (iMinScreenY_temp >= winh)
+        iCullFlag = -1;
+
+      // Render polygon
+      iRenderFlag = -1;
     } else {
-      if (a23 > min_sub_size)
-        ++divtype;
-      if (a24 > min_sub_size)
-        divtype += 2;
-      result = 0;
-      v152 = 0;
+      // Polygon is too close, check if we should subdivide based on tex size
+      if (iTexWid > min_sub_size)
+        ++divtype;                              // subdivide horizontally
+      if (iTexHgt > min_sub_size)
+        divtype += 2;                           // subdivide vertically
+      iRenderFlag = 0;
     }
-    if (v29)
-      return result;
-    if (!divtype && !flatpol) {
-      polyxsize = abs32(a20 - a18) + abs32(a14 - a16) + abs32(a19 - a17) + abs32(a13 - a15);
-      polyysize = abs32(a16 - a18) + abs32(a14 - a20) + abs32(a15 - a17) + abs32(a13 - a19);
-      if (polyxsize > small_poly && a23 > min_sub_size)
-        ++divtype;
-      if (polyysize > small_poly && a24 > min_sub_size)
-        divtype += 2;
-    }
-    v44 = winw >> 31;
-    result = winw / 2;
-    v150 = a3 + a6;
-    v149 = a2 + a5;
-    v151 = a1 + a4;
-    v166 = v150 * drawtrk3_c_variable_7;
-    v160 = v149 * drawtrk3_c_variable_7;
-    v159 = winw / 2;
-    v165 = v151 * drawtrk3_c_variable_7;
-    switch (divtype) {
-      case 0:
-        if (!v152)
-          return result;
-        v148 = subpoly;
-        v45 = subpoly;
-        *(_DWORD *)(subpoly + 8) = a13;
-        *(_DWORD *)(v45 + 24) = a17;
-        *(_DWORD *)(v45 + 28) = a18;
-        *(_DWORD *)(v45 + 32) = a19;
-        *(_DWORD *)(v45 + 36) = a20;
-        startsx = (a23 + a21 - 1) << 12;
-        startsx_variable_1 = a21 << 12;
-        startsx_variable_2 = a21 << 12;
-        startsx_variable_3 = (a23 + a21 - 1) << 12;
-        startsy = a22 << 12;
-        startsy_variable_1 = a22 << 12;
-        *(_DWORD *)(v45 + 12) = a14;
-        *(_DWORD *)(v45 + 16) = a15;
-        startsy_variable_2 = (a24 + a22 - 1) << 12;
-        startsy_variable_3 = (a24 + a22 - 1) << 12;
-        v46 = subpolytype;
-        *(_DWORD *)(v45 + 20) = a16;
-        if (v46 < 1) {
-          if (v46 < -2)
-            goto LABEL_110;
-          if ((*(_BYTE *)(v45 + 1) & 1) != 0)
-            goto LABEL_111;
-          goto LABEL_105;
-        }
-        if (v46 <= 1)
-          goto LABEL_111;
-        if (v46 <= 2)
-          goto LABEL_106;
-        if (v46 == 666) {
-          if ((*(_BYTE *)(v45 + 1) & 1) != 0) {
-          LABEL_111:
-            result = POLYTEX(gfx_size);
-            goto LABEL_114;
+
+    // If polygon is not culled
+    if (!iCullFlag) {
+      // Additional subdivision checks based on polygon screen size
+      if (!divtype && !flatpol) {
+        // Calculate perimeter in screen space to determine if polygon is large enough to subdivide
+        polyxsize = abs(iScreenY3 - iScreenY2)
+          + abs(iScreenY0 - iScreenY1)
+          + abs(iScreenX3 - iScreenX2)
+          + abs(iScreenX0 - iScreenX1);
+        polyysize = abs(iScreenY1 - iScreenY2)
+          + abs(iScreenY0 - iScreenY3)
+          + abs(iScreenX1 - iScreenX2)
+          + abs(iScreenX0 - iScreenX3);
+        if (polyxsize > small_poly && iTexWid > min_sub_size)
+          ++divtype;                            // Subdivide horizontally if pol is large enough
+        if (polyysize > small_poly && iTexHgt > min_sub_size)
+          divtype += 2;                         // Subdivide vertically if pol is large enough
+      }
+
+      // Calculate midpoints for potential subdivision
+      fMidZ_Edge23 = fZ0_3D + fZ1_3D;
+      fMidZ_Edge01 = fY0_3D + fY1_3D;
+      fMidZ_Edge03 = fX0_3D + fX1_3D;
+      fY_mid01 = fMidZ_Edge23 * 0.5f;            // Midpoint between verts 0 and 1
+      fMidZ_quad = fMidZ_Edge01 * 0.5f;
+      iScreenCenterX_calc = winw / 2;           // screen center x
+      fX_mid01 = fMidZ_Edge03 * 0.5f;
+
+      switch (divtype) {
+        case 0:                                 // No subdivision - render the polygon
+          if (!iRenderFlag)
+            return;                             // don't render if flag is not set
+
+          // Set up pol params for rendering
+          pPolyParamsLocal = subpoly;
+          pPolyParams = subpoly;
+          subpoly->vertices[0].x = iScreenX0;
+          pPolyParams->vertices[2].x = iScreenX2;
+          pPolyParams->vertices[2].y = iScreenY2;
+          pPolyParams->vertices[3].x = iScreenX3;
+          pPolyParams->vertices[3].y = iScreenY3;
+
+          // Set up texture coords in 16.16 fixed point
+          startsx[0] = (iTexWid + iTexU - 1) << 12;
+          startsx[1] = iTexU << 12;
+          startsx[2] = iTexU << 12;
+          startsx[3] = (iTexWid + iTexU - 1) << 12;
+          startsy[0] = iTexV << 12;
+          startsy[1] = iTexV << 12;
+          pPolyParams->vertices[0].y = iScreenY0;
+          pPolyParams->vertices[1].x = iScreenX1;
+          startsy[2] = (iTexHgt + iTexV - 1) << 12;
+          startsy[3] = (iTexHgt + iTexV - 1) << 12;
+
+          iPolyType = subpolytype;
+          pPolyParams->vertices[1].y = iScreenY1;
+
+          // Render based on pol type
+          if (iPolyType < 1) {
+            if (iPolyType < -2) {
+              // Check if tex should be applied
+            LABEL_111:
+              if ((subpoly->uiSurfaceType & 0x100) != 0)// SURFACE_FLAG_APPLY_TEXTURE
+              {
+                // Render textured pol with car texture
+                // TODO
+                //POLYTEX(
+                //  (int)*(&horizon_vga + car_draw_order_variable_3[subpolytype]),// offset into car_texmap
+                //  subptr,
+                //  subpoly,
+                //  car_draw_order_variable_3[subpolytype],// offset into car_texmap
+                //  gfx_size);
+                goto LABEL_115;
+              }
+              pFrameBuf = subptr;
+              pPolyParams = subpoly;
+            LABEL_114:
+              POLYFLAT(pFrameBuf, pPolyParams); // render flat pol
+            LABEL_115:
+                          // Debug: draw pol outline if showsub is enabled
+              if (showsub) {
+                compout(
+                  subptr,
+                  subpoly->vertices[0].x,
+                  subpoly->vertices[0].y,
+                  subpoly->vertices[1].x,
+                  subpoly->vertices[1].y,
+                  0x9Fu);                       // 0x9F is light blue in PALETTE.PAL
+                compout(
+                  subptr,
+                  subpoly->vertices[1].x,
+                  subpoly->vertices[1].y,
+                  subpoly->vertices[2].x,
+                  subpoly->vertices[2].y,
+                  0x9Fu);
+                compout(
+                  subptr,
+                  subpoly->vertices[2].x,
+                  subpoly->vertices[2].y,
+                  subpoly->vertices[3].x,
+                  subpoly->vertices[3].y,
+                  0x9Fu);
+                compout(
+                  subptr,
+                  subpoly->vertices[0].x,
+                  subpoly->vertices[0].y,
+                  subpoly->vertices[1].x,
+                  subpoly->vertices[1].y,
+                  0x9Fu);
+              }
+              return;
+            }
+            if ((pPolyParams->uiSurfaceType & 0x100) == 0)// SURFACE_FLAG_APPLY_TEXTURE
+              goto LABEL_106;
+          } else if (iPolyType > 1) {
+            if (iPolyType <= 2) {
+            LABEL_107:
+              pFrameBuf = subptr;
+              goto LABEL_114;
+            }
+            if (iPolyType != 666)
+              goto LABEL_111;
+            if ((pPolyParams->uiSurfaceType & 0x100) != 0)// SURFACE_FLAG_APPLY_TEXTURE
+            {
+              //TODO
+              //POLYTEX(building_vga, subptr, pPolyParamsLocal, 17, gfx_size);
+              goto LABEL_115;
+            }
+          LABEL_106:
+            pPolyParams = pPolyParamsLocal;
+            goto LABEL_107;
           }
-        LABEL_105:
-          v45 = v148;
-        LABEL_106:
-          v47 = subptr;
-          goto LABEL_113;
-        }
-      LABEL_110:
-        if ((*(_BYTE *)(subpoly + 1) & 1) != 0)
-          goto LABEL_111;
-        v47 = subptr;
-        v45 = subpoly;
-      LABEL_113:
-        result = POLYFLAT(v47, v45);
-      LABEL_114:
-        if (showsub) {
-          compout(*(_DWORD *)(subpoly + 20), 159);
-          compout(*(_DWORD *)(subpoly + 28), 159);
-          compout(*(_DWORD *)(subpoly + 36), 159);
-          return compout(*(_DWORD *)(subpoly + 20), 159);
-        }
-        return result;
-      case 1:
-        HIWORD(v52) = HIWORD(v166);
-        v49 = v166 > 1.0;
-        v50 = 0;
-        v51 = 1.0 == v166;
-        LOWORD(v52) = v48;
-        if (v166 < 1.0) {
-          if ((double)v159 <= v165)
-            v167 = 20000;
-          else
-            v167 = -20000;
-          v44 = winh >> 31;
-          v59 = winh / 2;
-          if ((double)(winh / 2) <= v160)
-            v179 = 20000;
-          else
-            v179 = -20000;
-        } else {
-          v53 = (double)VIEWDIST;
-          v54 = 1.0 / v166;
-          v55 = (double)scr_size;
-          v56 = (v53 * v165 * v54 + (double)xbase) * v55 * drawtrk3_c_variable_8;
-          _CHP(v52, v44);
-          v167 = (int)v56;
-          v57 = v55 * (drawtrk3_c_variable_10 - v54 * (v53 * v160) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v58, v44);
-          v179 = (int)v57;
-        }
-        v173 = (a7 + a10) * drawtrk3_c_variable_7;
-        v172 = (a8 + a11) * drawtrk3_c_variable_7;
-        v171 = (a9 + a12) * drawtrk3_c_variable_7;
-        v61 = v171 > 1.0;
-        v62 = 0;
-        v63 = 1.0 == v171;
-        LOWORD(v59) = v60;
-        if (v171 < 1.0) {
-          if ((double)(winw / 2) <= v173)
-            v164 = 20000;
-          else
-            v164 = -20000;
-          if ((double)(winh / 2) <= v172)
-            v163 = 20000;
-          else
-            v163 = -20000;
-        } else {
-          v64 = (double)VIEWDIST;
-          v65 = 1.0 / v171;
-          v66 = (double)scr_size;
-          v67 = (v64 * v173 * v65 + (double)xbase) * v66 * drawtrk3_c_variable_8;
-          _CHP(v59, v44);
-          v164 = (int)v67;
-          v68 = v66 * (drawtrk3_c_variable_10 - v65 * (v64 * v172) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v69, v44);
-          v163 = (int)v68;
-        }
-        a23 >>= 1;
-        if ((fliptype & 1) != 0) {
-          v147 = a15;
-          a15 = v167;
-          dodivide(
-            v165,
-            v160,
-            v166,
-            a4,
-            a5,
-            a6,
-            a7,
-            a8,
-            a9,
-            v173,
-            v172,
-            v171,
-            v167,
-            v179,
-            v147,
-            a16,
-            a17,
-            a18,
-            v164,
-            v163,
-            a23 + a21,
-            a22,
-            a23,
-            a24);
-          a4 = v165;
-          a5 = v160;
-          a6 = v166;
-          a7 = v173;
-          a8 = v172;
-          a9 = v171;
-        } else {
-          dodivide(
-            v165,
-            v160,
-            v166,
-            a4,
-            a5,
-            a6,
-            a7,
-            a8,
-            a9,
-            v173,
-            v172,
-            v171,
-            v167,
-            v179,
-            a15,
-            a16,
-            a17,
-            a18,
-            v164,
-            v163,
-            a21,
-            a22,
-            a23,
-            a24);
-          a4 = v165;
-          a5 = v160;
-          a6 = v166;
-          a7 = v173;
-          a8 = v172;
-          a21 += a23;
-          a9 = v171;
-          a15 = v167;
-        }
-        a17 = v164;
-        a16 = v179;
-        a18 = v163;
-        continue;
-      case 2:
-        v176 = (a4 + a7) * drawtrk3_c_variable_7;
-        v175 = (a5 + a8) * drawtrk3_c_variable_7;
-        v174 = (a6 + a9) * drawtrk3_c_variable_7;
-        v71 = v174 > 1.0;
-        v72 = 0;
-        v73 = 1.0 == v174;
-        LOWORD(result) = v70;
-        if (v174 < 1.0) {
-          if ((double)v159 <= v176)
-            v178 = 20000;
-          else
-            v178 = -20000;
-          v44 = winh >> 31;
-          v80 = winh / 2;
-          if ((double)(winh / 2) <= v175)
-            v177 = 20000;
-          else
-            v177 = -20000;
-        } else {
-          v74 = (double)VIEWDIST;
-          v75 = 1.0 / v174;
-          v76 = (double)scr_size;
-          v77 = (v74 * v176 * v75 + (double)xbase) * v76 * drawtrk3_c_variable_8;
-          _CHP(result, v44);
-          v178 = (int)v77;
-          v78 = v76 * (drawtrk3_c_variable_10 - v75 * (v74 * v175) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v79, v44);
-          v177 = (int)v78;
-        }
-        v170 = (a10 + a1) * drawtrk3_c_variable_7;
-        v169 = (a11 + a2) * drawtrk3_c_variable_7;
-        v168 = (a12 + a3) * drawtrk3_c_variable_7;
-        v82 = v168 > 1.0;
-        v83 = 0;
-        v84 = 1.0 == v168;
-        LOWORD(v80) = v81;
-        if (v168 < 1.0) {
-          if ((double)(winw / 2) <= v170)
-            v162 = 20000;
-          else
-            v162 = -20000;
-          if ((double)(winh / 2) <= v169)
-            v161 = 20000;
-          else
-            v161 = -20000;
-        } else {
-          v85 = (double)VIEWDIST;
-          v86 = 1.0 / v168;
-          v87 = (double)scr_size;
-          v88 = (v85 * v170 * v86 + (double)xbase) * v87 * drawtrk3_c_variable_8;
-          _CHP(v80, v44);
-          v162 = (int)v88;
-          v89 = v87 * (drawtrk3_c_variable_10 - v86 * (v85 * v169) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v90, v44);
-          v161 = (int)v89;
-        }
-        a24 >>= 1;
-        if ((fliptype & 2) != 0) {
-          dodivide(
-            a1,
-            a2,
-            a3,
-            a4,
-            a5,
-            a6,
-            v176,
-            v175,
-            v174,
-            v170,
-            v169,
-            v168,
-            a13,
-            a14,
-            a15,
-            a16,
-            v178,
-            v177,
-            v162,
-            v161,
-            a21,
-            a24 + a22,
-            a23,
-            a24);
-          a1 = v170;
-          a2 = v169;
-          a3 = v168;
-          a4 = v176;
-          a16 = v177;
-          a5 = v175;
-          a15 = v178;
-          a6 = v174;
-          a14 = v161;
-        } else {
-          dodivide(
-            a1,
-            a2,
-            a3,
-            a4,
-            a5,
-            a6,
-            v176,
-            v175,
-            v174,
-            v170,
-            v169,
-            v168,
-            a13,
-            a14,
-            a15,
-            a16,
-            v178,
-            v177,
-            v162,
-            v161,
-            a21,
-            a22,
-            a23,
-            a24);
-          a1 = v170;
-          a2 = v169;
-          a3 = v168;
-          a22 += a24;
-          a4 = v176;
-          a16 = v177;
-          a5 = v175;
-          a14 = v161;
-          a6 = v174;
-          a15 = v178;
-        }
-        a13 = v162;
-        continue;
-      case 3:
-        HIWORD(v95) = HIWORD(v166);
-        v92 = v166 > 1.0;
-        v93 = 0;
-        v94 = 1.0 == v166;
-        LOWORD(v95) = v91;
-        if (v166 < 1.0) {
-          if ((double)v159 <= v165)
-            v183 = 20000;
-          else
-            v183 = -20000;
-          v44 = winh >> 31;
-          v102 = winh / 2;
-          if ((double)(winh / 2) <= v160)
-            v181 = 20000;
-          else
-            v181 = -20000;
-        } else {
-          v96 = (double)VIEWDIST;
-          v97 = 1.0 / v166;
-          v98 = (double)scr_size;
-          v99 = (v96 * v165 * v97 + (double)xbase) * v98 * drawtrk3_c_variable_8;
-          _CHP(v95, v44);
-          v183 = (int)v99;
-          v100 = v98 * (drawtrk3_c_variable_10 - v97 * (v96 * v160) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v101, v44);
-          v181 = (int)v100;
-        }
-        v193 = (a4 + a7) * drawtrk3_c_variable_7;
-        v189 = (a5 + a8) * drawtrk3_c_variable_7;
-        v190 = (a6 + a9) * drawtrk3_c_variable_7;
-        v104 = v190 > 1.0;
-        v105 = 0;
-        v106 = 1.0 == v190;
-        LOWORD(v102) = v103;
-        if (v190 < 1.0) {
-          if ((double)(winw / 2) <= v193)
-            v187 = 20000;
-          else
-            v187 = -20000;
-          v44 = winh >> 31;
-          v113 = winh / 2;
-          if ((double)(winh / 2) <= v189)
-            v182 = 20000;
-          else
-            v182 = -20000;
-        } else {
-          v107 = (double)VIEWDIST;
-          v108 = 1.0 / v190;
-          v109 = (double)scr_size;
-          v110 = (v107 * v193 * v108 + (double)xbase) * v109 * drawtrk3_c_variable_8;
-          _CHP(v102, v44);
-          v187 = (int)v110;
-          v111 = v109 * (drawtrk3_c_variable_10 - v108 * (v107 * v189) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v112, v44);
-          v182 = (int)v111;
-        }
-        v197 = (a7 + a10) * drawtrk3_c_variable_7;
-        v195 = (a8 + a11) * drawtrk3_c_variable_7;
-        v196 = (a9 + a12) * drawtrk3_c_variable_7;
-        v115 = v196 > 1.0;
-        v116 = 0;
-        v117 = 1.0 == v196;
-        LOWORD(v113) = v114;
-        if (v196 < 1.0) {
-          if ((double)(winw / 2) <= v197)
-            v185 = 20000;
-          else
-            v185 = -20000;
-          v44 = winh >> 31;
-          v124 = winh / 2;
-          if ((double)(winh / 2) <= v195)
-            v184 = 20000;
-          else
-            v184 = -20000;
-        } else {
-          v118 = (double)VIEWDIST;
-          v119 = 1.0 / v196;
-          v120 = (double)scr_size;
-          v121 = (v118 * v197 * v119 + (double)xbase) * v120 * drawtrk3_c_variable_8;
-          _CHP(v113, v44);
-          v185 = (int)v121;
-          v122 = v120 * (drawtrk3_c_variable_10 - v119 * (v118 * v195) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v123, v44);
-          v184 = (int)v122;
-        }
-        v192 = (a10 + a1) * drawtrk3_c_variable_7;
-        v194 = (a11 + a2) * drawtrk3_c_variable_7;
-        v191 = (a12 + a3) * drawtrk3_c_variable_7;
-        v126 = v191 > 1.0;
-        v127 = 0;
-        v128 = 1.0 == v191;
-        LOWORD(v124) = v125;
-        if (v191 < 1.0) {
-          if ((double)(winw / 2) <= v192)
-            v188 = 20000;
-          else
-            v188 = -20000;
-          v44 = winh >> 31;
-          v135 = winh / 2;
-          if ((double)(winh / 2) <= v194)
-            v186 = 20000;
-          else
-            v186 = -20000;
-        } else {
-          v129 = (double)VIEWDIST;
-          v130 = 1.0 / v191;
-          v131 = (double)scr_size;
-          v132 = (v129 * v192 * v130 + (double)xbase) * v131 * drawtrk3_c_variable_8;
-          _CHP(v124, v44);
-          v188 = (int)v132;
-          v133 = v131 * (drawtrk3_c_variable_10 - v130 * (v129 * v194) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v134, v44);
-          v186 = (int)v133;
-        }
-        v199 = (v165 + v197) * drawtrk3_c_variable_7;
-        v200 = (v160 + v195) * drawtrk3_c_variable_7;
-        v201 = (v166 + v196) * drawtrk3_c_variable_7;
-        v137 = v201 > 1.0;
-        v138 = 0;
-        v139 = 1.0 == v201;
-        LOWORD(v135) = v136;
-        if (v201 < 1.0) {
-          if ((double)(winw / 2) <= v199)
-            v202 = 20000;
-          else
-            v202 = -20000;
-          if ((double)(winh / 2) <= v200)
-            v198 = 20000;
-          else
-            v198 = -20000;
-        } else {
-          v140 = (double)VIEWDIST;
-          v141 = 1.0 / v201;
-          v142 = (double)scr_size;
-          v143 = (v140 * v199 * v141 + (double)xbase) * v142 * drawtrk3_c_variable_8;
-          _CHP(v135, v44);
-          v202 = (int)v143;
-          v144 = v142 * (drawtrk3_c_variable_10 - v141 * (v140 * v200) - (double)ybase) * drawtrk3_c_variable_8;
-          _CHP(v145, v44);
-          v198 = (int)v144;
-        }
-        result = fliptype;
-        a23 >>= 1;
-        a24 >>= 1;
-        v180 = a24 + a22;
-        v146 = a23 + a21;
-        switch (fliptype) {
-          case 0:
+          // Default texture rendering
+          //TODO
+          //POLYTEX((int)texture_vga, subptr, pPolyParamsLocal, 0, gfx_size);
+          goto LABEL_115;
+        case 1:                                 // Horiz subdivision only
+          // Calculate midpoint between verts 0 and 1, and 2 and 3
+          if (fY_mid01 < 1.0) {
+            if ((double)iScreenCenterX_calc <= fX_mid01)
+              iScreenX_mid12 = 20000;
+            else
+              iScreenX_mid12 = -20000;
+            if ((double)(winh / 2) <= fMidZ_quad)
+              iScreenX_subdiv1 = 20000;
+            else
+              iScreenX_subdiv1 = -20000;
+          } else {
+            // Project 3D coords into screen space
+            dViewDist = (double)VIEWDIST;
+            dInvZ = 1.0 / fY_mid01;
+            dScreenScale = (double)scr_size;
+            dProjX = (dViewDist * fX_mid01 * dInvZ + (double)xbase) * dScreenScale * 0.015625;
+            dProjX = round(dProjX); //_CHP
+            iScreenX_mid12 = (int)dProjX;
+            dProjY = dScreenScale * (199.0 - dInvZ * (dViewDist * fMidZ_quad) - (double)ybase) * 0.015625;
+            dProjY = round(dProjY); //_CHP
+            iScreenX_subdiv1 = (int)dProjY;
+          }
+
+          // Calculate midpoint between verts 1 and 2
+          fX_mid12 = (fX2_3D + fX3_3D) * 0.5f;
+          fY_mid12 = (fY2_3D + fY3_3D) * 0.5f;
+          fZ_mid12 = (fZ2_3D + fZ3_3D) * 0.5f;
+
+          if (fZ_mid12 < 1.0) {
+            if ((double)(winw / 2) <= fX_mid12)
+              iScreenX_mid23 = 20000;
+            else
+              iScreenX_mid23 = -20000;
+            if ((double)(winh / 2) <= fY_mid12)
+              iScreenY_mid12 = 20000;
+            else
+              iScreenY_mid12 = -20000;
+          } else {
+            // Project to screen space
+            dViewDist_1 = (double)VIEWDIST;
+            dInvZ_1 = 1.0 / fZ_mid12;
+            dScreenScale_1 = (double)scr_size;
+            dProjX_1 = (dViewDist_1 * fX_mid12 * dInvZ_1 + (double)xbase) * dScreenScale_1 * 0.015625;
+            dProjX_1 = round(dProjX_1); //_CHP
+            iScreenX_mid23 = (int)dProjX_1;
+            dProjY_1 = dScreenScale_1 * (199.0 - dInvZ_1 * (dViewDist_1 * fY_mid12) - (double)ybase) * 0.015625;
+            dProjY_1 = round(dProjY_1); //_CHP
+            iScreenY_mid12 = (int)dProjY_1;
+          }
+
+          // Half tex width for subdivision
+          iTexWid >>= 1;
+
+          // Check flip type for tex coord handling
+          if ((fliptype & 1) != 0) {
+            // Flip horiz - swap coords
+            iScreenCenterY = iScreenX1;
+            iScreenX1 = iScreenX_mid12;
+
+            // Recursively subdivide left half
             dodivide(
-              v165,
-              v160,
-              v166,
-              a4,
-              a5,
-              a6,
-              v193,
-              v189,
-              v190,
-              v199,
-              v200,
-              v201,
-              v183,
-              v181,
-              a15,
-              a16,
-              v187,
-              v182,
-              v202,
-              v198,
-              a21,
-              a22,
-              a23,
-              a24);
+              fX_mid01,
+              fMidZ_quad,
+              fY_mid01,
+              fX1_3D,
+              fY1_3D,
+              fZ1_3D,
+              fX2_3D,
+              fY2_3D,
+              fZ2_3D,
+              fX_mid12,
+              fY_mid12,
+              fZ_mid12,
+              iScreenX_mid12,
+              iScreenX_subdiv1,
+              iScreenCenterY,
+              iScreenY1,
+              iScreenX2,
+              iScreenY2,
+              iScreenX_mid23,
+              iScreenY_mid12,
+              iTexWid + iTexU,
+              iTexV,
+              iTexWid,
+              iTexHgt);
+
+            // Update coords for right half
+            fX1_3D = fMidZ_Edge03 * 0.5f;
+            fY1_3D = fMidZ_Edge01 * 0.5f;
+            fZ1_3D = fMidZ_Edge23 * 0.5f;
+            fX2_3D = (fX2_3D + fX3_3D) * 0.5f;
+            fY2_3D = (fY2_3D + fY3_3D) * 0.5f;
+            fZ2_3D = (fZ2_3D + fZ3_3D) * 0.5f;
+          } else {
+            // No flip - normal subdivision
             dodivide(
-              a1,
-              a2,
-              a3,
-              v165,
-              v160,
-              v166,
-              v199,
-              v200,
-              v201,
-              v192,
-              v194,
-              v191,
-              a13,
-              a14,
-              v183,
-              v181,
-              v202,
-              v198,
-              v188,
-              v186,
-              v146,
-              a22,
-              a23,
-              a24);
-            a16 = v198;
+              fX_mid01,
+              fMidZ_quad,
+              fY_mid01,
+              fX1_3D,
+              fY1_3D,
+              fZ1_3D,
+              fX2_3D,
+              fY2_3D,
+              fZ2_3D,
+              fX_mid12,
+              fY_mid12,
+              fZ_mid12,
+              iScreenX_mid12,
+              iScreenX_subdiv1,
+              iScreenX1,
+              iScreenY1,
+              iScreenX2,
+              iScreenY2,
+              iScreenX_mid23,
+              iScreenY_mid12,
+              iTexU,
+              iTexV,
+              iTexWid,
+              iTexHgt);
+
+            // Update coords for right half
+            fX1_3D = fMidZ_Edge03 * 0.5f;
+            fY1_3D = fMidZ_Edge01 * 0.5f;
+            fZ1_3D = fMidZ_Edge23 * 0.5f;
+            fX2_3D = (fX2_3D + fX3_3D) * 0.5f;
+            fY2_3D = (fY2_3D + fY3_3D) * 0.5f;
+            iTexU += iTexWid;                   // Advance texture U coord
+            fZ2_3D = (fZ2_3D + fZ3_3D) * 0.5f;
+            iScreenX1 = iScreenX_mid12;
+          }
+          iScreenX2 = iScreenX_mid23;
+          iScreenY1 = iScreenX_subdiv1;
+          iScreenY2 = iScreenY_mid12;
+          continue;
+        case 2:                                 // Vertical flip
+          // Calculate midpoint between verts 1 and 2
+          fX_mid12_1 = (fX1_3D + fX2_3D) * 0.5f;
+          fY_mid12_1 = (fY1_3D + fY2_3D) * 0.5f;
+          fZ_mid12_1 = (fZ1_3D + fZ2_3D) * 0.5f;
+
+          // Too close to camera
+          if (fZ_mid12_1 < 1.0) {
+            if ((double)iScreenCenterX_calc <= fX_mid12_1)
+              iScreenX_mid12_1 = 20000;
+            else
+              iScreenX_mid12_1 = -20000;
+            if ((double)(winh / 2) <= fY_mid12_1)
+              iScreenY_mid12_1 = 20000;
+            else
+              iScreenY_mid12_1 = -20000;
+          } else {
+            dViewDist_2 = (double)VIEWDIST;
+            dInvZ_2 = 1.0 / fZ_mid12_1;
+            dScreenScale_2 = (double)scr_size;
+            dProjX_2 = (dViewDist_2 * fX_mid12_1 * dInvZ_2 + (double)xbase) * dScreenScale_2 * 0.015625;
+            dProjX_2 = round(dProjX_2); //_CHP
+            iScreenX_mid12_1 = (int)dProjX_2;
+            dProjY_2 = dScreenScale_2 * (199.0 - dInvZ_2 * (dViewDist_2 * fY_mid12_1) - (double)ybase) * 0.015625;
+            dProjY_2 = round(dProjY_2); //_CHP
+            iScreenY_mid12_1 = (int)dProjY_2;
+          }
+
+          // Update for bottom-right quad
+          fX_mid30 = (fX3_3D + fX0_3D) * 0.5f;
+          fY_mid30 = (fY3_3D + fY0_3D) * 0.5f;
+          fZ_mid30 = (fZ3_3D + fZ0_3D) * 0.5f;
+          if (fZ_mid30 < 1.0) {
+            if ((double)(winw / 2) <= fX_mid30)
+              iScreenX_mid30 = 20000;
+            else
+              iScreenX_mid30 = -20000;
+            if ((double)(winh / 2) <= fY_mid30)
+              iScreenY_mid30 = 20000;
+            else
+              iScreenY_mid30 = -20000;
+          } else {
+            dViewDist_3 = (double)VIEWDIST;
+            dInvZ_3 = 1.0 / fZ_mid30;
+            dScreenScale_3 = (double)scr_size;
+            dProjX_3 = (dViewDist_3 * fX_mid30 * dInvZ_3 + (double)xbase) * dScreenScale_3 * 0.015625;
+            dProjX_3 = round(dProjX_3); //_CHP
+            iScreenX_mid30 = (int)dProjX_3;
+            dProjY_3 = dScreenScale_3 * (199.0 - dInvZ_3 * (dViewDist_3 * fY_mid30) - (double)ybase) * 0.015625;
+            dProjY_3 = round(dProjY_3); //_CHP
+            iScreenY_mid30 = (int)dProjY_3;
+          }
+
+          // Half texture height for subdivision
+          iTexHgt >>= 1;
+
+          // Vertical flip
+          if ((fliptype & 2) != 0) {
+            // Recursively subdivide top half
             dodivide(
-              v199,
-              v200,
-              v201,
-              v193,
-              v189,
-              v190,
-              a7,
-              a8,
-              a9,
-              v197,
-              v195,
-              v196,
-              v202,
-              v198,
-              v187,
-              v182,
-              a17,
-              a18,
-              v185,
-              v184,
-              a21,
-              v180,
-              a23,
-              a24);
-            a1 = v192;
-            a2 = v194;
-            a3 = v191;
-            a4 = v199;
-            a5 = v200;
-            a6 = v201;
-            a7 = v197;
-            a8 = v195;
-            a9 = v196;
-            a13 = v188;
-            a21 += a23;
-            a17 = v185;
-            a15 = v202;
-            a18 = v184;
-            a14 = v186;
-            a22 += a24;
-            continue;
-          case 1:
+              fX0_3D,
+              fY0_3D,
+              fZ0_3D,
+              fX1_3D,
+              fY1_3D,
+              fZ1_3D,
+              fX_mid12_1,
+              fY_mid12_1,
+              fZ_mid12_1,
+              fX_mid30,
+              fY_mid30,
+              fZ_mid30,
+              iScreenX0,
+              iScreenY0,
+              iScreenX1,
+              iScreenY1,
+              iScreenX_mid12_1,
+              iScreenY_mid12_1,
+              iScreenX_mid30,
+              iScreenY_mid30,
+              iTexU,
+              iTexHgt + iTexV,                  // bottom half of texture
+              iTexWid,
+              iTexHgt);
+
+            // Update coords for bottom half
+            fX0_3D = (fX3_3D + fX0_3D) * 0.5f;
+            fY0_3D = (fY3_3D + fY0_3D) * 0.5f;
+            fZ0_3D = (fZ3_3D + fZ0_3D) * 0.5f;
+            fX1_3D = (fX1_3D + fX2_3D) * 0.5f;
+            iScreenY1 = iScreenY_mid12_1;
+            fY1_3D = (fY1_3D + fY2_3D) * 0.5f;
+            iScreenX1 = iScreenX_mid12_1;
+            fZ1_3D = (fZ1_3D + fZ2_3D) * 0.5f;
+            iScreenY0 = iScreenY_mid30;
+          } else {
+            // No flip - normal subdivision
+            // Recursively subdivide top half
             dodivide(
-              v165,
-              v160,
-              v166,
-              a4,
-              a5,
-              a6,
-              v193,
-              v189,
-              v190,
-              v199,
-              v200,
-              v201,
-              v183,
-              v181,
-              a15,
-              a16,
-              v187,
-              v182,
-              v202,
-              v198,
-              a23 + a21,
-              a22,
-              a23,
-              a24);
-            dodivide(
-              a1,
-              a2,
-              a3,
-              v165,
-              v160,
-              v166,
-              v199,
-              v200,
-              v201,
-              v192,
-              v194,
-              v191,
-              a13,
-              a14,
-              v183,
-              v181,
-              v202,
-              v198,
-              v188,
-              v186,
-              a21,
-              a22,
-              a23,
-              a24);
-            a15 = v202;
-            dodivide(
-              v199,
-              v200,
-              v201,
-              v193,
-              v189,
-              v190,
-              a7,
-              a8,
-              a9,
-              v197,
-              v195,
-              v196,
-              v202,
-              v198,
-              v187,
-              v182,
-              a17,
-              a18,
-              v185,
-              v184,
-              v146,
-              v180,
-              a23,
-              a24);
-            a1 = v192;
-            a2 = v194;
-            a3 = v191;
-            a4 = v199;
-            a5 = v200;
-            a6 = v201;
-            a7 = v197;
-            a8 = v195;
-            a9 = v196;
-            a13 = v188;
-            a17 = v185;
-            a16 = v198;
-            a18 = v184;
-            a14 = v186;
-            a22 += a24;
-            continue;
-          case 2:
-            dodivide(
-              v165,
-              v160,
-              v166,
-              a4,
-              a5,
-              a6,
-              v193,
-              v189,
-              v190,
-              v199,
-              v200,
-              v201,
-              v183,
-              v181,
-              a15,
-              a16,
-              v187,
-              v182,
-              v202,
-              v198,
-              a21,
-              v180,
-              a23,
-              a24);
-            dodivide(
-              a1,
-              a2,
-              a3,
-              v165,
-              v160,
-              v166,
-              v199,
-              v200,
-              v201,
-              v192,
-              v194,
-              v191,
-              a13,
-              a14,
-              v183,
-              v181,
-              v202,
-              v198,
-              v188,
-              v186,
-              v146,
-              v180,
-              a23,
-              a24);
-            a16 = v198;
-            dodivide(
-              v199,
-              v200,
-              v201,
-              v193,
-              v189,
-              v190,
-              a7,
-              a8,
-              a9,
-              v197,
-              v195,
-              v196,
-              v202,
-              v198,
-              v187,
-              v182,
-              a17,
-              a18,
-              v185,
-              v184,
-              a21,
-              a22,
-              a23,
-              a24);
-            a1 = v192;
-            a2 = v194;
-            a3 = v191;
-            a4 = v199;
-            a5 = v200;
-            a6 = v201;
-            a7 = v197;
-            a8 = v195;
-            a9 = v196;
-            a21 += a23;
-            a13 = v188;
-            a15 = v202;
-            a17 = v185;
-            a14 = v186;
-            a18 = v184;
-            continue;
-          case 3:
-            dodivide(
-              v165,
-              v160,
-              v166,
-              a4,
-              a5,
-              a6,
-              v193,
-              v189,
-              v190,
-              v199,
-              v200,
-              v201,
-              v183,
-              v181,
-              a15,
-              a16,
-              v187,
-              v182,
-              v202,
-              v198,
-              a23 + a21,
-              v180,
-              a23,
-              a24);
-            dodivide(
-              a1,
-              a2,
-              a3,
-              v165,
-              v160,
-              v166,
-              v199,
-              v200,
-              v201,
-              v192,
-              v194,
-              v191,
-              a13,
-              a14,
-              v183,
-              v181,
-              v202,
-              v198,
-              v188,
-              v186,
-              a21,
-              v180,
-              a23,
-              a24);
-            a15 = v202;
-            dodivide(
-              v199,
-              v200,
-              v201,
-              v193,
-              v189,
-              v190,
-              a7,
-              a8,
-              a9,
-              v197,
-              v195,
-              v196,
-              v202,
-              v198,
-              v187,
-              v182,
-              a17,
-              a18,
-              v185,
-              v184,
-              v146,
-              a22,
-              a23,
-              a24);
-            a1 = v192;
-            a2 = v194;
-            a3 = v191;
-            a4 = v199;
-            a5 = v200;
-            a6 = v201;
-            a7 = v197;
-            a8 = v195;
-            a9 = v196;
-            a13 = v188;
-            a16 = v198;
-            a17 = v185;
-            a14 = v186;
-            a18 = v184;
-            continue;
-          default:
-            return result;
-        }
-        return result;
-      default:
-        return result;
+              fX0_3D,
+              fY0_3D,
+              fZ0_3D,
+              fX1_3D,
+              fY1_3D,
+              fZ1_3D,
+              fX_mid12_1,
+              fY_mid12_1,
+              fZ_mid12_1,
+              fX_mid30,
+              fY_mid30,
+              fZ_mid30,
+              iScreenX0,
+              iScreenY0,
+              iScreenX1,
+              iScreenY1,
+              iScreenX_mid12_1,
+              iScreenY_mid12_1,
+              iScreenX_mid30,
+              iScreenY_mid30,
+              iTexU,
+              iTexV,                            // top half of tex
+              iTexWid,
+              iTexHgt);
+
+            // Update coords for bottom half
+            fX0_3D = (fX3_3D + fX0_3D) * 0.5f;
+            fY0_3D = (fY3_3D + fY0_3D) * 0.5f;
+            fZ0_3D = (fZ3_3D + fZ0_3D) * 0.5f;
+            iTexV += iTexHgt;                   // Advance texture V coord to bottom half
+            fX1_3D = (fX1_3D + fX2_3D) * 0.5f;
+            iScreenY1 = iScreenY_mid12_1;
+            fY1_3D = (fY1_3D + fY2_3D) * 0.5f;
+            iScreenY0 = iScreenY_mid30;
+            fZ1_3D = (fZ1_3D + fZ2_3D) * 0.5f;
+            iScreenX1 = iScreenX_mid12_1;
+          }
+          iScreenX0 = iScreenX_mid30;
+          continue;                             // Process bottom half in next iteration
+        case 3:                                 // Both horiz and vert subdivision
+          // Calculate all edge midpoints
+
+          // midpoint of edge 0-1 (top edge)
+          if (fY_mid01 < 1.0) {
+            if ((double)iScreenCenterX_calc <= fX_mid01)
+              iScreenX_mid01 = 20000;
+            else
+              iScreenX_mid01 = -20000;
+            if ((double)(winh / 2) <= fMidZ_quad)
+              iScreenY_mid01 = 20000;
+            else
+              iScreenY_mid01 = -20000;
+          } else {
+            dViewDist_4 = (double)VIEWDIST;
+            dInvZ_4 = 1.0 / fY_mid01;
+            dScreenScale_4 = (double)scr_size;
+            dProjX_4 = (dViewDist_4 * fX_mid01 * dInvZ_4 + (double)xbase) * dScreenScale_4 * 0.015625;
+            dProjX_4 = round(dProjX_4); //_CHP
+            iScreenX_mid01 = (int)dProjX_4;
+            dProjY_4 = dScreenScale_4 * (199.0 - dInvZ_4 * (dViewDist_4 * fMidZ_quad) - (double)ybase) * 0.015625;
+            dProjY_4 = round(dProjY_4); //_CHP
+            iScreenY_mid01 = (int)dProjY_4;
+          }
+
+          // Midpoint of edge 1-2 (right edge)
+          fX_mid12_2 = (fX1_3D + fX2_3D) * 0.5f;
+          fY_mid12_2 = (fY1_3D + fY2_3D) * 0.5f;
+          fZ_mid12_2 = (fZ1_3D + fZ2_3D) * 0.5f;
+          if (fZ_mid12_2 < 1.0) {
+            if ((double)(winw / 2) <= fX_mid12_2)
+              iScreenX_mid12_2 = 20000;
+            else
+              iScreenX_mid12_2 = -20000;
+            if ((double)(winh / 2) <= fY_mid12_2)
+              iScreenY_mid23 = 20000;
+            else
+              iScreenY_mid23 = -20000;
+          } else {
+            dViewDist_5 = (double)VIEWDIST;
+            dInvZ_5 = 1.0 / fZ_mid12_2;
+            dScreenScale_5 = (double)scr_size;
+            dProjX_5 = (dViewDist_5 * fX_mid12_2 * dInvZ_5 + (double)xbase) * dScreenScale_5 * 0.015625;
+            dProjX_5 = round(dProjX_5); //_CHP
+            iScreenX_mid12_2 = (int)dProjX_5;
+            dProjY_5 = dScreenScale_5 * (199.0 - dInvZ_5 * (dViewDist_5 * fY_mid12_2) - (double)ybase) * 0.015625;
+            dProjY_5 = round(dProjY_5); //_CHP
+            iScreenY_mid23 = (int)dProjY_5;
+          }
+
+          // Midpoint fo edge 2-3 (bottom edge)
+          fX_mid23 = (fX2_3D + fX3_3D) * 0.5f;
+          fY_mid23 = (fY2_3D + fY3_3D) * 0.5f;
+          fZ_mid23 = (fZ2_3D + fZ3_3D) * 0.5f;
+          if (fZ_mid23 < 1.0) {
+            if ((double)(winw / 2) <= fX_mid23)
+              iScreenX_mid23_1 = 20000;
+            else
+              iScreenX_mid23_1 = -20000;
+            if ((double)(winh / 2) <= fY_mid23)
+              iScreenY_mid30_1 = 20000;
+            else
+              iScreenY_mid30_1 = -20000;
+          } else {
+            dViewDist_6 = (double)VIEWDIST;
+            dInvZ_6 = 1.0 / fZ_mid23;
+            dScreenScale_6 = (double)scr_size;
+            dProjX_6 = (dViewDist_6 * fX_mid23 * dInvZ_6 + (double)xbase) * dScreenScale_6 * 0.015625;
+            dProjX_6 = round(dProjX_6); //_CHP
+            iScreenX_mid23_1 = (int)dProjX_6;
+            dProjY_6 = dScreenScale_6 * (199.0 - dInvZ_6 * (dViewDist_6 * fY_mid23) - (double)ybase) * 0.015625;
+            dProjY_6 = round(dProjY_6); //_CHP
+            iScreenY_mid30_1 = (int)dProjY_6;
+          }
+
+          // Midpoint of edge 3-0 (left edge)
+          fX_mid30_1 = (fX3_3D + fX0_3D) * 0.5f;
+          fY_mid30_1 = (fY3_3D + fY0_3D) * 0.5f;
+          fZ_mid30_1 = (fZ3_3D + fZ0_3D) * 0.5f;
+          if (fZ_mid30_1 < 1.0) {
+            if ((double)(winw / 2) <= fX_mid30_1)
+              iScreenX_mid30_1 = 20000;
+            else
+              iScreenX_mid30_1 = -20000;
+            if ((double)(winh / 2) <= fY_mid30_1)
+              iScreenY_mid30_2 = 20000;
+            else
+              iScreenY_mid30_2 = -20000;
+          } else {
+            dViewDist_7 = (double)VIEWDIST;
+            dInvZ_7 = 1.0 / fZ_mid30_1;
+            dScreenScale_7 = (double)scr_size;
+            dProjX_7 = (dViewDist_7 * fX_mid30_1 * dInvZ_7 + (double)xbase) * dScreenScale_7 * 0.015625;
+            dProjX_7 = round(dProjX_7); //_CHP
+            iScreenX_mid30_1 = (int)dProjX_7;
+            dProjY_7 = dScreenScale_7 * (199.0 - dInvZ_7 * (dViewDist_7 * fY_mid30_1) - (double)ybase) * 0.015625;
+            dProjY_7 = round(dProjY_7); //_CHP
+            iScreenY_mid30_2 = (int)dProjY_7;
+          }
+
+          // Calculate center point of quad
+          fX_center = (fX_mid01 + fX_mid23) * 0.5f;
+          fY_center = (fMidZ_quad + fY_mid23) * 0.5f;
+          fZ_center = (fY_mid01 + fZ_mid23) * 0.5f;
+          if (fZ_center < 1.0) {
+            if ((double)(winw / 2) <= fX_center)
+              iScreenX_center = 20000;
+            else
+              iScreenX_center = -20000;
+            if ((double)(winh / 2) <= fY_center)
+              iScreenY_center = 20000;
+            else
+              iScreenY_center = -20000;
+          } else {
+            dViewDist_8 = (double)VIEWDIST;
+            dInvZ_8 = 1.0 / fZ_center;
+            dScreenScale_8 = (double)scr_size;
+            dProjX_8 = (dViewDist_8 * fX_center * dInvZ_8 + (double)xbase) * dScreenScale_8 * 0.015625;
+            dProjX_8 = round(dProjX_8); //_CHP
+            iScreenX_center = (int)dProjX_8;
+            dProjY_8 = dScreenScale_8 * (199.0 - dInvZ_8 * (dViewDist_8 * fY_center) - (double)ybase) * 0.015625;
+            dProjY_8 = round(dProjY_8); //_CHP
+            iScreenY_center = (int)dProjY_8;
+          }
+
+          // Quarter tex dimensions
+          iTexWid >>= 1;
+          iTexHgt >>= 1;
+          iTexV_bottom = iTexHgt + iTexV;
+          iTexU_right = iTexWid + iTexU;
+
+          // Handle all 4 flip combinations
+          switch (fliptype) {
+            case 0:                             // no flip
+              // Top-left quadrant
+              dodivide(
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX1_3D,
+                fY1_3D,
+                fZ1_3D,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX_center,
+                fY_center,
+                fZ_center,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX1,
+                iScreenY1,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iTexU,
+                iTexV,
+                iTexWid,
+                iTexHgt);
+
+              // Top-right quadrant
+              dodivide(
+                fX0_3D,
+                fY0_3D,
+                fZ0_3D,
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid30_1,
+                fY_mid30_1,
+                fZ_mid30_1,
+                iScreenX0,
+                iScreenY0,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid30_1,
+                iScreenY_mid30_2,
+                iTexU_right,
+                iTexV,
+                iTexWid,
+                iTexHgt);
+
+              iScreenY1 = iScreenY_center;
+
+              // bottom-right quadrant
+              dodivide(
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX2_3D,
+                fY2_3D,
+                fZ2_3D,
+                fX_mid23,
+                fY_mid23,
+                fZ_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX2,
+                iScreenY2,
+                iScreenX_mid23_1,
+                iScreenY_mid30_1,
+                iTexU,
+                iTexV_bottom,
+                iTexWid,
+                iTexHgt);
+
+              // Update for bottom-left quadrant (processed in next iteration)
+              fX0_3D = (fX3_3D + fX0_3D) * 0.5f;
+              fY0_3D = (fY3_3D + fY0_3D) * 0.5f;
+              fZ0_3D = (fZ3_3D + fZ0_3D) * 0.5f;
+              fX1_3D = (fX_mid01 + fX_mid23) * 0.5f;
+              fY1_3D = (fMidZ_quad + fY_mid23) * 0.5f;
+              fZ1_3D = (fY_mid01 + fZ_mid23) * 0.5f;
+              fX2_3D = (fX2_3D + fX3_3D) * 0.5f;
+              fY2_3D = (fY2_3D + fY3_3D) * 0.5f;
+              fZ2_3D = (fZ2_3D + fZ3_3D) * 0.5f;
+              iScreenX0 = iScreenX_mid30_1;
+              iTexU += iTexWid;
+              iScreenX2 = iScreenX_mid23_1;
+              iScreenX1 = iScreenX_center;
+              iScreenY2 = iScreenY_mid30_1;
+              iScreenY0 = iScreenY_mid30_2;
+              iTexV += iTexHgt;
+              continue;
+            case 1:                             // horiz flip
+              // top-right quadrant (flipped to top-left)
+              dodivide(
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX1_3D,
+                fY1_3D,
+                fZ1_3D,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX_center,
+                fY_center,
+                fZ_center,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX1,
+                iScreenY1,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iTexWid + iTexU,                // right side tex
+                iTexV,
+                iTexWid,
+                iTexHgt);
+
+              // Top-left quadrant (flipped to top-right)
+              dodivide(
+                fX0_3D,
+                fY0_3D,
+                fZ0_3D,
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid30_1,
+                fY_mid30_1,
+                fZ_mid30_1,
+                iScreenX0,
+                iScreenY0,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid30_1,
+                iScreenY_mid30_2,
+                iTexU,                          // left side tex
+                iTexV,
+                iTexWid,
+                iTexHgt);
+              iScreenX1 = iScreenX_center;
+
+              // bottom-right quadrant (flipped to bottom-left)
+              dodivide(
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX2_3D,
+                fY2_3D,
+                fZ2_3D,
+                fX_mid23,
+                fY_mid23,
+                fZ_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX2,
+                iScreenY2,
+                iScreenX_mid23_1,
+                iScreenY_mid30_1,
+                iTexU_right,
+                iTexV_bottom,
+                iTexWid,
+                iTexHgt);
+
+              // Update for bottom-left quadrant (flipped to bottom-right)
+              fX0_3D = (fX3_3D + fX0_3D) * 0.5f;
+              fY0_3D = (fY3_3D + fY0_3D) * 0.5f;
+              fZ0_3D = (fZ3_3D + fZ0_3D) * 0.5f;
+              fX1_3D = (fX_mid01 + fX_mid23) * 0.5f;
+              fY1_3D = (fMidZ_quad + fY_mid23) * 0.5f;
+              fZ1_3D = (fY_mid01 + fZ_mid23) * 0.5f;
+              fX2_3D = (fX2_3D + fX3_3D) * 0.5f;
+              fY2_3D = (fY2_3D + fY3_3D) * 0.5f;
+              fZ2_3D = (fZ2_3D + fZ3_3D) * 0.5f;
+              iScreenX0 = iScreenX_mid30_1;
+              iScreenX2 = iScreenX_mid23_1;
+              iScreenY1 = iScreenY_center;
+              iScreenY2 = iScreenY_mid30_1;
+              iScreenY0 = iScreenY_mid30_2;
+              iTexV += iTexHgt;
+              continue;
+            case 2:                             // vertical flip
+              // Top-left quadrant (flipped to bottom-left)
+              dodivide(
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX1_3D,
+                fY1_3D,
+                fZ1_3D,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX_center,
+                fY_center,
+                fZ_center,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX1,
+                iScreenY1,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iTexU,
+                iTexV_bottom,                   // bottom tex
+                iTexWid,
+                iTexHgt);
+
+              // Top-right quadrant (flipped to bottom-right)
+              dodivide(
+                fX0_3D,
+                fY0_3D,
+                fZ0_3D,
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid30_1,
+                fY_mid30_1,
+                fZ_mid30_1,
+                iScreenX0,
+                iScreenY0,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid30_1,
+                iScreenY_mid30_2,
+                iTexU_right,
+                iTexV_bottom,                   // bottom-right tex
+                iTexWid,
+                iTexHgt);
+
+              iScreenY1 = iScreenY_center;
+
+              // bottom-right quadrant (flipped to top-right)
+              dodivide(
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX2_3D,
+                fY2_3D,
+                fZ2_3D,
+                fX_mid23,
+                fY_mid23,
+                fZ_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX2,
+                iScreenY2,
+                iScreenX_mid23_1,
+                iScreenY_mid30_1,
+                iTexU,
+                iTexV,                          // top tex
+                iTexWid,
+                iTexHgt);
+
+              // Update for bottom-left quadrant (flipped to top-left)
+              fX0_3D = (fX3_3D + fX0_3D) * 0.5f;
+              fY0_3D = (fY3_3D + fY0_3D) * 0.5f;
+              fZ0_3D = (fZ3_3D + fZ0_3D) * 0.5f;
+              fX1_3D = (fX_mid01 + fX_mid23) * 0.5f;
+              fY1_3D = (fMidZ_quad + fY_mid23) * 0.5f;
+              fZ1_3D = (fY_mid01 + fZ_mid23) * 0.5f;
+              fX2_3D = (fX2_3D + fX3_3D) * 0.5f;
+              fY2_3D = (fY2_3D + fY3_3D) * 0.5f;
+              fZ2_3D = (fZ2_3D + fZ3_3D) * 0.5f;
+              iTexU += iTexWid;
+              iScreenX0 = iScreenX_mid30_1;
+              iScreenX1 = iScreenX_center;
+              iScreenX2 = iScreenX_mid23_1;
+              iScreenY0 = iScreenY_mid30_2;
+              iScreenY2 = iScreenY_mid30_1;
+              continue;
+            case 3:                             // both horiz and vert flip
+              // top-right quadrant (flipped to bottom-left)
+              dodivide(
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX1_3D,
+                fY1_3D,
+                fZ1_3D,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX_center,
+                fY_center,
+                fZ_center,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX1,
+                iScreenY1,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iTexWid + iTexU,                // right tex
+                iTexV_bottom,                   // bottom tex
+                iTexWid,
+                iTexHgt);
+
+              // top-left quadrant (flipped to bottom-right)
+              dodivide(
+                fX0_3D,
+                fY0_3D,
+                fZ0_3D,
+                fX_mid01,
+                fMidZ_quad,
+                fY_mid01,
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid30_1,
+                fY_mid30_1,
+                fZ_mid30_1,
+                iScreenX0,
+                iScreenY0,
+                iScreenX_mid01,
+                iScreenY_mid01,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid30_1,
+                iScreenY_mid30_2,
+                iTexU,                          // left tex
+                iTexV_bottom,                   // bottom tex
+                iTexWid,
+                iTexHgt);
+
+              iScreenX1 = iScreenX_center;
+
+              // bottom-right quadrant (flipped to top-left)
+              dodivide(
+                fX_center,
+                fY_center,
+                fZ_center,
+                fX_mid12_2,
+                fY_mid12_2,
+                fZ_mid12_2,
+                fX2_3D,
+                fY2_3D,
+                fZ2_3D,
+                fX_mid23,
+                fY_mid23,
+                fZ_mid23,
+                iScreenX_center,
+                iScreenY_center,
+                iScreenX_mid12_2,
+                iScreenY_mid23,
+                iScreenX2,
+                iScreenY2,
+                iScreenX_mid23_1,
+                iScreenY_mid30_1,
+                iTexU_right,
+                iTexV,                          // top tex
+                iTexWid,
+                iTexHgt);
+
+              // update for bottom-left quadrant (flipped to top-right)
+              fX0_3D = (fX3_3D + fX0_3D) * 0.5f;
+              fY0_3D = (fY3_3D + fY0_3D) * 0.5f;
+              fZ0_3D = (fZ3_3D + fZ0_3D) * 0.5f;
+              fX1_3D = (fX_mid01 + fX_mid23) * 0.5f;
+              fY1_3D = (fMidZ_quad + fY_mid23) * 0.5f;
+              fZ1_3D = (fY_mid01 + fZ_mid23) * 0.5f;
+              fX2_3D = (fX2_3D + fX3_3D) * 0.5f;
+              fY2_3D = (fY2_3D + fY3_3D) * 0.5f;
+              fZ2_3D = (fZ2_3D + fZ3_3D) * 0.5f;
+              iScreenX0 = iScreenX_mid30_1;
+              iScreenY1 = iScreenY_center;
+              iScreenX2 = iScreenX_mid23_1;
+              iScreenY0 = iScreenY_mid30_2;
+              iScreenY2 = iScreenY_mid30_1;
+              continue;
+            default:
+              return;
+          }
+          return;
+        default:
+          return;
+      }
     }
-  }*/
-  return 0;
+    break;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
