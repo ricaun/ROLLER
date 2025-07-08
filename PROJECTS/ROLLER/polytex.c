@@ -103,85 +103,94 @@ int remove_mapsels()
 
 //-------------------------------------------------------------------------------------------------
 
-int setmapsel(int a1, int a2, int a3, int a4)
+int setmapsel(int iBase, int iIndex, int iMode, int iCount)
 {
-  return 0; /*
-  int v4; // ebp
-  int result; // eax
-  __int16 v6; // di
-  int v7; // ecx
-  int i; // esi
-  int v9; // edx
-  int v10; // ebx
-  int v11; // eax
-  int v12; // ebx
-  int v13; // [esp+0h] [ebp-34h] BYREF
-  __int16 v14; // [esp+4h] [ebp-30h]
-  __int16 v15; // [esp+8h] [ebp-2Ch]
-  __int16 v16; // [esp+Ch] [ebp-28h]
-  char v17; // [esp+18h] [ebp-1Ch]
-  int v18; // [esp+1Ch] [ebp-18h]
-  void (__noreturn * v19)(); // [esp+20h] [ebp-14h]
-  int v20; // [esp+24h] [ebp-10h]
-
-  v4 = a1;
-  v20 = a3;
-  if (w95)
-    v4 = a1 - 0x10000;
-  v18 = a4;
-  LOWORD(v13) = 0;
-  v15 = a4;
-  result = int386(49, (int)&v13, (int)&v13);
-  if ((v17 & 1) != 0) {
-    printf(aErrorAllocatin);
-    goto LABEL_15;
-  }
-  v6 = v13;
-  v7 = 0;
-  if (v18 > 0) {
-    for (i = 257 * a2; ; ++i) {
-      v9 = v20;
-      mapsel[i] = v6;
-      if (v9) {
-        v10 = (v7 >> 3 << 13) + v4;
-        v11 = 32 * (v7 & 7);
-      } else {
-        v10 = (v7 & 3) << 6;
-        v11 = v4 + (v7 >> 2 << 14);
-      }
-      v12 = v11 + v10;
-      v19 = cstart_branch_1;
-      v16 = v12 % (int)cstart_branch_1;
-      v15 = (v12 - ((unsigned int)__CFSHL__(v12 >> 31, 16) + (v12 >> 31 << 16))) >> 16;
-      LOWORD(v13) = 7;
-      v14 = v6;
-      int386(49, (int)&v13, (int)&v13);
-      if ((v17 & 1) != 0)
-        break;
-      v16 = -1;
-      v15 = 0;
-      LOWORD(v13) = 8;
-      v14 = v6;
-      int386(49, (int)&v13, (int)&v13);
-      if ((v17 & 1) != 0)
-        break;
-      LOWORD(v13) = 3;
-      int386(49, (int)&v13, (int)&v13);
-      ++v7;
-      v6 += v13;
-      result = v18;
-      if (v7 >= v18)
-        return result;
-    }
-    printf(aErrorPreparing);
-  LABEL_15:
-    __atexit();
-    __int23_exit();
-    __int23_exit();
-    __FPE_handler_exit();
-    JUMPOUT(0x7A98F);
-  }
-  return result;*/
+  return 0;
+  //int iBaseAdjusted; // ebp
+  //int iSuccess; // eax
+  //int16 nCurrentSelector; // di
+  //int i; // ecx
+  //int iMapselOffset; // esi
+  //int iMode_2; // edx
+  //int iCoarseOffset; // ebx
+  //int iFineOffset; // eax
+  //int iSegmentBase; // ebx
+  //union REGS regs; // [esp+0h] [ebp-34h] BYREF
+  //int iCount_1; // [esp+1Ch] [ebp-18h]
+  //int v15; // [esp+20h] [ebp-14h]
+  //int iMode_1; // [esp+24h] [ebp-10h]
+  //
+  //iBaseAdjusted = iBase;
+  //iMode_1 = iMode;
+  //
+  //// Adjust base address if running w95
+  //if (w95)
+  //  iBaseAdjusted = iBase - 0x10000;
+  //iCount_1 = iCount;
+  //regs.w.ax = 0;                                // allocate LDT descriptors
+  //regs.w.cx = iCount;                           // Num descriptors to allocate
+  //iSuccess = int386(0x31, &regs, &regs);
+  //
+  //// Check for carry flag set (error)
+  //if ((*((_BYTE *)&regs.h + 24) & 1) != 0) {
+  //  printf("Error allocating selectors");
+  //  goto LABEL_15;
+  //}
+  //nCurrentSelector = regs.w.ax;
+  //i = 0;
+  //if (iCount_1 > 0) {
+  //  for (iMapselOffset = 257 * iIndex; ; ++iMapselOffset) {
+  //    iMode_2 = iMode_1;
+  //    mapsel[iMapselOffset] = nCurrentSelector;
+  //    // Calculate segment base address (platform-specific)
+  //    if (iMode_2) {
+  //      // Mode 1: 8-segment grouping
+  //      iCoarseOffset = (i >> 3 << 13) + iBaseAdjusted;
+  //      iFineOffset = 32 * (i & 7);
+  //    } else {
+  //      // Mode 0: 4-segment grouping
+  //      iCoarseOffset = (i & 3) << 6;
+  //      iFineOffset = iBaseAdjusted + (i >> 2 << 14);
+  //    }
+  //    iSegmentBase = iFineOffset + iCoarseOffset;
+  //    v15 = 0x10000;
+  //
+  //    // Set segment base address
+  //    regs.w.dx = iSegmentBase % 0x10000;
+  //    regs.w.cx = (iSegmentBase - ((unsigned int)__CFSHL__(iSegmentBase >> 31, 16) + (iSegmentBase >> 31 << 16))) >> 16;
+  //    regs.w.ax = 7;                            // set segment base address
+  //    regs.w.bx = nCurrentSelector;
+  //    int386(0x31, &regs, &regs);
+  //    if ((*((_BYTE *)&regs.h + 24) & 1) != 0)
+  //      break;
+  //
+  //    // Set segment limit
+  //    regs.w.dx = 0xFFFF;                       // limit = 64KB-1
+  //    regs.w.cx = 0;
+  //    regs.w.ax = 8;
+  //    regs.w.bx = nCurrentSelector;
+  //    int386(0x31, &regs, &regs);
+  //    if ((*((_BYTE *)&regs.h + 24) & 1) != 0)
+  //      break;
+  //
+  //    // Get selector increment value
+  //    regs.w.ax = 3;
+  //    int386(0x31, &regs, &regs);
+  //    ++i;
+  //    nCurrentSelector += regs.w.ax;
+  //    iSuccess = iCount_1;
+  //    if (i >= iCount_1)
+  //      return iSuccess;
+  //  }
+  //  printf("Error preparing selectors");
+  //LABEL_15:
+  //  __atexit();
+  //  __int23_exit();
+  //  __int23_exit();
+  //  __FPE_handler_exit();
+  //  JUMPOUT(0x7A98F);
+  //}
+  //return iSuccess;
 }
 
 //-------------------------------------------------------------------------------------------------

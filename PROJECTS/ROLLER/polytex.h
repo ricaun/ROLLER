@@ -11,7 +11,7 @@ extern uint8 *scrptr;
 //-------------------------------------------------------------------------------------------------
 
 int remove_mapsels();
-int setmapsel(int a1, int a2, int a3, int a4);
+int setmapsel(int iBase, int iIndex, int iMode, int iCount);
 int twpolym(void *a1, int16 a2);
 char POLYTEX(int a1, int a2, int *a3, int a4, int a5);
 char polym(int *a1, int a2, int a3);

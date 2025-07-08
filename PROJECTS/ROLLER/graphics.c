@@ -262,7 +262,7 @@ void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 
 //-------------------------------------------------------------------------------------------------
 
-void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, char byColor)
+void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 {
   int iOldWinw; // ebp
   int iTempX; // esi
