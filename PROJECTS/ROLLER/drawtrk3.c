@@ -4652,23 +4652,13 @@ LABEL_393:
 
 //-------------------------------------------------------------------------------------------------
 
-void subdivide(
-        uint8 *pDest,
-        tPolyParams *polyParams,
-        float fX0_3D,
-        float fY0_3D,
-        float fZ0_3D,
-        float fX1_3D,
-        float fY1_3D,
-        float fZ1_3D,
-        float fX2_3D,
-        float fY2_3D,
-        float fZ2_3D,
-        float fX3_3D,
-        float fY3_3D,
-        float fZ3_3D,
-        int iSubpolyType,
-        int bHalfResTex)
+void subdivide(uint8 *pDest, tPolyParams *polyParams,
+               float fX0_3D, float fY0_3D, float fZ0_3D,
+               float fX1_3D, float fY1_3D, float fZ1_3D,
+               float fX2_3D, float fY2_3D, float fZ2_3D,
+               float fX3_3D, float fY3_3D, float fZ3_3D,
+               int iSubpolyType,
+               int bHalfResTex)
 {
   int iX0; // ebp
   int iX1; // edi
@@ -4780,31 +4770,12 @@ LABEL_10:
 
 //-------------------------------------------------------------------------------------------------
 
-void dodivide(
-        float fX0_3D,
-        float fY0_3D,
-        float fZ0_3D,
-        float fX1_3D,
-        float fY1_3D,
-        float fZ1_3D,
-        float fX2_3D,
-        float fY2_3D,
-        float fZ2_3D,
-        float fX3_3D,
-        float fY3_3D,
-        float fZ3_3D,
-        int iScreenX0,
-        int iScreenY0,
-        int iScreenX1,
-        int iScreenY1,
-        int iScreenX2,
-        int iScreenY2,
-        int iScreenX3,
-        int iScreenY3,
-        int iTexU,
-        int iTexV,
-        int iTexWid,
-        int iTexHgt)
+void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
+              float fX1_3D, float fY1_3D, float fZ1_3D,
+              float fX2_3D, float fY2_3D, float fZ2_3D,
+              float fX3_3D, float fY3_3D, float fZ3_3D,
+              int iScreenX0, int iScreenY0, int iScreenX1, int iScreenY1, int iScreenX2, int iScreenY2, int iScreenX3, int iScreenY3,
+              int iTexU, int iTexV, int iTexWid, int iTexHgt)
 {
   int iCullFlag; // edx
   float fMaxZ; // eax
@@ -6040,40 +6011,31 @@ void dodivide(
 
 //-------------------------------------------------------------------------------------------------
 
-int facing_ok(
-        float a1,
-        float a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12)
+int facing_ok(float fX0, float fY0, float fZ0,
+              float fX1, float fY1, float fZ1,
+              float fX2, float fY2, float fZ2,
+              float fX3, float fY3, float fZ3)
 {
-  (void)a1;
-  (void)a2;
-  (void)a3;
-  (void)a4;
-  (void)a5;
-  (void)a6;
-  (void)a7;
-  (void)a8;
-  (void)a9;
-  (void)a10;
-  (void)a11;
-  (void)a12;
-  return 0;/*
-  float v13; // [esp+20h] [ebp-4h]
+  float fDeltaX20; // [esp+20h] [ebp-4h]
 
-  v13 = a7 - a1;
-  return (((a8 - a2) * (a6 - a12) - (a9 - a3) * (a5 - a11)) * a4
-        + ((a9 - a3) * (a4 - a10) - (a6 - a12) * v13) * a5
-        + ((a5 - a11) * v13 - (a4 - a10) * (a8 - a2)) * a6 >= 0.0)
-    - 1;*/
+  // Calculate X component of edge vector from vertex 0 to vertex 2
+  fDeltaX20 = fX2 - fX0;
+
+  // Compute the signed volume of the tetrahedron formed by the origin and three vertices
+  // This is equivalent to computing the triple scalar product: (V1-V0) · ((V2-V0) × (V3-V0))
+  // Where V0=(fX0,fY0,fZ0), V1=(fX1,fY1,fZ1), V2=(fX2,fY2,fZ2), V3=(fX3,fY3,fZ3)
+
+  // The formula expands to a 3x3 determinant:
+  //  | (fX1-fX0)  (fY1-fY0)  (fZ1-fZ0) |
+  //  | (fX2-fX0)  (fY2-fY0)  (fZ2-fZ0) |
+  //  | (fX3-fX0)  (fY3-fY0)  (fZ3-fZ0) |
+
+  // Positive determinant = vertices ordered counter-clockwise when viewed from origin
+  // Negative determinant = vertices ordered clockwise when viewed from origin
+  return (((fY2 - fY0) * (fZ1 - fZ3) - (fZ2 - fZ0) * (fY1 - fY3)) * fX1
+        + ((fZ2 - fZ0) * (fX1 - fX3) - (fZ1 - fZ3) * fDeltaX20) * fY1
+        + ((fY1 - fY3) * fDeltaX20 - (fX1 - fX3) * (fY2 - fY0)) * fZ1 >= 0.0)
+    - 1;
 }
 
 //-------------------------------------------------------------------------------------------------

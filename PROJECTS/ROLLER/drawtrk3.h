@@ -26,23 +26,21 @@ extern int small_poly;
 int CalcVisibleTrack(int a1, unsigned int a2);
 int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5);
 void subdivide(uint8 *pDest, tPolyParams *polyParams,
-        float fX0_3D, float fY0_3D, float fZ0_3D, float fX1_3D, float fY1_3D, float fZ1_3D, float fX2_3D, float fY2_3D, float fZ2_3D, float fX3_3D, float fY3_3D, float fZ3_3D,
-        int iSubpolyType, int bHalfResTex);
-void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D, float fX1_3D, float fY1_3D, float fZ1_3D, float fX2_3D, float fY2_3D, float fZ2_3D, float fX3_3D, float fY3_3D, float fZ3_3D,
-        int iScreenX0, int iScreenY0, int iScreenX1, int iScreenY1, int iScreenX2, int iScreenY2, int iScreenX3, int iScreenY3, int iTexU, int iTexV, int iTexWid, int iTexHgt);
-int facing_ok(
-        float a1,
-        float a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12);
+               float fX0_3D, float fY0_3D, float fZ0_3D,
+               float fX1_3D, float fY1_3D, float fZ1_3D,
+               float fX2_3D, float fY2_3D, float fZ2_3D,
+               float fX3_3D, float fY3_3D, float fZ3_3D,
+               int iSubpolyType, int bHalfResTex);
+void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
+              float fX1_3D, float fY1_3D, float fZ1_3D,
+              float fX2_3D, float fY2_3D, float fZ2_3D,
+              float fX3_3D, float fY3_3D, float fZ3_3D,
+              int iScreenX0, int iScreenY0, int iScreenX1, int iScreenY1, int iScreenX2, int iScreenY2, int iScreenX3, int iScreenY3,
+              int iTexU, int iTexV, int iTexWid, int iTexHgt);
+int facing_ok(float fX0, float fY0, float fZ0,
+              float fX1, float fY1, float fZ1,
+              float fX2, float fY2, float fZ2,
+              float fX3, float fY3, float fZ3);
 int Zcmp(float *a1, float *a2);
 void set_starts(unsigned int uiType);
 
