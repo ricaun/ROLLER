@@ -8,6 +8,7 @@
 extern int showsub;
 extern int view_limit;
 extern int divtype;
+extern int tex_hgt;
 extern int polyysize;
 extern int polyxsize;
 extern uint8 *subptr;
@@ -24,23 +25,9 @@ extern int small_poly;
 
 int CalcVisibleTrack(int a1, unsigned int a2);
 int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5);
-void subdivide(
-        int a1,
-        int a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12,
-        float a13,
-        float a14,
-        int a15,
-        int a16);
+void subdivide(uint8 *pDest, tPolyParams *polyParams,
+        float fX0_3D, float fY0_3D, float fZ0_3D, float fX1_3D, float fY1_3D, float fZ1_3D, float fX2_3D, float fY2_3D, float fZ2_3D, float fX3_3D, float fY3_3D, float fZ3_3D,
+        int iSubpolyType, int bHalfResTex);
 void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D, float fX1_3D, float fY1_3D, float fZ1_3D, float fX2_3D, float fY2_3D, float fZ2_3D, float fX3_3D, float fY3_3D, float fZ3_3D,
         int iScreenX0, int iScreenY0, int iScreenX1, int iScreenY1, int iScreenX2, int iScreenY2, int iScreenX3, int iScreenY3, int iTexU, int iTexV, int iTexWid, int iTexHgt);
 int facing_ok(

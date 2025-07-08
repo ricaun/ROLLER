@@ -8,6 +8,7 @@
 int showsub = 0;    //000A34A0
 int view_limit = 0; //000A41B8
 int divtype = 0;    //000A41BC
+int tex_hgt;        //00144464
 int polyysize;      //00144468
 int polyxsize;      //0014446C
 uint8 *subptr;      //00144474
@@ -4652,122 +4653,129 @@ LABEL_393:
 //-------------------------------------------------------------------------------------------------
 
 void subdivide(
-        int a1,
-        int a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12,
-        float a13,
-        float a14,
-        int a15,
-        int a16)
+        uint8 *pDest,
+        tPolyParams *polyParams,
+        float fX0_3D,
+        float fY0_3D,
+        float fZ0_3D,
+        float fX1_3D,
+        float fY1_3D,
+        float fZ1_3D,
+        float fX2_3D,
+        float fY2_3D,
+        float fZ2_3D,
+        float fX3_3D,
+        float fY3_3D,
+        float fZ3_3D,
+        int iSubpolyType,
+        int bHalfResTex)
 {
-  (void)a1;
-  (void) a2;
-  (void) a3;
-  (void) a4;
-  (void) a5;
-  (void) a6;
-  (void) a7;
-  (void) a8;
-  (void) a9;
-  (void) a10;
-  (void) a11;
-  (void) a12;
-  (void) a13;
-  (void) a14;
-  (void) a15;
-  (void) a16;
-  /*
-  int v18; // ebp
-  int v19; // edi
-  int v20; // esi
-  int v21; // ebx
-  int v22; // [esp+0h] [ebp-28h]
-  int v23; // [esp+4h] [ebp-24h]
-  int v24; // [esp+8h] [ebp-20h]
-  int v25; // [esp+Ch] [ebp-1Ch]
-  int v26; // [esp+10h] [ebp-18h]
+  int iX0; // ebp
+  int iX1; // edi
+  int iX3; // esi
+  int iTexHgt; // ebx
+  int iY3; // [esp+0h] [ebp-28h]
+  int iY0; // [esp+4h] [ebp-24h]
+  int iY1; // [esp+8h] [ebp-20h]
+  int iY2; // [esp+Ch] [ebp-1Ch]
+  int iX2; // [esp+10h] [ebp-18h]
 
-  if ((*(_BYTE *)(a2 + 2) & 2) != 0)
+  if ((polyParams->uiSurfaceType & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
     return;
-  subptr = a1;
-  subpoly = a2;
-  v18 = *(_DWORD *)(a2 + 8);
-  v19 = *(_DWORD *)(a2 + 16);
-  v23 = *(_DWORD *)(a2 + 12);
-  v22 = *(_DWORD *)(a2 + 36);
-  v24 = *(_DWORD *)(a2 + 20);
-  subpolytype = a15;
-  v26 = *(_DWORD *)(a2 + 24);
-  v25 = *(_DWORD *)(a2 + 28);
-  v20 = *(_DWORD *)(a2 + 32);
-  fliptype = (*(_BYTE *)(a2 + 1) & 0x10) != 0;
-  if ((*(_BYTE *)(a2 + 2) & 4) != 0)
-    fliptype += 2;
-  flatpol = ((*(_BYTE *)(subpoly + 1) & 1) != 0) - 1;
+
+  // setup globals for dodivide
+  subptr = pDest;
+  subpoly = polyParams;
+
+  // Extract screen coords from pol verts
+  iX0 = polyParams->vertices[0].x;
+  iX1 = polyParams->vertices[1].x;
+  iY0 = polyParams->vertices[0].y;
+  iY3 = polyParams->vertices[3].y;
+  iY1 = polyParams->vertices[1].y;
+  subpolytype = iSubpolyType;
+  iX2 = polyParams->vertices[2].x;
+  iY2 = polyParams->vertices[2].y;
+  iX3 = polyParams->vertices[3].x;
+
+  // determine tex flipping mode
+  fliptype = (polyParams->uiSurfaceType & 0x1000) != 0;// SURFACE_FLAG_FLIP_HORIZ
+  if ((polyParams->uiSurfaceType & 0x40000) != 0)// SURFACE_FLAG_FLIP_VERT
+    fliptype += 2;                              // 0=none, 1=horiz, 2=vert, 3=both
+
+  // set flat pol flag if SURFACE_FLAG_APPLY_TEXTURE is not set
+  // This disables screen-size based subdivision for untextured pol
+  flatpol = ((subpoly->uiSurfaceType & 0x100) != 0) - 1;// SURFACE_FLAG_APPLY_TEXTURE
+
+  // Determine tex dimensions based on pol type
   if (subpolytype >= 0) {
-    v21 = 1024;
+    // Standard pol type
+    iTexHgt = 1024;
     tex_wid = 1024;
     goto LABEL_9;
   }
   if (subpolytype != -1) {
-    v21 = 2048;
+    // wide tex
+    iTexHgt = 2048;
     tex_wid = 1024;
   LABEL_9:
-    tex_hgt = v21;
+    tex_hgt = iTexHgt;
     goto LABEL_10;
   }
+  // type -1: tall tex
   tex_wid = 2048;
   tex_hgt = 1024;
 LABEL_10:
-  if (a16) {
+  // Apply half-res tex mode if requested
+  if (bHalfResTex) {
     tex_wid >>= 1;
     tex_hgt >>= 1;
   }
   dodivide(
-    a3,
-    a4,
-    a5,
-    a6,
-    a7,
-    a8,
-    a9,
-    a10,
-    a11,
-    a12,
-    a13,
-    a14,
-    v18,
-    v23,
-    v19,
-    v24,
-    v26,
-    v25,
-    v20,
-    v22,
+    fX0_3D,
+    fY0_3D,
+    fZ0_3D,
+    fX1_3D,
+    fY1_3D,
+    fZ1_3D,
+    fX2_3D,
+    fY2_3D,
+    fZ2_3D,
+    fX3_3D,
+    fY3_3D,
+    fZ3_3D,
+    iX0,
+    iY0,
+    iX1,
+    iY1,
+    iX2,
+    iY2,
+    iX3,
+    iY3,
     0,
     0,
     tex_wid,
     tex_hgt);
-  set_starts(0, v24);
+
+  // Reset tex coords to default values
+  // Clean slate for next pol
+  set_starts(0);
+
+  // Debug mode: draw pol outline if showsub flag is enabled
   if (showsub) {
-    if (a5 >= 1.0 && a8 >= 1.0)
-      compout(v24, 243);
-    if (a8 >= 1.0 && a11 >= 1.0)
-      compout(v25, 243);
-    if (a11 >= 1.0 && a14 >= 1.0)
-      compout(v22, 243);
-    if (a14 >= 1.0 && a5 >= 1.0)
-      compout(v23, 243);
-  }*/
+    // Edge 0-1 (top)
+    if (fZ0_3D >= 1.0 && fZ1_3D >= 1.0)
+      compout(subptr, iX0, iY0, iX1, iY1, 0xF3u);// 0xF3 is blue in PALETTE.PAL
+    // Edge 1-2 (right)
+    if (fZ1_3D >= 1.0 && fZ2_3D >= 1.0)
+      compout(subptr, iX1, iY1, iX2, iY2, 0xF3u);
+    // Edge 2-3 (bottom)
+    if (fZ2_3D >= 1.0 && fZ3_3D >= 1.0)
+      compout(subptr, iX2, iY2, iX3, iY3, 0xF3u);
+    // Edge 3-0 (left)
+    if (fZ3_3D >= 1.0 && fZ0_3D >= 1.0)
+      compout(subptr, iX3, iY3, iX0, iY0, 0xF3u);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
