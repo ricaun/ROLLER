@@ -76,7 +76,7 @@ typedef struct
   int iUnk48;
   int iUnk49;
   int iUnk50;
-  int iUnk51;
+  int iLastValidChunk;
   float iUnk52;
   float fUnk53;
   int iUnk54;
@@ -108,7 +108,6 @@ typedef struct
   uint8 byUnk77;
   uint8 byPadding17;
 } tCar;
-
 
 //-------------------------------------------------------------------------------------------------
 

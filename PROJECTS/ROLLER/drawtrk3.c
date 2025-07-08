@@ -2,6 +2,10 @@
 #include "polytex.h"
 #include "graphics.h"
 #include "3d.h"
+#include "car.h"
+#include "loadtrak.h"
+#include "horizon.h"
+#include "moving.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
@@ -17,238 +21,314 @@ int subpolytype;    //0014447C
 tPolyParams *subpoly; //00144480
 int tex_wid;        //00144484
 int flatpol;        //00144488
+int start_sect;     //00144670
+int gap_size;       //00144674
+int first_size;     //00144678
+int TrackSize;      //0014467C
+int backwards;      //00144684
+int next_front;     //00144684
+int mid_sec;        //00144688
+int back_sec;       //0014468C
+int front_sec;      //00144690
 int min_sub_size;   //00144698
 int num_pols;       //001446A8
 int small_poly;     //001446AC
 
 //-------------------------------------------------------------------------------------------------
 
-int CalcVisibleTrack(int a1, unsigned int a2)
+int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v3; // esi
-  int v4; // edi
-  int v5; // ebp
-  int v6; // ebx
-  int v7; // edx
-  float *v8; // eax
-  double v9; // st4
-  double v10; // st7
-  double v11; // st4
-  double v12; // st6
-  double v13; // st7
-  int v14; // eax
-  float *v15; // edx
-  float *v16; // eax
-  double v17; // st7
-  double v18; // st6
-  unsigned __int8 v20; // al
-  int v21; // esi
+  int iCurrChunk; // esi
+  int iSearchRadius; // edi
+  int iDefaultOffset; // ebp
+  int iSearchIdx; // ebx
+  int iChunkIdx2; // edx
+  tData *pDataAy; // eax
+  double dDeltaX; // st4
+  double dDeltaXSquared; // st7
+  double dDeltaY; // st4
+  double dDeltaZ; // st6
+  double dLengthSquared; // st7
+  int iNextChunk; // eax
+  tData *pNextChunkDataAy; // edx
+  tData *pCurrChunkDataAy; // eax
+  double fDeltaX; // st7
+  double fDeltaY; // st6
+  uint8 byExtraChunks; // al
+  int iFrontWithOffset; // esi
   int result; // eax
-  float v23; // [esp+20h] [ebp-38h]
-  int v25; // [esp+28h] [ebp-30h]
-  int v26; // [esp+2Ch] [ebp-2Ch]
-  int v27; // [esp+30h] [ebp-28h]
-  int v28; // [esp+34h] [ebp-24h]
-  float i; // [esp+38h] [ebp-20h]
-  float v30; // [esp+3Ch] [ebp-1Ch]
+  float fViewAlignment; // [esp+20h] [ebp-38h]
+  int iHasExtraView; // [esp+28h] [ebp-30h]
+  int iViewOffset; // [esp+2Ch] [ebp-2Ch]
+  int iExtraViewStart; // [esp+30h] [ebp-28h]
+  int iChunkIdx; // [esp+34h] [ebp-24h]
+  float fMinDistSq; // [esp+38h] [ebp-20h]
+  float fLengthSquared; // [esp+3Ch] [ebp-1Ch]
 
-  set_starts(0, a2);
-  TrackSize = -1;
-  v27 = -1;
-  v3 = Car_variable_3[154 * a1];
-  v25 = 0;
-  if (v3 == -1)
-    v28 = Car_variable_51[77 * a1];
+  // Init tex coords
+  set_starts(0);
+
+  // Init rendering params
+  TrackSize = -1;                               // number of track chunks to render
+  iExtraViewStart = -1;                         // start of extra view range (for tunnels?)
+  iCurrChunk = Car[iCarIdx].nCurrChunk;         // current track chunk the car is on
+  iHasExtraView = 0;
+
+  // Set starting chunk idx based on whether the car is on track
+  if (iCurrChunk == -1)
+    iChunkIdx = Car[iCarIdx].iLastValidChunk;   // use last valid chunk if off-track
   else
-    v28 = Car_variable_3[154 * a1];
-  alltrackflag = 0;
-  switch (a2) {
-    case 2u:
-      v4 = 24;
-      v5 = -4;
-      v3 = -1;
+    iChunkIdx = Car[iCarIdx].nCurrChunk;
+  alltrackflag = 0;                             // flag for rendering entire track
+
+  // Set view params based on view mode
+  switch (uiViewMode) {
+    case 2u:                                    // near view (chase cam close)
+      iSearchRadius = 24;
+      iDefaultOffset = -4;
+      iCurrChunk = -1;                          // force search for nearest chunk
       goto LABEL_10;
-    case 3u:
-      v4 = 96;
-      v26 = -8;
-      v3 = -1;
+    case 3u:                                    // far view (chase cam far)
+      iSearchRadius = 96;
+      iViewOffset = -8;
+      iCurrChunk = -1;                          // force search for nearest chunk
       break;
-    case 4u:
-      v4 = 32;
-      v26 = -16;
+    case 4u:                                    // in-car view
+      iSearchRadius = 32;
+      iViewOffset = -16;
       break;
-    case 6u:
-      v4 = 96;
-      v3 = -1;
-      v26 = -4;
+    case 6u:                                    // helicopter/top-down view
+      iSearchRadius = 96;
+      iCurrChunk = -1;                          // force search for nearest chunk
+      iViewOffset = -4;
       break;
-    default:
-      v5 = -1;
-      v4 = 4;
+    default:                                    // default view
+      iDefaultOffset = -1;
+      iSearchRadius = 4;
     LABEL_10:
-      v26 = v5;
+      iViewOffset = iDefaultOffset;
       break;
   }
-  if (v3 >= 0) {
-    v23 = tcos[Car_variable_7[154 * a1]];
+
+  // Calculate view alignment with track direction
+  if (iCurrChunk >= 0) {
+    // use car's yaw angle to determine view alignment
+    fViewAlignment = tcos[Car[iCarIdx].nYaw];
   } else {
-    v6 = -v4;
-    for (i = 9.9999998e17; v6 <= v4; ++v6) {
-      v7 = v6 + v28;
-      if (v6 + v28 < 0)
-        v7 += TRAK_LEN;
-      if (v7 >= TRAK_LEN)
-        v7 -= TRAK_LEN;
-      v8 = (float *)((char *)&localdata + 128 * v7);
-      v9 = -v8[9] - viewx;
-      v10 = v9 * v9;
-      v11 = -v8[10] - viewy;
-      v12 = -v8[11] - viewz;
-      v13 = v10 + v11 * v11 + v12 * v12;
-      if (v13 < i) {
-        v3 = v7;
-        v30 = v13;
-        i = v30;
+    // Search for nearest track chunk to camera pos
+    iSearchIdx = -iSearchRadius;
+    for (fMinDistSq = 9.9999998e17f; iSearchIdx <= iSearchRadius; ++iSearchIdx) {
+      // Wrap chunk idx around track
+      iChunkIdx2 = iSearchIdx + iChunkIdx;
+      if (iSearchIdx + iChunkIdx < 0)
+        iChunkIdx2 += TRAK_LEN;
+      if (iChunkIdx2 >= TRAK_LEN)
+        iChunkIdx2 -= TRAK_LEN;
+
+      // Calculate distance from camera to chunk center point
+      pDataAy = &localdata[iChunkIdx2];
+      dDeltaX = -pDataAy->pointAy[3].fX - viewx;// point 3 is center of chunk
+      dDeltaXSquared = dDeltaX * dDeltaX;
+      dDeltaY = -pDataAy->pointAy[3].fY - viewy;
+      dDeltaZ = -pDataAy->pointAy[3].fZ - viewz;
+      dLengthSquared = dDeltaXSquared + dDeltaY * dDeltaY + dDeltaZ * dDeltaZ;
+
+      // Track closest chunk
+      if (dLengthSquared < fMinDistSq) {
+        iCurrChunk = iChunkIdx2;
+        fLengthSquared = (float)dLengthSquared;
+        fMinDistSq = fLengthSquared;
       }
     }
-    v14 = v3 + 1;
-    if (v3 + 1 >= TRAK_LEN)
-      v14 -= TRAK_LEN;
-    v15 = (float *)((char *)&localdata + 128 * v14);
-    v16 = (float *)((char *)&localdata + 128 * v3);
-    v17 = v16[9] - v15[9];
-    v18 = v16[10] - v15[10];
-    v23 = (v17 * tcos[worlddirn] + v18 * tsin[worlddirn])
-      / (sqrt(tcos[worlddirn] * tcos[worlddirn] + tsin[worlddirn] * tsin[worlddirn]) + sqrt(v18 * v18 + v17 * v17));
+
+    // Calculate view alignment based on track direction at nearest chunk
+    iNextChunk = iCurrChunk + 1;
+    if (iCurrChunk + 1 >= TRAK_LEN)
+      iNextChunk -= TRAK_LEN;
+
+    pNextChunkDataAy = &localdata[iNextChunk];
+    pCurrChunkDataAy = &localdata[iCurrChunk];
+
+    // Vector from curr to next chunk
+    fDeltaX = pCurrChunkDataAy->pointAy[3].fX - pNextChunkDataAy->pointAy[3].fX;
+    fDeltaY = pCurrChunkDataAy->pointAy[3].fY - pNextChunkDataAy->pointAy[3].fY;
+
+    // Calculate dot product of track dir with world view dir (normalized)
+    fViewAlignment = (float)((fDeltaX * tcos[worlddirn] + fDeltaY * tsin[worlddirn])
+      / (sqrt(tcos[worlddirn] * tcos[worlddirn] + tsin[worlddirn] * tsin[worlddirn])
+       + sqrt(fDeltaY * fDeltaY + fDeltaX * fDeltaX)));
   }
-  if (v23 < drawtrk3_c_variable_1
-    && v23 >= drawtrk3_c_variable_2
-    && ((TrakColour_variable_1[12 * v3] & 2) == 0
-        || (TrakColour_variable_5[12 * v3] & 2) == 0
-        || (TrakColour_variable_8[12 * v3] & 2) == 0)) {
-    if (a2 >= 3 && (a2 <= 3 || a2 == 6)) {
-      TrackSize = 48;
-      v26 = -24;
+
+  // Check if view is perpendicular to track (inside corner or similar)
+  // This triggers special rendering for better visibility
+  if (fViewAlignment < 0.3
+    && fViewAlignment >= -0.3
+    && ((TrakColour[iCurrChunk].uiSurfType1 & 0x20000) == 0// SURFACE_FLAG_SKIP_RENDER
+        || (TrakColour[iCurrChunk].uiSurfType2 & 0x20000) == 0
+        || (TrakColour[iCurrChunk].uiSurfType3 & 0x20000) == 0)) {
+       // Extend view range when looking perpendicular to track
+    if (uiViewMode >= 3 && (uiViewMode <= 3 || uiViewMode == 6)) {
+      TrackSize = 48;                           // render 48 chunks
+      iViewOffset = -24;                        // center view 24 chunks back
     } else {
-      TrackSize = 24;
-      v26 = -12;
+      TrackSize = 24;                           // render 24 chunks
+      iViewOffset = -12;                        // center view 12 chunks back
     }
   }
-  test_y1 = v3;
-  backwards = (v23 >= 0.0) - 1;
-  if (v3 >= 0 && TrackSize < 0) {
-    if (backwards) {
-      TrackSize = (unsigned __int8)TrakView_variable_4[8 * v3] - v26;
-      v27 = TrakView_variable_3[4 * v3];
-      v20 = TrakView_variable_5[8 * v3];
-    } else {
-      TrackSize = (unsigned __int8)TrakView_variable_1[8 * v3] - v26;
-      v27 = TrakView[4 * v3];
-      v20 = TrakView_variable_2[8 * v3];
+
+  test_y1 = iCurrChunk;                         // debug variable
+  backwards = (fViewAlignment >= 0.0) - 1;
+
+  // Load pre-calculated view ranges from track data
+  if (iCurrChunk >= 0 && TrackSize < 0) {
+    if (backwards)                            // looking backward along track
+    {
+      TrackSize = TrakView[iCurrChunk].byBackwardMainChunks - iViewOffset;
+      iExtraViewStart = TrakView[iCurrChunk].nBackwardExtraStart;
+      byExtraChunks = TrakView[iCurrChunk].byBackwardExtraChunks;
+    } else                                        // looking forward along track
+    {
+      TrackSize = TrakView[iCurrChunk].byForwardMainChunks - iViewOffset;
+      iExtraViewStart = TrakView[iCurrChunk].nForwardExtraStart;
+      byExtraChunks = TrakView[iCurrChunk].byForwardExtraChunks;
     }
-    v25 = v20;
+    iHasExtraView = byExtraChunks;
   }
+
+  // Apply view distance limits for certain game modes
   if ((view_limit || player_type == 2) && replaytype != 2 && !winner_mode) {
-    v25 = 0;
-    v27 = -1;
+    iHasExtraView = 0;
+    iExtraViewStart = -1;
     if (player_type == 2) {
       if (TrackSize > 28)
         TrackSize = 28;
     } else if (TrackSize > view_limit) {
-      TrackSize = view_limit;
+      TrackSize = view_limit;                   // user-defined limit?
     }
   }
-  if (mirror || a2 == 1)
-    backwards = backwards == 0;
+
+  // Handle mirror view or special view mode
+  if (mirror || uiViewMode == 1)
+    backwards = backwards == 0;                 // flip view direction
+
+  // Calculate track section ranges for rendering
   if (backwards) {
-    v21 = v3 - v26;
-    front_sec = v21;
-    if (v21 >= TRAK_LEN)
-      front_sec = v21 - TRAK_LEN;
-    if (v25 > 0 && v27 >= 0) {
+    // Calculate front section with offset
+    iFrontWithOffset = iCurrChunk - iViewOffset;
+    front_sec = iFrontWithOffset;
+    if (iFrontWithOffset >= TRAK_LEN)
+      front_sec = iFrontWithOffset - TRAK_LEN;
+
+    // Handle extra view range
+    if (iHasExtraView > 0 && iExtraViewStart >= 0) {
+      // Calculate mid section
       mid_sec = front_sec - TrackSize;
       if (front_sec - TrackSize < 0)
         mid_sec = front_sec - TrackSize + TRAK_LEN;
-      back_sec = v27 - v25;
-      if (front_sec >= v27 || back_sec - 1 > front_sec) {
+
+      // Calculate back section
+      back_sec = iExtraViewStart - iHasExtraView;
+
+      // Check if extra view range overlaps with main view
+      if (front_sec >= iExtraViewStart || back_sec - 1 > front_sec) {
+        // No overlap, set up gap between main and extra view
         if (back_sec < 0)
           back_sec += TRAK_LEN;
         gap_size = mid_sec - back_sec;
         if (mid_sec - back_sec < 0)
           gap_size = mid_sec - back_sec + TRAK_LEN;
-        next_front = v27;
-        first_size = v25;
+        next_front = iExtraViewStart;
+        first_size = iHasExtraView;
       } else {
-        front_sec = v27;
+        // overlap detected, merge ranges
+        front_sec = iExtraViewStart;
         back_sec = mid_sec;
         next_front = -1;
         test_y1 = -2;
         mid_sec = -1;
-        gap_size = 6 * TRAK_LEN;
+        gap_size = 6 * TRAK_LEN;                // large value to disable gap
       }
+
+      // Recalculate total track size
       TrackSize = front_sec - back_sec;
       if (front_sec - back_sec < 0)
         TrackSize = front_sec - back_sec + TRAK_LEN;
       if (mid_sec < 0)
         first_size = TrackSize;
     } else {
+      // No extra view range, simple calculation
       back_sec = front_sec - TrackSize;
       if (front_sec - TrackSize < 0)
         back_sec = front_sec - TrackSize + TRAK_LEN;
       mid_sec = -1;
       first_size = TrackSize;
       next_front = -1;
-      gap_size = 6 * TRAK_LEN;
+      gap_size = 6 * TRAK_LEN;                  // large value to disable gap
     }
-  } else {
-    front_sec = v3 + v26;
-    if (v3 + v26 < 0)
-      front_sec = v3 + v26 + TRAK_LEN;
-    if (v25 > 0 && v27 >= 0) {
+  } else                                          // looking forward
+  {
+    // Calculate front section with offset
+    front_sec = iCurrChunk + iViewOffset;
+    if (iCurrChunk + iViewOffset < 0)
+      front_sec = iCurrChunk + iViewOffset + TRAK_LEN;
+
+    // Handle extra view range
+    if (iHasExtraView > 0 && iExtraViewStart >= 0) {
       first_size = TrackSize;
       mid_sec = TrackSize + front_sec;
-      back_sec = v25 + v27;
-      if (front_sec <= v27 || back_sec + 1 < front_sec) {
+      back_sec = iHasExtraView + iExtraViewStart;
+
+      // Check if extra view range overlaps with main view
+      if (front_sec <= iExtraViewStart || back_sec + 1 < front_sec) {
+        // No overlap, set up gap
         if (mid_sec >= TRAK_LEN)
           mid_sec -= TRAK_LEN;
-        gap_size = v27 - front_sec;
-        if (v27 - front_sec < 0)
-          gap_size = TRAK_LEN + v27 - front_sec;
-        next_front = v27;
+        gap_size = iExtraViewStart - front_sec;
+        if (iExtraViewStart - front_sec < 0)
+          gap_size = TRAK_LEN + iExtraViewStart - front_sec;
+        next_front = iExtraViewStart;
       } else {
-        gap_size = 6 * TRAK_LEN;
+        // Overlap detected, merge ranges
+        gap_size = 6 * TRAK_LEN;                // large value to disable gap
         next_front = -1;
-        front_sec = v27;
+        front_sec = iExtraViewStart;
         test_y1 = -1;
         back_sec = mid_sec;
         mid_sec = -1;
       }
+
+      // Recalc total track size
       TrackSize = back_sec - front_sec;
       if (back_sec - front_sec < 0)
         TrackSize = back_sec - front_sec + TRAK_LEN;
+
       if (mid_sec < 0)
         first_size = TrackSize;
+
       if (back_sec >= TRAK_LEN)
         back_sec -= TRAK_LEN;
     } else {
+      // No extra view range, simple calculation
       back_sec = TrackSize + front_sec;
       if (TrackSize + front_sec >= TRAK_LEN)
         back_sec = TrackSize + front_sec - TRAK_LEN;
+
       mid_sec = -1;
       first_size = TrackSize;
       next_front = -1;
-      gap_size = 6 * TRAK_LEN;
+      gap_size = 6 * TRAK_LEN;                  // large value to disable gap
     }
   }
+
+  // Return to starting section based on view dir
   if (backwards)
     result = back_sec;
   else
     result = front_sec;
+
+  // Store globally for rendering
   start_sect = result;
-  return result;*/
+  return result;
 }
 
 //-------------------------------------------------------------------------------------------------

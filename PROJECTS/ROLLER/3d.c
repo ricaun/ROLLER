@@ -44,6 +44,7 @@ int SVGA_ON = 0;            //000A34AC
 int TrackLoad = 1;          //000A34B0
 int paused = 0;             //000A34C4
 int pause_request = 0;      //000A34C8
+char alltrackflag = 0xFF;   //000A34E1
 int dxmouse = 0;            //000A34E8
 int dymouse = 0;            //000A34EC
 int mousex = 159;           //000A34F0
@@ -67,6 +68,7 @@ void *cargen_vga = NULL;    //000A3590
 void *rev_vga[16] = { NULL }; //000A3594
 int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
+tTrakColour TrakColour[500];//000BB360
 tData localdata[500];       //000BEA10
 tGroundPt GroundPt[500];    //000CE410
 uint8 shade_palette[4096];  //000FFDD0
@@ -93,6 +95,7 @@ float ext_z;                //0013F9A0
 float viewx;                //0013F9A4
 float viewy;                //0013F9A8
 float viewz;                //0013F9AC
+int worlddirn;              //0013F9B0
 char keys[140];             //0013F9B4
 int oldmode;                //0013FA40
 int clear_borders;          //0013FA44

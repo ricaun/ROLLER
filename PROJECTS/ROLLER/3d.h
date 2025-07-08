@@ -49,6 +49,18 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint32 uiSurfType1;
+  uint32 uiSurfType2;
+  uint32 uiSurfType3;
+  uint32 uiSurfType4;
+  uint32 uiSurfType5;
+  uint32 uiSurfType6;
+} tTrakColour;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int exiting;
 extern int dontrestart;
 extern int champ_mode;
@@ -67,6 +79,7 @@ extern int SVGA_ON;
 extern int TrackLoad;
 extern int paused;
 extern int pause_request;
+extern char alltrackflag;
 extern int dxmouse;
 extern int dymouse;
 extern int mousex;
@@ -90,6 +103,7 @@ extern void *cargen_vga;
 extern void *rev_vga[16];
 extern int firstrun;
 extern int language;
+extern tTrakColour TrakColour[500];
 extern tData localdata[500];
 extern tGroundPt GroundPt[500];
 extern uint8 shade_palette[4096];
@@ -116,6 +130,7 @@ extern float ext_z;
 extern float viewx;
 extern float viewy;
 extern float viewz;
+extern int worlddirn;
 extern char keys[140];
 extern int oldmode;
 extern int clear_borders;

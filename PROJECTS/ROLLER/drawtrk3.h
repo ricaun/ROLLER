@@ -17,13 +17,22 @@ extern int subpolytype;
 extern tPolyParams *subpoly;
 extern int tex_wid;
 extern int flatpol;
+extern int start_sect;
+extern int gap_size;
+extern int first_size;
+extern int TrackSize;
+extern int backwards;
+extern int next_front;
+extern int mid_sec;
+extern int back_sec;
+extern int front_sec;
 extern int min_sub_size;
 extern int num_pols;
 extern int small_poly;
 
 //-------------------------------------------------------------------------------------------------
 
-int CalcVisibleTrack(int a1, unsigned int a2);
+int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode);
 int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5);
 void subdivide(uint8 *pDest, tPolyParams *polyParams,
                float fX0_3D, float fY0_3D, float fZ0_3D,

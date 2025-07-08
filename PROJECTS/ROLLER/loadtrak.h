@@ -5,11 +5,25 @@
 #include <stdio.h>
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int16 nForwardExtraStart;
+  uint8 byForwardMainChunks;
+  uint8 byForwardExtraChunks;
+  int16 nBackwardExtraStart;
+  uint8 byBackwardMainChunks;
+  uint8 byBackwardExtraChunks;
+} tTrakView;
+
+//-------------------------------------------------------------------------------------------------
+
 extern uint8 TrackSelect;
 extern char *delims;
+extern tTrakView TrakView[500];
 extern int cur_laps[6];
 extern int meof;
 extern float cur_TrackZ;
+extern int TRAK_LEN;
 
 //-------------------------------------------------------------------------------------------------
 
