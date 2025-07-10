@@ -2149,13 +2149,14 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
 
     // Store screen coords (scaled by 64 for fixed-point math)
     CarPt[uiVertIdx / 8].screen.x = (xp * iScrSize) >> 6;
-    uiVertIdx += 8;
     CarPt[uiVertIdx / 8].screen.y = (iScrSize * (199 - yp)) >> 6;
 
     // Store view space coords
     CarPt[uiVertIdx / 8].view.fX = fViewX;
     CarPt[uiVertIdx / 8].view.fY = fViewY;
     CarPt[uiVertIdx / 8].view.fZ = fClippedZ;
+
+    uiVertIdx += 8;
   } while (uiVertIdx != 32);
 
   // Draw car shadow
