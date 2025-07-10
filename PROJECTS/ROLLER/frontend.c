@@ -978,9 +978,9 @@ void select_screen()
       while (1) {
         UpdateSDL(); //added by ROLLER
         if (!fatkbhit()) {
-          int iNewYaw = Car[0].nYaw + 32 * iFrames;
-          iNewYaw &= 0x3FFFFFFF;
-          Car[0].nYaw = iNewYaw;
+          int16 nNewYaw = Car[0].nYaw + 32 * iFrames;
+          nNewYaw &= 0x3FFF;
+          Car[0].nYaw = nNewYaw;
           v79 = ((int16)v79 + 32 * iFrames) & 0x3FFF;
           goto LABEL_45;
         }
