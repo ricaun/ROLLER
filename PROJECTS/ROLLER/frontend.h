@@ -55,6 +55,8 @@ extern int font1_offsets[104];
 extern char font1_ascii[256];
 extern int font2_offsets[96];
 extern char font2_ascii[256];
+extern int font4_offsets[80];
+extern char font4_ascii[256];
 extern tPoint sel_posns[12];
 extern int no_clear;
 extern char cheat_names[32][9];

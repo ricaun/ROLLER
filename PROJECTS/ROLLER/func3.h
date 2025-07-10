@@ -44,7 +44,7 @@ int RollCredits(void *a1, void *a2, unsigned int a3);
 int ChampionshipOver(int a1, int a2, int a3, char *a4);
 void *EndChampSequence(int a1, int a2, int a3, int a4);
 void network_fucked(int a1, int a2, int a3);
-void no_cd(int a1, int a2, int a3, char *a4);
+void no_cd();
 int name_cmp(char *szName1, char *szName2);
 void name_copy(char *szDest, char *szSrc);
 void loadtracksample(int track_number);

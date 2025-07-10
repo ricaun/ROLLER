@@ -10,6 +10,7 @@
 #include "polyf.h"
 #include "polytex.h"
 #include "drawtrk3.h"
+#include "func2.h"
 #include <memory.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
@@ -3953,58 +3954,86 @@ void network_fucked(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void no_cd(int a1, int a2, int a3, char *a4)
+void no_cd()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  /*
-  int v4; // ebp
-  int v5; // edi
-  int v6; // esi
-  unsigned int v7; // ecx
-  char v8; // al
-  unsigned int v9; // ecx
-  _UNKNOWN **v10; // edx
+  int iScrSize; // ebp
+  uint8 *pScrBuf; // edi
+  char *pTitleVga; // esi
+  unsigned int uiScreenTotalBytes; // ecx
+  char uiRemainderBytes; // al
+  unsigned int uiAlignedCopySize; // ecx
 
+  // disable timing to prepare for error screen display
   tick_on = 0;
-  v4 = scr_size;
+  iScrSize = scr_size;
   SVGA_ON = -1;
-  init_screen(a1, 0, -1);
-  setpal((int)aResroundPal, 0, (_WORD *)0xFFFFFFFF, a4);
+
+  // show init screen
+  init_screen();
+  setpal("resround.pal");
+
+  // set viewport
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  title_vga = load_picture(&a00ResroundBm[3]);
-  font_vga = load_picture(aFont4Bm);
-  front_vga[0] = load_picture(aFont5Bm);
+
+  // load resources
+  title_vga = load_picture("resround.bm");
+  font_vga = load_picture("font4.bm");
+  front_vga[0] = load_picture("font5.bm");
+
+  // enable frontend and timing
   frontend_on = -1;
   tick_on = -1;
-  v5 = scrbuf;
-  v6 = title_vga;
+
+  pScrBuf = scrbuf;
+  pTitleVga = (char *)title_vga;
+
+  // determine screen buffer size based on video mode
   if (SVGA_ON)
-    v7 = 256000;
+    uiScreenTotalBytes = 256000;
   else
-    v7 = 64000;
-  v8 = v7;
-  v9 = v7 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)title_vga, 4 * v9);
-  qmemcpy((void *)(v5 + 4 * v9), (const void *)(v6 + 4 * v9), v8 & 3);
-  front_text(320, 192, 143, 1);
-  v10 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  fade_palette(32, (int)v10, (int)font4_ascii, 0);
+    uiScreenTotalBytes = 64000;
+  uiRemainderBytes = uiScreenTotalBytes;
+  uiAlignedCopySize = uiScreenTotalBytes >> 2;
+
+  // Copy 4-bytes at a time then remainder
+  memcpy(scrbuf, title_vga, 4 * uiAlignedCopySize);
+  memcpy(&pScrBuf[4 * uiAlignedCopySize], &pTitleVga[4 * uiAlignedCopySize], uiRemainderBytes & 3);
+
+  // Display error text
+  front_text(
+    (tBlockHeader *)font_vga,
+    &language_buffer[6336],
+    font4_ascii,
+    font4_offsets,
+    320,
+    192,
+    0x8Fu,
+    1u);
+
+  // Copy to scrbuf and fade in
+  copypic(scrbuf, (uint8 *)screen);
+  fade_palette(32);
+
+  // Wait for user input
   ticks = 0;
   while (!fatkbhit() && ticks < 2160)
-    ;
+    UpdateSDL(); //added by ROLLER
+
+  // Cleanup
   fre(&title_vga);
   fre(&font_vga);
-  fre(front_vga);
-  scr_size = v4;
+  fre(&front_vga[0]);
+
+  // Fade out and exit
+  scr_size = iScrSize;
   holdmusic = 0;
-  fade_palette(0, (int)v10, (int)font4_ascii, 0);
-  __asm { int     10h; -VIDEO - SET VIDEO MODE }
-  doexit();*/
+  fade_palette(0);
+  //__asm { int     10h; -VIDEO - SET VIDEO MODE }
+  doexit();
 }
 
 //-------------------------------------------------------------------------------------------------
