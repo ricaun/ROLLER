@@ -1,4 +1,6 @@
 #include "function.h"
+#include "loadtrak.h"
+#include "control.h"
 //-------------------------------------------------------------------------------------------------
 
 void finish_race()
@@ -558,32 +560,36 @@ int initnearcars()
 
 //-------------------------------------------------------------------------------------------------
 
-int initpits()
+void initpits()
 {
-  return 0;
-  /*
-  int result; // eax
-  int v1; // ecx
-  int v2; // ebx
-  int v3; // edx
+  int iChunkIdx_1; // eax
+  int iPitStopCount; // ecx
+  int iStopsIdx; // ebx
+  int iChunkIdx; // edx
 
-  result = TRAK_LEN - 1;
-  v1 = 0;
+
+  // Start from last track chunk and work backwards
+  iChunkIdx_1 = TRAK_LEN - 1;
+  iPitStopCount = 0;
+
+  // Process all track segments
   if (TRAK_LEN - 1 >= 0) {
-    v2 = 0;
-    v3 = 12 * result;
+    iStopsIdx = 0;
+    iChunkIdx = iChunkIdx_1;
     do {
-      if ((TrakColour_variable_5[v3] & 0x400) != 0) {
-        ++v2;
-        ++v1;
-        carorder_variable_2[v2] = result;
+      if ((TrakColour[iChunkIdx].uiSurfType2 & SURFACE_FLAG_PIT_2) != 0)
+      {
+        // store pit stop position
+        stops[iStopsIdx] = iChunkIdx_1; // reference into stops
+
+        ++iStopsIdx;
+        ++iPitStopCount;
       }
-      --result;
-      v3 -= 12;
-    } while (result >= 0);
+      --iChunkIdx_1;
+      --iChunkIdx;
+    } while (iChunkIdx_1 >= 0);
   }
-  numstops = v1;
-  return result;*/
+  numstops = iPitStopCount;
 }
 
 //-------------------------------------------------------------------------------------------------

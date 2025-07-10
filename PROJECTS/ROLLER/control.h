@@ -7,6 +7,7 @@
 //-------------------------------------------------------------------------------------------------
 
 extern int level;
+extern int stops[10];
 extern float eng_chg_revs[168];
 extern int JBYmax;
 extern int JBYmin;
@@ -14,6 +15,7 @@ extern int JBXmin;
 extern int JBXmax;
 extern int JAYmax;
 extern int JAXmax;
+extern int numstops;
 extern int JAYmin;
 extern int JAXmin;
 extern float RecordLaps[25];
