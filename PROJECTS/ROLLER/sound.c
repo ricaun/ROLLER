@@ -3182,6 +3182,10 @@ void enginesound(int a1, float a2, float a3, float a4, int a5)
 
 void startmusic(int iSong)
 {
+  //temporary hack to force midi audio until CD audio is supported
+  MusicCD = 0;  //TODO: remove
+  musicon = -1; //TODO: remove
+
   int musicOrTitle = 0;
   if (MusicCD && track_playing) {
     StopTrack();
