@@ -327,54 +327,71 @@ void finish_race()
 
 //-------------------------------------------------------------------------------------------------
 
-double getbankz(float a1, int iChunkIdx, tData *pData)
+double getbankz(float fInput, int iChunkIdx, tData *pData)
 {
-  tData *pData2; // edx
+  tData *pUseData; // edx
   tGroundPt *pGroundPt; // ebx
-  double v5; // st7
-  int iPointIdx; // esi
-  int pPointCounter; // ecx
+  double dCalcVal; // st7
+  int iSelectedPointIdx; // esi
+  int iCurrPointIdx; // ecx
   tVec3 *pPoint1; // ebx
   tGroundPt *pGroundPt2; // ecx
-  float v11; // [esp+0h] [ebp-20h]
-  float v12; // [esp+4h] [ebp-1Ch]
+  float fPrevCalcVal; // [esp+0h] [ebp-20h]
+  float fCurrCalcVal; // [esp+4h] [ebp-1Ch]
 
-  pData2 = pData;
+  // Default to localdata if pData is NULL
+  pUseData = pData;
   if (!pData)
-    pData2 = &localdata[iChunkIdx];
+    pUseData = &localdata[iChunkIdx];
+
+  // Get ground points for this chunk
   pGroundPt = &GroundPt[iChunkIdx];
-  v5 = (pGroundPt->pointAy[0].fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fY
-    + (pGroundPt->pointAy[0].fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fY
-    + (pGroundPt->pointAy[0].fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fY;
-  iPointIdx = 4;
-  pPointCounter = 1;
-  pPoint1 = &pGroundPt->pointAy[1];
-  v11 = (float)v5;
+
+  // Calculate first dot product
+  dCalcVal = (pGroundPt->pointAy[0].fY + pUseData->pointAy[3].fY) * pUseData->pointAy[1].fY
+    + (pGroundPt->pointAy[0].fX + pUseData->pointAy[3].fX) * pUseData->pointAy[0].fY
+    + (pGroundPt->pointAy[0].fZ + pUseData->pointAy[3].fZ) * pUseData->pointAy[2].fY;
+
+  iSelectedPointIdx = 4;                        // default to point 4 if no point found
+  iCurrPointIdx = 1;                            // start checking from point 1
+  pPoint1 = &pGroundPt->pointAy[1];             // point to second ground point
+  fPrevCalcVal = (float)dCalcVal;
+
+  // Loop through ground points to find appropriate interpolation segment
   while (1) {
-    v12 = (pPoint1->fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fY
-      + (pPoint1->fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fY
-      + (pPoint1->fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fY;
-    if (a1 > (double)v12)
+    fCurrCalcVal = (pPoint1->fY + pUseData->pointAy[3].fY) * pUseData->pointAy[1].fY
+      + (pPoint1->fX + pUseData->pointAy[3].fX) * pUseData->pointAy[0].fY
+      + (pPoint1->fZ + pUseData->pointAy[3].fZ) * pUseData->pointAy[2].fY;
+
+// If input is greater than current dot product, found segment
+    if (fInput > (double)fCurrCalcVal)
       break;
+
+    // Move to next point
     ++pPoint1;
-    ++pPointCounter;
-    v11 = v12;
-    if (pPointCounter >= 6)
-      goto LABEL_7;
+    ++iCurrPointIdx;
+    fPrevCalcVal = fCurrCalcVal;
+    if (iCurrPointIdx >= 6)
+      goto INTERPOLATION_CALC;
   }
-  iPointIdx = pPointCounter - 1;
-LABEL_7:
+
+  // Use the point before the one that exceeded input value
+  iSelectedPointIdx = iCurrPointIdx - 1;
+INTERPOLATION_CALC:
+  // Calculate interpolated Z value using weighted average of two points
+  // First term: contribution from point at selectedPointIndex
+  // Second term: contribution from point at selectedPointIndex + 1
   pGroundPt2 = &GroundPt[iChunkIdx];
-  return ((pGroundPt2->pointAy[iPointIdx].fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fZ
-        + (pGroundPt2->pointAy[iPointIdx].fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fZ
-        + (pGroundPt2->pointAy[iPointIdx].fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fZ)
-    * (a1 - v12)
-    / (v11 - v12)
-    + ((pGroundPt2->pointAy[iPointIdx + 1].fY + pData2->pointAy[3].fY) * pData2->pointAy[1].fZ
-     + (pGroundPt2->pointAy[iPointIdx + 1].fX + pData2->pointAy[3].fX) * pData2->pointAy[0].fZ
-     + (pGroundPt2->pointAy[iPointIdx + 1].fZ + pData2->pointAy[3].fZ) * pData2->pointAy[2].fZ)
-    * (a1 - v11)
-    / (v12 - v11);
+  return ((pGroundPt2->pointAy[iSelectedPointIdx].fY + pUseData->pointAy[3].fY) * pUseData->pointAy[1].fZ
+        + (pGroundPt2->pointAy[iSelectedPointIdx].fX + pUseData->pointAy[3].fX) * pUseData->pointAy[0].fZ
+        + (pGroundPt2->pointAy[iSelectedPointIdx].fZ + pUseData->pointAy[3].fZ) * pUseData->pointAy[2].fZ)
+    * (fInput - fCurrCalcVal)                // weight for first point
+    / (fPrevCalcVal - fCurrCalcVal)          // total range
+    + ((pGroundPt2->pointAy[iSelectedPointIdx + 1].fY + pUseData->pointAy[3].fY) * pUseData->pointAy[1].fZ
+     + (pGroundPt2->pointAy[iSelectedPointIdx + 1].fX + pUseData->pointAy[3].fX) * pUseData->pointAy[0].fZ
+     + (pGroundPt2->pointAy[iSelectedPointIdx + 1].fZ + pUseData->pointAy[3].fZ) * pUseData->pointAy[2].fZ)
+    * (fInput - fPrevCalcVal)                // weight for second point
+    / (fCurrCalcVal - fPrevCalcVal);         // total range
 }
 
 //-------------------------------------------------------------------------------------------------

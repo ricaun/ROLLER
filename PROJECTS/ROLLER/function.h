@@ -5,7 +5,7 @@
 //-------------------------------------------------------------------------------------------------
 
 void finish_race();
-double getbankz(float a1, int iChunkIdx, tData *pData);
+double getbankz(float fInput, int iChunkIdx, tData *pData);
 int calculate_aheadbehindtime(int a1, float *a2, float *a3);
 int initnearcars();
 int initpits();
