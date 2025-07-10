@@ -49,6 +49,7 @@ uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval
 uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval);
 int IsCDROMDevice(const char *szPath);
 int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis);
+void ReplaceExtension(char *szFilename, const char *szNewExt);
 
 //-------------------------------------------------------------------------------------------------
 #endif

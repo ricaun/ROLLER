@@ -4326,8 +4326,14 @@ void load_language_file(char *szFilename, int iUseConfigBuffer)
   // try opening the language file
   pFile = ROLLERfopen(szFilename, "r");
   if (!pFile) {
-    printf("Unable to open file: %s\n", szFilename);
-    doexit(1);
+    //Added by ROLLER: compatibility with US release
+    ReplaceExtension(szFilename, ".USA");
+    pFile = ROLLERfopen(szFilename, "r");
+
+    if (!pFile) {
+      printf("Unable to open file: %s\n", szFilename);
+      doexit(1);
+    }
   }
 
   int iEndFound = 0;

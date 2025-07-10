@@ -177,6 +177,11 @@ exit 1</Command>
       <Command>echo Copying SDL dlls...
 echo f | xcopy .\external\SDL3-3.2.14\lib\x64\SDL3.dll .\$(OutDir) /R /Y /d /i
 echo f | xcopy .\external\SDL3_image-3.2.4\lib\x64\SDL3_image.dll .\$(OutDir) /R /Y /d /i
+echo f | xcopy .\external\wildmidi-0.4.6\lib\x64\libWildMidi.dll .\$(OutDir) /R /Y /d /i
+if %errorlevel% NEQ 0 goto Failed
+
+echo Copying midi folder and files...
+echo f | xcopy .\midi .\$(OutDir)\midi /R /Y /d /S /i
 if %errorlevel% NEQ 0 goto Failed
 
 echo Copying icon...

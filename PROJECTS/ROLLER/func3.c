@@ -1918,6 +1918,7 @@ void show_3dmap(float a1, int a2, int a3)
 
 void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, int iAngle, char byAnimFrame)
 {
+  iCarDesignIndex = CAR_DESIGN_F1WACK;
   int iNumCoords; // ecx
   int iYaw; // eax
   double dCosYaw; // st7

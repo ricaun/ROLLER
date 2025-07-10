@@ -893,3 +893,20 @@ int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis)
 }
 
 //-------------------------------------------------------------------------------------------------
+
+void ReplaceExtension(char *szFilename, const char *szNewExt)
+{
+  char *szDot = strrchr(szFilename, '.');
+  char *szSlash = strrchr(szFilename, '/');
+  char *szBackslash = strrchr(szFilename, '\\');
+
+  char *szLastSeparator = (szSlash > szBackslash) ? szSlash : szBackslash;
+
+  if (szDot && (szLastSeparator == NULL || szDot > szLastSeparator)) {
+    strcpy(szDot, szNewExt);
+  } else {
+    strcat(szFilename, szNewExt);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
