@@ -1,6 +1,5 @@
 #include "types.h"
 #include "car.h"
-#include "frontend.h"
 #include "engines.h"
 #include "control.h"
 #include "3d.h"
@@ -29,12 +28,17 @@ char default_names[16][9] = {   //000A6158
   "GORT"
 };
 int16 ViewType[2] = { 0, 0 };   //000A620C
+tPolyParams CarPol;             //001884F0
 float CarBaseX;                 //0018851C
 float CarBaseY;                 //00188520
 float CarDiag;                  //00188524
+float roadheight[4];            //0017CA70
+tCarPt CarPt[128];              //0017CA80
+tCarZOrderEntry CarZOrder[500]; //0017DA80
 int car_texmap[16];             //0017F2B0
 tCarBox CarBox;                 //0017F2F0
 tCar Car[16];                   //0017F8F0
+int car_persps[128];            //00180C30
 int car_texs_loaded[16];        //00181E30
 tStoreEngine StoreEngines[14];  //00188200
 int finished_car[16];           //00188470
@@ -163,30 +167,30 @@ void CalcCarSizes()
       fYHigh = fYHigh * 0.25f;
     }
     iCarBoxIdx = 8 * nCarDesignsIdx;            // 24 for 8 3-float points defining a hitbox
-    CarBox.hitboxAy[iCarBoxIdx].fX = fXLow;
-    CarBox.hitboxAy[iCarBoxIdx].fY = fYLow;
-    CarBox.hitboxAy[iCarBoxIdx].fZ = fZLow;
-    CarBox.hitboxAy[iCarBoxIdx + 1].fX = fXHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 1].fY = fYLow;
-    CarBox.hitboxAy[iCarBoxIdx + 1].fZ = fZLow;
-    CarBox.hitboxAy[iCarBoxIdx + 2].fX = fXHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 2].fY = fYHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 2].fZ = fZLow;
-    CarBox.hitboxAy[iCarBoxIdx + 3].fX = fXLow;
-    CarBox.hitboxAy[iCarBoxIdx + 3].fY = fYHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 3].fZ = fZLow;
-    CarBox.hitboxAy[iCarBoxIdx + 4].fX = fXLow;
-    CarBox.hitboxAy[iCarBoxIdx + 4].fY = fYLow;
-    CarBox.hitboxAy[iCarBoxIdx + 4].fZ = fZHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 5].fX = fXHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 5].fY = fYLow;
-    CarBox.hitboxAy[iCarBoxIdx + 5].fZ = fZHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 6].fX = fXHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 6].fY = fYHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 6].fZ = fZHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 7].fX = fXLow;
-    CarBox.hitboxAy[iCarBoxIdx + 7].fY = fYHigh;
-    CarBox.hitboxAy[iCarBoxIdx + 7].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx][0].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx][0].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx][0].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx][1].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx][1].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx][1].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx][2].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx][2].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx][2].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx][3].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx][3].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx][3].fZ = fZLow;
+    CarBox.hitboxAy[iCarBoxIdx][4].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx][4].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx][4].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx][5].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx][5].fY = fYLow;
+    CarBox.hitboxAy[iCarBoxIdx][5].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx][6].fX = fXHigh;
+    CarBox.hitboxAy[iCarBoxIdx][6].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx][6].fZ = fZHigh;
+    CarBox.hitboxAy[iCarBoxIdx][7].fX = fXLow;
+    CarBox.hitboxAy[iCarBoxIdx][7].fY = fYHigh;
+    CarBox.hitboxAy[iCarBoxIdx][7].fZ = fZHigh;
   }
   pAutoCoords = CarDesigns[0].pCoords;          // ptr to xauto_coords
   CarBaseX = 0.0;
@@ -2156,16 +2160,17 @@ LABEL_117:
 
 //-------------------------------------------------------------------------------------------------
 
-int carZcmp(tCar *pCar1, tCar *pCar2)
+int carZcmp(const void *pCar1, const void *pCar2)
 {
-  float fZCmp; // [esp+0h] [ebp-8h]
-  float fZCmp2; // [esp+4h] [ebp-4h]
+  const tCarZOrderEntry *pEntry1 = (const tCarZOrderEntry *)pCar1;
+  const tCarZOrderEntry *pEntry2 = (const tCarZOrderEntry *)pCar2;
 
-  fZCmp = pCar1->pos.fZ;
-  fZCmp2 = pCar2->pos.fZ;
-  if (fZCmp == fZCmp2)
+  float fZDepth1 = pEntry1->fZDepth;
+  float fZDepth2 = pEntry2->fZDepth;
+
+  if (fZDepth1 == fZDepth2)
     return 0;
-  if (fZCmp >= (double)fZCmp2)
+  if (fZDepth1 >= fZDepth2)
     return -1;
   return 1;
 }

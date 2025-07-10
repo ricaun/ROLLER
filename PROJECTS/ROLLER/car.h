@@ -2,11 +2,13 @@
 #define _ROLLER_CAR_H
 //-------------------------------------------------------------------------------------------------
 #include "carplans.h"
+#include "frontend.h"
+#include "polyf.h"
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
 {
-  tVec3 hitboxAy[112];
+  tVec3 hitboxAy[14][8];
 } tCarBox;
 
 //-------------------------------------------------------------------------------------------------
@@ -118,15 +120,39 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  tPoint screen;
+  tVec3 world;
+  tVec3 view;
+} tCarPt;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int16 nPolygonLink;
+  int16 padding;
+  int32 iPolygonIndex;
+  float fZDepth;
+} tCarZOrderEntry;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int numcars;
 extern char default_names[16][9];
 extern int16 ViewType[2];
+extern tPolyParams CarPol;
 extern float CarBaseX;
 extern float CarBaseY;
 extern float CarDiag;
+extern float roadheight[4];
+extern tCarPt CarPt[128];
+extern tCarZOrderEntry CarZOrder[500];
 extern int car_texmap[16];
 extern tCarBox CarBox;
 extern tCar Car[16];
+extern int car_persps[128];
 extern int car_texs_loaded[16];
 extern tStoreEngine StoreEngines[14];
 extern int finished_car[16];
@@ -141,7 +167,7 @@ void InitCars();
 int16 placecars();
 int DrawCars(int result, int a2);
 int16 DisplayCar(int iCarIdx, int a2, float a3);
-int carZcmp(tCar *pCar1, tCar *pCar2);
+int carZcmp(const void *pCar1, const void *pCar2);
 
 //-------------------------------------------------------------------------------------------------
 #endif

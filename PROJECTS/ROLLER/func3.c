@@ -3,6 +3,13 @@
 #include "sound.h"
 #include "frontend.h"
 #include "roller.h"
+#include "carplans.h"
+#include "car.h"
+#include "transfrm.h"
+#include "graphics.h"
+#include "polyf.h"
+#include "polytex.h"
+#include "drawtrk3.h"
 #include <memory.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
@@ -1909,550 +1916,620 @@ void show_3dmap(float a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void DrawCar(int a1, int a2, float a3, int a4, char a5)
+void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, int iAngle, char byAnimFrame)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  /*
-  int v7; // ecx
-  int v8; // eax
-  double v9; // st7
-  double v10; // st7
-  double v11; // st7
-  float *v12; // ebx
-  int v13; // eax
-  int v14; // edx
-  int v15; // edi
-  double v16; // st7
-  double v17; // st6
-  double v18; // st5
-  double v19; // st7
-  __int16 v20; // fps
-  _BOOL1 v21; // c0
-  char v22; // c2
-  _BOOL1 v23; // c3
-  int v24; // eax
-  double v25; // st7
-  double v26; // st6
-  double v27; // st5
-  double v28; // st7
-  int v29; // eax
-  double v30; // st7
-  double v31; // st6
-  double v32; // st5
-  int v33; // esi
-  unsigned __int8 *v34; // ebp
-  int v35; // ecx
-  unsigned __int8 *v36; // edx
+  int iNumCoords; // ecx
+  int iYaw; // eax
+  double dCosYaw; // st7
+  double dCosPitch; // st7
+  double dCosRoll; // st7
+  tVec3 *pCarBoxAy; // ebx
+  uint32 uiColorTo; // eax
+  unsigned int uiVertIdx; // edx
+  int iScrSize; // edi
+  double dDeltaX; // st7
+  double dDeltaY; // st6
+  double dDeltaZ; // st5
+  double dViewZ; // st7
+  double dViewDist; // st7
+  double dInvZ; // st6
+  double dScreenX; // st5
+  double dScreenY; // st7
+  double dCarCenterX; // st7
+  double dCarCenterY; // st6
+  double dCarCenterZ; // st5
+  signed int iVisiblePols; // esi
+  tPolygon *pPols; // ebp
   int i; // eax
-  int v38; // ebx
-  double v39; // st7
-  double v40; // st5
-  double v41; // st4
-  double v42; // st3
-  unsigned __int8 v43; // ah
-  unsigned __int8 *v44; // ecx
+  double dEdge1X; // st7
+  double dEdge2X; // st5
+  double dEdge2Y; // st4
+  double dEdge2Z; // st3
+  tPolygon *pPol; // ecx
   int j; // edx
-  int v46; // ebx
-  float *v47; // eax
-  double v48; // st7
-  double v49; // st5
-  int v50; // eax
-  double v51; // st6
-  double v52; // st7
-  double v53; // st6
-  double v54; // st5
-  double v55; // st7
-  __int16 v56; // fps
-  _BOOL1 v57; // c0
-  char v58; // c2
-  _BOOL1 v59; // c3
-  int v60; // eax
-  double v61; // st7
-  double v62; // st6
-  double v63; // st5
-  double v64; // st7
-  int v65; // edi
-  int v66; // eax
-  int v67; // eax
-  unsigned int v68; // edx
-  int v69; // eax
-  float v70; // eax
-  float v71; // eax
-  float v72; // eax
-  unsigned int v73; // edx
-  float v74; // eax
-  float v75; // eax
-  int v76; // eax
-  int v77; // edi
-  int v78; // ecx
-  int v79; // edi
-  int v80; // ebx
-  int k; // eax
-  int v82; // edx
-  int v83; // edi
-  int v84; // esi
-  unsigned __int8 *v85; // edx
-  int v86; // ecx
+  int byVertIdx; // ebx
+  tVec3 *pVertData; // eax
+  double dVertX; // st7
+  double dVertY; // st5
+  int iVertIdx_1; // eax
+  double dVertZ; // st6
+  double dDeltaX_1; // st7
+  double dDeltaY_1; // st6
+  double dDeltaZ_1; // st5
+  double dViewX; // st7
+  double dViewDist_1; // st7
+  double dInvZ_1; // st6
+  double dProjX; // st5
+  double dProjY; // st7
+  int iScreenX; // edi
+  int iVertIdx_2; // eax
+  unsigned int uiZOrderOffset_3; // edx
+  int iPolIdx_1; // eax
+  float fMinZ34_1; // eax
+  float fMinZ12_1; // eax
+  float fMaxZ; // eax
+  unsigned int uiZOrderOffset_2; // edx
+  float fMinZ34; // eax
+  float fMinZ12; // eax
+  tPolygon *pFirstPol; // eax
+  int32 iLinkedPolIdx; // edi
+  int iNextPolIdx; // ecx
+  int iCurPolIdx; // edi
+  int iSearchIdx; // ebx
+  signed int k; // eax
+  int32 iCheckPolIdx; // edx
+  int iDrawIdx; // edi
+  int32 iPolToDraw; // esi
+  tPolygon *pDrawPol; // edx
+  uint32 uiTex; // ecx
   int m; // eax
-  int *v88; // ebx
-  double v89; // st7
-  int v90; // eax
-  int v91; // eax
-  int v92; // eax
-  float v93; // eax
-  int v94; // eax
-  int v95; // ecx
-  int v96; // [esp+0h] [ebp-19Ch]
-  float *v97; // [esp+4h] [ebp-198h]
-  float *v98; // [esp+8h] [ebp-194h]
-  float *v99; // [esp+Ch] [ebp-190h]
-  float *v100; // [esp+10h] [ebp-18Ch]
-  int v101; // [esp+14h] [ebp-188h]
-  int v102; // [esp+18h] [ebp-184h]
-  int v103; // [esp+1Ch] [ebp-180h]
-  int v104; // [esp+20h] [ebp-17Ch]
-  double v105; // [esp+24h] [ebp-178h]
-  double v106; // [esp+2Ch] [ebp-170h]
-  double v107; // [esp+34h] [ebp-168h]
-  double v108; // [esp+44h] [ebp-158h]
-  double v109; // [esp+4Ch] [ebp-150h]
-  double v110; // [esp+54h] [ebp-148h]
-  double v111; // [esp+5Ch] [ebp-140h]
-  int v112; // [esp+64h] [ebp-138h]
-  int v113; // [esp+68h] [ebp-134h]
-  int v114; // [esp+6Ch] [ebp-130h]
-  float v115; // [esp+70h] [ebp-12Ch]
-  int v116; // [esp+74h] [ebp-128h]
-  int v117; // [esp+78h] [ebp-124h]
-  int v118; // [esp+7Ch] [ebp-120h]
-  int v119; // [esp+80h] [ebp-11Ch]
-  float v120; // [esp+90h] [ebp-10Ch]
-  float v121; // [esp+94h] [ebp-108h]
-  float v122; // [esp+98h] [ebp-104h]
-  float v123; // [esp+9Ch] [ebp-100h]
-  float v124; // [esp+A0h] [ebp-FCh]
-  float v125; // [esp+B0h] [ebp-ECh]
-  float v126; // [esp+B4h] [ebp-E8h]
-  float v127; // [esp+B8h] [ebp-E4h]
-  float v128; // [esp+BCh] [ebp-E0h]
-  float v129; // [esp+C0h] [ebp-DCh]
-  float v130; // [esp+C4h] [ebp-D8h]
-  float v131; // [esp+C8h] [ebp-D4h]
-  float v132; // [esp+CCh] [ebp-D0h]
-  float v133; // [esp+D0h] [ebp-CCh]
-  float v134; // [esp+D4h] [ebp-C8h]
-  int v135; // [esp+D8h] [ebp-C4h]
-  int v136; // [esp+DCh] [ebp-C0h]
-  int v137; // [esp+E0h] [ebp-BCh]
-  float v138; // [esp+E4h] [ebp-B8h]
-  float v139; // [esp+E8h] [ebp-B4h]
-  float v140; // [esp+ECh] [ebp-B0h]
-  float v141; // [esp+F0h] [ebp-ACh]
-  float v142; // [esp+F4h] [ebp-A8h]
-  int v143; // [esp+F8h] [ebp-A4h]
-  unsigned int v144; // [esp+FCh] [ebp-A0h]
-  unsigned int v145; // [esp+104h] [ebp-98h]
-  unsigned int v146; // [esp+108h] [ebp-94h]
-  int v147; // [esp+10Ch] [ebp-90h]
-  float v148; // [esp+110h] [ebp-8Ch]
-  float v149; // [esp+114h] [ebp-88h]
-  int v150; // [esp+118h] [ebp-84h]
-  int v151; // [esp+11Ch] [ebp-80h]
-  int v152; // [esp+120h] [ebp-7Ch]
-  int v153; // [esp+124h] [ebp-78h]
-  int v154; // [esp+128h] [ebp-74h]
-  int v155; // [esp+12Ch] [ebp-70h]
-  int v156; // [esp+130h] [ebp-6Ch]
-  int v157; // [esp+134h] [ebp-68h]
-  int v158; // [esp+138h] [ebp-64h]
-  int v159; // [esp+13Ch] [ebp-60h]
-  float v160; // [esp+140h] [ebp-5Ch]
-  float v161; // [esp+144h] [ebp-58h]
-  float v162; // [esp+148h] [ebp-54h]
-  float v163; // [esp+14Ch] [ebp-50h]
-  float v164; // [esp+150h] [ebp-4Ch]
-  float v165; // [esp+154h] [ebp-48h]
-  float v166; // [esp+15Ch] [ebp-40h]
-  float v167; // [esp+160h] [ebp-3Ch]
-  float v168; // [esp+164h] [ebp-38h]
-  float v169; // [esp+178h] [ebp-24h]
-  int v170; // [esp+180h] [ebp-1Ch]
-  int v171; // [esp+184h] [ebp-18h]
+  double dViewZ_1; // st7
+  tCarPt *pMinZVert34; // eax
+  tCarPt *pMinZVert12; // eax
+  tCarPt *pMinZVert12_1; // eax
+  float fMinViewZ; // eax
+  tCarPt *pMinZVert34_1; // eax
+  int iCartexOffset; // ecx
+  int iGfxSize; // [esp+0h] [ebp-19Ch]
+  tVec3 *vertDataAy[4]; // [esp+4h] [ebp-198h]
+  tCarPt *screenVertAy[4]; // [esp+14h] [ebp-188h]
+  double dLocalZ; // [esp+24h] [ebp-178h]
+  double dLocalY; // [esp+2Ch] [ebp-170h]
+  double dDotProduct; // [esp+34h] [ebp-168h]
+  double dLocalX; // [esp+44h] [ebp-158h]
+  double dBoxZ; // [esp+4Ch] [ebp-150h]
+  double dBoxY; // [esp+54h] [ebp-148h]
+  double dBoxX; // [esp+5Ch] [ebp-140h]
+  uint32 uiColorFrom; // [esp+64h] [ebp-138h]
+  int iNumPols; // [esp+68h] [ebp-134h]
+  uint8 *pScreenBuffer; // [esp+6Ch] [ebp-130h]
+  float fRotMat01; // [esp+70h] [ebp-12Ch]
+  float fClippedZ; // [esp+74h] [ebp-128h]
+  float fNearClip; // [esp+78h] [ebp-124h]
+  float fViewY; // [esp+7Ch] [ebp-120h]
+  float fViewX; // [esp+80h] [ebp-11Ch]
+  float fCarPosZ; // [esp+90h] [ebp-10Ch]
+  float fCarPosX; // [esp+94h] [ebp-108h]
+  float fRotMat22; // [esp+98h] [ebp-104h]
+  float fRotMat21; // [esp+9Ch] [ebp-100h]
+  float fRotMat11; // [esp+A0h] [ebp-FCh]
+  float fMinZ34Temp; // [esp+B0h] [ebp-ECh]
+  float fMinZ12Temp; // [esp+B4h] [ebp-E8h]
+  float fMaxZTemp_1; // [esp+B8h] [ebp-E4h]
+  float fMaxZTemp; // [esp+BCh] [ebp-E0h]
+  float fMinZTemp; // [esp+C0h] [ebp-DCh]
+  float fMaxZ34; // [esp+C4h] [ebp-D8h]
+  float fMaxZ12; // [esp+C8h] [ebp-D4h]
+  float fFinalMaxZ; // [esp+CCh] [ebp-D0h]
+  float fFinalMaxZ_1; // [esp+D0h] [ebp-CCh]
+  float fFinalMinZ; // [esp+D4h] [ebp-C8h]
+  tPolygon *pPolAy; // [esp+D8h] [ebp-C4h]
+  uint32 uiDesignOffset; // [esp+DCh] [ebp-C0h]
+  tPolygon *pLinkedPol; // [esp+E0h] [ebp-BCh]
+  float fMinZ; // [esp+E4h] [ebp-B8h]
+  float fMinZ_1; // [esp+E8h] [ebp-B4h]
+  float fMinZTemp_1; // [esp+ECh] [ebp-B0h]
+  float fMinZ12_2; // [esp+F0h] [ebp-ACh]
+  float fMinZ34_2; // [esp+F4h] [ebp-A8h]
+  int iSubPolType; // [esp+F8h] [ebp-A4h]
+  uint32 uiCarDesignIdxTimes4; // [esp+FCh] [ebp-A0h]
+  unsigned int uiZOrderOffset; // [esp+104h] [ebp-98h]
+  unsigned int uiZOrderOffset_1; // [esp+108h] [ebp-94h]
+  int iTotalZOrderBytes; // [esp+10Ch] [ebp-90h]
+  float fOriginalZ; // [esp+110h] [ebp-8Ch]
+  float fClampedZ; // [esp+114h] [ebp-88h]
+  float fTransformedY; // [esp+118h] [ebp-84h]
+  float fTransformedX; // [esp+11Ch] [ebp-80h]
+  tVec3 *pCoords; // [esp+120h] [ebp-7Ch]
+  signed int iProcessedPols; // [esp+124h] [ebp-78h]
+  int iPolIdx; // [esp+128h] [ebp-74h]
+  eCarDesignIndex carDesign; // [esp+12Ch] [ebp-70h]
+  uint32 uiColorTo_1; // [esp+130h] [ebp-6Ch]
+  int iIsBack; // [esp+134h] [ebp-68h]
+  uint32 uiCarDesignOffset; // [esp+138h] [ebp-64h]
+  int iAnimFrame; // [esp+13Ch] [ebp-60h]
+  float fCarPosY; // [esp+140h] [ebp-5Ch]
+  float fRotMat20; // [esp+144h] [ebp-58h]
+  float fRotMat10; // [esp+148h] [ebp-54h]
+  float fRotMat12; // [esp+14Ch] [ebp-50h]
+  float fRotMat02; // [esp+150h] [ebp-4Ch]
+  float fRotMat00; // [esp+154h] [ebp-48h]
+  float fCarCenterViewZ; // [esp+15Ch] [ebp-40h]
+  float fCarCenterViewY; // [esp+160h] [ebp-3Ch]
+  float fCarCenterViewX; // [esp+164h] [ebp-38h]
+  float fEdge1YTemp; // [esp+178h] [ebp-24h]
+  int iTexturesEnabled; // [esp+180h] [ebp-1Ch]
+  tAnimation *pAnms; // [esp+184h] [ebp-18h]
 
-  v114 = a1;
-  v155 = a2;
-  *(float *)&worldx = -a3 * tcos[a4];
-  *(float *)&worldz = a3 * tsin[a4];
-  v170 = -1;
-  worldy = 0;
+  pScreenBuffer = pScrBuf;
+  carDesign = iCarDesignIndex;
+
+  // Calculate world position from angle and distance
+  worldx = -fDistance * tcos[iAngle];
+  worldz = fDistance * tsin[iAngle];
+  iTexturesEnabled = -1;
+  worldy = 0.0;
   vdirection = 0;
-  velevation = -a4 & 0x3FFF;
+  velevation = -iAngle & 0x3FFF;
   vtilt = 0;
-  calculatetransform(-1, 0, -a4 & 0x3FFF, 0, *(float *)&worldx, 0.0, worldz, 0.0, 0.0, 0.0);
+
+  // Set up view transformation
+  calculatetransform(-1, 0, -iAngle & 0x3FFF, 0, worldx, 0.0, worldz, 0.0, 0.0, 0.0);
   worlddirn = vdirection;
   worldelev = velevation;
   worldtilt = vtilt;
-  v7 = (unsigned __int8)CarDesigns_variable_1[28 * a2];
-  v113 = (unsigned __int8)CarDesigns[28 * a2];
-  v171 = (int)*(&CarDesigns_variable_7 + 7 * a2);
-  v8 = Car_variable_7[0];
-  v165 = tcos[v8] * tcos[Car_variable_6[0]];
-  v115 = tsin[v8] * tcos[Car_variable_6[0]];
-  v9 = tcos[v8];
-  v164 = tsin[Car_variable_6[0]];
-  v124 = v9 * v164 * tsin[Car_variable_5[0]] - tsin[v8] * tcos[Car_variable_5[0]];
-  v163 = tsin[v8] * v164 * tsin[Car_variable_5[0]] + tcos[v8] * tcos[Car_variable_5[0]];
-  v123 = -tsin[Car_variable_5[0]] * tcos[Car_variable_6[0]];
-  v162 = -tcos[v8] * v164 * tcos[Car_variable_5[0]] - tsin[v8] * tsin[Car_variable_5[0]];
-  v122 = -tsin[v8] * v164 * tcos[Car_variable_5[0]] + tcos[v8] * tsin[Car_variable_5[0]];
-  v10 = tcos[Car_variable_6[0]];
-  v121 = Car[0];
-  v160 = Car_variable_1[0];
-  v11 = v10 * tcos[Car_variable_5[0]];
-  v120 = Car_variable_2[0];
-  v12 = (float *)&CarBox[24 * a2];
-  v13 = car_flat_remap_variable_1[2 * a2];
-  v112 = car_flat_remap[2 * a2];
-  v156 = v13;
-  v14 = 0;
-  v15 = scr_size;
-  v161 = v11;
+
+  // Get car design data
+  iNumCoords = CarDesigns[iCarDesignIndex].byNumCoords;
+  iNumPols = CarDesigns[iCarDesignIndex].byNumPols;
+  pAnms = CarDesigns[iCarDesignIndex].pAnms;
+
+  // Build rotation matrix from car orientation
+  iYaw = Car[0].nYaw;
+  fRotMat00 = tcos[iYaw] * tcos[Car[0].nPitch];
+  fRotMat01 = tsin[iYaw] * tcos[Car[0].nPitch];
+  dCosYaw = tcos[iYaw];
+  fRotMat02 = tsin[Car[0].nPitch];
+  fRotMat11 = (float)dCosYaw * fRotMat02 * tsin[Car[0].nRoll] - tsin[iYaw] * tcos[Car[0].nRoll];
+  fRotMat12 = tsin[iYaw] * fRotMat02 * tsin[Car[0].nRoll] + tcos[iYaw] * tcos[Car[0].nRoll];
+  fRotMat21 = -tsin[Car[0].nRoll] * tcos[Car[0].nPitch];
+  fRotMat10 = -tcos[iYaw] * fRotMat02 * tcos[Car[0].nRoll] - tsin[iYaw] * tsin[Car[0].nRoll];
+  fRotMat22 = -tsin[iYaw] * fRotMat02 * tcos[Car[0].nRoll] + tcos[iYaw] * tsin[Car[0].nRoll];
+  dCosPitch = tcos[Car[0].nPitch];
+  fCarPosX = Car[0].pos.fX;
+  fCarPosY = Car[0].pos.fY;
+  dCosRoll = dCosPitch * tcos[Car[0].nRoll];
+  fCarPosZ = Car[0].pos.fZ;
+
+  // Get car bounding box and color remap info
+  pCarBoxAy = CarBox.hitboxAy[iCarDesignIndex];
+  uiColorTo = car_flat_remap[iCarDesignIndex].uiColorTo;
+  uiColorFrom = car_flat_remap[iCarDesignIndex].uiColorFrom;
+  uiColorTo_1 = uiColorTo;
+  uiVertIdx = 0;
+  iScrSize = scr_size;
+  fRotMat20 = (float)dCosRoll;
+
+  // Transform and project car bounding box vertices (first 4 vertices)
   do {
-    v111 = *v12;
-    v110 = v12[1];
-    v109 = v12[2];
-    CarPt_variable_2[v14] = v165 * v111 + v124 * v110 + v162 * v109 + v121;
-    CarPt_variable_3[v14] = v115 * v111 + v163 * v110 + v122 * v109 + v160;
-    CarPt_variable_4[v14] = v164 * v111 + v123 * v110 + v161 * v109 + v120;
-    v16 = CarPt_variable_2[v14] - viewx;
-    v17 = CarPt_variable_3[v14] - viewy;
-    v18 = CarPt_variable_4[v14] - viewz;
-    *(float *)&v119 = v16 * vk1 + v17 * vk4 + v18 * vk7;
-    *(float *)&v118 = v16 * vk2 + v17 * vk5 + v18 * vk8;
-    v19 = v16 * vk3 + v17 * vk6 + v18 * vk9;
-    *(float *)&v117 = v19;
-    HIWORD(v24) = HIWORD(v117);
-    v12 += 3;
-    v116 = v117;
-    v21 = v19 < func3_c_variable_29;
-    v22 = 0;
-    v23 = v19 == func3_c_variable_29;
-    LOWORD(v24) = v20;
-    if (v19 < func3_c_variable_29)
-      *(float *)&v117 = 80.0;
-    v25 = (double)VIEWDIST;
-    v26 = 1.0 / *(float *)&v117;
-    v27 = v25 * *(float *)&v119 * v26 + (double)xbase;
-    _CHP(v24, v14 * 4);
-    xp = (int)v27;
-    v28 = v26 * (v25 * *(float *)&v118) + (double)ybase;
-    _CHP(v15 * (int)v27, v14 * 4);
-    yp = (int)v28;
-    CarPt[v14] = v29 >> 6;
-    v14 += 8;
-    carlocal_variable_3[v14] = (v15 * (199 - yp)) >> 6;
-    roadheight_variable_1[v14] = v119;
-    roadheight_variable_2[v14] = v118;
-    roadheight_variable_3[v14] = v116;
-  } while (v14 != 32);
-  CarPol_variable_3 = CarPt[0];
-  CarPol_variable_4 = CarPt_variable_1[0];
-  CarPol_variable_5 = CarPt_variable_8;
-  CarPol_variable_6 = CarPt_variable_9;
-  CarPol_variable_7 = CarPt_variable_10;
-  CarPol_variable_8 = CarPt_variable_11;
-  CarPol_variable_9 = CarPt_variable_12;
-  CarPol_variable_10 = CarPt_variable_13;
-  CarPol = 2105346;
-  CarPol_variable_2 = 4;
-  POLYFLAT(v114, &CarPol);
-  v30 = v121 - viewx;
-  v31 = v160 - viewy;
-  v32 = v120 - viewz;
-  v168 = v165 * v30 + v115 * v31 + v164 * v32;
-  v167 = v124 * v30 + v163 * v31 + v123 * v32;
-  v33 = 0;
-  v152 = (int)*(&CarDesigns_variable_3 + 7 * v155);
-  v34 = (unsigned __int8 *)*(&CarDesigns_variable_2 + 7 * v155);
-  v166 = v30 * v162 + v31 * v122 + v32 * v161;
-  memset(car_persps, 0, 4 * v7);
-  v154 = 0;
-  if (v113 > 0) {
-    v145 = 0;
+    // Get bounding box vert
+    dBoxX = pCarBoxAy->fX;
+    dBoxY = pCarBoxAy->fY;
+    dBoxZ = pCarBoxAy->fZ;
+
+    // Transform to world space
+    CarPt[uiVertIdx / 8].world.fX = (float)(fRotMat00 * dBoxX + fRotMat11 * dBoxY + fRotMat10 * dBoxZ + fCarPosX);
+    CarPt[uiVertIdx / 8].world.fY = (float)(fRotMat01 * dBoxX + fRotMat12 * dBoxY + fRotMat22 * dBoxZ + fCarPosY);
+    CarPt[uiVertIdx / 8].world.fZ = (float)(fRotMat02 * dBoxX + fRotMat21 * dBoxY + fRotMat20 * dBoxZ + fCarPosZ);
+
+    // Transform to view space
+    dDeltaX = CarPt[uiVertIdx / 8].world.fX - viewx;
+    dDeltaY = CarPt[uiVertIdx / 8].world.fY - viewy;
+    dDeltaZ = CarPt[uiVertIdx / 8].world.fZ - viewz;
+    fViewX = (float)(dDeltaX * vk1 + dDeltaY * vk4 + dDeltaZ * vk7);
+    fViewY = (float)(dDeltaX * vk2 + dDeltaY * vk5 + dDeltaZ * vk8);
+    dViewZ = dDeltaX * vk3 + dDeltaY * vk6 + dDeltaZ * vk9;
+    fNearClip = (float)dViewZ;
+    ++pCarBoxAy;
+    fClippedZ = fNearClip;
+
+    // Apply near clipping plane
+    if (dViewZ < 80.0)
+      fNearClip = 80.0;
+
+    // Project to screen space
+    dViewDist = (double)VIEWDIST;
+    dInvZ = 1.0 / fNearClip;
+    dScreenX = dViewDist * fViewX * dInvZ + (double)xbase;
+    dScreenX = round(dScreenX); //_CHP
+    xp = (int)dScreenX;
+    dScreenY = dInvZ * (dViewDist * fViewY) + (double)ybase;
+    dScreenY = round(dScreenY); //_CHP
+    yp = (int)dScreenY;
+
+    // Store screen coords (scaled by 64 for fixed-point math)
+    CarPt[uiVertIdx / 8].screen.x = (xp * iScrSize) >> 6;
+    uiVertIdx += 8;
+    CarPt[uiVertIdx / 8].screen.y = (iScrSize * (199 - yp)) >> 6;
+
+    // Store view space coords
+    CarPt[uiVertIdx / 8].view.fX = fViewX;
+    CarPt[uiVertIdx / 8].view.fY = fViewY;
+    CarPt[uiVertIdx / 8].view.fZ = fClippedZ;
+  } while (uiVertIdx != 32);
+
+  // Draw car bounding box?
+  CarPol.vertices[0] = CarPt[0].screen;
+  CarPol.vertices[1] = CarPt[1].screen;
+  CarPol.vertices[2] = CarPt[2].screen;
+  CarPol.vertices[3] = CarPt[3].screen;
+  CarPol.uiSurfaceType = SURFACE_FLAG_FLIP_BACKFACE | SURFACE_FLAG_TRANSPARENT | 2;
+  CarPol.uiNumVerts = 4;
+  POLYFLAT(pScreenBuffer, &CarPol);
+
+  // Calculate car center position in view space
+  dCarCenterX = fCarPosX - viewx;
+  dCarCenterY = fCarPosY - viewy;
+  dCarCenterZ = fCarPosZ - viewz;
+  fCarCenterViewX = (float)(fRotMat00 * dCarCenterX + fRotMat01 * dCarCenterY + fRotMat02 * dCarCenterZ);
+  fCarCenterViewY = (float)(fRotMat11 * dCarCenterX + fRotMat12 * dCarCenterY + fRotMat21 * dCarCenterZ);
+  iVisiblePols = 0;
+  pCoords = CarDesigns[carDesign].pCoords;
+  pPols = CarDesigns[carDesign].pPols;
+  fCarCenterViewZ = (float)(dCarCenterX * fRotMat10 + dCarCenterY * fRotMat22 + dCarCenterZ * fRotMat20);
+
+  // Clear vertex processing flags
+  memset(car_persps, 0, 4 * iNumCoords);
+  iPolIdx = 0;
+
+  // Process all pols for visibility
+  if (iNumPols > 0) {
+    uiZOrderOffset = 0;
     do {
-      v35 = v152;
-      v36 = v34;
-      for (i = 0; i != 16; *(int *)((char *)&v96 + i) = v38) {
-        i += 4;
-        v38 = v35 + 12 * *v36++;
+      // Get pointers to the 3D vertices for all 4 corners of this polygon
+      for ( i = 0; i < 4; i++ )
+      {
+        // Get vertex index from polygon definition
+        uint8 vertexIndex = pPols->verts[i];
+        
+        // Store pointer to the 3D vertex coordinates
+        vertDataAy[i] = &pCoords[vertexIndex];
       }
-      v39 = *v97 - *v99;
-      v169 = v97[1] - v99[1];
-      v40 = *v98 - *v100;
-      v41 = v98[1] - v100[1];
-      v42 = v98[2] - v100[2];
-      v43 = v34[5];
-      v107 = ((*v97 + *v98 + *v99 + *v100) * func3_c_variable_27 + v168) * (v169 * v42 - (v97[2] - v99[2]) * v41)
-        + ((v97[1] + v98[1] + v99[1] + v100[1]) * func3_c_variable_27 + v167) * ((v97[2] - v99[2]) * v40 - v42 * v39)
-        + (func3_c_variable_27 * (v97[2] + v98[2] + v99[2] + v100[2]) + v166) * (v41 * v39 - v40 * v169);
-      if ((v43 & 0x20) != 0 || v107 <= 0.0) {
-        v44 = v34;
+
+      // Calcualte normal vector for backface culling
+      dEdge1X = vertDataAy[0]->fX - vertDataAy[2]->fX;
+      fEdge1YTemp = vertDataAy[0]->fY - vertDataAy[2]->fY;
+      dEdge2X = vertDataAy[1]->fX - vertDataAy[3]->fX;
+      dEdge2Y = vertDataAy[1]->fY - vertDataAy[3]->fY;
+      dEdge2Z = vertDataAy[1]->fZ - vertDataAy[3]->fZ;
+      dDotProduct = ((vertDataAy[0]->fX + vertDataAy[1]->fX + vertDataAy[2]->fX + vertDataAy[3]->fX) * 0.25
+                   + fCarCenterViewX)
+        * (fEdge1YTemp * dEdge2Z - (vertDataAy[0]->fZ - vertDataAy[2]->fZ) * dEdge2Y)
+        + ((vertDataAy[0]->fY + vertDataAy[1]->fY + vertDataAy[2]->fY + vertDataAy[3]->fY) * 0.25
+         + fCarCenterViewY)
+        * ((vertDataAy[0]->fZ - vertDataAy[2]->fZ) * dEdge2X - dEdge2Z * dEdge1X)
+        + (0.25 * (vertDataAy[0]->fZ + vertDataAy[1]->fZ + vertDataAy[2]->fZ + vertDataAy[3]->fZ)
+         + fCarCenterViewZ)
+        * (dEdge2Y * dEdge1X - dEdge2X * fEdge1YTemp);
+
+      // Process visible pols
+      if ((pPols->uiTex & SURFACE_FLAG_FLIP_BACKFACE) != 0 || dDotProduct <= 0.0)
+      {
+        // Transform verts if not already done
+        pPol = pPols;
         for (j = 0; j != 4; ++j) {
-          v46 = *v44;
-          if (!car_persps[v46]) {
-            car_persps[v46] = -1;
-            v47 = (&v97)[j];
-            v108 = *v47;
-            v106 = v47[1];
-            v105 = v47[2];
-            if ((cheat_mode & 0x8000) != 0) {
-              v108 = v108 * func3_c_variable_28;
-              v106 = func3_c_variable_28 * v106;
+          byVertIdx = pPol->verts[0];
+          if (!car_persps[byVertIdx])         // vert not yet transformed
+          {
+            car_persps[byVertIdx] = -1;         // Mark as processed
+            pVertData = vertDataAy[j];
+            dLocalX = pVertData->fX;
+            dLocalY = pVertData->fY;
+            dLocalZ = pVertData->fZ;
+
+            // scale for tinycars
+            if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0)
+            {
+              dLocalX = dLocalX * 0.25;
+              dLocalY = 0.25 * dLocalY;
             }
-            v48 = v108;
-            v49 = v106;
-            v50 = 8 * v46;
-            v51 = v105;
-            CarPt_variable_2[v50] = v165 * v108 + v124 * v106 + v162 * v105 + v121;
-            CarPt_variable_3[v50] = v115 * v48 + v163 * v49 + v122 * v51 + v160;
-            CarPt_variable_4[v50] = v48 * v164 + v49 * v123 + v51 * v161 + v120;
-            v52 = CarPt_variable_2[8 * v46] - viewx;
-            v53 = CarPt_variable_3[8 * v46] - viewy;
-            v54 = CarPt_variable_4[8 * v46] - viewz;
-            *(float *)&v151 = v52 * vk1 + v53 * vk4 + v54 * vk7;
-            *(float *)&v150 = v52 * vk2 + v53 * vk5 + v54 * vk8;
-            v55 = v52 * vk3 + v53 * vk6 + v54 * vk9;
-            v149 = v55;
-            HIWORD(v60) = HIWORD(v149);
-            v148 = v149;
-            v57 = v55 < func3_c_variable_29;
-            v58 = 0;
-            v59 = v55 == func3_c_variable_29;
-            LOWORD(v60) = v56;
-            if (v55 < func3_c_variable_29)
-              v149 = 80.0;
-            v61 = (double)VIEWDIST;
-            v62 = 1.0 / v149;
-            v63 = v61 * *(float *)&v151 * v62 + (double)xbase;
-            _CHP(v60, j * 4);
-            xp = (int)v63;
-            v64 = v62 * (v61 * *(float *)&v150) + (double)ybase;
-            v65 = (int)v63 * scr_size;
-            _CHP(v66, j * 4);
-            yp = (int)v64;
-            v67 = 8 * v46;
-            CarPt[v67] = v65 >> 6;
-            CarPt_variable_1[v67] = (scr_size * (199 - yp)) >> 6;
-            CarPt_variable_5[v67] = v151;
-            CarPt_variable_6[v67] = v150;
-            CarPt_variable_7[v67] = v148;
+
+            // Transform to world space
+            dVertX = dLocalX;
+            dVertY = dLocalY;
+            iVertIdx_1 = byVertIdx;
+            dVertZ = dLocalZ;
+            CarPt[iVertIdx_1].world.fX = (float)(fRotMat00 * dLocalX + fRotMat11 * dLocalY + fRotMat10 * dLocalZ + fCarPosX);
+            CarPt[iVertIdx_1].world.fY = (float)(fRotMat01 * dVertX + fRotMat12 * dVertY + fRotMat22 * dVertZ + fCarPosY);
+            CarPt[iVertIdx_1].world.fZ = (float)(dVertX * fRotMat02 + dVertY * fRotMat21 + dVertZ * fRotMat20 + fCarPosZ);
+
+            // Transform to view space
+            dDeltaX_1 = CarPt[byVertIdx].world.fX - viewx;
+            dDeltaY_1 = CarPt[byVertIdx].world.fY - viewy;
+            dDeltaZ_1 = CarPt[byVertIdx].world.fZ - viewz;
+            fTransformedX = (float)(dDeltaX_1 * vk1 + dDeltaY_1 * vk4 + dDeltaZ_1 * vk7);
+            fTransformedY = (float)(dDeltaX_1 * vk2 + dDeltaY_1 * vk5 + dDeltaZ_1 * vk8);
+            dViewX = dDeltaX_1 * vk3 + dDeltaY_1 * vk6 + dDeltaZ_1 * vk9;
+            fClampedZ = (float)dViewX;
+            fOriginalZ = fClampedZ;
+
+            // Apply near clipping
+            if (dViewX < 80.0)
+              fClampedZ = 80.0;
+
+            // Project to screen
+            dViewDist_1 = (double)VIEWDIST;
+            dInvZ_1 = 1.0 / fClampedZ;
+            dProjX = dViewDist_1 * fTransformedX * dInvZ_1 + (double)xbase;
+            dProjX = round(dProjX); //_CHP
+            xp = (int)dProjX;
+            dProjY = dInvZ_1 * (dViewDist_1 * fTransformedY) + (double)ybase;
+            iScreenX = (int)dProjX * scr_size;
+            dProjY = round(dProjY); //_CHP
+            yp = (int)dProjY;
+
+            // Store transformed data
+            iVertIdx_2 = byVertIdx;
+            CarPt[iVertIdx_2].screen.x = iScreenX >> 6;
+            CarPt[iVertIdx_2].screen.y = (scr_size * (199 - yp)) >> 6;
+            CarPt[iVertIdx_2].view.fX = fTransformedX;
+            CarPt[iVertIdx_2].view.fY = fTransformedY;
+            CarPt[iVertIdx_2].view.fZ = fOriginalZ;
           }
-          ++v44;
+          pPol = (tPolygon *)((char *)pPol + 1);
         }
-        if (v107 > 0.0 && (v34[5] & 8) != 0) {
-          v68 = v145;
-          v69 = -v154 - 1;
+
+        // Determine pol index and facing dir
+        if (dDotProduct > 0.0 && (pPols->uiTex & SURFACE_FLAG_BACK) != 0)
+        {
+          uiZOrderOffset_3 = uiZOrderOffset;
+          iPolIdx_1 = -iPolIdx - 1;             // negative index
         } else {
-          v68 = v145;
-          v69 = v154;
+          uiZOrderOffset_3 = uiZOrderOffset;
+          iPolIdx_1 = iPolIdx;
         }
-        *(int *)((char *)CarZOrder_variable_1 + v68) = v69;
-        CarZOrder[v145 / 4] = *((__int16 *)v34 + 4);
-        if ((v34[5] & 0x80u) == 0) {
-          if (CarPt_variable_7[8 * v34[2]] <= (double)CarPt_variable_7[8 * v34[3]])
-            v74 = CarPt_variable_7[8 * v34[3]];
+
+        // Store pol data for depth sorting
+        CarZOrder[uiZOrderOffset_3 / sizeof(tCarZOrderEntry)].iPolygonIndex = iPolIdx_1;
+        CarZOrder[uiZOrderOffset / sizeof(tCarZOrderEntry)].nPolygonLink = pPols->nNextPolIdx;
+
+        // Calculate max z val for depth sorting
+        if ((pPols->uiTex & SURFACE_FLAG_ANMS_LIVERY) == 0)
+        {
+          // Find max Z among verts (furthest from camera)
+          if (CarPt[pPols->verts[2]].view.fZ <= (double)CarPt[pPols->verts[3]].view.fZ)
+            fMinZ34 = CarPt[pPols->verts[3]].view.fZ;
           else
-            v74 = CarPt_variable_7[8 * v34[2]];
-          v130 = v74;
-          if (CarPt_variable_7[8 * *v34] <= (double)CarPt_variable_7[8 * v34[1]])
-            v75 = CarPt_variable_7[8 * v34[1]];
+            fMinZ34 = CarPt[pPols->verts[2]].view.fZ;
+          fMaxZ34 = fMinZ34;
+          if (CarPt[pPols->verts[0]].view.fZ <= (double)CarPt[pPols->verts[1]].view.fZ)
+            fMinZ12 = CarPt[pPols->verts[1]].view.fZ;
           else
-            v75 = CarPt_variable_7[8 * *v34];
-          v131 = v75;
-          if (v75 <= (double)v130) {
-            if (CarPt_variable_7[8 * v34[2]] <= (double)CarPt_variable_7[8 * v34[3]])
-              v72 = CarPt_variable_7[8 * v34[3]];
+            fMinZ12 = CarPt[pPols->verts[0]].view.fZ;
+          fMaxZ12 = fMinZ12;
+          if (fMinZ12 <= (double)fMaxZ34) {
+            if (CarPt[pPols->verts[2]].view.fZ <= (double)CarPt[pPols->verts[3]].view.fZ)
+              fMaxZ = CarPt[pPols->verts[3]].view.fZ;
             else
-              v72 = CarPt_variable_7[8 * v34[2]];
-            v134 = v72;
+              fMaxZ = CarPt[pPols->verts[2]].view.fZ;
+            fFinalMinZ = fMaxZ;
           } else {
-            if (CarPt_variable_7[8 * *v34] <= (double)CarPt_variable_7[8 * v34[1]])
-              v72 = CarPt_variable_7[8 * v34[1]];
+            if (CarPt[pPols->verts[0]].view.fZ <= (double)CarPt[pPols->verts[1]].view.fZ)
+              fMaxZ = CarPt[pPols->verts[1]].view.fZ;
             else
-              v72 = CarPt_variable_7[8 * *v34];
-            v133 = v72;
+              fMaxZ = CarPt[pPols->verts[0]].view.fZ;
+            fFinalMaxZ_1 = fMaxZ;
           }
-          v132 = v72;
-          v73 = v145;
+          fFinalMaxZ = fMaxZ;
+          uiZOrderOffset_2 = uiZOrderOffset;
         } else {
-          if (CarPt_variable_7[8 * v34[2]] >= (double)CarPt_variable_7[8 * v34[3]])
-            v70 = CarPt_variable_7[8 * v34[3]];
+          // Find minimum Z among vertices (closest to camera)
+          if (CarPt[pPols->verts[2]].view.fZ >= (double)CarPt[pPols->verts[3]].view.fZ)
+            fMinZ34_1 = CarPt[pPols->verts[3]].view.fZ;
           else
-            v70 = CarPt_variable_7[8 * v34[2]];
-          v125 = v70;
-          if (CarPt_variable_7[8 * *v34] >= (double)CarPt_variable_7[8 * v34[1]])
-            v71 = CarPt_variable_7[8 * v34[1]];
+            fMinZ34_1 = CarPt[pPols->verts[2]].view.fZ;
+          fMinZ34Temp = fMinZ34_1;
+          if (CarPt[pPols->verts[0]].view.fZ >= (double)CarPt[pPols->verts[1]].view.fZ)
+            fMinZ12_1 = CarPt[pPols->verts[1]].view.fZ;
           else
-            v71 = CarPt_variable_7[8 * *v34];
-          v126 = v71;
-          if (v71 >= (double)v125) {
-            if (CarPt_variable_7[8 * v34[2]] >= (double)CarPt_variable_7[8 * v34[3]])
-              v72 = CarPt_variable_7[8 * v34[3]];
+            fMinZ12_1 = CarPt[pPols->verts[0]].view.fZ;
+          fMinZ12Temp = fMinZ12_1;
+          if (fMinZ12_1 >= (double)fMinZ34Temp) {
+            if (CarPt[pPols->verts[2]].view.fZ >= (double)CarPt[pPols->verts[3]].view.fZ)
+              fMaxZ = CarPt[pPols->verts[3]].view.fZ;
             else
-              v72 = CarPt_variable_7[8 * v34[2]];
-            v129 = v72;
+              fMaxZ = CarPt[pPols->verts[2]].view.fZ;
+            fMinZTemp = fMaxZ;
           } else {
-            if (CarPt_variable_7[8 * *v34] >= (double)CarPt_variable_7[8 * v34[1]])
-              v72 = CarPt_variable_7[8 * v34[1]];
+            if (CarPt[pPols->verts[0]].view.fZ >= (double)CarPt[pPols->verts[1]].view.fZ)
+              fMaxZ = CarPt[pPols->verts[1]].view.fZ;
             else
-              v72 = CarPt_variable_7[8 * *v34];
-            v128 = v72;
+              fMaxZ = CarPt[pPols->verts[0]].view.fZ;
+            fMaxZTemp = fMaxZ;
           }
-          v127 = v72;
-          v73 = v145;
+          fMaxZTemp_1 = fMaxZ;
+          uiZOrderOffset_2 = uiZOrderOffset;
         }
-        *(float *)((char *)CarZOrder_variable_2 + v73) = v72;
-        ++v33;
-        v145 += 12;
+
+        // Store Z value for sorting
+        CarZOrder[uiZOrderOffset_2 / sizeof(tCarZOrderEntry)].fZDepth = fMaxZ;
+        ++iVisiblePols;
+        uiZOrderOffset += 12;
       }
-      v34 += 12;
-      ++v154;
-    } while (v154 < v113);
+      ++pPols;
+      ++iPolIdx;
+    } while (iPolIdx < iNumPols);
   }
-  if (v33 > 0) {
-    v153 = 0;
-    v136 = 28 * v155;
-    v76 = (int)*(&CarDesigns_variable_2 + 7 * v155);
-    v146 = 0;
-    v135 = v76;
+
+  // Render visible pols
+  if (iVisiblePols > 0) {
+    iProcessedPols = 0;
+    uiDesignOffset = 28 * carDesign;
+    pFirstPol = CarDesigns[carDesign].pPols;
+    uiZOrderOffset_1 = 0;
+    pPolAy = pFirstPol;
+
+    // Build depth hierarchy based on polygon links
     do {
-      v77 = CarZOrder_variable_1[v146 / 4];
-      if (v77 < 0)
-        v77 = -1 - v77;
-      v78 = *(__int16 *)(v135 + 12 * v77 + 8);
-      v79 = v153;
-      if (v78 >= 0) {
-        v137 = *(int *)((char *)&CarDesigns_variable_2 + v136);
+      iLinkedPolIdx = CarZOrder[uiZOrderOffset_1 / 0xC].iPolygonIndex;
+      if (iLinkedPolIdx < 0)
+        iLinkedPolIdx = -1 - iLinkedPolIdx;     // Convert to negative index
+
+      // Follow polygon dependency chain
+      iNextPolIdx = pPolAy[iLinkedPolIdx].nNextPolIdx;
+      iCurPolIdx = iProcessedPols;
+      if (iNextPolIdx >= 0) {
+        pLinkedPol = CarDesigns[uiDesignOffset / 0x1C].pPols;
         do {
-          v80 = -1;
-          for (k = 0; k < v33; ++k) {
-            v82 = CarZOrder_variable_1[3 * k];
-            if (v82 < 0)
-              v82 = -1 - v82;
-            if (v78 == v82) {
-              v80 = k;
-              k = v33;
+          iSearchIdx = -1;
+
+          // Find pol in Z-order list
+          for (k = 0; k < iVisiblePols; ++k) {
+            iCheckPolIdx = CarZOrder[k].iPolygonIndex;
+            if (iCheckPolIdx < 0)
+              iCheckPolIdx = -1 - iCheckPolIdx;
+            if (iNextPolIdx == iCheckPolIdx) {
+              iSearchIdx = k;
+              k = iVisiblePols;                 // exit loop
             }
           }
-          if (v80 >= 0)
-            CarZOrder_variable_2[3 * v80] = CarZOrder_variable_2[3 * v79] + func3_c_variable_30;
-          v78 = *(__int16 *)(v137 + 12 * v78 + 8);
-          v79 = v80;
-        } while (v78 >= 0);
+
+          // Adjust Z value to ensure proper ordering
+          if (iSearchIdx >= 0)
+            CarZOrder[iSearchIdx].fZDepth = CarZOrder[iCurPolIdx].fZDepth + -1.0f;
+
+          iNextPolIdx = pLinkedPol[iNextPolIdx].nNextPolIdx;
+          iCurPolIdx = iSearchIdx;
+        } while (iNextPolIdx >= 0);
       }
-      v146 += 12;
-      ++v153;
-    } while (v33 > v153);
-    qsort(CarZOrder, v33, 12, carZcmp);
-    v143 = v155 + 3;
-    v144 = 4 * v155;
-    v158 = 28 * v155;
-    v159 = a5 & 1;
-    v83 = 0;
-    v147 = 12 * v33;
+      uiZOrderOffset_1 += 12;
+      ++iProcessedPols;
+    } while (iVisiblePols > iProcessedPols);
+
+    // Sort pols by depth
+    qsort(CarZOrder, iVisiblePols, 0xCu, carZcmp);
+
+    // Prepare for rendering
+    iSubPolType = carDesign + 3;
+    uiCarDesignIdxTimes4 = 4 * carDesign;
+    uiCarDesignOffset = 28 * carDesign;
+    iAnimFrame = byAnimFrame & 1;
+    iDrawIdx = 0;
+    iTotalZOrderBytes = 12 * iVisiblePols;
+
+    // Draw pols in depth order
     do {
-      v84 = CarZOrder_variable_1[v83 / 4u];
-      if (v84 >= 0) {
-        v157 = 0;
+      // Get pol to draw
+      iPolToDraw = CarZOrder[iDrawIdx / 0xCu].iPolygonIndex;
+      if (iPolToDraw >= 0) {
+        iIsBack = 0;
       } else {
-        v157 = -1;
-        v84 = -1 - v84;
+        iIsBack = -1;
+        iPolToDraw = -1 - iPolToDraw;
       }
-      v85 = (unsigned __int8 *)(*(char **)((char *)&CarDesigns_variable_2 + v158) + 12 * v84);
-      v86 = *((_DWORD *)v85 + 1);
-      for (m = 0; m != 4; (&v100)[m] = (float *)v88) {
-        ++m;
-        v88 = &CarPt[8 * *v85++];
+
+      pDrawPol = &CarDesigns[uiCarDesignOffset / 0x1C].pPols[iPolToDraw];
+      uiTex = pDrawPol->uiTex;
+
+      // Get screen verts for pol
+      for ( m = 0; m < 4; m++ )
+      {
+        // Get screen coordinates for this vertex
+        screenVertAy[m] = &CarPt[pDrawPol->verts[m]];
       }
-      v89 = *(float *)(v103 + 28);
-      CarPol_variable_2 = 4;
-      if (v89 >= *(float *)(v104 + 28))
-        v90 = v104;
+
+      // Find min Z for near plane clipping check
+      dViewZ_1 = screenVertAy[2]->view.fZ;
+      CarPol.uiNumVerts = 4;
+      if (dViewZ_1 >= screenVertAy[3]->view.fZ)
+        pMinZVert34 = screenVertAy[3];
       else
-        v90 = v103;
-      v138 = *(float *)(v90 + 28);
-      if (*(float *)(v101 + 28) >= (double)*(float *)(v102 + 28))
-        v91 = v102;
+        pMinZVert34 = screenVertAy[2];
+      fMinZ = pMinZVert34->view.fZ;
+
+      if (screenVertAy[0]->view.fZ >= (double)screenVertAy[1]->view.fZ)
+        pMinZVert12 = screenVertAy[1];
       else
-        v91 = v101;
-      v139 = *(float *)(v91 + 28);
-      if (v139 >= (double)v138) {
-        if (*(float *)(v103 + 28) >= (double)*(float *)(v104 + 28))
-          v94 = v104;
+        pMinZVert12 = screenVertAy[0];
+      fMinZ_1 = pMinZVert12->view.fZ;
+
+      if (fMinZ_1 >= (double)fMinZ) {
+        if (screenVertAy[2]->view.fZ >= (double)screenVertAy[3]->view.fZ)
+          pMinZVert34_1 = screenVertAy[3];
         else
-          v94 = v103;
-        v142 = *(float *)(v94 + 28);
-        v93 = v142;
+          pMinZVert34_1 = screenVertAy[2];
+        fMinZ34_2 = pMinZVert34_1->view.fZ;
+        fMinViewZ = fMinZ34_2;
       } else {
-        if (*(float *)(v101 + 28) >= (double)*(float *)(v102 + 28))
-          v92 = v102;
+        if (screenVertAy[0]->view.fZ >= (double)screenVertAy[1]->view.fZ)
+          pMinZVert12_1 = screenVertAy[1];
         else
-          v92 = v101;
-        v141 = *(float *)(v92 + 28);
-        v93 = v141;
+          pMinZVert12_1 = screenVertAy[0];
+        fMinZ12_2 = pMinZVert12_1->view.fZ;
+        fMinViewZ = fMinZ12_2;
       }
-      v140 = v93;
-      CarPol_variable_3 = *(_DWORD *)v101;
-      CarPol_variable_4 = *(_DWORD *)(v101 + 4);
-      CarPol_variable_5 = *(_DWORD *)v102;
-      CarPol_variable_6 = *(_DWORD *)(v102 + 4);
-      CarPol_variable_7 = *(_DWORD *)v103;
-      CarPol_variable_8 = *(_DWORD *)(v103 + 4);
-      CarPol_variable_9 = *(_DWORD *)v104;
-      CarPol_variable_10 = *(_DWORD *)(v104 + 4);
-      if (v157) {
-        v86 = (*(_DWORD **)((char *)&CarDesigns_variable_4 + v158))[v84];
-        BYTE1(v86) |= 0x20u;
-      } else if ((v86 & 0x200) != 0) {
-        if ((unsigned __int8)v86 >= 4u)
-          v86 = *(_DWORD *)(v171 + 4 * (v159 + 17 * (unsigned __int8)v86) + 4);
+      fMinZTemp_1 = fMinViewZ;
+
+      // Copy screen coords to pol struct
+      CarPol.vertices[0] = screenVertAy[0]->screen;
+      CarPol.vertices[1] = screenVertAy[1]->screen;
+      CarPol.vertices[2] = screenVertAy[2]->screen;
+      CarPol.vertices[3] = screenVertAy[3]->screen;
+
+      // Handle backs
+      if (iIsBack) {
+        uiTex = CarDesigns[uiCarDesignOffset / 0x1C].pBacks[iPolToDraw];
+        uiTex |= SURFACE_FLAG_FLIP_BACKFACE; 
+      } else if ((uiTex & SURFACE_FLAG_ANMS_LOOKUP) != 0)
+      {
+        if ((uint8)uiTex >= 4u)
+          uiTex = pAnms[(uint8)uiTex].framesAy[iAnimFrame];
         else
-          v86 = *(_DWORD *)(v171 + 68 * (unsigned __int8)v86 + 4);
+          uiTex = pAnms[(uint8)uiTex].framesAy[0];
       }
-      if (((unsigned int)cstart_branch_1 & textures_off) != 0 && (v86 & 0x100) == 0 && (unsigned __int8)v86 == v112)
-        v86 = v156;
-      CarPol = v86;
-      if (v93 >= 1.0) {
-        if ((v86 & 0x100) != 0 && v170) {
-          v95 = car_texmap[v144 / 4];
-          v96 = gfx_size;
-          POLYTEX(horizon_vga[v95], v114, (int *)&CarPol, v95, gfx_size);
-        } else {
-          POLYFLAT(v114, &CarPol);
+
+      // Apply color remapping if textures are disabled
+      if ((textures_off & 0x10000) != 0 && (uiTex & SURFACE_FLAG_APPLY_TEXTURE) == 0 && (uint8)uiTex == uiColorFrom)
+        uiTex = uiColorTo_1;
+
+      CarPol.uiSurfaceType = uiTex;
+
+      // Render pol
+      if (fMinViewZ >= 1.0) {
+        if ((uiTex & SURFACE_FLAG_APPLY_TEXTURE) != 0 && iTexturesEnabled) {
+          iCartexOffset = car_texmap[uiCarDesignIdxTimes4 / 4];
+          iGfxSize = gfx_size;
+          //POLYTEX((int)*(&horizon_vga + iCartexOffset), pScreenBuffer, &CarPol, iCartexOffset, gfx_size); TODO
+          POLYFLAT(pScreenBuffer, &CarPol);
+        } else                                    // flat color pol
+        {
+          POLYFLAT(pScreenBuffer, &CarPol);
         }
-      } else {
-        v96 = gfx_size;
+      } else                                      // near plane clipping required
+      {
+        iGfxSize = gfx_size;
+        // Subdivide pol for proper clipping
         subdivide(
-          v114,
-          (int)&CarPol,
-          *(float *)(v101 + 20),
-          *(float *)(v101 + 24),
-          *(float *)(v101 + 28),
-          *(float *)(v102 + 20),
-          *(float *)(v102 + 24),
-          *(float *)(v102 + 28),
-          *(float *)(v103 + 20),
-          *(float *)(v103 + 24),
-          *(float *)(v103 + 28),
-          *(float *)(v104 + 20),
-          *(float *)(v104 + 24),
-          *(float *)(v104 + 28),
-          v143,
+          pScreenBuffer,
+          &CarPol,
+          screenVertAy[0]->view.fX,
+          screenVertAy[0]->view.fY,
+          screenVertAy[0]->view.fZ,
+          screenVertAy[1]->view.fX,
+          screenVertAy[1]->view.fY,
+          screenVertAy[1]->view.fZ,
+          screenVertAy[2]->view.fX,
+          screenVertAy[2]->view.fY,
+          screenVertAy[2]->view.fZ,
+          screenVertAy[3]->view.fX,
+          screenVertAy[3]->view.fY,
+          screenVertAy[3]->view.fZ,
+          iSubPolType,
           gfx_size);
       }
-      v83 += 12;
-    } while (v83 < v147);
-  }*/
+      iDrawIdx += 12;
+    } while (iDrawIdx < iTotalZOrderBytes);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

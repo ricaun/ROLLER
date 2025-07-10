@@ -14,15 +14,10 @@ typedef struct
 
 typedef struct
 {
-  uint8 byVert1;
-  uint8 byVert2;
-  uint8 byVert3;
-  uint8 byVert4;
+  uint8 verts[4];
   uint32 uiTex;
-  uint8 byUnknown1;
-  uint8 byUnknown2;
-  uint8 byUnknown3;
-  uint8 byUnknown4;
+  int16 nNextPolIdx;
+  uint16 padding;
 } tPolygon;
 
 //-------------------------------------------------------------------------------------------------

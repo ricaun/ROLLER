@@ -844,10 +844,10 @@ void select_screen()
         front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 52, 0x8Fu, 1u);
       }
     } else if (iBlockIdx >= 0) {
-      //if (iBlockIdx == 12)
-      //  DrawCar((int)(scrbuf + 34640), 12, 6000.0, 1280, 0);
-      //else
-      //  DrawCar((int)(scrbuf + 34640), iBlockIdx, 2200.0, 1280, 0);
+      if (iBlockIdx == CAR_DESIGN_F1WACK)
+        DrawCar(scrbuf + 34640, CAR_DESIGN_F1WACK, 6000.0, 1280, 0);
+      else
+        DrawCar(scrbuf + 34640, iBlockIdx, 2200.0, 1280, 0);
       if (iBlockIdx < 8)
         display_block(scrbuf, (tBlockHeader *)front_vga[3], iBlockIdx, 190, 356, 0);
     }

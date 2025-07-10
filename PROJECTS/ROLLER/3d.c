@@ -85,6 +85,14 @@ volatile int ticks;         //0013E92C
 float tatn[1025];           //0013E95C
 uint32 textures_off;        //0013F960
 int tex_count;              //0013F964
+int vtilt;                  //0013F968
+int worldtilt;              //0013F96C
+float worldx;               //0013F970
+float worldy;               //0013F974
+float worldz;               //0013F978
+int worldelev;              //0013F97C
+int velevation;             //0013F980
+int vdirection;             //0013F984
 int scr_size;               //0013F988
 int ybase;                  //0013F98C
 int xbase;                  //0013F990

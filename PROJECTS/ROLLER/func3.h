@@ -29,7 +29,7 @@ void ChampionshipStandings(int a1, int a2, int a3, char *a4);
 void TeamStandings(int a1, int a2, int a3, char *a4);
 void ShowLapRecords(int a1, int a2, int a3, char *a4);
 void show_3dmap(float a1, int a2, int a3);
-void DrawCar(int a1, int a2, float a3, int a4, char a5);
+void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, int iAngle, char byAnimFrame);
 void *championship_winner(int a1, int a2, int a3, char *a4);
 int print_mem_used();
 uint8 *try_load_picture(const char *szFile);
