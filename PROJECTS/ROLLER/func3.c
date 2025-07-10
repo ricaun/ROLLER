@@ -2158,7 +2158,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
     CarPt[uiVertIdx / 8].view.fZ = fClippedZ;
   } while (uiVertIdx != 32);
 
-  // Draw car bounding box?
+  // Draw car shadow
   CarPol.vertices[0] = CarPt[0].screen;
   CarPol.vertices[1] = CarPt[1].screen;
   CarPol.vertices[2] = CarPt[2].screen;

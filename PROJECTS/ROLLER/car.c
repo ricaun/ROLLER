@@ -121,7 +121,6 @@ void CalcCarSizes()
   int iCarBoxIdx; // eax
   tVec3 *pAutoCoords; // edx
   int16 nAutoCoordsIdx; // bx
-  int result; // eax
   float fZLow; // [esp+0h] [ebp-28h]
   float fZHigh; // [esp+4h] [ebp-24h]
   float fYHigh; // [esp+8h] [ebp-20h]
@@ -166,7 +165,7 @@ void CalcCarSizes()
       fXHigh = fXHigh * 0.25f;
       fYHigh = fYHigh * 0.25f;
     }
-    iCarBoxIdx = 8 * nCarDesignsIdx;            // 24 for 8 3-float points defining a hitbox
+    iCarBoxIdx = nCarDesignsIdx;                // 24 for 8 3-float points defining a hitbox
     CarBox.hitboxAy[iCarBoxIdx][0].fX = fXLow;
     CarBox.hitboxAy[iCarBoxIdx][0].fY = fYLow;
     CarBox.hitboxAy[iCarBoxIdx][0].fZ = fZLow;
@@ -202,7 +201,6 @@ void CalcCarSizes()
       CarBaseY = pAutoCoords->fY;
     ++pAutoCoords;
   }
-  result = cheat_mode;
   if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0) {
     CarBaseX = CarBaseX * 0.25f;
     CarBaseY = CarBaseY * 0.25f;
