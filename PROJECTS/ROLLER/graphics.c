@@ -1,10 +1,40 @@
 #include "graphics.h"
 #include "3d.h"
 #include "transfrm.h"
+#include "sound.h"
+#include "roller.h"
 #include <stdbool.h>
 #include <math.h>
+#include <fcntl.h>
+#ifdef IS_WINDOWS
+#include <io.h>
+#define open _open
+#define close _close
+#else
+#include <inttypes.h>
+#include <unistd.h>
+#define O_BINARY 0 //linux does not differentiate between text and binary
+#endif
 //-------------------------------------------------------------------------------------------------
 
+char revs_files1[6][13] = //000A41C0
+{
+  "minitext.bm",
+  "font6.bm",
+  "panel2.bm",
+  "font3.bm",
+  "pancar1.bm",
+  ""
+};
+char revs_files2[6][13] = //000A420E
+{
+  "minitext.bm",
+  "font6.bm",
+  "panel2.bm",
+  "font3.bm",
+  "pancar2.bm",
+  ""
+};
 int gfx_size;     //00149740
 int NoOfTextures; //00149748
 
@@ -423,59 +453,61 @@ void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 //-------------------------------------------------------------------------------------------------
 
 void LoadPanel()
-{/*
-  int v1; // ebx
-  char *v2; // ecx
-  int v3; // esi
-  __int64 v4; // rax
-  int v5; // edi
-  unsigned int v6; // eax
-  unsigned int v7; // eax
-  char *v8; // ecx
-  int v9; // esi
-  int v10; // edx
-  unsigned int v11; // eax
-  unsigned int v12; // eax
-  char v13; // [esp-10h] [ebp-14h]
+{
+  int iRevIdx;
+  char *szRevPtr;
+  const char *szRevFile;
+  int iFileHandle;
+  uint32 uiFileLength;
+  void *pBuf;
 
-  v13 = a1;
-  v1 = 0;
-  if (((unsigned int)cstart_branch_1 & textures_off) != 0) {
-    v2 = revs_files2;
-    v3 = 0;
-    while (revs_files2[13 * v1]) {
-      v4 = open(&revs_files2[13 * v1], 512, v13);
-      v5 = v4;
-      if ((_DWORD)v4 == -1) {
-        printf(aUnableToOpenS);
+  iRevIdx = 0;
+
+  if ((textures_off & 0x10000) != 0) {
+    szRevPtr = revs_files2[0];
+    while (revs_files2[iRevIdx][0]) {
+      szRevFile = revs_files2[iRevIdx];
+
+      // Check if file exists
+      iFileHandle = ROLLERopen(szRevFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+      if (iFileHandle == -1) {
+        printf("Unable to open %s\n\n", szRevFile);
         doexit();
       }
-      close(v5, HIDWORD(v4));
-      ++v3;
-      v6 = getcompactedfilelength(v2);
-      v7 = getbuffer(v6);
-      cargen_vga[v3] = v7;
-      loadcompactedfile(v2, v7, ++v1, v2);
-      v2 += 13;
+      close(iFileHandle);
+
+      // Load the compressed file
+      uiFileLength = getcompactedfilelength(szRevPtr);
+      pBuf = getbuffer(uiFileLength);
+      rev_vga[iRevIdx] = pBuf;  // Store buffer pointer in array
+      loadcompactedfile(szRevPtr, (uint8 *)pBuf);
+
+      ++iRevIdx;
+      szRevPtr += 13;  // Move to next filename
     }
   } else {
-    v8 = revs_files1;
-    v9 = 0;
-    while (revs_files1[13 * v1]) {
-      v10 = open(&revs_files1[13 * v1], 512, v13);
-      if (v10 == -1) {
-        printf(aUnableToOpenS);
+    szRevPtr = revs_files1[0];
+    while (revs_files1[iRevIdx][0]) {
+      szRevFile = revs_files1[iRevIdx];
+
+      // Check if file exists
+      iFileHandle = ROLLERopen(revs_files1[iRevIdx], O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+      if (iFileHandle == -1) {
+        printf("Unable to open %s\n\n", szRevFile);
         doexit();
       }
-      close(v10, v10);
-      ++v9;
-      v11 = getcompactedfilelength(v8);
-      v12 = getbuffer(v11);
-      cargen_vga[v9] = v12;
-      loadcompactedfile(v8, v12, ++v1, v8);
-      v8 += 13;
+      close(iFileHandle);
+
+      // Load the compressed file
+      uiFileLength = getcompactedfilelength(szRevPtr);
+      pBuf = getbuffer(uiFileLength);
+      rev_vga[iRevIdx] = pBuf;  // Store buffer pointer in array
+      loadcompactedfile(szRevPtr, (uint8 *)pBuf);
+
+      ++iRevIdx;
+      szRevPtr += 13;  // Move to next filename
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

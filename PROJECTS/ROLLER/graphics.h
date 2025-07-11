@@ -4,6 +4,8 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern char revs_files1[6][13];
+extern char revs_files2[6][13];
 extern int gfx_size;
 extern int NoOfTextures;
 
