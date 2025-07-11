@@ -324,8 +324,12 @@ void title_screens()
 
   setpal(bHasTitle ? "title.pal" : "whipped.pal");
   front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
+
+  SDL_LockMutex(g_pScreenMutex);
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
+  SDL_UnlockMutex(g_pScreenMutex);
+
 #if _DEBUG
   // cheat_mode = CHEAT_MODE_DEATH_MODE; // enable speech in debug mode Added by ROLLER
 #endif
@@ -361,7 +365,11 @@ void copy_screens()
   mirror = 0;
   setpal("gremlin.pal");
   front_vga[0] = load_picture("gremlin.bm");
+  
+  SDL_LockMutex(g_pScreenMutex);
   display_picture(scrbuf, front_vga[0]);
+  SDL_UnlockMutex(g_pScreenMutex);
+
   copypic(scrbuf, (uint8 *)screen);
   fade_palette(32);
   disable_keyboard();
@@ -704,6 +712,8 @@ void select_screen()
       replaytype = 2;
     }
     check_cars();
+    
+    SDL_LockMutex(g_pScreenMutex);
     display_picture(scrbuf, front_vga[0]);
     display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
     display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
@@ -925,6 +935,8 @@ void select_screen()
       front_text((tBlockHeader *)front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 250, 0xE7u, 1u);
     show_received_mesage();
     copypic(scrbuf, (uint8 *)screen);
+    SDL_UnlockMutex(g_pScreenMutex);
+
     if (switch_same > 0) {
       if (game_type != 1 && switch_same - 666 != iBlockIdx) {
         if (iBlockIdx >= 0) {

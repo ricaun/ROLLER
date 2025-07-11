@@ -3391,13 +3391,13 @@ void fade_palette(int iTargetBrightness)
       // FADE IN LOOP
     for (int iStep = iCurrentBrightness; iStep <= iTargetBrightness; iStep++) {
 
-      SDL_LockMutex(g_pPaletteMutex);
+      SDL_LockMutex(g_pScreenMutex);
       for (int i = 0; i < 256; i++) {
         pal_addr[i].byR = (palette[i].byR * iStep) >> 5;
         pal_addr[i].byB = (palette[i].byB * iStep) >> 5;
         pal_addr[i].byG = (palette[i].byG * iStep) >> 5;
       }
-      SDL_UnlockMutex(g_pPaletteMutex);
+      SDL_UnlockMutex(g_pScreenMutex);
 
       if (current_mode != 0) {
         //could also do this instead of SDL timer
@@ -3436,13 +3436,13 @@ void fade_palette(int iTargetBrightness)
         }
       }
 
-      SDL_LockMutex(g_pPaletteMutex);
+      SDL_LockMutex(g_pScreenMutex);
       for (int i = 0; i < 256; i++) {
         pal_addr[i].byR = (palette[i].byR * iStep) >> 5;
         pal_addr[i].byB = (palette[i].byB * iStep) >> 5;
         pal_addr[i].byG = (palette[i].byG * iStep) >> 5;
       }
-      SDL_UnlockMutex(g_pPaletteMutex);
+      SDL_UnlockMutex(g_pScreenMutex);
 
       if (current_mode != 0) {
         int iPrevS7 = s7;
@@ -3463,9 +3463,9 @@ void fade_palette(int iTargetBrightness)
     SDL_RemoveTimer(uiTimerHandle); //added by ROLLER
   }
 
-  SDL_LockMutex(g_pPaletteMutex);
+  SDL_LockMutex(g_pScreenMutex);
   memcpy(pal_addr, palette, 768);
-  SDL_UnlockMutex(g_pPaletteMutex);
+  SDL_UnlockMutex(g_pScreenMutex);
   
   palette_brightness = iTargetBrightness;
   tick_on = iOriginalTickOn;
