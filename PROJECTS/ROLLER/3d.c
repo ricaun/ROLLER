@@ -57,7 +57,7 @@ int network_on = 0;         //000A3510
 int mirror = 0;             //000A3524
 int mpressed = 0;           //000A352C
 int jpressed = 0;           //000A352D
-void *screen = NULL; //= 0xA0000; //000A3538
+uint8 *screen = NULL; //= 0xA0000; //000A3538
 uint8 *scrbuf = NULL;        //000A353C
 void *mirbuf = NULL;        //000A3540
 void *texture_vga = NULL;   //000A3544
@@ -159,6 +159,7 @@ int player1_car;            //0013FB80
 
 void copypic(uint8 *pSrc, uint8 *pDest)
 {
+  UpdateSDLWindow();
   /*  int j; // edx
   uint8 *v4; // esi
   uint8 *v5; // edi

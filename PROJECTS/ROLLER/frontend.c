@@ -322,18 +322,19 @@ void title_screens()
     fclose(pTitlePal);
   }
 
+  //SDL_LockMutex(g_pScreenMutex);
   setpal(bHasTitle ? "title.pal" : "whipped.pal");
   front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
 
-  SDL_LockMutex(g_pScreenMutex);
+  //SDL_LockMutex(g_pScreenMutex);
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
-  SDL_UnlockMutex(g_pScreenMutex);
+  //SDL_UnlockMutex(g_pScreenMutex);
 
 #if _DEBUG
   // cheat_mode = CHEAT_MODE_DEATH_MODE; // enable speech in debug mode Added by ROLLER
 #endif
-  copypic(scrbuf, (uint8 *)screen);
+  copypic(scrbuf, screen);
   loadfatalsample();
   fade_palette(32);
   if ((cheat_mode & (CHEAT_MODE_KILLER_OPPONENTS | CHEAT_MODE_DEATH_MODE)) != 0)
@@ -363,19 +364,22 @@ void copy_screens()
   winy = 0;
   winh = YMAX;
   mirror = 0;
+
+  //SDL_LockMutex(g_pScreenMutex);
   setpal("gremlin.pal");
   front_vga[0] = load_picture("gremlin.bm");
   
-  SDL_LockMutex(g_pScreenMutex);
+  //SDL_LockMutex(g_pScreenMutex);
   display_picture(scrbuf, front_vga[0]);
-  SDL_UnlockMutex(g_pScreenMutex);
+  //SDL_UnlockMutex(g_pScreenMutex);
 
-  copypic(scrbuf, (uint8 *)screen);
   fade_palette(32);
+  copypic(scrbuf, screen);
   disable_keyboard();
   ticks = 0;
-  while (ticks < 180)
+  while (ticks < 180) {
     UpdateSDL();
+  }
   fre(&front_vga[0]);
   fade_palette(0);
 }
@@ -713,7 +717,7 @@ void select_screen()
     }
     check_cars();
     
-    SDL_LockMutex(g_pScreenMutex);
+    //SDL_LockMutex(g_pScreenMutex);
     display_picture(scrbuf, front_vga[0]);
     display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
     display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
@@ -934,8 +938,8 @@ void select_screen()
     if (iQuitConfirmed)
       front_text((tBlockHeader *)front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 250, 0xE7u, 1u);
     show_received_mesage();
-    copypic(scrbuf, (uint8 *)screen);
-    SDL_UnlockMutex(g_pScreenMutex);
+    copypic(scrbuf, screen);
+    //SDL_UnlockMutex(g_pScreenMutex);
 
     if (switch_same > 0) {
       if (game_type != 1 && switch_same - 666 != iBlockIdx) {

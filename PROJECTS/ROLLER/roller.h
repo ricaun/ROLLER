@@ -11,7 +11,8 @@
 
 extern SDL_Gamepad *g_pController1;
 extern SDL_Gamepad *g_pController2;
-extern SDL_Mutex *g_pScreenMutex;
+extern bool g_bPaletteSet;
+//extern SDL_Mutex *g_pScreenMutex;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -19,6 +20,7 @@ extern SDL_Mutex *g_pScreenMutex;
 int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
+void UpdateSDLWindow();
 
 bool MIDI_Init(const char *config_file);
 void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length);

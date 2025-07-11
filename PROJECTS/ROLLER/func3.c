@@ -4015,7 +4015,7 @@ void no_cd()
     1u);
 
   // Copy to scrbuf and fade in
-  copypic(scrbuf, (uint8 *)screen);
+  copypic(scrbuf, screen);
   fade_palette(32);
 
   // Wait for user input

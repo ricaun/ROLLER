@@ -92,7 +92,7 @@ extern int network_on;
 extern int mirror;
 extern int mpressed;
 extern int jpressed;
-extern void *screen;
+extern uint8 *screen;
 extern uint8 *scrbuf;
 extern void *mirbuf;
 extern void *texture_vga;

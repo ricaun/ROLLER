@@ -1492,7 +1492,7 @@ void clear_border(int x, int y, int iWidth, int iLines)
 
   // Clear each specified line
   for (winh = 1; iLine < iLines; ++winy) {
-    copypic(blank_line, (uint8 *)screen);
+    copypic(blank_line, screen);
     ++iLine;
   }
 
