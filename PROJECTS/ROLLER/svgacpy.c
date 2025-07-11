@@ -218,7 +218,7 @@ int VESAmode(int *vesaModeAy)
   //  return -1;
   //}
 
-  return 0x101; //added by ROLLER, pretend to be VESA mode 0x101
+  return 0; //added by ROLLER, pretend to be VESA mode 0
 }
 
 //-------------------------------------------------------------------------------------------------

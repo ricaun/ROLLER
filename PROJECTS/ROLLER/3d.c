@@ -159,70 +159,62 @@ int player1_car;            //0013FB80
 
 void copypic(uint8 *pSrc, uint8 *pDest)
 {
+  //added by ROLLER
   UpdateSDLWindow();
-  /*  int j; // edx
-  uint8 *v4; // esi
-  uint8 *v5; // edi
-  uint8 *v6; // ecx
-  uint8 *v7; // eax
-  int i; // esi
-  int v9; // edx
-  int v10; // edi
-  uint8 v11; // bl
+  return;
 
-  if ( SVGA_ON )
-  {
-    if ( SVGA_ON == 1 )
-    {
+  int iRowIdx; // edx
+  uint8 *pSrcRow; // esi
+  uint8 *pDestRow; // edi
+  uint8 *pSrcPixel; // ecx
+  uint8 *pDestPixel; // eax
+  int i; // esi
+  int iPixelIdx; // edx
+  int iWindowWidth; // edi
+  uint8 byCurrPixel; // bl
+
+  if (SVGA_ON) {
+    if (SVGA_ON == 1) {
+      // Mode X (planar VGA mode)
       copyscreenmodex(pSrc, pDest);
+    } else if (scrmode == 257) {
+      // SVGA mode with 40-pixel Y offset
+      svgacopy(pSrc, winx, winy + 40, (int16)winw, (int16)winh);
+    } else {
+      // Standard SVGA mode
+      svgacopy(pSrc, winx, winy, (int16)winw, (int16)winh);
     }
-    else if ( scrmode == 257 )
-    {
-      svgacopy(pSrc, winx, winy + 40, (__int16)winw, (__int16)winh);
-    }
-    else
-    {
-      svgacopy(pSrc, winx, winy, (__int16)winw, (__int16)winh);
-    }
-  }
-  else if ( winw != XMAX || winx || mirror )
-  {
-    if ( mirror )
-    {
-      v6 = pSrc;
-      v7 = &pDest[XMAX * winy - 1 + winx + winw];
-      for ( i = 0; i < winh; v7 += XMAX + winw )
-      {
-        v9 = 0;
-        if ( winw > 0 )
-        {
-          do
-          {
-            v10 = winw;
-            --v7;
-            v11 = *v6++;
-            ++v9;
-            v7[1] = v11;
-          }
-          while ( v9 < v10 );
+  } else if (winw != XMAX || winx || mirror) {
+    if (mirror) {
+      pSrcPixel = pSrc;
+      pDestPixel = &pDest[XMAX * winy - 1 + winx + winw];
+      for (i = 0; i < winh; pDestPixel += XMAX + winw) {
+        iPixelIdx = 0;
+
+        // Copy each pixel in the row in reverse order
+        if (winw > 0) {
+          do {
+            iWindowWidth = winw;
+            --pDestPixel;
+            byCurrPixel = *pSrcPixel++;
+            ++iPixelIdx;
+            pDestPixel[1] = byCurrPixel;
+          } while (iPixelIdx < iWindowWidth);
         }
         ++i;
       }
-    }
-    else
-    {
-      for ( j = 0; j < winh; ++j )
-      {
-        v4 = &pSrc[winw * j];
-        v5 = &pDest[XMAX * (j + winy) + winx];
-        qmemcpy(v5, v4, winw);
+    } else {
+      // Standard windowed copy, copy rect to specific pos
+      for (iRowIdx = 0; iRowIdx < winh; ++iRowIdx) {
+        pSrcRow = &pSrc[winw * iRowIdx];
+        pDestRow = &pDest[XMAX * (iRowIdx + winy) + winx];
+        memcpy(pDestRow, pSrcRow, winw);
       }
     }
+  } else {
+    // Full screen copy
+    memcpy(&pDest[winw * winy], pSrc, winh * winw);
   }
-  else
-  {
-    qmemcpy(&pDest[winw * winy], pSrc, winh * winw);
-  }*/
 }
 
 //-------------------------------------------------------------------------------------------------
