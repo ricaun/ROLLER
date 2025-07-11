@@ -9,7 +9,7 @@ extern int NoOfTextures;
 
 //-------------------------------------------------------------------------------------------------
 
-void plotxyz(float a1, float a2, float a3, char a4);
+void plotxyz(float fWorldX, float fWorldY, float fWorldZ, char byColor);
 void linexyz(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, char a7);
 void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);

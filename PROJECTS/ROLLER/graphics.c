@@ -1,6 +1,8 @@
 #include "graphics.h"
 #include "3d.h"
+#include "transfrm.h"
 #include <stdbool.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 int gfx_size;     //00149740
@@ -8,36 +10,49 @@ int NoOfTextures; //00149748
 
 //-------------------------------------------------------------------------------------------------
 
-void plotxyz(float a1, float a2, float a3, char a4)
-{/*
-  double v8; // st6
-  double v9; // st5
-  double v10; // st7
-  float v11; // [esp+4h] [ebp-24h]
-  float v12; // [esp+8h] [ebp-20h]
-  float v13; // [esp+Ch] [ebp-1Ch]
-  int v14; // [esp+10h] [ebp-18h]
-  float v15; // [esp+14h] [ebp-14h]
+void plotxyz(float fWorldX, float fWorldY, float fWorldZ, char byColor)
+{
+  double dPerspectiveScale; // st6
+  double dScreenX; // st5
+  double dScreenY; // st7
+  float fTransformedX; // [esp+4h] [ebp-24h]
+  float fTransformedY; // [esp+8h] [ebp-20h]
+  float fTransformedZ; // [esp+Ch] [ebp-1Ch]
+  int iScreenXInt; // [esp+10h] [ebp-18h]
+  float fViewDistance; // [esp+14h] [ebp-14h]
 
-  k1 = a1 - viewx;
-  k2 = a2 - viewy;
-  k3 = a3 - viewz;
-  if (fabs(k1) <= graphics_c_variable_1 && fabs(k2) <= graphics_c_variable_1 && fabs(k3) <= graphics_c_variable_1) {
-    v12 = k1 * vk2 + k2 * vk5 + k3 * vk8;
-    v13 = k1 * vk3 + k2 * vk6 + k3 * vk9;
-    v15 = (float)VIEWDIST;
-    if (v13 >= (double)v15) {
-      v8 = 1.0 / v13;
-      v11 = k1 * vk1 + k2 * vk4 + k3 * vk7;
-      v9 = v15 * v11 * v8 + (double)xbase;
-      _CHP();
-      v14 = (int)v9;
-      v10 = v8 * (v15 * v12) + (double)ybase;
-      _CHP();
-      if ((int)v9 >= 0 && v14 <= 319 && (unsigned int)(int)v10 < 0xC8)
-        scrbuf[v14 + winw * (199 - (int)v10)] = a4;
+  // Transform world coords to camera-relative coords
+  k1 = fWorldX - viewx;
+  k2 = fWorldY - viewy;
+  k3 = fWorldZ - viewz;
+
+  // Frustum culling - only process points within max render distance (5600)
+  if (fabs(k1) <= 5600.0 && fabs(k2) <= 5600.0 && fabs(k3) <= 5600.0) {
+    // Apply camera transformation mat
+    fTransformedY = k1 * vk2 + k2 * vk5 + k3 * vk8;// right vector proj
+    fTransformedZ = k1 * vk3 + k2 * vk6 + k3 * vk9;// up vector proj
+
+    fViewDistance = (float)VIEWDIST;
+
+    // Only render points in front of camera (positive z)
+    if (fTransformedZ >= (double)fViewDistance) {
+      dPerspectiveScale = 1.0 / fTransformedZ;
+
+      // Transform X to camera space using forward vec
+      fTransformedX = k1 * vk1 + k2 * vk4 + k3 * vk7;
+      dScreenX = fViewDistance * fTransformedX * dPerspectiveScale + (double)xbase;
+      dScreenX = round(dScreenX); //_CHP
+      iScreenXInt = (int)dScreenX;
+      dScreenY = dPerspectiveScale * (fViewDistance * fTransformedY) + (double)ybase;
+      dScreenY = round(dScreenY); //_CHP
+
+      // Clip to screen bounds and plot pixel to 320x200 screen
+      if ((int)dScreenX >= 0 && iScreenXInt <= 319 && (unsigned int)(int)dScreenY < 200)
+        // plot pixel with y coord flipped (199-y for top-down screen layout)
+        // screen buffer offset: (x + width*flippedY)
+        scrbuf[iScreenXInt + winw * (199 - (int)dScreenY)] = byColor;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

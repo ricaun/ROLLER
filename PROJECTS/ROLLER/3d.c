@@ -82,6 +82,15 @@ int p_joyk1[2];             //0013E048
 int p_joyk2[2];             //0013E050
 tMemBlock mem_blocks[128];  //0013E058
 volatile int ticks;         //0013E92C
+float k1;                   //0013E938
+float k2;                   //0013E93C
+float k3;                   //0013E940
+float k4;                   //0013E944
+float k5;                   //0013E948
+float k6;                   //0013E94C
+float k7;                   //0013E950
+float k8;                   //0013E954
+float k9;                   //0013E958
 float tatn[1025];           //0013E95C
 uint32 textures_off;        //0013F960
 int tex_count;              //0013F964
