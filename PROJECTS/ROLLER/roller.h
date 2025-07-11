@@ -12,7 +12,6 @@
 extern SDL_Gamepad *g_pController1;
 extern SDL_Gamepad *g_pController2;
 extern bool g_bPaletteSet;
-//extern SDL_Mutex *g_pScreenMutex;
 
 //-------------------------------------------------------------------------------------------------
 
