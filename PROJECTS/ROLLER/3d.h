@@ -19,7 +19,7 @@ typedef struct
 {
   tVec3 pointAy[4];
   float fUnk13;
-  float fUnk14;
+  float fTrackHalfWidth;
   int iUnk15;
   int iUnk16;
   float fUnk17;

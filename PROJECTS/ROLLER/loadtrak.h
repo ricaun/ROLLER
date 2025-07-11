@@ -17,11 +17,25 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  tVec3 center;
+  int iUnk1;
+  int iUnk2;
+  int iUnk3;
+  int iLeftSurfaceType;
+  int iRightSurfaceType;
+  float fUnk6;
+} tTrackInfo;
+
+//-------------------------------------------------------------------------------------------------
+
 extern uint8 TrackSelect;
 extern char *delims;
 extern tTrakView TrakView[500];
 extern int cur_laps[6];
 extern int meof;
+extern tTrackInfo TrackInfo[500];
 extern float cur_TrackZ;
 extern int TRAK_LEN;
 

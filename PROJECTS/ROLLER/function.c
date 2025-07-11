@@ -1,6 +1,8 @@
 #include "function.h"
 #include "loadtrak.h"
 #include "control.h"
+#include <stdlib.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 void finish_race()
@@ -1050,83 +1052,106 @@ int changemateto(int result, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int linevalid(int a1, float a2, float a3)
+int linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
 {
-  return 0;/*
-  float *v6; // ecx
-  int *v7; // edx
-  unsigned int v8; // esi
-  unsigned int v9; // ebx
-  int v10; // ecx
-  int v11; // edi
-  int v12; // ebp
-  int v13; // edi
-  int v14; // edi
-  unsigned int v15; // eax
+  tData *pData; // ecx
+  tTrackInfo *pTrackInfo; // edx
+  unsigned int uiStartRegion; // esi
+  unsigned int uiEndRegion; // ebx
+  int iInvalidResult; // ecx
+  int iLeftSurfaceType; // edi
+  int iLeftSurfaceBlocked; // ebp
+  int iRightSurfaceType; // edi
+  int iRightSurfaceBlocked; // edi
+  unsigned int iNotRendered; // eax
 
-  v6 = (float *)((char *)&localdata + 128 * a1);
-  v7 = &TrackInfo[9 * a1];
-  if (a2 <= (double)v6[13]) {
-    if (-v6[13] <= a2)
-      v8 = 1;
+  pData = &localdata[iChunkIdx];
+  pTrackInfo = &TrackInfo[iChunkIdx];
+
+  // Classify start coordinate relative to track boundaries
+  if (fStartCoord <= (double)pData->fTrackHalfWidth) {
+    if (-pData->fTrackHalfWidth <= fStartCoord)
+      uiStartRegion = 1;                        // inside track boundaries
     else
-      v8 = 2;
+      uiStartRegion = 2;                        // outside track (negative side)
   } else {
-    v8 = 0;
+    uiStartRegion = 0;                          // outside track (positive side)
   }
-  if (a3 <= (double)v6[13]) {
-    if (-v6[13] <= a3)
-      v9 = 1;
+  if (fEndCoord <= (double)pData->fTrackHalfWidth) {
+    if (-pData->fTrackHalfWidth <= fEndCoord)
+      uiEndRegion = 1;                          // inside track boundaries
     else
-      v9 = 2;
+      uiEndRegion = 2;                          // outside track (negative side)
   } else {
-    v9 = 0;
+    uiEndRegion = 0;                            // outside track (positive side)
   }
-  v10 = -1;
-  if (v8 == v9)
-    return v10;
-  v11 = v7[6];
-  if (v11 == 5 || v11 == 6 || v11 == 9)
-    v12 = -1;
+
+  // If both points are in the same region, line doesn't cross track boundaries
+  iInvalidResult = -1;
+  if (uiStartRegion == uiEndRegion)
+    return iInvalidResult;
+
+  // Check surface types that block visibility
+  iLeftSurfaceType = pTrackInfo->iLeftSurfaceType;
+  if (iLeftSurfaceType == 5 || iLeftSurfaceType == 6 || iLeftSurfaceType == 9)
+    iLeftSurfaceBlocked = -1;                   // surface blocks visibility
   else
-    v12 = 0;
-  v13 = v7[7];
-  if (v13 == 5 || v13 == 6 || v13 == 9)
-    v14 = -1;
+    iLeftSurfaceBlocked = 0;
+
+  iRightSurfaceType = pTrackInfo->iRightSurfaceType;
+  if (iRightSurfaceType == 5 || iRightSurfaceType == 6 || iRightSurfaceType == 9)
+    iRightSurfaceBlocked = -1;                  // surface blocks visibility
   else
-    v14 = 0;
-  v15 = abs32(*((_DWORD *)&TrakColour_variable_3 + 6 * a1)) & 0x20000;
-  if (!v8) {
-    if (!v9)
-      return v10;
-    if (v9 > 1) {
-      if (!v12 && !v14 && !v15)
-        return v10;
+    iRightSurfaceBlocked = 0;
+
+  // Check if invisible
+  iNotRendered = abs(TrakColour[iChunkIdx].uiSurfType2) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
+
+  // Determine line validity based on region crossing and surface blocking
+  if (!uiStartRegion)                         // start outside positive side
+  {
+    if (!uiEndRegion)                         // both outside positive (shouldn't happen)
+      return iInvalidResult;
+    if (uiEndRegion > 1)                      // end outside negative side
+    {
+      // Line crosses entire track, blocked if any barriers present and not rendered
+      if (!iLeftSurfaceBlocked && !iRightSurfaceBlocked && !iNotRendered)
+        return iInvalidResult;                  // valid if barriers or not rendered
       return 0;
     }
-    goto LABEL_34;
+    goto CHECK_LEFT_SURFACE;                    // Start outside positive, end inside track
   }
-  if (v8 <= 1) {
-    if (v9) {
-      if (v9 != 2 || !v14)
-        return v10;
+
+  if (uiStartRegion <= 1)                     // start inside track
+  {
+    if (uiEndRegion) {
+      if (uiEndRegion != 2 || !iRightSurfaceBlocked)
+        return iInvalidResult;                  // valid if crossing to blocked right surface
       return 0;
     }
-  LABEL_34:
-    if (v12)
-      return 0;
-    return v10;
+  CHECK_LEFT_SURFACE:
+      // start inside, end outside positive - check left surface
+    if (iLeftSurfaceBlocked)
+      return 0;                                 // valid if left surface blocked
+    return iInvalidResult;
   }
-  if (!v9) {
-    if (!v12 && !v14 && !v15)
-      return v10;
+
+  // Start outside negative side
+  if (!uiEndRegion)                           // end outside positive
+  {
+    // Line crosses entire track, blocked if no barriers and not rendered
+    if (!iLeftSurfaceBlocked && !iRightSurfaceBlocked && !iNotRendered)
+      return iInvalidResult;                    // valid if barriers or not rendered
     return 0;
   }
-  if (v9 != 1)
+
+  if (uiEndRegion != 1)                       // end not inside track
     return -1;
-  if (v14)
-    return 0;
-  return v10;*/
+
+  // Start outside negative, end inside - check right surface
+  if (iRightSurfaceBlocked)
+    return 0;                                   // valid if right surface blocked
+  return iInvalidResult;
 }
 
 //-------------------------------------------------------------------------------------------------

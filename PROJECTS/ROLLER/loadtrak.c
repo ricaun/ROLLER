@@ -9,6 +9,7 @@ char *delims = " ,\n\t\r";  //000A6088
 tTrakView TrakView[500];    //0016FF20
 int cur_laps[6];            //00176898
 int meof;                   //00176AC4
+tTrackInfo TrackInfo[500];  //00171E60
 float cur_TrackZ;           //00178048
 int TRAK_LEN;               //00178050
 

@@ -12,7 +12,7 @@ void initpits();
 void dodamage(int a1, float a2);
 void doviewtend(int a1, int a2, int a3);
 int changemateto(int result, int a2);
-int linevalid(int a1, float a2, float a3);
+int linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
 void analysefalloff(int a1);
 int showmap(int a1, int a2);
 int firework_display();
