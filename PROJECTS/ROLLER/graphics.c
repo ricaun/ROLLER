@@ -3,6 +3,7 @@
 #include "transfrm.h"
 #include "sound.h"
 #include "roller.h"
+#include "func2.h"
 #include <stdbool.h>
 #include <math.h>
 #include <fcntl.h>
@@ -35,8 +36,13 @@ char revs_files2[6][13] = //000A420E
   "pancar2.bm",
   ""
 };
-int gfx_size;     //00149740
-int NoOfTextures; //00149748
+int car_remap[4096];    //001446C0
+int cargen_remap[256];  //001486C0
+int bld_remap[256];     //00148AC0
+int remap_tex[256];     //00148F40
+int mode_c[256];        //00149340
+int gfx_size;           //00149740
+int NoOfTextures;       //00149748
 
 //-------------------------------------------------------------------------------------------------
 
@@ -937,131 +943,157 @@ int LoadTextures(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int init_remap(int result, int a2, int a3, int a4)
+void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIsLowRes)
 {
-  return 0;/*
-  int v4; // edi
-  int v5; // ebx
-  int v6; // eax
-  unsigned __int8 *v7; // ebx
-  int v8; // ebp
+  int iBlockSize; // edi
+  uint8 *pBlockRow; // ebx
+  int iTexRowBytes_1; // eax
+  uint8 *pBlockData; // ebx
+  int iTotalB; // ebp
   int i; // ecx
   int j; // eax
-  int v11; // edx
-  int v12; // edx
-  int v13; // eax
-  int v14; // ebx
-  int v15; // ebx
-  int v16; // esi
-  int v17; // ebp
-  int v18; // eax
-  int v19; // edx
-  int v20; // [esp+0h] [ebp-40h]
-  int v23; // [esp+Ch] [ebp-34h]
-  int v24; // [esp+10h] [ebp-30h]
-  int v26; // [esp+18h] [ebp-28h]
-  int v27; // [esp+1Ch] [ebp-24h]
-  int v28; // [esp+28h] [ebp-18h]
-  int v29; // [esp+2Ch] [ebp-14h]
-  int v30; // [esp+2Ch] [ebp-14h]
-  int k; // [esp+30h] [ebp-10h]
+  int iMaxColorIdx; // edx
+  int iCurrColorIdx; // edx
+  int iSearchIdx; // eax
+  int iMaxColorCount; // ebx
+  int iColorCount; // ebx
+  int iColorCount_1; // esi
+  int iAvgB; // ebp
+  int iAvgG; // eax
+  int iDominantColorIdx; // edx
+  int iTotalPxCount; // [esp+0h] [ebp-40h]
+  int iTexRowBytes; // [esp+10h] [ebp-30h]
+  int iRemapAyOffset; // [esp+18h] [ebp-28h]
+  int iBlockIdx; // [esp+1Ch] [ebp-24h]
+  int iTotalG; // [esp+28h] [ebp-18h]
+  int iTotalR; // [esp+2Ch] [ebp-14h]
+  int iAvgR; // [esp+2Ch] [ebp-14h]
+  int iDominantColorSearch; // [esp+30h] [ebp-10h]
 
-  v23 = result;
-  if (a4)
-    v4 = 32;
+  // Determine block size based on resolution
+  if (iIsLowRes)
+    iBlockSize = 32;
   else
-    v4 = 64;
-  v27 = 0;
-  if (a3 > 0) {
-    v26 = 0;
-    v24 = a2 << 10;
+    iBlockSize = 64;
+
+  iBlockIdx = 0;
+
+  if (iNumBlocks > 0) {
+    iRemapAyOffset = 0;
+    iTexRowBytes = iRemapType << 10;
     do {
-      if (a4) {
-        v5 = (v27 >> 3 << 13) + v23;
-        v6 = 32 * (v27 & 7);
+      // Calculate tex memory addr for current block
+      if (iIsLowRes) {
+        // 8 blocks per row, each block 32px wide
+        pBlockRow = &pTextureBaseAddr[0x2000 * (iBlockIdx >> 3)];// row start addr
+        iTexRowBytes_1 = 32 * (iBlockIdx & 7);  // column offset
       } else {
-        v5 = (v27 >> 2 << 14) + v23;
-        v6 = (v27 & 3) << 6;
+        // 4 blocks per row, 64px wide
+        pBlockRow = &pTextureBaseAddr[0x4000 * (iBlockIdx >> 2)];// row start addr
+        iTexRowBytes_1 = (iBlockIdx & 3) << 6;  // column offset
       }
-      v7 = (unsigned __int8 *)(v6 + v5);
-      _STOSD(mode_c, 0, v7, 256);
-      v8 = 0;
-      v28 = 0;
-      v29 = 0;
-      for (i = 0; i < v4; ++i) {
-        for (j = 0; j < v4; ++j) {
-          v11 = *v7++;
-          ++mode_c[v11];
+
+      pBlockData = &pBlockRow[iTexRowBytes_1];
+
+      // clear color freq histogram
+      //_STOSD(mode_c, 0, (int)pBlockData, 0x100u);
+      memset(mode_c, 0, 256 * sizeof(int));
+
+      iTotalB = 0;
+      iTotalG = 0;
+      iTotalR = 0;
+
+      // Analyze all pixels in current block
+      for (i = 0; i < iBlockSize; ++i) {
+        for (j = 0; j < iBlockSize; ++j) {
+          iMaxColorIdx = *pBlockData++;         // get pixel color index
+          ++mode_c[iMaxColorIdx];               // inc frequency counter for this color
         }
-        v7 += 256 - v4;
+        pBlockData += 256 - iBlockSize;         // skip to next row
       }
-      v20 = 0;
-      for (k = 0; k < 4; ++k) {
-        v12 = 0;
-        v13 = 0;
-        v14 = 0;
+
+      iTotalPxCount = 0;
+
+      for (iDominantColorSearch = 0; iDominantColorSearch < 4; ++iDominantColorSearch) {
+        iCurrColorIdx = 0;
+        iSearchIdx = 0;
+        iMaxColorCount = 0;
+
+        // Find color with highest frequency
         do {
-          if (mode_c[v14] > mode_c[v12])
-            v12 = v13;
-          ++v13;
-          ++v14;
-        } while (v13 < 256);
-        v15 = mode_c[v12];
-        if (v15 > 4 * v4) {
-          v20 += v15;
-          v29 += mode_c[v12] * (unsigned __int8)palette[3 * v12];
-          v16 = mode_c[v12];
-          v8 += v16 * (unsigned __int8)palette_variable_1[3 * v12];
-          v28 += v16 * (unsigned __int8)palette_variable_2[3 * v12];
-          mode_c[v12] = 0;
+          if (mode_c[iMaxColorCount] > mode_c[iCurrColorIdx])
+            iCurrColorIdx = iSearchIdx;
+          ++iSearchIdx;
+          ++iMaxColorCount;
+        } while (iSearchIdx < 256);
+
+        iColorCount = mode_c[iCurrColorIdx];
+
+        // Only include colors that appear frequently enough (4 * blocksize)
+        if (iColorCount > 4 * iBlockSize) {
+          iTotalPxCount += iColorCount;
+          iTotalR += mode_c[iCurrColorIdx] * palette[iCurrColorIdx].byR;
+          iColorCount_1 = mode_c[iCurrColorIdx];
+          iTotalB += iColorCount_1 * palette[iCurrColorIdx].byB;
+          iTotalG += iColorCount_1 * palette[iCurrColorIdx].byG;
+          mode_c[iCurrColorIdx] = 0;
         }
       }
-      if (v20 <= 0) {
-        v19 = 3 * v12;
-        v30 = (unsigned __int8)palette[v19];
-        v18 = (unsigned __int8)palette_variable_2[v19];
-        v17 = (unsigned __int8)palette_variable_1[v19];
+
+      // Calcualte avg color from dominant colors
+      if (iTotalPxCount <= 0) {
+        // No dominant colors found, use last checked color
+        iDominantColorIdx = iCurrColorIdx;
+        iAvgR = palette[iDominantColorIdx].byR;
+        iAvgG = palette[iDominantColorIdx].byG;
+        iAvgB = palette[iDominantColorIdx].byB;
       } else {
-        v30 = v29 / v20;
-        v17 = v8 / v20;
-        v18 = v28 / v20;
+        // Calculate weighted avg of dominant colors
+        iAvgR = iTotalR / iTotalPxCount;
+        iAvgB = iTotalB / iTotalPxCount;
+        iAvgG = iTotalG / iTotalPxCount;
       }
-      if (a2 < 17) {
-        if (a2 == -1) {
-          if (v30 > 28 && (v17 <= v30) >= v18)
-            v30 = 28;
-          if (v17 > 28 && (v17 <= v30) >= v18)
-            v17 = 28;
-          remap_tex[v26] = nearest_colour(v30, v17, v18);
-          goto LABEL_51;
+
+      // Apply brightness clamping for certain remap types
+      if (iRemapType < 17) {
+        if (iRemapType == -1) {
+          // special case: clamp bright colors
+          if (iAvgR > 28 && (iAvgB <= iAvgR) >= iAvgG)
+            iAvgR = 28;
+          if (iAvgB > 28 && (iAvgB <= iAvgR) >= iAvgG)
+            iAvgB = 28;
+          remap_tex[iRemapAyOffset] = nearest_colour(iAvgR, iAvgB, iAvgG);
+          goto STORE_COMPLETE;
         }
       } else {
-        if (a2 <= 17) {
-          if (v30 > 28 && (v17 <= v30) >= v18)
-            v30 = 28;
-          if (v17 > 28 && (v17 <= v30) >= v18)
-            v17 = 28;
-          bld_remap[v26] = nearest_colour(v30, v17, v18);
-          goto LABEL_51;
+        if (iRemapType <= 17) {
+          // Building remap type
+          if (iAvgR > 28 && (iAvgB <= iAvgR) >= iAvgG)
+            iAvgR = 28;
+          if (iAvgB > 28 && (iAvgB <= iAvgR) >= iAvgG)
+            iAvgB = 28;
+          bld_remap[iRemapAyOffset] = nearest_colour(iAvgR, iAvgB, iAvgG);
+          goto STORE_COMPLETE;
         }
-        if (a2 == 18) {
-          if (v30 > 28 && (v17 <= v30) >= v18)
-            v30 = 28;
-          if (v17 > 28 && (v17 <= v30) >= v18)
-            v17 = 28;
-          cargen_remap[v26] = nearest_colour(v30, v17, v18);
-          goto LABEL_51;
+        if (iRemapType == 18) {
+          // Car remap type
+          if (iAvgR > 28 && (iAvgB <= iAvgR) >= iAvgG)
+            iAvgR = 28;
+          if (iAvgB > 28 && (iAvgB <= iAvgR) >= iAvgG)
+            iAvgB = 28;
+          cargen_remap[iRemapAyOffset] = nearest_colour(iAvgR, iAvgB, iAvgG);
+          goto STORE_COMPLETE;
         }
       }
-      *(int *)((char *)&car_remap + v24) = nearest_colour(v30, v17, v18);
-    LABEL_51:
-      result = v27 + 1;
-      v24 += 4;
-      ++v26;
-      v27 = result;
-    } while (result < a3);
+
+      // Default: store in car_remap
+      *(int *)((char *)car_remap + iTexRowBytes) = nearest_colour(iAvgR, iAvgB, iAvgG);
+    STORE_COMPLETE:
+      iTexRowBytes += 4;                        // move to next pos in remap array
+      ++iRemapAyOffset;
+      ++iBlockIdx;
+    } while (iBlockIdx < iNumBlocks);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
