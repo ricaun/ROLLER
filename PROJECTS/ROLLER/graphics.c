@@ -57,77 +57,120 @@ void plotxyz(float fWorldX, float fWorldY, float fWorldZ, char byColor)
 
 //-------------------------------------------------------------------------------------------------
 
-void linexyz(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, char a7)
-{/*
+void linexyz(uint8 *pScrBuf, float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, uint8 byColor)
+{
   double dViewDist; // st7
-  double v12; // st6
-  double dXbase; // st5
-  double dScrSize; // st4
-  double v15; // rt2
-  double dYBase; // st4
-  int v17; // edi
-  int v18; // eax
-  int v19; // ecx
-  double v20; // st7
-  int v21; // eax
-  float v22; // [esp+4h] [ebp-3Ch]
-  float v23; // [esp+8h] [ebp-38h]
-  float v24; // [esp+Ch] [ebp-34h]
-  float v25; // [esp+10h] [ebp-30h]
-  float v26; // [esp+14h] [ebp-2Ch]
+  double dClipInterpolationFactor; // st6
+  double dScreenCenterX; // st5
+  double dScrScale; // st4
+  double dScrScale_1; // rt2
+  double dScreenCenterY; // st4
+  int iScreenX1; // edi
+  int iScreenY1; // eax
+  int iScreenX2; // eax
+  float fClippedRightProj; // [esp+4h] [ebp-3Ch]
+  float fRightProj_1; // [esp+8h] [ebp-38h]
+  float fForwardProj; // [esp+Ch] [ebp-34h]
+  float fClippedForwardProj; // [esp+10h] [ebp-30h]
+  float fRightProj; // [esp+14h] [ebp-2Ch]
   float fViewDist; // [esp+18h] [ebp-28h]
-  float v28; // [esp+1Ch] [ebp-24h]
-  float v29; // [esp+1Ch] [ebp-24h]
-  float v30; // [esp+1Ch] [ebp-24h]
-  float v31; // [esp+20h] [ebp-20h]
-  float v32; // [esp+20h] [ebp-20h]
-  float v33; // [esp+20h] [ebp-20h]
-  int v34; // [esp+24h] [ebp-1Ch]
+  float fUpProj2; // [esp+1Ch] [ebp-24h]
+  float fDepthOffset2; // [esp+1Ch] [ebp-24h]
+  float fFinalDepth2; // [esp+1Ch] [ebp-24h]
+  float fUpProj; // [esp+20h] [ebp-20h]
+  float fDepthOffset1; // [esp+20h] [ebp-20h]
+  float fFinalDepth1; // [esp+20h] [ebp-20h]
+  int iScaledScreenX1; // [esp+24h] [ebp-1Ch]
+  int iScaledScreenY2; // [esp+24h] [ebp-1Ch]
 
-  k1 = fX1 - viewx;
+  // Transform both points from world space to camera-relative space
+  k1 = fX1 - viewx; // Point 1 relative to camera
   k2 = fY1 - viewy;
   k3 = fZ1 - viewz;
-  k4 = fX2 - viewx;
+  k4 = fX2 - viewx; // Point 2 relative to camera
   k5 = fY2 - viewy;
   k6 = fZ2 - viewz;
-  v24 = k1 * vk1 + k2 * vk4 + k3 * vk7;
-  v31 = k1 * vk3 + k2 * vk6 + k3 * vk9;
-  v26 = vk5 * k5 + k4 * vk2 + k6 * vk8;
-  v28 = vk9 * k6 + vk3 * k4 + k5 * vk6;
+
+  // Apply camera transformation matrix to both points
+  // Transform point 1 to camera space
+  fForwardProj = k1 * vk1 + k2 * vk4 + k3 * vk7; // Forward (Z) projection
+  fRightProj_1 = k1 * vk2 + k2 * vk5 + k3 * vk8; // Right (X) projection for point 1
+  fUpProj = k1 * vk3 + k2 * vk6 + k3 * vk9;      // Up (Y) projection
+
+  // Transform point 2 to camera space
+  fClippedForwardProj = k4 * vk1 + k5 * vk4 + k6 * vk7; // Forward projection for point 2
+  fRightProj = k4 * vk2 + k5 * vk5 + k6 * vk8;          // Right (X) projection for point 2
+  fUpProj2 = k4 * vk3 + k5 * vk6 + k6 * vk9;            // Up (Y) projection for point 2
+
   dViewDist = (double)VIEWDIST;
-  v32 = v31 - dViewDist;
-  v29 = v28 - dViewDist;
-  if (v32 < 0.0 && v29 > 0.0 || v32 > 0.0 && v29 < 0.0) {
-    v12 = 1.0 / (v32 - v29);
-    v23 = k1 * vk2 + k2 * vk5 + k3 * vk8;
-    v22 = v12 * (v26 * v32 - v29 * v23);
-    if (v32 >= 0.0) {
-      v29 = 0.0;
-      v26 = v22;
+
+  // Calculate distance from near clipping plane
+  fDepthOffset1 = fUpProj - (float)dViewDist;
+  fDepthOffset2 = fUpProj2 - (float)dViewDist;
+
+  // Check if line crosses the near clipping plane and perform clipping
+  if (fDepthOffset1 < 0.0 && fDepthOffset2 > 0.0 || fDepthOffset1 > 0.0 && fDepthOffset2 < 0.0) {
+    // Line crosses near plane - interpolate to find clipping point
+    dClipInterpolationFactor = 1.0 / (fDepthOffset1 - fDepthOffset2);
+    fClippedRightProj = (float)(dClipInterpolationFactor * (fRightProj * fDepthOffset1 - fDepthOffset2 * fRightProj_1));
+
+    if (fDepthOffset1 >= 0.0) {
+      // Point 1 is behind near plane, clip it
+      fDepthOffset2 = 0.0;
+      fRightProj = fClippedRightProj;
+      fForwardProj = (float)((fClippedForwardProj * fDepthOffset1 - fForwardProj * fDepthOffset2) * dClipInterpolationFactor);
     } else {
-      v25 = vk4 * k5 + k4 * vk1 + vk7 * k6;
-      v24 = (v25 * v32 - v24 * v29) * v12;
-      v32 = 0.0;
+      // Point 2 is behind near plane, clip it
+      fDepthOffset1 = 0.0;
+      fRightProj_1 = fClippedRightProj;
+      fClippedForwardProj = (float)((fClippedForwardProj * fDepthOffset1 - fForwardProj * fDepthOffset2) * dClipInterpolationFactor);
     }
   }
+
   fViewDist = (float)VIEWDIST;
-  v33 = v32 + fViewDist;
-  v30 = v29 + fViewDist;
-  if (v33 >= (double)fViewDist && v30 >= (double)fViewDist) {
-    dXbase = (double)xbase;
-    dScrSize = (double)scr_size;
-    _CHP();
-    v34 = (int)((fViewDist * v24 * (1.0 / v33) + dXbase) * dScrSize);
-    v15 = dScrSize;
-    dYBase = (double)ybase;
-    _CHP();
-    v17 = (v34 - (__CFSHL__(v34 >> 31, 6) + (v34 >> 31 << 6))) >> 6;
-    _CHP();
-    v19 = v18;
-    v20 = (graphics_c_variable_2 - 1.0 / v30 * (fViewDist * v26) - dYBase) * v15;
-    _CHP();
-    compout(v17, v21, v19, v17, v21, ((int)v20 - (__CFSHL__((int)v20 >> 31, 6) + ((int)v20 >> 31 << 6))) >> 6, a7);
-  }*/
+
+  // Add view distance back to get final depth values
+  fFinalDepth1 = fDepthOffset1 + fViewDist;
+  fFinalDepth2 = fDepthOffset2 + fViewDist;
+
+  // Only draw if both points are in front of the near plane
+  if (fFinalDepth1 >= (double)fViewDist && fFinalDepth2 >= (double)fViewDist) {
+    dScreenCenterX = (double)xbase;
+    dScrScale = (double)scr_size;
+    //_CHP();
+
+    // Project point 1 to screen coordinates with perspective division
+    // X coordinate for point 1
+    iScaledScreenX1 = (int)((fViewDist * fForwardProj * (1.0 / fFinalDepth1) + dScreenCenterX) * dScrScale);
+    dScrScale_1 = dScrScale;
+    dScreenCenterY = (double)ybase;
+    //_CHP();
+
+    // Convert scaled X coordinate to pixel coordinate (divide by 64 for fixed-point)
+    iScreenX1 = iScaledScreenX1 >> 6;
+
+    // Y coordinate for point 1
+    int iScaledScreenY1 = (int)((199.0 - 1.0 / fFinalDepth1 * (fViewDist * fRightProj_1) - dScreenCenterY) * dScrScale_1);
+    iScreenY1 = iScaledScreenY1 >> 6;
+    //_CHP();
+
+    // X coordinate for point 2
+    int iScaledScreenX2 = (int)((fViewDist * fClippedForwardProj * (1.0 / fFinalDepth2) + dScreenCenterX) * dScrScale_1);
+    iScreenX2 = iScaledScreenX2 >> 6;
+    //_CHP();
+
+    // Y coordinate for point 2  
+    iScaledScreenY2 = (int)((199.0 - 1.0 / fFinalDepth2 * (fViewDist * fRightProj) - dScreenCenterY) * dScrScale_1);
+
+    // Draw line between the two projected points
+    compout(
+      pScrBuf,
+      iScreenX1,                    // X coordinate of point 1
+      iScreenY1,                    // Y coordinate of point 1  
+      iScreenX2,                    // X coordinate of point 2
+      iScaledScreenY2 >> 6,         // Y coordinate of point 2
+      byColor);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
