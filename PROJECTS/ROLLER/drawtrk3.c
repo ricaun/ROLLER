@@ -7,6 +7,7 @@
 #include "horizon.h"
 #include "moving.h"
 #include <math.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
 int showsub = 0;    //000A34A0
@@ -6102,7 +6103,7 @@ int facing_ok(float fX0, float fY0, float fZ0,
   fDeltaX20 = fX2 - fX0;
 
   // Compute the signed volume of the tetrahedron formed by the origin and three vertices
-  // This is equivalent to computing the triple scalar product: (V1-V0) · ((V2-V0) × (V3-V0))
+  // This is equivalent to computing the triple scalar product: (V1-V0) \B7 ((V2-V0) \D7 (V3-V0))
   // Where V0=(fX0,fY0,fZ0), V1=(fX1,fY1,fZ1), V2=(fX2,fY2,fZ2), V3=(fX3,fY3,fZ3)
 
   // The formula expands to a 3x3 determinant:

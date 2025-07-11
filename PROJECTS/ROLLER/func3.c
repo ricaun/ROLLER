@@ -13,6 +13,7 @@
 #include "func2.h"
 #include <memory.h>
 #include <fcntl.h>
+#include <math.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open

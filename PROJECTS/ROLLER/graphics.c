@@ -238,7 +238,7 @@ void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
       continue;
     }
     // Both points outside screen, don't draw line
-    if (((unsigned __int8)byOutcode1_1 & (unsigned __int8)byOutcode0_1) != 0) {
+    if (((uint8)byOutcode1_1 & (uint8)byOutcode0_1) != 0) {
       byDone = -1;
       continue;
     }
