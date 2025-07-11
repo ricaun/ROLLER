@@ -33,6 +33,7 @@ static SDL_Renderer *s_pRenderer = NULL;
 static SDL_Texture *s_pWindowTexture = NULL;
 SDL_Gamepad *g_pController1 = NULL;
 SDL_Gamepad *g_pController2 = NULL;
+SDL_Mutex *g_pPaletteMutex = NULL;
 static uint8 *s_pRGBBuffer = NULL;
 uint64 ullTargetSDLTicksNS = 0;
 uint64 ullLastSDLTicksNS = 0;
@@ -148,9 +149,11 @@ void ConvertIndexedToRGB(const uint8 *pIndexed, const tColor *pPalette, uint8 *p
 
 void UpdateSDLWindow()
 {
+  SDL_LockMutex(g_pPaletteMutex);
   ConvertIndexedToRGB(scrbuf, pal_addr, s_pRGBBuffer, 640, 400);
 
   SDL_UpdateTexture(s_pWindowTexture, NULL, s_pRGBBuffer, 640 * 3);
+  SDL_UnlockMutex(g_pPaletteMutex);
 
   // Get current window size
   int iWindowWidth, iWindowHeight;
@@ -201,6 +204,8 @@ int InitSDL()
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+
+  g_pPaletteMutex = SDL_CreateMutex();
 
   // Change to the base path of the application
   const char *home_dir = SDL_GetBasePath();
