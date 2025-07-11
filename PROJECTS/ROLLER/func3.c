@@ -2221,7 +2221,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
         // Transform verts if not already done
         pPol = pPols;
         for (j = 0; j != 4; ++j) {
-          byVertIdx = pPol->verts[0];
+          byVertIdx = pPol->verts[j];
           if (!car_persps[byVertIdx])         // vert not yet transformed
           {
             car_persps[byVertIdx] = -1;         // Mark as processed
@@ -2279,7 +2279,6 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
             CarPt[iVertIdx_2].view.fY = fTransformedY;
             CarPt[iVertIdx_2].view.fZ = fOriginalZ;
           }
-          pPol = (tPolygon *)((char *)pPol + 1);
         }
 
         // Determine pol index and facing dir

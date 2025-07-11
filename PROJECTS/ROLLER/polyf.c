@@ -1503,7 +1503,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
     }
 
     // Calculate left edge step
-    iLeftEdgeDxTemp2 = (iLeftEdgeDxTemp2 & 0x0000FFFF) | (((pVertex->x & 0xFFFF) - (iLeftEdgeX >> 16)) << 16);
+    iLeftEdgeDxTemp2 = (iLeftEdgeDxTemp2 & 0x0000FFFF) | (((pVertex->x & 0xFFFF) - ((uint32)iLeftEdgeX >> 16)) << 16);
     iStep = iLeftEdgeDxTemp2 / (int16)iStep_3;
     iRemainder_1 = iLeftEdgeDxTemp2 % (int16)iLeftRemain;
     iLeftEdgeDx_1 = iStep;

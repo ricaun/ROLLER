@@ -81,9 +81,9 @@ typedef int32 fixed16_16;
 #define FROM_FIXED(x) ((float)(x) / 65536.0f)
 
 #define GET_HIWORD(x) (((x) >> 16) & 0xFFFF)
-#define SET_HIWORD(lval, rval) ((lval) = ((lval) & 0x0000FFFF) | (((uint16)(rval) & 0xFFFF) << 16))
+#define SET_HIWORD(lval, rval) (lval = (lval & 0x0000FFFF) | ((uint32)rval << 16))
 #define GET_LOWORD(x) ((x) & 0xFFFF)
-#define SET_LOWORD(lval, rval) ((lval) = ((lval) & 0xFFFF0000) | ((uint16)(rval) & 0xFFFF))
+#define SET_LOWORD(lval, rval) (lval = (lval & 0xFFFF0000) | (rval & 0x0000FFFF))
 #define INC_HIWORD(x) (SET_HIWORD(x, GET_HIWORD(x) + 1))
 #define DEC_HIWORD(x) (SET_HIWORD(x, GET_HIWORD(x) - 1))
 
