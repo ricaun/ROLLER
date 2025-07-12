@@ -1188,77 +1188,90 @@ void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 
 //-------------------------------------------------------------------------------------------------
 
-void *sort_texture(char *a1, int a2)
+void sort_texture(uint8 *pTexData, int iNumTextures)
 {
-  return 0;/*
-  int v3; // ebp
-  int v4; // esi
-  char *v5; // ecx
-  int j; // edi
-  int v7; // edx
-  char *v8; // eax
-  char *v9; // ecx
-  char v10; // bl
-  char *v11; // eax
-  char v12; // bl
-  char v13; // bl
-  char v14; // bl
-  char *v16; // [esp+0h] [ebp-34h] BYREF
-  int v17; // [esp+4h] [ebp-30h]
-  int v18; // [esp+8h] [ebp-2Ch]
-  int v19; // [esp+Ch] [ebp-28h]
-  char *v20; // [esp+10h] [ebp-24h]
-  int v21; // [esp+14h] [ebp-20h]
-  int i; // [esp+18h] [ebp-1Ch]
-  char *v23; // [esp+1Ch] [ebp-18h]
+  int iTexturesInGroup; // ebp
+  int iSourceRowOffset; // esi
+  uint8 *pTempRow; // ecx
+  int iTexIdx; // edi
+  int iPixelGroupIdx; // edx
+  uint8 *pSourcePx; // eax
+  uint8 *pPx1; // ecx
+  uint8 byPx0; // bl
+  uint8 *pSourcePx_1; // eax
+  uint8 byPx2; // bl
+  uint8 byPx3; // bl
+  uint8 byPx4; // bl
+  uint8 *pTempBuf; // [esp+0h] [ebp-34h] BYREF
+  int iNumGroups; // [esp+4h] [ebp-30h]
+  int iGroupIdx; // [esp+8h] [ebp-2Ch]
+  int iRemainingTextures; // [esp+Ch] [ebp-28h]
+  uint8 *pCurrTex; // [esp+10h] [ebp-24h]
+  int iTempRowOffset; // [esp+14h] [ebp-20h]
+  int iRowIdx; // [esp+18h] [ebp-1Ch]
+  uint8 *pGroupStart; // [esp+1Ch] [ebp-18h] SPLIT
 
-  v19 = a2;
-  v16 = (char *)getbuffer(0x4000u);
-  v20 = a1;
-  v18 = 0;
-  v17 = (a2 - (__CFSHL__(a2 >> 31, 2) + 4 * (a2 >> 31))) >> 2;
-  if (v17 >= 0) {
+  iRemainingTextures = iNumTextures;
+  pTempBuf = (uint8 *)getbuffer(0x4000u);       // 16KB temp buffer
+  pCurrTex = pTexData;
+  iGroupIdx = 0;
+  iNumGroups = iNumTextures / 4;
+
+  if (iNumGroups >= 0) {
     do {
-      v23 = v20;
-      if (v19 <= 3)
-        v3 = v19;
+      // Determine how many textures in this group (max 4)
+      pGroupStart = pCurrTex;
+      if (iRemainingTextures <= 3)
+        iTexturesInGroup = iRemainingTextures;
       else
-        v3 = 4;
-      v21 = 0;
-      if (v3 > 0) {
-        for (i = 0; i < 64; ++i) {
-          v4 = i << 6;
-          v5 = &v16[v21];
-          for (j = 0; j < v3; ++j) {
-            v7 = 0;
-            v8 = &v23[v4];
+        iTexturesInGroup = 4;
+
+      iTempRowOffset = 0;
+
+      if (iTexturesInGroup > 0) {
+        // Process each row of the 64x64 blocks
+        for (iRowIdx = 0; iRowIdx < 64; ++iRowIdx) {
+          iSourceRowOffset = iRowIdx << 6;      // iRowIndex * 64, 64 px per row
+          pTempRow = &pTempBuf[iTempRowOffset];
+
+          // Process each texture in group
+          for (iTexIdx = 0; iTexIdx < iTexturesInGroup; ++iTexIdx) {
+            iPixelGroupIdx = 0;
+            pSourcePx = &pGroupStart[iSourceRowOffset];
+
+            // Copy 64 px from this texture's row (16 groups of 4 pixels)
             do {
-              v9 = v5 + 1;
-              v10 = *v8;
-              v11 = v8 + 1;
-              v7 += 4;
-              *(v9++ - 1) = v10;
-              v12 = *v11++;
-              *(v9++ - 1) = v12;
-              v13 = *v11++;
-              *(v9 - 1) = v13;
-              v5 = v9 + 1;
-              v14 = *v11;
-              v8 = v11 + 1;
-              *(v5 - 1) = v14;
-            } while (v7 < 64);
-            v4 += 4096;
+              pPx1 = pTempRow + 1;
+              byPx0 = *pSourcePx;
+              pSourcePx_1 = pSourcePx + 1;
+              iPixelGroupIdx += 4;
+              *(pPx1++ - 1) = byPx0;
+              byPx2 = *pSourcePx_1++;
+              *(pPx1++ - 1) = byPx2;
+              byPx3 = *pSourcePx_1++;
+              *(pPx1 - 1) = byPx3;
+              pTempRow = pPx1 + 1;
+              byPx4 = *pSourcePx_1;
+              pSourcePx = pSourcePx_1 + 1;
+              *(pTempRow - 1) = byPx4;
+            } while (iPixelGroupIdx < 64);
+            iSourceRowOffset += 4096;           // move to next texture (4096 bytes = 64x64 px)
           }
-          v21 += 256;
+          iTempRowOffset += 256;                // move to next row in temp buffer (4 tex * 64 px)
         }
-        qmemcpy(v20, v16, 0x4000u);
+
+        // Copy reorganized data back to original location
+        memcpy(pCurrTex, pTempBuf, 0x4000u);
       }
-      v20 += 0x4000;
-      v19 -= 4;
-      ++v18;
-    } while (v18 <= v17);
+
+      pCurrTex += 0x4000;                       // move to next group of textures
+      iRemainingTextures -= 4;                  // process remaining textures
+      ++iGroupIdx;
+    } while (iGroupIdx <= iNumGroups);
   }
-  return fre(&v16);*/
+
+  // Cleanup
+  fre((void **)&pTempBuf);
 }
 
 //-------------------------------------------------------------------------------------------------
