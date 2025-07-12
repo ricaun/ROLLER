@@ -471,15 +471,15 @@ void doexit()
   SaveRecords();
   fre(&mirbuf);
   for (int i = 0; i < 16; ++i) {
-    fre(&rev_vga[i]);
-    fre(&cartex_vga[i]);
-    fre(&front_vga[i]);
+    fre((void**)&rev_vga[i]);
+    fre((void**)&cartex_vga[i]);
+    fre((void**)&front_vga[i]);
   }
-  fre(&font_vga);
-  fre(&title_vga);
-  fre(&cargen_vga);
-  fre(&texture_vga);
-  fre(&building_vga);
+  fre((void**)&font_vga);
+  fre((void**)&title_vga);
+  fre((void**)&cargen_vga);
+  fre((void**)&texture_vga);
+  fre((void**)&building_vga);
   fre((void**)&scrbuf);
   release_key_int();
   Uninitialise_SOS();

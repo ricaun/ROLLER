@@ -1341,15 +1341,15 @@ int print_pos(int result, int a2, int a3)
 
 void free_game_memory()
 {
-  fre(&building_vga);
-  fre(&horizon_vga);
+  fre((void**)&building_vga);
+  fre((void**)&horizon_vga);
   for (int i = 0; i < 16; ++i) {
-    fre(&cartex_vga[i]);
-    fre(&rev_vga[i]);
+    fre((void**)&cartex_vga[i]);
+    fre((void**)&rev_vga[i]);
   }
-  fre(&cargen_vga);
+  fre((void**)&cargen_vga);
   remove_mapsels();
-  fre(&mirbuf);
+  fre((void**)&mirbuf);
 }
 
 //-------------------------------------------------------------------------------------------------
