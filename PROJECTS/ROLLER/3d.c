@@ -60,12 +60,12 @@ int jpressed = 0;           //000A352D
 uint8 *screen = NULL; //= 0xA0000; //000A3538
 uint8 *scrbuf = NULL;        //000A353C
 void *mirbuf = NULL;        //000A3540
-void *texture_vga = NULL;   //000A3544
-void *building_vga = NULL;  //000A3548
-void *horizon_vga = NULL;   //000A354C
-void *cartex_vga[16] = { NULL }; //000A3550
-void *cargen_vga = NULL;    //000A3590
-void *rev_vga[16] = { NULL }; //000A3594
+uint8 *texture_vga = NULL;   //000A3544
+uint8 *building_vga = NULL;  //000A3548
+uint8 *horizon_vga = NULL;   //000A354C
+uint8 *cartex_vga[16] = { NULL }; //000A3550
+uint8 *cargen_vga = NULL;    //000A3590
+uint8 *rev_vga[16] = { NULL }; //000A3594
 int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
 tTrakColour TrakColour[500];//000BB360

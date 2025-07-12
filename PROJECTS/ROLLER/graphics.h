@@ -9,6 +9,7 @@ extern char revs_files2[6][13];
 extern int car_remap[4096];
 extern int cargen_remap[256];
 extern int bld_remap[256];
+extern int num_textures[32];
 extern int remap_tex[256];
 extern int mode_c[256];
 extern int gfx_size;
@@ -21,7 +22,7 @@ void linexyz(uint8 *pScrBuf, float fX1, float fY1, float fZ1, float fX2, float f
 void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void LoadPanel();
-int InitRemaps();
+void InitRemaps();
 int LoadGenericCarTextures(int a1, int a2, int a3, int a4);
 int LoadCarTexture(int a1, char a2);
 int LoadBldTextures(int a1, int a2, int a3, int a4);

@@ -4,6 +4,7 @@
 #include "sound.h"
 #include "roller.h"
 #include "func2.h"
+#include "car.h"
 #include <stdbool.h>
 #include <math.h>
 #include <fcntl.h>
@@ -39,6 +40,7 @@ char revs_files2[6][13] = //000A420E
 int car_remap[4096];    //001446C0
 int cargen_remap[256];  //001486C0
 int bld_remap[256];     //00148AC0
+int num_textures[32];   //00148EC0
 int remap_tex[256];     //00148F40
 int mode_c[256];        //00149340
 int gfx_size;           //00149740
@@ -518,27 +520,30 @@ void LoadPanel()
 
 //-------------------------------------------------------------------------------------------------
 
-int InitRemaps()
+void InitRemaps()
 {
-  return 0;/*
-  int v0; // edi
-  int v1; // esi
-  int v2; // ecx
+  int iCarIdx; // edi
+  int iCartexIdx; // esi
+  int iCarTexsLoaded; // ecx
 
-  init_remap(cargen_vga[0], 18, num_textures_variable_2, gfx_size);
-  init_remap(building_vga, 17, num_textures_variable_1, gfx_size);
-  v0 = 0;
+  init_remap(cargen_vga, 18, num_textures[18], gfx_size);
+  init_remap(building_vga, 17, num_textures[17], gfx_size);
+  iCarIdx = 0;
   if (numcars > 0) {
-    v1 = 0;
+    iCartexIdx = 0;
     do {
-      v2 = car_texs_loaded[v1];
-      if (v2 != -1)
-        init_remap(horizon_vga[v2], car_texs_loaded[v1] - 1, bld_remap_variable_1[v2], gfx_size);
-      ++v0;
-      ++v1;
-    } while (v0 < numcars);
+      iCarTexsLoaded = car_texs_loaded[iCartexIdx];
+      if (iCarTexsLoaded != -1)
+        init_remap(
+          cartex_vga[iCarTexsLoaded + 1],
+          car_texs_loaded[iCartexIdx] - 1,
+          num_textures[iCarTexsLoaded + 1],
+          gfx_size);
+      ++iCarIdx;
+      ++iCartexIdx;
+    } while (iCarIdx < numcars);
   }
-  return init_remap(texture_vga, -1, num_textures_variable_3, gfx_size);*/
+  init_remap(texture_vga, -1, num_textures[19], gfx_size);
 }
 
 //-------------------------------------------------------------------------------------------------
