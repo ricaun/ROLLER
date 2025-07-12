@@ -1103,75 +1103,87 @@ void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIs
 
 //-------------------------------------------------------------------------------------------------
 
-int sort_small_texture(int a1, char *a2, int a3)
+void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 {
-  return 0;/*
-  int result; // eax
-  int v5; // ebp
-  int v6; // ebp
-  int v7; // edi
-  int v8; // esi
-  int v9; // eax
-  int v10; // edx
-  int v11; // eax
-  char v12; // cl
-  char *v13; // ebx
-  char v14; // cl
-  char v15; // cl
-  char v16; // cl
-  int v17; // [esp+0h] [ebp-20h]
-  int v18; // [esp+4h] [ebp-1Ch]
-  int v19; // [esp+8h] [ebp-18h]
+  int iNumLayers; // eax
+  int iCurrLayerSize; // ebp
+  int iLayerPixelHeight; // ebp
+  int iBlockRowOffset; // edi
+  int iPxRowInBlock; // esi
+  uint8 *pDestPixel; // eax
+  int iPixelColGroup; // edx
+  uint8 *pDestAddr; // eax
+  uint8 byPx1; // cl
+  uint8 *pSrcPixel; // ebx
+  uint8 byPx2; // cl
+  uint8 byPx3; // cl
+  uint8 byPx4; // cl
+  int iNumLayers_1; // [esp+0h] [ebp-20h]
+  int iLayerIdx; // [esp+4h] [ebp-1Ch]
+  int iRemainingBlocks; // [esp+8h] [ebp-18h]
 
-  result = (a3 - (__CFSHL__(a3 >> 31, 3) + 8 * (a3 >> 31))) >> 3;
-  v19 = a3;
-  v18 = 0;
-  v17 = result;
-  if (result >= 0) {
-    do {
-      if (v19 <= 7)
-        v5 = v19;
-      else
-        v5 = 8;
-      if (v5 > 0) {
-        v6 = 32 * v5;
-        v7 = 0;
+  // Calculate number of complete 8-block layers
+  iNumLayers = iNumBlocks / 8;
+  iRemainingBlocks = iNumBlocks;
+  iLayerIdx = 0;
+
+  // Process each layer (up to 8 blocks per layer)
+  for (iNumLayers_1 = iNumLayers; iLayerIdx <= iNumLayers_1; ++iLayerIdx) {
+    // Determine how many blocks in this layer (max 8)
+    if (iRemainingBlocks <= 7)
+      iCurrLayerSize = iRemainingBlocks;
+    else
+      iCurrLayerSize = 8;
+    if (iCurrLayerSize > 0) {
+      iLayerPixelHeight = 32 * iCurrLayerSize;  // each block is 32px wide
+      iBlockRowOffset = 0;
+
+      // Process each block column in layer
+      do {
+        iPxRowInBlock = 0;
+        pDestPixel = &pDest[iBlockRowOffset];
+
+        // Process each row of pixels in block (32 rows)
         do {
-          v8 = 0;
-          v9 = v7 + a1;
+          iPixelColGroup = 0;
+
+          // Process each group of 4 pixels in row (8 groups = 32 pixels)
           do {
-            v10 = 0;
-            do {
-              v11 = v9 + 1;
-              v12 = *a2;
-              v13 = a2 + 2;
-              v10 += 4;
-              *(_BYTE *)(v11++ - 1) = v12;
-              v14 = *v13;
-              v13 += 2;
-              *(_BYTE *)(v11++ - 1) = v14;
-              v15 = *v13;
-              v13 += 2;
-              *(_BYTE *)(v11 - 1) = v15;
-              v9 = v11 + 1;
-              v16 = *v13;
-              a2 = v13 + 2;
-              *(_BYTE *)(v9 - 1) = v16;
-            } while (v10 < 32);
-            v9 += 224;
-            ++v8;
-            a2 += 64;
-          } while (v8 < 32);
-          v7 += 32;
-        } while (v7 < v6);
-      }
-      result = v18 + 1;
-      v19 -= 8;
-      a1 += 0x2000;
-      v18 = result;
-    } while (result <= v17);
+            pDestAddr = pDestPixel + 1;
+
+            // Copy 4 px from src to dest
+            byPx1 = *pSrc;
+            pSrcPixel = pSrc + 2;
+            iPixelColGroup += 4;
+            *(pDestAddr++ - 1) = byPx1;
+
+            byPx2 = *pSrcPixel;
+            pSrcPixel += 2;
+            *(pDestAddr++ - 1) = byPx2;
+
+            byPx3 = *pSrcPixel;
+            pSrcPixel += 2;
+            *(pDestAddr - 1) = byPx3;
+            pDestPixel = pDestAddr + 1;
+
+            byPx4 = *pSrcPixel;
+            pSrc = pSrcPixel + 2;
+            *(pDestPixel - 1) = byPx4;
+          } while (iPixelColGroup < 32);
+
+          pDestPixel += 224;                    // skip to next row (256-32 = 224 px)
+          ++iPxRowInBlock;
+          pSrc += 64;                           // advance src ptr (skip padding or next row data)
+        } while (iPxRowInBlock < 32);
+
+        // move to next block column
+        iBlockRowOffset += 32;
+      } while (iBlockRowOffset < iLayerPixelHeight);
+    }
+
+    iRemainingBlocks -= 8;                      // process next layer
+    pDest += 8192;                              // move to next tex layer (8192 bytes)
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

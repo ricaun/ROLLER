@@ -28,7 +28,7 @@ int LoadCarTexture(int a1, char a2);
 int LoadBldTextures(int a1, int a2, int a3, int a4);
 int LoadTextures(int a1, int a2, int a3);
 void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIsLowRes);
-int sort_small_texture(int a1, char *a2, int a3);
+void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks);
 void *sort_texture(char *a1, int a2);
 void *sort_mini_texture(char *a1, int a2);
 int drbox(int a1, int a2, int a3, int a4, char a5);
