@@ -1373,76 +1373,75 @@ void sort_mini_texture(uint8 *pTexData, int iNumTextures)
 
 //-------------------------------------------------------------------------------------------------
 
-int drbox(int a1, int a2, int a3, int a4, char a5)
+void drbox(int iX, int iY, int iWidth, int iHeight, uint8 byColor)
 {
-  return 0;/*
-  int result; // eax
-  int v6; // edi
+  uint8 *pRowStart; // edi
   int i; // esi
-  int v8; // eax
-  int j; // edx
+  uint8 *pPixel; // eax
+  int iPixelCol; // edx
 
-  result = scrbuf + a1;
-  v6 = result + winw * (199 - a2);
-  for (i = 0; i < a4; ++i) {
-    v8 = v6;
-    v6 += winw;
-    for (j = 0; j < a3; *(_BYTE *)(v8 - 1) = a5) {
-      ++v8;
-      ++j;
+  // Calculate starting position in screen buffer
+  pRowStart = &scrbuf[iX + winw * (199 - iY)];
+
+  // Draw rectangle row by row
+  for (i = 0; i < iHeight; ++i) {
+    pPixel = pRowStart;
+    pRowStart += winw;
+
+    // Fill row with color
+    for (iPixelCol = 0; iPixelCol < iWidth; *(pPixel - 1) = byColor) {
+      ++pPixel;
+      ++iPixelCol;
     }
-    result = a4;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *box(int a1, int a2, int a3, int a4, char a5)
+void box(int iX, int iY, int iWidth, int iHeight, uint8 byBorderColor)
 {
-  return 0;/*
-  int v5; // esi
-  int v6; // ebp
-  int v7; // edi
-  int v8; // eax
-  _BYTE *v9; // edx
+  int iWinW; // esi
+  int iTopRowY; // ebp
+  int iHorizontalPixels; // edi
+  uint8 *pTopRow; // eax
+  uint8 *pBottomRow; // edx
   int i; // ebx
-  _BYTE *result; // eax
-  _BYTE *v12; // edx
+  uint8 *pLeftEdge; // eax
+  uint8 *pRightEdge; // edx
   int j; // ebx
 
-  v5 = winw;
-  v6 = 199 - a2;
-  v7 = a3 - 2;
-  v8 = a1 + scrbuf + winw * (199 - a2);
-  v9 = (_BYTE *)(winw * (a4 + 199 - a2 - 1) + a1 + scrbuf);
-  for (i = 0; i < v7; *v9 = a5) {
-    ++v9;
-    *(_BYTE *)++v8 = a5;
+  iWinW = winw;
+  iTopRowY = 199 - iY;
+  iHorizontalPixels = iWidth - 2;
+
+  // Draw top and bottom lines excluding corner pixels
+  pTopRow = &scrbuf[iX + winw * (199 - iY)];
+  pBottomRow = &scrbuf[iX + winw * (iHeight + 199 - iY - 1)];
+  for (i = 0; i < iHorizontalPixels; *pBottomRow = byBorderColor) {
+    ++pBottomRow;
+    *++pTopRow = byBorderColor;
     ++i;
   }
-  result = (_BYTE *)(v5 * v6 + scrbuf + a1);
-  v12 = (_BYTE *)(a3 + a1 - 1 + scrbuf + v5 * v6);
-  for (j = 0; j <= a4 - 1; v12 += v5) {
+
+  // Draw left and right vertical lines (including corners)
+  pLeftEdge = &scrbuf[iX + iWinW * iTopRowY];
+  pRightEdge = &scrbuf[iWidth - 1 + iX + iWinW * iTopRowY];
+  for (j = 0; j <= iHeight - 1; pRightEdge += iWinW) {
     ++j;
-    *result = a5;
-    result += v5;
-    *v12 = a5;
+    *pLeftEdge = byBorderColor;
+    pLeftEdge += iWinW;
+    *pRightEdge = byBorderColor;
   }
-  winw = v5;
-  return result;*/
+  winw = iWinW;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int SetVideoMode(char a1)
+void SetVideoMode(uint8 byVideoMode)
 {
-  return 0;/*
-  _BYTE v2[36]; // [esp+0h] [ebp-24h] BYREF
-
-  v2[0] = a1;
-  v2[1] = 0;
-  return int386(16, (int)v2, (int)v2);*/
+  //union REGS regs; // [esp+0h] [ebp-24h] BYREF
+  //regs.w.ax = byVideoMode;
+  //int386(0x10, &regs, &regs);
 }
 
 //-------------------------------------------------------------------------------------------------

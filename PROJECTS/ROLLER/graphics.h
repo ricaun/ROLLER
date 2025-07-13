@@ -31,9 +31,9 @@ void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIs
 void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks);
 void sort_texture(uint8 *pTexData, int iNumTextures);
 void sort_mini_texture(uint8 *pTexData, int iNumTextures);
-int drbox(int a1, int a2, int a3, int a4, char a5);
-char *box(int a1, int a2, int a3, int a4, char a5);
-int SetVideoMode(char a1);
+void drbox(int iX, int iY, int iWidth, int iHeight, uint8 byColor);
+void box(int iX, int iY, int iWidth, int iHeight, uint8 byBorderColor);
+void SetVideoMode(uint8 byVideoMode);
 
 //-------------------------------------------------------------------------------------------------
 #endif
