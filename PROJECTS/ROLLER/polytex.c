@@ -1,11 +1,13 @@
 #include "polytex.h"
 #include "graphics.h"
+#include <stdio.h>
+#include <string.h>
 //-------------------------------------------------------------------------------------------------
 
 fixed16_16 startsx[4] = { 0x3FF000, 0x0, 0x0, 0x3FF000 }; //000A7474 0x3FF000 = 64.0 in 16.16 fixed point
 fixed16_16 startsy[4] = { 0x0, 0x0, 0x3FF000, 0x3FF000 }; //000A7484 0x3FF000 = 64.0 in 16.16 fixed point
 uint8 *scrptr;            //0019EC20
-uint8 *mapsel[19][257];   //0019EC28 changed to uint8* by ROLLER, original code these are 16-bit DOS selectors
+uint8 *mapsel[4884];      //0019EC28 changed to uint8* by ROLLER, original code these are 16-bit DOS selectors, [19][257]
 
 //-------------------------------------------------------------------------------------------------
 
@@ -164,7 +166,7 @@ void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount)
     }
 
     // Store the texture address
-    mapsel[0][iMapselOffset + i] = pTextureAddr;
+    mapsel[iMapselOffset + i] = pTextureAddr;
   }
 
   //int iBaseAdjusted; // ebp

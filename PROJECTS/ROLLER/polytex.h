@@ -7,7 +7,7 @@
 extern fixed16_16 startsx[4];
 extern fixed16_16 startsy[4];
 extern uint8 *scrptr;
-extern uint8 *mapsel[19][257];
+extern uint8 *mapsel[4884];
 
 //-------------------------------------------------------------------------------------------------
 
