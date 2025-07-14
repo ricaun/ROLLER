@@ -11,7 +11,7 @@ extern uint8 *mapsel[19][257];
 
 //-------------------------------------------------------------------------------------------------
 
-int remove_mapsels();
+void remove_mapsels();
 void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount);
 int twpolym(void *a1, int16 a2);
 char POLYTEX(int a1, int a2, int *a3, int a4, int a5);

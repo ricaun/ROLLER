@@ -1,4 +1,5 @@
 #include "polytex.h"
+#include "graphics.h"
 //-------------------------------------------------------------------------------------------------
 
 fixed16_16 startsx[4] = { 0x3FF000, 0x0, 0x0, 0x3FF000 }; //000A7474 0x3FF000 = 64.0 in 16.16 fixed point
@@ -8,98 +9,130 @@ uint8 *mapsel[19][257];   //0019EC28 changed to uint8* by ROLLER, original code 
 
 //-------------------------------------------------------------------------------------------------
 
-int remove_mapsels()
+void remove_mapsels()
 {
-  return 0; /*
-  int v0; // ebp
-  int v1; // ecx
-  int v2; // edi
-  int i; // esi
-  int v4; // esi
-  int v5; // eax
-  int v6; // esi
-  int v7; // ecx
-  int v8; // esi
-  int v9; // ecx
-  int result; // eax
-  int v11; // esi
-  int v12; // ecx
-  __int16 v13; // [esp+0h] [ebp-3Ch] BYREF
-  __int16 v14; // [esp+4h] [ebp-38h]
-  int v15; // [esp+1Ch] [ebp-20h]
-  int v16; // [esp+20h] [ebp-1Ch]
+  // Clear all mapsel arrays
+  memset(mapsel, 0, sizeof(mapsel));
+  // Clear texture counts
+  memset(num_textures, 0, sizeof(num_textures));
 
-  v15 = 1;
-  if (LoadCarTextures > 1) {
-    v0 = 1;
-    v16 = 514;
-    do {
-      v1 = v16;
-      v2 = v0 * 4;
-      for (i = 0; i < bld_remap_variable_1[v0]; v1 += 2) {
-        if (*(__int16 *)((char *)mapsel + v1)) {
-          v14 = *(__int16 *)((char *)mapsel + v1);
-          v13 = 1;
-          int386(49, (int)&v13, (int)&v13);
-          *(__int16 *)((char *)mapsel + v1) = 0;
-        }
-        ++i;
-      }
-      v4 = v16;
-      v5 = LoadCarTextures;
-      ++v0;
-      *(int *)((char *)bld_remap_variable_1 + v2) = 0;
-      v16 = v4 + 514;
-      ++v15;
-    } while (v15 < v5);
-  }
-  v6 = 0;
-  if (num_textures_variable_3 > 0) {
-    v7 = 0;
-    do {
-      if (mapsel[v7]) {
-        v14 = mapsel[v7];
-        v13 = 1;
-        int386(49, (int)&v13, (int)&v13);
-        mapsel[v7] = 0;
-      }
-      ++v6;
-      ++v7;
-    } while (v6 < num_textures_variable_3);
-  }
-  v8 = 0;
-  num_textures_variable_3 = 0;
-  if (num_textures_variable_1 > 0) {
-    v9 = 0;
-    do {
-      if (mapsel_variable_1[v9]) {
-        v14 = mapsel_variable_1[v9];
-        v13 = 1;
-        int386(49, (int)&v13, (int)&v13);
-        mapsel_variable_1[v9] = 0;
-      }
-      ++v8;
-      ++v9;
-    } while (v8 < num_textures_variable_1);
-  }
-  result = num_textures_variable_2;
-  v11 = 0;
-  num_textures_variable_1 = 0;
-  if (num_textures_variable_2 > 0) {
-    v12 = 0;
-    do {
-      if (mapsel_variable_2[v12]) {
-        v14 = mapsel_variable_2[v12];
-        v13 = 1;
-        result = int386(49, (int)&v13, (int)&v13);
-        mapsel_variable_2[v12] = 0;
-      }
-      ++v11;
-      ++v12;
-    } while (v11 < num_textures_variable_2);
-  }
-  num_textures_variable_2 = 0;
-  return result;*/
+  //int iCarIdx; // ebp
+  //int iMapselOffset; // ecx
+  //int iCarDataOffset; // edi
+  //int iTextureIdx; // esi
+  //int iNextCarDataOffset; // esi
+  //int iNextMapselOffset; // eax
+  //int iTrackTexIdx; // esi
+  //int iMapselOffset_1; // ecx
+  //int iBldTexIdx; // esi
+  //int iBuildingMapselIdx; // ecx
+  //int iCarGenTexIdx; // esi
+  //int iCarGenMapselIdx; // ecx
+  //union REGS regs; // [esp+0h] [ebp-3Ch] BYREF
+  //int iCarIdxCounter; // [esp+1Ch] [ebp-20h]
+  //int iCarMapselOffset; // [esp+20h] [ebp-1Ch]
+  //
+  //iCarIdxCounter = 1;
+  //
+  //// Process car textures
+  //if (LoadCarTextures > 1) {
+  //  iCarIdx = 1;
+  //  iCarMapselOffset = 514;                     // starting offset: 514 = 257*2 (skip types 0 and 1)
+  //  do {
+  //    iMapselOffset = iCarMapselOffset;
+  //    iCarDataOffset = iCarIdx * 4;             // 4 bytes per car entry
+  //
+  //    // Process all textures for this car
+  //    for (iTextureIdx = 0; iTextureIdx < bld_remap[iCarIdx + 255]; iMapselOffset += 2)// reference into num_textures
+  //    {
+  //      // Check if selector is allocated
+  //      if (*(int16 *)((char *)mapsel[0] + iMapselOffset)) {
+  //        // Free the selector
+  //        regs.w.bx = *(int16 *)((char *)mapsel[0] + iMapselOffset);
+  //        regs.w.ax = 1;                        // DPMI function: free LDT descriptor
+  //        int386(0x31, &regs, &regs);           // DPMI services
+  //        // Clear the selector entry
+  //        *(int16 *)((char *)mapsel[0] + iMapselOffset) = 0;
+  //      }
+  //      ++iTextureIdx;
+  //    }
+  //
+  //    iNextCarDataOffset = iCarMapselOffset;
+  //    iNextMapselOffset = LoadCarTextures;
+  //    ++iCarIdx;
+  //
+  //    // Clear tex count for this car
+  //    *(int *)((char *)&bld_remap[255] + iCarDataOffset) = 0;// reference into num_textures
+  //
+  //    // Move to next car's mapsel area
+  //    iCarMapselOffset = iNextCarDataOffset + 514;
+  //    ++iCarIdxCounter;
+  //  } while (iCarIdxCounter < iNextMapselOffset);
+  //}
+  //
+  //// Process track textures
+  //iTrackTexIdx = 0;
+  //if (num_textures[19] > 0) {
+  //  iMapselOffset_1 = 0;
+  //  do {
+  //    // Check if selector is allocated
+  //    if (mapsel[0][iMapselOffset_1]) {
+  //      // Free the selector
+  //      regs.w.bx = mapsel[0][iMapselOffset_1];
+  //      regs.w.ax = 1;
+  //      int386(0x31, &regs, &regs);
+  //
+  //      // Clear the selector entry
+  //      mapsel[0][iMapselOffset_1] = 0;
+  //    }
+  //    ++iTrackTexIdx;
+  //    ++iMapselOffset_1;
+  //  } while (iTrackTexIdx < num_textures[19]);
+  //}
+  //iBldTexIdx = 0;
+  //num_textures[19] = 0;                         // clear track tex count
+  //
+  //// Process bld textures
+  //if (num_textures[17] > 0) {
+  //  iBuildingMapselIdx = 0;
+  //  do {
+  //    // Check if selector is allocated
+  //    if (mapsel[17][iBuildingMapselIdx]) {
+  //      // free the selector
+  //      regs.w.bx = mapsel[17][iBuildingMapselIdx];
+  //      regs.w.ax = 1;
+  //      int386(0x31, &regs, &regs);
+  //
+  //      // Clear the selector entry
+  //      mapsel[17][iBuildingMapselIdx] = 0;
+  //    }
+  //    ++iBldTexIdx;
+  //    ++iBuildingMapselIdx;
+  //  } while (iBldTexIdx < num_textures[17]);
+  //}
+  //iCarGenTexIdx = 0;
+  //num_textures[17] = 0;                         // clear building tex count
+  //
+  //// process car gen textures
+  //if (num_textures[18] > 0) {
+  //  iCarGenMapselIdx = 0;
+  //  do {
+  //    if (mapsel[18][iCarGenMapselIdx]) {
+  //      // Free the selector
+  //      regs.w.bx = mapsel[18][iCarGenMapselIdx];
+  //      regs.w.ax = 1;
+  //      int386(0x31, &regs, &regs);
+  //
+  //      // Clear the selector entry
+  //      mapsel[18][iCarGenMapselIdx] = 0;
+  //    }
+  //    ++iCarGenTexIdx;
+  //    ++iCarGenMapselIdx;
+  //  } while (iCarGenTexIdx < num_textures[18]);
+  //}
+  //
+  //// Clear car gen tex count
+  //num_textures[18] = 0;
 }
 
 //-------------------------------------------------------------------------------------------------
