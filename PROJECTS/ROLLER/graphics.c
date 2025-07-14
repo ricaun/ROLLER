@@ -38,6 +38,7 @@ char revs_files2[6][13] = //000A420E
   "pancar2.bm",
   ""
 };
+char bldtex_file[13] = "building.drh";  //000A4269
 char gencartex_name[11] = "gentex.drh"; //000A4276
 int car_remap[4096];    //001446C0
 int cargen_remap[256];  //001486C0
@@ -46,6 +47,7 @@ int num_textures[32];   //00148EC0
 int remap_tex[256];     //00148F40
 int mode_c[256];        //00149340
 int gfx_size;           //00149740
+int BldTextures;        //00149744
 int NoOfTextures;       //00149748
 
 //-------------------------------------------------------------------------------------------------
@@ -831,48 +833,56 @@ void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-int LoadBldTextures(int a1, int a2, int a3, int a4)
+void LoadBldTextures()
 {
-  return 0;/*
-  int v4; // edx
-  signed int v5; // ecx
-  int v6; // eax
-  int v7; // esi
-  int v8; // ecx
-  int v9; // ebx
-  int result; // eax
-  _DWORD v11[5]; // [esp+0h] [ebp-14h] BYREF
+  int iFileHandle; // edx
+  signed int iCompressedFileLength; // ecx
+  int iNumTextureBlocks; // eax
+  int iTexCount; // esi
+  int iFinalTexCount; // ecx
+  int iMapSelMode; // ebx
+  char *pTempBuf; // [esp+0h] [ebp-14h] BYREF
 
-  v11[3] = a4;
-  fre(&building_vga);
-  v4 = open(bldtex_file, 512, v11[0]);
-  if (v4 == -1) {
-    printf(aUnableToOpenBl);
+  // free existing bld
+  fre((void **)&building_vga);
+
+  // Check if bld file exists
+  iFileHandle = ROLLERopen(bldtex_file, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  if (iFileHandle == -1) {
+    printf("Unable to open bld texture map data file\n\n");
     doexit();
   }
-  close(v4, v4);
-  v5 = getcompactedfilelength(bldtex_file);
-  v6 = (v5 - (__CFSHL__(v5 >> 31, 12) + (v5 >> 31 << 12))) >> 12;
-  v7 = v6;
+  close(iFileHandle);
+
+  // Get compressed file size and calculate number of tex blocks
+  iCompressedFileLength = getcompactedfilelength(bldtex_file);
+  iNumTextureBlocks = iCompressedFileLength / 4096;
+  iTexCount = iNumTextureBlocks;
+
+  // 32x32 mode
   if (gfx_size == 1) {
-    building_vga = getbuffer((((_WORD)v6 + 7) & 0xFFF8) << 10);
-    v11[0] = getbuffer(v5);
-    loadcompactedfile(bldtex_file, v11[0], v7, v5);
-    v8 = (v5 - (__CFSHL__(v5 >> 31, 12) + (v5 >> 31 << 12))) >> 12;
-    sort_small_texture(building_vga, v11[0]);
-    v9 = -1;
-    fre(v11);
-  } else {
-    building_vga = getbuffer((((_WORD)v6 + 3) & 0xFFFC) << 12);
-    v8 = (v5 - (__CFSHL__(v5 >> 31, 12) + (v5 >> 31 << 12))) >> 12;
-    loadcompactedfile(bldtex_file, building_vga, a3, v7);
-    v9 = 0;
-    sort_texture(building_vga, v7, 0);
+    // Load and process 32x32 textures
+    building_vga = (uint8 *)getbuffer((((int16)iNumTextureBlocks + 7) & 0xFFF8) << 10);
+    pTempBuf = (char *)getbuffer(iCompressedFileLength);
+    loadcompactedfile(bldtex_file, (uint8 *)pTempBuf);
+    iFinalTexCount = iCompressedFileLength / 4096;
+    sort_small_texture(building_vga, (uint8 *)pTempBuf, iTexCount);
+    iMapSelMode = -1;
+    fre((void **)&pTempBuf);
+  } else                                          // 64x64 mode
+  {
+    // Load and process 64x64 textures
+    building_vga = (uint8 *)getbuffer((((int16)iNumTextureBlocks + 3) & 0xFFFC) << 12);
+    iFinalTexCount = iCompressedFileLength / 4096;
+    loadcompactedfile(bldtex_file, building_vga);
+    iMapSelMode = 0;
+    sort_texture(building_vga, iTexCount);
   }
-  BldTextures = v7;
-  result = setmapsel(building_vga, 17, v9, v8);
-  num_textures_variable_1 = v7;
-  return result;*/
+
+  // Store tex counts and setup mapping selector
+  BldTextures = iTexCount;
+  setmapsel(building_vga, 17, iMapSelMode, iFinalTexCount);
+  num_textures[17] = iTexCount;
 }
 
 //-------------------------------------------------------------------------------------------------
