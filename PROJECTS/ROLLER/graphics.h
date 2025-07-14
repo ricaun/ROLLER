@@ -25,7 +25,7 @@ void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void LoadPanel();
 void InitRemaps();
 void LoadGenericCarTextures();
-int LoadCarTexture(int a1, char a2);
+void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx);
 int LoadBldTextures(int a1, int a2, int a3, int a4);
 int LoadTextures(int a1, int a2, int a3);
 void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIsLowRes);

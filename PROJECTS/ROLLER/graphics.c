@@ -622,164 +622,211 @@ void LoadGenericCarTextures()
 
 //-------------------------------------------------------------------------------------------------
 
-int LoadCarTexture(int a1, char a2)
+void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
 {
-  return 0;/*
-  int v3; // edx
-  int v4; // ecx
-  int v5; // eax
-  unsigned int v6; // ebx
-  int v7; // ebp
-  int v8; // edx
-  int v9; // eax
-  int v10; // edi
-  char *i; // eax
-  int j; // esi
-  int v13; // edx
-  unsigned int v14; // ebx
-  char v15; // cl
-  char *v16; // eax
-  char v17; // cl
-  char v18; // cl
-  char v19; // cl
-  int v20; // edx
-  int v21; // eax
-  int v22; // edi
-  char *k; // eax
-  int m; // esi
-  int v25; // edx
-  unsigned int v26; // ebx
-  char v27; // cl
-  char *v28; // eax
-  char v29; // cl
-  char v30; // cl
-  char v31; // cl
-  int result; // eax
-  unsigned int v33; // eax
-  int v34; // [esp+0h] [ebp-28h]
-  char *v36; // [esp+8h] [ebp-20h]
-  char *v37; // [esp+Ch] [ebp-1Ch]
-  int v38; // [esp+10h] [ebp-18h]
+  int iFileHandle; // edx
+  int iCompressedFileLength; // ecx
+  int iNumTexBlocks; // eax
+  uint8 *pTexBuf; // ebx
+  int iNumTexsToProcess; // ebp
+  int iChunkDataSize; // edx
+  uint8 *pChunkData; // eax
+  int iTexBlockIdx; // edi
+  uint8 *pSourcePixel; // eax
+  int iPxRowIdx; // esi
+  int iPixelGroupIdx; // edx
+  uint8 *pDestPixel; // ebx
+  uint8 byPx1; // cl
+  uint8 *pNextSourcePixel; // eax
+  uint8 byPx2; // cl
+  uint8 byPx3; // cl
+  uint8 byPx4; // cl
+  int iChunkDataSize_1; // edx
+  uint8 *pChunkData_1; // eax
+  int iTexBlockIdx_1; // edi
+  uint8 *pSourcePixel_1; // eax
+  int iPxRowIdx_1; // esi
+  int iPixelGroupIdx_1; // edx
+  uint8 *pDestPixel_1; // ebx
+  uint8 byPx1_1; // cl
+  uint8 *pNextSourcePixel_1; // eax
+  uint8 byPx2_1; // cl
+  uint8 byPx3_1; // cl
+  uint8 byPx4_1; // cl
+  uint8 *pTexBuf_1; // eax
+  int iTexSlotIdx; // [esp+0h] [ebp-28h]
+  int iTotalFileLength; // [esp+8h] [ebp-20h]
+  char *szTexFile; // [esp+Ch] [ebp-1Ch]
+  int iRemainingFileLength; // [esp+10h] [ebp-18h]
 
-  v37 = &car_texture_names[256 * a1];
-  if (!a1) {
-    a3 = car_texture_names;
-    printf(aExitingNameIsS);
+  iTexSlotIdx = byTexSlotIdx;
+  szTexFile = car_texture_names[iCartexIdx];
+  if (!iCartexIdx) {
+    printf("Exiting name is %s\n", szTexFile);
     doexit();
   }
-  if (((unsigned int)cstart_branch_1 & textures_off) != 0 && a1 >= 1 && a1 <= 8)
-    *v37 = 121;
-  v3 = open(v37, 512, a2);
-  if (v3 == -1) {
-    printf(aUnableToOpenTe_1);
+
+  // Advanced cars
+  if ((textures_off & 0x10000) != 0 && iCartexIdx >= 1 && iCartexIdx <= 8)
+    *szTexFile = 'y';                           // load Y tex files
+
+  // Check if file exists
+  iFileHandle = ROLLERopen(szTexFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  if (iFileHandle == -1) {
+    printf("Unable to open texture map data file <%s>\n\n", szTexFile);
     doexit();
   }
-  close(v3, v3);
-  v4 = getcompactedfilelength(v37);
-  if (v4 == -1) {
-    printf(aFileSizeErrorI);
+  close(iFileHandle);
+
+  // Get file size
+  iCompressedFileLength = getcompactedfilelength(szTexFile);
+  if (iCompressedFileLength == -1) {
+    printf("File size error in texture map data file\n\n");
     doexit();
   }
-  v5 = (v4 - (__CFSHL__(v4 >> 31, 12) + (v4 >> 31 << 12))) >> 12;
-  v36 = (char *)v5;
+
+  // Caclulate number of texture blocks (4096 bytes or 64x64 px)
+  iNumTexBlocks = iCompressedFileLength / 4096;
+  iTotalFileLength = iNumTexBlocks;
+
+  // 32x32 textures
   if (gfx_size == 1) {
-    initmangle(v37);
-    v38 = v4;
-    v6 = getbuffer((((_WORD)v36 + 7) & 0xFFF8) << 10);
-    horizon_vga[v34] = v6;
-    while (v38 > 0) {
-      v7 = (v38 - (__CFSHL__(v38 >> 31, 12) + (v38 >> 31 << 12))) >> 12;
+    // Init mangled file reading
+    initmangle(szTexFile);
+    iRemainingFileLength = iCompressedFileLength;
+
+    // Allocate buffer for processed texture (aligned to 8-tex boundaries)
+    pTexBuf = (uint8 *)getbuffer((((int16)iTotalFileLength + 7) & 0xFFF8) << 10);
+    cartex_vga[iTexSlotIdx - 1] = pTexBuf;
+
+    // Process file in chunks due to memory constraints
+    while (iRemainingFileLength > 0) {
+      iNumTexsToProcess = iRemainingFileLength / 4096;
+
+        // Low memory mode
       if (no_mem) {
-        if (v38 <= 20480) {
-          v8 = v38;
-          v9 = scrbuf;
+        if (iRemainingFileLength <= 20480)    // 5 blocks max (5 * 4096)
+        {
+          iChunkDataSize = iRemainingFileLength;
+          pChunkData = scrbuf;
         } else {
-          v8 = 20480;
-          v9 = scrbuf;
-          v7 = 5;
+          iChunkDataSize = 20480;
+          pChunkData = scrbuf;
+          iNumTexsToProcess = 5;
         }
-        readmangled(v9, v8, v6);
-        v10 = 0;
-        for (i = (char *)(scrbuf + 40000); v10 < v7; ++v10) {
-          for (j = 0; j < 32; ++j) {
-            v13 = 0;
+        readmangled(pChunkData, iChunkDataSize);
+
+        // Process each tex block in chunk
+        iTexBlockIdx = 0;
+        for (pSourcePixel = scrbuf + 40000; iTexBlockIdx < iNumTexsToProcess; ++iTexBlockIdx) {
+          // Process each row of 32x32 tex
+          for (iPxRowIdx = 0; iPxRowIdx < 32; ++iPxRowIdx) {
+            iPixelGroupIdx = 0;
+
+            // Process 32 pixels per row (8 groups of 4 pixels)
             do {
-              v14 = v6 + 1;
-              v15 = *i;
-              v16 = i + 2;
-              v13 += 4;
-              *(_BYTE *)(v14++ - 1) = v15;
-              v17 = *v16;
-              v16 += 2;
-              *(_BYTE *)(v14++ - 1) = v17;
-              v18 = *v16;
-              v16 += 2;
-              *(_BYTE *)(v14 - 1) = v18;
-              v6 = v14 + 1;
-              v19 = *v16;
-              i = v16 + 2;
-              *(_BYTE *)(v6 - 1) = v19;
-            } while (v13 < 32);
-            i += 64;
+              pDestPixel = pTexBuf + 1;
+              byPx1 = *pSourcePixel;
+              pNextSourcePixel = pSourcePixel + 2;
+              iPixelGroupIdx += 4;
+              *(pDestPixel++ - 1) = byPx1;
+
+              byPx2 = *pNextSourcePixel;
+              pNextSourcePixel += 2;
+              *(pDestPixel++ - 1) = byPx2;
+
+              byPx3 = *pNextSourcePixel;
+              pNextSourcePixel += 2;
+              *(pDestPixel - 1) = byPx3;
+
+              pTexBuf = pDestPixel + 1;
+              byPx4 = *pNextSourcePixel;
+              pSourcePixel = pNextSourcePixel + 2;
+              *(pTexBuf - 1) = byPx4;
+            } while (iPixelGroupIdx < 32);
+            pSourcePixel += 64;                 // skip to next row
           }
         }
-        v38 -= 20480;
-      } else {
-        if (v38 <= 196608) {
-          v21 = scrbuf;
-          v20 = v38;
+        iRemainingFileLength -= 20480;
+      } else                                      // normal memory mode
+      {
+        if (iRemainingFileLength <= 196608)   // 48 blocks max (48 * 4096)
+        {
+          pChunkData_1 = scrbuf;
+          iChunkDataSize_1 = iRemainingFileLength;
         } else {
-          v20 = 196608;
-          v21 = scrbuf;
-          v7 = 48;
+          iChunkDataSize_1 = 196608;            // process 48 blocks at a time
+          pChunkData_1 = scrbuf;
+          iNumTexsToProcess = 48;
         }
-        readmangled(v21, v20, v6);
-        v22 = 0;
-        for (k = (char *)(scrbuf + 40000); v22 < v7; ++v22) {
-          for (m = 0; m < 32; ++m) {
-            v25 = 0;
+        readmangled(pChunkData_1, iChunkDataSize_1);
+
+        // Process each texture block in chunk
+        iTexBlockIdx_1 = 0;
+        for (pSourcePixel_1 = scrbuf + 40000; iTexBlockIdx_1 < iNumTexsToProcess; ++iTexBlockIdx_1) {
+          // Process each row of 32x32 texture
+          for (iPxRowIdx_1 = 0; iPxRowIdx_1 < 32; ++iPxRowIdx_1) {
+            iPixelGroupIdx_1 = 0;
             do {
-              v26 = v6 + 1;
-              v27 = *k;
-              v28 = k + 2;
-              v25 += 4;
-              *(_BYTE *)(v26++ - 1) = v27;
-              v29 = *v28;
-              v28 += 2;
-              *(_BYTE *)(v26++ - 1) = v29;
-              v30 = *v28;
-              v28 += 2;
-              *(_BYTE *)(v26 - 1) = v30;
-              v6 = v26 + 1;
-              v31 = *v28;
-              k = v28 + 2;
-              *(_BYTE *)(v6 - 1) = v31;
-            } while (v25 < 32);
-            k += 64;
+              pDestPixel_1 = pTexBuf + 1;
+
+              byPx1_1 = *pSourcePixel_1;
+              pNextSourcePixel_1 = pSourcePixel_1 + 2;
+              iPixelGroupIdx_1 += 4;
+              *(pDestPixel_1++ - 1) = byPx1_1;
+
+              byPx2_1 = *pNextSourcePixel_1;
+              pNextSourcePixel_1 += 2;
+              *(pDestPixel_1++ - 1) = byPx2_1;
+
+              byPx3_1 = *pNextSourcePixel_1;
+              pNextSourcePixel_1 += 2;
+              *(pDestPixel_1 - 1) = byPx3_1;
+              pTexBuf = pDestPixel_1 + 1;
+
+              byPx4_1 = *pNextSourcePixel_1;
+              pSourcePixel_1 = pNextSourcePixel_1 + 2;
+              *(pTexBuf - 1) = byPx4_1;
+            } while (iPixelGroupIdx_1 < 32);
+            pSourcePixel_1 += 64;               // skip to next row
           }
         }
-        v38 -= 196608;
+        iRemainingFileLength -= 196608;
       }
     }
+
+    // Cleanup
     uninitmangle();
-    sort_mini_texture(horizon_vga[v34], v36, -1, v36);
-    setmapsel(horizon_vga[v34], v34, -1, v36);
-    result = (int)v36;
-    bld_remap_variable_1[v34] = (int)v36;
+
+    // Reorganize texture memory layout
+    sort_mini_texture(cartex_vga[iTexSlotIdx - 1], iTotalFileLength);
+
+    // Setup tex mapping selectors
+    setmapsel(cartex_vga[iTexSlotIdx - 1], iTexSlotIdx, -1, iTotalFileLength);
+
+    // Store num textures
+    num_textures[iTexSlotIdx - 1] = iTotalFileLength;
   } else {
-    v33 = getbuffer((((_WORD)v5 + 3) & 0xFFFC) << 12);
-    horizon_vga[v34] = v33;
-    loadcompactedfile(v37, v33, a3, v36);
-    sort_texture(horizon_vga[v34], v36, 0);
-    setmapsel(horizon_vga[v34], v34, 0, v36);
-    result = (v4 - (__CFSHL__(v4 >> 31, 12) + (v4 >> 31 << 12))) >> 12;
-    bld_remap_variable_1[v34] = (int)v36;
+    // Allocate buffer for processed textures (aligned to 4-tex boundaries)
+    pTexBuf_1 = (uint8 *)getbuffer((((int16)iNumTexBlocks + 3) & 0xFFFC) << 12);
+    cartex_vga[iTexSlotIdx - 1] = pTexBuf_1;
+
+    // Load directly into buffer
+    loadcompactedfile(szTexFile, pTexBuf_1);
+
+    // Reorganize tex memory layout
+    sort_texture(cartex_vga[iTexSlotIdx - 1], iTotalFileLength);
+
+    // Setup tex mapping selectors
+    setmapsel(cartex_vga[iTexSlotIdx - 1], iTexSlotIdx, 0, iTotalFileLength);
+
+    // Store num textures
+    num_textures[iTexSlotIdx - 1] = iTotalFileLength;
   }
-  if (((unsigned int)cstart_branch_1 & textures_off) != 0 && a1 >= 1 && a1 <= 8) {
-    result = (int)v37;
-    *v37 = 120;
-  }
-  return result;*/
+
+  // Restore original filename if modified
+  if ((textures_off & 0x10000) != 0 && iCartexIdx >= 1 && iCartexIdx <= 8)
+    *szTexFile = 'x';
 }
 
 //-------------------------------------------------------------------------------------------------
