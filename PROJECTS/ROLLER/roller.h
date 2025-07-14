@@ -31,6 +31,7 @@ void MIDIStopSong();
 
 void MIDISetMasterVolume(int8 volume);
 int MIDIGetMasterVolume();
+bool MIDIPlaying();
 
 int DIGISampleStart(tSampleData *data);
 bool DIGISampleDone(int index);

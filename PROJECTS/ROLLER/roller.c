@@ -3,6 +3,7 @@
 #include "sound.h"
 #include "frontend.h"
 #include "func2.h"
+#include "func3.h"
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
@@ -295,6 +296,126 @@ void playMusic()
 
 //-------------------------------------------------------------------------------------------------
 
+bool debugEnable = false;
+
+void UpdateDebugLoop()
+{
+  if (debugEnable) {
+    /*blankpal();
+    setpal("frontend.pal");*/
+    //copy_screens();
+
+    //void *front_vga = load_picture("trkname.bm");
+    //display_block(scrbuf, (tBlockHeader *)front_vga, 0, 190, 356 - 100, 0);
+    //copypic(scrbuf, (uint8 *)screen);
+    //void *front_vga_frontend = load_picture("frontend.bm");
+    //display_picture(scrbuf, front_vga_frontend);
+
+    void *front_vga_font1 = load_picture("font1.bm");
+    void *front_vga_font2 = load_picture("font2.bm");
+
+    char buffer[256] = { 0 };
+    int value = 0;
+    int font = 0;
+
+    char szInGameEng[] = "ingame.eng";
+    load_language_file(szInGameEng, 1);
+    //load_language_file("ingame.eng", 1);
+
+    while (debugEnable) {
+      if (value < 0) value = 0;
+      if (font < 0) font = 0;
+      if (font > 1) font = 1;
+
+      // clear screen - set scrbuf to 150 - blue ???
+      memset(scrbuf, 0, SVGA_ON ? 256000 : 64000);
+
+      //int tick = (SDL_GetTicks()/10) % 360;
+      //front_text((tBlockHeader *)front_vga_font2, "EDITOR", font2_ascii, font2_offsets, 190, tick, 0x8Fu, 0);
+
+      sprintf(buffer, "%i-%i", value, font);
+      if (font == 0)
+        front_text((tBlockHeader *)front_vga_font1, buffer, font1_ascii, font1_offsets, 640 - 12, 12, 0x8Fu, 2);
+      else
+        front_text((tBlockHeader *)front_vga_font2, buffer, font2_ascii, font2_offsets, 640 - 12, 12, 0x8Fu, 2);
+
+      /*for (size_t i = 0; i < 16; i++) {
+        int index = (i * 64) + (value * 64 * 16);
+        if (language_buffer[index] != '\0')
+          front_text((tBlockHeader *)front_vga_font1, &language_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+      }*/
+
+      for (size_t i = 0; i < 16; i++) {
+        int index = (i * 64) + (value * 64 * 16);
+        if (index >= 8192) break;
+        if (config_buffer[index] != '\0') {
+          if (font == 0)
+            front_text((tBlockHeader *)front_vga_font1, &config_buffer[index], font1_ascii, font1_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+          else
+            front_text((tBlockHeader *)front_vga_font2, &config_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+        }
+      }
+
+      if (value >= 10)
+      for (size_t i = 0; i < 16; i++) {
+        int index = (i * 64) + ((value-10) * 64 * 16);
+        if (index >= 8192) break;
+        if (language_buffer[index] != '\0') {
+          if (font == 0)
+            front_text((tBlockHeader *)front_vga_font1, &language_buffer[index], font1_ascii, font1_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+          else
+            front_text((tBlockHeader *)front_vga_font2, &language_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+        }
+      }
+
+      // config_buffer
+
+      //int value = ((SDL_GetTicks() / 100) * 64) % 8192;
+
+
+
+      SDL_Event e;
+      while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_EVENT_QUIT) {
+          quit_game = 1;
+          doexit();
+        }
+        if (e.type == SDL_EVENT_KEY_DOWN) {
+          if (e.key.key == SDLK_UP) {
+            value++;
+          }
+          if (e.key.key == SDLK_DOWN) {
+            value--;
+          }
+
+          if (e.key.key == SDLK_LEFT) {
+            font--;
+          }
+          if (e.key.key == SDLK_RIGHT) {
+            font++;
+          }
+
+          if (e.key.key == SDLK_D) {
+            debugEnable = !debugEnable;
+            continue;
+          }
+          if (e.key.key == SDLK_ESCAPE) {
+            debugEnable = !debugEnable;
+            continue;
+          }
+        }
+      }
+      UpdateSDLWindow();
+    }
+
+    char szConfigEng[] = "config.eng";
+    load_language_file(szConfigEng, 1);
+    //fre((void **)&front_vga_frontend);
+    fre((void **)&front_vga_font2);
+    fre((void **)&front_vga_font1);
+  }
+}
+
 void UpdateSDL()
 {
   SDL_Event e;
@@ -306,14 +427,12 @@ void UpdateSDL()
     if (e.type == SDL_EVENT_KEY_DOWN) {
       if (e.key.key == SDLK_ESCAPE) {
         quit_game = 1;
-      } else if (e.key.key == SDLK_SPACE) {
-        //PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
-        PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
-        PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
-        PlayAudioSampleWait(SOUND_SAMPLE_GO);
-        continue;
-      } else if (e.key.key == SDLK_M) {
-        playMusic();
+      } else if (e.key.key == SDLK_D) {
+        if (SDL_GetModState() & (SDL_KMOD_LCTRL | SDL_KMOD_RCTRL))
+        if (front_vga[2] != NULL) { // Check if front_vga is loaded, loaded in main menu.
+          if (MIDIPlaying())
+            debugEnable = !debugEnable;
+        }
         continue;
       } else if (e.key.key == SDLK_F11) {
         ToggleFullscreen();
@@ -355,6 +474,7 @@ void UpdateSDL()
     }
   }
   UpdateSDLWindow();
+  UpdateDebugLoop();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,6 +724,14 @@ void MIDISetMasterVolume(int8 volume)
 int MIDIGetMasterVolume()
 {
   return MIDIMasterVolume;
+}
+
+bool MIDIPlaying()
+{
+  if (!midi_music) {
+    return false;
+  }
+  return true;
 }
 
 #pragma endregion
