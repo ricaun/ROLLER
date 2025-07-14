@@ -16,10 +16,10 @@ extern uint8 *mapsel[4884];
 
 void remove_mapsels();
 void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount);
-int twpolym(void *a1, int16 a2);
+void twpolym(tPoint *vertices, uint8 *pTex);
 void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTexIdx, int iGfxSize);
-char polym(int *a1, int a2, int a3);
-int polyt(int result, int a2, int a3);
+void polym(tPoint *vertices, int iNumVerts, uint8 *pTex);
+void polyt(tPoint *vertices, int iNumVerts, uint8 *pTex);
 
 //-------------------------------------------------------------------------------------------------
 #endif

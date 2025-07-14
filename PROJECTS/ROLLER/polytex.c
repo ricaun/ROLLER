@@ -4,6 +4,7 @@
 #include "drawtrk3.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 fixed16_16 startsx[4] = { 0x3FF000, 0x0, 0x0, 0x3FF000 }; //000A7474 0x3FF000 = 64.0 in 16.16 fixed point
@@ -262,263 +263,286 @@ void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount)
 
 //-------------------------------------------------------------------------------------------------
 
-int twpolym(void *a1, int16 a2)
+void twpolym(tPoint *vertices, uint8 *pTex)
 {
-  return 0; /*
-  __int16 v3; // bx
-  __int16 v4; // si
-  __int16 v5; // di
-  int v6; // ebx
-  int v7; // eax
-  double v8; // st6
-  double v9; // st6
-  int v10; // eax
-  int v11; // eax
-  int v12; // ebx
-  int *v13; // edi
-  double v14; // st6
-  double v15; // st6
-  int v16; // eax
-  int v17; // eax
-  int result; // eax
-  int v19; // ebp
-  int v20; // eax
-  double v21; // st6
-  int v22; // eax
-  int v23; // ebx
-  _WORD *v24; // edi
-  double v25; // st6
-  int v26; // eax
-  int v27; // eax
-  int v28; // ebp
-  int v29; // esi
-  int v30; // [esp+0h] [ebp-9Ch]
-  int v31; // [esp+4h] [ebp-98h]
-  int v32; // [esp+8h] [ebp-94h]
-  int v33; // [esp+Ch] [ebp-90h]
-  int v34; // [esp+10h] [ebp-8Ch]
-  int v35; // [esp+10h] [ebp-8Ch]
-  int v36; // [esp+14h] [ebp-88h]
-  int v37; // [esp+14h] [ebp-88h]
-  int v38; // [esp+1Ch] [ebp-80h]
-  int v39; // [esp+20h] [ebp-7Ch]
-  float v40; // [esp+24h] [ebp-78h]
-  float v41; // [esp+28h] [ebp-74h]
-  int v42; // [esp+2Ch] [ebp-70h]
-  int v43; // [esp+30h] [ebp-6Ch]
-  int v44; // [esp+34h] [ebp-68h]
-  int v45; // [esp+38h] [ebp-64h]
-  int v46; // [esp+3Ch] [ebp-60h]
-  int v47; // [esp+40h] [ebp-5Ch]
-  int v48; // [esp+44h] [ebp-58h]
-  int v49; // [esp+48h] [ebp-54h]
-  int v50; // [esp+4Ch] [ebp-50h]
-  int v51; // [esp+50h] [ebp-4Ch]
-  int v52; // [esp+54h] [ebp-48h]
-  int v53; // [esp+58h] [ebp-44h]
-  int v54; // [esp+5Ch] [ebp-40h]
-  int v55; // [esp+60h] [ebp-3Ch]
-  float v56; // [esp+64h] [ebp-38h]
-  float v57; // [esp+68h] [ebp-34h]
-  __int16 v58; // [esp+6Ch] [ebp-30h]
-  __int16 v59; // [esp+70h] [ebp-2Ch]
-  __int16 v60; // [esp+74h] [ebp-28h]
-  __int16 v61; // [esp+78h] [ebp-24h]
-  __int16 v62; // [esp+7Ch] [ebp-20h]
-  __int16 v63; // [esp+80h] [ebp-1Ch]
-  __int16 v64; // [esp+84h] [ebp-18h]
+  int16 nEdge01X; // bx
+  int16 nEdge01Y; // si
+  int16 nEdge02Y; // di
+  int iOgStartsY2_1; // ebx
+  double dIntersectionX1_1; // st6
+  double dIntersectionY1_1; // st6
+  tPoint *pCurrVert; // edi
+  double dIntersectionX1; // st6
+  double dIntersectionY1; // st6
+  int iCrossProduct2_1; // ebp
+  double dIntersectionY1_3; // st6
+  tPoint *pNextVert; // edi
+  double dIntersectionY1_2; // st6
+  int iSwappedStartsX; // eax
+  int iSwappedStartsY; // ebp
+  int iSwappedStartsX_1; // esi
+  tPoint pSavedVert; // [esp+0h] [ebp-9Ch]
+  tPoint pVert1Copy; // [esp+8h] [ebp-94h]
+  tPoint pIntersectionVert_1; // [esp+10h] [ebp-8Ch]
+  tPoint pIntersectionVert; // [esp+10h] [ebp-8Ch]
+  int iDeltaTexY23; // [esp+1Ch] [ebp-80h]
+  int iDeltaTexX23; // [esp+20h] [ebp-7Ch]
+  float fCrossProduct2; // [esp+24h] [ebp-78h]
+  float fCrossProduct1; // [esp+28h] [ebp-74h]
+  int iOgStartsX1_1; // [esp+2Ch] [ebp-70h]
+  int iOgStartsY1_1; // [esp+30h] [ebp-6Ch]
+  int iOgStartsX0_1; // [esp+34h] [ebp-68h]
+  int iOgStartsX1; // [esp+38h] [ebp-64h]
+  int iOgStartsY0_1; // [esp+3Ch] [ebp-60h]
+  int iOgStartsY1; // [esp+40h] [ebp-5Ch]
+  int iOgStartsY0; // [esp+44h] [ebp-58h]
+  int iOgStartsX0; // [esp+48h] [ebp-54h]
+  int iCrossProduct2; // [esp+4Ch] [ebp-50h]
+  int iCrossProduct1; // [esp+50h] [ebp-4Ch]
+  int iOgStartsY2; // [esp+54h] [ebp-48h]
+  int iOgStartsX2; // [esp+58h] [ebp-44h]
+  int iOgStartsY2_2; // [esp+5Ch] [ebp-40h]
+  int iOgStartsX2_1; // [esp+60h] [ebp-3Ch]
+  float fIntersection; // [esp+64h] [ebp-38h]
+  float fIntersection_1; // [esp+68h] [ebp-34h]
+  int16 nEdge23X; // [esp+6Ch] [ebp-30h]
+  int16 nEdge23Y; // [esp+70h] [ebp-2Ch]
+  int16 nEdge02X; // [esp+74h] [ebp-28h]
+  int16 nDiagonal13X; // [esp+78h] [ebp-24h]
+  int16 nDiagonal03Y; // [esp+7Ch] [ebp-20h]
+  int16 nDiagonal13Y; // [esp+80h] [ebp-1Ch]
+  int16 nDiagonal03X; // [esp+84h] [ebp-18h]
 
-  v3 = a1[4] - *a1;
-  v60 = a1[8] - *a1;
-  v58 = a1[12] - a1[8];
-  v64 = v60 + v58;
-  v61 = v3 - v60;
-  v4 = a1[6] - a1[2];
-  v5 = a1[10] - a1[2];
-  v51 = 0;
-  v59 = a1[14] - a1[10];
-  v50 = 0;
-  v62 = v5 + v59;
-  v63 = v4 - v5;
-  v41 = (float)(v59 * v3 - v4 * v58);
-  if ((LODWORD(v41) & 0x7FFFFFFF) != 0 && (v51 = v60 * v4 - v5 * v3, v56 = (double)v51 / v41, v56 > 0.0) && v56 < 1.0) {
-    v49 = startsx;
-    v48 = startsy;
-    v45 = startsx_variable_1;
-    v47 = startsy_variable_1;
-    v53 = startsx_variable_2;
-    v52 = startsy_variable_2;
-    v6 = startsy_variable_2;
-    v32 = *(_DWORD *)a1;
-    v33 = *((_DWORD *)a1 + 1);
-    v38 = startsy_variable_3 - startsy_variable_2;
-    v7 = startsx_variable_3 - startsx_variable_2;
-    v39 = startsx_variable_3 - startsx_variable_2;
-    if (v51 <= 0) {
-      *(_DWORD *)a1 = *((_DWORD *)a1 + 4);
-      *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 5);
-      v14 = (double)v58 * v56 + (double)*((int *)a1 + 4);
-      _CHP(v7, a2);
-      *((_DWORD *)a1 + 4) = (int)v14;
-      v15 = (double)v59 * v56 + (double)*((int *)a1 + 5);
-      _CHP(v16, a2);
-      *((_DWORD *)a1 + 5) = (int)v15;
-      _CHP(v17, a2);
-      startsx_variable_2 = (int)((double)v39 * v56 + (double)v53);
-      startsy = v6;
-      startsx_variable_1 = v45;
-      _CHP(v45, 3);
-      startsx = v53;
-      startsy_variable_1 = v47;
-      startsy_variable_2 = (int)(v56 * (double)v38 + (double)v52);
-      polym(a1, 3, a2);
-      v12 = a2;
-      startsx_variable_1 = startsx_variable_3;
-      *(_DWORD *)a1 = *((_DWORD *)a1 + 6);
-      *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 7);
-      startsx = v49;
-      startsy_variable_1 = startsy_variable_3;
-      v13 = (int *)(a1 + 4);
-      startsy = v48;
-    } else {
-      *(_DWORD *)a1 = *((_DWORD *)a1 + 2);
-      *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 3);
-      *((_DWORD *)a1 + 2) = *((_DWORD *)a1 + 4);
-      *((_DWORD *)a1 + 3) = *((_DWORD *)a1 + 5);
-      v8 = (double)v58 * v56 + (double)*((int *)a1 + 4);
-      _CHP(v7, a2);
-      *((_DWORD *)a1 + 4) = (int)v8;
-      v9 = (double)v59 * v56 + (double)*((int *)a1 + 5);
-      _CHP(v10, a2);
-      *((_DWORD *)a1 + 5) = (int)v9;
-      _CHP(v11, a2);
-      startsx_variable_2 = (int)((double)v39 * v56 + (double)v53);
-      startsy_variable_1 = v6;
-      startsx = v45;
-      _CHP(v45, 3);
-      startsx_variable_1 = v53;
-      startsy = v47;
-      startsy_variable_2 = (int)(v56 * (double)v38 + (double)v52);
-      polym(a1, 3, a2);
-      v12 = a2;
-      startsx = startsx_variable_3;
-      *(_DWORD *)a1 = *((_DWORD *)a1 + 6);
-      *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 7);
-      startsx_variable_1 = v49;
-      startsy = startsy_variable_3;
-      v13 = (int *)(a1 + 4);
-      startsy_variable_1 = v48;
+  // Calcualte edge vectors for intersection testing
+  nEdge01X = GET_LOWORD(vertices[1].x) - GET_LOWORD(vertices->x);
+  nEdge02X = GET_LOWORD(vertices[2].x) - GET_LOWORD(vertices->x);
+  nEdge23X = GET_LOWORD(vertices[3].x) - GET_LOWORD(vertices[2].x);
+  nDiagonal03X = nEdge02X + nEdge23X;
+  nDiagonal13X = nEdge01X - nEdge02X;
+
+  nEdge01Y = GET_LOWORD(vertices[1].y) - GET_LOWORD(vertices->y);
+  nEdge02Y = GET_LOWORD(vertices[2].y) - GET_LOWORD(vertices->y);
+  iCrossProduct1 = 0;
+  nEdge23Y = GET_LOWORD(vertices[3].y) - GET_LOWORD(vertices[2].y);
+  iCrossProduct2 = 0;
+  nDiagonal03Y = nEdge02Y + nEdge23Y;
+  nDiagonal13Y = nEdge01Y - nEdge02Y;
+
+  // Test for intersection between edgse 0-1 and 2-3
+  fCrossProduct1 = (float)(nEdge23Y * nEdge01X - nEdge01Y * nEdge23X);
+
+  if (fabs(fCrossProduct1) != 0.0// non-parallel edges
+    && (iCrossProduct1 = nEdge02X * nEdge01Y - nEdge02Y * nEdge01X,
+        fIntersection = (float)((double)iCrossProduct1 / (double)fCrossProduct1),
+        fIntersection > 0.0)
+    && fIntersection < 1.0)                    // valid intersection exists
+  {
+    // Save original texcoords
+    iOgStartsX0 = startsx[0];
+    iOgStartsY0 = startsy[0];
+    iOgStartsX1 = startsx[1];
+    iOgStartsY1 = startsy[1];
+    iOgStartsX2 = startsx[2];
+    iOgStartsY2 = startsy[2];
+    iOgStartsY2_1 = startsy[2];
+
+    pVert1Copy = *vertices;
+    iDeltaTexY23 = startsy[3] - startsy[2];
+    iDeltaTexX23 = startsx[3] - startsx[2];
+
+    // Intersection from one side
+    if (iCrossProduct1 <= 0) {
+      // Reorder verts: start from vert 2
+      *vertices = vertices[2];
+
+      // Calcualte intersection point on edge 2-3
+      dIntersectionX1 = (double)nEdge23X * fIntersection + (double)vertices[2].x;
+      //_CHP();
+      vertices[2].x = (int)dIntersectionX1;
+      dIntersectionY1 = (double)nEdge23Y * fIntersection + (double)vertices[2].y;
+      //_CHP();
+      vertices[2].y = (int)dIntersectionY1;
+
+      // Interpolate tex coords at intersection
+      //_CHP();
+      startsx[2] = (int)((double)iDeltaTexX23 * fIntersection + (double)iOgStartsX2);
+      startsy[0] = iOgStartsY2_1;
+      startsx[1] = iOgStartsX1;
+      //_CHP();
+      startsx[0] = iOgStartsX2;
+      startsy[1] = iOgStartsY1;
+      startsy[2] = (int)(fIntersection * (double)iDeltaTexY23 + (double)iOgStartsY2);
+
+      // Render first tri
+      polym(vertices, 3, pTex);
+
+      startsx[1] = startsx[3];
+      *vertices = vertices[3];
+      startsx[0] = iOgStartsX0;
+      startsy[1] = startsy[3];
+      pCurrVert = vertices + 1;
+      startsy[0] = iOgStartsY0;
+    } else                                        // intersection from other side
+    {
+      // Reorder verts: start from vert 1
+      *vertices = vertices[1];
+      vertices[1] = vertices[2];
+
+      // Calculate intersection point
+      dIntersectionX1_1 = (double)nEdge23X * fIntersection + (double)vertices[2].x;
+      //_CHP();
+      vertices[2].x = (int)dIntersectionX1_1;
+      dIntersectionY1_1 = (double)nEdge23Y * fIntersection + (double)vertices[2].y;
+
+      // Interpolate tex coords
+      //_CHP();
+      vertices[2].y = (int)dIntersectionY1_1;
+      //_CHP();
+      startsx[2] = (int)((double)iDeltaTexX23 * fIntersection + (double)iOgStartsX2);
+      startsy[1] = iOgStartsY2_1;
+      startsx[0] = iOgStartsX1;
+      //_CHP();
+      startsx[1] = iOgStartsX2;
+      startsy[0] = iOgStartsY1;
+      startsy[2] = (int)(fIntersection * (double)iDeltaTexY23 + (double)iOgStartsY2);
+
+      // Render first tri
+      polym(vertices, 3, pTex);
+
+      startsx[0] = startsx[3];
+      *vertices = vertices[3];
+      startsx[1] = iOgStartsX0;
+      startsy[0] = startsy[3];
+      pCurrVert = vertices + 1;
+      startsy[1] = iOgStartsY0;
     }
-    *v13 = v32;
-    v13[1] = v33;
-    polym(a1, 3, v12);
-    startsx = v49;
-    startsy = v48;
-    startsx_variable_1 = v45;
-    startsy_variable_1 = v47;
-    startsx_variable_2 = v53;
-    result = v52;
-    startsy_variable_2 = v52;
+
+    // Render second tri
+    *pCurrVert = pVert1Copy;
+    polym(vertices, 3, pTex);
+
+    // Restore texcoords
+    startsx[0] = iOgStartsX0;
+    startsy[0] = iOgStartsY0;
+    startsx[1] = iOgStartsX1;
+    startsy[1] = iOgStartsY1;
+    startsx[2] = iOgStartsX2;
+    startsy[2] = iOgStartsY2;
   } else {
-    v40 = (float)(v63 * v64 - v62 * v61);
-    if ((LODWORD(v40) & 0x7FFFFFFF) != 0
-      && (v19 = v60 * v62 - v64 * v5, v50 = v19, v57 = (double)v19 / v40, v57 > 0.0)
-      && v57 < 1.0) {
-      v44 = startsx;
-      v46 = startsy;
-      v42 = startsx_variable_1;
-      v43 = startsy_variable_1;
-      v55 = startsx_variable_2;
-      v20 = startsy_variable_2;
-      v54 = startsy_variable_2;
-      if (v19 <= 0) {
-        v35 = *(_DWORD *)a1;
-        v37 = *((_DWORD *)a1 + 1);
-        *(_DWORD *)a1 = *((_DWORD *)a1 + 2);
-        *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 3);
-        *((_DWORD *)a1 + 2) = v35;
-        *((_DWORD *)a1 + 3) = v37;
-        v34 = *((_DWORD *)a1 + 4);
-        v36 = *((_DWORD *)a1 + 5);
-        _CHP(v20, a2);
-        *((_DWORD *)a1 + 4) = (int)((double)v61 * v57 + (double)v34);
-        v25 = (double)v63 * v57 + (double)*((int *)a1 + 5);
-        _CHP(v26, a2);
-        startsx_variable_1 = v44;
-        startsx = v42;
-        *((_DWORD *)a1 + 5) = (int)v25;
-        startsy_variable_1 = v46;
-        startsy = v43;
-        _CHP(v44 - v55, a2);
-        startsx_variable_2 = (int)((double)(v44 - v55) * v57 + (double)v55);
-        _CHP(v46 - v54, a2);
-        startsy_variable_2 = (int)(v57 * (double)(v46 - v54) + (double)v54);
-        polym(a1, 3, a2);
-        v23 = a2;
-        startsx_variable_1 = startsx_variable_3;
-        *((_DWORD *)a1 + 2) = *((_DWORD *)a1 + 6);
-        *((_DWORD *)a1 + 3) = *((_DWORD *)a1 + 7);
-        startsx = v55;
-        startsy_variable_1 = startsy_variable_3;
-        v24 = a1;
-        startsy = v54;
-      } else {
-        v34 = *((_DWORD *)a1 + 4);
-        v36 = *((_DWORD *)a1 + 5);
-        _CHP(startsy_variable_2, a2);
-        *((_DWORD *)a1 + 4) = (int)((double)v61 * v57 + (double)v34);
-        v21 = (double)v63 * v57 + (double)*((int *)a1 + 5);
-        _CHP(v22, a2);
-        *((_DWORD *)a1 + 5) = (int)v21;
-        _CHP(v42 - v55, a2);
-        startsx_variable_2 = (int)((double)(v42 - v55) * v57 + (double)v55);
-        _CHP(v43 - v54, a2);
-        startsy_variable_2 = (int)(v57 * (double)(v43 - v54) + (double)v54);
-        polym(a1, 3, a2);
-        v23 = a2;
-        startsx = startsx_variable_3;
-        *(_DWORD *)a1 = *((_DWORD *)a1 + 6);
-        *((_DWORD *)a1 + 1) = *((_DWORD *)a1 + 7);
-        startsx_variable_1 = v55;
-        startsy = startsy_variable_3;
-        v24 = a1 + 4;
-        startsy_variable_1 = v54;
+    // Test for intersection between edges 1-3 and 0-2
+    fCrossProduct2 = (float)(nDiagonal13Y * nDiagonal03X - nDiagonal03Y * nDiagonal13X);
+    if (fabs(fCrossProduct2) != 0.0// non-parallel
+      && (iCrossProduct2_1 = nEdge02X * nDiagonal03Y - nDiagonal03X * nEdge02Y,
+          iCrossProduct2 = iCrossProduct2_1,
+          fIntersection_1 = (float)((double)iCrossProduct2_1 / (double)fCrossProduct2),
+          fIntersection_1 > 0.0)
+      && fIntersection_1 < 1.0)                // valid intersection
+    {
+      // Save original tex coords
+      iOgStartsX0_1 = startsx[0];
+      iOgStartsY0_1 = startsy[0];
+      iOgStartsX1_1 = startsx[1];
+      iOgStartsY1_1 = startsy[1];
+      iOgStartsX2_1 = startsx[2];
+      iOgStartsY2_2 = startsy[2];
+
+      // Intersection from one side
+      if (iCrossProduct2_1 <= 0) {
+        // Swap verts 0 and 1
+        pIntersectionVert = *vertices;
+        *vertices = vertices[1];
+        vertices[1] = pIntersectionVert;
+
+        // Calculate intersection point
+        pIntersectionVert_1 = vertices[2];
+        //_CHP();
+        vertices[2].x = (int)((double)nDiagonal13X * fIntersection_1 + (double)pIntersectionVert_1.x);
+        dIntersectionY1_2 = (double)nDiagonal13Y * fIntersection_1 + (double)vertices[2].y;
+        //_CHP();
+
+        // Setup tex coords
+        startsx[1] = iOgStartsX0_1;
+        startsx[0] = iOgStartsX1_1;
+        vertices[2].y = (int)dIntersectionY1_2;
+        startsy[1] = iOgStartsY0_1;
+        startsy[0] = iOgStartsY1_1;
+
+        // Interpolate tex coords at intersection
+        //_CHP();
+        startsx[2] = (int)((double)(iOgStartsX0_1 - iOgStartsX2_1) * fIntersection_1 + (double)iOgStartsX2_1);
+        //_CHP();
+        startsy[2] = (int)(fIntersection_1 * (double)(iOgStartsY0_1 - iOgStartsY2_2) + (double)iOgStartsY2_2);
+
+        // Render first tri
+        polym(vertices, 3, pTex);
+
+        startsx[1] = startsx[3];
+        vertices[1] = vertices[3];
+        startsx[0] = iOgStartsX2_1;
+        startsy[1] = startsy[3];
+        pNextVert = vertices;
+        startsy[0] = iOgStartsY2_2;
+      } else                                      // intersection from other side
+      {
+        pIntersectionVert_1 = vertices[2];
+        //_CHP();
+        vertices[2].x = (int)((double)nDiagonal13X * fIntersection_1 + (double)pIntersectionVert_1.x);
+        dIntersectionY1_3 = (double)nDiagonal13Y * fIntersection_1 + (double)vertices[2].y;
+        //_CHP();
+        vertices[2].y = (int)dIntersectionY1_3;
+
+        // Interpolate tex coords
+        //_CHP();
+        startsx[2] = (int)((double)(iOgStartsX1_1 - iOgStartsX2_1) * fIntersection_1 + (double)iOgStartsX2_1);
+        //_CHP();
+        startsy[2] = (int)(fIntersection_1 * (double)(iOgStartsY1_1 - iOgStartsY2_2) + (double)iOgStartsY2_2);
+
+        // Render first tri
+        polym(vertices, 3, pTex);
+
+        startsx[0] = startsx[3];
+        *vertices = vertices[3];
+        startsx[1] = iOgStartsX2_1;
+        startsy[0] = startsy[3];
+        pNextVert = vertices + 1;
+        startsy[1] = iOgStartsY2_2;
       }
-      *(_DWORD *)v24 = v34;
-      *((_DWORD *)v24 + 1) = v36;
-      polym(a1, 3, v23);
-      startsx = v44;
-      startsy = v46;
-      startsx_variable_1 = v42;
-      startsy_variable_1 = v43;
-      startsx_variable_2 = v55;
-      result = v54;
-      startsy_variable_2 = v54;
-    } else if (v51 >= 0 && v50 <= 0) {
-      return polym(a1, 4, a2);
-    } else {
-      v30 = *((_DWORD *)a1 + 2);
-      v31 = *((_DWORD *)a1 + 3);
-      v27 = startsx_variable_3;
-      *((_DWORD *)a1 + 2) = *((_DWORD *)a1 + 6);
-      *((_DWORD *)a1 + 3) = *((_DWORD *)a1 + 7);
-      v28 = startsy_variable_1;
-      *((_DWORD *)a1 + 6) = v30;
-      *((_DWORD *)a1 + 7) = v31;
-      v29 = startsx_variable_1;
-      startsx_variable_1 = v27;
-      startsx_variable_3 = v29;
-      startsy_variable_1 = startsy_variable_3;
-      startsy_variable_3 = v28;
-      polym(a1, 4, a2);
-      startsx_variable_3 = startsx_variable_1;
-      result = startsy_variable_1;
-      startsx_variable_1 = v29;
-      startsy_variable_3 = startsy_variable_1;
-      startsy_variable_1 = v28;
+      *pNextVert = pIntersectionVert_1;
+      polym(vertices, 3, pTex);
+      startsx[0] = iOgStartsX0_1;
+      startsy[0] = iOgStartsY0_1;
+      startsx[1] = iOgStartsX1_1;
+      startsy[1] = iOgStartsY1_1;
+      startsx[2] = iOgStartsX2_1;
+      startsy[2] = iOgStartsY2_2;
+    } else if (iCrossProduct1 >= 0 && iCrossProduct2 <= 0)// convex quad
+    {
+      // Render as single quad
+      polym(vertices, 4, pTex);
+    } else                                        // concave - need to swap diagonal
+    {
+      // Sawp verts 1 and 3 to change triangulation
+      pSavedVert = vertices[1];
+      iSwappedStartsX = startsx[3];
+      vertices[1] = vertices[3];
+      iSwappedStartsY = startsy[1];
+      vertices[3] = pSavedVert;
+      iSwappedStartsX_1 = startsx[1];
+      startsx[1] = iSwappedStartsX;
+      startsx[3] = iSwappedStartsX_1;
+      startsy[1] = startsy[3];
+      startsy[3] = iSwappedStartsY;
+
+      // Render swapped quad
+      polym(vertices, 4, pTex);
+
+      // Restore og vert order
+      startsx[3] = startsx[1];
+      startsx[1] = iSwappedStartsX_1;
+      startsy[3] = startsy[1];
+      startsy[1] = iSwappedStartsY;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -663,19 +687,17 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
       }
 
       // Render transparent textured polygon
-      // TODO
-      //polyt(pPolyParams->vertices, 4, (uint8 *)(iTexRowOffset + iTexColOffset + pTexture));
+      polyt(pPolyParams->vertices, 4, (uint8 *)(iTexRowOffset + iTexColOffset + pTexture));
     } else {
       // Opaque rendering
       vertices = pPolyParams->vertices;
       iMapselOffset = 514 * iTexIdx + 2 * (uint8)uiSurfaceType; //offset assumes array of int16s
-      //TODO
-      //if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
-      //  // Render concave pol (tri)
-      //  twpolym(vertices, mapsel[iMapselOffset / 2]);
-      //else
-      //  // Render convex pol (quad)
-      //  polym(vertices, 4, mapsel[iMapselOffset / 2]);
+      if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
+        // Render concave pol (tri)
+        twpolym(vertices, mapsel[iMapselOffset / 2]);
+      else
+        // Render convex pol (quad)
+        polym(vertices, 4, mapsel[iMapselOffset / 2]);
     }
 
     // Restore original tex coords after rendering
@@ -700,9 +722,9 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
 
 //-------------------------------------------------------------------------------------------------
 
-char polym(int *a1, int a2, int a3)
+void polym(tPoint *vertices, int iNumVerts, uint8 *pTex)
 {
-  return 0; /*
+  /*
   int *v3; // ebp
   int v4; // ecx
   int v5; // esi
@@ -4685,9 +4707,9 @@ char polym(int *a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int polyt(int result, int a2, int a3)
+void polyt(tPoint *vertices, int iNumVerts, uint8 *pTex)
 {
-  return 0; /*
+  /*
   __int16 *v3; // ebp
   int v4; // edx
   int v5; // ecx
