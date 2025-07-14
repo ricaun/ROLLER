@@ -6,6 +6,7 @@
 
 extern char revs_files1[6][13];
 extern char revs_files2[6][13];
+extern char texture_file[12];
 extern char bldtex_file[13];
 extern char gencartex_name[11];
 extern int car_remap[4096];
@@ -29,7 +30,7 @@ void InitRemaps();
 void LoadGenericCarTextures();
 void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx);
 void LoadBldTextures();
-int LoadTextures(int a1, int a2, int a3);
+void LoadTextures();
 void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIsLowRes);
 void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks);
 void sort_texture(uint8 *pTexData, int iNumTextures);

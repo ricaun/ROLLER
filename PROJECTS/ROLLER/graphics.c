@@ -38,6 +38,7 @@ char revs_files2[6][13] = //000A420E
   "pancar2.bm",
   ""
 };
+char texture_file[12] = "texture.drh";  //000A425C
 char bldtex_file[13] = "building.drh";  //000A4269
 char gencartex_name[11] = "gentex.drh"; //000A4276
 int car_remap[4096];    //001446C0
@@ -887,150 +888,184 @@ void LoadBldTextures()
 
 //-------------------------------------------------------------------------------------------------
 
-int LoadTextures(int a1, int a2, int a3)
+void LoadTextures()
 {
-  return 0;/*
-  __int64 v3; // rax
-  int v4; // ecx
-  int v5; // eax
-  unsigned int v6; // ebx
-  int v7; // ebp
-  int v8; // edx
-  int v9; // eax
-  int v10; // edi
-  char *i; // eax
+  int iCompressedFileLength; // ecx
+  int iNumTextureBlocks; // eax
+  uint8 *pTexBuf; // ebx
+  int iNumTexsToProcess; // ebp
+  int iChunkDataSize; // edx
+  uint8 *pChunkData; // eax
+  int iTexBlockIdx; // edi
+  uint8 *pSourcePixel; // eax
   int j; // esi
-  int v13; // edx
-  unsigned int v14; // ebx
-  char v15; // cl
-  char *v16; // eax
-  char v17; // cl
-  char v18; // cl
-  char v19; // cl
-  int v20; // edx
-  int v21; // eax
-  int v22; // edi
-  char *k; // eax
-  int m; // esi
-  int v25; // edx
-  unsigned int v26; // ebx
-  char v27; // cl
-  char *v28; // eax
-  char v29; // cl
-  char v30; // cl
-  char v31; // cl
-  int result; // eax
-  int v33; // [esp+0h] [ebp-24h]
-  int v34; // [esp+4h] [ebp-20h]
-  int v35; // [esp+8h] [ebp-1Ch]
+  int iPxGroupIdx; // edx
+  uint8 *pDestPixel; // ebx
+  uint8 byPx1; // cl
+  uint8 *pNextSourcePixel; // eax
+  uint8 byPx2; // cl
+  uint8 byPx3; // cl
+  uint8 byPx4; // cl
+  int iChunkDataSize_1; // edx
+  uint8 *pChunkData_1; // eax
+  int iTexBlockIdx_1; // edi
+  uint8 *pSourcePixel_1; // eax
+  int iPxRowIdx; // esi
+  int iPxGroupIdx_1; // edx
+  uint8 *pDestPixel_1; // ebx
+  uint8 byPx1_1; // cl
+  uint8 *pNextSourcePixel_1; // eax
+  uint8 byPx2_1; // cl
+  uint8 byPx3_1; // cl
+  uint8 byPx4_1; // cl
+  int iFileHandle; // [esp+0h] [ebp-24h]
+  int iTotalTextureBlocks; // [esp+4h] [ebp-20h]
+  int iRemainingFileLength; // [esp+8h] [ebp-1Ch]
 
-  fre(&texture_vga);
-  v3 = open(texture_file, 512);
-  v33 = v3;
-  if ((_DWORD)v3 == -1) {
-    printf(&aPunableToOpenT[1]);
+  // Free existing texture
+  fre((void **)&texture_vga);
+
+  // Check if tex file exists
+  iFileHandle = ROLLERopen(texture_file, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  if (iFileHandle == -1) {
+    printf("Unable to open texture map data file\n\n");
     doexit();
   }
-  close(v33, HIDWORD(v3));
-  v4 = getcompactedfilelength(texture_file);
-  v5 = (v4 - (__CFSHL__(v4 >> 31, 12) + (v4 >> 31 << 12))) >> 12;
-  v34 = v5;
+  close(iFileHandle);
+
+  // Get compressed file size and calculate number of texture blocks
+  iCompressedFileLength = getcompactedfilelength(texture_file);
+  iNumTextureBlocks = iCompressedFileLength / 4096;
+  iTotalTextureBlocks = iNumTextureBlocks;
+
+  // 32x32 tex mode
   if (gfx_size == 1) {
+    // Init mangled reading
     initmangle(texture_file);
-    v35 = v4;
-    v6 = getbuffer((((_WORD)v34 + 7) & 0xFFF8) << 10);
-    texture_vga = v6;
-    while (v35 > 0) {
-      v7 = (v35 - (__CFSHL__(v35 >> 31, 12) + (v35 >> 31 << 12))) >> 12;
-      if (no_mem) {
-        if (v35 <= 20480) {
-          v8 = v35;
-          v9 = scrbuf;
+    iRemainingFileLength = iCompressedFileLength;
+
+    // Allocate buf for processed textures (aligned to 8-tex boundaries)
+    pTexBuf = (uint8 *)getbuffer((((int16)iTotalTextureBlocks + 7) & 0xFFF8) << 10);
+    texture_vga = pTexBuf;
+
+    // Process file in chunks due to memory constraints
+    while (iRemainingFileLength > 0) {
+      iNumTexsToProcess = iRemainingFileLength / 4096;
+      if (no_mem)                             // low memory mode
+      {
+        if (iRemainingFileLength <= 20480)    // 5 blocks max (5 * 4096)
+        {
+          iChunkDataSize = iRemainingFileLength;
+          pChunkData = scrbuf;
         } else {
-          v8 = 20480;
-          v9 = scrbuf;
-          v7 = 5;
+          iChunkDataSize = 20480;               // process 5 blocks at a time
+          pChunkData = scrbuf;
+          iNumTexsToProcess = 5;
         }
-        readmangled(v9, v8, v6);
-        v10 = 0;
-        for (i = (char *)(scrbuf + 40000); v10 < v7; ++v10) {
+
+        // Read mangled data
+        readmangled(pChunkData, iChunkDataSize);
+
+        // Process each tex block in chunk
+        iTexBlockIdx = 0;
+        for (pSourcePixel = scrbuf + 40000; iTexBlockIdx < iNumTexsToProcess; ++iTexBlockIdx) {
           for (j = 0; j < 32; ++j) {
-            v13 = 0;
+            iPxGroupIdx = 0;
+
+            // Process 32 px per row (8 groups of 4 px)
             do {
-              v14 = v6 + 1;
-              v15 = *i;
-              v16 = i + 2;
-              v13 += 4;
-              *(_BYTE *)(v14++ - 1) = v15;
-              v17 = *v16;
-              v16 += 2;
-              *(_BYTE *)(v14++ - 1) = v17;
-              v18 = *v16;
-              v16 += 2;
-              *(_BYTE *)(v14 - 1) = v18;
-              v6 = v14 + 1;
-              v19 = *v16;
-              i = v16 + 2;
-              *(_BYTE *)(v6 - 1) = v19;
-            } while (v13 < 32);
-            i += 64;
+              pDestPixel = pTexBuf + 1;
+
+              byPx1 = *pSourcePixel;
+              pNextSourcePixel = pSourcePixel + 2;
+              iPxGroupIdx += 4;
+              *(pDestPixel++ - 1) = byPx1;
+
+              byPx2 = *pNextSourcePixel;
+              pNextSourcePixel += 2;
+              *(pDestPixel++ - 1) = byPx2;
+
+              byPx3 = *pNextSourcePixel;
+              pNextSourcePixel += 2;
+              *(pDestPixel - 1) = byPx3;
+              pTexBuf = pDestPixel + 1;
+
+              byPx4 = *pNextSourcePixel;
+              pSourcePixel = pNextSourcePixel + 2;
+              *(pTexBuf - 1) = byPx4;
+            } while (iPxGroupIdx < 32);
+            pSourcePixel += 64;                 // skip to next row
           }
         }
-        v35 -= 20480;
-      } else {
-        if (v35 <= 196608) {
-          v21 = scrbuf;
-          v20 = v35;
+        iRemainingFileLength -= 20480;
+      } else                                      // normal memory mode
+      {
+        if (iRemainingFileLength <= 196608)   // 48 blocks max (48 * 4096)
+        {
+          pChunkData_1 = scrbuf;
+          iChunkDataSize_1 = iRemainingFileLength;
         } else {
-          v20 = 196608;
-          v21 = scrbuf;
-          v7 = 48;
+          iChunkDataSize_1 = 196608;            // process 48 blocks at a time
+          pChunkData_1 = scrbuf;
+          iNumTexsToProcess = 48;
         }
-        readmangled(v21, v20, v6);
-        v22 = 0;
-        for (k = (char *)(scrbuf + 40000); v22 < v7; ++v22) {
-          for (m = 0; m < 32; ++m) {
-            v25 = 0;
+
+        // Read mangled data
+        readmangled(pChunkData_1, iChunkDataSize_1);
+
+        // process each tex block in chunk
+        iTexBlockIdx_1 = 0;
+        for (pSourcePixel_1 = scrbuf + 40000; iTexBlockIdx_1 < iNumTexsToProcess; ++iTexBlockIdx_1) {
+          // Process each row of 32x32 tex
+          for (iPxRowIdx = 0; iPxRowIdx < 32; ++iPxRowIdx) {
+            iPxGroupIdx_1 = 0;
+
+            // Process 32 px per row (8 groups of 4 px)
             do {
-              v26 = v6 + 1;
-              v27 = *k;
-              v28 = k + 2;
-              v25 += 4;
-              *(_BYTE *)(v26++ - 1) = v27;
-              v29 = *v28;
-              v28 += 2;
-              *(_BYTE *)(v26++ - 1) = v29;
-              v30 = *v28;
-              v28 += 2;
-              *(_BYTE *)(v26 - 1) = v30;
-              v6 = v26 + 1;
-              v31 = *v28;
-              k = v28 + 2;
-              *(_BYTE *)(v6 - 1) = v31;
-            } while (v25 < 32);
-            k += 64;
+              pDestPixel_1 = pTexBuf + 1;
+
+              byPx1_1 = *pSourcePixel_1;
+              pNextSourcePixel_1 = pSourcePixel_1 + 2;
+              iPxGroupIdx_1 += 4;
+              *(pDestPixel_1++ - 1) = byPx1_1;
+
+              byPx2_1 = *pNextSourcePixel_1;
+              pNextSourcePixel_1 += 2;
+              *(pDestPixel_1++ - 1) = byPx2_1;
+
+              byPx3_1 = *pNextSourcePixel_1;
+              pNextSourcePixel_1 += 2;
+              *(pDestPixel_1 - 1) = byPx3_1;
+              pTexBuf = pDestPixel_1 + 1;
+
+              byPx4_1 = *pNextSourcePixel_1;
+              pSourcePixel_1 = pNextSourcePixel_1 + 2;
+              *(pTexBuf - 1) = byPx4_1;
+            } while (iPxGroupIdx_1 < 32);
+            pSourcePixel_1 += 64;               // skip to next row
           }
         }
-        v35 -= 196608;
+        iRemainingFileLength -= 196608;
       }
     }
+
+    // Cleanup, reorganize, and setup mapsel
     uninitmangle();
-    sort_mini_texture(texture_vga, v34, -1, v34);
-    setmapsel(texture_vga, 0, -1, v34);
-    NoOfTextures = v34;
-    close(v33, 0);
-    result = v34;
-    num_textures_variable_3 = v34;
-  } else {
-    texture_vga = getbuffer((((_WORD)v5 + 3) & 0xFFFC) << 12);
-    loadcompactedfile(texture_file, texture_vga, a3, v34);
-    sort_texture(texture_vga, v34, 0);
-    setmapsel(texture_vga, 0, 0, v34);
-    result = (v4 - (__CFSHL__(v4 >> 31, 12) + (v4 >> 31 << 12))) >> 12;
-    NoOfTextures = result;
-    num_textures_variable_3 = result;
+    sort_mini_texture(texture_vga, iTotalTextureBlocks);
+    setmapsel(texture_vga, 0, -1, iTotalTextureBlocks);
+    NoOfTextures = iTotalTextureBlocks;
+    close(iFileHandle);
+    num_textures[19] = iTotalTextureBlocks;
+  } else                                          // 64x64 mode
+  {
+    // Allocate buffer for processed textures (aligned to 4-tex boundaries)
+    texture_vga = (uint8 *)getbuffer((((int16)iNumTextureBlocks + 3) & 0xFFFC) << 12);
+    loadcompactedfile(texture_file, texture_vga);
+    sort_texture(texture_vga, iTotalTextureBlocks);
+    setmapsel(texture_vga, 0, 0, iTotalTextureBlocks);
+    NoOfTextures = iCompressedFileLength / 4096;
+    num_textures[19] = NoOfTextures;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
