@@ -1,12 +1,16 @@
 #include "polytex.h"
 #include "graphics.h"
+#include "3d.h"
+#include "drawtrk3.h"
 #include <stdio.h>
 #include <string.h>
 //-------------------------------------------------------------------------------------------------
 
 fixed16_16 startsx[4] = { 0x3FF000, 0x0, 0x0, 0x3FF000 }; //000A7474 0x3FF000 = 64.0 in 16.16 fixed point
 fixed16_16 startsy[4] = { 0x0, 0x0, 0x3FF000, 0x3FF000 }; //000A7484 0x3FF000 = 64.0 in 16.16 fixed point
+int texture_back[4608];   //0019A420
 uint8 *scrptr;            //0019EC20
+uint8 *scrptr1;           //0019EC24
 uint8 *mapsel[4884];      //0019EC28 changed to uint8* by ROLLER, original code these are 16-bit DOS selectors, [19][257]
 
 //-------------------------------------------------------------------------------------------------
@@ -519,133 +523,179 @@ int twpolym(void *a1, int16 a2)
 
 //-------------------------------------------------------------------------------------------------
 
-char POLYTEX(int a1, int a2, int *a3, int a4, int a5)
+void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTexIdx, int iGfxSize)
 {
-  return 0; /*
-  int result; // eax
-  int v8; // edx
-  int v9; // ecx
-  int v10; // edx
-  int v11; // ecx
-  int v12; // edx
-  int v13; // ecx
-  int v14; // edx
-  int v15; // ecx
-  int v16; // edx
-  int v17; // edx
-  int v18; // edx
-  int v19; // edx
-  int v20; // ecx
-  int v21; // eax
-  int *v22; // edx
-  int v23; // ebx
-  int v24; // eax
-  int v25; // eax
-  int v26; // [esp+4h] [ebp-18h]
-  char v27; // [esp+8h] [ebp-14h]
-  char v28; // [esp+Ch] [ebp-10h]
+  uint32 uiSurfaceType; // eax
+  int iVert0X; // edx
+  int iVert0Y; // ecx
+  int iDeltaX02; // edx
+  int iDeltaY02; // ecx
+  int iTempX; // edx
+  int iTempY; // ecx
+  int iTempX_1; // edx
+  int iTempY_1; // ecx
+  int iTempStartsX0; // edx
+  int iTempStartsX1; // edx
+  int iTempStartsY0; // edx
+  int iTempStartsY1; // edx
+  int iTexRowOffset; // ecx
+  int iTexColOffset; // eax
+  tPoint *vertices; // edx
+  int iMapselOffset; // ebx
+  int iTempStartsX2; // eax
+  int iTempStartsX3; // eax
+  int iTempStartsY2; // eax
+  int iTempStartsY3; // eax
+  int iDeltaY01; // [esp+4h] [ebp-18h]
+  char iShouldFlipVert; // [esp+8h] [ebp-14h]
+  char iShouldFlipHoriz; // [esp+Ch] [ebp-10h]
 
-  result = *a3;
-  if ((unsigned __int8)*a3 >= NoOfTextures && (result & 0x20000) == 0 && !a4
-    || (unsigned __int8)result >= BldTextures && (result & 0x20000) == 0 && a4 == 17) {
-    *a3 = (unsigned __int8)*a3;
-    POLYFLAT(a2, a3);
-    result = 0x20000;
+  // Check if tex idx is valid for given tex type
+  uiSurfaceType = pPolyParams->uiSurfaceType;
+  if ((uint8)pPolyParams->uiSurfaceType >= NoOfTextures && (uiSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0 && !iTexIdx
+    || (uint8)uiSurfaceType >= BldTextures && (uiSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0 && iTexIdx == 17)
+  {
+    // Invalid texture, render as flat colored pol instead
+    pPolyParams->uiSurfaceType = (uint8)pPolyParams->uiSurfaceType;
+    POLYFLAT(pScrBuf, pPolyParams);
+    uiSurfaceType = SURFACE_FLAG_SKIP_RENDER;
   }
-  if ((result & 0x20000) == 0) {
-    scrptr = a2;
-    scrptr1 = winw + a2;
-    if ((result & 0x1000) != 0)
-      v28 = -1;
+
+  // Textured rendering
+  if ((uiSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0)
+  {
+    scrptr = pScrBuf;
+    scrptr1 = &pScrBuf[winw];
+    if ((uiSurfaceType & SURFACE_FLAG_FLIP_HORIZ) != 0)
+      iShouldFlipHoriz = -1;
     else
-      v28 = 0;
-    if ((result & 0x40000) != 0)
-      v27 = -1;
+      iShouldFlipHoriz = 0;
+    if ((uiSurfaceType & SURFACE_FLAG_FLIP_VERT) != 0)
+      iShouldFlipVert = -1;
     else
-      v27 = 0;
-    if ((result & 0x2000) != 0) {
-      v8 = a3[2];
-      v9 = a3[3];
-      v26 = v9 - a3[5];
-      if (a3[4] == a3[6] && a3[5] == a3[7]) {
-        v10 = v8 - a3[8];
-        v11 = v9 - a3[9];
+      iShouldFlipVert = 0;
+
+    // Handle backface culling and vertex reordering
+    if ((uiSurfaceType & SURFACE_FLAG_FLIP_BACKFACE) != 0)
+    {
+      // Get first vertex coords for cross product calculation
+      iVert0X = pPolyParams->vertices[0].x;
+      iVert0Y = pPolyParams->vertices[0].y;
+      iDeltaY01 = iVert0Y - pPolyParams->vertices[1].y;
+
+      // Find a non-degenerate edge for cross product
+      if (pPolyParams->vertices[1].x == pPolyParams->vertices[2].x
+        && pPolyParams->vertices[1].y == pPolyParams->vertices[2].y) {
+        // Vertex 1 and 2 are the same, use vertex 3
+        iDeltaX02 = iVert0X - pPolyParams->vertices[3].x;
+        iDeltaY02 = iVert0Y - pPolyParams->vertices[3].y;
       } else {
-        v10 = v8 - a3[6];
-        v11 = v9 - a3[7];
+        // Use vertex 2
+        iDeltaX02 = iVert0X - pPolyParams->vertices[2].x;
+        iDeltaY02 = iVert0Y - pPolyParams->vertices[2].y;
       }
-      if ((a3[2] - a3[4]) * v11 > v26 * v10) {
-        v12 = a3[2];
-        a3[2] = a3[4];
-        a3[4] = v12;
-        v13 = a3[3];
-        a3[3] = a3[5];
-        a3[5] = v13;
-        v14 = a3[6];
-        a3[6] = a3[8];
-        a3[8] = v14;
-        v15 = a3[7];
-        a3[7] = a3[9];
-        a3[9] = v15;
-        v28 = v28 == 0;
-        if ((result & 0x800) != 0) {
-          result = texture_back[256 * a4 + (unsigned __int8)result];
-          BYTE1(result) |= 0x20u;
+
+      // Cross product test for backface detection
+      if ((pPolyParams->vertices[0].x - pPolyParams->vertices[1].x) * iDeltaY02 > iDeltaY01 * iDeltaX02) {
+        // Backface detected, swap vertex pairs to flip winding order
+        // Swap verts 0 and 1
+        iTempX = pPolyParams->vertices[0].x;
+        pPolyParams->vertices[0].x = pPolyParams->vertices[1].x;
+        pPolyParams->vertices[1].x = iTempX;
+        iTempY = pPolyParams->vertices[0].y;
+        pPolyParams->vertices[0].y = pPolyParams->vertices[1].y;
+        pPolyParams->vertices[1].y = iTempY;
+
+        // Swap verts 2 and 3
+        iTempX_1 = pPolyParams->vertices[2].x;
+        pPolyParams->vertices[2].x = pPolyParams->vertices[3].x;
+        pPolyParams->vertices[3].x = iTempX_1;
+        iTempY_1 = pPolyParams->vertices[2].y;
+        pPolyParams->vertices[2].y = pPolyParams->vertices[3].y;
+        pPolyParams->vertices[3].y = iTempY_1;
+
+        // Flip horiz tex coord flag
+        iShouldFlipHoriz = iShouldFlipHoriz == 0;
+
+        // Handle back texture substitution
+        if ((uiSurfaceType & SURFACE_FLAG_BACK) != 0)
+        {
+          uiSurfaceType = texture_back[256 * iTexIdx + (uint8)uiSurfaceType];
+          uiSurfaceType |= SURFACE_FLAG_FLIP_BACKFACE;
         }
       }
     }
-    if (v28) {
-      v16 = startsx_variable_1;
-      startsx_variable_1 = startsx;
-      startsx = v16;
-      v17 = startsx_variable_3;
-      startsx_variable_3 = startsx_variable_2;
-      startsx_variable_2 = v17;
+
+    // Apply horiz tex coord flipping
+    if (iShouldFlipHoriz) {
+      iTempStartsX0 = startsx[1];
+      startsx[1] = startsx[0];
+      startsx[0] = iTempStartsX0;
+      iTempStartsX1 = startsx[3];
+      startsx[3] = startsx[2];
+      startsx[2] = iTempStartsX1;
     }
-    if (v27) {
-      v18 = startsy_variable_2;
-      startsy_variable_2 = startsy;
-      startsy = v18;
-      v19 = startsy_variable_3;
-      startsy_variable_3 = startsy_variable_1;
-      startsy_variable_1 = v19;
+
+    // Apply vertical tex coord flipping
+    if (iShouldFlipVert) {
+      iTempStartsY0 = startsy[2];
+      startsy[2] = startsy[0];
+      startsy[0] = iTempStartsY0;
+      iTempStartsY1 = startsy[3];
+      startsy[3] = startsy[1];
+      startsy[1] = iTempStartsY1;
     }
+
+    // increase pol count sta
     ++num_pols;
-    if ((result & 0x400) != 0) {
-      if (a5) {
-        v20 = (int)(unsigned __int8)result >> 3 << 13;
-        v21 = 32 * (result & 7);
+
+    // Choose rendering method
+    if ((uiSurfaceType & SURFACE_FLAG_PARTIAL_TRANS) != 0)
+    {
+      if (iGfxSize) {
+        // 32x32 textures, 8 per row
+        iTexRowOffset = (int)(int8)uiSurfaceType >> 3 << 13;// row * 8192
+        iTexColOffset = 32 * (uiSurfaceType & 7);// col * 32
       } else {
-        v20 = (int)(unsigned __int8)result >> 2 << 14;
-        v21 = (result & 3) << 6;
+        // 64x64 textures, 4 per row
+        iTexRowOffset = (int)(uint8)uiSurfaceType >> 2 << 14;// row * 16384
+        iTexColOffset = (uiSurfaceType & 3) << 6;// col * 64
       }
-      result = polyt(a3 + 2, 4, v20 + v21 + a1);
+
+      // Render transparent textured polygon
+      // TODO
+      //polyt(pPolyParams->vertices, 4, (uint8 *)(iTexRowOffset + iTexColOffset + pTexture));
     } else {
-      v22 = a3 + 2;
-      v23 = 514 * a4 + 2 * (unsigned __int8)result;
-      if ((result & 0x4000) != 0)
-        result = twpolym(v22, *(__int16 *)((char *)mapsel + v23));
-      else
-        result = polym(v22, 4, *(__int16 *)((char *)mapsel + v23));
+      // Opaque rendering
+      vertices = pPolyParams->vertices;
+      iMapselOffset = 514 * iTexIdx + 2 * (uint8)uiSurfaceType; //offset assumes array of int16s
+      //TODO
+      //if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
+      //  // Render concave pol (tri)
+      //  twpolym(vertices, mapsel[iMapselOffset / 2]);
+      //else
+      //  // Render convex pol (quad)
+      //  polym(vertices, 4, mapsel[iMapselOffset / 2]);
     }
-    if (v28) {
-      v24 = startsx_variable_1;
-      startsx_variable_1 = startsx;
-      startsx = v24;
-      result = startsx_variable_3;
-      startsx_variable_3 = startsx_variable_2;
-      startsx_variable_2 = result;
+
+    // Restore original tex coords after rendering
+    if (iShouldFlipHoriz) {
+      iTempStartsX2 = startsx[1];
+      startsx[1] = startsx[0];
+      startsx[0] = iTempStartsX2;
+      iTempStartsX3 = startsx[3];
+      startsx[3] = startsx[2];
+      startsx[2] = iTempStartsX3;
     }
-    if (v27) {
-      v25 = startsy_variable_2;
-      startsy_variable_2 = startsy;
-      startsy = v25;
-      result = startsy_variable_3;
-      startsy_variable_3 = startsy_variable_1;
-      startsy_variable_1 = result;
+    if (iShouldFlipVert) {
+      iTempStartsY2 = startsy[2];
+      startsy[2] = startsy[0];
+      startsy[0] = iTempStartsY2;
+      iTempStartsY3 = startsy[3];
+      startsy[3] = startsy[1];
+      startsy[1] = iTempStartsY3;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
