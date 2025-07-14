@@ -6,6 +6,7 @@
 
 extern char revs_files1[6][13];
 extern char revs_files2[6][13];
+extern char gencartex_name[11];
 extern int car_remap[4096];
 extern int cargen_remap[256];
 extern int bld_remap[256];
@@ -23,7 +24,7 @@ void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor);
 void LoadPanel();
 void InitRemaps();
-int LoadGenericCarTextures(int a1, int a2, int a3, int a4);
+void LoadGenericCarTextures();
 int LoadCarTexture(int a1, char a2);
 int LoadBldTextures(int a1, int a2, int a3, int a4);
 int LoadTextures(int a1, int a2, int a3);

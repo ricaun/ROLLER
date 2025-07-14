@@ -3,7 +3,8 @@
 
 fixed16_16 startsx[4] = { 0x3FF000, 0x0, 0x0, 0x3FF000 }; //000A7474 0x3FF000 = 64.0 in 16.16 fixed point
 fixed16_16 startsy[4] = { 0x0, 0x0, 0x3FF000, 0x3FF000 }; //000A7484 0x3FF000 = 64.0 in 16.16 fixed point
-uint8 *scrptr; //0019EC20
+uint8 *scrptr;            //0019EC20
+uint8 *mapsel[19][257];   //0019EC28
 
 //-------------------------------------------------------------------------------------------------
 
@@ -103,9 +104,36 @@ int remove_mapsels()
 
 //-------------------------------------------------------------------------------------------------
 
-int setmapsel(int iBase, int iIndex, int iMode, int iCount)
+void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount)
 {
-  return 0;
+  int i;
+  int iMapselOffset;
+  uint8 *pTextureAddr;
+
+  // Calculate starting offset in mapsel array for this texture type
+  iMapselOffset = 257 * iIndex;
+
+  // Store texture addresses for each texture block
+  for (i = 0; i < iCount; i++) {
+    // Calculate texture address based on mode
+    if (iMode) {
+      // Mode 1: 32x32 textures, 8 per row
+      // Each texture is 1024 bytes, arranged in 8x8 grids
+      int row = i >> 3;        // i / 8
+      int col = i & 7;         // i % 8
+      pTextureAddr = pBase + (row << 13) + (col << 5); // row * 8192 + col * 32
+    } else {
+      // Mode 0: 64x64 textures, 4 per row  
+      // Each texture is 4096 bytes, arranged in 4x4 grids
+      int row = i >> 2;        // i / 4
+      int col = i & 3;         // i % 4
+      pTextureAddr = pBase + (row << 14) + (col << 6); // row * 16384 + col * 64
+    }
+
+    // Store the texture address
+    mapsel[0][iMapselOffset + i] = pTextureAddr;
+  }
+
   //int iBaseAdjusted; // ebp
   //int iSuccess; // eax
   //int16 nCurrentSelector; // di

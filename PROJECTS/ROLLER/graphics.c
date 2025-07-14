@@ -5,6 +5,7 @@
 #include "roller.h"
 #include "func2.h"
 #include "car.h"
+#include "polytex.h"
 #include <stdbool.h>
 #include <math.h>
 #include <fcntl.h>
@@ -37,6 +38,7 @@ char revs_files2[6][13] = //000A420E
   "pancar2.bm",
   ""
 };
+char gencartex_name[11] = "gentex.drh"; //000A4276
 int car_remap[4096];    //001446C0
 int cargen_remap[256];  //001486C0
 int bld_remap[256];     //00148AC0
@@ -548,46 +550,74 @@ void InitRemaps()
 
 //-------------------------------------------------------------------------------------------------
 
-int LoadGenericCarTextures(int a1, int a2, int a3, int a4)
+void LoadGenericCarTextures()
 {
-  return 0;/*
-  int v4; // edx
-  signed int v5; // ecx
-  int v6; // eax
-  int v7; // esi
-  int v8; // ecx
-  int v9; // ebx
-  int result; // eax
-  _DWORD v11[5]; // [esp+0h] [ebp-14h] BYREF
+  int iFileHandle; // edx
+  signed int iFileLength; // ecx
+  int iNumTextures; // eax
+  int iNumTextures_1; // esi
+  int iFinalTexCount; // ecx
+  int iMapSelMode; // ebx
+  uint8 *pFileBuf; // [esp+0h] [ebp-14h] BYREF
 
-  v11[3] = a4;
-  v4 = open(gencartex_name, 512, v11[0]);
-  if (v4 == -1) {
-    printf(aUnableToOpenTe_0);
+  // Check if generic car texture file exists
+  iFileHandle = ROLLERopen(gencartex_name, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  if (iFileHandle == -1) {
+    printf("Unable to open texture map data file <%s>\n\n", gencartex_name);
     doexit();
   }
-  close(v4, v4);
-  v5 = getcompactedfilelength(gencartex_name);
-  v6 = (v5 - (__CFSHL__(v5 >> 31, 12) + (v5 >> 31 << 12))) >> 12;
-  v7 = v6;
+  close(iFileHandle);
+
+  // Get compressed file size and calculate number of texture blocks
+  iFileLength = getcompactedfilelength(gencartex_name);
+  iNumTextures = iFileLength / 4096;
+  iNumTextures_1 = iNumTextures;
+
   if (gfx_size == 1) {
-    cargen_vga[0] = getbuffer((((_WORD)v6 + 7) & 0xFFF8) << 10);
-    v11[0] = getbuffer(v5);
-    loadcompactedfile(gencartex_name, v11[0], v7, v5);
-    v8 = (v5 - (__CFSHL__(v5 >> 31, 12) + (v5 >> 31 << 12))) >> 12;
-    sort_small_texture(cargen_vga[0], v11[0]);
-    v9 = -1;
-    fre(v11);
+    // Allocate buffer for processd textures (aligned to 8-tex boundaries)
+    // Each texture 32x32 grouped in sets of 8
+    cargen_vga = (uint8 *)getbuffer((((int16)iNumTextures + 7) & 0xFFF8) << 10);
+
+    // Allocate temp buf
+    pFileBuf = (uint8 *)getbuffer(iFileLength);
+
+    // Load tex data
+    loadcompactedfile(gencartex_name, pFileBuf);
+
+    // Recalculate tex count
+    iFinalTexCount = iFileLength / 4096;
+
+    // Process 32x32 textures and reorganize
+    sort_small_texture(cargen_vga, pFileBuf, iNumTextures_1);
+
+    // setmapsel mode
+    iMapSelMode = -1;
+
+    // Cleanup
+    fre((void **)&pFileBuf);
   } else {
-    cargen_vga[0] = getbuffer((((_WORD)v6 + 3) & 0xFFFC) << 12);
-    v8 = (v5 - (__CFSHL__(v5 >> 31, 12) + (v5 >> 31 << 12))) >> 12;
-    loadcompactedfile(gencartex_name, cargen_vga[0], a3, v7);
-    v9 = 0;
-    sort_texture(cargen_vga[0], v7, 0);
+    // Allocate buffer for processed textures (aligned to 4-texture boundaries)
+    // Each texture 64x64 grouped in sets of 4
+    cargen_vga = (uint8 *)getbuffer((((int16)iNumTextures + 3) & 0xFFFC) << 12);
+
+    // Recalculate tex count
+    iFinalTexCount = iFileLength / 4096;
+
+    // Load tex data
+    loadcompactedfile(gencartex_name, cargen_vga);
+
+    // setmapsel mode
+    iMapSelMode = 0;
+
+    // Process 64x64 textures and reorganize
+    sort_texture(cargen_vga, iNumTextures_1);
   }
-  result = setmapsel(cargen_vga[0], 18, v9, v8);
-  num_textures_variable_2 = v7;
-  return result;*/
+
+  // Setup tex mapping selector
+  setmapsel(cargen_vga, 18, iMapSelMode, iFinalTexCount);
+
+  // Update count
+  num_textures[18] = iNumTextures_1;
 }
 
 //-------------------------------------------------------------------------------------------------
