@@ -314,63 +314,99 @@ void UpdateDebugLoop()
     void *front_vga_font1 = load_picture("font1.bm");
     void *front_vga_font2 = load_picture("font2.bm");
 
+    void *front_vga_font = front_vga_font1;
+    void *font_ascii = &font1_ascii;
+    void *font_offsets = &font1_offsets;
+
     char buffer[256] = { 0 };
+    char text[32] = { 0 };
     int value = 0;
     int font = 0;
 
     char szInGameEng[] = "ingame.eng";
+    char szSelectEng[] = "select.eng";
+    char szConfigEng[] = "config.eng";
     load_language_file(szInGameEng, 1);
     //load_language_file("ingame.eng", 1);
+
+
 
     while (debugEnable) {
       if (value < 0) value = 0;
       if (font < 0) font = 0;
       if (font > 1) font = 1;
 
-      // clear screen - set scrbuf to 150 - blue ???
+      // Set font
+      if (font == 0) {
+        front_vga_font = front_vga_font1;
+        font_ascii = &font1_ascii;
+        font_offsets = &font1_offsets;
+      } else {
+        front_vga_font = front_vga_font2;
+        font_ascii = &font2_ascii;
+        font_offsets = &font2_offsets;
+      }
+
+      if (value < 10) {
+        strcpy(text, szInGameEng);
+        load_language_file(szInGameEng, 1);
+      } else if (value < 20) {
+        strcpy(text, szSelectEng);
+        load_language_file(szSelectEng, 1);
+      } else if (value < 30) {
+        strcpy(text, szConfigEng);
+        load_language_file(szConfigEng, 1);
+      }
+
+      // clear screen - set scrbuf to 0 - black
       memset(scrbuf, 0, SVGA_ON ? 256000 : 64000);
 
-      //int tick = (SDL_GetTicks()/10) % 360;
-      //front_text((tBlockHeader *)front_vga_font2, "EDITOR", font2_ascii, font2_offsets, 190, tick, 0x8Fu, 0);
+      /*int tick = (SDL_GetTicks() / 10) % 360;
+      front_text((tBlockHeader *)front_vga_font, "EDITOR", font_ascii, font_offsets, 190, tick, 0x8Fu, 0);*/
 
-      sprintf(buffer, "%i-%i", value, font);
-      if (font == 0)
-        front_text((tBlockHeader *)front_vga_font1, buffer, font1_ascii, font1_offsets, 640 - 12, 12, 0x8Fu, 2);
-      else
-        front_text((tBlockHeader *)front_vga_font2, buffer, font2_ascii, font2_offsets, 640 - 12, 12, 0x8Fu, 2);
+      sprintf(buffer, "%s - %i-%i", text, value, font);
+      front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - 12, 12, 0x8Fu, 2);
 
-      /*for (size_t i = 0; i < 16; i++) {
-        int index = (i * 64) + (value * 64 * 16);
-        if (language_buffer[index] != '\0')
-          front_text((tBlockHeader *)front_vga_font1, &language_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
-      }*/
+      if (value == 10)
+      for (size_t j = 0; j < 8; j++) {
+        for (size_t i = 0; i < 32; i++) {
+          buffer[i] = (char)(i + 32 * j);
+        }
+        buffer[32] = '\0';
+        front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - 12, 12 + 24 * (j + 1), 0x8Fu, 2);
+      }
+
+
+    /*for (size_t i = 0; i < 16; i++) {
+      int index = (i * 64) + (value * 64 * 16);
+      if (language_buffer[index] != '\0')
+        front_text((tBlockHeader *)front_vga_font1, &language_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+    }*/
 
       for (size_t i = 0; i < 16; i++) {
-        int index = (i * 64) + (value * 64 * 16);
+        int index = (i * 64) + ((value % 10) * 64 * 16);
         if (index >= 8192) break;
         if (config_buffer[index] != '\0') {
-          if (font == 0)
-            front_text((tBlockHeader *)front_vga_font1, &config_buffer[index], font1_ascii, font1_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
-          else
-            front_text((tBlockHeader *)front_vga_font2, &config_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+          front_text((tBlockHeader *)front_vga_font, &config_buffer[index], font_ascii, font_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+
         }
       }
 
-      if (value >= 10)
-      for (size_t i = 0; i < 16; i++) {
-        int index = (i * 64) + ((value-10) * 64 * 16);
-        if (index >= 8192) break;
-        if (language_buffer[index] != '\0') {
-          if (font == 0)
-            front_text((tBlockHeader *)front_vga_font1, &language_buffer[index], font1_ascii, font1_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
-          else
-            front_text((tBlockHeader *)front_vga_font2, &language_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
-        }
-      }
+      //if (value >= 10)
+      //  for (size_t i = 0; i < 16; i++) {
+      //    int index = (i * 64) + ((value - 10) * 64 * 16);
+      //    if (index >= 8192) break;
+      //    if (language_buffer[index] != '\0') {
+      //      if (font == 0)
+      //        front_text((tBlockHeader *)front_vga_font1, &language_buffer[index], font1_ascii, font1_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+      //      else
+      //        front_text((tBlockHeader *)front_vga_font2, &language_buffer[index], font2_ascii, font2_offsets, 0, 0 + i * 24 + 12, 0x8Fu, 0);
+      //    }
+      //  }
 
-      // config_buffer
+        // config_buffer
 
-      //int value = ((SDL_GetTicks() / 100) * 64) % 8192;
+        //int value = ((SDL_GetTicks() / 100) * 64) % 8192;
 
 
 
@@ -408,8 +444,7 @@ void UpdateDebugLoop()
       UpdateSDLWindow();
     }
 
-    char szConfigEng[] = "config.eng";
-    load_language_file(szConfigEng, 1);
+    load_language_file(szConfigEng, 1); // Rollback config name.
     //fre((void **)&front_vga_frontend);
     fre((void **)&front_vga_font2);
     fre((void **)&front_vga_font1);
@@ -425,15 +460,22 @@ void UpdateSDL()
       doexit();
     }
     if (e.type == SDL_EVENT_KEY_DOWN) {
+
+#if _DEBUG
+      if (e.key.key == SDLK_D) { // Add by ROLLER
+        if (SDL_GetModState() & (SDL_KMOD_LCTRL | SDL_KMOD_RCTRL)) {
+          if (front_vga[2] != NULL) { // Check if front_vga is loaded, loaded in main menu.
+            if (MIDIPlaying()) {
+              debugEnable = !debugEnable;
+              continue;
+            }
+          }
+        }
+      }
+#endif // _DEBUG
+
       if (e.key.key == SDLK_ESCAPE) {
         quit_game = 1;
-      } else if (e.key.key == SDLK_D) {
-        if (SDL_GetModState() & (SDL_KMOD_LCTRL | SDL_KMOD_RCTRL))
-        if (front_vga[2] != NULL) { // Check if front_vga is loaded, loaded in main menu.
-          if (MIDIPlaying())
-            debugEnable = !debugEnable;
-        }
-        continue;
       } else if (e.key.key == SDLK_F11) {
         ToggleFullscreen();
         continue;
@@ -474,7 +516,9 @@ void UpdateSDL()
     }
   }
   UpdateSDLWindow();
-  UpdateDebugLoop();
+#if _DEBUG
+  UpdateDebugLoop(); // Add by ROLLER
+#endif // _DEBUG
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -728,10 +772,11 @@ int MIDIGetMasterVolume()
 
 bool MIDIPlaying()
 {
-  if (!midi_music) {
+  if (!midi_stream)
     return false;
-  }
-  return true;
+
+  int queued = SDL_GetAudioStreamQueued(midi_stream);
+  return queued > 0;
 }
 
 #pragma endregion
