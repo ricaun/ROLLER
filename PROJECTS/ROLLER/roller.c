@@ -364,16 +364,19 @@ void UpdateDebugLoop()
       /*int tick = (SDL_GetTicks() / 10) % 360;
       front_text((tBlockHeader *)front_vga_font, "EDITOR", font_ascii, font_offsets, 190, tick, 0x8Fu, 0);*/
 
-      sprintf(buffer, "%s - %i-%i", text, value, font);
-      front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - 12, 12, 0x8Fu, 2);
+      uint8 color_white = 0x8Fu;
+      uint8 color_red = 0xE7u;
 
-      if (value == 10)
+      sprintf(buffer, "%s - %i-%i", text, value, font);
+      front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - 12, 12, color_white, 2);
+
+      if (value == 0)
       for (size_t j = 0; j < 8; j++) {
         for (size_t i = 0; i < 32; i++) {
           buffer[i] = (char)(i + 32 * j);
         }
         buffer[32] = '\0';
-        front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - 12, 12 + 24 * (j + 1), 0x8Fu, 2);
+        front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - 12, 12 + 24 * (j + 1), color_white, 2);
       }
 
 
