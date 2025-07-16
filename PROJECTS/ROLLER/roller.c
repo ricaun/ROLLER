@@ -31,10 +31,13 @@
 static SDL_Window *s_pWindow = NULL;
 static SDL_Renderer *s_pRenderer = NULL;
 static SDL_Texture *s_pWindowTexture = NULL;
+static SDL_Texture *s_pDebugTexture = NULL;
 SDL_Gamepad *g_pController1 = NULL;
 SDL_Gamepad *g_pController2 = NULL;
 bool g_bPaletteSet = false;
+uint8 testbuf[4096];
 static uint8 *s_pRGBBuffer = NULL;
+static uint8 *s_pDebugBuffer = NULL;
 uint64 ullTargetSDLTicksNS = 0;
 uint64 ullLastSDLTicksNS = 0;
 uint64 ullCurrSDLTicksNS = 0;
@@ -153,8 +156,10 @@ void UpdateSDLWindow()
     return;
 
   ConvertIndexedToRGB(scrbuf, pal_addr, s_pRGBBuffer, 640, 400);
+  ConvertIndexedToRGB(testbuf, pal_addr, s_pDebugBuffer, 64, 64);
 
   SDL_UpdateTexture(s_pWindowTexture, NULL, s_pRGBBuffer, 640 * 3);
+  SDL_UpdateTexture(s_pDebugTexture, NULL, s_pDebugBuffer, 64 * 3);
 
   // Get current window size
   int iWindowWidth, iWindowHeight;
@@ -185,6 +190,14 @@ void UpdateSDLWindow()
 
   SDL_RenderClear(s_pRenderer);
   SDL_RenderTexture(s_pRenderer, s_pWindowTexture, NULL, &dst);
+  
+  //SDL_FRect debugRect;
+  //debugRect.h = 64;
+  //debugRect.w = 64;
+  //debugRect.x = 0;
+  //debugRect.y = 0;
+  //SDL_RenderTexture(s_pRenderer, s_pDebugTexture, NULL, &debugRect);
+  
   SDL_RenderPresent(s_pRenderer);
 }
 
@@ -235,7 +248,10 @@ int InitSDL()
   }
   s_pWindowTexture = SDL_CreateTexture(s_pRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 640, 400);
   SDL_SetTextureScaleMode(s_pWindowTexture, SDL_SCALEMODE_NEAREST);
+  s_pDebugTexture = SDL_CreateTexture(s_pRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 64, 64);
+  SDL_SetTextureScaleMode(s_pDebugTexture, SDL_SCALEMODE_NEAREST);
   s_pRGBBuffer = malloc(640 * 400 * 3);
+  s_pDebugBuffer = malloc(64 * 64 * 3);
   SDL_Surface *pIcon = IMG_Load("roller.ico");
   SDL_SetWindowIcon(s_pWindow, pIcon);
 
@@ -280,7 +296,10 @@ void ShutdownSDL()
   SDL_DestroyRenderer(s_pRenderer);
   SDL_DestroyWindow(s_pWindow);
   SDL_DestroyTexture(s_pWindowTexture);
+  SDL_DestroyTexture(s_pDebugTexture);
+  
   free(s_pRGBBuffer);
+  free(s_pDebugBuffer);
 }
 
 uint8 songId = 4;

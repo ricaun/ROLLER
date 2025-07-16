@@ -12,6 +12,7 @@
 extern SDL_Gamepad *g_pController1;
 extern SDL_Gamepad *g_pController2;
 extern bool g_bPaletteSet;
+extern uint8 testbuf[4096];
 
 //-------------------------------------------------------------------------------------------------
 

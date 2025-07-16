@@ -2501,8 +2501,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
         if ((uiTex & SURFACE_FLAG_APPLY_TEXTURE) != 0 && iTexturesEnabled) {
           iCartexOffset = car_texmap[uiCarDesignIdxTimes4 / 4];
           iGfxSize = gfx_size;
-          //POLYTEX((int)*(&horizon_vga + iCartexOffset), pScreenBuffer, &CarPol, iCartexOffset, gfx_size); TODO
-          POLYFLAT(pScreenBuffer, &CarPol);
+          POLYTEX(cartex_vga[iCartexOffset - 1], pScreenBuffer, &CarPol, iCartexOffset, gfx_size);
         } else                                    // flat color pol
         {
           POLYFLAT(pScreenBuffer, &CarPol);

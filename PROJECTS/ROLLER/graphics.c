@@ -1227,6 +1227,9 @@ void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIs
 
 void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 {
+  //ROLLER: we do not need interleaved texture data for this implementation
+  return;
+
   int iNumLayers; // eax
   int iCurrLayerSize; // ebp
   int iLayerPixelHeight; // ebp
@@ -1312,6 +1315,9 @@ void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 
 void sort_texture(uint8 *pTexData, int iNumTextures)
 {
+  //ROLLER: we do not need interleaved texture data for this implementation
+  return;
+
   int iTexturesInGroup; // ebp
   int iSourceRowOffset; // esi
   uint8 *pTempRow; // ecx
@@ -1400,6 +1406,9 @@ void sort_texture(uint8 *pTexData, int iNumTextures)
 
 void sort_mini_texture(uint8 *pTexData, int iNumTextures)
 {
+  //ROLLER: we do not need interleaved texture data for this implementation
+  return;
+
   int iTexturesInGroup; // ebp
   int iTexIdx; // esi
   int iSourceRowOffset; // edi
