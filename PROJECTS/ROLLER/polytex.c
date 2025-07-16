@@ -721,7 +721,6 @@ void polym(tPoint *vertices, int iNumVerts, uint8 *pTex)
 
 void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 {
-  ++iTestPol;
     // Find polygon bounds and top vertex
   int iMinX = pVertices[0].x;
   int iMaxX = pVertices[0].x;
