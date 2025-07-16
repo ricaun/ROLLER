@@ -1052,17 +1052,26 @@ int changemateto(int result, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
+// valid when car movement is not blocked by i.e. fence separating track from run-off area
+// top-down view, driving up (= start is down, end is up):
+/******************************************************************
+ *      region=2       f      region=1     f       region=0       *
+ *                     e                   e                      *
+ *  left-run-off-area  n       track       n  right-run-off-area  *
+ *                     c                   c                      *
+ *                     e                   e                      *
+ ***************  -halfWidth     0     halfWidth  ****************/
+bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
 {
   tData *pData; // ecx
   tTrackInfo *pTrackInfo; // edx
   unsigned int uiStartRegion; // esi
   unsigned int uiEndRegion; // ebx
-  int iInvalidResult; // ecx
-  int iLeftSurfaceType; // edi
-  int iLeftSurfaceBlocked; // ebp
+  bool iValidResult; // ecx
   int iRightSurfaceType; // edi
-  int iRightSurfaceBlocked; // edi
+  bool iRightBarierPresent; // ebp
+  int iLeftSurfaceType; // edi
+  bool iLeftBarierPresent; // edi
   unsigned int iNotRendered; // eax
 
   pData = &localdata[iChunkIdx];
@@ -1087,22 +1096,22 @@ int linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
   }
 
   // If both points are in the same region, line doesn't cross track boundaries
-  iInvalidResult = -1;
+  iValidResult = true;
   if (uiStartRegion == uiEndRegion)
-    return iInvalidResult;
+    return iValidResult;
 
   // Check surface types that block visibility
-  iLeftSurfaceType = pTrackInfo->iLeftSurfaceType;
-  if (iLeftSurfaceType == 5 || iLeftSurfaceType == 6 || iLeftSurfaceType == 9)
-    iLeftSurfaceBlocked = -1;                   // surface blocks visibility
-  else
-    iLeftSurfaceBlocked = 0;
-
-  iRightSurfaceType = pTrackInfo->iRightSurfaceType;
+  iRightSurfaceType = pTrackInfo->iLeftSurfaceType;
   if (iRightSurfaceType == 5 || iRightSurfaceType == 6 || iRightSurfaceType == 9)
-    iRightSurfaceBlocked = -1;                  // surface blocks visibility
+    iRightBarierPresent = true;                   // surface blocks visibility
   else
-    iRightSurfaceBlocked = 0;
+    iRightBarierPresent = false;
+
+  iLeftSurfaceType = pTrackInfo->iRightSurfaceType;
+  if (iLeftSurfaceType == 5 || iLeftSurfaceType == 6 || iLeftSurfaceType == 9)
+    iLeftBarierPresent = true;                  // surface blocks visibility
+  else
+    iLeftBarierPresent = false;
 
   // Check if invisible
   iNotRendered = abs(TrakColour[iChunkIdx].uiSurfType2) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
@@ -1111,12 +1120,12 @@ int linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
   if (!uiStartRegion)                         // start outside positive side
   {
     if (!uiEndRegion)                         // both outside positive (shouldn't happen)
-      return iInvalidResult;
+      return iValidResult;
     if (uiEndRegion > 1)                      // end outside negative side
     {
-      // Line crosses entire track, blocked if any barriers present and not rendered
-      if (!iLeftSurfaceBlocked && !iRightSurfaceBlocked && !iNotRendered)
-        return iInvalidResult;                  // valid if barriers or not rendered
+      // Line crosses entire track, blocked if any barriers present and track rendered
+      if (!iRightBarierPresent && !iLeftBarierPresent && !iNotRendered)
+        return iValidResult;                  // valid if no barriers and rendered
       return 0;
     }
     goto CHECK_LEFT_SURFACE;                    // Start outside positive, end inside track
@@ -1125,33 +1134,33 @@ int linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
   if (uiStartRegion <= 1)                     // start inside track
   {
     if (uiEndRegion) {
-      if (uiEndRegion != 2 || !iRightSurfaceBlocked)
-        return iInvalidResult;                  // valid if crossing to blocked right surface
-      return 0;
+      if (uiEndRegion != 2 || !iLeftBarierPresent)
+        return iValidResult;                  // valid if crossing to unblocked left surface
+      return false;
     }
   CHECK_LEFT_SURFACE:
-      // start inside, end outside positive - check left surface
-    if (iLeftSurfaceBlocked)
-      return 0;                                 // valid if left surface blocked
-    return iInvalidResult;
+      // start on track, end outside positive - check right surface
+    if (iRightBarierPresent)
+      return false;                                 // valid if right surface missing
+    return iValidResult;
   }
 
-  // Start outside negative side
+  // Start=2 = outside negative side
   if (!uiEndRegion)                           // end outside positive
   {
     // Line crosses entire track, blocked if no barriers and not rendered
-    if (!iLeftSurfaceBlocked && !iRightSurfaceBlocked && !iNotRendered)
-      return iInvalidResult;                    // valid if barriers or not rendered
-    return 0;
+    if (!iRightBarierPresent && !iLeftBarierPresent && !iNotRendered)
+      return iValidResult;                    // valid if no barriers and rendered
+    return false;
   }
 
   if (uiEndRegion != 1)                       // end not inside track
-    return -1;
+    return iValidResult;
 
-  // Start outside negative, end inside - check right surface
-  if (iRightSurfaceBlocked)
-    return 0;                                   // valid if right surface blocked
-  return iInvalidResult;
+  // Start outside negative, end inside - check left surface
+  if (iLeftBarierPresent)
+    return false;                                   // valid if left surface missing
+  return iValidResult;
 }
 
 //-------------------------------------------------------------------------------------------------
