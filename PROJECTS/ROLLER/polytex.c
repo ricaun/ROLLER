@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef uint32 _DWORD;
 //-------------------------------------------------------------------------------------------------
@@ -720,6 +721,7 @@ void polym(tPoint *vertices, int iNumVerts, uint8 *pTex)
 
 void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 {
+  ++iTestPol;
     // Find polygon bounds and top vertex
   int iMinX = pVertices[0].x;
   int iMaxX = pVertices[0].x;
@@ -783,8 +785,10 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       int iPrevLeftVertexIdx = iLeftVertexIdx;
       iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
-      if (iLeftVertexIdx == iRightVertexIdx)
+      if (iLeftVertexIdx == iRightVertexIdx) {
+        //assert(iMaxY == iScanlineY);
         return; // Degenerate polygon
+      }
 
       iLeftEdgeHeight = pVertices[iLeftVertexIdx].y - iScanlineY;
 
@@ -819,8 +823,10 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       int iPrevRightVertexIdx = iRightVertexIdx;
       iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
-      if (iLeftVertexIdx == iRightVertexIdx)
+      if (iLeftVertexIdx == iRightVertexIdx) {
+        //assert(iMaxY == iScanlineY);
         return; // Degenerate polygon
+      }
 
       iRightEdgeHeight = pVertices[iRightVertexIdx].y - iScanlineY;
 
@@ -864,8 +870,10 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       iLeftTexY = startsy[iLeftVertexIdx];
 
       iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
-      if (pVertices[iLeftVertexIdx].y <= iPrevY)
+      if (pVertices[iLeftVertexIdx].y <= iPrevY) {
+        assert(iMaxY == iScanlineY);
         return; // No visible portion
+      }
     }
 
     // Calculate clipped left edge
@@ -906,8 +914,10 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       iRightTexY = startsy[iRightVertexIdx];
 
       iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
-      if (pVertices[iRightVertexIdx].y <= iPrevY)
+      if (pVertices[iRightVertexIdx].y <= iPrevY) {
+        assert(iMaxY == iScanlineY);
         return; // No visible portion
+      }
     }
 
     // Calculate clipped right edge
@@ -1003,8 +1013,10 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
         int iPrevLeftVertexIdx = iLeftVertexIdx;
         iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
-        if (iLeftVertexIdx == iRightVertexIdx)
+        if (iPrevLeftVertexIdx == iRightVertexIdx) {
+          assert(iMaxY == iScanlineY);
           return; // Polygon complete
+        }
 
         iLeftEdgeHeight = pVertices[iLeftVertexIdx].y - iScanlineY;
 
@@ -1041,8 +1053,10 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
         int iPrevRightVertexIdx = iRightVertexIdx;
         iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
-        if (iLeftVertexIdx == iRightVertexIdx)
+        if (iLeftVertexIdx == iPrevRightVertexIdx) {
+          assert(iMaxY == iScanlineY);
           return; // Polygon complete
+        }
 
         iRightEdgeHeight = pVertices[iRightVertexIdx].y - iScanlineY;
 
@@ -1072,6 +1086,8 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       } while (true);
     }
   }
+
+  assert(iMaxY == iScanlineY);
 }
 
 //-------------------------------------------------------------------------------------------------
