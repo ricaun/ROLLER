@@ -363,6 +363,7 @@ void copy_screens()
   ticks = 0;
   while (ticks < 180) {
     UpdateSDL();
+    UpdateSDLWindow();
   }
   fre(&front_vga[0]);
   fade_palette(0);
