@@ -846,20 +846,7 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode)
   if (!pFile) {
     char szErrorMsg[128];
     snprintf(szErrorMsg, sizeof(szErrorMsg), "The file %s could not be opened.", szFile);
-
-    SDL_ShowMessageBox(&(SDL_MessageBoxData)
-    {
-      .title = "ROLLER",
-        .message = szErrorMsg,
-        .flags = SDL_MESSAGEBOX_ERROR,
-        .numbuttons = 1,
-        .buttons = (SDL_MessageBoxButtonData[]){
-          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
-      },
-    }, NULL);
-
-    ShutdownSDL();
-    quick_exit(0);
+    ErrorBoxExit(szErrorMsg);
   }
 
   return pFile;
@@ -889,20 +876,7 @@ int ROLLERopen(const char *szFile, int iOpenFlags)
   if (iHandle == -1) {
     char szErrorMsg[128];
     snprintf(szErrorMsg, sizeof(szErrorMsg), "The file %s could not be opened.", szFile);
-
-    SDL_ShowMessageBox(&(SDL_MessageBoxData)
-    {
-      .title = "ROLLER",
-        .message = szErrorMsg,
-        .flags = SDL_MESSAGEBOX_ERROR,
-        .numbuttons = 1,
-        .buttons = (SDL_MessageBoxButtonData[]){
-          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
-      },
-    }, NULL);
-
-    ShutdownSDL();
-    quick_exit(0);
+    ErrorBoxExit(szErrorMsg);
   }
 
   return iHandle;
@@ -931,7 +905,7 @@ uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_NSTimerCallback callback, void *
   if (!bFoundSlot) {
     //too many timers!
     assert(0);
-    doexit();
+    ErrorBoxExit("Too many timers!");
   }
 
   return uiHandle;
@@ -974,10 +948,8 @@ uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval
   SDL_LockMutex(g_pTimerMutex);
   tTimerData *pTimerData = GetTimerData(timerID);
   if (!pTimerData) {
-    //timer not found!
     assert(0);
-    doexit();
-    return ullRet;
+    ErrorBoxExit("Tick timer handle not found!");
   }
 
   pTimerData->ullCurrSDLTicksNS = SDL_GetTicksNS();
@@ -1002,10 +974,8 @@ uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
   SDL_LockMutex(g_pTimerMutex);
   tTimerData *pTimerData = GetTimerData(timerID);
   if (!pTimerData) {
-    //timer not found!
     assert(0);
-    doexit();
-    return ullRet;
+    ErrorBoxExit("S7 timer handle not found!");
   }
 
   pTimerData->ullCurrSDLTicksNS = SDL_GetTicksNS();
@@ -1065,6 +1035,25 @@ void ReplaceExtension(char *szFilename, const char *szNewExt)
   } else {
     strcat(szFilename, szNewExt);
   }
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void ErrorBoxExit(const char *szErrorMsg)
+{
+  SDL_ShowMessageBox(&(SDL_MessageBoxData)
+  {
+    .title = "ROLLER",
+      .message = szErrorMsg,
+      .flags = SDL_MESSAGEBOX_ERROR,
+      .numbuttons = 1,
+      .buttons = (SDL_MessageBoxButtonData[]){
+        {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
+    },
+  }, NULL);
+
+  ShutdownSDL();
+  quick_exit(0);
 }
 
 //-------------------------------------------------------------------------------------------------
