@@ -313,14 +313,7 @@ void title_screens()
 
   // added by ROLLER, check to see if title.bm and title.pal exist
   // these files were not shipped in the USA localization
-  FILE *pTitleBm = ROLLERfopen("title.bm", "r");
-  FILE *pTitlePal = ROLLERfopen("title.pal", "r");
-  bool bHasTitle = false;
-  if (pTitleBm && pTitlePal) {
-    bHasTitle = true;
-    fclose(pTitleBm);
-    fclose(pTitlePal);
-  }
+  bool bHasTitle = ROLLERfexists("title.bm") && ROLLERfexists("title.pal");
 
   setpal(bHasTitle ? "title.pal" : "whipped.pal");
   front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
@@ -328,9 +321,6 @@ void title_screens()
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
 
-#if _DEBUG
-  // cheat_mode = CHEAT_MODE_DEATH_MODE; // enable speech in debug mode Added by ROLLER
-#endif
   copypic(scrbuf, screen);
   loadfatalsample();
   fade_palette(32);

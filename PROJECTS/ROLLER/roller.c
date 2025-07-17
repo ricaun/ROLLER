@@ -242,22 +242,6 @@ int InitSDL()
 
   g_pTimerMutex = SDL_CreateMutex();
 
-  // check if the ./FATDATA/FATAL.INI to ensure the game can run
-  if (!ROLLERfexists("./FATDATA/FATAL.INI")) {
-    SDL_ShowMessageBox(&(SDL_MessageBoxData)
-    {
-      .title = "ROLLER",
-        .message = "The folder FATDATA does not exist.",
-        .flags = SDL_MESSAGEBOX_ERROR,
-        .numbuttons = 1,
-        .buttons = (SDL_MessageBoxButtonData[]){
-          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
-      },
-    }, NULL);
-    ShutdownSDL();
-    quick_exit(0);
-  }
-
   if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, SDL_WINDOW_RESIZABLE, &s_pWindow, &s_pRenderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -808,11 +792,33 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
 
 bool ROLLERfexists(const char *szFile)
 {
-  FILE *fp = ROLLERfopen(szFile, "r");
-  if (fp) {
-    fclose(fp);
+  FILE *pFile = fopen(szFile, "r");
+  if (pFile) {
+    fclose(pFile);
     return true;
   }
+
+  char szUpper[260] = { 0 };
+  char szLower[260] = { 0 };
+  int iLength = (int)strlen(szFile);
+
+  for (int i = 0; i < iLength && i < sizeof(szUpper); ++i) {
+    szUpper[i] = toupper(szFile[i]);
+    szLower[i] = tolower(szFile[i]);
+  }
+
+  pFile = fopen(szUpper, "r");
+  if (pFile) {
+    fclose(pFile);
+    return true;
+  }
+
+  pFile = fopen(szLower, "r");
+  if (pFile) {
+    fclose(pFile);
+    return true;
+  }
+
   return false;
 }
 
@@ -835,7 +841,28 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode)
   pFile = fopen(szUpper, szMode);
   if (pFile) return pFile;
 
-  return fopen(szLower, szMode);
+  pFile = fopen(szLower, szMode);
+
+  if (!pFile) {
+    char szErrorMsg[128];
+    snprintf(szErrorMsg, sizeof(szErrorMsg), "The file %s could not be opened.", szFile);
+
+    SDL_ShowMessageBox(&(SDL_MessageBoxData)
+    {
+      .title = "ROLLER",
+        .message = szErrorMsg,
+        .flags = SDL_MESSAGEBOX_ERROR,
+        .numbuttons = 1,
+        .buttons = (SDL_MessageBoxButtonData[]){
+          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
+      },
+    }, NULL);
+
+    ShutdownSDL();
+    quick_exit(0);
+  }
+
+  return pFile;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -857,7 +884,28 @@ int ROLLERopen(const char *szFile, int iOpenFlags)
   iHandle = open(szUpper, iOpenFlags);
   if (iHandle != -1) return iHandle;
 
-  return open(szLower, iOpenFlags);
+  iHandle = open(szLower, iOpenFlags);
+
+  if (iHandle == -1) {
+    char szErrorMsg[128];
+    snprintf(szErrorMsg, sizeof(szErrorMsg), "The file %s could not be opened.", szFile);
+
+    SDL_ShowMessageBox(&(SDL_MessageBoxData)
+    {
+      .title = "ROLLER",
+        .message = szErrorMsg,
+        .flags = SDL_MESSAGEBOX_ERROR,
+        .numbuttons = 1,
+        .buttons = (SDL_MessageBoxButtonData[]){
+          {.flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .text = "OK" }
+      },
+    }, NULL);
+
+    ShutdownSDL();
+    quick_exit(0);
+  }
+
+  return iHandle;
 }
 
 //-------------------------------------------------------------------------------------------------
