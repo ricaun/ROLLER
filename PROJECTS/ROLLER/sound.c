@@ -1178,7 +1178,7 @@ void release_ticktimer()
   /***
   * ADDED BY ROLLER
   ***/
-  SDL_RemoveTimer(tickhandle); //may as well re-use tickhandle, it is also a uint32
+  ROLLERRemoveTimer(tickhandle); //may as well re-use tickhandle, it is also a uint32
   /***
   * END ROLLER CODE
   ***/
@@ -1193,7 +1193,7 @@ void Uninitialise_SOS()
   /***
   * ADDED BY ROLLER
   ***/
-  SDL_RemoveTimer(tickhandle); //may as well re-use tickhandle, it is also a uint32
+  ROLLERRemoveTimer(tickhandle); //may as well re-use tickhandle, it is also a uint32
   /***
   * END ROLLER CODE
   ***/
@@ -3461,7 +3461,7 @@ void fade_palette(int iTargetBrightness)
   }
 
   if (current_mode != 0) {
-    SDL_RemoveTimer(uiTimerHandle); //added by ROLLER
+    ROLLERRemoveTimer(uiTimerHandle); //added by ROLLER
   }
 
   memcpy(pal_addr, palette, 768);

@@ -28,6 +28,20 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#define MAX_TIMERS 16
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  uint32 uiHandle;
+  uint64 ullTargetSDLTicksNS;
+  uint64 ullLastSDLTicksNS;
+  uint64 ullCurrSDLTicksNS;
+} tTimerData;
+
+//-------------------------------------------------------------------------------------------------
+
 static SDL_Window *s_pWindow = NULL;
 static SDL_Renderer *s_pRenderer = NULL;
 static SDL_Texture *s_pWindowTexture = NULL;
@@ -38,9 +52,9 @@ bool g_bPaletteSet = false;
 uint8 testbuf[4096];
 static uint8 *s_pRGBBuffer = NULL;
 static uint8 *s_pDebugBuffer = NULL;
-uint64 ullTargetSDLTicksNS = 0;
-uint64 ullLastSDLTicksNS = 0;
-uint64 ullCurrSDLTicksNS = 0;
+
+SDL_Mutex *g_pTimerMutex = NULL;
+tTimerData timerDataAy[MAX_TIMERS] = { 0 };
 
 // Scancode translation table (SDL scancode -> PC set1 scancode)
 uint8 sdl_to_set1[] = {
@@ -225,6 +239,8 @@ int InitSDL()
     chdir(home_dir);
     SDL_free((void *)home_dir);
   }
+
+  g_pTimerMutex = SDL_CreateMutex();
 
   // check if the ./FATDATA/FATAL.INI to ensure the game can run
   if (!ROLLERfexists("./FATDATA/FATAL.INI")) {
@@ -846,43 +862,114 @@ int ROLLERopen(const char *szFile, int iOpenFlags)
 
 //-------------------------------------------------------------------------------------------------
 
-uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *userdata)
+uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_NSTimerCallback callback, void *userdata)
 {
-  ullTargetSDLTicksNS = 1000000000 / uiFrequencyHz;
-  ullLastSDLTicksNS = SDL_GetTicksNS();
-  return SDL_AddTimer(HZ_TO_MS(uiFrequencyHz), callback, userdata); //NOTE: this may be too fast since we are rounding down, ex 36Hz = 27.777777ms instead of 27ms
+  SDL_LockMutex(g_pTimerMutex);
+  uint32 uiHandle = SDL_AddTimerNS(HZ_TO_NS(uiFrequencyHz), callback, userdata);
+
+  //find empty timer slot
+  bool bFoundSlot = false;
+  for (int i = 0; i < MAX_TIMERS; ++i) {
+    if (timerDataAy[i].uiHandle == 0) {
+      bFoundSlot = true;
+      timerDataAy[i].uiHandle = uiHandle;
+      timerDataAy[i].ullTargetSDLTicksNS = HZ_TO_NS(uiFrequencyHz);
+      timerDataAy[i].ullLastSDLTicksNS = SDL_GetTicksNS();
+      break;
+    }
+  }
+  SDL_UnlockMutex(g_pTimerMutex);
+
+  if (!bFoundSlot) {
+    //too many timers!
+    assert(0);
+    doexit();
+  }
+
+  return uiHandle;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+void ROLLERRemoveTimer(uint32 uiHandle)
+{
+  SDL_LockMutex(g_pTimerMutex);
+  SDL_RemoveTimer(uiHandle);
+  //clear timer data
+  for (int i = 0; i < MAX_TIMERS; ++i) {
+    if (timerDataAy[i].uiHandle == uiHandle) {
+      memset(&timerDataAy[i], 0, sizeof(tTimerData));
+    }
+  }
+  SDL_UnlockMutex(g_pTimerMutex);
+}
+
+//-------------------------------------------------------------------------------------------------
+//g_pTimerMutex MUST BE LOCKED before calling this function
+tTimerData *GetTimerData(SDL_TimerID timerID)
+{
+  for (int i = 0; i < MAX_TIMERS; ++i) {
+    if (timerDataAy[i].uiHandle == timerID) {
+      return &timerDataAy[i];
+    }
+  }
+  return NULL;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
 {
   tickhandler();
+  uint64 ullRet = 0;
+  
+  SDL_LockMutex(g_pTimerMutex);
+  tTimerData *pTimerData = GetTimerData(timerID);
+  if (!pTimerData) {
+    //timer not found!
+    assert(0);
+    doexit();
+    return ullRet;
+  }
 
-  ullCurrSDLTicksNS = SDL_GetTicksNS();
-  int64 llNSSinceLast = (int64)ullCurrSDLTicksNS - (int64)ullLastSDLTicksNS;
-  int64 llDelta = llNSSinceLast - (int64)ullTargetSDLTicksNS;
+  pTimerData->ullCurrSDLTicksNS = SDL_GetTicksNS();
+  int64 llNSSinceLast = (int64)pTimerData->ullCurrSDLTicksNS - (int64)pTimerData->ullLastSDLTicksNS;
+  int64 llDelta = llNSSinceLast - (int64)pTimerData->ullTargetSDLTicksNS;
   if (llDelta < 0)
     llDelta = 0;
-  ullLastSDLTicksNS = ullCurrSDLTicksNS;
+  pTimerData->ullLastSDLTicksNS = pTimerData->ullCurrSDLTicksNS;
+  ullRet = pTimerData->ullTargetSDLTicksNS - llDelta;
+  SDL_UnlockMutex(g_pTimerMutex);
 
-  return (uint32)((ullTargetSDLTicksNS - llDelta) / 1000000);
+  return ullRet;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
 {
   ++s7;
+  uint64 ullRet = 0;
 
-  ullCurrSDLTicksNS = SDL_GetTicksNS();
-  int64 llNSSinceLast = (int64)ullCurrSDLTicksNS - (int64)ullLastSDLTicksNS;
-  int64 llDelta = llNSSinceLast - (int64)ullTargetSDLTicksNS;
+  SDL_LockMutex(g_pTimerMutex);
+  tTimerData *pTimerData = GetTimerData(timerID);
+  if (!pTimerData) {
+    //timer not found!
+    assert(0);
+    doexit();
+    return ullRet;
+  }
+
+  pTimerData->ullCurrSDLTicksNS = SDL_GetTicksNS();
+  int64 llNSSinceLast = (int64)pTimerData->ullCurrSDLTicksNS - (int64)pTimerData->ullLastSDLTicksNS;
+  int64 llDelta = llNSSinceLast - (int64)pTimerData->ullTargetSDLTicksNS;
   if (llDelta < 0)
     llDelta = 0;
-  ullLastSDLTicksNS = ullCurrSDLTicksNS;
+  pTimerData->ullLastSDLTicksNS = pTimerData->ullCurrSDLTicksNS;
+  ullRet = pTimerData->ullTargetSDLTicksNS - llDelta;
+  SDL_UnlockMutex(g_pTimerMutex);
 
-  return (uint32)((ullTargetSDLTicksNS - llDelta) / 1000000);
+  return ullRet;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -47,9 +47,10 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length);
 bool ROLLERfexists(const char *szFile);
 FILE *ROLLERfopen(const char *szFile, const char *szMode); //tries to open file with both all caps and all lower case
 int ROLLERopen(const char *szFile, int iOpenFlags); //tries to open file with both all caps and all lower case
-uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_TimerCallback callback, void *userdata);
-uint32 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval);
-uint32 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval);
+uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_NSTimerCallback callback, void *userdata);
+void ROLLERRemoveTimer(uint32 uiHandle);
+uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval);
+uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval);
 int IsCDROMDevice(const char *szPath);
 int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis);
 void ReplaceExtension(char *szFilename, const char *szNewExt);
