@@ -940,7 +940,7 @@ tTimerData *GetTimerData(SDL_TimerID timerID)
 
 //-------------------------------------------------------------------------------------------------
 
-uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
+Uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
 {
   tickhandler();
   uint64 ullRet = 0;
@@ -966,7 +966,7 @@ uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval
 
 //-------------------------------------------------------------------------------------------------
 
-uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
+Uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
 {
   ++s7;
   uint64 ullRet = 0;
