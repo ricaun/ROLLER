@@ -3,6 +3,8 @@
 
 This project aims to implement all the functionality of the 1995 game Whiplash/Fatal Racing in a way that builds and runs on modern PCs. Where necessary, DOS-specific functions are substituted with SDL and Windows/Unix equivalents.
 
+[![Software rendering!](https://img.youtube.com/vi/eAdGzDnqc5Q/0.jpg)](https://www.youtube.com/watch?v=eAdGzDnqc5Q)
+
 ## About
 
 Debug symbol dump generated with wdump, part of: https://github.com/open-watcom/open-watcom-v2
