@@ -4130,59 +4130,56 @@ void front_letter(tBlockHeader *pFont, uint8 byCharIdx, int *iX, int *iY, const 
 
 //-------------------------------------------------------------------------------------------------
 
-int scale_letter(int a1, uint8 a2, void *a3, void *a4, int a5, char a6, int a7)
+void scale_letter(tBlockHeader *pFont, uint8 byChar, int *iCursorX, int *iCursorY, char *mappingTable, char byColorReplace, int iScaleSize)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6); (void)(a7);
-  return 0;
-  /*
-  int v7; // edx
-  int result; // eax
-  int v9; // ebp
-  char *v10; // edx
-  char *i; // edi
-  int v12; // eax
-  int v13; // ebx
-  char v14; // cl
-  char *v15; // [esp+0h] [ebp-24h]
-  int v17; // [esp+Ch] [ebp-18h]
-  char *v18; // [esp+10h] [ebp-14h]
-  int v19; // [esp+14h] [ebp-10h]
+  int byCharIndex; // edx
+  int iCharWidth; // ebp
+  uint8 *pFontData; // edx
+  uint8 *pScreenPos; // edi
+  int iScaleFactor; // eax
+  int iPixelX; // ebx
+  uint8 byPixelColor; // cl
+  uint8 *pRowStart; // [esp+0h] [ebp-24h]
+  int iCharHeight; // [esp+Ch] [ebp-18h]
+  uint8 *pFontRowStart; // [esp+10h] [ebp-14h]
+  int iPixelY; // [esp+14h] [ebp-10h]
 
-  v7 = *(unsigned __int8 *)(a5 + a2);
-  if (v7 == 255) {
-    result = (8 * a7) >> 6;
-    *a3 += result;
+  byCharIndex = (uint8)mappingTable[byChar];// Get character index from ASCII lookup table
+  if (byCharIndex == 255)                     // Character not found (255) - advance cursor by scaled space width
+  {
+    *iCursorX += (8 * iScaleSize) >> 6;
   } else {
-    v9 = *(_DWORD *)(a1 + 12 * v7);
-    v17 = *(_DWORD *)(a1 + 12 * v7 + 4);
-    v10 = (char *)(a1 + *(_DWORD *)(a1 + 12 * v7 + 8));
-    v19 = 0;
-    for (i = (char *)(640 * *a4 + scrbuf + *a3); v19 < v17; ++v19) {
-      v15 = i;
-      v18 = v10;
-      v12 = a7;
-      v13 = 0;
-      while (v13 < v9) {
-        v14 = *v10;
-        if (*v10) {
-          if (v14 == -113)
-            v14 = a6;
-          *i = v14;
+    iCharWidth = pFont[byCharIndex].iWidth;     // Load character dimensions and font data pointer from font header
+    iCharHeight = pFont[byCharIndex].iHeight;
+    pFontData = (uint8 *)pFont + pFont[byCharIndex].iDataOffset;
+    iPixelY = 0;
+    for (pScreenPos = &scrbuf[640 * *iCursorY + *iCursorX]; iPixelY < iCharHeight; ++iPixelY)// MAIN RENDER LOOP: Process each row of the character
+    {
+      pRowStart = pScreenPos;
+      pFontRowStart = pFontData;
+      iScaleFactor = iScaleSize;
+      iPixelX = 0;
+      while (iPixelX < iCharWidth)            // PIXEL LOOP: Scale and render each pixel in the current row
+      {
+        byPixelColor = *pFontData;
+        if (*pFontData) {                                       // Special color handling: 0x8F (-113) becomes the specified color parameter
+          if (byPixelColor == 0x8F)
+            byPixelColor = byColorReplace;
+          *pScreenPos = byPixelColor;
         }
-        v12 -= 64;
-        ++i;
-        for (; v12 <= 0; ++v13) {
-          ++v10;
-          v12 += a7;
+        iScaleFactor -= 64;
+        ++pScreenPos;
+        for (; iScaleFactor <= 0; ++iPixelX)  // Scaling logic: advance source pixel when scale factor reaches threshold
+        {
+          ++pFontData;
+          iScaleFactor += iScaleSize;
         }
       }
-      i = v15 + 640;
-      v10 = &v18[v9];
+      pScreenPos = pRowStart + 640;             // Move to next screen row (640 pixels per row) and next font data row
+      pFontData = &pFontRowStart[iCharWidth];
     }
-    result = (a7 * (v9 + 1)) >> 6;
-    *a3 += result;
+    *iCursorX += (iScaleSize * (iCharWidth + 1)) >> 6;// Advance cursor position by scaled character width plus 1 pixel spacing
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4271,134 +4268,122 @@ void front_text(
 
 //-------------------------------------------------------------------------------------------------
 
-uint8 scale_text(
-        int a1,
-        char *a2,
-        int a3,
-        int a4,
-        int a5,
-        int a6,
-        char a7,
-        unsigned int a8,
-        int a9,
-        int a10)
+void scale_text(tBlockHeader *pFont,
+                char *szText,
+                const char *mappingTable,
+                int *pCharVOffsets,
+                int iX,
+                int iY,
+                char byColorReplace,
+                unsigned int uiAlignment,
+                int iClipLeft,
+                int iClipRight)
 {
-  (void)a1;
-    (void)a2;
-    (void)a3;
-    (void)a4;
-    (void)a5;
-    (void)a6;
-    (void)a7;
-    (void)a8;
-    (void)a9;
-    (void)a10;
-    return 0;
-    /*
-  int v11; // esi
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15; // edx
-  _BYTE *v16; // eax
-  int v17; // edx
-  int v18; // esi
-  unsigned __int8 *v19; // esi
-  unsigned __int8 result; // al
-  int v21; // [esp+0h] [ebp-34h]
-  _BYTE *v22; // [esp+4h] [ebp-30h]
-  int v23; // [esp+8h] [ebp-2Ch]
-  int v24; // [esp+Ch] [ebp-28h] BYREF
-  int v25; // [esp+10h] [ebp-24h] BYREF
-  int v26; // [esp+14h] [ebp-20h]
-  int v27; // [esp+18h] [ebp-1Ch]
-  int v28; // [esp+1Ch] [ebp-18h]
-  int v29; // [esp+20h] [ebp-14h]
-  int v30; // [esp+24h] [ebp-10h]
+  int iTextWidth; // esi
+  int byCurrentChar; // eax
+  int byCharIndex; // eax
+  int iTextEndX; // eax
+  int iAvailableWidth; // edx
+  char *pbyTextPtr; // eax
+  int iScaledWidth; // edx
+  int iCharIndexTemp; // esi
+  uint8 *pRenderPtr; // esi
+  int iRightBound; // [esp+0h] [ebp-34h]
+  char *szTextStart; // [esp+4h] [ebp-30h]
+  int iSavedY; // [esp+8h] [ebp-2Ch]
+  int iCursorY; // [esp+Ch] [ebp-28h] BYREF
+  int iCursorX; // [esp+10h] [ebp-24h] BYREF
+  int iLeftBound; // [esp+14h] [ebp-20h]
+  int *pCharVOffsets_1; // [esp+18h] [ebp-1Ch]
+  int iScaledSpaceWidth; // [esp+1Ch] [ebp-18h]
+  int iFinishedFlag; // [esp+20h] [ebp-14h]
+  int iScaleSize; // [esp+24h] [ebp-10h]
 
-  v22 = a2;
-  v27 = a4;
-  v25 = a5;
-  v11 = 0;
-  v24 = a6;
-  while (*a2) {
-    v12 = (unsigned __int8)*a2++;
-    v13 = *(unsigned __int8 *)(a3 + v12);
-    if (v13 == 255)
-      v11 += 8;
+  szTextStart = szText;                         // Store parameters and initialize position tracking
+  pCharVOffsets_1 = pCharVOffsets;
+  iCursorX = iX;
+  iTextWidth = 0;
+  iCursorY = iY;
+  while (*szText)                             // PASS 1: Calculate total text width in pixels for alignment
+  {
+    byCurrentChar = (uint8)*szText++;
+    byCharIndex = (uint8)mappingTable[byCurrentChar];
+    if (byCharIndex == 255)
+      iTextWidth += 8;
     else
-      v11 += *(_DWORD *)(12 * v13 + a1) + 1;
+      iTextWidth += pFont[byCharIndex].iWidth + 1;
   }
-  if (!a8) {
-    v26 = v25;
-    v14 = v11 + v25;
+  if (!uiAlignment)                           // Apply horizontal alignment: 0=left, 1=center, 2=right
+  {
+    iLeftBound = iCursorX;
+    iTextEndX = iTextWidth + iCursorX;
   LABEL_13:
-    v21 = v14;
+    iRightBound = iTextEndX;
     goto LABEL_14;
   }
-  if (a8 > 1) {
-    if (a8 != 2)
+  if (uiAlignment > 1) {
+    if (uiAlignment != 2)
       goto LABEL_14;
-    v26 = v25 - v11;
-    v14 = v25;
+    iLeftBound = iCursorX - iTextWidth;
+    iTextEndX = iCursorX;
     goto LABEL_13;
   }
-  v26 = v25 - v11 / 2;
-  v21 = v11 / 2 + v25;
+  iLeftBound = iCursorX - iTextWidth / 2;
+  iRightBound = iTextWidth / 2 + iCursorX;
 LABEL_14:
-  if (a9 > v26 || v21 > a10) {
-    if (a9 <= v26) {
-      v15 = a10 - v26;
-    } else if (v21 <= a10) {
-      v15 = v21 - a9;
+  if (iClipLeft > iLeftBound || iRightBound > iClipRight)// Check if text extends beyond clipping bounds and calculate scaling factor
+  {
+    if (iClipLeft <= iLeftBound) {
+      iAvailableWidth = iClipRight - iLeftBound;
+    } else if (iRightBound <= iClipRight) {
+      iAvailableWidth = iRightBound - iClipLeft;
     } else {
-      v15 = a10 - a9;
+      iAvailableWidth = iClipRight - iClipLeft;
     }
-    v30 = (v15 << 6) / v11;
+    iScaleSize = (iAvailableWidth << 6) / iTextWidth;
   } else {
-    v30 = 64;
+    iScaleSize = 64;
   }
-  v16 = v22;
-  v17 = 0;
-  while (*v16) {
-    v18 = *(unsigned __int8 *)(a3 + (unsigned __int8)*v16++);
-    if (v18 == 255)
-      v17 += (8 * v30) >> 6;
+  pbyTextPtr = szTextStart;                     // PASS 2: Calculate scaled text width for final positioning
+  iScaledWidth = 0;
+  while (*pbyTextPtr) {
+    iCharIndexTemp = (uint8)mappingTable[(uint8)*pbyTextPtr++];
+    if (iCharIndexTemp == 255)
+      iScaledWidth += (8 * iScaleSize) >> 6;
     else
-      v17 += (v30 * (*(_DWORD *)(12 * v18 + a1) + 1)) >> 6;
+      iScaledWidth += (iScaleSize * (pFont[iCharIndexTemp].iWidth + 1)) >> 6;
   }
-  if (a8) {
-    if (a8 <= 1) {
-      v25 -= v17 / 2;
-    } else if (a8 == 2) {
-      v25 -= v17;
+  if (uiAlignment)                            // Adjust starting X position based on alignment and scaled width
+  {
+    if (uiAlignment <= 1) {
+      iCursorX -= iScaledWidth / 2;
+    } else if (uiAlignment == 2) {
+      iCursorX -= iScaledWidth;
     }
   }
-  v29 = 0;
-  v19 = v22;
-  v28 = (8 * v30) >> 6;
+  iFinishedFlag = 0;                            // PASS 3: Render each character with scaling and positioning
+  pRenderPtr = (uint8 *)szTextStart;
+  iScaledSpaceWidth = (8 * iScaleSize) >> 6;
   do {
-    result = *v19;
-    if (*v19) {
-      if (result != 10) {
-        if (*(_BYTE *)(a3 + *v19) == 0xFF) {
-          result = v28;
-          v25 += v28;
+    if (*pRenderPtr) {                                           // Handle newline character (ASCII 10) - not implemented
+      if (*pRenderPtr != 10) {                                         // Character not in font (index 255) - advance by scaled space width
+        if (mappingTable[*pRenderPtr] == -1) {
+          iCursorX += iScaledSpaceWidth;
         } else {
-          v23 = v24;
-          v24 += *(_DWORD *)(v27 + 4 * *(unsigned __int8 *)(a3 + *v19));
-          scale_letter(a1, *v19, &v25, &v24, a3, a7, v30);
-          result = v23;
-          v24 = v23;
+          iSavedY = iCursorY;                   // Render valid character: adjust Y position, call scale_letter, restore Y position
+          iCursorY += pCharVOffsets_1[(uint8)mappingTable[*pRenderPtr]];
+          scale_letter(pFont, *pRenderPtr, &iCursorX, &iCursorY, (char *)mappingTable, byColorReplace, iScaleSize);
+          iCursorY = iSavedY;
         }
       }
     } else {
-      v29 = -1;
+      iFinishedFlag = -1;                       // End of string (null terminator) - set finished flag
     }
-    ++v19;
-  } while (!v29);
-  return result;*/
+    ++pRenderPtr;
+  } while (!iFinishedFlag);
 }
+
+//-------------------------------------------------------------------------------------------------
 
 int clear_screen(int a1, int a2)
 {
