@@ -13,6 +13,7 @@
 #include "drawtrk3.h"
 #include "cdx.h"
 #include "polytex.h"
+#include "comms.h"
 #include <fcntl.h>
 #include <string.h>
 #ifdef IS_WINDOWS
@@ -999,7 +1000,7 @@ void select_screen()
           ++v32;
         } while (v32 < players);
       }
-      cheat_mode |= 0x00004000;
+      cheat_mode |= CHEAT_MODE_CLONES;
       iBlockIdx = switch_same - 666;
     } else if (switch_same < 0) {
       switch_same = 0;
@@ -1011,7 +1012,7 @@ void select_screen()
           ++iPlayerIdx;
         } while (iPlayerIdx < players);
       }
-      cheat_mode |= 0x0000BF00;
+      cheat_mode &= ~CHEAT_MODE_CLONES;
     }
     if (switch_sets) {
       if (game_type != 1 && iBlockIdx >= 0) {
@@ -2100,9 +2101,7 @@ void select_car()
           //  } while (iPlayerLoopCounter < players);
           //}
 
-          //uiUpdatedCheatFlags = cheat_mode;
-          //BYTE1(uiUpdatedCheatFlags) = BYTE1(cheat_mode) | 0x40;
-          cheat_mode |= CHEAT_MODE_CLONES;// uiUpdatedCheatFlags;
+          cheat_mode |= CHEAT_MODE_CLONES;
         }
       } else if (switch_same < 0) {
         switch_same = 0;
@@ -2110,9 +2109,7 @@ void select_car()
         iZoomSpeed = 2000;
         iSelectedCar = -1;
         sfxsample(85, 0x8000);
-        //uiCheatModeFlags = cheat_mode;
-        //BYTE1(uiCheatModeFlags) = BYTE1(cheat_mode) & 0xBF;
-        cheat_mode |= 0x0000BF00;// uiCheatModeFlags;
+        cheat_mode &= ~CHEAT_MODE_CLONES;
       }
       if (switch_sets) {
         iSelectedCar = iPlayer1Car;
@@ -4509,220 +4506,407 @@ int front_volumebar(int a1, int a2, int a3)
 
 void select_players()
 {
-  /*
-  unsigned int v4; // esi
-  int v5; // edi
-  int v6; // eax
-  int j; // edx
-  int v8; // eax
-  int i; // edx
-  int v10; // ecx
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15; // eax
-  __int64 v16; // rax
-  _UNKNOWN **v17; // edx
-  int v18; // ecx
-  __int64 v19; // rax
-  unsigned __int8 v20; // al
-  int v21; // [esp-14h] [ebp-3Ch]
-  int v22; // [esp-10h] [ebp-38h]
-  int v23; // [esp+8h] [ebp-20h]
-  int v24; // [esp+Ch] [ebp-1Ch]
-  int v25; // [esp+10h] [ebp-18h]
-  int v26; // [esp+14h] [ebp-14h]
-  char *v27; // [esp+18h] [ebp-10h]
-  int v28; // [esp+1Ch] [ebp-Ch]
-  int v29; // [esp+20h] [ebp-8h]
-  int v30; // [esp+24h] [ebp-4h]
+  unsigned int uiSelectedPlayerType; // esi
+  int iNetworkStatus; // edi
+  uint32 uiCheatArrayOffset; // eax
+  int iCheatPlayerLoop; // edx
+  int iCheatPlayerIndex; // edx
+  int iPlayerCarIndex; // ecx
+  char byMenuColor1; // al
+  char byMenuColor2; // al
+  char byMenuColor3; // al
+  char byMenuColor4; // al
+  char byMenuColor5; // al
+  uint8 byInputKey; // al
+  uint8 byExtendedKey; // al
+  int iNetworkMode; // [esp+8h] [ebp-20h]
+  int iPlayerIndex; // [esp+Ch] [ebp-1Ch]
+  int iY; // [esp+10h] [ebp-18h]
+  int iComPortStatus; // [esp+14h] [ebp-14h]
+  char *szText; // [esp+18h] [ebp-10h]
+  int iPlayerListCount; // [esp+1Ch] [ebp-Ch]
+  int iNetworkSetupFlag; // [esp+20h] [ebp-8h]
+  int iExitFlag; // [esp+24h] [ebp-4h]
 
-  v26 = gss16550(2);
-  v30 = 0;
-  fade_palette(0, 0, a3, a4);
-  v4 = player_type;
+  iComPortStatus = 0;// gss16550(2);                 // Initialize COM port status and screen fade
+  iExitFlag = 0;
+  fade_palette(0);
+  uiSelectedPlayerType = player_type;
   front_fade = 0;
-  if (player_type == 1 && net_type) {
+  if (player_type == 1 && net_type)           // Map network types to player selection modes: Serial=3, Modem=4
+  {
     if ((unsigned int)net_type <= 1) {
-      v4 = 3;
+      uiSelectedPlayerType = 3;
     } else if (net_type == 2) {
-      v4 = 4;
+      uiSelectedPlayerType = 4;
     }
   }
-  v29 = 0;
-  if (v4 == 1 || v4 == 3 || v4 == 4)
-    v23 = -1;
+  iNetworkSetupFlag = 0;
+  if (uiSelectedPlayerType == 1 || uiSelectedPlayerType == 3 || uiSelectedPlayerType == 4)// Set network mode flag: -1 for single player and network modes, 0 for two-player
+    iNetworkMode = -1;
   else
-    v23 = 0;
-  v5 = 0;
-  do {
+    iNetworkMode = 0;
+  iNetworkStatus = 0;
+  do {                                             // Handle game type switches (race type, championship, etc.)
     if (switch_types) {
       game_type = switch_types - 1;
       if (switch_types == 1 && competitors == 1)
         competitors = 16;
       switch_types = 0;
       if (game_type == 1)
-        Race = ((_BYTE)TrackLoad - 1) & 7;
+        Race = ((uint8)TrackLoad - 1) & 7;
       else
         network_champ_on = 0;
     }
-    display_picture(scrbuf, front_vga[0], 3);
-    display_block(head_y, 0);
-    display_block(2, 0);
-    display_block(247, 0);
-    display_block(247, 0);
-    display_block(257, -1);
-    display_block(336, -1);
-    if (v5 && (v4 == 1 || v4 == 3 || v4 == 4))
-      scale_text(400, 300, 231, 1, 200, 640);
-    if ((v4 == 3 || v4 == 4) && !v26)
-      scale_text(400, 300, 231, 1, 200, 640);
+    display_picture(scrbuf, front_vga[0]);
+    display_block(scrbuf, (tBlockHeader *)front_vga[1], 3, head_x, head_y, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], uiSelectedPlayerType, -4, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[4], 4, 76, 257, -1);
+    display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+    if (iNetworkStatus && (uiSelectedPlayerType == 1 || uiSelectedPlayerType == 3 || uiSelectedPlayerType == 4))// Show connection status message for network modes
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[4992],
+        font1_ascii,
+        font1_offsets,
+        400,
+        300,
+        231,
+        1u,
+        200,
+        640);
+    if ((uiSelectedPlayerType == 3 || uiSelectedPlayerType == 4) && !iComPortStatus)// Show COM port error message if networking failed to initialize
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[8064],
+        font1_ascii,
+        font1_offsets,
+        400,
+        300,
+        231,
+        1u,
+        200,
+        640);
     do
-      v6 = broadcast_mode;
+      uiCheatArrayOffset = broadcast_mode;
     while (broadcast_mode);
-    if (switch_same > 0) {
-      for (i = 0; i < players; *(int *)((char *)infinite_laps + v6) = switch_same - 666) {
-        v6 += 4;
-        ++i;
+    if (switch_same > 0)                      // CHEAT MODE HANDLING: Process switch_same command for car synchronization
+    {
+      for (iCheatPlayerIndex = 0;
+            iCheatPlayerIndex < players;
+            *(int *)((char *)&infinite_laps + uiCheatArrayOffset) = switch_same - 666) {
+        uiCheatArrayOffset += 4;
+        ++iCheatPlayerIndex;
       }
       if ((cheat_mode & 0x4000) == 0)
         broadcast_mode = -1;
       while (broadcast_mode)
-        ;
-      v10 = cheat_mode;
-      BYTE1(v10) = BYTE1(cheat_mode) | 0x40;
-      cheat_mode = v10;
+        UpdateSDL();
+      cheat_mode |= CHEAT_MODE_CLONES;
     } else if (switch_same < 0) {
       switch_same = broadcast_mode;
-      for (j = 0; j < players; *(int *)((char *)infinite_laps + v6) = -1) {
-        v6 += 4;
-        ++j;
+      for (iCheatPlayerLoop = 0; iCheatPlayerLoop < players; *(int *)((char *)&infinite_laps + uiCheatArrayOffset) = -1) {
+        uiCheatArrayOffset += 4;
+        ++iCheatPlayerLoop;
       }
-      v8 = cheat_mode;
-      BYTE1(v8) = BYTE1(cheat_mode) & 0xBF;
-      cheat_mode = v8;
+      cheat_mode &= ~CHEAT_MODE_CLONES;
     }
-    if (v23) {
-      if (v29) {
+    if (iNetworkMode)                         // NETWORK MODE UI: Show connection info and player list
+    {
+      if (iNetworkSetupFlag) {
         while (broadcast_mode)
-          ;
+          UpdateSDL();
         broadcast_mode = -667;
         while (broadcast_mode)
-          ;
-        v29 = 0;
+          UpdateSDL();
+        iNetworkSetupFlag = 0;
       }
-      if ((unsigned int)net_type <= 2)
-        scale_text(400, 60, 143, 1, 200, 640);
-      v28 = 0;
-      if (network_on > 0) {
-        v24 = 0;
-        v25 = 80;
-        v27 = player_names;
+      if (net_type) {
+        if ((unsigned int)net_type <= 1) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[5056],
+            font1_ascii,
+            font1_offsets,
+            400,
+            60,
+            143,
+            1u,
+            200,
+            640);
+        } else if (net_type == 2) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[5120],
+            font1_ascii,
+            font1_offsets,
+            400,
+            60,
+            143,
+            1u,
+            200,
+            640);
+        }
+      } else {
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4096],
+          font1_ascii,
+          font1_offsets,
+          400,
+          60,
+          143,
+          1u,
+          200,
+          640);
+      }
+      iPlayerListCount = 0;
+      if (network_on > 0)                     // Display connected players and their selected cars
+      {
+        iPlayerIndex = 0;
+        iY = 80;
+        szText = player_names[0];
         do {
-          scale_text(336, v25, 143, 2, 200, 640);
-          if (Players_Cars[v24] < 0)
-            scale_text(340, v25, 131, 0, 200, 640);
+          scale_text((tBlockHeader *)front_vga[15], szText, font1_ascii, font1_offsets, 336, iY, 143, 2u, 200, 640);
+          iPlayerCarIndex = Players_Cars[iPlayerIndex];
+          if (iPlayerCarIndex < 0)
+            scale_text(
+              (tBlockHeader *)front_vga[15],
+              &language_buffer[4160],
+              font1_ascii,
+              font1_offsets,
+              340,
+              iY,
+              131,
+              0,
+              200,
+              640);
           else
-            scale_text(342, v25, 143, 0, 200, 640);
-          ++v24;
-          v27 += 9;
-          v25 += 18;
-          ++v28;
-        } while (v28 < network_on);
+            scale_text(
+              (tBlockHeader *)front_vga[15],
+              CompanyNames[iPlayerCarIndex],
+              font1_ascii,
+              font1_offsets,
+              342,
+              iY,
+              143,
+              0,
+              200,
+              640);
+          ++iPlayerIndex;
+          szText += 9;
+          iY += 18;
+          ++iPlayerListCount;
+        } while (iPlayerListCount < network_on);
       }
-      if ((unsigned int)net_type <= 2)
-        scale_text(400, 380, 231, 1, 200, 640);
-      v22 = 231;
-      v21 = 360;
+      if (net_type) {
+        if ((unsigned int)net_type <= 1) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[5184],
+            font1_ascii,
+            font1_offsets,
+            400,
+            380,
+            231,
+            1u,
+            200,
+            640);
+        } else if (net_type == 2) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[5248],
+            font1_ascii,
+            font1_offsets,
+            400,
+            380,
+            231,
+            1u,
+            200,
+            640);
+        }
+      } else {
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4224],
+          font1_ascii,
+          font1_offsets,
+          400,
+          380,
+          231,
+          1u,
+          200,
+          640);
+      }
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[7104],
+        font1_ascii,
+        font1_offsets,
+        400,
+        360,
+        231,
+        1u,
+        200,
+        640);
     } else {
-      scale_text(400, 75, 143, 1, 200, 640);
-      scale_text(400, 93, 143, 1, 200, 640);
-      if (v4)
-        v11 = 143;
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[2944],
+        font1_ascii,
+        font1_offsets,
+        400,
+        75,
+        143,
+        1u,
+        200,
+        640);                                   // MENU MODE UI: Show player selection options with highlighting
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[3008],
+        font1_ascii,
+        font1_offsets,
+        400,
+        93,
+        143,
+        1u,
+        200,
+        640);
+      if (uiSelectedPlayerType)               // Highlight current selection
+        byMenuColor1 = 0x8F;
       else
-        v11 = 171;
-      scale_text(400, 135, v11, 1, 200, 640);
-      if (v4 == 2)
-        v12 = 171;
+        byMenuColor1 = 0xAB;
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[2112],
+        font1_ascii,
+        font1_offsets,
+        400,
+        135,
+        byMenuColor1,
+        1u,
+        200,
+        640);
+      if (uiSelectedPlayerType == 2)
+        byMenuColor2 = 0xAB;
       else
-        v12 = 143;
-      scale_text(400, 153, v12, 1, 200, 640);
-      if (v4 == 1)
-        v13 = 171;
+        byMenuColor2 = 0x8F;
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[2240],
+        font1_ascii,
+        font1_offsets,
+        400,
+        153,
+        byMenuColor2,
+        1u,
+        200,
+        640);
+      if (uiSelectedPlayerType == 1)
+        byMenuColor3 = 0xAB;
       else
-        v13 = 143;
-      scale_text(400, 171, v13, 1, 200, 640);
-      if (v4 == 3)
-        v14 = 171;
+        byMenuColor3 = 0x8F;
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[2176],
+        font1_ascii,
+        font1_offsets,
+        400,
+        171,
+        byMenuColor3,
+        1u,
+        200,
+        640);
+      if (uiSelectedPlayerType == 3)
+        byMenuColor4 = 0xAB;
       else
-        v14 = 143;
-      scale_text(400, 189, v14, 1, 200, 640);
-      if (v4 == 4)
-        v15 = 171;
+        byMenuColor4 = 0x8F;
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[2304],
+        font1_ascii,
+        font1_offsets,
+        400,
+        189,
+        byMenuColor4,
+        1u,
+        200,
+        640);
+      if (uiSelectedPlayerType == 4)
+        byMenuColor5 = 0xAB;
       else
-        v15 = 143;
-      v22 = v15;
-      v21 = 207;
+        byMenuColor5 = 0x8F;
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[2368],
+        font1_ascii,
+        font1_offsets,
+        400,
+        207,
+        byMenuColor5,
+        1u,
+        200,
+        640);
     }
-    v16 = scale_text(400, v21, v22, 1, 200, 640);
-    show_received_mesage(v16, HIDWORD(v16), font1_ascii, &font1_offsets);
-    v17 = screen;
-    copypic((char *)scrbuf, (int)screen);
-    if (!front_fade) {
+    show_received_mesage();
+    copypic(scrbuf, screen);
+    if (!front_fade)                          // Handle screen fade-in effect
+    {
       front_fade = -1;
-      fade_palette(32, (int)v17, (int)font1_ascii, 0);
+      fade_palette(32);
       frames = 0;
     }
-    v18 = 1;
-    HIDWORD(v19) = 0;
-    while (fatkbhit()) {
-      LODWORD(v19) = fatgetch();
-      if ((unsigned __int8)v19 < 0x4Du) {
-        if ((unsigned __int8)v19 < 0xDu) {
-          if (!(_BYTE)v19) {
-            v20 = fatgetch();
-            if (v20 >= 0x48u) {
-              if (v20 <= 0x48u) {
-                if (HIDWORD(v19) == v23) {
-                  switch (v4) {
+    while (fatkbhit())                        // KEYBOARD INPUT PROCESSING: Handle navigation and selection
+    {
+      byInputKey = fatgetch();
+      if (byInputKey < 0x4Du) {
+        if (byInputKey < 0xDu) {                                       // Handle extended keys (arrow keys for navigation)
+          if (!byInputKey) {
+            byExtendedKey = fatgetch();
+            if (byExtendedKey >= 0x48u) {
+              if (byExtendedKey <= 0x48u) {                                 // Up arrow: Navigate through player selection options
+                if (!iNetworkMode) {
+                  switch (uiSelectedPlayerType) {
                     case 1u:
-                      v4 = 2;
-                      v5 = HIDWORD(v19);
+                      uiSelectedPlayerType = 2;
+                      iNetworkStatus = 0;
                       break;
                     case 2u:
-                      v4 = HIDWORD(v19);
-                      v5 = HIDWORD(v19);
+                      uiSelectedPlayerType = 0;
+                      iNetworkStatus = 0;
                       break;
                     case 3u:
-                      v4 = 1;
-                      v5 = HIDWORD(v19);
+                      uiSelectedPlayerType = 1;
+                      iNetworkStatus = 0;
                       break;
                     case 4u:
-                      v4 = 3;
-                      v5 = HIDWORD(v19);
+                      uiSelectedPlayerType = 3;
+                      iNetworkStatus = 0;
                       break;
                     default:
                       continue;
                   }
                 }
-              } else if (v20 == 80 && HIDWORD(v19) == v23) {
-                switch (v4) {
+              } else if (byExtendedKey == 80 && !iNetworkMode)// Down arrow: Navigate through player selection options
+              {
+                switch (uiSelectedPlayerType) {
                   case 0u:
-                    v4 = 2;
-                    v5 = v23;
+                    uiSelectedPlayerType = 2;
+                    iNetworkStatus = 0;
                     break;
                   case 1u:
-                    v4 = 3;
-                    v5 = v23;
+                    uiSelectedPlayerType = 3;
+                    iNetworkStatus = 0;
                     break;
                   case 2u:
-                    v4 = 1;
-                    v5 = v23;
+                    uiSelectedPlayerType = 1;
+                    iNetworkStatus = 0;
                     break;
                   case 3u:
-                    v4 = 4;
-                    v5 = v23;
+                    uiSelectedPlayerType = 4;
+                    iNetworkStatus = 0;
                     break;
                   default:
                     continue;
@@ -4730,119 +4914,125 @@ void select_players()
               }
             }
           }
-        } else if ((unsigned __int8)v19 <= 0xDu || (_BYTE)v19 == 27) {
-          switch (v4) {
+        } else if (byInputKey <= 0xDu || byInputKey == 27)// Enter/Escape: Confirm selection or exit menu
+        {
+          switch (uiSelectedPlayerType) {
             case 0u:
             case 2u:
-              goto LABEL_119;
+              goto LABEL_128;
             case 1u:
             case 3u:
             case 4u:
-              if (v4 != 1 && HIDWORD(v19) == v26)
+              if (uiSelectedPlayerType != 1 && !iComPortStatus)
                 continue;
-              if (v4 == 1)
-                net_type = HIDWORD(v19);
-              if (v4 == 3)
+              if (uiSelectedPlayerType == 1)
+                net_type = 0;
+              if (uiSelectedPlayerType == 3)
                 net_type = 1;
-              if (v4 == 4)
+              if (uiSelectedPlayerType == 4)
                 net_type = 2;
-              gssCommsSetType(net_type);
-              if (HIDWORD(v19) != v23) {
-              LABEL_119:
-                v30 = -1;
+              //gssCommsSetType(net_type);
+              if (iNetworkMode) {
+              LABEL_128:
+                iExitFlag = -1;
                 continue;
               }
-              if (v5)
-                goto LABEL_150;
-              if (net_type) {
-                if ((unsigned int)net_type <= 1) {
-                  if (select_comport(v4))
-                    goto LABEL_144;
-                } else {
-                  if (net_type != 2)
-                    goto LABEL_147;
-                  if (select_modemstuff(v4)) {
-                  LABEL_144:
-                    network_slot = HIDWORD(v19);
-                    goto LABEL_147;
-                  }
-                }
-                network_on = HIDWORD(v19);
+              if (iNetworkStatus)
+                goto LABEL_159;
+              if (net_type)                   // NETWORK SETUP: Initialize communication for selected network type
+              {
+                //if ((unsigned int)net_type <= 1) {
+                //  //TODO
+                //  if (select_comport(uiSelectedPlayerType, (char *)3, uiSelectedPlayerType, 1))
+                //    goto LABEL_153;
+                //} else {
+                //  if (net_type != 2)
+                //    goto LABEL_156;
+                //  //TODO
+                //  if (select_modemstuff(uiSelectedPlayerType)) {
+                //  LABEL_153:
+                //    network_slot = 0;
+                //    goto LABEL_156;
+                //  }
+                //}
+                network_on = 0;
                 network_slot = -1;
               } else {
-                v19 = select_netslot();
-                network_slot = v19;
-                if (SHIDWORD(v19) <= (int)v19) {
+                network_slot = select_netslot();// IPX network: Select network slot and handle connection
+                if (network_slot >= 0) {
                   broadcast_mode = -1;
-                  while (HIDWORD(v19) != broadcast_mode)
+                  while (broadcast_mode)
                     ;
                 } else if (network_slot == -2) {
                   broadcast_mode = -666;
-                  while (HIDWORD(v19) != broadcast_mode)
+                  while (broadcast_mode)
                     ;
-                  close_network(v19, SHIDWORD(v19), 3);
+                  close_network();
                 } else {
-                  v5 = -1;
+                  iNetworkStatus = -1;
                 }
               }
-            LABEL_147:
-              if (v4 == 3 && SHIDWORD(v19) <= network_slot)
-                Initialise_Network(HIDWORD(v19));
-            LABEL_150:
-              if (HIDWORD(v19) != network_on) {
-                v29 = -1;
-                v23 = -1;
+            LABEL_156:
+              if (uiSelectedPlayerType == 3 && network_slot >= 0)
+                Initialise_Network(0);
+            LABEL_159:
+              if (network_on) {
+                iNetworkSetupFlag = -1;
+                iNetworkMode = -1;
               }
               break;
             default:
               continue;
           }
         }
-      } else if ((unsigned __int8)v19 <= 0x4Du) {
-      LABEL_110:
-        if (HIDWORD(v19) != network_on)
-          select_messages(v19);
-      } else if ((unsigned __int8)v19 < 0x6Du) {
-        if ((_BYTE)v19 == 81)
-          goto LABEL_112;
+      } else if (byInputKey <= 0x4Du) {
+      LABEL_119:
+        if (network_on)
+          select_messages();
+      } else if (byInputKey < 0x6Du)            // M/m keys: Open message selection (network mode only)
+      {
+        if (byInputKey == 81)
+          goto LABEL_121;
       } else {
-        if ((unsigned __int8)v19 <= 0x6Du)
-          goto LABEL_110;
-        if ((_BYTE)v19 == 113) {
-        LABEL_112:
-          if (HIDWORD(v19) != network_on) {
+        if (byInputKey <= 0x6Du)
+          goto LABEL_119;
+        if (byInputKey == 113) {                                       // Q/q keys: Quit network and return to player selection
+        LABEL_121:
+          if (network_on) {
             broadcast_mode = -666;
-            while (HIDWORD(v19) != broadcast_mode)
+            while (broadcast_mode)
               ;
-            frames = HIDWORD(v19);
+            frames = 0;
             while (frames < 3)
               ;
-            close_network(v19, SHIDWORD(v19), 3);
-            v23 = HIDWORD(v19);
-            v4 = HIDWORD(v19);
+            close_network();
+            iNetworkMode = 0;
+            uiSelectedPlayerType = 0;
           }
         }
       }
+      UpdateSDL();
     }
-  } while (!v30);
-  if (v4 < 3) {
-    if (v4 != 1)
-      goto LABEL_160;
-    v18 = 0;
+    UpdateSDL();
+  } while (!iExitFlag);                         // MAIN SELECTION LOOP - Handle UI rendering and input processing
+  if (uiSelectedPlayerType < 3)               // CLEANUP: Set final player type and network settings based on selection
+  {
+    if (uiSelectedPlayerType != 1)
+      goto LABEL_169;
     player_type = 1;
     net_type = 0;
-  } else if (v4 <= 3) {
+  } else if (uiSelectedPlayerType <= 3) {
     player_type = 1;
     net_type = 1;
-  } else if (v4 == 4) {
+  } else if (uiSelectedPlayerType == 4) {
     player_type = 1;
     net_type = 2;
   } else {
-  LABEL_160:
-    player_type = v4;
+  LABEL_169:
+    player_type = uiSelectedPlayerType;
   }
-  fade_palette(0, 0, 3, v18);
-  front_fade = 0;*/
+  fade_palette(0);
+  front_fade = 0;
 }
 
 //-------------------------------------------------------------------------------------------------
