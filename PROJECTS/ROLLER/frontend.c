@@ -14,6 +14,8 @@
 #include "cdx.h"
 #include "polytex.h"
 #include "comms.h"
+#include "colision.h"
+#include "control.h"
 #include <fcntl.h>
 #include <string.h>
 #ifdef IS_WINDOWS
@@ -623,7 +625,7 @@ void select_screen()
       if (network_on && iInitScreen) {
         broadcast_mode = -667;
         while (broadcast_mode)
-          UpdateSDL(); //added by ROLLER
+          UpdateSDL();
         name_copy(player_names[player1_car], my_name);
       }
     LABEL_45:
@@ -638,7 +640,7 @@ void select_screen()
       if (quit_game && network_on) {
         broadcast_mode = -666;
         while (broadcast_mode)
-          ;
+          UpdateSDL();
         tick_on = 0;
         ticks = 0;
         while (ticks < 3)
@@ -1045,10 +1047,10 @@ void select_screen()
       frames = 0;
       if (network_on) {
         while (broadcast_mode)
-          UpdateSDL(); //added by ROLLER
+          UpdateSDL();
         broadcast_mode = -1;
         while (broadcast_mode)
-          UpdateSDL(); //added by ROLLER
+          UpdateSDL();
       }
     }
     print_data = 0;
@@ -2167,7 +2169,7 @@ void select_car()
                 car_request = iNextCarIndex;
                 broadcast_mode = -9999;
                 while (broadcast_mode)
-                  ;
+                  UpdateSDL();
               } else {
                 iDelayBeforeRotation = 0;
                 iZoomSpeed = 2000;
@@ -4589,9 +4591,10 @@ void select_players()
         1u,
         200,
         640);
-    do
+    do {
       uiCheatArrayOffset = broadcast_mode;
-    while (broadcast_mode);
+      UpdateSDL();
+    } while (broadcast_mode);
     if (switch_same > 0)                      // CHEAT MODE HANDLING: Process switch_same command for car synchronization
     {
       for (iCheatPlayerIndex = 0;
@@ -4699,6 +4702,8 @@ void select_players()
           szText += 9;
           iY += 18;
           ++iPlayerListCount;
+
+          UpdateSDL();
         } while (iPlayerListCount < network_on);
       }
       if (net_type) {
@@ -4941,20 +4946,20 @@ void select_players()
                 goto LABEL_159;
               if (net_type)                   // NETWORK SETUP: Initialize communication for selected network type
               {
-                //if ((unsigned int)net_type <= 1) {
-                //  //TODO
-                //  if (select_comport(uiSelectedPlayerType, (char *)3, uiSelectedPlayerType, 1))
-                //    goto LABEL_153;
-                //} else {
-                //  if (net_type != 2)
-                //    goto LABEL_156;
-                //  //TODO
-                //  if (select_modemstuff(uiSelectedPlayerType)) {
-                //  LABEL_153:
-                //    network_slot = 0;
-                //    goto LABEL_156;
-                //  }
-                //}
+                if ((unsigned int)net_type <= 1) {
+                  //TODO
+                  //if (select_comport(uiSelectedPlayerType, (char *)3, uiSelectedPlayerType, 1))
+                  //  goto LABEL_153;
+                } else {
+                  if (net_type != 2)
+                    goto LABEL_156;
+                  //TODO
+                  //if (select_modemstuff(uiSelectedPlayerType)) {
+                  //LABEL_153:
+                  //  network_slot = 0;
+                  //  goto LABEL_156;
+                  //}
+                }
                 network_on = 0;
                 network_slot = -1;
               } else {
@@ -4962,11 +4967,11 @@ void select_players()
                 if (network_slot >= 0) {
                   broadcast_mode = -1;
                   while (broadcast_mode)
-                    ;
+                    UpdateSDL();
                 } else if (network_slot == -2) {
                   broadcast_mode = -666;
                   while (broadcast_mode)
-                    ;
+                    UpdateSDL();
                   close_network();
                 } else {
                   iNetworkStatus = -1;
@@ -5001,7 +5006,7 @@ void select_players()
           if (network_on) {
             broadcast_mode = -666;
             while (broadcast_mode)
-              ;
+              UpdateSDL();
             frames = 0;
             while (frames < 3)
               ;
@@ -5039,455 +5044,902 @@ void select_players()
 
 void select_type()
 {
-  return;
-  /*
-  __int64 picture; // rax
-  int v5; // edi
-  int v6; // esi
-  char *v7; // ebx
-  int v8; // ecx
-  __int64 v9; // rax
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15; // eax
-  int v16; // eax
-  int v17; // eax
-  int v18; // eax
-  int v19; // eax
-  int v20; // eax
-  int v21; // eax
-  int v22; // eax
-  int v23; // eax
-  int v24; // eax
-  int v25; // eax
-  int v26; // eax
-  int v27; // edx
-  int v28; // eax
-  int v29; // eax
-  int v30; // eax
-  int v31; // edx
-  int v32; // edx
-  int v33; // ecx
-  unsigned __int8 v34; // al
-  unsigned __int8 v35; // al
-  int v36; // edx
-  int v37; // ebx
-  _DWORD *result; // eax
-  int v39; // [esp-14h] [ebp-48h]
-  int v40; // [esp-10h] [ebp-44h]
-  __int64 v41; // [esp+0h] [ebp-34h]
-  int v42; // [esp+8h] [ebp-2Ch]
-  int v43; // [esp+Ch] [ebp-28h]
-  int v44; // [esp+10h] [ebp-24h]
-  int v45; // [esp+14h] [ebp-20h]
-  int v46; // [esp+18h] [ebp-1Ch]
-  int v47; // [esp+1Ch] [ebp-18h]
-  int v48; // [esp+20h] [ebp-14h]
-  int v49; // [esp+24h] [ebp-10h]
-  char *v50; // [esp+28h] [ebp-Ch]
-  int v51; // [esp+2Ch] [ebp-8h]
-  int v52; // [esp+30h] [ebp-4h]
+  int iMenuSelection; // edi
+  int iCurrentOption; // esi
+  char *pszTextBuffer; // edx
+  char byGameModeColor1; // al
+  char byGameModeColor2; // al
+  char byGameModeColor3; // al
+  char byDifficultyColor1; // al
+  char byDifficultyColor2; // al
+  char byDifficultyColor3; // al
+  char byDifficultyColor4; // al
+  char byDifficultyColor5; // al
+  char byDifficultyColor6; // al
+  char byCompetitorColor1; // al
+  char byCompetitorColor2; // al
+  char byCompetitorColor3; // al
+  char byDamageColor1; // al
+  char byDamageColor2; // al
+  char byDamageColor3; // al
+  char byTextureColor1; // al
+  char byTextureColor2; // al
+  uint32 uiUpdatedCheatFlags; // eax
+  int iCheatSetLoop; // eax
+  uint8 byInputKey; // al
+  uint8 byExtendedKey; // al
+  int iCupIncrement; // edx
+  int iTrackUpperLimit; // edx
+  int iTrackLowerLimit; // ebx
+  int iTextYPosition; // [esp-14h] [ebp-48h]
+  char byFinalTextColor; // [esp-10h] [ebp-44h]
+  int iCheatModesAvailable; // [esp+0h] [ebp-34h]
+  int iExitFlag; // [esp+4h] [ebp-30h]
+  int iSkipColor; // [esp+8h] [ebp-2Ch]
+  char byCompetitorMenuColor; // [esp+Ch] [ebp-28h]
+  char byTextColor; // [esp+10h] [ebp-24h]
+  char byDamageMenuColor; // [esp+14h] [ebp-20h]
+  char byTextureMenuColor; // [esp+18h] [ebp-1Ch]
+  char byDifficultyMenuColor; // [esp+1Ch] [ebp-18h]
+  int iNetworkDisplayY; // [esp+20h] [ebp-14h]
+  int iY; // [esp+24h] [ebp-10h]
+  char *szText; // [esp+28h] [ebp-Ch]
+  int iNetworkPlayerCount; // [esp+2Ch] [ebp-8h]
+  int iBlockIdx; // [esp+30h] [ebp-4h]
 
-  HIDWORD(v41) = 0;
-  if (game_type == 1 && Race > 0)
-    v42 = -1;
+  iExitFlag = 0;                                // Initialize exit flag and check game restrictions
+  if (game_type == 1 && Race > 0)             // Championship mode after first race - restrict options to track selection only
+    iSkipColor = -1;
   else
-    v42 = 0;
-  if ((cheat_mode & 0x100) != 0 || (textures_off & 0x8000) != 0) {
-    LODWORD(v41) = -1;
-  } else {
-    a3 = 0;
-    LODWORD(v41) = 0;
-  }
-  v52 = (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3;
-  picture = load_picture(aCupiconsBm);
-  front_vga_variable_9 = picture;
-  v5 = 0;
-  fade_palette(0, SHIDWORD(picture), a3, a4);
+    iSkipColor = 0;
+  if ((cheat_mode & 0x100) != 0 || (textures_off & 0x8000) != 0)
+    iCheatModesAvailable = -1;
+  else
+    iCheatModesAvailable = 0;
+  iBlockIdx = (TrackLoad - 1) / 8;// Calculate cup index from current track (TrackLoad): cups are groups of 8 tracks
+  front_vga[14] = load_picture("cupicons.bm");  // Load cup icons graphics and initialize screen
+  iMenuSelection = 0;
+  fade_palette(0);
   front_fade = 0;
-  v6 = 5;
-  do {
+  iCurrentOption = 5;
+  do {                                             // Handle game type switches and updates
     if (switch_types) {
       game_type = switch_types - 1;
       if (switch_types == 1 && competitors == 1)
         competitors = 16;
       switch_types = 0;
       if (game_type == 1)
-        Race = ((_BYTE)TrackLoad - 1) & 7;
+        Race = ((uint8)TrackLoad - 1) & 7;
       else
         network_champ_on = 0;
     }
-    display_picture(scrbuf, front_vga[0], a3);
-    display_block(head_y, 0);
-    display_block(2, 0);
-    display_block(247, 0);
-    display_block(247, 0);
-    display_block(257, -1);
-    if (cup_won && !v42)
-      display_block(56, 0);
-    display_block(336, -1);
-    if (v6 < 5)
-      front_text(sel_posns[2 * v6], sel_posns_variable_1[2 * v6], 143, 0);
-    if (v42) {
-      front_text(sel_posns[0] + 132, sel_posns_variable_1[0] + 7, 143, 2);
+    display_picture(scrbuf, front_vga[0]);      // RENDER FRAME: Draw background, UI elements, and cup winner icon
+    display_block(scrbuf, (tBlockHeader *)front_vga[1], 4, head_x, head_y, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[4], 4, 76, 257, -1);
+    if (cup_won && !iSkipColor)
+      display_block(scrbuf, (tBlockHeader *)front_vga[1], 8, 200, 56, 0);
+    if (iCurrentOption >= 5)                  // Draw selection cursor or \"Random\" indicator (option 5 = Random)
+    {
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
     } else {
-      front_text(sel_posns[0] + 132, sel_posns_variable_1[0] + 7, 143, 2);
-      front_text(sel_posns_variable_2 + 132, sel_posns_variable_3 + 7, 143, 2);
-      front_text(sel_posns_variable_4 + 132, sel_posns_variable_5 + 7, 143, 2);
-      front_text(sel_posns_variable_6 + 132, sel_posns_variable_7 + 7, 143, 2);
-      if ((_DWORD)v41)
-        front_text(sel_posns_variable_8 + 132, sel_posns_variable_9 + 7, 143, 2);
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        "~",
+        font2_ascii,
+        font2_offsets,
+        sel_posns[iCurrentOption].x,
+        sel_posns[iCurrentOption].y,
+        0x8Fu,
+        0);
     }
-    v7 = (char *)v52;
-    v8 = 500;
-    v9 = display_block(300, 0);
-    if (v42) {
-      scale_text(400, 75, 143, 1, 200, 640);
-      scale_text(400, 100, 143, 2, 200, 640);
-      scale_text(405, 100, 143, 0, 200, 640);
-      scale_text(400, 118, 143, 2, 200, 640);
-      scale_text(405, 118, 143, 0, 200, 640);
-      v7 = font1_ascii;
-      v8 = (int)&font1_offsets;
-      v9 = scale_text(400, 136, 143, 2, 200, 640);
-      LODWORD(v9) = competitors;
+    if (iSkipColor)                           // OPTION LABELS: Display main option categories (Game Type/Difficulty/etc.)
+    {
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[3136],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[0].x + 132,
+        sel_posns[0].y + 7,
+        0x8Fu,
+        2u);
+    } else {
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[384],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[0].x + 132,
+        sel_posns[0].y + 7,
+        0x8Fu,
+        2u);
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[3200],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[1].x + 132,
+        sel_posns[1].y + 7,
+        0x8Fu,
+        2u);
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[3264],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[2].x + 132,
+        sel_posns[2].y + 7,
+        0x8Fu,
+        2u);
+      front_text(
+        (tBlockHeader *)front_vga[2],
+        &language_buffer[3328],
+        font2_ascii,
+        font2_offsets,
+        sel_posns[3].x + 132,
+        sel_posns[3].y + 7,
+        0x8Fu,
+        2u);
+      if (iCheatModesAvailable)
+        front_text(
+          (tBlockHeader *)front_vga[2],
+          &language_buffer[4288],
+          font2_ascii,
+          font2_offsets,
+          sel_posns[4].x + 132,
+          sel_posns[4].y + 7,
+          0x8Fu,
+          2u);
+    }
+    display_block(scrbuf, (tBlockHeader *)front_vga[14], iBlockIdx, 500, 300, 0);// Display cup icon corresponding to current track selection
+    if (iSkipColor)                           // CHAMPIONSHIP MODE UI: Show current settings and restrictions
+    {
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[3392],
+        font1_ascii,
+        font1_offsets,
+        400,
+        75,
+        143,
+        1u,
+        200,
+        640);
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[1280],
+        font1_ascii,
+        font1_offsets,
+        400,
+        100,
+        143,
+        2u,
+        200,
+        640);
+      if ((cheat_mode & 2) != 0)
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[2048],
+          font1_ascii,
+          font1_offsets,
+          405,
+          100,
+          143,
+          0,
+          200,
+          640);
+      else
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[64 * level + 1472],
+          font1_ascii,
+          font1_offsets,
+          405,
+          100,
+          143,
+          0,
+          200,
+          640);
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[1344],
+        font1_ascii,
+        font1_offsets,
+        400,
+        118,
+        143,
+        2u,
+        200,
+        640);
+      if ((cheat_mode & 2) != 0)
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[2048],
+          font1_ascii,
+          font1_offsets,
+          405,
+          118,
+          143,
+          0,
+          200,
+          640);
+      else
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[64 * damage_level + 1856],
+          font1_ascii,
+          font1_offsets,
+          405,
+          118,
+          143,
+          0,
+          200,
+          640);
+      scale_text(
+        (tBlockHeader *)front_vga[15],
+        &language_buffer[1024],
+        font1_ascii,
+        font1_offsets,
+        400,
+        136,
+        143,
+        2u,
+        200,
+        640);
       if ((unsigned int)competitors < 8) {
-        if (competitors != 2)
-          goto LABEL_33;
-      } else if ((unsigned int)competitors > 8 && competitors != 16) {
-      LABEL_33:
-        if (network_on) {
-          v7 = font1_ascii;
-          v8 = (int)&font1_offsets;
-          v9 = (unsigned int)scale_text(400, 154, 143, 1, 200, 640);
-          v51 = 0;
-          if (players > 0) {
-            v50 = player_names;
-            v49 = 28;
-            v48 = 172;
-            do {
-              if (v51 >= 8)
-                scale_text(405, v49, 143, 0, 200, 640);
-              else
-                scale_text(400, v48, 143, 2, 200, 640);
-              LODWORD(v9) = v50 + 9;
-              HIDWORD(v9) = v49 + 18;
-              v7 = (char *)(v48 + 18);
-              v8 = v51 + 1;
-              v50 += 9;
-              v49 += 18;
-              v48 += 18;
-              v51 = v8;
-            } while (v8 < players);
-          }
-        }
-        goto LABEL_40;
+        if (competitors == 2)
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1088],
+            font1_ascii,
+            font1_offsets,
+            405,
+            136,
+            143,
+            0,
+            200,
+            640);
+      } else if ((unsigned int)competitors <= 8) {
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[1152],
+          font1_ascii,
+          font1_offsets,
+          405,
+          136,
+          143,
+          0,
+          200,
+          640);
+      } else if (competitors == 16) {
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[1216],
+          font1_ascii,
+          font1_offsets,
+          405,
+          136,
+          143,
+          0,
+          200,
+          640);
       }
-      v7 = font1_ascii;
-      v8 = (int)&font1_offsets;
-      v9 = scale_text(405, 136, 143, 0, 200, 640);
-      goto LABEL_33;
+      if (network_on)                         // NETWORK MODE: Display connected players list
+      {
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4672],
+          font1_ascii,
+          font1_offsets,
+          400,
+          154,
+          143,
+          1u,
+          200,
+          640);
+        iNetworkPlayerCount = 0;
+        if (players > 0) {
+          szText = player_names[0];
+          iY = 28;
+          iNetworkDisplayY = 172;
+          do {
+            if (iNetworkPlayerCount >= 8)
+              scale_text((tBlockHeader *)front_vga[15], szText, font1_ascii, font1_offsets, 405, iY, 143, 0, 200, 640);
+            else
+              scale_text(
+                (tBlockHeader *)front_vga[15],
+                szText,
+                font1_ascii,
+                font1_offsets,
+                400,
+                iNetworkDisplayY,
+                143,
+                2u,
+                200,
+                640);
+            szText += 9;
+            iY += 18;
+            iNetworkDisplayY += 18;
+            ++iNetworkPlayerCount;
+
+            UpdateSDL();
+          } while (iNetworkPlayerCount < players);
+        }
+      }
     }
-  LABEL_40:
-    switch (v6) {
+    switch (iCurrentOption) {
       case 0:
-        if (!v42) {
-          scale_text(400, 75, 143, 1, 200, 640);
-          if (v5 == 1) {
-            scale_text(400, 93, 143, 1, 200, 640);
-            v44 = 171;
+        if (!iSkipColor)                      // Option 0 - Game Type: Show race modes with highlighting for current selection
+        {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[384],
+            font1_ascii,
+            font1_offsets,
+            400,
+            75,
+            143,
+            1u,
+            200,
+            640);
+          if (iMenuSelection == 1) {
+            scale_text(
+              (tBlockHeader *)front_vga[15],
+              &language_buffer[3584],
+              font1_ascii,
+              font1_offsets,
+              400,
+              93,
+              143,
+              1u,
+              200,
+              640);
+            byTextColor = -85;
           } else {
-            v44 = 169;
+            byTextColor = -87;
           }
           if (game_type)
-            v10 = 143;
+            byGameModeColor1 = -113;
           else
-            v10 = v44;
-          scale_text(400, 135, v10, 1, 200, 640);
+            byGameModeColor1 = byTextColor;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[3648],
+            font1_ascii,
+            font1_offsets,
+            400,
+            135,
+            byGameModeColor1,
+            1u,
+            200,
+            640);
           if (game_type == 1)
-            v11 = v44;
+            byGameModeColor2 = byTextColor;
           else
-            v11 = 143;
-          scale_text(400, 153, v11, 1, 200, 640);
+            byGameModeColor2 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[3520],
+            font1_ascii,
+            font1_offsets,
+            400,
+            153,
+            byGameModeColor2,
+            1u,
+            200,
+            640);
           if (game_type == 2)
-            v12 = v44;
+            byGameModeColor3 = byTextColor;
           else
-            v12 = 143;
-          v40 = v12;
-          v39 = 171;
-          goto LABEL_121;
+            byGameModeColor3 = -113;
+          byFinalTextColor = byGameModeColor3;
+          iTextYPosition = 171;
+          pszTextBuffer = &language_buffer[3712];
+          goto LABEL_130;
         }
-        if (v5 == 6) {
-          scale_text(400, 320, 231, 1, 200, 640);
-          v40 = 231;
-          v39 = 338;
-          goto LABEL_121;
+        if (iMenuSelection == 6) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[3456],
+            font1_ascii,
+            font1_offsets,
+            400,
+            320,
+            231,
+            1u,
+            200,
+            640);
+          byFinalTextColor = -25;
+          iTextYPosition = 338;
+          pszTextBuffer = &language_buffer[3520];
+          goto LABEL_130;
         }
         break;
       case 1:
-        scale_text(400, 75, 143, 1, 200, 640);
-        if (v5 == 2) {
-          scale_text(400, 93, 143, 1, 200, 640);
-          v47 = 171;
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[3776],
+          font1_ascii,
+          font1_offsets,
+          400,
+          75,
+          143,
+          1u,
+          200,
+          640);                                 // Option 1 - Difficulty: Show skill levels with cheat mode override
+        if (iMenuSelection == 2) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[3840],
+            font1_ascii,
+            font1_offsets,
+            400,
+            93,
+            143,
+            1u,
+            200,
+            640);
+          byDifficultyMenuColor = -85;
         } else {
-          v47 = 169;
+          byDifficultyMenuColor = -87;
         }
         if ((cheat_mode & 2) == 0) {
           if (level == 5)
-            v13 = v47;
+            byDifficultyColor1 = byDifficultyMenuColor;
           else
-            v13 = 143;
-          scale_text(400, 135, v13, 1, 200, 640);
+            byDifficultyColor1 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1792],
+            font1_ascii,
+            font1_offsets,
+            400,
+            135,
+            byDifficultyColor1,
+            1u,
+            200,
+            640);
           if (level == 4)
-            v14 = v47;
+            byDifficultyColor2 = byDifficultyMenuColor;
           else
-            v14 = 143;
-          scale_text(400, 153, v14, 1, 200, 640);
+            byDifficultyColor2 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1728],
+            font1_ascii,
+            font1_offsets,
+            400,
+            153,
+            byDifficultyColor2,
+            1u,
+            200,
+            640);
           if (level == 3)
-            v15 = v47;
+            byDifficultyColor3 = byDifficultyMenuColor;
           else
-            v15 = 143;
-          scale_text(400, 171, v15, 1, 200, 640);
+            byDifficultyColor3 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1664],
+            font1_ascii,
+            font1_offsets,
+            400,
+            171,
+            byDifficultyColor3,
+            1u,
+            200,
+            640);
           if (level == 2)
-            v16 = v47;
+            byDifficultyColor4 = byDifficultyMenuColor;
           else
-            v16 = 143;
-          scale_text(400, 189, v16, 1, 200, 640);
+            byDifficultyColor4 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1600],
+            font1_ascii,
+            font1_offsets,
+            400,
+            189,
+            byDifficultyColor4,
+            1u,
+            200,
+            640);
           if (level == 1)
-            v17 = v47;
+            byDifficultyColor5 = byDifficultyMenuColor;
           else
-            v17 = 143;
-          scale_text(400, 207, v17, 1, 200, 640);
+            byDifficultyColor5 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1536],
+            font1_ascii,
+            font1_offsets,
+            400,
+            207,
+            byDifficultyColor5,
+            1u,
+            200,
+            640);
           if (level)
-            v18 = 143;
+            byDifficultyColor6 = -113;
           else
-            v18 = v47;
-          v40 = v18;
-          v39 = 225;
-          goto LABEL_121;
+            byDifficultyColor6 = byDifficultyMenuColor;
+          byFinalTextColor = byDifficultyColor6;
+          iTextYPosition = 225;
+          pszTextBuffer = &language_buffer[1472];
+          goto LABEL_130;
         }
-        v7 = font1_ascii;
-        v8 = (int)&font1_offsets;
-        v9 = scale_text(400, 135, v47, 1, 200, 640);
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[2048],
+          font1_ascii,
+          font1_offsets,
+          400,
+          135,
+          byDifficultyMenuColor,
+          1u,
+          200,
+          640);
         break;
       case 2:
-        scale_text(400, 75, 143, 1, 200, 640);
-        if (v5 == 3) {
-          scale_text(400, 93, 143, 1, 200, 640);
-          v45 = 171;
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[3904],
+          font1_ascii,
+          font1_offsets,
+          400,
+          75,
+          143,
+          1u,
+          200,
+          640);                                 // Option 2 - Competitors: Show number of opponent cars (2/8/16 or \"Just Me\")
+        if (iMenuSelection == 3) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[3008],
+            font1_ascii,
+            font1_offsets,
+            400,
+            93,
+            143,
+            1u,
+            200,
+            640);
+          byDamageMenuColor = -85;
         } else {
-          v45 = 169;
+          byDamageMenuColor = -87;
         }
         if (competitors != 1) {
           if (competitors == 2)
-            v19 = v45;
+            byCompetitorColor1 = byDamageMenuColor;
           else
-            v19 = 143;
-          scale_text(400, 135, v19, 1, 200, 640);
+            byCompetitorColor1 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1088],
+            font1_ascii,
+            font1_offsets,
+            400,
+            135,
+            byCompetitorColor1,
+            1u,
+            200,
+            640);
           if (competitors == 8)
-            v20 = v45;
+            byCompetitorColor2 = byDamageMenuColor;
           else
-            v20 = 143;
-          scale_text(400, 153, v20, 1, 200, 640);
+            byCompetitorColor2 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1152],
+            font1_ascii,
+            font1_offsets,
+            400,
+            153,
+            byCompetitorColor2,
+            1u,
+            200,
+            640);
           if (competitors == 16)
-            v21 = v45;
+            byCompetitorColor3 = byDamageMenuColor;
           else
-            v21 = 143;
-          v40 = v21;
-          v39 = 171;
-          goto LABEL_121;
+            byCompetitorColor3 = -113;
+          byFinalTextColor = byCompetitorColor3;
+          iTextYPosition = 171;
+          pszTextBuffer = &language_buffer[1216];
+          goto LABEL_130;
         }
-        v7 = font1_ascii;
-        v8 = (int)&font1_offsets;
-        v9 = scale_text(400, 135, v45, 1, 200, 640);
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[3968],
+          font1_ascii,
+          font1_offsets,
+          400,
+          135,
+          byDamageMenuColor,
+          1u,
+          200,
+          640);
         break;
       case 3:
-        scale_text(400, 75, 143, 1, 200, 640);
-        if (v5 == 4) {
-          scale_text(400, 93, 143, 1, 200, 640);
-          v46 = 171;
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4032],
+          font1_ascii,
+          font1_offsets,
+          400,
+          75,
+          143,
+          1u,
+          200,
+          640);                                 // Option 3 - Damage: Show car damage levels (None/Cosmetic/Realistic)
+        if (iMenuSelection == 4) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[3840],
+            font1_ascii,
+            font1_offsets,
+            400,
+            93,
+            143,
+            1u,
+            200,
+            640);
+          byTextureMenuColor = -85;
         } else {
-          v46 = 169;
+          byTextureMenuColor = -87;
         }
         if ((cheat_mode & 2) == 0) {
           if (damage_level)
-            v22 = 143;
+            byDamageColor1 = -113;
           else
-            v22 = v46;
-          scale_text(400, 135, v22, 1, 200, 640);
+            byDamageColor1 = byTextureMenuColor;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1856],
+            font1_ascii,
+            font1_offsets,
+            400,
+            135,
+            byDamageColor1,
+            1u,
+            200,
+            640);
           if (damage_level == 1)
-            v23 = v46;
+            byDamageColor2 = byTextureMenuColor;
           else
-            v23 = 143;
-          scale_text(400, 153, v23, 1, 200, 640);
+            byDamageColor2 = -113;
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[1920],
+            font1_ascii,
+            font1_offsets,
+            400,
+            153,
+            byDamageColor2,
+            1u,
+            200,
+            640);
           if (damage_level == 2)
-            v24 = v46;
+            byDamageColor3 = byTextureMenuColor;
           else
-            v24 = 143;
-          v40 = v24;
-          v39 = 171;
-          goto LABEL_121;
+            byDamageColor3 = -113;
+          byFinalTextColor = byDamageColor3;
+          iTextYPosition = 171;
+          pszTextBuffer = &language_buffer[1984];
+          goto LABEL_130;
         }
-        v8 = (int)&font1_offsets;
-        v7 = font1_ascii;
-        v9 = scale_text(400, 135, v46, 1, 200, 640);
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[2048],
+          font1_ascii,
+          font1_offsets,
+          400,
+          135,
+          byTextureMenuColor,
+          1u,
+          200,
+          640);
         break;
       case 4:
-        scale_text(400, 75, 143, 1, 200, 640);
-        if (v5 == 5) {
-          scale_text(400, 93, 143, 1, 200, 640);
-          v43 = 171;
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4288],
+          font1_ascii,
+          font1_offsets,
+          400,
+          75,
+          143,
+          1u,
+          200,
+          640);                                 // Option 4 - Textures: Show texture quality options (On/Off)
+        if (iMenuSelection == 5) {
+          scale_text(
+            (tBlockHeader *)front_vga[15],
+            &language_buffer[4480],
+            font1_ascii,
+            font1_offsets,
+            400,
+            93,
+            143,
+            1u,
+            200,
+            640);
+          byCompetitorMenuColor = -85;
         } else {
-          v43 = 169;
+          byCompetitorMenuColor = -87;
         }
-        if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-          v25 = 143;
+        if ((textures_off & 0x10000) != 0)
+          byTextureColor1 = -113;
         else
-          v25 = v43;
-        scale_text(400, 135, v25, 1, 200, 640);
-        if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-          v26 = v43;
+          byTextureColor1 = byCompetitorMenuColor;
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4352],
+          font1_ascii,
+          font1_offsets,
+          400,
+          135,
+          byTextureColor1,
+          1u,
+          200,
+          640);
+        if ((textures_off & 0x10000) != 0)
+          byTextureColor2 = byCompetitorMenuColor;
         else
-          v26 = 143;
-        v40 = v26;
-        v39 = 153;
-      LABEL_121:
-        v7 = font1_ascii;
-        v8 = (int)&font1_offsets;
-        v9 = scale_text(400, v39, v40, 1, 200, 640);
+          byTextureColor2 = -113;
+        byFinalTextColor = byTextureColor2;
+        iTextYPosition = 153;
+        pszTextBuffer = &language_buffer[4416];
+      LABEL_130:
+        scale_text(
+          (tBlockHeader *)front_vga[15],
+          pszTextBuffer,
+          font1_ascii,
+          font1_offsets,
+          400,
+          iTextYPosition,
+          byFinalTextColor,
+          1u,
+          200,
+          640);
         break;
       default:
-        break;
+        break;                                  // OPTION-SPECIFIC UI: Display details for currently selected option
     }
-    show_received_mesage(v9, HIDWORD(v9), v7, v8);
-    copypic((char *)scrbuf, (int)screen);
-    if (switch_same > 0) {
-      v30 = 0;
+    show_received_mesage();
+    copypic(scrbuf, screen);
+    if (switch_same > 0)                      // CHEAT MODE HANDLING: Process switch_same command for player synchronization
+    {
+      iCheatSetLoop = 0;
       if (players > 0) {
-        v31 = 0;
-        do {
-          ++v31;
-          ++v30;
-          infinite_laps[v31] = switch_same - 666;
-        } while (v30 < players);
+        // Set all players to the same car in cheat mode
+        for (int i = 0; i < players; i++) {
+            Players_Cars[i] = switch_same - 666;
+        }
+        //iCheatArrayOffset2 = 0;
+        //do {
+        //  iCheatArrayOffset2 += 4;
+        //  ++iCheatSetLoop;
+        //  *(int *)((char *)&infinite_laps + iCheatArrayOffset2) = switch_same - 666;
+        //} while (iCheatSetLoop < players);
       }
-      v29 = cheat_mode;
-      BYTE1(v29) = BYTE1(cheat_mode) | 0x40;
+      uiUpdatedCheatFlags = cheat_mode;
+      uiUpdatedCheatFlags |= CHEAT_MODE_CLONES;
     } else {
       if (switch_same >= 0)
-        goto LABEL_133;
-      v27 = 0;
+        goto LABEL_142;
       switch_same = 0;
-      if (players > 0) {
-        v28 = 0;
-        do {
-          ++v28;
-          ++v27;
-          infinite_laps[v28] = -1;
-        } while (v27 < players);
+      for (int i = 0; i < players; i++) {
+        Players_Cars[i] = -1;
       }
-      v29 = cheat_mode;
-      BYTE1(v29) = BYTE1(cheat_mode) & 0xBF;
+      //iCheatResetLoop1 = 0;
+      //switch_same = 0;
+      //if (players > 0) {
+      //  iCheatArrayOffset1 = 0;
+      //  do {
+      //    iCheatArrayOffset1 += 4;
+      //    ++iCheatResetLoop1;
+      //    *(int *)((char *)&infinite_laps + iCheatArrayOffset1) = -1;
+      //  } while (iCheatResetLoop1 < players);
+      //}
+      uiUpdatedCheatFlags = cheat_mode;
+      uiUpdatedCheatFlags &= ~CHEAT_MODE_CLONES;
     }
-    cheat_mode = v29;
-  LABEL_133:
-    v32 = front_fade;
-    if (!front_fade) {
+    cheat_mode = uiUpdatedCheatFlags;
+  LABEL_142:
+    if (!front_fade)                          // Handle screen fade-in effect
+    {
       front_fade = -1;
-      fade_palette(32, 0, -1, v8);
+      fade_palette(32);
       frames = 0;
     }
-    a3 = 2;
-    v33 = -1;
-    while (fatkbhit()) {
-      v34 = fatgetch();
-      if (v34 < 0x1Bu) {
-        if (v34) {
-          if (v34 == 13) {
-            v32 = 0x8000;
-            sfxsample(v41);
-            if (v5) {
+    while (fatkbhit())                        // KEYBOARD INPUT PROCESSING: Handle navigation and option changes
+    {
+      byInputKey = fatgetch();
+      if (byInputKey < 0x1Bu) {
+        if (byInputKey) {                                       // Enter key: Confirm selection or navigate into sub-options
+          if (byInputKey == 13) {
+            sfxsample(83, 0x8000);
+            if (iMenuSelection) {
               if (game_type == 1) {
-                v32 = 0;
                 Race = 0;
-                TrackLoad = 8 * v52 + 1;
+                TrackLoad = 8 * iBlockIdx + 1;
               }
-              v5 = 0;
+              iMenuSelection = 0;
               broadcast_mode = -1;
               while (broadcast_mode)
-                ;
+                UpdateSDL();
             } else {
-              switch (v6) {
+              switch (iCurrentOption) {
                 case 0:
-                  if (v42)
-                    v5 = 6;
+                  if (iSkipColor)
+                    iMenuSelection = 6;
                   else
-                    v5 = 1;
+                    iMenuSelection = 1;
                   break;
                 case 1:
-                  v5 = 2;
+                  iMenuSelection = 2;
                   break;
                 case 2:
-                  v5 = 3;
+                  iMenuSelection = 3;
                   break;
                 case 3:
-                  v5 = 4;
+                  iMenuSelection = 4;
                   break;
                 case 4:
-                  v5 = 5;
+                  iMenuSelection = 5;
                   break;
                 case 5:
-                  goto LABEL_240;
+                  goto LABEL_248;
                 default:
                   continue;
               }
             }
           }
         } else {
-          v35 = fatgetch();
-          LOBYTE(v32) = v35;
-          switch (v5) {
+          byExtendedKey = fatgetch();           // Arrow keys: Navigate through options and change values
+          switch (iMenuSelection) {
             case 0:
-              if (v35 >= 0x48u) {
-                if (v35 <= 0x48u) {
-                  if (v42) {
-                    v6 = 0;
+              if (byExtendedKey >= 0x48u)     // Main menu navigation: Up/Down arrows move between option categories
+              {
+                if (byExtendedKey <= 0x48u) {
+                  if (iSkipColor) {
+                    iCurrentOption = 0;
                   } else {
-                    v32 = v41;
-                    --v6;
-                    if (!(_DWORD)v41 && v6 == 4)
-                      v6 = 3;
-                    if (v6 < 0)
-                      v6 = 0;
+                    --iCurrentOption;
+                    if (!iCheatModesAvailable && iCurrentOption == 4)
+                      iCurrentOption = 3;
+                    if (iCurrentOption < 0)
+                      iCurrentOption = 0;
                   }
-                } else if (v35 == 80) {
-                  if (v42) {
-                    v6 = 5;
+                } else if (byExtendedKey == 80) {
+                  if (iSkipColor) {
+                    iCurrentOption = 5;
                   } else {
-                    if ((_DWORD)v41) {
-                      ++v6;
-                    } else if (++v6 > 3) {
-                      v6 = 5;
+                    if (iCheatModesAvailable) {
+                      ++iCurrentOption;
+                    } else if (++iCurrentOption > 3) {
+                      iCurrentOption = 5;
                     }
-                    if (v6 > 5)
-                      v6 = 5;
+                    if (iCurrentOption > 5)
+                      iCurrentOption = 5;
                   }
                 }
               }
               break;
             case 1:
-              if (v35 >= 0x48u) {
-                if (v35 <= 0x48u) {
-                  if (--game_type < 0) {
-                    v32 = 0;
+              if (byExtendedKey >= 0x48u)     // Game Type option: Navigate between race modes and adjust competitors
+              {
+                if (byExtendedKey <= 0x48u) {
+                  if (--game_type < 0)
                     game_type = 0;
-                  }
                   if (competitors == 1)
-                    goto LABEL_179;
-                } else if (v35 == 80) {
+                    goto LABEL_187;
+                } else if (byExtendedKey == 80) {
                   if (++game_type < 2) {
                     if (competitors == 1)
                       competitors = 16;
@@ -5499,19 +5951,18 @@ void select_type()
               }
               break;
             case 2:
-              if (v35 >= 0x48u) {
-                if (v35 <= 0x48u) {
+              if (byExtendedKey >= 0x48u) {
+                if (byExtendedKey <= 0x48u) {
                   if (levels[++level] <= 0.0)
                     --level;
-                } else if (v35 == 80 && --level < 0) {
-                  v32 = 0;
+                } else if (byExtendedKey == 80 && --level < 0) {
                   level = 0;
                 }
               }
               break;
             case 3:
-              if (v35 >= 0x48u) {
-                if (v35 <= 0x48u) {
+              if (byExtendedKey >= 0x48u) {
+                if (byExtendedKey <= 0x48u) {
                   if (game_type < 2 && (unsigned int)competitors >= 8) {
                     if ((unsigned int)competitors <= 8) {
                       competitors = 2;
@@ -5519,34 +5970,32 @@ void select_type()
                       competitors = 8;
                     }
                   }
-                } else if (v35 == 80 && game_type < 2 && (unsigned int)competitors >= 2) {
+                } else if (byExtendedKey == 80 && game_type < 2 && (unsigned int)competitors >= 2) {
                   if ((unsigned int)competitors <= 2) {
                     competitors = 8;
                   } else if (competitors == 8) {
-                  LABEL_179:
+                  LABEL_187:
                     competitors = 16;
                   }
                 }
               }
               break;
             case 4:
-              if (v35 >= 0x48u) {
-                if (v35 <= 0x48u) {
-                  if (--damage_level < 0) {
-                    v32 = 0;
+              if (byExtendedKey >= 0x48u) {
+                if (byExtendedKey <= 0x48u) {
+                  if (--damage_level < 0)
                     damage_level = 0;
-                  }
-                } else if (v35 == 80 && ++damage_level > 2) {
+                } else if (byExtendedKey == 80 && ++damage_level > 2) {
                   damage_level = 2;
                 }
               }
               break;
             case 5:
-              if (v35 >= 0x48u) {
-                if (v35 <= 0x48u) {
+              if (byExtendedKey >= 0x48u) {
+                if (byExtendedKey <= 0x48u) {
                   textures_off &= ~0x10000u;
-                } else if (v35 == 80) {
-                  textures_off |= (unsigned int)cstart_branch_1;
+                } else if (byExtendedKey == 80) {
+                  textures_off |= 0x10000u;
                 }
               }
               break;
@@ -5554,97 +6003,90 @@ void select_type()
               continue;
           }
         }
-      } else if (v34 <= 0x1Bu) {
-        if (v5)
-          v5 = 0;
+      } else if (byInputKey <= 0x1Bu)           // Escape key: Exit to main menu or back to option selection
+      {
+        if (iMenuSelection)
+          iMenuSelection = 0;
         else
-          LABEL_240:
-        HIDWORD(v41) = -1;
-      } else if (v34 < 0x59u) {
-        if (v34 == 32 && !v42) {
-          v36 = ++v52;
-          if ((cup_won & 1) == 0 && v36 == 1)
-            v52 = 2;
-          if ((cup_won & 2) == 0 && v52 == 2)
-            v52 = 3;
-          if (v52 > 2)
-            v52 = 0;
-          v32 = 8 * v52;
-          TrackLoad = 8 * v52 + (((_BYTE)TrackLoad - 1) & 7) + 1;
+          LABEL_248:
+        iExitFlag = -1;
+      } else if (byInputKey < 0x59u) {                                         // Space key: Cycle through cups (track groups) if not in championship
+        if (byInputKey == 32 && !iSkipColor) {
+          iCupIncrement = ++iBlockIdx;
+          if ((cup_won & 1) == 0 && iCupIncrement == 1)
+            iBlockIdx = 2;
+          if ((cup_won & 2) == 0 && iBlockIdx == 2)
+            iBlockIdx = 3;
+          if (iBlockIdx > 2)
+            iBlockIdx = 0;
+          TrackLoad = 8 * iBlockIdx + (((uint8)TrackLoad - 1) & 7) + 1;
           broadcast_mode = -1;
           while (broadcast_mode)
-            ;
+            UpdateSDL();
         }
-      } else if (v34 <= 0x59u || v34 == 121) {
-        if (v42) {
-          if (v5 == 6) {
-            v32 = 0;
+      } else if (byInputKey <= 0x59u || byInputKey == 121) {                                         // Y/y key: \"Yes\" - confirm championship exit and reset to race mode
+        if (iSkipColor) {
+          if (iMenuSelection == 6) {
             game_type = 0;
-            v42 = 0;
-            v5 = 0;
+            iSkipColor = 0;
+            iMenuSelection = 0;
             if (network_on) {
               if (Race <= 0) {
                 broadcast_mode = -1;
                 while (broadcast_mode)
-                  ;
+                  UpdateSDL();
               } else {
                 broadcast_mode = -666;
                 while (broadcast_mode)
-                  ;
+                  UpdateSDL();
                 frames = 0;
                 while (frames < 3)
                   ;
-                v32 = 0;
-                close_network(0, 0, 2);
+                close_network();
                 network_champ_on = 0;
               }
             }
           }
         }
       }
+      UpdateSDL();
     }
-  } while (!HIDWORD(v41));
-  v37 = v42;
-  if (!v42) {
+    UpdateSDL();
+  } while (!iExitFlag);                         // MAIN SELECTION LOOP - Handle UI rendering and input processing
+  if (!iSkipColor)                            // CLEANUP: Set final game parameters and track selection based on options
+  {
     network_champ_on = 0;
-    v33 = 8 * v52;
-    v32 = 8 * v52 + 8;
-    v37 = 8 * v52 + 1;
-    if (game_type) {
+    iTrackUpperLimit = 8 * iBlockIdx + 8;
+    iTrackLowerLimit = 8 * iBlockIdx + 1;
+    if (game_type)                            // Initialize championship mode: reset all statistics and set starting track
+    {
       if ((unsigned int)game_type <= 1) {
         Race = 0;
         memset(championship_points, 0, sizeof(championship_points));
-        memset(team_points, 0, 64);
-        memset(total_kills, 0, 64);
-        memset(total_fasts, 0, 64);
-        memset(total_wins, 0, 64);
-        memset(team_kills, 0, 64);
+        memset(team_points, 0, sizeof(team_points));
+        memset(total_kills, 0, sizeof(total_kills));
+        memset(total_fasts, 0, sizeof(total_fasts));
+        memset(total_wins, 0, sizeof(total_wins));
+        memset(team_kills, 0, sizeof(team_kills));
         memset(team_fasts, 0, sizeof(team_fasts));
-        v37 = 64;
-        v32 = 0;
-        ++v33;
-        memset(team_wins, 0, 64);
-        TrackLoad = v33;
+        memset(team_wins, 0, sizeof(team_wins));
+        TrackLoad = 8 * iBlockIdx + 1;
       } else if (game_type == 2) {
         NoOfLaps = 5;
         competitors = 1;
-        if (v37 > TrackLoad || v32 < TrackLoad) {
-          v32 = 8 * v52 + (((_BYTE)TrackLoad - 1) & 7) + 1;
-          TrackLoad = v32;
-        }
+        if (iTrackLowerLimit > TrackLoad || iTrackUpperLimit < TrackLoad)
+          TrackLoad = 8 * iBlockIdx + (((uint8)TrackLoad - 1) & 7) + 1;
       }
-    } else if (v37 > TrackLoad || v32 < TrackLoad) {
-      v32 = 8 * v52;
-      TrackLoad = 8 * v52 + (((_BYTE)TrackLoad - 1) & 7) + 1;
+    } else if (iTrackLowerLimit > TrackLoad || iTrackUpperLimit < TrackLoad) {
+      TrackLoad = 8 * iBlockIdx + (((uint8)TrackLoad - 1) & 7) + 1;
     }
     broadcast_mode = -1;
     while (broadcast_mode)
-      ;
+      UpdateSDL();
   }
-  fade_palette(0, v32, v37, v33);
-  result = fre(&front_vga_variable_9);
+  fade_palette(0);
+  fre((void **)&front_vga[14]);
   front_fade = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

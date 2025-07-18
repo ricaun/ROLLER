@@ -6,6 +6,7 @@
 #include "car.h"
 //-------------------------------------------------------------------------------------------------
 
+extern float levels[7];
 extern int level;
 extern int stops[10];
 extern float eng_chg_revs[168];
