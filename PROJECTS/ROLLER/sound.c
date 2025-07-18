@@ -72,6 +72,8 @@ int y1ok = 0;               //000A4A34
 int x2ok = 0;               //000A4A38
 int y2ok = 0;               //000A4A3C
 int bitaccept = 0;          //000A4A40
+uint8 *frontendspeechptr = NULL;//000A4A44
+int frontendspeechhandle = -1;  //000A4A48
 int holdmusic = 0;          //000A4A4C
 int start_cd;               //0013FA9C 
 uint8 unmangleinbuf[1024];  //00149EF0
