@@ -1819,7 +1819,7 @@ void select_car()
         sel_posns[0].x + 132,
         sel_posns[0].y + 7,
         0x8Fu,
-        2u);                                    // Draw all car company names (Ariel, DeSilva, Pulse, Global, MillionPlus, Havamission, Zizin, Reise)
+        2u);                                    // Draw all car company names
       front_text(
         (tBlockHeader *)front_vga[2],
         "DESILVA",
