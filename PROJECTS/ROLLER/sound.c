@@ -3466,7 +3466,7 @@ void fade_palette(int iTargetBrightness)
     ROLLERRemoveTimer(uiTimerHandle); //added by ROLLER
   }
 
-  memcpy(pal_addr, palette, 768);
+  //memcpy(pal_addr, palette, 768); //REMOVED by ROLLER (why is this here? causes palette change flicker)
   
   palette_brightness = iTargetBrightness;
   tick_on = iOriginalTickOn;

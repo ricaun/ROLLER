@@ -1638,7 +1638,6 @@ void select_car()
   int iCurrentCarSelectorPos; // esi
   int iPlayerNameX; // eax
   int iAnimationCounter; // eax
-  int iIncrementedPieValue; // edx
   int iPieChartIndex; // edx
   int iCarStatsOffset; // ebx
   int iCurrentPieValue; // ecx
@@ -1650,13 +1649,9 @@ void select_car()
   void **ppCurrentTexture; // eax
   int iPlayerCarIndex; // eax
   eCarType eNewCarType; // eax
-  eCarType eCarTypeBackup; // ebx
   int iTextureLoadedStatus; // ecx
   int iLoadTextureFlag; // edx
-  uint32 uiCheatModeFlags; // ebx
   int iPlayerLoopCounter; // edx
-  int iPlayerArrayOffset; // eax
-  uint32 uiUpdatedCheatFlags; // eax
   unsigned int uiNavigationDirection; // ebx
   unsigned __int8 byInputKey; // al
   int16 nRotationAngle; // ax
@@ -1676,7 +1671,6 @@ void select_car()
   char *szPlayerName; // [esp+48h] [ebp-38h]
   char *szCurrentCompanyName; // [esp+4Ch] [ebp-34h]
   int iTargetPieValue; // [esp+50h] [ebp-30h]
-  unsigned int uiCarArrayOffset; // [esp+54h] [ebp-2Ch]
   int iNextCarIndex; // [esp+58h] [ebp-28h]
   unsigned int uiNetworkLoop; // [esp+5Ch] [ebp-24h]
   int iPieChartY; // [esp+60h] [ebp-20h]
@@ -1726,7 +1720,7 @@ void select_car()
   }
   iZoomDistance = 2000;                         // Setup 3D car zoom animation: start at 2000 units, zoom out to 40000 (-2000 speed)
   iZoomSpeed = -2000;
-  if (iPlayer1Car >= CAR_DESIGN_ZIZIN2)       // Position car selector cursor: cars 0-7 map directly, 8+ becomes "Random" (index 8)
+  if (iPlayer1Car >= CAR_DESIGN_ZIZIN2)       // Position car selector cursor
     iCurrentCarSelectorPos = 8;
   else
     iCurrentCarSelectorPos = iPlayer1Car;
@@ -1757,8 +1751,8 @@ void select_car()
         frontendsample(0x8000);
         SampleHandleCar[84].handles[0] = -1;
       }
-      display_picture(scrbuf, front_vga[0]);    // RENDER FRAME: Draw background, player heads, and UI elements
-      if (player_type == 2)                   // Two-player mode: show appropriate player head and labels
+      display_picture(scrbuf, front_vga[0]);    // RENDER FRAME
+      if (player_type == 2)                   // Two-player mode
       {
         if (iActivePlayer)
           display_block(scrbuf, (tBlockHeader *)front_vga[1], 6, head_x, head_y, 0);
@@ -1976,7 +1970,7 @@ void select_car()
             }
         }
         //do {
-        //  iIncrementedPieValue = *(int *)((char *)blockIdxAy + iAnimationCounter) + 1;
+        //  int iIncrementedPieValue = *(int *)((char *)blockIdxAy + iAnimationCounter) + 1;
         //  *(int *)((char *)blockIdxAy + iAnimationCounter) = iIncrementedPieValue;
         //  if (iIncrementedPieValue > 8)
         //    *(int *)((char *)blockIdxAy + iAnimationCounter) = 1;
