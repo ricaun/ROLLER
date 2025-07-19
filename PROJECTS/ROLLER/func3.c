@@ -2846,9 +2846,9 @@ int load_champ(int iSlot)
   //uint32 uiTempCheatMode; // edx
   //uint32 uiTempCheatMode2; // ecx
   uint8 *pbyPlayerData; // ebx
-  int i; // eax
+  //int i; // eax
   uint8 byPlayerByte; // dl
-  uint8 *pbyNextPlayerByte; // ebx
+  //uint8 *pbyNextPlayerByte; // ebx
   int *piDataPointer; // ecx
   int iPlayerSecondByte; // edx
   int iBitFlag; // ebx
@@ -2887,7 +2887,7 @@ int load_champ(int iSlot)
   int iModemPortValue; // eax
   int iModemCallValue; // eax
   int iModemBaudValue; // eax
-  char *pszPhonePtr = '\0'; // edx
+  char *pszPhonePtr; // edx
   //int j; // eax
   //char byPhoneChar1; // bl
   //char *pszPhoneCharPtr; // edx
@@ -2933,7 +2933,7 @@ int load_champ(int iSlot)
 
   iFileLength = ROLLERfilelength(save_slots[iSlot - 1]);
 
-  iFileHandle = ROLLERopen(save_slots[iSlot - 1], 0x200);// Open save file for specified slot (1-4) and initialize return value
+  iFileHandle = ROLLERopen(save_slots[iSlot - 1], O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   iChecksumOk = 0;
   if (iFileHandle != -1) {
     pFileBuf = (uint8 *)getbuffer(0x800u);      // Allocate buffer and read save file (expected size: 795 bytes)
@@ -2985,32 +2985,32 @@ int load_champ(int iSlot)
       pbyPlayerData = pFileBuf + 7;
       my_number = pFileBuf[6];
 
-      // for (int i = 0; i < 16; i++) {
-      //     byPlayerByte = *pbyPlayerData++;
-      //     iPlayerSecondByte = *pbyPlayerData++;
-      //     
-      //     // Store player car selection (bits 0-4 of first byte)
-      //     Players_Cars[i] = byPlayerByte & 0x1F;
-      //     
-      //     // Store player invulnerability status (bit 6: 0=invulnerable, 1=vulnerable)
-      //     player_invul[i] = ((byPlayerByte & 0x40) == 0) ? -1 : 0;
-      //     
-      //     // Store manual control flags for this player
-      //     manual_control[i] = iPlayerSecondByte;
-      //     
-      //     // Update data pointer to current position (as int pointer for next section)
-      //     piDataPointer = (int *)pbyPlayerData;
-      // }
-      for (i = 0; i != 16; *(int *)((char *)&competitors + i * 4) = iPlayerSecondByte)// Load 16 players' car choices and starting status
-      {
-        byPlayerByte = *pbyPlayerData;
-        pbyNextPlayerByte = pbyPlayerData + 1;
-        *(int *)((char *)&infinite_laps + ++i * 4) = byPlayerByte & 0x1F;
-        player_started[i + 15] = ((byPlayerByte & 0x40) == 0) - 1;
-        piDataPointer = (int *)(pbyNextPlayerByte + 1);
-        iPlayerSecondByte = *pbyNextPlayerByte;
-        pbyPlayerData = pbyNextPlayerByte + 1;
+      for (int i = 0; i < 16; i++) {
+          byPlayerByte = *pbyPlayerData++;
+          iPlayerSecondByte = *pbyPlayerData++;
+          
+          // Store player car selection (bits 0-4 of first byte)
+          Players_Cars[i] = byPlayerByte & 0x1F;
+          
+          // Store player invulnerability status (bit 6: 0=invulnerable, 1=vulnerable)
+          player_invul[i] = ((byPlayerByte & 0x40) == 0) ? -1 : 0;
+          
+          // Store manual control flags for this player
+          manual_control[i] = iPlayerSecondByte;
+          
+          // Update data pointer to current position (as int pointer for next section)
+          piDataPointer = (int *)pbyPlayerData;
       }
+      //for (i = 0; i != 16; *(int *)((char *)&competitors + i * 4) = iPlayerSecondByte)// Load 16 players' car choices and starting status
+      //{
+      //  byPlayerByte = *pbyPlayerData;
+      //  pbyNextPlayerByte = pbyPlayerData + 1;
+      //  *(int *)((char *)&infinite_laps + ++i * 4) = byPlayerByte & 0x1F;
+      //  player_started[i + 15] = ((byPlayerByte & 0x40) == 0) - 1;
+      //  piDataPointer = (int *)(pbyNextPlayerByte + 1);
+      //  iPlayerSecondByte = *pbyNextPlayerByte;
+      //  pbyPlayerData = pbyNextPlayerByte + 1;
+      //}
 
       iBitFlag = 1;
       piNextData = piDataPointer + 1;
@@ -3123,13 +3123,13 @@ int load_champ(int iSlot)
       iModemBaudValue = *piModemDataPtr++;
       modem_baud = iModemBaudValue;
       iModemBaudValue = *(uint8 *)piModemDataPtr;
+      pszPhonePtr = (char *)piModemDataPtr + 1;
 
       // Load modem phone number and init string (51 chars each, 102 bytes total)
       memcpy(modem_phone, pszPhonePtr, 51);
       pszPhonePtr += 51;
       memcpy(modem_initstring, pszPhonePtr, 51);
       pszPhonePtr += 51;
-      //pszPhonePtr = (char *)piModemDataPtr + 1;
       //modem_phone[0] = (uint8)iModemBaudValue;
       //for (j = 1; j <= 50; modem_initstring[j + 50] = (char)pszTempPointer)// Load modem phone number and init string (51 chars each, 102 bytes total)
       //{

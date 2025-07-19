@@ -1490,12 +1490,7 @@ void select_disk()
           byLevelColor = 0xAB;
         else
           byLevelColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iDifficulty + 1472], font1_ascii,
-          font1_offsets,
-          460,
-          iY,
-          byLevelColor,
-          2u);
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iDifficulty + 1472], font1_ascii, font1_offsets, 460, iY,  byLevelColor, 2u);
         if (iSelectedSlot == iSlotLoop + 1)
           byDamageColor = 0xAB;
         else
