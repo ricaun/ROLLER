@@ -1656,7 +1656,7 @@ void select_car()
   int iLoadTextureFlag; // edx
   int iPlayerLoopCounter; // edx
   unsigned int uiNavigationDirection; // ebx
-  unsigned __int8 byInputKey; // al
+  uint8 byInputKey; // al
   int16 nRotationAngle; // ax
   uint8 **ppCleanupTextureArray; // edx
   void **ppCleanupTexture; // eax
@@ -2137,7 +2137,7 @@ void select_car()
         if (byInputKey < 0x20u) {
           if (byInputKey < 0xDu) {
             if (!byInputKey) {
-              switch ((unsigned __int8)fatgetch()) {
+              switch ((uint8)fatgetch()) {
                 case 0x48u:
                 case 0x4Bu:
                   goto LABEL_152;               // Arrow keys: Handle up/down/left/right navigation between cars
