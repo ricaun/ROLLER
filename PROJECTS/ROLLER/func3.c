@@ -2672,162 +2672,163 @@ uint8 *try_load_picture(const char *szFile)
 
 //-------------------------------------------------------------------------------------------------
 
-void *save_champ(int a1)
+void save_champ(int iSlot)
 {
-  (void)(a1);
-  return 0;
-  /*
-  char *v2; // eax
-  _BYTE *v3; // eax
-  char v4; // dl
-  _BYTE *v5; // eax
-  _BYTE *v6; // eax
-  int i; // edx
-  int v8; // ebx
-  _BYTE *v9; // eax
-  int v10; // ebx
-  int v11; // ebx
-  int v12; // esi
-  int v13; // edx
-  int v14; // eax
-  int v15; // eax
-  int v16; // eax
-  int v17; // eax
-  int v18; // esi
-  int v19; // ebx
-  int v20; // eax
-  int v21; // eax
-  int v22; // eax
-  int j; // ebx
-  int v24; // eax
-  int v25; // eax
-  int v26; // eax
-  int v27; // edx
-  int v28; // edi
-  int k; // esi
-  int v30; // edx
-  int v31; // ebx
-  int v32; // eax
-  char v33; // cl
-  int v34; // eax
-  int v35; // eax
-  int v36; // eax
-  int v37; // eax
-  int m; // edx
-  int v39; // eax
-  char v40; // bl
-  int v41; // esi
-  char v42; // cl
-  char *v43; // eax
-  int v44; // esi
-  int n; // edx
-  char v46; // ch
-  int v47; // edi
-  char *v49; // [esp+0h] [ebp-1Ch] BYREF
+  char *pbySaveBuffer; // eax
+  char *pBufPlus1; // eax
+  uint8 byCompetitorsFlags; // dl
+  char *pbyCurrentPos; // eax
+  uint8 *pbyPlayerData; // eax
+  int iPlayerIndex; // edx
+  int iCarWithInvul; // ebx
+  uint8 *pbyPlayerControlData; // eax
+  int iControlType; // ebx
+  int iBitMask; // ebx
+  int iNonCompetitorsMask; // esi
+  int iCarIndex; // edx
+  uint8 *pbyAfterNonCompetitors; // eax
+  uint8 *pbyAfterNetworkChamp; // eax
+  uint8 *pbyAfterNetworkSlot; // eax
+  uint8 *pbyAfterHeader; // eax
+  int iCarStatsIndex; // esi
+  int iCarArrayIndex; // ebx
+  uint8 *pbyAfterPoints; // eax
+  uint8 *pbyAfterKills; // eax
+  uint8 *pbyAfterFasts; // eax
+  int i; // ebx
+  uint8 *pbyAfterTeamPoints; // eax
+  uint8 *pbyAfterTeamKills; // eax
+  uint8 *pbyAfterTeamFasts; // eax
+  int iTeamWins; // edx
+  int iNameEndIndex; // edi
+  int iTeamIndex; // esi
+  int iNameStartIndex; // edx
+  uint8 *pbyNameChar; // eax
+  char byPlayerNameChar; // cl
+  uint8 *pbyAfterSerial; // eax
+  uint8 *pbyAfterModemPort; // eax
+  uint8 *pbyAfterModemCall; // eax
+  uint8 *pbyPhoneData; // eax
+  int j; // edx
+  uint8 *pbyPhoneChar; // eax
+  char byPhoneDigit; // bl
+  uint8 *pbyEndOfData; // esi
+  char byChecksum; // cl
+  char *pbyChecksumPos; // eax
+  //int iPlayersCarsOffset; // esi
+  int64 llPlayersCarsOffset;
+  int iNameIndex; // edx
+  char byDataByte; // ch
+  FILE *pSaveFile; // edi
+  char *pbyBufferStart; // [esp+0h] [ebp-1Ch] BYREF
 
-  v2 = (char *)getbuffer(0x800u);
-  v49 = v2;
-  *v2 = TrackLoad;
-  v3 = v2 + 1;
-  v4 = competitors;
-  if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-    v4 = competitors | 0x20;
-  if ((cheat_mode & 2) != 0)
-    v4 |= 0x40u;
-  if ((cheat_mode & 0x200) != 0)
-    v4 |= 0x80u;
-  v5 = v3 + 1;
-  *(v5++ - 1) = v4;
-  *(v5++ - 1) = players;
-  *(v5 - 1) = level;
-  v6 = v5 + 3;
-  *(v6 - 3) = damage_level;
-  *(v6 - 2) = player_type;
-  *(v6 - 1) = my_number;
-  for (i = 0; i != 16; ++i) {
-    v8 = Players_Cars[i];
-    if (player_invul[i])
-      LOBYTE(v8) = v8 | 0x40;
-    v9 = v6 + 1;
-    *(v9 - 1) = v8;
-    v6 = v9 + 1;
-    v10 = manual_control[i];
-    *(v6 - 1) = v10;
+  pbySaveBuffer = (char *)getbuffer(0x800u);    // Allocate 2KB buffer for save data
+  pbyBufferStart = pbySaveBuffer;
+  *pbySaveBuffer = TrackLoad;
+  pBufPlus1 = pbySaveBuffer + 1;
+  byCompetitorsFlags = competitors;
+  if ((textures_off & 0x10000) != 0)
+    byCompetitorsFlags = competitors | 0x20;
+  if ((cheat_mode & 2) != 0)                  // CHEAT_MODE_DEATH_MODE
+    byCompetitorsFlags |= 0x40u;
+  if ((cheat_mode & 0x200) != 0)              // CHEAT_MODE_KILLER_OPPONENTS
+    byCompetitorsFlags |= 0x80u;
+  pbyCurrentPos = pBufPlus1 + 1;
+  *(pbyCurrentPos++ - 1) = byCompetitorsFlags;
+  *(pbyCurrentPos++ - 1) = players;
+  *(pbyCurrentPos - 1) = level;
+  pbyPlayerData = (uint8 *)(pbyCurrentPos + 3);
+  *(pbyPlayerData - 3) = damage_level;
+  *(pbyPlayerData - 2) = player_type;
+  *(pbyPlayerData - 1) = my_number;
+  for (iPlayerIndex = 0; iPlayerIndex != 16; ++iPlayerIndex) {
+    iCarWithInvul = Players_Cars[iPlayerIndex];
+    if (player_invul[iPlayerIndex]) {
+      //LOBYTE(iCarWithInvul) = iCarWithInvul | 0x40;
+      iCarWithInvul = (iCarWithInvul & 0xFFFFFF00) | ((iCarWithInvul & 0xFF) | 0x40);
+    }
+    pbyPlayerControlData = pbyPlayerData + 1;
+    *(pbyPlayerControlData - 1) = iCarWithInvul;
+    pbyPlayerData = pbyPlayerControlData + 1;
+    iControlType = manual_control[iPlayerIndex];
+    *(pbyPlayerData - 1) = iControlType;
   }
-  v11 = 1;
-  v12 = 0;
+  iBitMask = 1;
+  iNonCompetitorsMask = 0;
   if (numcars > 0) {
-    v13 = 0;
+    iCarIndex = 0;
     do {
-      if (non_competitors[v13])
-        v12 |= v11;
-      ++v13;
-      v11 *= 2;
-    } while (v13 < numcars);
+      if (non_competitors[iCarIndex])
+        iNonCompetitorsMask |= iBitMask;
+      ++iCarIndex;
+      iBitMask *= 2;
+    } while (iCarIndex < numcars);
   }
-  v14 = sav_champ_int(v6, v12, v11);
-  v15 = sav_champ_int(v14, network_champ_on, v11);
-  v16 = sav_champ_int(v15, network_slot, v11);
-  v17 = sav_champ_int(v16, net_type, v11);
-  v18 = 0;
+  pbyAfterNonCompetitors = sav_champ_int(pbyPlayerData, iNonCompetitorsMask);
+  pbyAfterNetworkChamp = sav_champ_int(pbyAfterNonCompetitors, network_champ_on);
+  pbyAfterNetworkSlot = sav_champ_int(pbyAfterNetworkChamp, network_slot);
+  pbyAfterHeader = sav_champ_int(pbyAfterNetworkSlot, net_type);
+  iCarStatsIndex = 0;
   if (numcars > 0) {
-    v19 = 0;
+    iCarArrayIndex = 0;
     do {
-      v20 = sav_champ_int(v17, championship_points[v19], v19 * 4);
-      v21 = sav_champ_int(v20, total_kills[v19], v19 * 4);
-      v22 = sav_champ_int(v21, total_fasts[v19], v19 * 4);
-      ++v18;
-      v17 = sav_champ_int(v22, total_wins[v19], v19 * 4);
-      ++v19;
-    } while (v18 < numcars);
+      pbyAfterPoints = sav_champ_int(pbyAfterHeader, championship_points[iCarArrayIndex]);
+      pbyAfterKills = sav_champ_int(pbyAfterPoints, total_kills[iCarArrayIndex]);
+      pbyAfterFasts = sav_champ_int(pbyAfterKills, total_fasts[iCarArrayIndex]);
+      ++iCarStatsIndex;
+      pbyAfterHeader = sav_champ_int(pbyAfterFasts, total_wins[iCarArrayIndex++]);
+    } while (iCarStatsIndex < numcars);
   }
-  for (j = 0; j != 8; v17 = sav_champ_int(v26, v27, j * 4)) {
-    v24 = sav_champ_int(v17, team_points[j], j * 4);
-    v25 = sav_champ_int(v24, team_kills[j], j * 4);
-    v26 = sav_champ_int(v25, team_fasts[j], j * 4);
-    v27 = team_wins[j++];
+  for (i = 0; i != 8; ++i) {
+    pbyAfterTeamPoints = sav_champ_int(pbyAfterHeader, team_points[i]);
+    pbyAfterTeamKills = sav_champ_int(pbyAfterTeamPoints, team_kills[i]);
+    pbyAfterTeamFasts = sav_champ_int(pbyAfterTeamKills, team_fasts[i]);
+    iTeamWins = team_wins[i];
+    pbyAfterHeader = sav_champ_int(pbyAfterTeamFasts, iTeamWins);
   }
-  v28 = 9;
-  for (k = 0; k < 16; ++k) {
-    v30 = 9 * k;
-    v31 = v28;
+  iNameEndIndex = 9;
+  for (iTeamIndex = 0; iTeamIndex < 16; ++iTeamIndex) {
+    iNameStartIndex = 9 * iTeamIndex;
     do {
-      v32 = v17 + 1;
-      *(_BYTE *)(v32 - 1) = default_names[v30];
-      v17 = v32 + 1;
-      v33 = player_names[v30++];
-      *(_BYTE *)(v17 - 1) = v33;
-    } while (v30 != v28);
-    v28 += 9;
+      pbyNameChar = pbyAfterHeader + 1;
+      *(pbyNameChar - 1) = default_names[0][iNameStartIndex];
+      pbyAfterHeader = pbyNameChar + 1;
+      byPlayerNameChar = player_names[0][iNameStartIndex++];
+      *(pbyAfterHeader - 1) = byPlayerNameChar;
+    } while (iNameStartIndex != iNameEndIndex);
+    iNameEndIndex += 9;
   }
-  v34 = sav_champ_int(v17, serial_port, v31);
-  v35 = sav_champ_int(v34, modem_port, v31);
-  v36 = sav_champ_int(v35, modem_call, v31);
-  v37 = sav_champ_int(v36, modem_baud, v31) + 1;
-  *(_BYTE *)(v37 - 1) = modem_phone[0];
-  for (m = 1; m <= 50; m += 5) {
-    v39 = v37 + 1;
-    *(_BYTE *)(v39++ - 1) = modem_phone[m];
-    *(_BYTE *)(v39++ - 1) = modem_phone_variable_1[m];
-    *(_BYTE *)(v39++ - 1) = modem_phone_variable_2[m];
-    *(_BYTE *)(v39 - 1) = modem_phone_variable_3[m];
-    v37 = v39 + 1;
-    v40 = modem_phone_variable_4[m];
-    *(_BYTE *)(v37 - 1) = v40;
+  pbyAfterSerial = sav_champ_int(pbyAfterHeader, serial_port);
+  pbyAfterModemPort = sav_champ_int(pbyAfterSerial, modem_port);
+  pbyAfterModemCall = sav_champ_int(pbyAfterModemPort, modem_call);
+  pbyPhoneData = sav_champ_int(pbyAfterModemCall, modem_baud) + 1;
+  *(pbyPhoneData - 1) = modem_phone[0];
+  for (j = 1; j <= 50; j += 5) {
+    pbyPhoneChar = pbyPhoneData + 1;
+    *(pbyPhoneChar++ - 1) = modem_phone[j];
+    *(pbyPhoneChar++ - 1) = modem_phone[j + 1];
+    *(pbyPhoneChar++ - 1) = modem_phone[j + 2];
+    *(pbyPhoneChar - 1) = modem_phone[j + 3];
+    pbyPhoneData = pbyPhoneChar + 1;
+    byPhoneDigit = modem_phone[j + 4];
+    *(pbyPhoneData - 1) = byPhoneDigit;
   }
-  v41 = v37;
-  v42 = 0;
-  v43 = v49;
-  v44 = v41 - (_DWORD)v49;
-  for (n = 0; n < v44; v42 += v46) {
-    ++n;
-    v46 = *v43++;
+  pbyEndOfData = pbyPhoneData;
+  byChecksum = 0;
+  pbyChecksumPos = pbyBufferStart;
+  
+  llPlayersCarsOffset = pbyEndOfData - (uint8 *)pbyBufferStart;
+  for (iNameIndex = 0; iNameIndex < llPlayersCarsOffset; byChecksum += byDataByte) {
+    ++iNameIndex;
+    byDataByte = *pbyChecksumPos++;
   }
-  *v43 = v42;
-  v47 = fopen(&save_slots[13 * a1 - 13], &func3_c_variable_37);
-  fwrite(v49, 1, v44 + 1, v47);
-  fclose(v47);
-  return fre(&v49);*/
+  
+  *pbyChecksumPos = byChecksum;
+  pSaveFile = ROLLERfopen(save_slots[iSlot - 1], "wb");
+  if (pSaveFile)//check added by ROLLER
+    fwrite(pbyBufferStart, 1, llPlayersCarsOffset + 1, pSaveFile);
+  fclose(pSaveFile);
+  fre((void **)&pbyBufferStart);
 }
 
 //-------------------------------------------------------------------------------------------------

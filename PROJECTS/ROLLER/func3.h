@@ -51,7 +51,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
 void *championship_winner(int a1, int a2, int a3, char *a4);
 int print_mem_used();
 uint8 *try_load_picture(const char *szFile);
-void *save_champ(int a1);
+void save_champ(int iSlot);
 int load_champ(int iSlot);
 uint8 *lod_champ_char(uint8 *pSrc, int *piValue);
 uint8 *sav_champ_char(uint8 *pSrc, int *piValue); //actually loads an int
