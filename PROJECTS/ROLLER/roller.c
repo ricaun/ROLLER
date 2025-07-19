@@ -240,6 +240,11 @@ int InitSDL()
     SDL_free((void *)home_dir);
   }
 
+  // check if the ./FATDATA/FATAL.INI to ensure the game can run
+  if (!ROLLERfexists("./FATDATA/FATAL.INI")) {
+    ErrorBoxExit("The folder FATDATA does not exist.\nROLLER requires the FATDATA folder assets from a retail copy of the game.");
+  }
+
   g_pTimerMutex = SDL_CreateMutex();
 
   if (!SDL_CreateWindowAndRenderer("ROLLER", 640, 400, SDL_WINDOW_RESIZABLE, &s_pWindow, &s_pRenderer)) {
