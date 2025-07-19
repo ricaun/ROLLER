@@ -1733,7 +1733,8 @@ void select_car()
   iActivePlayer = 0;
   frames = 0;
   if (!byMenuExitFlag) {
-    szCurrentCompanyName = CompanyNames[iOriginalCarSelection];
+    if (iOriginalCarSelection >= 0) //check added by ROLLER for zig build
+      szCurrentCompanyName = CompanyNames[iOriginalCarSelection];
     do {                                           // Handle game type switches (race type, championship, etc.)
       if (switch_types) {
         game_type = switch_types - 1;
