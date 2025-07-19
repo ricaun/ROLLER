@@ -15,6 +15,7 @@
 #include "colision.h"
 #include "control.h"
 #include "comms.h"
+#include "function.h"
 #include <memory.h>
 #include <fcntl.h>
 #include <math.h>
@@ -28,6 +29,10 @@
 #include <unistd.h>
 #define O_BINARY 0 //linux does not differentiate between text and binary
 #endif
+//-------------------------------------------------------------------------------------------------
+//symbols defined by ROLLER
+char szMrEvil[10] = "MR EVIL"; //000A23F8
+
 //-------------------------------------------------------------------------------------------------
 
 char save_slots[4][13] =  //000A6234
@@ -4555,243 +4560,289 @@ uint8 *load_picture(const char *szFile)
 
 //-------------------------------------------------------------------------------------------------
 
-int AllocateCars()
+void AllocateCars()
 {
-  return 0;
-  /*
-  int result; // eax
-  int v2; // esi
-  char *v3; // ebp
-  int v4; // edi
-  int v5; // eax
-  char *v6; // edx
-  char *v7; // eax
-  char v8; // cl
-  int v9; // ecx
-  int v10; // edi
-  int v11; // ebp
-  int v12; // ebx
-  int v13; // edx
-  int v14; // ecx
-  int v15; // edx
-  int v16; // esi
-  char *v17; // ebx
-  char *v18; // edx
-  char v19; // cl
-  int v20; // edx
-  int v21; // ebx
-  int v22; // edx
-  int v23; // eax
-  int v24; // edx
-  int v25; // eax
-  int v26; // eax
-  int v27; // edi
-  int v28; // eax
-  int v29; // eax
-  int v30; // edi
-  char *v31; // ebp
-  int v32; // esi
-  char *v33; // eax
-  char *v34; // edx
-  char v35; // cl
-  int v36; // edx
-  int v37; // esi
-  char *v38; // [esp+0h] [ebp-20h]
-  char *v39; // [esp+4h] [ebp-1Ch]
+  int iCarIdx; // esi
+  char *pszNextDefaultNamePtr; // ebp
+  int iDriverIdx; // edi
+  int iAssignedCarType; // eax
+  char *pszDestName; // edx
+  char *pszSrcName; // eax
+  char byNameChar; // cl
+  int iTotalCars; // ecx
+  int iPlayerIdx; // edi
+  int iPlayersCarIdx; // ebp
+  int iSelectedCarType; // ebx
+  int iAvailableSlot; // eax
+  int iSlotSearchIdx; // edx
+  int iHumanCtrlCheck; // ecx
+  int iFallbackSearchIdx; // edx
+  int iFallbackCtrlCheck; // esi
+  char *szDest; // ebx
+  char *szPlayerNameItr; // edx
+  char c; // cl
+  int iConsolePlayerId; // edx
+  int iPlayerInvulFlag; // ebx
+  int iCarLoopBytes; // edx
+  int iLoopCounter; // eax
+  int iCompetitorMode; // eax
+  int iCarsBytesTotal; // edx
+  unsigned int uiRandomCarIdx; // eax
+  int iRandResult; // eax
+  int iNormalizedCarSlot; // eax
+  //int iActiveCompetitors; // edi
+  //int v29; // eax
+  //int v30; // eax
+  int iEvilCarCounter; // edi
+  char *pszEvilNameDest; // ebp
+  int iEvilCarIdx; // esi
+  char *pszEvilNameSrc; // eax
+  char *pszEvilNameCharDest; // edx
+  char byEvilNameChar; // cl
+  int iFinalCaridx; // edx
+  int iTotalCarsFinal; // esi
+  int iCarSlotIdx; // eax
+  char *pszNextPlayerName; // [esp+0h] [ebp-20h]
+  char *pszDriverName; // [esp+4h] [ebp-1Ch]
 
-  my_number = -1;
-  numcars = 16;
-  ViewType_variable_1 = -1;
-  result = check_cars(a1);
-  v2 = 0;
+  my_number = -1;                               // Initialize my_number to indicate no player assigned yet
+  numcars = 16;                                 // Set total cars to maximum (16)
+  ViewType[1] = -1;                             // Reset second player view
+  check_cars();                                 // Validate and initialize car data
+  iCarIdx = 0;
   if (numcars > 0) {
-    v3 = &default_names[9];
-    v39 = driver_names;
-    v4 = 0;
-    do {
-      if ((cheat_mode & 0x4000) != 0)
-        v5 = Players_Cars[0];
+    pszNextDefaultNamePtr = default_names[1];
+    pszDriverName = driver_names[0];
+    iDriverIdx = 0;
+    do {                                           // Clone mode: all cars use player 1's car type
+      if ((cheat_mode & 0x4000) != 0)         // cheat_mode & CHEAT_MODE_CLONES
+        iAssignedCarType = Players_Cars[0];
       else
-        v5 = v2 / 2;
-      Drivers_Car[v4] = v5;
-      v6 = v39;
-      v7 = &default_names[9 * v2];
+        iAssignedCarType = iCarIdx / 2;         // Normal mode: car type based on position (pairs)
+      Drivers_Car[iDriverIdx] = iAssignedCarType;
+      pszDestName = pszDriverName;
+      pszSrcName = default_names[iCarIdx];
       do {
-        ++v6;
-        v8 = *v7++;
-        *(v6 - 1) = v8;
-      } while (v7 != v3);
-      v9 = numcars;
-      v3 += 9;
-      ++v4;
-      ++v2;
-      result = 0;
-      team_wins_variable_1[v4] = 0;
-      RecordNames_variable_1[v4] = 0;
-      v39 += 9;
-    } while (v2 < v9);
+        ++pszDestName;                          // Copy default driver name
+        byNameChar = *pszSrcName++;
+        *(pszDestName - 1) = byNameChar;
+      } while (pszSrcName != pszNextDefaultNamePtr);
+      iTotalCars = numcars;
+      pszNextDefaultNamePtr += 9;
+      human_control[iDriverIdx] = 0;
+      invulnerable[iDriverIdx] = 0;
+      ++iDriverIdx;
+      ++iCarIdx;
+      //team_wins[iDriverIdx + 15] = 0;
+      //RecordNames_variable_1[iDriverIdx] = 0;   // offset into invulnerable
+      pszDriverName += 9;
+    } while (iCarIdx < iTotalCars);
   }
-  v10 = 0;
+  iPlayerIdx = 0;
   if (players > 0) {
-    v11 = 0;
-    v38 = &player_names[9];
+    iPlayersCarIdx = 0;
+    pszNextPlayerName = player_names[1];
     do {
-      v12 = Players_Cars[v11];
-      if (v10 || (result = my_number, my_number < 0)) {
-        if (v12 >= 8 || (cheat_mode & 0x4000) != 0) {
-          result = 0;
-          v13 = 0;
+      iSelectedCarType = Players_Cars[iPlayersCarIdx];// Get player's selected car type
+      if (iPlayerIdx || (iAvailableSlot = my_number, my_number < 0)) {                                         // For cars >= 8 or clone mode, find any available slot
+        if (iSelectedCarType >= 8 || (cheat_mode & 0x4000) != 0)// CHEAT_MODE_CLONES
+        {
+          iAvailableSlot = 0;
+          iSlotSearchIdx = 0;
           if (human_control[0]) {
             do {
-              v14 = human_control_variable_1[v13++];
-              ++result;
-            } while (v14);
+              iHumanCtrlCheck = human_control[++iSlotSearchIdx];
+              ++iAvailableSlot;
+            } while (iHumanCtrlCheck);
           }
         } else {
-          result = 2 * v12;
-          if (human_control[2 * v12])
-            ++result;
+          iAvailableSlot = 2 * iSelectedCarType;// For standard cars (0-7), try preferred slot based on car type
+          if (human_control[2 * iSelectedCarType])
+            ++iAvailableSlot;
         }
-        if (result >= numcars) {
-          result = 0;
-          v15 = 0;
+        if (iAvailableSlot >= numcars) {
+          iAvailableSlot = 0;
+          iFallbackSearchIdx = 0;
           if (human_control[0]) {
             do {
-              v16 = human_control_variable_1[v15++];
-              ++result;
-            } while (v16);
+              iFallbackCtrlCheck = human_control[++iFallbackSearchIdx];
+              ++iAvailableSlot;
+            } while (iFallbackCtrlCheck);
           }
         }
       }
-      Drivers_Car[result] = v12;
-      v17 = &driver_names[9 * result];
-      v18 = &player_names[9 * v10];
+      Drivers_Car[iAvailableSlot] = iSelectedCarType;
+      szDest = driver_names[iAvailableSlot];
+      szPlayerNameItr = player_names[iPlayerIdx];
       do {
-        ++v17;
-        v19 = *v18++;
-        *(v17 - 1) = v19;
-      } while (v18 != v38);
-      v20 = wConsoleNode;
-      human_control[result] = manual_control[v11];
-      v21 = player_invul[v11];
-      car_to_player[result] = v10;
-      invulnerable[result] = v21;
-      if (v10 == v20) {
-        LOWORD(player1_car) = result;
-        ViewType[0] = result;
+        ++szDest;                               // Copy player name to driver slot
+        c = *szPlayerNameItr++;
+        *(szDest - 1) = c;
+      } while (szPlayerNameItr != pszNextPlayerName);
+      iConsolePlayerId = wConsoleNode;
+      human_control[iAvailableSlot] = manual_control[iPlayersCarIdx];// Set up control type and player mappings
+      iPlayerInvulFlag = player_invul[iPlayersCarIdx];
+      car_to_player[iAvailableSlot] = iPlayerIdx;
+      invulnerable[iAvailableSlot] = iPlayerInvulFlag;
+      if (iPlayerIdx == iConsolePlayerId)     // Configure player 1 camera if this is the console player
+      {
+        player1_car = iAvailableSlot;
+        ViewType[0] = iAvailableSlot;
       }
-      if (player_type == 2 && v10 == player2_car) {
-        player2_car = result;
-        ViewType_variable_1 = result;
+      if (player_type == 2 && iPlayerIdx == player2_car)// Configure player 2 camera in split-screen mode
+      {
+        player2_car = iAvailableSlot;
+        ViewType[1] = iAvailableSlot;
       }
-      ++v11;
-      ++v10;
-      v38 += 9;
-    } while (v10 < players);
+      ++iPlayersCarIdx;
+      ++iPlayerIdx;
+      pszNextPlayerName += 9;
+    } while (iPlayerIdx < players);
   }
-  if (game_type != 1 || !Race) {
+  if (game_type != 1 || !Race)                // Skip competitor setup for racing mode
+  {
     if (numcars > 0) {
-      v22 = 4 * numcars;
-      v23 = 0;
+      iCarLoopBytes = 4 * numcars;
+      iLoopCounter = 0;
       do {
-        v23 += 4;
-        TrackArrow_variable_1[v23 / 4u] = 0;
-      } while (v23 < v22);
+        non_competitors[iLoopCounter / 4u];
+        iLoopCounter += 4;                      // Initialize all cars as competitors by default
+        //TrackArrow_variable_1[iLoopCounter / 4u] = 0;// offset into non_competitors
+      } while (iLoopCounter < iCarLoopBytes);
     }
-    result = competitors[0];
-    v24 = 4 * numcars;
-    if (competitors[0] < 2u) {
-      if (competitors[0] == 1 && numcars > 0) {
-        result = 0;
+    iCompetitorMode = competitors;
+    iCarsBytesTotal = 4 * numcars;
+    if ((unsigned int)competitors < 2) {                                           // Competitor mode 1: Mark AI cars as non-competitors
+      if (competitors == 1 && numcars > 0) {
+        uiRandomCarIdx = 0;
         do {
-          if (!*(int *)((char *)human_control + result))
-            *(int *)((char *)non_competitors + result) = -1;
-          result += 4;
-        } while (result < v24);
+          if (!human_control[uiRandomCarIdx / 4])
+            non_competitors[uiRandomCarIdx / 4] = -1;
+          uiRandomCarIdx += 4;
+        } while ((int)uiRandomCarIdx < iCarsBytesTotal);
       }
-    } else if (competitors[0] <= 2u) {
+    } else if ((unsigned int)competitors <= 2) {                                           // Competitor mode 2: Mark AI cars as non-competitors
       if (numcars > 0) {
-        result = 0;
-        do {
-          if (!*(int *)((char *)human_control + result))
-            *(int *)((char *)non_competitors + result) = -1;
-          result += 4;
-        } while (result < v24);
+        for (int i = 0; i < numcars; ++i) {
+          if (!human_control[i])
+            non_competitors[i] = -1;
+        }
+        //iCompetitorMode = 0;
+        //do {
+        //  if (!*(int *)((char *)human_control + iCompetitorMode))
+        //    *(int *)((char *)non_competitors + iCompetitorMode) = -1;
+        //  iCompetitorMode += 4;
+        //} while (iCompetitorMode < iCarsBytesTotal);
       }
-      if (players == 1) {
+      if (players == 1)                       // Single player mode: randomly select one AI as competitor
+      {
         do {
-          v25 = rand(result);
-          v26 = (8 * v25 - (__CFSHL__((8 * v25) >> 31, 15) + ((8 * v25) >> 31 << 15))) >> 15;
-          if (v26 == 8)
-            v26 = 7;
-          result = 8 * v26;
-        } while (*(int *)((char *)human_control + result));
-        *(int *)((char *)&non_competitors_variable_1 + result) = 0;
+          iRandResult = rand();// iCompetitorMode);
+          iNormalizedCarSlot = (8 * iRandResult) / 32768;  // Normalize to range [0, 8)
+
+          if (iNormalizedCarSlot == 8)
+            iNormalizedCarSlot = 7;
+        } while (human_control[iNormalizedCarSlot]);
+        non_competitors[iNormalizedCarSlot] = 0;
+        //do {
+        //  iRandResult = rand(iCompetitorMode);  // Generate random car slot until we find an AI-controlled one
+        //  // iNormalizedCarSlot = (8 * iRandResult) / 32768;
+        //  iNormalizedCarSlot = (8 * iRandResult
+        //                      - (__CFSHL__((8 * iRandResult) >> 31, 15)
+        //                         + ((8 * iRandResult) >> 31 << 15))) >> 15;
+        //  if (iNormalizedCarSlot == 8)
+        //    iNormalizedCarSlot = 7;
+        //  iCompetitorMode = 8 * iNormalizedCarSlot;
+        //} while (*(int *)((char *)human_control + iCompetitorMode));
+        //*(int *)((char *)&non_competitors[1] + iCompetitorMode) = 0;
       }
-    } else if (competitors[0] == 8) {
+    } else if (competitors == 8) {                                           // Competitor mode 8: All AI cars marked as non-competitors initially
       if (numcars > 0) {
-        result = 0;
-        do {
-          if (!*(int *)((char *)human_control + result))
-            *(int *)((char *)non_competitors + result) = -1;
-          result += 4;
-        } while (result < v24);
+        for (int i = 0; i < numcars; ++i) {
+            if (!human_control[i])
+                non_competitors[i] = -1;
+        }
+        //iCompetitorMode = 0;
+        //do {
+        //  if (!*(int *)((char *)human_control + iCompetitorMode))
+        //    *(int *)((char *)non_competitors + iCompetitorMode) = -1;
+        //  iCompetitorMode += 4;
+        //} while (iCompetitorMode < iCarsBytesTotal);
       }
-      if (players < 8) {
-        v27 = players;
+      if (players < 8)                        // Add random AI cars as competitors until we have 8 total
+      {
+        int iActiveCompetitors = players;
         while (1) {
-          v28 = rand(result);
-          v29 = (8 * v28 - (__CFSHL__((8 * v28) >> 31, 15) + ((8 * v28) >> 31 << 15))) >> 15;
-          if (v29 == 8)
-            v29 = 7;
-          result = 8 * v29;
-          if (!*(int *)((char *)human_control + result)) {
-            if (*(int *)((char *)&non_competitors_variable_1 + result)) {
-              ++v27;
-              *(int *)((char *)&non_competitors_variable_1 + result) = 0;
-              if (v27 >= 8)
+          int randVal = rand();// iCompetitorMode);
+          int slot = (8 * randVal) / 32768;
+          if (slot == 8)
+            slot = 7;
+
+          iCompetitorMode = 8 * slot;
+
+          if (!human_control[slot]) {
+            if (non_competitors[slot] != 0) {
+              ++iActiveCompetitors;
+              non_competitors[slot] = 0;
+
+              if (iActiveCompetitors >= 8)
                 break;
             }
           }
         }
+        //iActiveCompetitors = players;
+        //while (1) {
+        //  v29 = rand(iCompetitorMode);
+        //  v30 = (8 * v29 - (__CFSHL__((8 * v29) >> 31, 15) + ((8 * v29) >> 31 << 15))) >> 15;
+        //  if (v30 == 8)
+        //    v30 = 7;
+        //  iCompetitorMode = 8 * v30;
+        //  if (!*(int *)((char *)human_control + iCompetitorMode)) {
+        //    if (*(int *)((char *)&non_competitors[1] + iCompetitorMode)) {
+        //      ++iActiveCompetitors;
+        //      *(int *)((char *)&non_competitors[1] + iCompetitorMode) = 0;
+        //      if (iActiveCompetitors >= 8)
+        //        break;
+        //    }
+        //  }
+        //}
       }
     }
   }
-  if ((cheat_mode & 0x200) != 0) {
-    v30 = 0;
+  if ((cheat_mode & 0x200) != 0)              // Mr. Evil cheat mode - replace AI drivers with Mr. Evil
+  {
+    iEvilCarCounter = 0;
     if (numcars > 0) {
-      v31 = driver_names;
-      v32 = 0;
+      pszEvilNameDest = driver_names[0];
+      iEvilCarIdx = 0;
       do {
-        if (!human_control[v32]) {
-          v33 = &aMrEvil[2];
-          v34 = v31;
-          Drivers_Car[v32] = 13;
+        if (!human_control[iEvilCarIdx]) {
+          pszEvilNameSrc = szMrEvil;
+          pszEvilNameCharDest = pszEvilNameDest;
+          Drivers_Car[iEvilCarIdx] = 13;        // Set AI car to Mr. Evil's car type (13) and copy name
           do {
-            ++v34;
-            v35 = *v33++;
-            *(v34 - 1) = v35;
-          } while (v33 != &aMrEvil[11]);
+            ++pszEvilNameCharDest;
+            byEvilNameChar = *pszEvilNameSrc++;
+            *(pszEvilNameCharDest - 1) = byEvilNameChar;
+          } while (pszEvilNameSrc != &szMrEvil[9]);
         }
-        result = numcars;
-        ++v32;
-        ++v30;
-        v31 += 9;
-      } while (v30 < numcars);
+        ++iEvilCarIdx;
+        ++iEvilCarCounter;
+        pszEvilNameDest += 9;
+      } while (iEvilCarCounter < numcars);
     }
   }
-  v36 = 0;
+  iFinalCaridx = 0;                             // Final step: Set up player-to-car mappings for human-controlled cars
   if (numcars > 0) {
-    v37 = numcars;
-    result = 0;
-    do {
-      if (*(int *)((char *)human_control + result))
-        player_to_car[*(int *)((char *)car_to_player + result)] = v36;
-      ++v36;
-      result += 4;
-    } while (v36 < v37);
+    iTotalCarsFinal = numcars;
+    iCarSlotIdx = 0;
+    do {                                           // Map car slot back to player index for human-controlled cars
+      if (human_control[iCarSlotIdx])
+        player_to_car[car_to_player[iCarSlotIdx]] = iFinalCaridx;
+      ++iFinalCaridx;
+      ++iCarSlotIdx;
+    } while (iFinalCaridx < iTotalCarsFinal);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

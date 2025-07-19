@@ -90,7 +90,7 @@ void clear_screen(void *pDest, int iVal);
 void display_picture(void *pDest, const void *pSrc);
 void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int iY, int iTransparentColor);
 uint8 *load_picture(const char *szFile);
-int AllocateCars();
+void AllocateCars();
 void check_cars();
 char *select_messages();
 void show_received_mesage();

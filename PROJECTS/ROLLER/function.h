@@ -5,6 +5,10 @@
 #include <stdbool.h>
 //-------------------------------------------------------------------------------------------------
 
+extern int invulnerable[16];
+
+//-------------------------------------------------------------------------------------------------
+
 void finish_race();
 double getbankz(float fInput, int iChunkIdx, tData *pData);
 int calculate_aheadbehindtime(int a1, float *a2, float *a3);
