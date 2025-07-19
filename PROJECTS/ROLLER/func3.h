@@ -73,7 +73,7 @@ void scale_text(tBlockHeader *pFont,
                 unsigned int uiAlignment,
                 int iClipLeft,
                 int iClipRight);
-int clear_screen(int a1, int a2);
+void clear_screen(void *pDest, int iVal);
 void display_picture(void *pDest, const void *pSrc);
 void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int iY, int iTransparentColor);
 uint8 *load_picture(const char *szFile);
