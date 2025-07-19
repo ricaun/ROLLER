@@ -38,11 +38,13 @@ char save_slots[4][13] =  //000A6234
   "champ4.sav"
 };
 int send_message_to = -1; //000A6394
+int rec_status = 0;       //000A6398
 char rec_mes_buf[32];     //00188530
 int result_order[16];     //00188610
 int result_design[16];    //00188690
 int result_control[16];   //00188750
 int send_status;          //00188810
+char rec_mes_name[12];    //00188814
 int restart_net;          //00188828
 
 //-------------------------------------------------------------------------------------------------
@@ -5369,33 +5371,32 @@ LABEL_4:
 //-------------------------------------------------------------------------------------------------
 
 void show_received_mesage()
-{
-  /*
-  int v0; // ebx
-  int v1; // eax
-  int v2; // ecx
-  int v3; // edx
-  int v4; // ecx
+{                                               // Check if there's a message to display and screen is not fading
+  int iRecMesWidth; // ebx
+  int iBufStrWidth; // eax
+  int iWindowLeft; // ecx
+  int iWindowRight; // edx
+  int iAdjustedLeft; // ecx
 
   if (rec_status > 0 && front_fade) {
-    sprintf(buffer, "%s %s", language_buffer_variable_119, rec_mes_name);
-    v0 = stringwidth(rec_mes_buf);
-    v1 = stringwidth(buffer);
-    if (v1 > v0)
-      v0 = v1;
-    v2 = 400 - v0 / 2;
-    if (v2 < 180)
-      v2 = 180;
-    v3 = v0 / 2 + 408;
-    v4 = v2 - 8;
-    if (v3 > 639)
-      v3 = 639;
-    blankwindow(v4 / 2, 86, v3 / 2, 118);
-    scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 400, 180, 143, 1u, 180, 640);
-    scale_text(front_vga_variable_10, rec_mes_buf, (int)font1_ascii, (int)&font1_offsets, 400, 210, 143, 1u, 180, 640);
-    copypic((char *)scrbuf, (int)screen);
-    rec_status = 0;
-    frames = 0;
+    sprintf(buffer, "%s %s", &language_buffer[7744], rec_mes_name);// Format message header with sender name
+    iRecMesWidth = stringwidth(rec_mes_buf);    // Calculate width of the actual message text
+    iBufStrWidth = stringwidth(buffer);         // Calculate width of the header (sender info)
+    if (iBufStrWidth > iRecMesWidth)          // Use the wider of the two strings for window width
+      iRecMesWidth = iBufStrWidth;
+    iWindowLeft = 400 - iRecMesWidth / 2;       // Calculate left edge of window (center at x=400)
+    if (iWindowLeft < 180)                    // Ensure window doesn't go too far left (min x=180)
+      iWindowLeft = 180;
+    iWindowRight = iRecMesWidth / 2 + 408;      // Calculate right edge of window
+    iAdjustedLeft = iWindowLeft - 8;
+    if (iWindowRight > 639)                   // Ensure window doesn't go past screen edge (max x=639)
+      iWindowRight = 639;
+    blankwindow(iAdjustedLeft / 2, 86, iWindowRight / 2, 118);// Draw message window background (coordinates are halved for some reason)
+    scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 400, 180, 143, 1u, 180, 640);// Draw sender info text at y=180
+    scale_text((tBlockHeader *)front_vga[15], rec_mes_buf, font1_ascii, font1_offsets, 400, 210, 143, 1u, 180, 640);// Draw message text at y=210
+    copypic(scrbuf, screen);                    // Copy rendered screen buffer to display
+    rec_status = 0;                             // Clear message received flag
+    frames = 0;                                 // Reset frame counter for message display duration
     do {
       if (time_to_start)
         break;
@@ -5403,8 +5404,9 @@ void show_received_mesage()
         if (!fatgetch())
           fatgetch();
       }
-    } while (frames < 72);
-    if (frames >= 72 && !time_to_start) {
+    } while (frames < 72);                      // Show message for at least 72 frames
+    if (frames >= 72 && !time_to_start)       // After 72 frames, wait for any key press to dismiss
+    {
       while (!fatkbhit() && !time_to_start)
         ;
       while (fatkbhit() && !time_to_start) {
@@ -5412,8 +5414,8 @@ void show_received_mesage()
           fatgetch();
       }
     }
-    frames = 0;
-  }*/
+    frames = 0;                                 // Reset frame counter when done
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

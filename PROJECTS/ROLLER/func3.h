@@ -6,11 +6,13 @@
 
 extern char save_slots[4][13];
 extern int send_message_to;
+extern int rec_status;
 extern char rec_mes_buf[32];
 extern int result_order[16];
 extern int result_design[16];
 extern int result_control[16];
 extern int send_status;
+extern char rec_mes_name[12];
 extern int restart_net;
 
 //-------------------------------------------------------------------------------------------------
