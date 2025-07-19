@@ -931,7 +931,7 @@ void ROLLERRemoveTimer(uint32 uiHandle)
 int ROLLERfilelength(const char *szFile)
 {
 #ifdef IS_WINDOWS
-  int iFileHandle = ROLLERopen("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  int iFileHandle = ROLLERopen(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   int iSize = _filelength(iFileHandle);
 
   if (iFileHandle == -1)
@@ -940,7 +940,7 @@ int ROLLERfilelength(const char *szFile)
   close(iFileHandle);
   return iSize;
 #else
-  FILE *fp = ROLLERfopen("PASSWORD.INI", "rb");
+  FILE *fp = ROLLERfopen(szFile, "rb");
   if (!fp)
     return -1;
 
@@ -1065,8 +1065,16 @@ void ReplaceExtension(char *szFilename, const char *szNewExt)
 
 //-------------------------------------------------------------------------------------------------
 
-void ErrorBoxExit(const char *szErrorMsg)
+void ErrorBoxExit(const char *szErrorMsgFormat, ...)
 {
+  va_list args;
+  va_start(args, szErrorMsgFormat);
+  char szErrorMsg[2048];
+  int iLen = vsnprintf(szErrorMsg, sizeof(szErrorMsg) - 1, szErrorMsgFormat, args);
+  if (iLen >= 0)
+    szErrorMsg[iLen] = '\0';
+  va_end(args);
+
   SDL_ShowMessageBox(&(SDL_MessageBoxData)
   {
     .title = "ROLLER",

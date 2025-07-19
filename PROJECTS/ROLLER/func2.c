@@ -4330,8 +4330,9 @@ void load_language_file(char *szFilename, int iUseConfigBuffer)
   }
   pFile = ROLLERfopen(szFilename, "r");
   if (!pFile) {
-    printf("Unable to open file: %s\n", szFilename);
-    doexit(1);
+    ErrorBoxExit("Unable to open file: %s", szFilename);
+    //printf("Unable to open file: %s\n", szFilename);
+    //doexit(1);
   }
 
   int iEndFound = 0;

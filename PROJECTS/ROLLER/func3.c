@@ -4548,8 +4548,9 @@ uint8 *load_picture(const char *szFile)
 
   iFileHandle = ROLLERopen(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
-    printf("Unable to open texture map data file %s\n\n", szFile);
-    doexit();
+    ErrorBoxExit("Unable to open texture map data file %s", szFile);
+    //printf("Unable to open texture map data file %s\n\n", szFile);
+    //doexit();
     return NULL;
   }
   close(iFileHandle);

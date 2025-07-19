@@ -3855,6 +3855,7 @@ int getcompactedfilelength(const char *szFile)
   int iLength; // [esp+0h] [ebp-14h] BYREF
 
   pFile = ROLLERfopen(szFile, "rb");
+  if (!pFile) ErrorBoxExit("Could not open file %s", szFile);
   fread(&iLength, 1u, 4u, pFile);
   fclose(pFile);
   return iLength;
@@ -3868,6 +3869,7 @@ int initmangle(const char *szFile)
   unmanglebufpos = 4;
   unmangleoverflow = 0;
   unmanglefile = ROLLERfopen(szFile, "rb");
+  if (!unmanglefile) ErrorBoxExit("Could not open file %s", szFile);
   fseek(unmanglefile, unmanglebufpos, 0);
   return (int)fread(unmangleinbuf, 1u, 0x400u, unmanglefile);
 }

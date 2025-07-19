@@ -484,8 +484,9 @@ void LoadPanel()
       // Check if file exists
       iFileHandle = ROLLERopen(szRevFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
       if (iFileHandle == -1) {
-        printf("Unable to open %s\n\n", szRevFile);
-        doexit();
+        ErrorBoxExit("Unable to open %s", szRevFile);
+        //printf("Unable to open %s\n\n", szRevFile);
+        //doexit();
       }
       close(iFileHandle);
 
@@ -506,8 +507,9 @@ void LoadPanel()
       // Check if file exists
       iFileHandle = ROLLERopen(revs_files1[iRevIdx], O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
       if (iFileHandle == -1) {
-        printf("Unable to open %s\n\n", szRevFile);
-        doexit();
+        ErrorBoxExit("Unable to open %s", szRevFile);
+        //printf("Unable to open %s\n\n", szRevFile);
+        //doexit();
       }
       close(iFileHandle);
 
@@ -566,8 +568,9 @@ void LoadGenericCarTextures()
   // Check if generic car texture file exists
   iFileHandle = ROLLERopen(gencartex_name, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
-    printf("Unable to open texture map data file <%s>\n\n", gencartex_name);
-    doexit();
+    ErrorBoxExit("Unable to open texture map data file <%s>", gencartex_name);
+    //printf("Unable to open texture map data file <%s>\n\n", gencartex_name);
+    //doexit();
   }
   close(iFileHandle);
 
@@ -676,8 +679,9 @@ void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
   // Check if file exists
   iFileHandle = ROLLERopen(szTexFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
-    printf("Unable to open texture map data file <%s>\n\n", szTexFile);
-    doexit();
+    ErrorBoxExit("Unable to open texture map data file <%s>", szTexFile);
+    //printf("Unable to open texture map data file <%s>\n\n", szTexFile);
+    //doexit();
   }
   close(iFileHandle);
 
@@ -850,8 +854,9 @@ void LoadBldTextures()
   // Check if bld file exists
   iFileHandle = ROLLERopen(bldtex_file, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
-    printf("Unable to open bld texture map data file\n\n");
-    doexit();
+    ErrorBoxExit("Unable to open bld texture map data file");
+    //printf("Unable to open bld texture map data file\n\n");
+    //doexit();
   }
   close(iFileHandle);
 
@@ -928,8 +933,9 @@ void LoadTextures()
   // Check if tex file exists
   iFileHandle = ROLLERopen(texture_file, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
   if (iFileHandle == -1) {
-    printf("Unable to open texture map data file\n\n");
-    doexit();
+    ErrorBoxExit("Unable to open texture map data file");
+    //printf("Unable to open texture map data file\n\n");
+    //doexit();
   }
   close(iFileHandle);
 
