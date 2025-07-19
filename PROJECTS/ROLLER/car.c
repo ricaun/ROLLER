@@ -40,6 +40,7 @@ tCarBox CarBox;                 //0017F2F0
 tCar Car[16];                   //0017F8F0
 int car_persps[128];            //00180C30
 int car_texs_loaded[16];        //00181E30
+char driver_names[16][9];       //00188170
 tStoreEngine StoreEngines[14];  //00188200
 int finished_car[16];           //00188470
 int grid[16];                   //001884B0

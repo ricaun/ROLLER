@@ -4,9 +4,12 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern char save_slots[4][13];
 extern int send_message_to;
 extern char rec_mes_buf[32];
 extern int result_order[16];
+extern int result_design[16];
+extern int result_control[16];
 extern int send_status;
 extern int restart_net;
 
@@ -34,10 +37,10 @@ void *championship_winner(int a1, int a2, int a3, char *a4);
 int print_mem_used();
 uint8 *try_load_picture(const char *szFile);
 void *save_champ(int a1);
-int load_champ(int a1);
-uint8 *lod_champ_char(uint8 *a1, void *a2);
-void *sav_champ_char(int *a1, void *a2);
-int sav_champ_int(int a1, int a2);
+int load_champ(int iSlot);
+uint8 *lod_champ_char(uint8 *pSrc, int *piValue);
+uint8 *sav_champ_char(uint8 *pSrc, int *piValue); //actually loads an int
+uint8 *sav_champ_int(uint8 *pDest, int iValue);
 int check_saves(int a1, int a2, int a3);
 void ResultRoundUp(int a1, int a2, int a3, char *a4);
 int RollCredits(void *a1, void *a2, unsigned int a3);

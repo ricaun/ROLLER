@@ -154,6 +154,7 @@ extern tCarBox CarBox;
 extern tCar Car[16];
 extern int car_persps[128];
 extern int car_texs_loaded[16];
+extern char driver_names[16][9];
 extern tStoreEngine StoreEngines[14];
 extern int finished_car[16];
 extern int grid[16];

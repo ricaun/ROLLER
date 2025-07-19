@@ -11,6 +11,10 @@
 #include "polytex.h"
 #include "drawtrk3.h"
 #include "func2.h"
+#include "network.h"
+#include "colision.h"
+#include "control.h"
+#include "comms.h"
 #include <memory.h>
 #include <fcntl.h>
 #include <math.h>
@@ -25,9 +29,18 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
+char save_slots[4][13] =  //000A6234
+{
+  "champ1.sav",
+  "champ2.sav",
+  "champ3.sav",
+  "champ4.sav"
+};
 int send_message_to = -1; //000A6394
 char rec_mes_buf[32];     //00188530
 int result_order[16];     //00188610
+int result_design[16];    //00188690
+int result_control[16];   //00188750
 int send_status;          //00188810
 int restart_net;          //00188828
 
@@ -2815,470 +2828,545 @@ void *save_champ(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int load_champ(int a1)
+// Load championship save game from specified slot - restores all game state, player data, and statistics
+int load_champ(int iSlot)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int v1; // edx
-  int v2; // ecx
-  __int64 v3; // rax
-  int v4; // esi
-  char *v5; // eax
-  char v6; // cl
-  int i; // edx
-  char v8; // ch
-  int v9; // edi
-  char v10; // al
-  int v11; // edx
-  int v12; // ecx
-  _BYTE *v13; // ebx
-  int j; // eax
-  char v15; // dl
-  unsigned __int8 *v16; // ebx
-  int *v17; // ecx
-  int v18; // edx
-  int v19; // ebx
-  _DWORD *v20; // edx
-  int v21; // eax
-  int v22; // esi
-  int v23; // eax
-  int v24; // ebp
-  int v25; // ecx
-  int *v26; // edx
-  int v27; // eax
-  _DWORD *v28; // edx
-  int v29; // eax
-  int *v30; // ecx
-  int *v31; // esi
-  int *v32; // ebx
-  int *v33; // edi
-  int v34; // ebp
-  int *v35; // edx
-  int v36; // ebp
-  int *v37; // ebx
-  int *v38; // eax
-  int *v39; // esi
-  int *v40; // ecx
-  int v41; // edi
-  int *v42; // edx
-  int v43; // edi
-  int v44; // edi
-  int k; // ecx
-  int v46; // eax
-  char v47; // bl
-  _BYTE *v48; // edx
-  char *v49; // ebx
-  int v50; // eax
-  int *v51; // edx
-  int v52; // eax
-  int v53; // eax
-  int v54; // eax
-  char *v55; // edx
-  int m; // eax
-  char v57; // bl
-  char *v58; // edx
-  char v59; // bl
-  char v60; // bl
-  char v61; // bl
-  int v62; // esi
-  char *v63; // ebp
-  int v64; // edi
-  char *v65; // edx
-  char *v66; // eax
-  char v67; // cl
-  int v68; // edi
-  int v69; // esi
-  char *v70; // ebp
-  int v71; // eax
-  int v72; // edx
-  int v73; // eax
-  int v74; // ebx
-  char *v75; // edx
-  char *v76; // eax
-  char v77; // cl
-  int v78; // edx
-  unsigned int v79; // edi
-  int v80; // edi
-  signed int v81; // esi
-  int v82; // edx
-  unsigned int v83; // ecx
-  int n; // eax
-  int v85; // ebp
-  int v86; // edi
-  int v87; // eax
-  int v88; // ecx
-  int v89; // edx
-  int v90; // edx
-  int v91; // eax
-  int Type; // eax
-  char *v94; // [esp+0h] [ebp-30h] BYREF
-  int v95; // [esp+4h] [ebp-2Ch]
-  int *v96; // [esp+8h] [ebp-28h]
-  int v97; // [esp+Ch] [ebp-24h]
-  char *v98; // [esp+10h] [ebp-20h]
-  signed int v99; // [esp+14h] [ebp-1Ch]
+  int iFileHandle; // edx
+  int iFileLength; // esi
+  char *pbyCurrentPos; // eax
+  char byChecksum; // cl
+  int iChecksumLoop; // edx
+  char byCurrentByte; // ch
+  int iSavedRacers; // edi
+  char byGameSettings; // al
+  //uint32 uiTempCheatMode; // edx
+  //uint32 uiTempCheatMode2; // ecx
+  uint8 *pbyPlayerData; // ebx
+  int i; // eax
+  uint8 byPlayerByte; // dl
+  uint8 *pbyNextPlayerByte; // ebx
+  int *piDataPointer; // ecx
+  int iPlayerSecondByte; // edx
+  int iBitFlag; // ebx
+  int *piNextData; // edx
+  int iNonCompetitorFlags; // eax
+  //int iArraySize; // esi
+  //int iByteOffset; // eax
+  int iFlags; // ebp
+  int iFlagCheck; // ecx
+  int *piStatsPointer; // edx
+  int iNetType; // eax
+  int *piTeamStatsPointer; // edx
+  int iStatsLoop; // eax
+  int *piTotalWinsPtr; // ecx
+  int *piTotalFastsPtr; // esi
+  int *piTotalKillsPtr; // ebx
+  int *piChampionshipPointsPtr; // edi
+  int iTeamStatsValue; // ebp
+  int *piNextTeamData; // edx
+  int iSecondTeamValue; // ebp
+  int *piTeamWinsPtr; // ebx
+  int *piTeamPointsPtr; // eax
+  int *piTeamFastsPtr; // esi
+  int *piTeamKillsPtr; // ecx
+  int iCurrentTeamValue; // edi
+  int *piTeamDataPtr; // edx
+  int iTeamKillsValue; // edi
+  //int iNameArrayOffset; // edi
+  //int iPlayerLoop; // ecx
+  //int iNameIndex; // eax
+  //char byNameChar; // bl
+  //uint8 *pbyNamePtr; // edx
+  char *pszTempPointer; // ebx
+  int iSerialPortValue; // eax
+  int *piModemDataPtr; // edx
+  int iModemPortValue; // eax
+  int iModemCallValue; // eax
+  int iModemBaudValue; // eax
+  char *pszPhonePtr; // edx
+  //int j; // eax
+  //char byPhoneChar1; // bl
+  //char *pszPhoneCharPtr; // edx
+  //char byPhoneChar2; // bl
+  //char byPhoneChar3; // bl
+  //char byPhoneChar4; // bl
+  int iDriverLoop; // esi
+  char *pszDriverNamePtr; // ebp
+  int iDriverIndex; // edi
+  char *pszSourceNamePtr; // edx
+  char *pszDefaultNamePtr; // eax
+  char byDriverNameChar; // cl
+  int iHumanPlayerLoop; // edi
+  int iPlayerCarIndex; // esi
+  char *pszPlayerNamePtr; // ebp
+  int iPlayerCarValue; // eax
+  int iCarSlotIndex; // edx
+  int iHumanControlLoop; // eax
+  int iControlCheck; // ebx
+  char *pszTargetNamePtr; // edx
+  char *pszSourcePlayerPtr; // eax
+  char byPlayerNameChar; // cl
+  //int iControlArraySize; // edx
+  //unsigned int uiControlLoop; // edi
+  int iCompetitorCount; // edi
+  signed int iCompetitorCheck; // esi
+  //int iOrderSearchStart; // edx
+  //unsigned int uiOrderByteOffset; // ecx
+  //int k; // eax
+  int iHighestPoints; // ecx
+  //int iSortCurrentIndex; // ebp
+  //int iSortTotalRacers; // edi
+  //int iSortSearchIndex; // eax
+  //int iSortCompareIndex; // edx
+  //int iSwapTempValue; // edx
+  //int iNextSortIndex; // eax
+  uint8 *pFileBuf; // [esp+0h] [ebp-30h] BYREF
+  int iChecksumOk; // [esp+4h] [ebp-2Ch]
+  int *piTeamPointsEnd; // [esp+8h] [ebp-28h]
+  int iFlags2; // [esp+Ch] [ebp-24h]
+  char *pszDefaultNameEnd; // [esp+10h] [ebp-20h]
+  signed int iSortIndex; // [esp+14h] [ebp-1Ch]
 
-  v1 = open(&save_slots[13 * a1 - 13], 512);
-  v2 = v1;
-  v95 = 0;
-  if (v1 != -1) {
-    v94 = (char *)getbuffer(0x800u);
-    v3 = filelength(v1, v1, 0);
-    v4 = v3;
-    if ((_DWORD)v3 == 795) {
-      v3 = __PAIR64__((unsigned int)v94, HIDWORD(v3));
-      read(v3, v94, 795);
-    }
-    close(v2, HIDWORD(v3));
-    if (v4 == 795) {
-      v5 = v94;
-      v6 = 0;
-      for (i = 0; i < 794; ++i) {
-        v8 = *v5++;
-        v6 += v8;
+  iFileHandle = open(save_slots[iSlot - 1], 0x200);// Open save file for specified slot (1-4) and initialize return value
+  iChecksumOk = 0;
+  if (iFileHandle != -1) {
+    pFileBuf = (uint8 *)getbuffer(0x800u);      // Allocate buffer and read save file (expected size: 795 bytes)
+    iFileLength = _filelength(iFileHandle);
+    if (iFileLength == 795)
+      _read(iFileHandle, pFileBuf, 795);
+    close(iFileHandle);
+    if (iFileLength == 795) {
+      pbyCurrentPos = (char *)pFileBuf;         // CHECKSUM VALIDATION: Calculate checksum of first 794 bytes
+      byChecksum = 0;
+      for (iChecksumLoop = 0; iChecksumLoop < 794; ++iChecksumLoop) {
+        byCurrentByte = *pbyCurrentPos++;
+        byChecksum += byCurrentByte;
       }
-      if (*v5 == v6)
-        v95 = -1;
+      if (*pbyCurrentPos == byChecksum)       // Verify checksum matches byte 795 - if valid, proceed with load
+        iChecksumOk = -1;
     }
-    if (v95) {
-      v9 = racers;
+    if (iChecksumOk) {
+      iSavedRacers = racers;                    // NETWORK CLEANUP: Disconnect from network before loading saved state
       broadcast_mode = -666;
       while (broadcast_mode)
         ;
       tick_on = 0;
-      TrackLoad = (unsigned __int8)*v94;
-      v10 = v94[1];
-      competitors[0] = v10 & 0x1F;
-      if ((v10 & 0x20) != 0)
-        textures_off |= (unsigned int)cstart_branch_1;
+      TrackLoad = *pFileBuf;                    // BASIC GAME SETTINGS: Load track, competitors, texture/cheat flags
+      byGameSettings = pFileBuf[1];
+      competitors = byGameSettings & 0x1F;      // Parse game settings byte: bits 0-4=competitors, bit 5=textures, bit 6=cheat, bit 7=network cheat
+      if ((byGameSettings & 0x20) != 0)
+        textures_off |= 0x10000u;
       else
         textures_off &= ~0x10000u;
-      if ((v10 & 0x40) != 0) {
-        v11 = cheat_mode;
-        LOBYTE(v11) = cheat_mode | 2;
-        cheat_mode = v11;
+      if ((byGameSettings & 0x40) != 0) {
+        cheat_mode |= CHEAT_MODE_DEATH_MODE;
       } else {
-        cheat_mode &= ~2u;
+        cheat_mode &= ~CHEAT_MODE_DEATH_MODE;
       }
-      if (v10 >= 0) {
-        v12 = cheat_mode;
-        BYTE1(v12) = BYTE1(cheat_mode) & 0xFD;
-        cheat_mode = v12;
+      if (byGameSettings >= 0) {
+        //uiTempCheatMode2 = cheat_mode;
+        //BYTE1(uiTempCheatMode2) = BYTE1(cheat_mode) & 0xFD;
+        cheat_mode &= ~CHEAT_MODE_KILLER_OPPONENTS;// uiTempCheatMode2;
       } else {
-        cheat_mode |= 0x200u;
+        cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
       }
-      players = (unsigned __int8)v94[2];
-      level = (unsigned __int8)v94[3];
-      damage_level = (unsigned __int8)v94[4];
-      player_type = (unsigned __int8)v94[5];
-      v13 = v94 + 7;
-      my_number = (unsigned __int8)v94[6];
-      for (j = 0; j != 16; competitors[j] = v18) {
-        v15 = *v13;
-        v16 = v13 + 1;
-        infinite_laps[++j] = v15 & 0x1F;
-        player_started_variable_2[j] = ((v15 & 0x40) == 0) - 1;
-        v17 = (int *)(v16 + 1);
-        v18 = *v16;
-        v13 = v16 + 1;
+      players = pFileBuf[2];                    // Load player count, difficulty level, damage level, and player type
+      level = pFileBuf[3];
+      damage_level = pFileBuf[4];
+      player_type = pFileBuf[5];
+      pbyPlayerData = pFileBuf + 7;
+      my_number = pFileBuf[6];
+
+      // for (int i = 0; i < 16; i++) {
+      //     byPlayerByte = *pbyPlayerData++;
+      //     iPlayerSecondByte = *pbyPlayerData++;
+      //     
+      //     // Store player car selection (bits 0-4 of first byte)
+      //     Players_Cars[i] = byPlayerByte & 0x1F;
+      //     
+      //     // Store player invulnerability status (bit 6: 0=invulnerable, 1=vulnerable)
+      //     player_invul[i] = ((byPlayerByte & 0x40) == 0) ? -1 : 0;
+      //     
+      //     // Store manual control flags for this player
+      //     manual_control[i] = iPlayerSecondByte;
+      //     
+      //     // Update data pointer to current position (as int pointer for next section)
+      //     piDataPointer = (int *)pbyPlayerData;
+      // }
+      for (i = 0; i != 16; *(int *)((char *)&competitors + i * 4) = iPlayerSecondByte)// Load 16 players' car choices and starting status
+      {
+        byPlayerByte = *pbyPlayerData;
+        pbyNextPlayerByte = pbyPlayerData + 1;
+        *(int *)((char *)&infinite_laps + ++i * 4) = byPlayerByte & 0x1F;
+        player_started[i + 15] = ((byPlayerByte & 0x40) == 0) - 1;
+        piDataPointer = (int *)(pbyNextPlayerByte + 1);
+        iPlayerSecondByte = *pbyNextPlayerByte;
+        pbyPlayerData = pbyNextPlayerByte + 1;
       }
-      v19 = 1;
-      v20 = v17 + 1;
-      v21 = *v17;
-      racers = v9;
-      v97 = v21;
-      if (numcars > 0) {
-        v22 = 4 * numcars;
-        v23 = 0;
-        v24 = v97;
+
+      iBitFlag = 1;
+      piNextData = piDataPointer + 1;
+      iNonCompetitorFlags = *piDataPointer;
+      racers = iSavedRacers;
+      iFlags2 = iNonCompetitorFlags;
+      if (numcars > 0)                        // NON-COMPETITOR FLAGS: Parse bit flags to determine which cars are competitors
+      {
+        if (numcars > 0) {
+            for (int i = 0; i < numcars; i++) {
+                // Check if bit i is set in the flags - if clear, car is a non-competitor
+                iFlagCheck = ((iFlags & iBitFlag) == 0) ? -1 : 0;
+                non_competitors[i] = iFlagCheck;
+                iBitFlag *= 2;  // Move to next bit position
+            }
+        }
+        //iArraySize = 4 * numcars;
+        //iByteOffset = 0;
+        //iFlags = iFlags2;
+        //do {
+        //  iByteOffset += 4;
+        //  iFlagCheck = ((iFlags & iBitFlag) == 0) - 1;
+        //  iBitFlag *= 2;
+        //  TrackArrow_variable_1[iByteOffset / 4u] = iFlagCheck;// offset into non_competitors
+        //} while (iByteOffset < iArraySize);
+      }
+      piStatsPointer = piNextData + 1;
+      network_champ_on = *(piStatsPointer++ - 1);// NETWORK SETTINGS: Load network championship flag, slot, and type
+      network_slot = *(piStatsPointer - 1);
+      iNetType = *piStatsPointer;
+      piTeamStatsPointer = piStatsPointer + 1;
+      net_type = iNetType;
+      //gssCommsSetType(iNetType);
+      iStatsLoop = 0;
+      if (numcars > 0)                        // INDIVIDUAL STATISTICS: Load championship points, kills, fastest laps, wins for each car
+      {
+        piTotalWinsPtr = total_wins;
+        piTotalFastsPtr = total_fasts;
+        piTotalKillsPtr = total_kills;
+        piChampionshipPointsPtr = championship_points;
         do {
-          v23 += 4;
-          v25 = ((v24 & v19) == 0) - 1;
-          v19 *= 2;
-          TrackArrow_variable_1[v23 / 4u] = v25;
-        } while (v23 < v22);
+          iTeamStatsValue = *piTeamStatsPointer;
+          piNextTeamData = piTeamStatsPointer + 1;
+          ++piTotalWinsPtr;
+          *piChampionshipPointsPtr = iTeamStatsValue;
+          ++piTotalKillsPtr;
+          ++piTotalFastsPtr;
+          *(piTotalKillsPtr - 1) = *piNextTeamData;
+          ++piChampionshipPointsPtr;
+          iSecondTeamValue = piNextTeamData[1];
+          ++piNextTeamData;
+          *(piTotalFastsPtr - 1) = iSecondTeamValue;
+          ++iStatsLoop;
+          *(piTotalWinsPtr - 1) = piNextTeamData[1];
+          piTeamStatsPointer = piNextTeamData + 2;
+        } while (iStatsLoop < numcars);
       }
-      v26 = v20 + 1;
-      network_champ_on = *(v26++ - 1);
-      network_slot = *(v26 - 1);
-      v27 = *v26;
-      v28 = v26 + 1;
-      net_type = v27;
-      gssCommsSetType(v27);
-      v29 = 0;
-      if (numcars > 0) {
-        v30 = total_wins;
-        v31 = total_fasts;
-        v32 = total_kills;
-        v33 = championship_points;
-        do {
-          v34 = *v28;
-          v35 = v28 + 1;
-          ++v30;
-          *v33 = v34;
-          ++v32;
-          ++v31;
-          *(v32 - 1) = *v35;
-          ++v33;
-          v36 = v35[1];
-          ++v35;
-          *(v31 - 1) = v36;
-          ++v29;
-          *(v30 - 1) = v35[1];
-          v28 = v35 + 2;
-        } while (v29 < numcars);
-      }
-      v37 = team_wins;
-      v38 = team_points;
-      v39 = team_fasts;
-      v40 = team_kills;
-      v96 = &team_points[8];
+      piTeamWinsPtr = team_wins;                // TEAM STATISTICS: Load team points, kills, fastest laps, wins for 8 teams
+      piTeamPointsPtr = team_points;
+      piTeamFastsPtr = team_fasts;
+      piTeamKillsPtr = team_kills;
+      piTeamPointsEnd = &team_points[8];
       do {
-        v41 = *v28;
-        v42 = v28 + 1;
-        *v38 = v41;
-        ++v37;
-        ++v39;
-        *v40++ = *v42;
-        v43 = v42[1];
-        ++v42;
-        *(v39 - 1) = v43;
-        ++v38;
-        *(v37 - 1) = v42[1];
-        v28 = v42 + 2;
-      } while (v38 != v96);
-      v44 = 9;
-      for (k = 0; k < 16; ++k) {
-        v46 = 9 * k;
-        do {
-          v47 = *(_BYTE *)v28;
-          v48 = (char *)v28 + 1;
-          default_names[v46] = v47;
-          v49 = v48;
-          ++v46;
-          LOBYTE(v49) = *v48;
-          v28 = v48 + 1;
-          cheat_names_variable_1[v46] = (char)v49;
-        } while (v46 != v44);
-        v44 += 9;
+        iCurrentTeamValue = *piTeamStatsPointer;
+        piTeamDataPtr = piTeamStatsPointer + 1;
+        *piTeamPointsPtr = iCurrentTeamValue;
+        ++piTeamWinsPtr;
+        ++piTeamFastsPtr;
+        *piTeamKillsPtr++ = *piTeamDataPtr;
+        iTeamKillsValue = piTeamDataPtr[1];
+        ++piTeamDataPtr;
+        *(piTeamFastsPtr - 1) = iTeamKillsValue;
+        ++piTeamPointsPtr;
+        *(piTeamWinsPtr - 1) = piTeamDataPtr[1];
+        piTeamStatsPointer = piTeamDataPtr + 2;
+      } while (piTeamPointsPtr != piTeamPointsEnd);
+
+      // Load 16 players × 9 character names (144 bytes total)
+      char *pbyNameData = (char *)piTeamStatsPointer;
+      for (int player = 0; player < 16; player++) {
+          // Copy 9 characters for this player
+        memcpy(default_names[player], pbyNameData, 9);
+        memcpy(&cheat_names[31][player * 9 + 9], pbyNameData, 9);
+        pbyNameData += 9;
       }
-      v50 = *v28;
-      v51 = v28 + 1;
-      serial_port = v50;
-      v52 = *v51++;
-      modem_port = v52;
-      v53 = *v51++;
-      modem_call = v53;
-      v54 = *v51++;
-      modem_baud = v54;
-      LOBYTE(v54) = *(_BYTE *)v51;
-      v55 = (char *)v51 + 1;
-      modem_phone[0] = v54;
-      for (m = 1; m <= 50; modem_initstring_variable_1[m] = (char)v49) {
-        v57 = *v55;
-        v58 = v55 + 1;
-        modem_phone[m] = v57;
-        v59 = *v58++;
-        modem_phone_variable_1[m] = v59;
-        v60 = *v58++;
-        modem_phone_variable_2[m] = v60;
-        v61 = *v58++;
-        modem_phone_variable_3[m] = v61;
-        m += 5;
-        LOBYTE(v49) = *v58;
-        v55 = v58 + 1;
-      }
-      v62 = 0;
-      if (numcars > 0) {
-        v63 = driver_names;
-        v64 = 0;
-        v98 = &default_names[9];
+      piTeamStatsPointer = (int *)pbyNameData;
+      //iNameArrayOffset = 9;
+      //for (iPlayerLoop = 0; iPlayerLoop < 16; ++iPlayerLoop)// PLAYER NAMES: Load 16 players × 9 character names (144 bytes total)
+      //{
+      //  iNameIndex = 9 * iPlayerLoop;
+      //  do {
+      //    byNameChar = *(uint8 *)piTeamStatsPointer;// Copy name bytes to both default_names and cheat_names arrays
+      //    pbyNamePtr = (uint8 *)piTeamStatsPointer + 1;
+      //    default_names[0][iNameIndex] = byNameChar;
+      //    pszTempPointer = (char *)pbyNamePtr;
+      //    ++iNameIndex;
+      //    LOBYTE(pszTempPointer) = *pbyNamePtr;
+      //    piTeamStatsPointer = (int *)(pbyNamePtr + 1);
+      //    cheat_names[31][iNameIndex + 8] = (char)pszTempPointer;
+      //  } while (iNameIndex != iNameArrayOffset);
+      //  iNameArrayOffset += 9;
+      //}
+      iSerialPortValue = *piTeamStatsPointer;   // COMMUNICATION SETTINGS: Load serial port, modem settings, and phone/init strings
+      piModemDataPtr = piTeamStatsPointer + 1;
+      serial_port = iSerialPortValue;
+      iModemPortValue = *piModemDataPtr++;
+      modem_port = iModemPortValue;
+      iModemCallValue = *piModemDataPtr++;
+      modem_call = iModemCallValue;
+      iModemBaudValue = *piModemDataPtr++;
+      modem_baud = iModemBaudValue;
+      iModemBaudValue = *(uint8 *)piModemDataPtr;
+
+      // Load modem phone number and init string (51 chars each, 102 bytes total)
+      memcpy(modem_phone, pszPhonePtr, 51);
+      pszPhonePtr += 51;
+      memcpy(modem_initstring, pszPhonePtr, 51);
+      pszPhonePtr += 51;
+      //pszPhonePtr = (char *)piModemDataPtr + 1;
+      //modem_phone[0] = (uint8)iModemBaudValue;
+      //for (j = 1; j <= 50; modem_initstring[j + 50] = (char)pszTempPointer)// Load modem phone number and init string (51 chars each, 102 bytes total)
+      //{
+      //  byPhoneChar1 = *pszPhonePtr;
+      //  pszPhoneCharPtr = pszPhonePtr + 1;
+      //  modem_phone[j] = byPhoneChar1;
+      //  byPhoneChar2 = *pszPhoneCharPtr++;
+      //  modem_phone[j + 1] = byPhoneChar2;
+      //  byPhoneChar3 = *pszPhoneCharPtr++;
+      //  modem_phone[j + 2] = byPhoneChar3;
+      //  byPhoneChar4 = *pszPhoneCharPtr++;
+      //  modem_phone[j + 3] = byPhoneChar4;
+      //  j += 5;
+      //  LOBYTE(pszTempPointer) = *pszPhoneCharPtr;
+      //  pszPhonePtr = pszPhoneCharPtr + 1;
+      //}
+      iDriverLoop = 0;
+      if (numcars > 0)                        // DRIVER SETUP: Configure AI driver names and human control flags
+      {
+        pszDriverNamePtr = driver_names[0];
+        iDriverIndex = 0;
+        pszDefaultNameEnd = default_names[1];
         do {
-          v49 = v98;
-          human_control[v64] = 0;
-          result_design[v64] = v62 / 2;
-          v65 = v63;
-          v66 = &default_names[9 * v62];
+          pszTempPointer = pszDefaultNameEnd;
+          human_control[iDriverIndex] = 0;      // Initialize AI drivers: clear human control, set car design, copy names
+          result_design[iDriverIndex] = iDriverLoop / 2;
+          pszSourceNamePtr = pszDriverNamePtr;
+          pszDefaultNamePtr = default_names[iDriverLoop];
           do {
-            ++v65;
-            v67 = *v66++;
-            *(v65 - 1) = v67;
-          } while (v66 != v49);
-          v63 += 9;
-          ++v64;
-          ++v62;
-          v98 += 9;
-        } while (v62 < numcars);
+            ++pszSourceNamePtr;
+            byDriverNameChar = *pszDefaultNamePtr++;
+            *(pszSourceNamePtr - 1) = byDriverNameChar;
+          } while (pszDefaultNamePtr != pszTempPointer);
+          pszDriverNamePtr += 9;
+          ++iDriverIndex;
+          ++iDriverLoop;
+          pszDefaultNameEnd += 9;
+        } while (iDriverLoop < numcars);
       }
-      v68 = 0;
-      if (players > 0) {
-        v69 = 0;
-        v70 = &player_names[9];
+      iHumanPlayerLoop = 0;
+      if (players > 0)                        // HUMAN PLAYER SETUP: Configure human players and assign them to cars
+      {
+        iPlayerCarIndex = 0;
+        pszPlayerNamePtr = player_names[1];
         do {
-          v71 = Players_Cars[v69];
-          if (v71 < 8) {
-            v72 = 2 * v71;
-            if (result_control[2 * v71])
-              ++v72;
+          iPlayerCarValue = Players_Cars[iPlayerCarIndex];
+          if (iPlayerCarValue < 8)            // Find available car slot for human player or assign to first available AI slot
+          {
+            iCarSlotIndex = 2 * iPlayerCarValue;
+            if (result_control[2 * iPlayerCarValue])
+              ++iCarSlotIndex;
           } else {
-            v72 = 0;
-            v73 = 0;
+            iCarSlotIndex = 0;
+            iHumanControlLoop = 0;
             if (human_control[0]) {
               do {
-                v74 = human_control_variable_1[v73++];
-                ++v72;
-              } while (v74);
+                iControlCheck = human_control[++iHumanControlLoop];
+                ++iCarSlotIndex;
+              } while (iControlCheck);
             }
           }
-          v49 = v70;
-          human_control[v72] = manual_control[v69];
-          v75 = &driver_names[9 * v72];
-          v76 = &player_names[9 * v68];
+          pszTempPointer = pszPlayerNamePtr;
+          human_control[iCarSlotIndex] = manual_control[iPlayerCarIndex];
+          pszTargetNamePtr = driver_names[iCarSlotIndex];
+          pszSourcePlayerPtr = player_names[iHumanPlayerLoop];
           do {
-            ++v75;
-            v77 = *v76++;
-            *(v75 - 1) = v77;
-          } while (v76 != v70);
-          v70 += 9;
-          ++v69;
-          ++v68;
-        } while (v68 < players);
+            ++pszTargetNamePtr;
+            byPlayerNameChar = *pszSourcePlayerPtr++;
+            *(pszTargetNamePtr - 1) = byPlayerNameChar;
+          } while (pszSourcePlayerPtr != pszPlayerNamePtr);
+          pszPlayerNamePtr += 9;
+          ++iPlayerCarIndex;
+          ++iHumanPlayerLoop;
+        } while (iHumanPlayerLoop < players);
       }
-      if (numcars > 0) {
-        v78 = 4 * numcars;
-        v79 = 0;
-        do {
-          v79 += 4;
-          result_competing_variable_1[v79 / 4] = team_wins_variable_1[v79 / 4];
-        } while ((int)v79 < v78);
+      if (numcars > 0)                        // CONTROL SETUP
+      {
+        for (int i = 0; i < numcars; i++) {
+            result_control[i] = human_control[i];
+        }
+        //iControlArraySize = 4 * numcars;
+        //uiControlLoop = 0;
+        //do {
+        //  uiControlLoop += 4;
+        //  result_competing_variable_1[uiControlLoop / 4] = team_wins[uiControlLoop / 4 + 15];// offset into result_control and human_control
+        //} while ((int)uiControlLoop < iControlArraySize);
       }
-      v80 = competitors[0];
-      v81 = competitors[0];
-      if (competitors[0] == 2) {
-        v80 = players;
+      iCompetitorCount = competitors;           // RACE ORDER SETUP: Build competitor lists and championship standings
+      iCompetitorCheck = competitors;
+      if (competitors == 2) {
+        iCompetitorCount = players;
         if (players < 2)
-          v80 = competitors[0];
+          iCompetitorCount = competitors;
       }
-      v82 = 0;
-      if (v80 > 0) {
-        v81 = 4 * v80;
-        v83 = 0;
-        do {
-          for (n = v82; ; ++n) {
-            v49 = (char *)(v82 + 1);
-            if (!non_competitors[n])
-              break;
-            ++v82;
+
+      // Build competitor order arrays by skipping non-competitors
+      int iCompetitorIndex = 0;
+      int iCarIndex = 0;
+      while (iCompetitorIndex < iCompetitorCount) {
+        if (!non_competitors[iCarIndex]) {
+          result_order[iCompetitorIndex] = iCarIndex;
+          champorder[iCompetitorIndex] = iCarIndex;
+          iCompetitorIndex++;
+        }
+        iCarIndex++;
+      }
+      //iOrderSearchStart = 0;
+      //if (iCompetitorCount > 0) {
+      //  iCompetitorCheck = 4 * iCompetitorCount;
+      //  uiOrderByteOffset = 0;                  // Find next available competitor slot (skip non-competitors)
+      //  do {
+      //    for (k = iOrderSearchStart; ; ++k) {
+      //      pszTempPointer = (char *)(iOrderSearchStart + 1);
+      //      if (!non_competitors[k])
+      //        break;
+      //      ++iOrderSearchStart;
+      //    }
+      //    result_order[uiOrderByteOffset / 4] = iOrderSearchStart;
+      //    champorder[uiOrderByteOffset / 4] = iOrderSearchStart;
+      //    uiOrderByteOffset += 4;
+      //    ++iOrderSearchStart;
+      //  } while ((int)uiOrderByteOffset < iCompetitorCheck);
+      //}
+      iHighestPoints = 0;
+      racers = iCompetitorCount;
+      iSortIndex = 0;
+      if (iCompetitorCount > 0)               // CHAMPIONSHIP STANDINGS: Sort players by championship points (bubble sort)
+      {
+
+        // Selection sort: Sort racers by championship points (highest to lowest)
+        for (int iCurrentIndex = 0; iCurrentIndex < racers - 1; iCurrentIndex++) {
+            // Find the racer with the highest points in the remaining unsorted portion
+          int iBestIndex = iCurrentIndex;
+          int iHighestPoints = championship_points[champorder[iCurrentIndex]];
+
+          for (int iSearchIndex = iCurrentIndex + 1; iSearchIndex < racers; iSearchIndex++) {
+            if (championship_points[champorder[iSearchIndex]] > iHighestPoints) {
+              iBestIndex = iSearchIndex;
+              iHighestPoints = championship_points[champorder[iSearchIndex]];
+            }
           }
-          result_order[v83 / 4] = v82;
-          champorder[v83 / 4] = v82;
-          v83 += 4;
-          ++v82;
-        } while ((int)v83 < v81);
-      }
-      racers = v80;
-      v99 = 0;
-      if (v80 > 0) {
-        v85 = 0;
-        do {
-          v81 = v99;
-          v86 = racers;
-          v87 = v99 + 1;
-          v88 = championship_points[champorder[v85]];
-          if (v99 + 1 < racers) {
-            v89 = v87;
-            do {
-              v49 = (char *)championship_points[champorder[v89]];
-              if ((int)v49 > v88) {
-                v81 = v87;
-                v88 = championship_points[champorder[v89]];
-              }
-              ++v87;
-              ++v89;
-            } while (v87 < racers);
+
+          // Swap the current position with the highest scoring racer found
+          if (iBestIndex != iCurrentIndex) {
+            int iTempChamp = champorder[iCurrentIndex];
+            champorder[iCurrentIndex] = champorder[iBestIndex];
+            champorder[iBestIndex] = iTempChamp;
+
+            // Also swap in teamorder array (offset by 8)
+            int iTempTeam = teamorder[iCurrentIndex + 8];
+            teamorder[iCurrentIndex + 8] = teamorder[iBestIndex + 8];
+            teamorder[iBestIndex + 8] = iTempTeam;
           }
-          v90 = teamorder_variable_1[++v85];
-          teamorder_variable_1[v85] = champorder[v81];
-          racers = v86;
-          v91 = v99 + 1;
-          champorder[v81] = v90;
-          v99 = v91;
-        } while (v86 > v91);
+        }
+
+        //iSortCurrentIndex = 0;
+        //do {
+        //  iCompetitorCheck = iSortIndex;
+        //  iSortTotalRacers = racers;
+        //  iSortSearchIndex = iSortIndex + 1;
+        //  iHighestPoints = championship_points[champorder[iSortCurrentIndex]];
+        //  if (iSortIndex + 1 < racers) {
+        //    iSortCompareIndex = iSortSearchIndex;
+        //    do {
+        //      pszTempPointer = (char *)championship_points[champorder[iSortCompareIndex]];
+        //      if ((int)pszTempPointer > iHighestPoints) {
+        //        iCompetitorCheck = iSortSearchIndex;
+        //        iHighestPoints = championship_points[champorder[iSortCompareIndex]];
+        //      }
+        //      ++iSortSearchIndex;
+        //      ++iSortCompareIndex;
+        //    } while (iSortSearchIndex < racers);
+        //  }
+        //  iSwapTempValue = teamorder[++iSortCurrentIndex + 7];
+        //  teamorder[iSortCurrentIndex + 7] = champorder[iCompetitorCheck];
+        //  racers = iSortTotalRacers;
+        //  iNextSortIndex = iSortIndex + 1;
+        //  champorder[iCompetitorCheck] = iSwapTempValue;
+        //  iSortIndex = iNextSortIndex;
+        //} while (iSortTotalRacers > iNextSortIndex);
       }
-      Race = ((_BYTE)TrackLoad - 1) & 7;
+      Race = ((uint8)TrackLoad - 1) & 7;        // FINALIZATION: Set race number, enable game timer, configure network
       tick_on = -1;
-      Type = gssCommsGetType();
-      if (Type) {
-        Type = gssCommsUnInitSystem(Type);
-        network_on = 0;
-        net_started = 0;
-      }
-      if (player_type == 1 && net_type == 1)
-        Type = select_comport(3u, v49, v81);
-      if (player_type == 1 && net_type == 2)
-        Type = select_modemstuff(4);
+      //TODO
+      //if (gssCommsGetType())                  // NETWORK RESTORATION: Reinitialize network connections if saved game used networking
+      //{
+      //  iHighestPoints = 0;
+      //  gssCommsUnInitSystem();
+      //  network_on = 0;
+      //  net_started = 0;
+      //}
+      //TODO
+      //if (player_type == 1 && net_type == 1)
+      //  select_comport(3, iOrderSearchStart, (unsigned int)pszTempPointer, iHighestPoints);
+      //if (player_type == 1 && net_type == 2)
+      //  select_modemstuff(4);
       if (network_on) {
         if (player_type == 1) {
           reset_network(0);
         } else {
-          close_network(Type, 0, (int)v49);
+          close_network();
           time_to_start = 0;
         }
       } else if (player_type == 1 && net_type != 2) {
         Initialise_Network(0);
       }
     }
-    fre(&v94);
+    fre((void **)&pFileBuf);                    // Cleanup: Free file buffer and return success/failure status
   }
-  return v95;*/
+  return iChecksumOk;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-uint8 *lod_champ_char(uint8 *a1, void *a2)
+uint8 *lod_champ_char(uint8 *pSrc, int *piValue)
 {
-  (void)(a1); (void)(a2); return 0;
-  /*
-  int v2; // ebx
-  unsigned __int8 *result; // eax
+  int iValue; // ebx
+  uint8 *pNextPos; // eax
 
-  v2 = *a1;
-  result = a1 + 1;
-  *a2 = v2;
-  return result;*/
+  iValue = *pSrc;
+  pNextPos = pSrc + 1;
+  *piValue = iValue;
+  return pNextPos;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void *sav_champ_char(int *a1, void *a2)
+// MISLEADING NAME: Actually LOADS a 4-byte integer from buffer (should be named load_champ_int)
+uint8 *sav_champ_char(uint8 *pSrc, int *piValue)
 {
-  (void)(a1); (void)(a2); return 0;
-  /*
-  int v2; // ebx
-  _DWORD *result; // eax
+  int iValue; // ebx
+  uint8 *pNextPos; // eax
 
-  v2 = *a1;
-  result = a1 + 1;
-  *a2 = v2;
-  return result;*/
+  iValue = *(int *)pSrc;                     // Read 4-byte integer from buffer at current position
+  pNextPos = pSrc + 4;                          // Advance buffer pointer by 4 bytes to next data position
+  *piValue = iValue;                            // Store loaded value in output parameter
+  return pNextPos;                              // Return advanced buffer pointer for chaining reads
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int sav_champ_int(int a1, int a2)
+uint8 *sav_champ_int(uint8 *pDest, int iValue)
 {
-  (void)(a1); (void)(a2); return 0;
-  /*
-  int v2; // eax
-  int result; // eax
-
-  v2 = a1 + 3;
-  *(_WORD *)(v2 - 3) = a2;
-  result = v2 + 1;
-  *(_BYTE *)(result - 2) = BYTE2(a2);
-  *(_BYTE *)(result - 1) = HIBYTE(a2);
-  return result;*/
+  *(int *)pDest = iValue;  // Write 4-byte integer directly
+  return pDest + 4;        // Return pointer advanced by 4 bytes
 }
 
 //-------------------------------------------------------------------------------------------------
