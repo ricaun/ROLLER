@@ -938,6 +938,7 @@ int ROLLERfilelength(const char *szFile)
     return -1;
 
   close(iFileHandle);
+  return iSize;
 #else
   FILE *fp = ROLLERfopen("PASSWORD.INI", "rb");
   if (!fp)
@@ -947,6 +948,7 @@ int ROLLERfilelength(const char *szFile)
   int iSize = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   fclose(fp);
+  return iSize;
 #endif
 }
 

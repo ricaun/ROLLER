@@ -1672,7 +1672,7 @@ void select_car()
   int byMenuExitFlag; // [esp+40h] [ebp-40h]
   unsigned int uiNetworkPlayerIndex; // [esp+44h] [ebp-3Ch]
   char *szPlayerName; // [esp+48h] [ebp-38h]
-  char *szCurrentCompanyName; // [esp+4Ch] [ebp-34h]
+  char *szCurrentCompanyName = '\0'; // [esp+4Ch] [ebp-34h]
   int iTargetPieValue; // [esp+50h] [ebp-30h]
   int iNextCarIndex; // [esp+58h] [ebp-28h]
   unsigned int uiNetworkLoop; // [esp+5Ch] [ebp-24h]
