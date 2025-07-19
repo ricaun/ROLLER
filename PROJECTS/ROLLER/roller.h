@@ -49,6 +49,7 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode); //tries to open file 
 int ROLLERopen(const char *szFile, int iOpenFlags); //tries to open file with both all caps and all lower case
 uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_NSTimerCallback callback, void *userdata);
 void ROLLERRemoveTimer(uint32 uiHandle);
+int ROLLERfilelength(const char *szFile);
 Uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval);
 Uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval);
 int IsCDROMDevice(const char *szPath);

@@ -927,6 +927,30 @@ void ROLLERRemoveTimer(uint32 uiHandle)
 }
 
 //-------------------------------------------------------------------------------------------------
+
+int ROLLERfilelength(const char *szFile)
+{
+#ifdef IS_WINDOWS
+  int iFileHandle = ROLLERopen("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+  int iSize = _filelength(iFileHandle);
+
+  if (iFileHandle == -1)
+    return -1;
+
+  close(iFileHandle);
+#else
+  fp = ROLLERfopen("PASSWORD.INI", "rb");
+  if (!fp)
+    return -1;
+
+  fseek(fp, 0, SEEK_END);
+  iSize = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  fclose(fp);
+#endif
+}
+
+//-------------------------------------------------------------------------------------------------
 //g_pTimerMutex MUST BE LOCKED before calling this function
 tTimerData *GetTimerData(SDL_TimerID timerID)
 {

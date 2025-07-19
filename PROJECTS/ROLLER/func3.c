@@ -22,6 +22,7 @@
 #include <io.h>
 #define open _open
 #define close _close
+#define read _read
 #else
 #include <inttypes.h>
 #include <unistd.h>
@@ -2927,14 +2928,18 @@ int load_champ(int iSlot)
   char *pszDefaultNameEnd; // [esp+10h] [ebp-20h]
   signed int iSortIndex; // [esp+14h] [ebp-1Ch]
 
-  iFileHandle = open(save_slots[iSlot - 1], 0x200);// Open save file for specified slot (1-4) and initialize return value
+  iFileLength = ROLLERfilelength(save_slots[iSlot - 1]);
+
+  iFileHandle = ROLLERopen(save_slots[iSlot - 1], 0x200);// Open save file for specified slot (1-4) and initialize return value
   iChecksumOk = 0;
   if (iFileHandle != -1) {
     pFileBuf = (uint8 *)getbuffer(0x800u);      // Allocate buffer and read save file (expected size: 795 bytes)
-    iFileLength = _filelength(iFileHandle);
+    
+    //iFileLength = _filelength(iFileHandle);
     if (iFileLength == 795)
-      _read(iFileHandle, pFileBuf, 795);
+      read(iFileHandle, pFileBuf, 795);
     close(iFileHandle);
+
     if (iFileLength == 795) {
       pbyCurrentPos = (char *)pFileBuf;         // CHECKSUM VALIDATION: Calculate checksum of first 794 bytes
       byChecksum = 0;

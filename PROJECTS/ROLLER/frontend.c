@@ -6710,34 +6710,17 @@ LABEL_85:
 void loadcheatnames()
 {
   char buffer[0x400]; // Temporary buffer for file contents
-  int iFileHandle;
   FILE *fp;
   int iSize;
   char *szTok;
   int iCheatIdx = 0;
 
   // Try to open PASSWORD.INI to get its size
-#ifdef IS_WINDOWS
-  iFileHandle = ROLLERopen("PASSWORD.INI", O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
-  iSize = _filelength(iFileHandle);
-
-  if (iFileHandle == -1)
-    return;
-
-  // Close raw handle and reopen as FILE*
-  close(iFileHandle);
-#endif
+  iSize = ROLLERfilelength("PASSWORD.INI");
 
   fp = ROLLERfopen("PASSWORD.INI", "rb");
   if (!fp)
     return;
-
-#ifndef IS_WINDOWS
-  //linux compatibility, added by ROLLER
-  fseek(fp, 0, SEEK_END);
-  iSize = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-#endif
 
   // Read file into buffer
   fread(buffer, iSize, 1, fp);
