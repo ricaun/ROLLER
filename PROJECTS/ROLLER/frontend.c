@@ -1326,302 +1326,340 @@ LABEL_232:
 
 void select_disk()
 {
-  /*
-  unsigned int v3; // edi
-  int v4; // eax
-  int v5; // eax
-  int v6; // ecx
-  unsigned int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  __int64 v15; // rax
-  int v16; // ecx
-  char *v17; // ebx
-  int v18; // eax
-  int v19; // ebx
-  int v20; // eax
-  int v21; // ebx
-  int v22; // eax
-  __int64 champ; // rax
-  unsigned __int8 v24; // al
-  unsigned __int8 v25; // al
-  int v26; // [esp+0h] [ebp-24h]
-  int v27; // [esp+8h] [ebp-1Ch]
-  int v28; // [esp+Ch] [ebp-18h]
-  int v29; // [esp+10h] [ebp-14h]
-  int v30; // [esp+14h] [ebp-10h]
-  int v31; // [esp+18h] [ebp-Ch]
-  int v32; // [esp+1Ch] [ebp-8h]
-  int v33; // [esp+20h] [ebp-4h]
+  int iSelectedSlot; // esi
+  unsigned int uiMenuMode; // edi
+  unsigned int uiCupIndex; // eax
+  uint8 bySlotColor; // al
+  int iSlotNumber; // ecx
+  unsigned int uiSaveCupIndex; // eax
+  uint8 byCupColor1; // al
+  uint8 byCupColor2; // al
+  uint8 byCupColor3; // al
+  uint8 byTrackColor; // al
+  uint8 byDifficultyColor; // al
+  uint8 byLevelColor; // al
+  uint8 byDamageColor; // al
+  uint8 byPlayerTypeColor; // al
+  uint8 byEmptySlotColor; // al
+  uint32 uiUpdatedCheatFlags; // eax
+  int iCheatSetLoop; // ebx
+  uint8 byInputKey; // al
+  uint8 byExtendedKey; // al
+  int iSlotYPosition; // [esp+0h] [ebp-24h]
+  int iChampResult; // [esp+4h] [ebp-20h]
+  int iExitFlag; // [esp+8h] [ebp-1Ch]
+  int iSaveTrackNumber; // [esp+Ch] [ebp-18h]
+  int iY; // [esp+10h] [ebp-14h]
+  int iSaveArrayIndex; // [esp+14h] [ebp-10h]
+  int iStatusMessage; // [esp+18h] [ebp-Ch]
+  int iSlotLoop; // [esp+1Ch] [ebp-8h]
+  int iMenuCursor; // [esp+20h] [ebp-4h]
 
-  fade_palette(0, a1, a2, 2);
-  v3 = 0;
+  fade_palette(0);                              // Initialize screen fade and menu state variables
+  uiMenuMode = 0;
   front_fade = 0;
-  v27 = 0;
-  v33 = 2;
-  v31 = 0;
-  check_saves(v4);
-  do {
+  iExitFlag = 0;
+  iMenuCursor = 2;
+  iStatusMessage = 0;
+  check_saves();                                // Check save file status and scan for existing championship saves
+  do {                                             // Handle game type switches and updates
     if (switch_types) {
       game_type = switch_types - 1;
       if (switch_types == 1 && competitors == 1)
         competitors = 16;
       switch_types = 0;
       if (game_type == 1)
-        Race = ((_BYTE)TrackLoad - 1) & 7;
+        Race = ((uint8)TrackLoad - 1) & 7;
       else
         network_champ_on = 0;
     }
-    if (!v3)
-      a3 = 0;
-    display_picture(scrbuf, front_vga[0], a2);
-    display_block(2, 0);
-    display_block(head_y, 0);
-    display_block(336, -1);
-    if (v33 < 2)
-      front_text(sel_posns[2 * v33], sel_posns_variable_1[2 * v33], 143, 0);
-    front_text(sel_posns[0] + 132, sel_posns_variable_1[0] + 7, 143, 2);
-    front_text(sel_posns_variable_2 + 132, sel_posns_variable_3 + 7, 143, 2);
-    front_text(400, 270, 171, 1);
-    front_text(400, 290, 143, 2);
-    front_text(405, 290, 143, 0);
-    front_text(400, 308, 143, 2);
-    front_text(405, 308, 143, 0);
-    front_text(400, 326, 143, 2);
-    if ((unsigned int)competitors < 8) {
-      if (competitors != 2)
-        goto LABEL_19;
-    } else if ((unsigned int)competitors > 8 && competitors != 16) {
-      goto LABEL_19;
+    if (!uiMenuMode)
+      iSelectedSlot = 0;
+    display_picture(scrbuf, front_vga[0]);
+    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
+    if (iMenuCursor >= 2)                     // Draw selection cursor
+    {
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+    } else {
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
+      front_text((tBlockHeader *)front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuCursor].x, sel_posns[iMenuCursor].y, 0x8Fu, 0);
     }
-    front_text(405, 326, 143, 0);
-  LABEL_19:
-    front_text(400, 344, 143, 2);
-    front_text(405, 344, 143, 0);
-    front_text(400, 362, 143, 2);
-    front_text(405, 362, 143, 0);
-    front_text(400, 380, 143, 2);
-    if (player_type != 1 || !net_type || net_type >= (unsigned int)player_type && (unsigned int)net_type <= 2)
-      front_text(405, 380, 143, 0);
-    v32 = 0;
-    v26 = 56;
-    v30 = 0;
-    v29 = 74;
-    do {
-      sprintf(&buffer, "%s %i:", language_buffer_variable_38, v32 + 1);
-      if (a3 == v32 + 1)
-        v5 = 171;
-      else
-        v5 = 143;
-      front_text(300, v26, v5, 2);
-      v6 = v32 + 1;
-      if (save_status[v30]) {
-        v7 = (save_status_variable_1[v30]
-            - 1
-            - (__CFSHL__((save_status_variable_1[v30] - 1) >> 31, 3)
-               + 8 * ((save_status_variable_1[v30] - 1) >> 31))) >> 3;
-        v28 = ((LOBYTE(save_status_variable_1[v30]) - 1) & 7) + 1;
-        if (v7) {
-          if (v7 <= 1) {
-            if (a3 == v6)
-              v8 = 171;
-            else
-              v8 = 143;
-          } else {
-            if (v7 != 2)
-              goto LABEL_44;
-            if (a3 == v6)
-              v8 = 171;
-            else
-              v8 = 143;
-          }
-        } else if (a3 == v6) {
-          v8 = 171;
-        } else {
-          v8 = 143;
-        }
-        front_text(305, v26, v8, 0);
-      LABEL_44:
-        sprintf(&buffer, "%s %i", language_buffer_variable_4, v28);
-        if (a3 == v32 + 1)
-          v9 = 171;
-        else
-          v9 = 143;
-        front_text(470, v26, v9, 0);
-        if (a3 == v32 + 1)
-          v10 = 171;
-        else
-          v10 = 143;
-        front_text(480, v26, v10, 0);
-        if (a3 == v32 + 1)
-          v11 = 171;
-        else
-          v11 = 143;
-        front_text(460, v29, v11, 2);
-        if (a3 == v32 + 1)
-          v12 = 171;
-        else
-          v12 = 143;
-        front_text(470, v29, v12, 0);
-        if (a3 == v32 + 1)
-          v13 = 171;
-        else
-          v13 = 143;
-        front_text(480, v29, v13, 0);
-        goto LABEL_64;
+    front_text((tBlockHeader *)front_vga[2], &language_buffer[576], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u); // Display main menu options: "Load Game" and "Save Game"
+    front_text((tBlockHeader *)front_vga[2], &language_buffer[640], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[704], font1_ascii, font1_offsets, 400, 270, 0xABu, 1u);// CURRENT GAME INFO: Display current championship settings and progress
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[768], font1_ascii, font1_offsets, 400, 290, 0x8Fu, 2u);
+    uiCupIndex = (TrackLoad - 1) / 8;
+    //uiCupIndex = (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3;// Show current cup name based on track group
+    if (uiCupIndex) {
+      if (uiCupIndex <= 1) {
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[896], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
+        goto LABEL_20;
       }
-      if (a3 == v6)
-        v14 = 171;
+      if (uiCupIndex == 2) {
+        front_text(
+          (tBlockHeader *)front_vga[15],
+          &language_buffer[4928],
+          font1_ascii,
+          font1_offsets,
+          405,
+          290,
+          0x8Fu,
+          0);
+        goto LABEL_20;
+      }
+    }
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[832], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
+  LABEL_20:
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[960], font1_ascii, font1_offsets, 400, 308, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[15], CompanyNames[Race], font1_ascii, font1_offsets, 405, 308, 0x8Fu, 0);
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[1024], font1_ascii, font1_offsets, 400, 326, 0x8Fu, 2u);
+    if ((unsigned int)competitors < 8) {
+      if (competitors == 2)
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[1088], font1_ascii, font1_offsets, 405, 326, 0x8Fu,0);
+    } else if ((unsigned int)competitors <= 8) {
+      front_text((tBlockHeader *)front_vga[15], &language_buffer[1152], font1_ascii, font1_offsets, 405, 326, 0x8Fu, 0);
+    } else if (competitors == 16) {
+      front_text((tBlockHeader *)front_vga[15], &language_buffer[1216], font1_ascii, font1_offsets, 405, 326, 0x8Fu, 0);
+    }
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[1280], font1_ascii, font1_offsets, 400, 344, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * level + 1472], font1_ascii, font1_offsets, 405, 344, 0x8Fu, 0);
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[1344], font1_ascii, font1_offsets, 400, 362, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * damage_level + 1856], font1_ascii, font1_offsets, 405, 362, 0x8Fu, 0);
+    front_text((tBlockHeader *)front_vga[15], &language_buffer[1408], font1_ascii, font1_offsets, 400, 380, 0x8Fu, 2u);
+    if (player_type == 1 && net_type) {
+      if ((unsigned int)net_type >= (unsigned int)player_type && (unsigned int)net_type <= 2)
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[2304], font1_ascii, font1_offsets, 405, 380, 0x8Fu,0);
+    } else {
+      front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * player_type + 2112], font1_ascii, font1_offsets, 405, 380, 0x8Fu, 0);
+    }
+    iSlotLoop = 0;                              // SAVE SLOT DISPLAY: Show all 4 championship save slots with their details
+    iSlotYPosition = 56;
+    iSaveArrayIndex = 0;
+    iY = 74;
+    do {
+      sprintf(buffer, "%s %i:", &language_buffer[2432], iSlotLoop + 1);// Display slot number with highlighting for currently selected slot
+      if (iSelectedSlot == iSlotLoop + 1)
+        bySlotColor = 0xAB;
       else
-        v14 = 143;
-      front_text(305, v26, v14, 0);
-    LABEL_64:
-      HIDWORD(v15) = v26 + 40;
-      v16 = v29 + 40;
-      v26 += 40;
-      v30 += 6;
-      v29 += 40;
-      ++v32;
-    } while (v32 < 4);
-    v17 = (char *)v31;
-    LODWORD(v15) = v31;
-    switch (v31) {
+        bySlotColor = 0x8F;
+      front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 300, iSlotYPosition, bySlotColor, 2u);
+      iSlotNumber = iSlotLoop + 1;
+      if (save_status[iSaveArrayIndex].iSlotUsed)// Show save slot contents: cup, track, difficulty, damage, player type
+      {
+        uiSaveCupIndex = (save_status[iSaveArrayIndex].iPackedTrack - 1) / 8;
+        iSaveTrackNumber = ((save_status[iSaveArrayIndex].iPackedTrack - 1) % 8) + 1;
+        //uiSaveCupIndex = (save_status[iSaveArrayIndex].iPackedTrack
+        //                - 1
+        //                - (__CFSHL__((save_status[iSaveArrayIndex].iPackedTrack - 1) >> 31, 3)
+        //                   + 8 * ((save_status[iSaveArrayIndex].iPackedTrack - 1) >> 31))) >> 3;
+        //iSaveTrackNumber = ((LOBYTE(save_status[iSaveArrayIndex].iPackedTrack) - 1) & 7) + 1;
+        if (uiSaveCupIndex) {
+          if (uiSaveCupIndex <= 1) {
+            if (iSelectedSlot == iSlotNumber)
+              byCupColor2 = 0xAB;
+            else
+              byCupColor2 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], &language_buffer[896], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor2, 0);
+          } else if (uiSaveCupIndex == 2) {
+            if (iSelectedSlot == iSlotNumber)
+              byCupColor3 = 0xAB;
+            else
+              byCupColor3 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], &language_buffer[4928], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor3, 0);
+          }
+        } else {
+          if (iSelectedSlot == iSlotNumber)
+            byCupColor1 = 0xAB;
+          else
+            byCupColor1 = 0x8F;
+          front_text((tBlockHeader *)front_vga[15], &language_buffer[832], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor1, 0);
+        }
+        sprintf(buffer, "%s %i", &language_buffer[256], iSaveTrackNumber);
+        if (iSelectedSlot == iSlotLoop + 1)
+          byTrackColor = 0xAB;
+        else
+          byTrackColor = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], "-", font1_ascii, font1_offsets, 470, iSlotYPosition, byTrackColor, 0);
+        if (iSelectedSlot == iSlotLoop + 1)
+          byDifficultyColor = 0xAB;
+        else
+          byDifficultyColor = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 480, iSlotYPosition, byDifficultyColor, 0);
+        if (iSelectedSlot == iSlotLoop + 1)
+          byLevelColor = 0xAB;
+        else
+          byLevelColor = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iDifficulty + 1472], font1_ascii,
+          font1_offsets,
+          460,
+          iY,
+          byLevelColor,
+          2u);
+        if (iSelectedSlot == iSlotLoop + 1)
+          byDamageColor = 0xAB;
+        else
+          byDamageColor = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], "-", font1_ascii, font1_offsets, 470, iY, byDamageColor, 0);
+        if (iSelectedSlot == iSlotLoop + 1)
+          byPlayerTypeColor = 0xAB;
+        else
+          byPlayerTypeColor = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iPlayerType + 2112], font1_ascii, font1_offsets, 480, iY, byPlayerTypeColor, 0);
+      } else {                                         // Display "Empty" for unused save slots
+        if (iSelectedSlot == iSlotNumber)
+          byEmptySlotColor = 0xAB;
+        else
+          byEmptySlotColor = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[2496], font1_ascii, font1_offsets, 305, iSlotYPosition, byEmptySlotColor, 0);
+      }
+      iSlotYPosition += 40;
+      ++iSaveArrayIndex;
+      iY += 40;
+      ++iSlotLoop;
+    } while (iSlotLoop < 4);
+    switch (iStatusMessage) {
       case 0:
-        if (network_on)
-          goto LABEL_67;
+        if (network_on)                       // Case 0: Network save restriction message
+          front_text((tBlockHeader *)front_vga[15], &language_buffer[4864], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
         break;
       case 1:
+        if (iChampResult)                     // Case 1: Load operation messages (success/confirmation)
+          front_text((tBlockHeader *)front_vga[15], &language_buffer[2624], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
+        else
+          front_text((tBlockHeader *)front_vga[15], &language_buffer[2560], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
+        break;
       case 2:
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[2688], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u); // Case 2: Save operation success message
+        break;
       case 4:
-      LABEL_67:
-        v17 = &font1_ascii;
-        v16 = (int)&font1_offsets;
-        v15 = front_text(400, 230, 231, 1);
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[2752], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u); // Case 4: Empty slot selected (no save to load)
         break;
       default:
-        break;
+        break;                                  // STATUS MESSAGES: Display operation results and warnings
     }
-    show_received_mesage(v15, HIDWORD(v15), v17, v16);
-    copypic((char *)scrbuf, (int)screen);
-    if (switch_same > 0) {
-      v21 = 0;
+    show_received_mesage();
+    copypic(scrbuf, screen);
+    if (switch_same > 0)                      // CHEAT MODE HANDLING: Process switch_same command for player synchronization
+    {
+      iCheatSetLoop = 0;
       if (players > 0) {
-        v22 = 0;
-        do {
-          ++v22;
-          ++v21;
-          infinite_laps[v22] = switch_same - 666;
-        } while (v21 < players);
+        for (int i = 0; i < players; i++)
+        {
+            Players_Cars[i] = switch_same - 666;
+        }
+        //iPlayersCarsOffset = 0;
+        //do {
+        //  iPlayersCarsOffset += 4;
+        //  ++iCheatSetLoop;
+        //  *(int *)((char *)&infinite_laps + iPlayersCarsOffset) = switch_same - 666;// offset into Players_Cars
+        //} while (iCheatSetLoop < players);
       }
-      v20 = cheat_mode;
-      BYTE1(v20) = BYTE1(cheat_mode) | 0x40;
-    LABEL_78:
-      cheat_mode = v20;
-    } else if (switch_same < 0) {
+      uiUpdatedCheatFlags = cheat_mode;
+      //BYTE1(uiUpdatedCheatFlags) = BYTE1(cheat_mode) | 0x40;// |= CHEAT_MODE_CLONES;
+      uiUpdatedCheatFlags |= CHEAT_MODE_CLONES;
+    } else {
+      if (switch_same >= 0)
+        goto LABEL_95;
       switch_same = 0;
-      v18 = 0;
-      if (players > 0) {
-        v19 = 0;
-        do {
-          ++v19;
-          ++v18;
-          infinite_laps[v19] = -1;
-        } while (v18 < players);
+
+      for (int i = 0; i < players; i++)
+      {
+          Players_Cars[i] = -1;
       }
-      v20 = cheat_mode;
-      BYTE1(v20) = BYTE1(cheat_mode) & 0xBF;
-      goto LABEL_78;
+      //iCheatResetLoop = 0;
+      //if (players > 0) {
+      //  iCheatResetOffset = 0;
+      //  do {
+      //    iCheatResetOffset += 4;
+      //    ++iCheatResetLoop;
+      //    *(int *)((char *)&infinite_laps + iCheatResetOffset) = -1;// offset into Players_Cars
+      //  } while (iCheatResetLoop < players);
+      //}
+      uiUpdatedCheatFlags = cheat_mode;
+      //BYTE1(uiUpdatedCheatFlags) = BYTE1(cheat_mode) & 0xBF;// &= ~CHEAT_MODE_CLONES
+      uiUpdatedCheatFlags &= ~CHEAT_MODE_CLONES;
     }
-    if (!front_fade) {
+    cheat_mode = uiUpdatedCheatFlags;
+  LABEL_95:
+    if (!front_fade)                          // Handle screen fade-in effect
+    {
       front_fade = -1;
-      fade_palette(32, 0, -1, v16);
+      fade_palette(32);
       frames = 0;
     }
-    a2 = 1;
-    HIDWORD(champ) = 0;
-    while (fatkbhit()) {
-      v24 = fatgetch();
-      if (v24 < 0xDu) {
-        if (!v24) {
-          v25 = fatgetch();
-          if (v25 >= 0x48u) {
-            if (v25 <= 0x48u) {
-              if (v3) {
-                if (a3 > 1) {
-                  v31 = HIDWORD(champ);
-                  --a3;
+    while (fatkbhit())                        // KEYBOARD INPUT PROCESSING: Handle navigation and save/load operations
+    {
+      byInputKey = fatgetch();
+      if (byInputKey < 0xDu) {                                         // Arrow keys: Navigate between menu options and save slots
+        if (!byInputKey) {
+          byExtendedKey = fatgetch();
+          if (byExtendedKey >= 0x48u) {
+            if (byExtendedKey <= 0x48u) {                                   // Up arrow: Move up in save slot selection or main menu
+              if (uiMenuMode) {
+                if (iSelectedSlot > 1) {
+                  iStatusMessage = 0;
+                  --iSelectedSlot;
                 }
-              } else {
-                v16 = v33;
-                if (SHIDWORD(champ) < v33) {
-                  v31 = HIDWORD(champ);
-                  --v33;
-                }
+              } else if (iMenuCursor > 0) {
+                iStatusMessage = 0;
+                --iMenuCursor;
               }
-            } else if (v25 == 80) {
-              if (v3) {
-                if (a3 < 4) {
-                  v31 = HIDWORD(champ);
-                  ++a3;
+            } else if (byExtendedKey == 80) {                                   // Down arrow: Move down in save slot selection or main menu
+              if (uiMenuMode) {
+                if (iSelectedSlot < 4) {
+                  iStatusMessage = 0;
+                  ++iSelectedSlot;
                 }
-              } else {
-                v16 = v33;
-                if (v33 < 2) {
-                  v31 = HIDWORD(champ);
-                  ++v33;
-                }
+              } else if (iMenuCursor < 2) {
+                iStatusMessage = 0;
+                ++iMenuCursor;
               }
             }
           }
         }
-      } else if (v24 <= 0xDu) {
-        if (v3) {
-          if (v3 <= 1) {
-            v16 = 2;
-            LODWORD(champ) = save_champ(a3, HIDWORD(champ), 1, 2);
-            v3 = HIDWORD(champ);
-            check_saves(champ);
-            v31 = 2;
-          } else if (v3 == 2) {
-            v16 = save_status[6 * a3 - 6];
-            v31 = 1;
-            if (HIDWORD(champ) == v16) {
-              v31 = 4;
+      } else if (byInputKey <= 0xDu) {                                         // Enter key: Execute save/load operation based on current menu and selection
+        if (uiMenuMode) {
+          if (uiMenuMode <= 1) {
+            save_champ(iSelectedSlot);          // SAVE operation: Save current championship to selected slot
+            uiMenuMode = 0;
+            check_saves();
+            iStatusMessage = 2;
+          } else {
+            iStatusMessage = 1;
+            if (save_status[iSelectedSlot - 1].iSlotUsed) {
+              uiMenuMode = 0;                   // LOAD operation: Load championship from selected slot
+              iChampResult = load_champ(iSelectedSlot);
             } else {
-              champ = load_champ(a3, HIDWORD(champ), 1);
-              v3 = HIDWORD(champ);
+              iStatusMessage = 4;
             }
           }
-        } else if (v33) {
-          if ((unsigned int)v33 <= 1) {
-            v3 = 2;
-            a3 = 1;
-            continue;
+        } else if (iMenuCursor) {
+          if ((unsigned int)iMenuCursor <= 1) {
+            uiMenuMode = 2;                     // \"Save Game\" selected: Enter save slot selection mode
+            iSelectedSlot = 1;
+          } else if (iMenuCursor == 2) {
+            goto LABEL_128;
           }
-          if (v33 == 2) {
-          LABEL_115:
-            v27 = -1;
-            continue;
-          }
-        } else if (!HIDWORD(champ)) {
-          v3 = 1;
-          a3 = 1;
+        } else {
+          uiMenuMode = 1;                       // \"Load Game\" selected: Enter save slot selection mode
+          iSelectedSlot = 1;
         }
-      } else if (v24 == 27) {
-        if (!v3)
-          goto LABEL_115;
-        v3 = HIDWORD(champ);
-        v31 = HIDWORD(champ);
+      } else if (byInputKey == 27) {                                         // Escape key: Cancel operation or exit to main menu
+        if (uiMenuMode) {
+          uiMenuMode = 0;
+          iStatusMessage = 0;
+        } else {
+        LABEL_128:
+          iExitFlag = -1;
+        }
       }
+      UpdateSDL();
     }
-  } while (!v27);
-  fade_palette(0, 0, 1, v16);
-  front_fade = 0;*/
+    UpdateSDL();
+  } while (!iExitFlag);                         // MAIN MENU LOOP - Handle UI rendering and input processing
+  fade_palette(0);                              // CLEANUP: Fade screen and exit save/load menu
+  front_fade = 0;
 }
 
 //-------------------------------------------------------------------------------------------------

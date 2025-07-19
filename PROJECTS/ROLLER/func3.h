@@ -4,10 +4,23 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iSlotUsed;
+  int iPackedTrack;
+  int iDifficulty;
+  int iPlayerType;
+  int iUnused1;
+  int iUnused2;
+} tSaveStatus;
+
+//-------------------------------------------------------------------------------------------------
+
 extern char save_slots[4][13];
 extern int send_message_to;
 extern int rec_status;
 extern char rec_mes_buf[32];
+extern tSaveStatus save_status[4];
 extern int result_order[16];
 extern int result_design[16];
 extern int result_control[16];
@@ -43,7 +56,7 @@ int load_champ(int iSlot);
 uint8 *lod_champ_char(uint8 *pSrc, int *piValue);
 uint8 *sav_champ_char(uint8 *pSrc, int *piValue); //actually loads an int
 uint8 *sav_champ_int(uint8 *pDest, int iValue);
-int check_saves(int a1, int a2, int a3);
+void check_saves();
 void ResultRoundUp(int a1, int a2, int a3, char *a4);
 int RollCredits(void *a1, void *a2, unsigned int a3);
 int ChampionshipOver(int a1, int a2, int a3, char *a4);

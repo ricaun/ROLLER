@@ -918,10 +918,11 @@ int ROLLERfilelength(const char *szFile)
 {
 #ifdef IS_WINDOWS
   int iFileHandle = ROLLERopen(szFile, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
-  int iSize = _filelength(iFileHandle);
 
   if (iFileHandle == -1)
     return -1;
+
+  int iSize = _filelength(iFileHandle);
 
   close(iFileHandle);
   return iSize;

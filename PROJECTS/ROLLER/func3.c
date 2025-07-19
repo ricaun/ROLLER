@@ -40,6 +40,7 @@ char save_slots[4][13] =  //000A6234
 int send_message_to = -1; //000A6394
 int rec_status = 0;       //000A6398
 char rec_mes_buf[32];     //00188530
+tSaveStatus save_status[4]; //00188570
 int result_order[16];     //00188610
 int result_design[16];    //00188690
 int result_control[16];   //00188750
@@ -3378,61 +3379,53 @@ uint8 *sav_champ_int(uint8 *pDest, int iValue)
 
 //-------------------------------------------------------------------------------------------------
 
-int check_saves(int a1, int a2, int a3)
+void check_saves()
 {
-  (void)(a1); (void)(a2); (void)(a3); return 0;
-  /*
-  char *v3; // esi
-  int i; // ecx
-  int result; // eax
-  int v6; // edx
-  int v7; // ebp
-  __int64 v8; // rax
-  int v9; // edi
-  unsigned __int8 *v10; // eax
-  unsigned __int8 v11; // al
-  unsigned __int8 *v12; // [esp+0h] [ebp-1Ch] BYREF
+  char *pszSaveSlotName; // esi
+  int iSlotIndex; // ecx
+  int iFileHandle; // edx
+  int iFileSize; // edi
+  uint8 *pbyFileData; // eax
+  uint8 byNetType; // al
+  uint8 *pbyReadBuffer; // [esp+0h] [ebp-1Ch] BYREF
 
-  v3 = save_slots;
-  for (i = 0; i != 24; i += 6) {
-    result = open(v3, 512);
-    v6 = result;
-    v7 = result;
-    if (result == -1) {
-      save_status[i] = 0;
+  pszSaveSlotName = save_slots[0];              // Get pointer to first save slot filename
+  for (iSlotIndex = 0; iSlotIndex != 4; ++iSlotIndex)// Check each of the 4 save slots
+  {
+    iFileSize = ROLLERfilelength(pszSaveSlotName);
+    iFileHandle = ROLLERopen(pszSaveSlotName, O_RDONLY | O_BINARY); //0x200 is O_BINARY in WATCOM/h/fcntl.h
+    if (iFileHandle == -1)                    // Check if file open failed
+    {
+      save_status[iSlotIndex].iSlotUsed = 0;    // Mark slot as empty if file doesn't exist
     } else {
-      v12 = (unsigned __int8 *)getbuffer(0x800u);
-      v8 = filelength(v6, v6, a3);
-      a3 = v8;
-      v9 = v8;
-      if ((_DWORD)v8 == 795) {
-        v8 = __PAIR64__((unsigned int)v12, HIDWORD(v8));
-        read(v8, v12, 795);
-      }
-      close(v7, HIDWORD(v8));
-      if (v9 == 795) {
-        a3 = -1;
-        v10 = v12;
-        save_status[i] = -1;
-        save_status_variable_1[i] = *v10;
-        save_status_variable_2[i] = v12[3];
-        save_status_variable_3[i] = v12[5];
-        v11 = v12[51];
-        if (save_status_variable_3[i] == 1 && v11) {
-          if (v11 <= 1u) {
-            save_status_variable_3[i] = 3;
-          } else if (v11 == 2) {
-            save_status_variable_3[i] = 4;
+      pbyReadBuffer = (uint8 *)getbuffer(0x800u);// Allocate 2KB buffer for reading save file
+      //iFileSize = filelength(iFileHandle);      // Get size of save file
+      if (iFileSize == 795)                   // Check if file is exactly 795 bytes (valid save file size)
+        read(iFileHandle, pbyReadBuffer, 795);  // Read entire save file into buffer
+      close(iFileHandle);                       // Close the save file
+      if (iFileSize == 795)                   // Verify file size again before parsing
+      {
+        pbyFileData = pbyReadBuffer;
+        save_status[iSlotIndex].iSlotUsed = -1; // Mark slot as occupied
+        save_status[iSlotIndex].iPackedTrack = *pbyFileData;// Extract packed track info from offset 0
+        save_status[iSlotIndex].iDifficulty = pbyReadBuffer[3];// Extract difficulty level from offset 3
+        save_status[iSlotIndex].iPlayerType = pbyReadBuffer[5];// Extract player type from offset 5
+        byNetType = pbyReadBuffer[51];          // Get network type from offset 51
+        if (save_status[iSlotIndex].iPlayerType == 1 && byNetType)// Convert network player type based on net_type value
+        {
+          if (byNetType <= 1u) {
+            save_status[iSlotIndex].iPlayerType = 3;// net_type 0 or 1 = Network player (type 3)
+          } else if (byNetType == 2) {
+            save_status[iSlotIndex].iPlayerType = 4;// net_type 2 = Modem player (type 4)
           }
         }
       } else {
-        save_status[i] = 0;
+        save_status[iSlotIndex].iSlotUsed = 0;  // Mark slot as empty if file size is invalid
       }
-      result = (int)fre(&v12);
+      fre((void **)&pbyReadBuffer);             // Free the read buffer
     }
-    v3 += 13;
+    pszSaveSlotName += 13;                      // Move to next save slot filename (13 bytes per filename)
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
