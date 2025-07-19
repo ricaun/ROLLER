@@ -2853,7 +2853,7 @@ int load_champ(int iSlot)
   int iNonCompetitorFlags; // eax
   //int iArraySize; // esi
   //int iByteOffset; // eax
-  int iFlags; // ebp
+  int iFlags = 0; // ebp
   int iFlagCheck; // ecx
   int *piStatsPointer; // edx
   int iNetType; // eax
@@ -2884,7 +2884,7 @@ int load_champ(int iSlot)
   int iModemPortValue; // eax
   int iModemCallValue; // eax
   int iModemBaudValue; // eax
-  char *pszPhonePtr; // edx
+  char *pszPhonePtr = '\0'; // edx
   //int j; // eax
   //char byPhoneChar1; // bl
   //char *pszPhoneCharPtr; // edx

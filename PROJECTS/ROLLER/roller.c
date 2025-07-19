@@ -842,13 +842,6 @@ FILE *ROLLERfopen(const char *szFile, const char *szMode)
   if (pFile) return pFile;
 
   pFile = fopen(szLower, szMode);
-
-  if (!pFile) {
-    char szErrorMsg[128];
-    snprintf(szErrorMsg, sizeof(szErrorMsg), "The file %s could not be opened.", szFile);
-    ErrorBoxExit(szErrorMsg);
-  }
-
   return pFile;
 }
 
@@ -872,13 +865,6 @@ int ROLLERopen(const char *szFile, int iOpenFlags)
   if (iHandle != -1) return iHandle;
 
   iHandle = open(szLower, iOpenFlags);
-
-  if (iHandle == -1) {
-    char szErrorMsg[128];
-    snprintf(szErrorMsg, sizeof(szErrorMsg), "The file %s could not be opened.", szFile);
-    ErrorBoxExit(szErrorMsg);
-  }
-
   return iHandle;
 }
 
