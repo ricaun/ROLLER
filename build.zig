@@ -112,4 +112,22 @@ pub fn build(b: *std.Build) void {
         });
         exe.step.dependOn(&cp.step);
     }
+
+    const fatdata_write_files = b.addWriteFiles();
+    const fatdata_assets_copy = fatdata_write_files.addCopyDirectory(assets_path, "fatdata", .{});
+    const fatdata_install = b.addInstallDirectory(.{
+        .source_dir = fatdata_assets_copy,
+        .install_dir = .bin,
+        .install_subdir = "fatdata",
+    });
+    run_step.dependOn(&fatdata_install.step);
+
+    const wildmidi_config = b.addWriteFiles();
+    const wildmidi_config_copy = wildmidi_config.addCopyDirectory(b.path("midi"), "midi", .{});
+    const wildmidi_config_install = b.addInstallDirectory(.{
+        .source_dir = wildmidi_config_copy,
+        .install_dir = .bin,
+        .install_subdir = "midi",
+    });
+    run_step.dependOn(&wildmidi_config_install.step);
 }
