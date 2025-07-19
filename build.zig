@@ -1,16 +1,20 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
+    // basic support for running in Visual Studio using ZigVS
     const running_in_vs = blk: {
         _ = std.process.getEnvVarOwned(b.allocator, "VisualStudioEdition") catch break :blk false;
         break :blk true;
     };
 
+    // tells the build where to find your FATDATA folder
+    // defaults to ./fatdata
     const assets_path = b.option(std.Build.LazyPath, "assets-path", "Path to assets") orelse b.path("fatdata");
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // build dependencies
     const wildmidi = b.dependency("wildmidi", .{
         .target = target,
         .optimize = optimize,
@@ -101,7 +105,7 @@ pub fn build(b: *std.Build) void {
         run_cmd.addArgs(args);
     }
 
-    const run_step = b.step("run", "Run the app");
+    const run_step = b.step("run", "Run roller");
     run_step.dependOn(&run_cmd.step);
 
     if (running_in_vs) {
@@ -113,15 +117,17 @@ pub fn build(b: *std.Build) void {
         exe.step.dependOn(&cp.step);
     }
 
-    const fatdata_write_files = b.addWriteFiles();
-    const fatdata_assets_copy = fatdata_write_files.addCopyDirectory(assets_path, "fatdata", .{});
-    const fatdata_install = b.addInstallDirectory(.{
-        .source_dir = fatdata_assets_copy,
+    // copies fatdata directory to the bin folder
+    // only happens when using `zig build run`
+    const assets_install = b.addInstallDirectory(.{
+        .source_dir = assets_path,
         .install_dir = .bin,
         .install_subdir = "fatdata",
     });
-    run_step.dependOn(&fatdata_install.step);
+    run_step.dependOn(&assets_install.step);
 
+    // copies wildmidi configuration files to the bin folder
+    // only happens when using `zig build run`
     const wildmidi_config = b.addWriteFiles();
     const wildmidi_config_copy = wildmidi_config.addCopyDirectory(b.path("midi"), "midi", .{});
     const wildmidi_config_install = b.addInstallDirectory(.{
