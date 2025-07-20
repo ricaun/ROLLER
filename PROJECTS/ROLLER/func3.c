@@ -2848,7 +2848,6 @@ void save_champ(int iSlot)
 
 //-------------------------------------------------------------------------------------------------
 
-// Load championship save game from specified slot - restores all game state, player data, and statistics
 int load_champ(int iSlot)
 {
   int iFileHandle; // edx
@@ -3104,7 +3103,7 @@ int load_champ(int iSlot)
         piTeamStatsPointer = piTeamDataPtr + 2;
       } while (piTeamPointsPtr != piTeamPointsEnd);
 
-      // Load 16 players × 9 character names (144 bytes total)
+      // Load 16 players * 9 character names (144 bytes total)
       char *pbyNameData = (char *)piTeamStatsPointer;
       for (int player = 0; player < 16; player++) {
           // Copy 9 characters for this player
@@ -3114,7 +3113,7 @@ int load_champ(int iSlot)
       }
       piTeamStatsPointer = (int *)pbyNameData;
       //iNameArrayOffset = 9;
-      //for (iPlayerLoop = 0; iPlayerLoop < 16; ++iPlayerLoop)// PLAYER NAMES: Load 16 players × 9 character names (144 bytes total)
+      //for (iPlayerLoop = 0; iPlayerLoop < 16; ++iPlayerLoop)// PLAYER NAMES: Load 16 players * 9 character names (144 bytes total)
       //{
       //  iNameIndex = 9 * iPlayerLoop;
       //  do {
