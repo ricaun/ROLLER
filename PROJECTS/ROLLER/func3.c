@@ -3379,8 +3379,11 @@ uint8 *sav_champ_char(uint8 *pSrc, int *piValue)
 
 uint8 *sav_champ_int(uint8 *pDest, int iValue)
 {
-  *(int *)pDest = iValue;  // Write 4-byte integer directly
-  return pDest + 4;        // Return pointer advanced by 4 bytes
+  pDest[0] = (uint8)(iValue);         // Byte 0: bits 0-7
+  pDest[1] = (uint8)(iValue >> 8);    // Byte 1: bits 8-15  
+  pDest[2] = (uint8)(iValue >> 16);   // Byte 2: bits 16-23
+  pDest[3] = (uint8)(iValue >> 24);   // Byte 3: bits 24-31
+  return pDest + 4;
 }
 
 //-------------------------------------------------------------------------------------------------
