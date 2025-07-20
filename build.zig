@@ -18,6 +18,7 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
+    exe_mod.sanitize_c = false;
     exe_mod.addCSourceFiles(.{
         .files = &.{
             "PROJECTS/ROLLER/3d.c",
