@@ -2705,11 +2705,11 @@ void save_champ(int iSlot)
   uint8 *pbyAfterTeamKills; // eax
   uint8 *pbyAfterTeamFasts; // eax
   int iTeamWins; // edx
-  int iNameEndIndex; // edi
-  int iTeamIndex; // esi
-  int iNameStartIndex; // edx
-  uint8 *pbyNameChar; // eax
-  char byPlayerNameChar; // cl
+  //int iNameEndIndex; // edi
+  //int iTeamIndex; // esi
+  //int iNameStartIndex; // edx
+  //uint8 *pbyNameChar; // eax
+  //char byPlayerNameChar; // cl
   uint8 *pbyAfterSerial; // eax
   uint8 *pbyAfterModemPort; // eax
   uint8 *pbyAfterModemCall; // eax
@@ -2791,18 +2791,28 @@ void save_champ(int iSlot)
     iTeamWins = team_wins[i];
     pbyAfterHeader = sav_champ_int(pbyAfterTeamFasts, iTeamWins);
   }
-  iNameEndIndex = 9;
-  for (iTeamIndex = 0; iTeamIndex < 16; ++iTeamIndex) {
-    iNameStartIndex = 9 * iTeamIndex;
-    do {
-      pbyNameChar = pbyAfterHeader + 1;
-      *(pbyNameChar - 1) = default_names[0][iNameStartIndex];
-      pbyAfterHeader = pbyNameChar + 1;
-      byPlayerNameChar = player_names[0][iNameStartIndex++];
-      *(pbyAfterHeader - 1) = byPlayerNameChar;
-    } while (iNameStartIndex != iNameEndIndex);
-    iNameEndIndex += 9;
+
+  //iNameEndIndex = 9;
+  //for (iTeamIndex = 0; iTeamIndex < 16; ++iTeamIndex) {
+  //  iNameStartIndex = 9 * iTeamIndex;
+  //  do {
+  //    pbyNameChar = pbyAfterHeader + 1;
+  //    *(pbyNameChar - 1) = default_names[0][iNameStartIndex];
+  //    pbyAfterHeader = pbyNameChar + 1;
+  //    byPlayerNameChar = player_names[0][iNameStartIndex++];
+  //    *(pbyAfterHeader - 1) = byPlayerNameChar;
+  //  } while (iNameStartIndex != iNameEndIndex);
+  //  iNameEndIndex += 9;
+  //}
+  pbyCurrentPos = pbyAfterHeader;
+  for (uint16 unTeamIndex = 0; unTeamIndex < 16; ++unTeamIndex) {
+    memcpy(pbyCurrentPos, default_names[unTeamIndex], 9);
+    pbyCurrentPos += 9;
+    memcpy(pbyCurrentPos, player_names[unTeamIndex], 9);
+    pbyCurrentPos += 9;
   }
+  pbyAfterHeader = pbyCurrentPos;
+
   pbyAfterSerial = sav_champ_int(pbyAfterHeader, serial_port);
   pbyAfterModemPort = sav_champ_int(pbyAfterSerial, modem_port);
   pbyAfterModemCall = sav_champ_int(pbyAfterModemPort, modem_call);
