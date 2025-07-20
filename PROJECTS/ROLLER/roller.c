@@ -7,8 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
-//#include <wildmidi/wildmidi_lib.h>
-#include "../../external/wildmidi-0.4.6/include/wildmidi/wildmidi_lib.h"
+#include <wildmidi/wildmidi_lib.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -204,14 +203,14 @@ void UpdateSDLWindow()
 
   SDL_RenderClear(s_pRenderer);
   SDL_RenderTexture(s_pRenderer, s_pWindowTexture, NULL, &dst);
-  
+
   //SDL_FRect debugRect;
   //debugRect.h = 64;
   //debugRect.w = 64;
   //debugRect.x = 0;
   //debugRect.y = 0;
   //SDL_RenderTexture(s_pRenderer, s_pDebugTexture, NULL, &debugRect);
-  
+
   SDL_RenderPresent(s_pRenderer);
 }
 
@@ -297,7 +296,7 @@ void ShutdownSDL()
   SDL_DestroyWindow(s_pWindow);
   SDL_DestroyTexture(s_pWindowTexture);
   SDL_DestroyTexture(s_pDebugTexture);
-  
+
   free(s_pRGBBuffer);
   free(s_pDebugBuffer);
 }
@@ -957,7 +956,7 @@ Uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval
 {
   tickhandler();
   uint64 ullRet = 0;
-  
+
   SDL_LockMutex(g_pTimerMutex);
   tTimerData *pTimerData = GetTimerData(timerID);
   if (!pTimerData) {

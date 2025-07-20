@@ -95,6 +95,12 @@ pub fn build(b: *std.Build) void {
     });
     exe.want_lto = optimize != .Debug;
 
+    // copies wildmidi headers so they can be imported as `wildmidi/wildmidi_lib.h`
+    const wildmidi_headers = b.addWriteFiles();
+    _ = wildmidi_headers.addCopyDirectory(wildmidi.builder.path("include"), "wildmidi", .{});
+    exe_mod.addIncludePath(wildmidi_headers.getDirectory());
+    exe.step.dependOn(&wildmidi_headers.step);
+
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
