@@ -7,7 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
-#include <wildmidi/wildmidi_lib.h>
+#include <wildmidi_lib.h>
 #include <fcntl.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -237,6 +237,11 @@ int InitSDL()
   if (home_dir) {
     chdir(home_dir);
     SDL_free((void *)home_dir);
+  }
+
+  // check if the ./FATDATA/FATAL.INI to ensure the game can run
+  if (!ROLLERfexists("./FATDATA/FATAL.INI")) {
+    ErrorBoxExit("The folder FATDATA does not exist.\nROLLER requires the FATDATA folder assets from a retail copy of the game.");
   }
 
   g_pTimerMutex = SDL_CreateMutex();
