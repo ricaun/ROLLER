@@ -1,5 +1,3 @@
-const std = @import("std");
-
 pub fn build(b: *std.Build) void {
     // basic support for running in Visual Studio using ZigVS
     const running_in_vs = blk: {
@@ -14,34 +12,11 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    // build dependencies
-    const wildmidi = b.dependency("wildmidi", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    const wildmidi_lib = wildmidi.artifact("wildmidi");
-
-    const sdl_image = b.dependency("SDL_image", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    const sdl_image_lib = sdl_image.artifact("SDL3_image");
-
-    const sdl = b.dependency("sdl", .{
-        .target = target,
-        .optimize = optimize,
-        .lto = optimize != .Debug,
-    });
-    const sdl_lib = sdl.artifact("SDL3");
-
     const exe_mod = b.createModule(.{
         .target = target,
         .optimize = optimize,
         .link_libc = true,
     });
-    exe_mod.linkLibrary(sdl_lib);
-    exe_mod.linkLibrary(sdl_image_lib);
-    exe_mod.linkLibrary(wildmidi_lib);
 
     exe_mod.addCSourceFiles(.{
         .files = &.{
@@ -95,13 +70,9 @@ pub fn build(b: *std.Build) void {
     });
     exe.want_lto = optimize != .Debug;
 
-    // copies wildmidi headers so they can be imported as `wildmidi/wildmidi_lib.h`
-    const wildmidi_headers = b.addWriteFiles();
-    _ = wildmidi_headers.addCopyDirectory(wildmidi.builder.path("include"), "wildmidi", .{});
-    exe_mod.addIncludePath(wildmidi_headers.getDirectory());
-    exe.step.dependOn(&wildmidi_headers.step);
-
     b.installArtifact(exe);
+
+    configureDependencies(b, exe, target, optimize);
 
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
@@ -143,3 +114,55 @@ pub fn build(b: *std.Build) void {
     });
     run_step.dependOn(&wildmidi_config_install.step);
 }
+
+fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optimize: OptimizeMode) void {
+    const exe_mod = exe.root_module;
+
+    // build dependencies
+    const wildmidi = b.dependency("wildmidi", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const wildmidi_lib = wildmidi.artifact("wildmidi");
+
+    const sdl_image = b.dependency("SDL_image", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const sdl_image_lib = sdl_image.artifact("SDL3_image");
+
+    const sdl = b.dependency("sdl", .{
+        .target = target,
+        .optimize = optimize,
+        .lto = optimize != .Debug,
+    });
+    const sdl_lib = sdl.artifact("SDL3");
+
+    exe_mod.linkLibrary(sdl_lib);
+    exe_mod.linkLibrary(sdl_image_lib);
+    exe_mod.linkLibrary(wildmidi_lib);
+
+    const sdl_image_source = sdl_image.builder.dependency("SDL_image", .{});
+
+    var cflags = compile_flagz.addCompileFlags(b);
+    cflags.addIncludePath(sdl.builder.path("include"));
+    cflags.addIncludePath(sdl_image_source.builder.path("include"));
+    cflags.addIncludePath(wildmidi.builder.path("include"));
+
+    const cflags_step = b.step("compile-flags", "Generate compile flags");
+    cflags_step.dependOn(&cflags.step);
+}
+
+const compile_flagz = @import("compile_flagz");
+
+const std = @import("std");
+const ArrayList = std.ArrayListUnmanaged;
+const Build = std.Build;
+const LazyPath = Build.LazyPath;
+const Module = Build.Module;
+const ResolvedTarget = Build.ResolvedTarget;
+const Step = Build.Step;
+const Compile = Step.Compile;
+
+const builtin = std.builtin;
+const OptimizeMode = builtin.OptimizeMode;
