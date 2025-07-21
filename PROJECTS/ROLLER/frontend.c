@@ -4440,72 +4440,66 @@ void select_configure()
 
 //-------------------------------------------------------------------------------------------------
 
-int front_displaycalibrationbar(int result, int a2, int a3)
+void front_displaycalibrationbar(int iY, int iX, int iValue)
 {
-  (void)(result); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // edi
-  _BYTE *v4; // ecx
-  int v5; // edi
+  int iClampedValue; // edi
+  uint8 *pScreenPos; // ecx
+  int iIndicatorPos; // edi
   int i; // esi
-  int v7; // ebp
+  int iScreenWidth; // ebp
 
-  v3 = a3;
-  if (a3 < -100)
-    v3 = -100;
-  if (v3 > 100)
-    v3 = 100;
-  v4 = (_BYTE *)(winw * a2 + result + scrbuf);
+  iClampedValue = iValue;
+  if (iValue < -100)
+    iClampedValue = -100;
+  if (iClampedValue > 100)
+    iClampedValue = 100;
+  pScreenPos = &scrbuf[iY + winw * iX];
   if (current_mode) {
-    v5 = v3 + 103;
+    iIndicatorPos = iClampedValue + 103;
     for (i = 0; i < 17; ++i) {
       if (i && i != 16) {
-        *v4 = -113;
-        v4[206] = -113;
-        v4[v5] = -85;
-        v4[v5 - 1] = -85;
-        v4[v5 - 2] = -85;
-        v4[v5 + 1] = -85;
-        v4[v5 + 2] = -85;
-        v4[103] = -25;
-        v4[104] = -25;
-        v7 = winw;
-        v4[102] = -25;
-        v4 += v7;
+        *pScreenPos = 0x8F;
+        pScreenPos[206] = 0x8F;
+        pScreenPos[iIndicatorPos] = 0xAB;
+        pScreenPos[iIndicatorPos - 1] = 0xAB;
+        pScreenPos[iIndicatorPos - 2] = 0xAB;
+        pScreenPos[iIndicatorPos + 1] = 0xAB;
+        pScreenPos[iIndicatorPos + 2] = 0xAB;
+        pScreenPos[103] = 0xE7;
+        pScreenPos[104] = 0xE7;
+        iScreenWidth = winw;
+        pScreenPos[102] = 0xE7;
+        pScreenPos += iScreenWidth;
       } else {
-        result = memset(v4, 143, 206);
-        v4 += winw;
+        memset(pScreenPos, 0x8F, 0xCEu);
+        pScreenPos += winw;
       }
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int front_volumebar(int a1, int a2, int a3)
+void front_volumebar(int iY, int iVolumeLevel, int iFillColor)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;/*
-  _BYTE *v3; // ecx
-  int i; // esi
-  int result; // eax
+  uint8 *pbyScreenPos; // ecx
+  int iRow; // esi
+  int iScreenWidth; // eax
 
-  v3 = (_BYTE *)(winw * a1 + scrbuf + 430);
-  for (i = 0; i < 17; ++i) {
-    if (i && i != 16) {
-      *v3 = -113;
-      memset(v3 + 1, a3, 160 * a2 / 127);
-      result = winw;
-      v3[161] = -113;
-      v3 += result;
+  pbyScreenPos = &scrbuf[winw * iY + 430];      // Calculate starting position in screen buffer (430 pixels from left edge)
+  for (iRow = 0; iRow < 17; ++iRow)           // Draw 17 rows for the volume bar
+  {                                             // Skip first and last row (draw border on those)
+    if (iRow && iRow != 16) {
+      *pbyScreenPos = 0x8F;                     // Draw left border (0x8F is white in PALETTE.PAL)
+      memset(pbyScreenPos + 1, iFillColor, 160 * iVolumeLevel / 127);// Fill volume bar based on level (160 * volume / 127 pixels wide)
+      iScreenWidth = winw;
+      pbyScreenPos[161] = 0x8F;                 // Draw right border  (0x8F is white in PALETTE.PAL)
+      pbyScreenPos += iScreenWidth;
     } else {
-      result = memset(v3, 143, 162);
-      v3 += winw;
+      memset(pbyScreenPos, 0x8F, 0xA2u);        // Draw top/bottom border - fill entire width (162 pixels) with border color
+      pbyScreenPos += winw;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
