@@ -432,62 +432,52 @@ void select_screen()
   eCarType cartype3; // eax
   eCarType cartype4; // ebx
   int iCarTexLoaded2; // edx
-  int v17; // eax
+  int iCurLaps; // eax
+  double dRecordLap; // st7
+  int iMinutes; // ecx
+  int iSeconds; // ebx
   int iBlockIdx2; // ebx
   int iPlayerIdx; // edx
   int iPlayerIdx2; // eax
-  uint8 **v26; // edx
-  void **v27; // eax
-  eCarType v28; // eax
-  eCarType v29; // ebx
-  int v30; // edx
-  int v31; // ecx
-  int v32; // eax
-  int v33; // edx
+  uint8 **ppCartexVgaItr_2; // edx
+  void **ppCartexVgaToFree_1; // eax
+  eCarType carType_2; // eax
+  eCarType carTypeBackup; // ebx
+  int iCarTexLoaded_1; // edx
+  int iCarIdx; // ecx
+  int iPlayerIdx_1; // eax
+  int iPlayerOffset; // edx
   uint8 **ppCartexVgaItr_1; // edx
   void **ppCartexVgaToFree; // eax
   eCarType iCar; // eax
-  eCarType v38; // ebx
+  eCarType carTypeToLoad; // ebx
   int iCartexLoaded; // ecx
   int iLoadCarTextures_1; // edx
-  uint8 iKey; // al
-  uint8 iKey2; // al
-  void **v43; // edx
+  uint8 byKey; // al
+  uint8 byKey2; // al
+  void **ppCartexVgaToFree_2; // edx
   eCarType carType_1; // eax
-  eCarType v45; // ebx
+  eCarType carTypeSelected; // ebx
   int iCartexLoaded2; // edx
+  int16 nNewYaw; // ax
   int iControl; // edx
-  uint8 **ppFrontVgaItr; // edx
-  void **pFrontVgaToFre; // eax
-  uint8 **ppCartexVgaItr; // edx
-  void **pCartexVgaToFre; // eax
   int j; // eax
-  int v54; // edx
-  int iMaxRacerOffset; // esi
-  int iGridOffset; // ecx
+  int iNonCompetitorIdx; // edx
   int iRacersIdx; // esi
-  int v58; // edx
-  int iRacersOffset2; // ecx
-  int iMaxRacersOffset2; // edi
-  int v61; // ebx
-  unsigned int v62; // eax
-  int iRacers; // esi
-  int iRacersOffset; // ebp
-  int k; // ebx
-  int v69 = 0; // edi
+  int iNonCompetitorIdx2; // edx
   int m; // esi
-  int v71; // edx
-  int v72; // ebx
+  int iTargetPos; // edx
+  int iHumanIdx; // ebx
   int iGridIdx; // eax
-  int n; // eax
-  int v75; // ecx
-  int v76; // edx
+  int iNonHumanIdx; // eax
+  int iSwapGrid1; // ecx
+  int iSwapGrid2; // edx
   int iInitScreen; // [esp+0h] [ebp-54h]
-  int16 iFrames; // [esp+4h] [ebp-50h]
-  int v79; // [esp+Ch] [ebp-48h]
-  int iBlockIdx; // [esp+10h] [ebp-44h]
+  int16 nFrames; // [esp+4h] [ebp-50h]
+  int iRotation; // [esp+Ch] [ebp-48h]
+  eCarDesignIndex iBlockIdx; // [esp+10h] [ebp-44h]
   int iLoadCarTex2; // [esp+2Ch] [ebp-28h]
-  int v82; // [esp+30h] [ebp-24h]
+  int iLoadCarTexFlag; // [esp+30h] [ebp-24h]
   int iLoadCarTextures2; // [esp+34h] [ebp-20h]
 
   // Initialize game state
@@ -500,11 +490,13 @@ void select_screen()
   if (!time_to_start) {
     while (1) {
       cup_won = (textures_off & 0x1000) != 0;
-      if ((textures_off & 0x20000) != 0)
-        cup_won = cup_won | 2;
+      if ((textures_off & 0x20000) != 0) {
+        cup_won |= 2;
+        //LOBYTE(cup_won) = cup_won | 2;
+      }
       loadfatalsample();
       iContinue = 0;
-      v79 = 0;
+      iRotation = 0;
       player1_car = 0;
       player2_car = 1;
       if (!network_on) {
@@ -584,14 +576,24 @@ void select_screen()
       fre((void **)&front_vga[7]);
       set_starts(0);
       car_texs_loaded[0] = 0;
-      for (int i = 0; i < 16; ++i) {
+      for (int i = 1; i < 16; ++i) {
         car_texs_loaded[i] = -1;
       }
+      //for (i = 2; i != 16; SmokePt[i + 1023] = -1)// reference to car_texs_loaded
+      //{
+      //  i += 7;
+      //  SmokePt[i + 1017] = -1;
+      //  SmokePt[i + 1018] = -1;
+      //  SmokePt[i + 1019] = -1;
+      //  SmokePt[i + 1020] = -1;
+      //  SmokePt[i + 1021] = -1;
+      //  SmokePt[i + 1022] = -1;
+      //}
       iPlayer1Car2 = Players_Cars[player1_car];
       iBlockIdx = iPlayer1Car2;
       LoadCarTextures = 0;
       if (game_type == 1) {
-        //loadtrack((_DWORD *)TrackLoad, -1);
+        loadtrack(TrackLoad, -1);
         fre((void **)&front_vga[3]);
         front_vga[3] = load_picture("trkname.bm");
         front_vga[13] = load_picture("bonustrk.bm");
@@ -602,7 +604,7 @@ void select_screen()
         iCarTexLoaded = car_texs_loaded[carType];
         iLoadCarTextures = 1;
         if (iCarTexLoaded == -1) {
-          LoadCarTexture(carType, 1);
+          LoadCarTexture(carType, 1u);
           car_texmap[iBlockIdx] = 1;
           car_texs_loaded[carType2] = 1;
           iLoadCarTextures = 2;
@@ -656,24 +658,24 @@ void select_screen()
       front_fade = 0;
       Players_Cars[player1_car] = iBlockIdx;
 
-      // for (int i = 0; i < 16; ++i) {
-      //   fre(&front_vga[i]);
-      // }
-      ppFrontVgaItr = (uint8 **)front_vga;
-      do {
-        pFrontVgaToFre = (void **)ppFrontVgaItr++;
-        fre(pFrontVgaToFre);
-      } while (ppFrontVgaItr != (uint8**)&front_vga[16]);
+      for (int i = 0; i < 16; ++i) {
+        fre((void**)&front_vga[i]);
+      }
+      //ppFrontVgaItr = front_vga;
+      //do {
+      //  pFrontVgaToFre = (void **)ppFrontVgaItr++;
+      //  fre(pFrontVgaToFre);
+      //} while (ppFrontVgaItr != &front_vga[16]);
 
-      if (iBlockIdx >= 0) {
-        // for (int i = 0; i < 16; ++i) {
-        //   fre(&cartex_vga[i]);
-        // }
-        ppCartexVgaItr = (uint8 **)cartex_vga;
-        do {
-          pCartexVgaToFre = (void **)ppCartexVgaItr++;
-          fre(pCartexVgaToFre);
-        } while (ppCartexVgaItr != (uint8 **)&cartex_vga[16]);
+      if (iBlockIdx >= CAR_DESIGN_AUTO) {
+        for (int i = 0; i < 16; ++i) {
+          fre((void**)&cartex_vga[i]);
+        }
+        //ppCartexVgaItr = cartex_vga;
+        //do {
+        //  pCartexVgaToFre = (void **)ppCartexVgaItr++;
+        //  fre(pCartexVgaToFre);
+        //} while (ppCartexVgaItr != &cartex_vga[16]);
         remove_mapsels();
       }
       gfx_size = p_tex_size;
@@ -696,7 +698,7 @@ void select_screen()
       switch_types = 0;
       if (!game_type && competitors == 1)
         competitors = 16;
-      if (iBlockIdx >= 0) {
+      if (iBlockIdx >= CAR_DESIGN_AUTO) {
         car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
         ppCartexVgaItr2 = (void **)cartex_vga;
         do
@@ -705,26 +707,26 @@ void select_screen()
         remove_mapsels();
       }
       if (game_type == 1) {
-        //loadtrack((_DWORD *)TrackLoad, -1);
+        loadtrack(TrackLoad, -1);
         fre((void **)&front_vga[3]);
         fre((void **)&front_vga[13]);
         fre((void **)&front_vga[14]);
         front_vga[3] = load_picture("trkname.bm");
         front_vga[13] = load_picture("bonustrk.bm");
         front_vga[14] = load_picture("cupicons.bm");
-        //Race = ((_BYTE)TrackLoad - 1) & 7;
+        Race = ((uint8)TrackLoad - 1) & 7;
       } else {
         fre((void **)&front_vga[3]);
         fre((void **)&front_vga[13]);
         fre((void **)&front_vga[14]);
         front_vga[3] = load_picture("carnames.bm");
-        if (iBlockIdx >= 0) {
+        if (iBlockIdx >= CAR_DESIGN_AUTO) {
           cartype3 = CarDesigns[iBlockIdx].carType;
           cartype4 = cartype3;
           iLoadCarTextures2 = 1;
           iCarTexLoaded2 = car_texs_loaded[cartype3];
           if (iCarTexLoaded2 == -1) {
-            LoadCarTexture(cartype3, 1);
+            LoadCarTexture(cartype3, 1u);
             car_texs_loaded[cartype4] = 1;
             car_texmap[iBlockIdx] = 1;
             iLoadCarTextures2 = 2;
@@ -736,7 +738,7 @@ void select_screen()
         network_champ_on = 0;
       }
     }
-    iFrames = frames;
+    nFrames = frames;
     frames = 0;
     if (ticks > 1080 && !iQuitConfirmed && !network_on) {
       intro = -1;
@@ -744,7 +746,7 @@ void select_screen()
       replaytype = 2;
     }
     check_cars();
-    
+
     display_picture(scrbuf, front_vga[0]);
     display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
     display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
@@ -752,128 +754,26 @@ void select_screen()
       display_block(scrbuf, (tBlockHeader *)front_vga[6], 3, 52, 334, 0);
     } else {
       display_block(scrbuf, (tBlockHeader *)front_vga[6], 1, 52, 334, 0);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "~",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[iMenuSelection].x,
-        sel_posns[iMenuSelection].y,
-        0x8Fu,
-        0);
+      front_text((tBlockHeader *)front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuSelection].x, sel_posns[iMenuSelection].y, 0x8Fu, 0);
     }
     if (game_type == 1) {
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        language_buffer,
-        font2_ascii,
-        font2_offsets,
-        sel_posns[1].x + 132,
-        sel_posns[1].y + 7,
-        0x8Fu,
-        2u);
+      front_text((tBlockHeader *)front_vga[2], language_buffer, font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
       if (Race)
-        front_text(
-          (tBlockHeader *)front_vga[2],
-          &language_buffer[128],
-          font2_ascii,
-          font2_offsets,
-          sel_posns[3].x + 132,
-          sel_posns[3].y + 7,
-          0x8Fu,
-          2u);
+        front_text((tBlockHeader *)front_vga[2], &language_buffer[128], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
       else
-        front_text(
-          (tBlockHeader *)front_vga[2],
-          &language_buffer[64],
-          font2_ascii,
-          font2_offsets,
-          sel_posns[3].x + 132,
-          sel_posns[3].y + 7,
-          0x8Fu,
-          2u);
+        front_text((tBlockHeader *)front_vga[2], &language_buffer[64], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
     } else {
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[256],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[1].x + 132,
-        sel_posns[1].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[320],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[3].x + 132,
-        sel_posns[3].y + 7,
-        0x8Fu,
-        2u);
+      front_text((tBlockHeader *)front_vga[2], &language_buffer[256], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+      front_text((tBlockHeader *)front_vga[2], &language_buffer[320], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
     }
-    front_text(
-      (tBlockHeader *)front_vga[2],
-      &language_buffer[192],
-      font2_ascii,
-      font2_offsets,
-      sel_posns[0].x + 132,
-      sel_posns[0].y + 7,
-      0x8Fu,
-      2u);
-    front_text(
-      (tBlockHeader *)front_vga[2],
-      config_buffer,
-      font2_ascii,
-      font2_offsets,
-      sel_posns[2].x + 132,
-      sel_posns[2].y + 7,
-      0x8Fu,
-      2u);
-    front_text(
-      (tBlockHeader *)front_vga[2],
-      &language_buffer[384],
-      font2_ascii,
-      font2_offsets,
-      sel_posns[4].x + 132,
-      sel_posns[4].y + 7,
-      0x8Fu,
-      2u);
-    front_text(
-      (tBlockHeader *)front_vga[2],
-      &language_buffer[448],
-      font2_ascii,
-      font2_offsets,
-      sel_posns[5].x + 132,
-      sel_posns[5].y + 7,
-      0x8Fu,
-      2u);
-    front_text(
-      (tBlockHeader *)front_vga[2],
-      &language_buffer[512],
-      font2_ascii,
-      font2_offsets,
-      sel_posns[6].x + 132,
-      sel_posns[6].y + 7,
-      0x8Fu,
-      2u);
-    front_text(
-      (tBlockHeader *)front_vga[2],
-      &config_buffer[640],
-      font2_ascii,
-      font2_offsets,
-      sel_posns[7].x + 132,
-      sel_posns[7].y + 7,
-      0x8Fu,
-      2u);
+    front_text((tBlockHeader *)front_vga[2], &language_buffer[192], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], config_buffer, font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &language_buffer[384], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &language_buffer[448], font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &language_buffer[512], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[640], font2_ascii, font2_offsets, sel_posns[7].x + 132, sel_posns[7].y + 7, 0x8Fu, 2u);
     if (game_type == 1) {
-      //display_block(
-      //  scrbuf,
-      //  (tBlockHeader *)front_vga[14],
-      //  (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3,
-      //  500,
-      //  300,
-      //  0);
+      display_block(scrbuf, (tBlockHeader *)front_vga[14], (TrackLoad - 1) % 8, 500, 300, 0);
       if (TrackLoad <= 0) {
         if (TrackLoad)
           front_text((tBlockHeader *)front_vga[2], "EDITOR", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
@@ -884,51 +784,58 @@ void select_screen()
       } else {
         display_block(scrbuf, (tBlockHeader *)front_vga[3], TrackLoad - 1, 190, 356, 0);
       }
-      show_3dmap(cur_TrackZ, 1280, v79);
+      show_3dmap(cur_TrackZ, 1280, iRotation);
       if (game_type < 2) {
-        v17 = cur_laps[level];
-        NoOfLaps = v17;
+        iCurLaps = cur_laps[level];
+        NoOfLaps = iCurLaps;
         if (competitors == 2)
-          NoOfLaps = v17 / 2;
+          NoOfLaps = iCurLaps / 2;
         sprintf(buffer, "%s: %i", &language_buffer[4544], NoOfLaps);
         front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 16, 0x8Fu, 1u);
-        front_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4608],
-          font1_ascii,
-          font1_offsets,
-          420,
-          34,
-          0x8Fu,
-          1u);
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[4608], font1_ascii, font1_offsets, 420, 34, 0x8Fu, 1u);
         if (RecordCars[TrackLoad] < 0) {
           sprintf(buffer, "%s", RecordNames[TrackLoad]);
         } else {
-          //v18 = RecordLaps[TrackLoad] * 100.0;
+          dRecordLap = RecordLaps[TrackLoad] * 100.0;
           //_CHP();
-          //LODWORD(v19) = (int)v18;
-          //HIDWORD(v19) = (int)v18 >> 31;
-          //v20 = v19 / 6000;
-          //LODWORD(v19) = (int)v18;
-          //v21 = (int)(v19 / 100) % 60;
-          //LODWORD(v19) = (int)v18;
+          int iLapTime = (int)dRecordLap;
+          iMinutes = iLapTime / 6000;
+          iSeconds = (iLapTime / 100) % 60;
+          int iHundredths = iLapTime % 100;
+          sprintf(
+              buffer,
+              "%s - %s - %02i:%02i:%02i",
+              RecordNames[TrackLoad],
+              CompanyNames[RecordCars[TrackLoad] & 0xF],
+              iMinutes,
+              iSeconds,
+              iHundredths);
+
+          //dRecordLap = RecordLaps[TrackLoad] * 100.0;
+          ////_CHP();
+          //SET_LODWORD(llRecordLap, (int)dRecordLap);
+          //SET_HIDWORD(llRecordLap, (int)dRecordLap >> 31);
+          //iMinutes = llRecordLap / 6000;
+          //SET_LODWORD(llRecordLap, (int)dRecordLap);
+          //iSeconds = (int)(llRecordLap / 100) % 60;
+          //SET_LODWORD(llRecordLap, (int)dRecordLap);
           //sprintf(
           //  buffer,
           //  "%s - %s - %02i:%02i:%02i",
           //  RecordNames[TrackLoad],
           //  CompanyNames[RecordCars[TrackLoad] & 0xF],
-          //  v20,
-          //  v21,
-          //  (unsigned int)(v19 % 100));
+          //  iMinutes,
+          //  iSeconds,
+          //  (unsigned int)(llRecordLap % 100));
         }
         front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 52, 0x8Fu, 1u);
       }
-    } else if (iBlockIdx >= 0) {
+    } else if (iBlockIdx >= CAR_DESIGN_AUTO) {
       if (iBlockIdx == CAR_DESIGN_F1WACK)
         DrawCar(scrbuf + 34640, CAR_DESIGN_F1WACK, 6000.0, 1280, 0);
       else
         DrawCar(scrbuf + 34640, iBlockIdx, 2200.0, 1280, 0);
-      if (iBlockIdx < 8)
+      if (iBlockIdx < CAR_DESIGN_ZIZIN2)
         display_block(scrbuf, (tBlockHeader *)front_vga[3], iBlockIdx, 190, 356, 0);
     }
     display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
@@ -960,49 +867,53 @@ void select_screen()
         display_block(scrbuf, (tBlockHeader *)front_vga[4], iMenuSelection, 76, 257, -1);
         break;
     }
-    if (iBlockIdx < 0)
+    if (iBlockIdx < CAR_DESIGN_AUTO)
       front_text((tBlockHeader *)front_vga[15], &language_buffer[4160], font1_ascii, font1_offsets, 400, 200, 0xE7u, 1u);
     if (iQuitConfirmed)
       front_text((tBlockHeader *)front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 250, 0xE7u, 1u);
     show_received_mesage();
     copypic(scrbuf, screen);
-
     if (switch_same > 0) {
       if (game_type != 1 && switch_same - 666 != iBlockIdx) {
-        if (iBlockIdx >= 0) {
+        if (iBlockIdx >= CAR_DESIGN_AUTO) {
           car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
-          v26 = (uint8 **)cartex_vga;
+          ppCartexVgaItr_2 = cartex_vga;
           do {
-            v27 = (void **)v26++;
-            fre(v27);
-          } while (v26 != (uint8 **)&cartex_vga[16]);
+            ppCartexVgaToFree_1 = (void **)ppCartexVgaItr_2++;
+            fre(ppCartexVgaToFree_1);
+          } while (ppCartexVgaItr_2 != &cartex_vga[16]);
           remove_mapsels();
         }
-        v28 = CarDesigns[switch_same - 666].carType;
-        v29 = v28;
-        v82 = 1;
-        v30 = car_texs_loaded[v28];
-        v31 = switch_same - 666;
-        if (v30 == -1) {
-          LoadCarTexture(v28, 1);
-          car_texs_loaded[v29] = 1;
-          car_texmap[v31] = 1;
-          v82 = 2;
+        carType_2 = CarDesigns[switch_same - 666].carType;
+        carTypeBackup = carType_2;
+        iLoadCarTexFlag = 1;
+        iCarTexLoaded_1 = car_texs_loaded[carType_2];
+        iCarIdx = switch_same - 666;
+        if (iCarTexLoaded_1 == -1) {
+          LoadCarTexture(carType_2, 1u);
+          car_texs_loaded[carTypeBackup] = 1;
+          car_texmap[iCarIdx] = 1;
+          iLoadCarTexFlag = 2;
         } else {
-          car_texmap[v31] = v30;
+          car_texmap[iCarIdx] = iCarTexLoaded_1;
         }
-        LoadCarTextures = v82;
+        LoadCarTextures = iLoadCarTexFlag;
       }
-      v32 = 0;
+      iPlayerIdx_1 = 0;
       if (players > 0) {
-        v33 = 0;
+        iPlayerOffset = 0;
         do {
-          v33 += 4;
-          *(int *)((char *)&infinite_laps + v33) = switch_same - 666;
-          ++v32;
-        } while (v32 < players);
+          iPlayerOffset += 4;
+          *(int *)((char *)&infinite_laps + iPlayerOffset) = switch_same - 666;
+          ++iPlayerIdx_1;
+        } while (iPlayerIdx_1 < players);
       }
+
       cheat_mode |= CHEAT_MODE_CLONES;
+      //iCheatMode = cheat_mode;
+      //BYTE1(iCheatMode) = BYTE1(cheat_mode) | 0x40;
+      //cheat_mode = iCheatMode;
+
       iBlockIdx = switch_same - 666;
     } else if (switch_same < 0) {
       switch_same = 0;
@@ -1014,25 +925,29 @@ void select_screen()
           ++iPlayerIdx;
         } while (iPlayerIdx < players);
       }
+
       cheat_mode &= ~CHEAT_MODE_CLONES;
+      //iCheatMode2 = cheat_mode;
+      //BYTE1(iCheatMode2) = BYTE1(cheat_mode) & 0xBF;
+      //cheat_mode = iCheatMode2;
     }
     if (switch_sets) {
-      if (game_type != 1 && iBlockIdx >= 0) {
-        ppCartexVgaItr_1 = (uint8**)cartex_vga;
+      if (game_type != 1 && iBlockIdx >= CAR_DESIGN_AUTO) {
+        ppCartexVgaItr_1 = cartex_vga;
         car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
         do {
           ppCartexVgaToFree = (void **)ppCartexVgaItr_1++;
           fre(ppCartexVgaToFree);
-        } while (ppCartexVgaItr_1 != (uint8 **)&cartex_vga[16]);
+        } while (ppCartexVgaItr_1 != &cartex_vga[16]);
         remove_mapsels();
         iCar = CarDesigns[iBlockIdx].carType;
-        v38 = iCar;
+        carTypeToLoad = iCar;
         iCartexLoaded = car_texs_loaded[iCar];
         iLoadCarTextures_1 = 1;
         if (iCartexLoaded == -1) {
-          LoadCarTexture(iCar, 1);
+          LoadCarTexture(iCar, 1u);
           car_texmap[iBlockIdx] = 1;
-          car_texs_loaded[v38] = 1;
+          car_texs_loaded[carTypeToLoad] = 1;
           iLoadCarTextures_1 = 2;
         } else {
           car_texmap[iBlockIdx] = iCartexLoaded;
@@ -1055,29 +970,30 @@ void select_screen()
     }
     print_data = 0;
     while (1) {
-      UpdateSDL(); //added by ROLLER
+      UpdateSDL();
       while (1) {
-        UpdateSDL(); //added by ROLLER
+        UpdateSDL();
         if (!fatkbhit()) {
-          int16 nNewYaw = Car[0].nYaw + 32 * iFrames;
+          nNewYaw = Car[0].nYaw + 32 * nFrames;
+          //HIBYTE(nNewYaw) &= 0x3Fu;
           nNewYaw &= 0x3FFF;
           Car[0].nYaw = nNewYaw;
-          v79 = ((int16)v79 + 32 * iFrames) & 0x3FFF;
+          iRotation = ((uint16)iRotation + 32 * nFrames) & 0x3FFF;
           goto LABEL_45;
         }
         ticks = 0;
-        iKey = fatgetch();
+        byKey = fatgetch();
         if (iQuitConfirmed)
           break;
-        if (iKey) {
-          if (iKey == 13)                     // KEY_ENTER
+        if (byKey) {
+          if (byKey == 13)                    // KEY_ENTER
           {
-            if (iBlockIdx >= 0) {
-              v43 = (void **)cartex_vga;
+            if (iBlockIdx >= CAR_DESIGN_AUTO) {
+              ppCartexVgaToFree_2 = (void **)cartex_vga;
               car_texs_loaded[CarDesigns[iBlockIdx].carType] = -1;
               do
-                fre(v43++);
-              while (v43 != (void **)&cartex_vga[16]);
+                fre(ppCartexVgaToFree_2++);
+              while (ppCartexVgaToFree_2 != (void **)&cartex_vga[16]);
               remove_mapsels();
             }
             fre((void **)&front_vga[3]);
@@ -1128,17 +1044,17 @@ void select_screen()
                 sfxsample(83, 0x8000);
                 break;
               case 8:
-                if (iBlockIdx >= 0) {
+                if (iBlockIdx >= CAR_DESIGN_AUTO) {
                   iContinue = -1;
                   sfxsample(87, 0x8000);
                   netCD = 0;
                   int iTargetTicks = ticks + 108;
-                  if (soundon) {
+                  if (soundon && iTargetTicks > ticks) {
                     while (iTargetTicks > ticks)
                       UpdateSDL();
                   }
                   while (fatkbhit()) {
-                    UpdateSDL(); //added by ROLLER
+                    UpdateSDL();
                     fatgetch();
                   }
                   replaytype = replay_record;
@@ -1152,20 +1068,20 @@ void select_screen()
             fre((void **)&front_vga[14]);
             iBlockIdx = Players_Cars[player1_car];
             if (game_type == 1) {
-              //loadtrack((_DWORD *)TrackLoad, -1);
+              loadtrack(TrackLoad, -1);
               front_vga[3] = load_picture("trkname.bm");
               front_vga[13] = load_picture("bonustrk.bm");
               front_vga[14] = load_picture("cupicons.bm");
             } else {
               front_vga[3] = load_picture("carnames.bm");
-              if (iBlockIdx >= 0) {
+              if (iBlockIdx >= CAR_DESIGN_AUTO) {
                 carType_1 = CarDesigns[iBlockIdx].carType;
                 iLoadCarTex2 = 1;
-                v45 = carType_1;
+                carTypeSelected = carType_1;
                 iCartexLoaded2 = car_texs_loaded[carType_1];
                 if (iCartexLoaded2 == -1) {
-                  LoadCarTexture(carType_1, 1);
-                  car_texs_loaded[v45] = 1;
+                  LoadCarTexture(carType_1, 1u);
+                  car_texs_loaded[carTypeSelected] = 1;
                   car_texmap[iBlockIdx] = 1;
                   iLoadCarTex2 = 2;
                 } else {
@@ -1178,26 +1094,26 @@ void select_screen()
             frames = 0;
           }
         } else {
-          iKey2 = fatgetch();
-          if (iKey2 >= 0x48u) {
-            if (iKey2 <= 0x48u)               // KEY_DOWN
+          byKey2 = fatgetch();
+          if (byKey2 >= 0x48u) {
+            if (byKey2 <= 0x48u)              // KEY_DOWN
             {
               if (--iMenuSelection < 0)
                 iMenuSelection = 0;
-            } else if (iKey2 == 80 && ++iMenuSelection > 8)// KEY_UP
+            } else if (byKey2 == 80 && ++iMenuSelection > 8)// KEY_UP
             {
               iMenuSelection = 8;
             }
           }
         }
       }
-      if (iKey < 0x59u) {
-        if (!iKey)
+      if (byKey < 0x59u) {
+        if (!byKey)
           fatgetch();
       LABEL_155:
         iQuitConfirmed = 0;
       } else {
-        if (iKey > 0x59u && iKey != 0x79)
+        if (byKey > 0x59u && byKey != 0x79)
           goto LABEL_155;
         iContinue = -1;
         quit_game = -1;
@@ -1226,7 +1142,7 @@ LABEL_232:
           cd_error = -1;
       }
     }
-    //Race = ((_BYTE)TrackLoad - 1) & 7;
+    Race = ((uint8)TrackLoad - 1) & 7;
     if (game_type == 1 && !Race) {
       memset(championship_points, 0, sizeof(championship_points));
       memset(team_points, 0, sizeof(team_points));
@@ -1246,75 +1162,129 @@ LABEL_232:
     if (competitors == 1)
       racers = players;
     j = racers;
-    v54 = 0;
+    iNonCompetitorIdx = 0;
     if (racers > 0) {
-      iMaxRacerOffset = 4 * racers;
-      iGridOffset = 0;
-      do {
-        for (j = 4 * v54; *(int *)((char *)non_competitors + j); j += 4)
-          ++v54;
-        grid[iGridOffset / 4u] = v54;
-        iGridOffset += 4;
-        ++v54;
-      } while (iGridOffset < iMaxRacerOffset);
+      int iMaxRacers = racers;
+      int iNonCompetitorIdx = 0;
+      for (int i = 0; i < iMaxRacers; i++)
+      {
+        // Skip occupied non-competitor slots
+        while (non_competitors[iNonCompetitorIdx] != 0)
+        {
+          iNonCompetitorIdx++;
+        }
+        // Store the index of the first available non-competitor slot
+        grid[i] = iNonCompetitorIdx; 
+        // Move to next slot for next iteration
+        iNonCompetitorIdx++;
+      }
+      //iMaxRacerOffset = 4 * racers;
+      //iGridOffset = 0;
+      //do {
+      //  for (j = 4 * iNonCompetitorIdx; *(int *)((char *)non_competitors + j); j += 4)
+      //    ++iNonCompetitorIdx;
+      //  grid[iGridOffset / 4u] = iNonCompetitorIdx;
+      //  iGridOffset += 4;
+      //  ++iNonCompetitorIdx;
+      //} while (iGridOffset < iMaxRacerOffset);
     }
     iRacersIdx = racers;
-    v58 = 0;
+    iNonCompetitorIdx2 = 0;
     if (racers < numcars) {
-      iRacersOffset2 = 4 * racers;
-      iMaxRacersOffset2 = 4 * numcars;
-      do {
-        for (j = 4 * v58; !*(int *)((char *)non_competitors + j); j += 4)
-          ++v58;
-        ++iRacersIdx;
-        grid[iRacersOffset2 / 4u] = v58;
-        iRacersOffset2 += 4;
-        ++v58;
-      } while (iRacersOffset2 < iMaxRacersOffset2);
+      for (int i = racers; i < numcars; i++)
+      {
+        // Skip empty non-competitor slots (find occupied ones)
+        while (non_competitors[iNonCompetitorIdx2] == 0)
+        {
+          iNonCompetitorIdx2++;
+        }
+        iRacersIdx++;
+        // Store the index of the occupied non-competitor slot
+        grid[i] = iNonCompetitorIdx2;
+        // Move to next slot for next iteration
+        iNonCompetitorIdx2++;
+      }
+      //iRacersOffset2 = 4 * racers;
+      //iMaxRacersOffset2 = 4 * numcars;
+      //do {
+      //  for (j = 4 * iNonCompetitorIdx2; !*(int *)((char *)non_competitors + j); j += 4)
+      //    ++iNonCompetitorIdx2;
+      //  ++iRacersIdx;
+      //  grid[iRacersOffset2 / 4u] = iNonCompetitorIdx2;
+      //  iRacersOffset2 += 4;
+      //  ++iNonCompetitorIdx2;
+      //} while (iRacersOffset2 < iMaxRacersOffset2);
     }
     if (game_type == 1 && Race > 0) {
       if (racers > 0) {
-        v61 = 4 * racers;
-        v62 = 0;
-        do {
-          v62 += 4;
-          finished_car[v62 / 4 + 15] = teamorder[v62 / 4 + 7];
-        } while ((int)v62 < v61);
+        for (int i = 1; i <= racers; i++)
+        {
+          grid[i] = champorder[i];
+        }
+        //iRacersBytes = 4 * racers;
+        //iOffset = 0;
+        //do {
+        //  iOffset += 4;
+        //  // offsets into grid and champorder
+        //  finished_car[iOffset / 4 + 15] = teamorder[iOffset / 4 + 7];
+        //} while ((int)iOffset < iRacersBytes);
       }
     } else {
-      iRacers = racers;
-      iRacersOffset = 6 * racers;
-      for (k = 0; k < iRacersOffset; grid[j] = v69) {
-        //v66 = rand(j);
-        //v67 = (iRacers * v66 - (__CFSHL__((iRacers * v66) >> 31, 15) + ((iRacers * v66) >> 31 << 15))) >> 15;
-        //v68 = rand(v67);
-        //j = (iRacers * v68 - (__CFSHL__((iRacers * v68) >> 31, 15) + ((iRacers * v68) >> 31 << 15))) >> 15;
-        //v69 = grid[v67];
-        //grid[v67] = grid[j];
-        ++k;
+      int iShuffleIterations = 6 * racers;
+      for (int k = 0; k < iShuffleIterations; k++)
+      {
+          // Generate two random indices within the racers range
+          int iRandIdx1 = rand() % racers;
+          int iRandIdx2 = rand() % racers;
+          
+          // Swap grid elements
+          int iGridTemp = grid[iRandIdx1];
+          grid[iRandIdx1] = grid[iRandIdx2];
+          grid[iRandIdx2] = iGridTemp;
       }
+      //iRacers = racers;
+      //iRacersOffset = 6 * racers;
+      //for (k = 0; k < iRacersOffset; grid[j] = iGridTemp) {
+      //  iRandVal1 = rand(j);
+      //  iRandIdx1 = (iRacers * iRandVal1
+      //             - (__CFSHL__((iRacers * iRandVal1) >> 31, 15)
+      //                + ((iRacers * iRandVal1) >> 31 << 15))) >> 15;
+      //  iRandVal2 = rand(iRandIdx1);
+      //  j = (iRacers * iRandVal2 - (__CFSHL__((iRacers * iRandVal2) >> 31, 15) + ((iRacers * iRandVal2) >> 31 << 15))) >> 15;
+      //  iGridTemp = grid[iRandIdx1];
+      //  grid[iRandIdx1] = grid[j];
+      //  ++k;
+      //}
+
       for (m = 0; m < players; ++m) {
+        // calculate target starting pos based on difficulty
         if (level && (cheat_mode & 2) == 0)
-          v71 = racers - 2 * level * players;
+          iTargetPos = racers - 2 * level * players;
         else
-          v71 = racers - players;
-        if (v71 < 0)
-          v71 = 0;
-        v72 = 0;
-        for (iGridIdx = 0; !human_control[grid[iGridIdx]] && iGridIdx < 16; ++iGridIdx)
-          ++v72;
-        if (v72 < v71) {
-          for (n = v71; ; ++n) {
-            v75 = grid[n];
-            if (!human_control[v75])
+          iTargetPos = racers - players;
+        if (iTargetPos < 0)
+          iTargetPos = 0;
+
+        // find the first human-controlled player in grid
+        iHumanIdx = 0;
+        for (iGridIdx = 0; !human_control[grid[iGridIdx]]; ++iGridIdx)
+          ++iHumanIdx;
+
+        // if human is starting too far back, move them forward
+        if (iHumanIdx < iTargetPos) {
+          // Find first non-human player at or after target pos
+          for (iNonHumanIdx = iTargetPos; ; ++iNonHumanIdx) {
+            iSwapGrid1 = grid[iNonHumanIdx];
+            if (!human_control[iSwapGrid1])
               break;
-            ++v71;
+            ++iTargetPos;
           }
-          v76 = grid[v72];
-          grid[v72] = v75;
-          grid[n] = v76;
+          iSwapGrid2 = grid[iHumanIdx];
+          grid[iHumanIdx] = iSwapGrid1;
+          grid[iNonHumanIdx] = iSwapGrid2;
         }
       }
+
     }
   }
   StartPressed = 0;

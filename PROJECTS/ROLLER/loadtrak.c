@@ -15,7 +15,7 @@ int TRAK_LEN;               //00178050
 
 //-------------------------------------------------------------------------------------------------
 
-void loadtrack(void *result, int a2)
+void loadtrack(int iTrackIdx, int a2)
 { /*
   int v2; // ebx
   int v3; // ecx

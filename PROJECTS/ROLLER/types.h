@@ -98,6 +98,11 @@ typedef int32 fixed16_16;
 #define GET_SHIWORD(x) (int16)GET_HIWORD(x)
 #define GET_SLOWORD(x) (int16)GET_LOWORD(x)
 
+#define GET_HIDWORD(x) (((x) >> 32) & 0xFFFFFFFF)
+#define SET_HIDWORD(lval, rval) (lval = (lval & 0x00000000FFFFFFFF) | ((uint64)(rval) << 32))
+#define GET_LODWORD(x) ((x) & 0xFFFFFFFF)
+#define SET_LODWORD(lval, rval) (lval = (lval & 0xFFFFFFFF00000000) | ((rval) & 0x00000000FFFFFFFF))
+
 #define __PAIR64__(high, low) (((uint64)(uint32)(high) << 32) | (uint32)(low))
 
 //-------------------------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ extern int TRAK_LEN;
 
 //-------------------------------------------------------------------------------------------------
 
-void loadtrack(void *result, int a2);
+void loadtrack(int iTrackIdx, int a2);
 int read_backs(int *a1, int a2, int a3, int a4);
 char *read_texturemap(int a1);
 char *read_bldmap(char **a1);
