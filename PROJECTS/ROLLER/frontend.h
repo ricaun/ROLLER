@@ -45,6 +45,7 @@ extern int player_type;
 extern int cup_won;
 extern int game_type;
 extern int car_pies[112];
+extern int AllowedViews[9];
 extern int replay_record;
 extern int last_replay;
 extern int last_type;

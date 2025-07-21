@@ -78,6 +78,7 @@ int car_pies[112] =       //000A4CC4
   1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1
 };
+int AllowedViews[9] = { -1, -1, -1, -1, 0, 0, 0, -1, 0 }; //000A52BC
 int replay_record = 1;    //000A5304
 int last_replay = -1;     //000A5308
 int last_type = 0;        //000A530C
@@ -2257,946 +2258,1525 @@ void select_car()
 
 void select_configure()
 {
-  /*
-  int v4; // ebx
-  int i; // ecx
-  __int64 v6; // rax
-  _BYTE *v7; // eax
-  int v8; // edx
-  int v9; // esi
-  char *v10; // edi
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int v15; // eax
-  int v16; // eax
-  int v17; // edi
-  int v18; // eax
-  int v19; // eax
-  int v20; // edi
-  int v21; // eax
-  int v22; // eax
-  int v23; // eax
-  int v24; // eax
-  int v25; // eax
-  int v26; // eax
-  int v27; // eax
-  int v28; // eax
-  int v29; // eax
-  int v30; // eax
-  int v31; // eax
-  int v32; // eax
-  int v33; // eax
-  int v34; // eax
-  int v35; // ebx
-  int v36; // ebx
-  int v37; // ebx
-  int v38; // edi
-  int v39; // ebx
-  int v40; // ebx
-  int v41; // ebx
-  int v42; // edi
-  int v43; // ebx
-  int v44; // eax
-  int v45; // edx
-  int v46; // eax
-  int v47; // eax
-  int v48; // eax
-  int v49; // eax
-  int v50; // eax
-  int v51; // esi
-  char *v52; // edi
-  int v53; // eax
-  int v54; // eax
-  int v55; // eax
-  int v56; // eax
-  int v57; // esi
-  char *v58; // edi
-  int v59; // eax
-  int v60; // eax
-  int v61; // eax
-  int v62; // eax
-  int v63; // eax
-  int v64; // eax
-  int v65; // eax
-  int v66; // eax
-  int v67; // eax
-  int v68; // eax
-  int v69; // eax
-  int v70; // eax
-  int v71; // eax
-  int v72; // eax
-  int v73; // eax
-  int v74; // eax
-  int v75; // eax
-  int v76; // eax
-  int v77; // eax
-  int v78; // eax
-  int v79; // eax
-  int v80; // eax
-  int v81; // eax
-  int v82; // eax
-  int v83; // eax
-  int v84; // eax
-  int v85; // eax
-  int v86; // eax
-  int v87; // eax
-  int v88; // eax
-  int v89; // eax
-  int v90; // eax
-  int v91; // eax
-  int v92; // eax
-  int v93; // eax
-  int v94; // eax
-  int v95; // eax
-  int v96; // eax
-  int v97; // eax
-  int v98; // eax
-  int v99; // eax
-  int v100; // eax
-  int v101; // eax
-  int v102; // eax
-  int v103; // eax
-  int v104; // eax
-  int v105; // eax
-  int v106; // eax
-  int v107; // eax
-  int v108; // eax
-  int v109; // eax
-  int v110; // eax
-  int v111; // edi
-  int v112; // esi
-  char *k; // eax
-  int v114; // edx
-  int v115; // eax
-  int v116; // eax
-  int v117; // eax
-  int v118; // eax
-  int v119; // eax
-  int v120; // eax
-  int v121; // eax
-  int v122; // eax
-  int v123; // edi
-  int v124; // eax
-  int v125; // edx
-  int v126; // eax
-  int v127; // eax
-  int v128; // eax
-  unsigned int v129; // eax
-  unsigned int v130; // eax
-  int v131; // edi
-  int v132; // edi
-  int v133; // eax
-  unsigned int v134; // eax
-  int v135; // eax
-  bool v136; // edi
-  int v137; // eax
-  int v138; // edx
-  char *v139; // eax
-  int v140; // eax
-  int v141; // eax
-  int v142; // eax
-  char *v143; // eax
-  int v144; // edi
-  unsigned int v145; // eax
-  int v146; // eax
-  int v147; // edi
-  bool v148; // eax
-  unsigned int v149; // eax
-  unsigned int v150; // eax
-  unsigned int v151; // eax
-  int v152; // edi
-  bool v153; // edi
-  unsigned int v154; // eax
-  int v155; // eax
-  int v156; // eax
-  int v157; // eax
-  int v158; // eax
-  unsigned int v159; // eax
-  int v160; // eax
-  int v161; // esi
-  unsigned int v162; // eax
-  int v163; // eax
-  bool v164; // esi
-  unsigned int v165; // eax
-  _BOOL1 j; // zf
-  int v167; // eax
-  int v168; // [esp-10h] [ebp-16h]
-  int v169; // [esp-10h] [ebp-16h]
-  int v170; // [esp-Ch] [ebp-12h]
-  int v171; // [esp-Ch] [ebp-12h]
-  __int64 v172; // [esp+0h] [ebp-6h] BYREF
-  int v173; // [esp+8h] [ebp+2h]
-  int v174; // [esp+Ch] [ebp+6h]
-  int v175; // [esp+10h] [ebp+Ah]
-  int v176; // [esp+14h] [ebp+Eh]
-  int v177; // [esp+18h] [ebp+12h]
-  int v178; // [esp+1Ch] [ebp+16h]
-  _BYTE v179[12]; // [esp+20h] [ebp+1Ah] BYREF
-  int v180; // [esp+2Ch] [ebp+26h]
-  int v181; // [esp+30h] [ebp+2Ah]
-  int v182; // [esp+34h] [ebp+2Eh]
-  int v183; // [esp+38h] [ebp+32h]
-  int v184; // [esp+3Ch] [ebp+36h]
-  int v185; // [esp+40h] [ebp+3Ah]
-  int v186; // [esp+44h] [ebp+3Eh]
-  int v187; // [esp+48h] [ebp+42h]
-  int v188; // [esp+4Ch] [ebp+46h]
-  int v189; // [esp+50h] [ebp+4Ah]
-  int v190; // [esp+54h] [ebp+4Eh]
-  bool v191; // [esp+58h] [ebp+52h]
-  int v192; // [esp+5Ch] [ebp+56h]
-  int v193; // [esp+60h] [ebp+5Ah]
-  int v194; // [esp+64h] [ebp+5Eh]
-  int v195; // [esp+68h] [ebp+62h]
-  int v196; // [esp+6Ch] [ebp+66h]
-  int v197; // [esp+70h] [ebp+6Ah]
-  int v198; // [esp+74h] [ebp+6Eh]
-  int v199; // [esp+78h] [ebp+72h]
-  int v200; // [esp+7Ch] [ebp+76h]
-  int v201; // [esp+80h] [ebp+7Ah]
-  int v202; // [esp+84h] [ebp+7Eh]
+  char *szString; // eax
+  int iCharIndex; // edx
+  int iCarIndex; // esi
+  const char *szCarName; // edi
+  uint8 byTextColor1; // al
+  uint8 byTextColor2; // al
+  uint8 byTextColor3; // al
+  uint8 byTextColor4; // al
+  char byChar; // al
+  int iFontWidth; // eax
+  uint8 byTextColor5; // al
+  uint8 byTextColor6; // al
+  uint8 byTextColor7; // al
+  int iTemp1; // edi
+  uint8 byTextColor8; // al
+  uint8 byTextColor9; // al
+  uint8 byColor; // al
+  int iSelectedCar_1; // edi
+  uint8 byColor_1; // al
+  uint8 byColor_2; // al
+  char byVolumeColor1; // al
+  char byVolumeColor2; // al
+  char byVolumeColor3; // al
+  char byVolumeColor4; // al
+  char byColor_3; // al
+  char byColor_4; // al
+  char byColor_5; // al
+  char byColor_6; // al
+  char byColor_7; // al
+  char byColor_9; // al
+  char byColor_8; // al
+  char byColor_10; // al
+  char byColor_11; // al
+  char byColor_13; // al
+  char byColor_12; // al
+  char byColor_14; // al
+  int byColor_15; // ebx
+  int byColor_16; // ebx
+  int byColor_17; // ebx
+  int iVolumeSelection_1; // ecx
+  int byColor_18; // ebx
+  int iConfigState_1; // edi
+  int iJoyCalibValue1; // ebx
+  char *szJoyStatus1; // edx
+  int iJoyCalibValue2; // ebx
+  char *szJoyStatus2; // edx
+  int iX2CalibrationVal; // ebx
+  char *szX2Text; // edx
+  int iConfigState_2; // edi
+  int iY2CalibrationVal; // ebx
+  char *szY2Text; // edx
+  int iKeyFound; // ebx
+  int iKeyIndex; // eax
+  int iKeyCounter; // edx
+  char byColor_19; // al
+  char byColor_20; // al
+  char byColor_21; // al
+  char byColor_22; // al
+  char byColor_23; // al
+  int iControlLoop; // esi
+  const char *szControlName; // edi
+  uint8 byControlColor; // al
+  char byColor_24; // al
+  uint8 byColor_25; // al
+  char byColor_26; // al
+  int iControlIndex2; // esi
+  const char *szText; // edi
+  uint8 byColor_27; // al
+  uint8 byColor_28; // al
+  uint8 byColor_29; // al
+  uint8 byColor_30; // al
+  int iKeyCheckLoop; // eax
+  int iFoundKey; // ecx
+  int iKeySearchIndex; // edx
+  int iJoyValue1; // eax
+  int iJoyValue2; // eax
+  int iJoyValue3; // eax
+  int iJoyValue4; // eax
+  int iDuplicateCheck; // ebx
+  int i; // eax
+  int iEditIndex; // eax
+  int iControlState; // ebx
+  char byColor_31; // al
+  char byColor_32; // al
+  char *szText_1; // edx
+  char byColor_33; // al
+  char byColor_34; // al
+  char byColor_36; // al
+  char byColor_105; // al
+  char byColor_35; // al
+  char byColor_37; // al
+  char byColor_38; // al
+  char byColor_39; // al
+  char byColor_40; // al
+  char byColor_41; // al
+  char byColor_42; // al
+  char byColor_43; // al
+  char byColor_44; // al
+  char byColor_45; // al
+  char byColor_46; // al
+  char byColor_47; // al
+  char byColor_48; // al
+  char byColor_49; // al
+  char byColor_50; // al
+  char byColor_51; // al
+  char byColor_52; // al
+  char byColor_53; // al
+  char byColor_54; // al
+  char byColor_55; // al
+  char byColor_57; // al
+  char byColor_56; // al
+  char byColor_58; // al
+  char byColor_59; // al
+  char byColor_60; // al
+  char byColor_61; // al
+  char byColor_62; // al
+  char byColor_63; // al
+  char byColor_64; // al
+  char byColor_65; // al
+  char byColor_66; // al
+  char byColor_67; // al
+  char byColor_68; // al
+  char byColor_69; // al
+  char byColor_70; // al
+  char byColor_71; // al
+  char byColor_72; // al
+  char byColor_73; // al
+  char byColor_74; // al
+  int iReturnValue; // eax
+  char byColor_76; // al
+  char byColor_75; // al
+  char byColor_77; // al
+  char byColor_78; // al
+  char byColor_79; // al
+  char byColor_80; // al
+  char byColor_81; // al
+  char byColor_82; // al
+  char byColor_83; // al
+  char byColor_84; // al
+  char byColor_85; // al
+  char byColor_86; // al
+  char byColor_87; // al
+  char byColor_88; // al
+  char byColor_89; // al
+  char byColor_90; // al
+  char byColor_91; // al
+  char byColor_92; // al
+  char byColor_93; // al
+  char byColor_94; // al
+  char byColor_95; // al
+  char byColor_96; // di
+  uint8 byColor_97; // si
+  char *szMemPtr; // eax
+  int iFontChar; // edx
+  uint8 byColor_106; // al
+  uint8 byColor_98; // al
+  char byColor_99; // al
+  uint8 byColor_100; // al
+  char byColor_101; // al
+  uint8 byColor_102; // al
+  char byColor_103; // al
+  uint8 byColor_104; // al
+  int iNetworkState_1; // edi
+  int iX; // eax
+  int iPlayerIdx_1; // eax
+  //int iPlayersCarsOffset_1; // edx
+  int iPlayerIdx; // eax
+  //int iPlayersCarsOffset; // edx
+  //uint32 uiTempCheatMode; // eax
+  unsigned int uiKeyCode; // eax
+  unsigned int uiExtendedKey; // eax
+  int iMenuDir; // edi
+  int iMenuDir2; // edi
+  int iKeyInput; // eax
+  int iKeyChar; // ecx
+  unsigned int uiArrowKey; // eax
+  int iPrevSelectedCar; // edx
+  int iNextSelectedCar; // edx
+  int iNameLength_1; // eax
+  int iEditingName_1; // edi
+  int j; // ecx
+  int iPlayer2Car; // edx
+  int k; // ecx
+  int iDefaultNamesIdx_1; // edx
+  int iDefaultNamesCharItr; // ecx
+  int iDefaultNamesIdx; // edx
+  int m; // ecx
+  int n; // ecx
+  int iAIDriverIdx; // eax
+  //int v189; // ecx
+  //int iOffset; // eax
+  //char v191; // dl
+  int ii; // ecx
+  int iPlayer2Car_1; // edx
+  int jj; // ecx
+  int iAIDriverIdx_1; // eax
+  int v196; // ecx
+  int v197; // edx
+  int iNameLength_2; // edi
+  unsigned int uiKey_5; // eax
+  int iNextVolumeSelection; // edi
+  unsigned int uiKey; // eax
+  unsigned int uiKey_1; // eax
+  unsigned int uiKey_6; // eax
+  int iNextControlSelection; // edi
+  int iDisplayIndex; // edi
+  unsigned int uiKey_2; // eax
+  uint32 uiTexOffTemp_7; // eax
+  uint32 uiTexOffTemp; // edx
+  uint32 uiTexOffTemp_1; // eax
+  uint32 uiTexOffTemp_2; // ecx
+  uint32 uiTexOffTemp_3; // ebx
+  uint32 uiTexOffTemp_4; // edx
+  uint32 uiTexOffTemp_5; // eax
+  unsigned int uiKey_3; // eax
+  int iPlayerIndex; // esi
+  uint32 uiTexOffTemp_6; // edx
+  unsigned int uiKey_4; // eax
+  unsigned int uiDataValue1; // edx
+  int iGameIndex; // ecx
+  unsigned int uiDataValue2; // eax
+  int iPlayerIndex2; // esi
+  unsigned int uiDataValue3; // eax
+  int iDataIndex; // edx
+  int iCounterVar; // ecx
+  char byTempFlag; // dl
+  bool kk; // zf
+  char byStatusFlag; // bl
+  int iResultValue; // eax
+  int iCalculation; // ebx
+  char byTempChar1; // [esp-10h] [ebp-16h]
+  char byTempChar2; // [esp-10h] [ebp-16h]
+  uint8 byTempValue; // [esp-8h] [ebp-Eh]
+  tJoyPos pJoyPos; // [esp+0h] [ebp-6h] BYREF
+  char szNewNameBuf[12]; // [esp+20h] [ebp+1Ah] BYREF
+  int iY; // [esp+2Ch] [ebp+26h]
+  int iTextPosX; // [esp+30h] [ebp+2Ah]
+  int iGraphicsState; // [esp+34h] [ebp+2Eh]
+  int iNetworkState; // [esp+38h] [ebp+32h]
+  int iControlsInEdit; // [esp+3Ch] [ebp+36h]
+  int iControlSelection; // [esp+40h] [ebp+3Ah]
+  int iVideoState; // [esp+44h] [ebp+3Eh]
+  int iVolumeSelection; // [esp+48h] [ebp+42h]
+  int iSelectedCar; // [esp+4Ch] [ebp+46h]
+  int iConfigState; // [esp+50h] [ebp+4Ah]
+  int iNameLength; // [esp+54h] [ebp+4Eh]
+  int iEditingName; // [esp+58h] [ebp+52h]
+  int iMenuSelection; // [esp+5Ch] [ebp+56h]
+  int iExitFlag; // [esp+60h] [ebp+5Ah]
+  int iCarDisplay; // [esp+64h] [ebp+5Eh]
+  int iDimmedColor; // [esp+68h] [ebp+62h]
+  int iActiveColor; // [esp+6Ch] [ebp+66h]
+  int iY_2; // [esp+70h] [ebp+6Ah]
+  int iY_1; // [esp+74h] [ebp+6Eh]
+  int iTextPosY; // [esp+78h] [ebp+72h]
+  int iNormalColor; // [esp+7Ch] [ebp+76h]
+  int iHighlightColor; // [esp+80h] [ebp+7Ah]
+  int iCarLoop; // [esp+84h] [ebp+7Eh]
 
-  v4 = 7;
-  fade_palette(0, 0, 7, a4);
-  v193 = 0;
-  v192 = 7;
-  v191 = 0;
-  v184 = 0;
+  // Init config menu
+  fade_palette(0);
+  iExitFlag = 0;
+  iMenuSelection = 7;
+  iEditingName = 0;
+  iControlsInEdit = 0;
   front_fade = 0;
-  v189 = 0;
+  iConfigState = 0;
+
+  // Main config loop
   while (2) {
+    UpdateSDL();
     if (switch_types) {
       game_type = switch_types - 1;
       if (switch_types == 1 && competitors == 1)
         competitors = 16;
       switch_types = 0;
       if (game_type == 1)
-        Race = ((_BYTE)TrackLoad - 1) & 7;
+        Race = ((uint8)TrackLoad - 1) & 7;
       else
         network_champ_on = 0;
     }
-    display_picture(scrbuf, front_vga[0], v4);
-    display_block(head_y, 0);
-    display_block(2, 0);
-    display_block(247, 0);
-    display_block(247, 0);
-    display_block(257, -1);
-    if (v192 >= 7) {
-      display_block(336, -1);
+
+    // Draw background and ui elements
+    display_picture(scrbuf, front_vga[0]);
+    display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, (tBlockHeader *)front_vga[4], 1, 76, 257, -1);
+
+    // draw menu selector
+    if (iMenuSelection >= 7) {
+      // no menu item selected (exit)
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
     } else {
-      display_block(336, -1);
-      front_text(sel_posns[2 * v192], sel_posns_variable_1[2 * v192], 143, 0);
+      // draw menu selector
+      display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
+      front_text((tBlockHeader *)front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuSelection].x, sel_posns[iMenuSelection].y, 0x8Fu, 0);
     }
-    front_text(sel_posns[0] + 132, sel_posns_variable_1[0] + 7, 143, 2);
-    front_text(sel_posns_variable_2 + 132, sel_posns_variable_3 + 7, 143, 2);
-    front_text(sel_posns_variable_4 + 132, sel_posns_variable_5 + 7, 143, 2);
-    front_text(sel_posns_variable_6 + 132, sel_posns_variable_7 + 7, 143, 2);
-    front_text(sel_posns_variable_8 + 132, sel_posns_variable_9 + 7, 143, 2);
-    v4 = (int)&font2_ascii;
-    i = (int)&font2_offsets;
-    v6 = front_text(sel_posns_variable_10 + 132, sel_posns_variable_11 + 7, 143, 2);
-    if (network_on) {
-      v4 = (int)&font2_ascii;
-      i = (int)&font2_offsets;
-      v6 = front_text(sel_posns_variable_12 + 132, sel_posns_variable_13 + 7, 143, 2);
-    }
-    LODWORD(v6) = v192;
-    switch (v192) {
+
+    // menu options labels
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[3968], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[256], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[1664], font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[4032], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[4096], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+    front_text((tBlockHeader *)front_vga[2], &config_buffer[4160], font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
+
+    // network option if enabled
+    if (network_on)
+      front_text((tBlockHeader *)front_vga[2], &config_buffer[5568], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
+
+    // Config state machine
+    switch (iMenuSelection) {
       case 0:
-        if (v191) {
-          v201 = 171;
-          v200 = 165;
+        if (iEditingName == 1) {
+          iHighlightColor = 0xAB;
+          iNormalColor = 0xA5;
         } else {
-          v201 = 165;
-          v200 = 171;
+          iHighlightColor = 0xA5;
+          iNormalColor = 0xAB;
         }
-        if (v189 != 1) {
-          v201 = 143;
-          v200 = 143;
+        if (iConfigState != 1) {
+          iHighlightColor = 0x8F;
+          iNormalColor = 0x8F;
         }
-        if (v191) {
-          v181 = 0;
-          v7 = v179;
-          while (*v7) {
-            v8 = (unsigned __int8)font1_ascii[(unsigned __int8)*v7++];
-            if (v8 == 255)
-              v181 += 8;
+        if (iEditingName == 1) {
+          iTextPosX = 0;
+          szString = szNewNameBuf;
+          while (*szString) {
+            iCharIndex = (uint8)font1_ascii[(uint8)*szString++];
+            if (iCharIndex == 255)
+              iTextPosX += 8;
             else
-              v181 += *(_DWORD *)(front_vga_variable_10 + 12 * v8) + 1;
+              iTextPosX += font1_offsets[iCharIndex] + 1;
+              //iTextPosX += *(_DWORD *)&front_vga[15][12 * iCharIndex] + 1;
           }
-          v181 += 430;
-          v180 = 374 - 18 * v188;
+          iTextPosX += 430;
+          iY = 374 - 18 * iSelectedCar;
         }
-        v202 = 0;
-        v195 = v201 - 2;
-        v194 = 15;
-        v9 = 18;
-        v196 = v200 - 4;
-        v10 = aReiseWagon2;
-        v199 = 50;
+
+        // Init car display loop
+        iCarLoop = 0;
+        iDimmedColor = iHighlightColor - 2;
+        iCarDisplay = 15;
+        iCarIndex = 18;
+        iActiveColor = iNormalColor - 4;
+        szCarName = "REISE WAGON 2:";
+        iTextPosY = 50;
+
+        // Display all 16 cars in reverse order
         do {
-          if ((v202 & 1) >= allocated_cars[v194 / 2]) {
-            if (v9 == v188 && v191) {
-              front_text(425, v199, v200, 2);
-              if (v9 == v188)
-                v12 = v201;
+          // Check if car slot is allocated to a player
+          if ((iCarLoop & 1) >= allocated_cars[iCarDisplay / 2]) {
+            // Car is available for Ai palyers
+            if (iCarIndex == iSelectedCar && iEditingName == 1) {
+              // Selected car with name being edited
+              front_text((tBlockHeader *)front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, iNormalColor, 2u);
+              if (iCarIndex == iSelectedCar)
+                byTextColor3 = iHighlightColor;
               else
-                v12 = 143;
+                byTextColor3 = 0x8F;
+              front_text((tBlockHeader *)front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, iTextPosY, byTextColor3, 0);
             } else {
-              if (v9 == v188)
-                v13 = v200;
+              // Selected car with default name displayed
+              if (iCarIndex == iSelectedCar)
+                byTextColor4 = iNormalColor;
               else
-                v13 = 143;
-              front_text(425, v199, v13, 2);
-              if (v9 == v188)
-                v12 = v201;
+                byTextColor4 = 0x8F;
+              front_text((tBlockHeader *)front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, byTextColor4, 2u);
+              if (iCarIndex == iSelectedCar)
+                byChar = iHighlightColor;
               else
-                v12 = 143;
+                byChar = 0x8F;
+
+              // Display AI name (using bit toggle for paired names)
+              byTempValue = byChar;
+              iFontWidth = iCarDisplay;
+              //LOBYTE(iFontWidth) = iCarDisplay ^ 1;
+              iFontWidth = iCarDisplay ^ 1;
+              front_text((tBlockHeader *)front_vga[15], default_names[iFontWidth], font1_ascii, font1_offsets, 430, iTextPosY, byTempValue, 0);
             }
           } else {
-            if (v9 == v188)
-              v11 = v196;
+            // Car is allocated to a human player
+            if (iCarIndex == iSelectedCar)
+              byTextColor1 = iActiveColor;
             else
-              v11 = 139;
-            front_text(425, v199, v11, 2);
-            if (v9 == v188)
-              v12 = v195;
+              byTextColor1 = 0x8B;
+            front_text((tBlockHeader *)front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, byTextColor1, 2u);
+            if (iCarIndex == iSelectedCar)
+              byTextColor2 = iDimmedColor;
             else
-              v12 = 127;
+              byTextColor2 = 0x7F;
+
+            // Display human player name
+            front_text((tBlockHeader *)front_vga[15], player_names[car_to_player[14 - (iCarLoop & 0xFE) + (iCarLoop & 1)]], font1_ascii, font1_offsets, 430, iTextPosY, byTextColor2, 0);
           }
-          front_text(430, v199, v12, 0);
-          --v9;
-          v10 += 15;
-          --v194;
-          v199 += 18;
-          ++v202;
-        } while (v202 < 16);
+
+          // Move to next car
+          --iCarIndex;
+          szCarName += 15;
+          --iCarDisplay;
+          iTextPosY += 18;
+          ++iCarLoop;
+        } while (iCarLoop < 16);
+
+        // Display player 2 configuration (if in 2-player mode)
         if (player_type == 2) {
-          if (v188 == 2 && v191) {
-            if (v188 == player_type)
-              v14 = v200;
+          if (iSelectedCar == 2 && iEditingName == 1) {
+            // Player 2 name being edited
+            if (iSelectedCar == player_type)
+              byTextColor5 = iNormalColor;
             else
-              v14 = 143;
-            front_text(425, 338, v14, player_type);
-            if (v188 == 2)
-              v15 = v201;
+              byTextColor5 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], &config_buffer[4288], font1_ascii, font1_offsets, 425, 338, byTextColor5, player_type);
+            if (iSelectedCar == 2)
+              byTextColor6 = iHighlightColor;
             else
-              v15 = 143;
+              byTextColor6 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, 338, byTextColor6, 0);
           } else {
-            if (v188 == 2)
-              v16 = v200;
+            // Player 2 name display mode
+            if (iSelectedCar == 2)
+              byTextColor7 = iNormalColor;
             else
-              v16 = 143;
-            v17 = v188;
-            front_text(425, 338, v16, 2);
-            if (v17 == 2)
-              v15 = v201;
+              byTextColor7 = 0x8F;
+            iTemp1 = iSelectedCar;
+            front_text((tBlockHeader *)front_vga[15], &config_buffer[4288], font1_ascii, font1_offsets, 425, 338, byTextColor7, 2u);
+            if (iTemp1 == 2)
+              byTextColor8 = iHighlightColor;
             else
-              v15 = 143;
+              byTextColor8 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], player_names[player2_car], font1_ascii, font1_offsets, 430, 338, byTextColor8, 0);
           }
-          front_text(430, 338, v15, 0);
         }
-        if (v188 == 1 && v191) {
-          front_text(425, 356, v200, 2);
-          if (v188 == 1)
-            v18 = v201;
+
+        // Display player 1 configuration
+        if (iSelectedCar == 1 && iEditingName == 1) {
+          // Player 1 name being edited
+          front_text((tBlockHeader *)front_vga[15], &config_buffer[4224], font1_ascii, font1_offsets, 425, 356, iNormalColor, 2u);
+          if (iSelectedCar == 1)
+            byTextColor9 = iHighlightColor;
           else
-            v18 = 143;
+            byTextColor9 = 0x8F;
+          front_text((tBlockHeader *)front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, 356, byTextColor9, 0);
         } else {
-          if (v188 == 1)
-            v19 = v200;
+          // Player 1 name display mode
+          if (iSelectedCar == 1)
+            byColor = iNormalColor;
           else
-            v19 = 143;
-          v20 = v188;
-          front_text(425, 356, v19, 2);
-          if (v20 == 1)
-            v18 = v201;
+            byColor = 0x8F;
+          iSelectedCar_1 = iSelectedCar;
+          front_text((tBlockHeader *)front_vga[15], &config_buffer[4224], font1_ascii, font1_offsets, 425, 356, byColor, 2u);
+          if (iSelectedCar_1 == 1)
+            byColor_1 = iHighlightColor;
           else
-            v18 = 143;
+            byColor_1 = 0x8F;
+          front_text((tBlockHeader *)front_vga[15], player_names[player1_car], font1_ascii, font1_offsets, 430, 356, byColor_1, 0);
         }
-        front_text(430, 356, v18, 0);
-        if (v188)
-          v21 = 143;
+
+        // Display "BACK" option
+        if (iSelectedCar)
+          byColor_2 = 0x8F;
         else
-          v21 = v200;
-        v4 = (int)font1_ascii;
-        i = (int)&font1_offsets;
-        v6 = front_text(420, 374, v21, 2);
-        if (v191) {
-          if ((frames & 0xFu) < 8) {
-            v4 = (int)font1_ascii;
-            i = (int)&font1_offsets;
-            v6 = front_text(v181, v180, 171, 0);
-          }
-          LODWORD(v6) = v190;
-          BYTE1(v4) = 0;
-          v179[v190] = 0;
+          byColor_2 = iNormalColor;
+        front_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 374, byColor_2, 2u);
+
+        // Display blinking cursor when editing names
+        if (iEditingName == 1) {
+          if ((frames & 0xFu) < 8)            // blink cursor based on frame counter
+            front_text((tBlockHeader *)front_vga[15], "_", font1_ascii, font1_offsets, iTextPosX, iY, 0xABu, 0);
+          szNewNameBuf[iNameLength] = 0;
         }
-        goto LABEL_623;
+        goto RENDER_FRAME;                      // skip to end of switch
       case 1:
-        if (v189 != 2)
-          v187 = -1;
-        if (v187 == 1)
-          v22 = 171;
+        // Audio/volume config
+        if (iConfigState != 2)
+          iVolumeSelection = -1;
+
+        // Engine volume
+        if (iVolumeSelection == 1)
+          byVolumeColor1 = 0xAB;
         else
-          v22 = 143;
-        scale_text(425, 80, v22, 2, 200, 640);
-        if (v187 == 2)
-          v23 = 171;
+          byVolumeColor1 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2304], font1_ascii, font1_offsets, 425, 80, byVolumeColor1, 2u, 200, 640);
+
+        // SFX volume
+        if (iVolumeSelection == 2)
+          byVolumeColor2 = 0xAB;
         else
-          v23 = 143;
-        scale_text(425, 104, v23, 2, 200, 640);
-        if (v187 == 3)
-          v24 = 171;
+          byVolumeColor2 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2368], font1_ascii, font1_offsets, 425, 104, byVolumeColor2, 2u, 200, 640);
+
+        // Speech volume
+        if (iVolumeSelection == 3)
+          byVolumeColor3 = 0xAB;
         else
-          v24 = 143;
-        scale_text(425, 128, v24, 2, 200, 640);
-        if (v187 == 4)
-          v25 = 171;
+          byVolumeColor3 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2432], font1_ascii, font1_offsets, 425, 128, byVolumeColor3, 2u, 200, 640);
+
+        // Music volume
+        if (iVolumeSelection == 4)
+          byVolumeColor4 = 0xAB;
         else
-          v25 = 143;
-        scale_text(425, 152, v25, 2, 200, 640);
-        if (v187 == 5)
-          v26 = 171;
+          byVolumeColor4 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2496], font1_ascii, font1_offsets, 425, 152, byVolumeColor4, 2u, 200, 640);
+
+        // Engine options
+        if (iVolumeSelection == 5)
+          byColor_3 = 0xAB;
         else
-          v26 = 143;
-        scale_text(425, 176, v26, 2, 200, 640);
+          byColor_3 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2560], font1_ascii, font1_offsets, 425, 176, byColor_3, 2u, 200, 640);
         if (allengines) {
-          if (v187 == 5)
-            v27 = 171;
+          if (iVolumeSelection == 5)
+            byColor_4 = 0xAB;
           else
-            v27 = 143;
-        } else if (v187 == 5) {
-          v27 = 171;
+            byColor_4 = 0x8F;
+          // ALL ENGINES
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2752], font1_ascii, font1_offsets, 430, 176, byColor_4, 0, 200, 640);
         } else {
-          v27 = 143;
+          if (iVolumeSelection == 5)
+            byColor_5 = 0xAB;
+          else
+            byColor_5 = 0x8F;
+          // STARTERS & TURBOS
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2816], font1_ascii, font1_offsets, 430, 176, byColor_5, 0, 200, 640);
         }
-        scale_text(430, 176, v27, 0, 200, 640);
-        if (v187 == 6)
-          v28 = 171;
+
+        // Sound effects options
+        if (iVolumeSelection == 6)
+          byColor_6 = 0xAB;
         else
-          v28 = 143;
-        scale_text(425, 200, v28, 2, 200, 640);
+          byColor_6 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2880], font1_ascii, font1_offsets, 425, 200, byColor_6, 2u, 200, 640);
         if (soundon) {
-          v170 = 0;
-          if (v187 == 6)
-            v29 = 171;
+          if (iVolumeSelection == 6)
+            byColor_7 = 0xAB;
           else
-            v29 = 143;
-        LABEL_112:
-          scale_text(430, 200, v29, v170, 200, 640);
-          goto LABEL_121;
-        }
-        if (!SoundCard) {
-          v170 = soundon;
-          if (v187 == 6)
-            v29 = 171;
+            byColor_7 = 0x8F;
+          // ON
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 430, 200, byColor_7, 0, 200, 640);
+        } else if (SoundCard) {
+          if (iVolumeSelection == 6)
+            byColor_8 = 0xAB;
           else
-            v29 = 143;
-          goto LABEL_112;
+            byColor_8 = 0x8F;
+          // OFF
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 430, 200, byColor_8, soundon, 200, 640);
+        } else {
+          if (iVolumeSelection == 6)
+            byColor_9 = 0xAB;
+          else
+            byColor_9 = 0x8F;
+          // DISABLED
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[6848], font1_ascii, font1_offsets, 430, 200, byColor_9, soundon, 200, 640);
         }
-        if (v187 == 6)
-          v30 = 171;
+
+        // Music options
+        if (iVolumeSelection == 7)
+          byColor_10 = 0xAB;
         else
-          v30 = 143;
-        scale_text(430, 200, v30, soundon, 200, 640);
-      LABEL_121:
-        if (v187 == 7)
-          v31 = 171;
-        else
-          v31 = 143;
-        scale_text(425, 224, v31, 2, 200, 640);
+          byColor_10 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2944], font1_ascii, font1_offsets, 425, 224, byColor_10, 2u, 200, 640);
         if (musicon) {
-          v171 = 0;
-          if (v187 == 7)
-            v32 = 171;
+          if (iVolumeSelection == 7)
+            byColor_11 = 0xAB;
           else
-            v32 = 143;
-        LABEL_128:
-          scale_text(430, 224, v32, v171, 200, 640);
-          goto LABEL_138;
-        }
-        if (!MusicCard && !MusicCD) {
-          v171 = musicon;
-          if (v187 == 7)
-            v32 = 171;
+            byColor_11 = 0x8F;
+          // ON
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 430, 224, byColor_11, 0, 200, 640);
+        } else if (MusicCard || MusicCD) {
+          if (iVolumeSelection == 7)
+            byColor_12 = 0xAB;
           else
-            v32 = 143;
-          goto LABEL_128;
+            byColor_12 = 0x8F;
+          // OFF
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 430, 224, byColor_12, 0, 200, 640);
+        } else {
+          if (iVolumeSelection == 7)
+            byColor_13 = 0xAB;
+          else
+            byColor_13 = 0x8F;
+          // DISABLED
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[6848], font1_ascii, font1_offsets, 430, 224, byColor_13, musicon, 200, 640);
         }
-        if (v187 == 7)
-          v33 = 171;
+
+        // Back option
+        if (iVolumeSelection)
+          byColor_14 = 0x8F;
         else
-          v33 = 143;
-        scale_text(430, 224, v33, 0, 200, 640);
-      LABEL_138:
-        if (v187)
-          v34 = 143;
+          byColor_14 = 0xAB;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 248, byColor_14, 2u, 200, 640);
+
+        // Display volume bars
+        if (iVolumeSelection == 1)
+          byColor_15 = 0xAB;
         else
-          v34 = 171;
-        scale_text(420, 248, v34, 2, 200, 640);
-        if (v187 == 1)
-          v35 = 171;
+          byColor_15 = 0xA5;
+        front_volumebar(80, EngineVolume, byColor_15);
+        if (iVolumeSelection == 2)
+          byColor_16 = 0xAB;
         else
-          v35 = 165;
-        front_volumebar(80, EngineVolume, v35, &font1_offsets);
-        if (v187 == 2)
-          v36 = 171;
+          byColor_16 = 0xA5;
+        front_volumebar(104, SFXVolume, byColor_16);
+        if (iVolumeSelection == 3)
+          byColor_17 = 0xAB;
         else
-          v36 = 165;
-        front_volumebar(104, SFXVolume, v36, &font1_offsets);
-        if (v187 == 3)
-          v37 = 171;
+          byColor_17 = 0xA5;
+        iVolumeSelection_1 = iVolumeSelection;
+        front_volumebar(128, SpeechVolume, byColor_17);
+        if (iVolumeSelection_1 == 4)
+          byColor_18 = 0xAB;
         else
-          v37 = 165;
-        i = v187;
-        front_volumebar(128, SpeechVolume, v37, v187);
-        if (i == 4)
-          v4 = 171;
+          byColor_18 = 0xA5;
+        front_volumebar(152, MusicVolume, byColor_18);
+        goto RENDER_FRAME;
+      case 2:
+        // Joystick calibration
+        if (iConfigState == 3) {
+          ReadJoys(&pJoyPos);
+          //_disable();
+
+          // Update calibration ranges for all axes
+          if (pJoyPos.iX1Count < JAXmin)
+            JAXmin = pJoyPos.iX1Count;
+          if (pJoyPos.iX1Count > JAXmax)
+            JAXmax = pJoyPos.iX1Count;
+
+          if (pJoyPos.iY1Count < JAYmin)
+            JAYmin = pJoyPos.iY1Count;
+          if (pJoyPos.iY1Count > JAYmax)
+            JAYmax = pJoyPos.iY1Count;
+
+          if (pJoyPos.iX2Count < JBXmin)
+            JBXmin = pJoyPos.iX2Count;
+          if (pJoyPos.iX2Count > JBXmax)
+            JBXmax = pJoyPos.iX2Count;
+
+          if (pJoyPos.iY2Count < JBYmin)
+            JBYmin = pJoyPos.iY2Count;
+          if (pJoyPos.iY2Count > JBYmax)
+            JBYmax = pJoyPos.iY2Count;
+
+          if (JAXmin == JAXmax)
+            JAXmax = JAXmin + 1;
+          if (JAYmin == JAYmax)
+            JAYmax = JAYmin + 1;
+
+          if (JBXmin == JBXmax)
+            JBXmax = JBXmin + 1;
+          if (JBYmin == JBYmax)
+            JBYmax = JBYmin + 1;
+          //_enable();
+        }
+
+        // Display calibration instructions when active
+        if (iConfigState == 3) {
+          // MOVE JOYSTICKS TO FULL EXTENTS
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2112], font1_ascii, font1_offsets, 400, 60, 143, 1u, 200, 640);
+          // THEN PRESS ANY KEY
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2176], font1_ascii, font1_offsets, 400, 78, 143, 1u, 200, 640);
+        }
+
+        iConfigState_1 = iConfigState;
+
+        // X1 axis display
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1728], font1_ascii, font1_offsets, 400, 110, 143, 1u, 200, 640);
+        if (iConfigState_1 == 3) {
+          // Show calibration bar
+          if (x1ok && JAXmax - JAXmin >= 100)
+            iJoyCalibValue1 = 140 * (2 * pJoyPos.iX1Count - JAXmax - JAXmin) / (JAXmax - JAXmin);
+          else
+            iJoyCalibValue1 = 0;
+          front_displaycalibrationbar(300, 128, iJoyCalibValue1);
+        } else {
+          // Show status text
+          if (x1ok)
+            szJoyStatus1 = &config_buffer[2048];
+          else
+            szJoyStatus1 = &config_buffer[1984];
+          scale_text((tBlockHeader *)front_vga[15], szJoyStatus1, font1_ascii, font1_offsets, 400, 128, 143, 1u, 200, 640);
+        }
+
+        // Y1 axis display
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1792], font1_ascii, font1_offsets, 400, 160, 143, 1u, 200, 640);
+        if (iConfigState == 3) {
+          // Show Calibration bar
+          if (y1ok && JAYmax - JAYmin >= 100)
+            iJoyCalibValue2 = 140 * (2 * pJoyPos.iY1Count - JAYmax - JAYmin) / (JAYmax - JAYmin);
+          else
+            iJoyCalibValue2 = 0;
+          front_displaycalibrationbar(300, 178, iJoyCalibValue2);
+        } else {
+          // Show status text
+          if (y1ok)
+            szJoyStatus2 = &config_buffer[2048];
+          else
+            szJoyStatus2 = &config_buffer[1984];
+          scale_text((tBlockHeader *)front_vga[15], szJoyStatus2, font1_ascii, font1_offsets, 400, 178, 143, 1u, 200, 640);
+        }
+
+        // X2 axis display
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1856], font1_ascii, font1_offsets, 400, 210, 143, 1u, 200, 640);
+        if (iConfigState == 3) {
+          // Calibration bar
+          if (x2ok && JBXmax - JBXmin >= 100)
+            iX2CalibrationVal = 140 * (2 * pJoyPos.iX2Count - JBXmax - JBXmin) / (JBXmax - JBXmin);
+          else
+            iX2CalibrationVal = 0;
+          front_displaycalibrationbar(300, 228, iX2CalibrationVal);
+        } else {
+          // status text
+          if (x2ok)
+            szX2Text = &config_buffer[2048];
+          else
+            szX2Text = &config_buffer[1984];
+          scale_text((tBlockHeader *)front_vga[15], szX2Text, font1_ascii, font1_offsets, 400, 228, 143, 1u, 200, 640);
+        }
+
+        iConfigState_2 = iConfigState;
+
+        // Y2 axis display
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1920], font1_ascii, font1_offsets, 400, 260, 143, 1u, 200, 640);
+        if (iConfigState_2 == 3) {
+          // Calibration bar
+          if (y2ok && JBYmax - JBYmin >= 100)
+            iY2CalibrationVal = 140 * (2 * pJoyPos.iY2Count - JBYmax - JBYmin) / (JBYmax - JBYmin);
+          else
+            iY2CalibrationVal = 0;
+          front_displaycalibrationbar(300, 278, iY2CalibrationVal);
+        } else {
+          // Status text
+          if (y2ok)
+            szY2Text = &config_buffer[2048];
+          else
+            szY2Text = &config_buffer[1984];
+          scale_text((tBlockHeader *)front_vga[15], szY2Text, font1_ascii, font1_offsets, 400, 278, 143, 1u, 200, 640);
+        }
+        goto RENDER_FRAME;
+      case 3:
+        // Keyboard control config
+        if (iConfigState == 4) {
+          if (controlrelease) {
+            // Check if all keys have been released
+            iKeyFound = -1;
+            iKeyIndex = 0;
+            iKeyCounter = 0;
+            do {
+              if (keyname[iKeyCounter] && keys[iKeyIndex])
+                iKeyFound = 0;                  // key still pressed
+              ++iKeyIndex;
+              ++iKeyCounter;
+            } while (iKeyIndex < 128);
+            if (iKeyFound)                    // all keys released
+              controlrelease = 0;
+          }
+        } else {
+          iControlSelection = -1;               // reset control selection
+        }
+
+        // Display player 2 controls (if in 2 player mode)
+        if (player_type == 2) {
+          // Format player 2 control method string
+          if (manual_control[player2_car] == 2)
+            sprintf(buffer, "%s %s", &config_buffer[4480], &config_buffer[4544]);
+          else
+            sprintf(buffer, "%s %s", &config_buffer[4480], &config_buffer[4608]);
+          if (iControlSelection == 4)
+            byColor_19 = 0xAB;
+          else
+            byColor_19 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 60, byColor_19, 1u, 200, 640);
+
+          // Player 2 customize controls option
+          if (iControlSelection == 3)
+            byColor_20 = 0xAB;
+          else
+            byColor_20 = 0x8F;
+          // CUSTOMIZE PLAYER 2
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[704], font1_ascii, font1_offsets, 420, 78, byColor_20, 1u, 200, 640);
+        }
+
+        // Display player 1 controls
+        if (manual_control[player1_car] == 2)
+          sprintf(buffer, "%s %s", &config_buffer[4416], &config_buffer[4544]);
         else
-          v4 = 165;
-        HIDWORD(v6) = MusicVolume;
-        LODWORD(v6) = front_volumebar(152, MusicVolume, v4, i);
-      LABEL_623:
-        show_received_mesage(v6, HIDWORD(v6), v4, i);
-        v125 = (int)screen;
-        copypic((char *)scrbuf, (int)screen);
+          sprintf(buffer, "%s %s", &config_buffer[4416], &config_buffer[4608]);
+        if (iControlSelection == 2)
+          byColor_21 = 0xAB;
+        else
+          byColor_21 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 96, byColor_21, 1u, 200, 640);
+        // Player 1 customize controls option
+        if (iControlSelection == 1)
+          byColor_22 = 0xAB;
+        else
+          byColor_22 = 0x8F;
+        // CUSTOMIZE PLAYER 1
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[768], font1_ascii, font1_offsets, 420, 114, byColor_22, 1u, 200, 640);
+
+        // Back option
+        if (iControlSelection)
+          byColor_23 = 0x8F;
+        else
+          byColor_23 = 0xAB;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 132, byColor_23, 1u, 200, 640);
+
+        // Display player 1 control customization screen
+        if (iControlSelection == 1 || iControlSelection == 2) {
+          iControlLoop = 0;
+          szControlName = &config_buffer[896];  // start of control name strings
+          iY_1 = 200;
+          // Display all 6 basic controls for player 1
+          do {
+            if (iControlLoop == control_edit)
+              byControlColor = 0xAB;
+            else
+              byControlColor = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], szControlName, font1_ascii, font1_offsets, 475, iY_1, byControlColor, 2u);
+            if (iControlLoop == control_edit)
+              byColor_24 = 0xAB;
+            else
+              byColor_24 = 0x8F;
+            scale_text((tBlockHeader *)front_vga[15], keyname[userkey[iControlLoop]], font1_ascii, font1_offsets, 480, iY_1, byColor_24, 0, 200, 640);
+            szControlName += 64;                // next control name
+            ++iControlLoop;
+            iY_1 += 18;
+          } while (iControlLoop < 6);
+          if (Players_Cars[player1_car] >= 8) {
+            if (control_edit == 12)
+              byColor_25 = 0xAB;
+            else
+              byColor_25 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], "CHEAT:", font1_ascii, font1_offsets, 475, 308, byColor_25, 2u);
+            if (control_edit == 12)
+              byColor_26 = 0xAB;
+            else
+              byColor_26 = 0x8F;
+            scale_text((tBlockHeader *)front_vga[15], keyname[userkey[12]], font1_ascii, font1_offsets, 480, 308, byColor_26, 0, 200, 640);
+          }
+        }
+        // Display Player 2 control customization screen
+        else if (iControlSelection == 3 || iControlSelection == 4) {
+          iControlIndex2 = 6;
+          szText = &config_buffer[1280];
+          iY_2 = 200;
+          // Display all 6 controls for player 2
+          do {
+            if (iControlIndex2 == control_edit)
+              byColor_27 = 0xAB;
+            else
+              byColor_27 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], szText, font1_ascii, font1_offsets, 475, iY_2, byColor_27, 2u);
+            if (iControlIndex2 == control_edit)
+              byColor_28 = 0xAB;
+            else
+              byColor_28 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], keyname[userkey[iControlIndex2]], font1_ascii, font1_offsets, 480, iY_2, byColor_28, 0);
+            szText += 64;                       // Next control name
+            ++iControlIndex2;
+            iY_2 += 18;
+          } while (iControlIndex2 < 12);
+
+          // Display cheat key option for player 2
+          if (Players_Cars[player2_car] >= 8) {
+            if (control_edit == 13)
+              byColor_29 = 0xAB;
+            else
+              byColor_29 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], "CHEAT:", font1_ascii, font1_offsets, 475, 308, byColor_29, 2u);
+            if (control_edit == 13)
+              byColor_30 = 0xAB;
+            else
+              byColor_30 = 0x8F;
+            front_text((tBlockHeader *)front_vga[15], keyname[userkey[13]], font1_ascii, font1_offsets, 480, 308, byColor_30, 0);
+          }
+        }
+
+        // Handle active key mapping process
+        if (!iControlsInEdit || iConfigState != 4)
+          goto RENDER_FRAME;
+
+        // Key detection and mapping logic
+        iKeyCheckLoop = controlrelease;
+        if (controlrelease)
+          goto CHECK_CONTROL_INPUT;             // wait for key release
+
+        // Scan for pressed keys
+        iFoundKey = -1;
+        iKeySearchIndex = 0;
+        do {
+          if (keyname[iKeySearchIndex] && keys[iKeyCheckLoop])
+            iFoundKey = iKeyCheckLoop;
+          ++iKeyCheckLoop;
+          ++iKeySearchIndex;
+        } while (iKeyCheckLoop < 128);
+
+        // If no keyboard key pressed check joystick buttons
+        if (iFoundKey == -1) {
+          ReadJoys(&pJoyPos);
+          if (pJoyPos.iX1Status)
+            iFoundKey = 128;
+          if (pJoyPos.iY1Status)
+            iFoundKey = 129;
+          if (pJoyPos.iX2Status)
+            iFoundKey = 130;
+          if (pJoyPos.iY2Status)
+            iFoundKey = 131;
+        }
+
+        // If still no input check joystick axis movements
+        if (iFoundKey == -1) {
+          if (y2ok) {
+            iJoyValue1 = 100 * (2 * pJoyPos.iY2Count - JBYmax - JBYmin) / (JBYmax - JBYmin);
+            if (iJoyValue1 < -50)
+              iFoundKey = 138;
+            if (iJoyValue1 > 50)
+              iFoundKey = 139;
+          }
+          if (x2ok) {
+            iJoyValue2 = 100 * (2 * pJoyPos.iX2Count - JBXmax - JBXmin) / (JBXmax - JBXmin);
+            if (iJoyValue2 < -50)
+              iFoundKey = 136;
+            if (iJoyValue2 > 50)
+              iFoundKey = 137;
+          }
+          if (y1ok) {
+            iJoyValue3 = 100 * (2 * pJoyPos.iY1Count - JAYmax - JAYmin) / (JAYmax - JAYmin);
+            if (iJoyValue3 < -50)
+              iFoundKey = 134;
+            if (iJoyValue3 > 50)
+              iFoundKey = 135;
+          }
+          if (x1ok) {
+            iJoyValue4 = 100 * (2 * pJoyPos.iX1Count - JAXmax - JAXmin) / (JAXmax - JAXmin);
+            if (iJoyValue4 < -50)
+              iFoundKey = 132;
+            if (iJoyValue4 > 50)
+              iFoundKey = 133;
+          }
+        }
+
+        // Validate input type compatibility for throttle controls
+
+        if ( iFoundKey != -1
+                  && (control_edit == 1 || control_edit == 7)
+                  && (userkey[control_edit] <= 0x83u && iFoundKey > 131 || userkey[control_edit] > 0x83u && iFoundKey <= 131) ) {
+        //if (iFoundKey != -1
+        //  && (control_edit == 1 || control_edit == 7)
+        //  && (*((_BYTE *)&keyname[139] + control_edit + 3) <= 0x83u && iFoundKey > 131 || *((_BYTE *)&keyname[139] + control_edit + 3) > 0x83u && iFoundKey <= 131)) {
+          iFoundKey = -1;                       // reject incompatible input type
+        }
+
+        if (iFoundKey == -1)
+          goto CHECK_CONTROL_INPUT;
+
+        // Check for duplicate key assignments
+        iDuplicateCheck = 0;
+        for (i = 0; i < control_edit; ++i) {
+          if (userkey[i] == iFoundKey)
+            iDuplicateCheck = -1;
+        }
+        if (iDuplicateCheck)
+          goto CHECK_CONTROL_INPUT;             // Reject duplicate assignment
+
+        // Assign the new key
+        iEditIndex = control_edit + 1;
+        iControlState = iControlsInEdit;
+        controlrelease = -1;
+
+        userkey[iEditIndex] = iFoundKey;
+        //*((_BYTE *)&keyname[139] + iEditIndex + 3) = iFoundKey;
+
+        // Handle completion logic for each player
+        control_edit = iEditIndex;
+        if (iControlState == 1)               // Player 1
+        {
+          if (iEditIndex < 6)
+            goto CHECK_CONTROL_INPUT;
+          // Check for cheat key mapping
+          if (Players_Cars[player1_car] >= 8 && control_edit < 12) {
+            control_edit = 12;                  // jump to cheat key
+            goto CHECK_CONTROL_INPUT;
+          }
+        } else                                    // Player 2
+        {
+          if (iEditIndex < 12)
+            goto CHECK_CONTROL_INPUT;
+          if (Players_Cars[player2_car] >= 8 && control_edit < 13) {
+            control_edit = 13;                  // jump to cheat key
+            goto CHECK_CONTROL_INPUT;
+          }
+        }
+
+        // All controls mapped, exit editing mode
+        iControlsInEdit = 0;
+        control_edit = -1;
+        enable_keyboard();
+      CHECK_CONTROL_INPUT:
+              // Handle ESC key to restore original key mappings
+        if (keys[1]) {
+          memcpy(userkey, oldkeys, 0xCu);      // restore original player 1 keys
+          memcpy(&userkey[12], &oldkeys[12], 2u);// restore original cheat keys
+          enable_keyboard();
+          iControlsInEdit = 0;
+          control_edit = -1;
+          check_joystick_usage();
+        }
+      RENDER_FRAME:
+              // Display any received network messages
+        show_received_mesage();
+
+        // render
+        copypic(scrbuf, screen);
+
+        // Handle CHEAT_MODE_CLONES
         if (switch_same > 0) {
-          v127 = 0;
+          // Clone all player cars to same type
+          iPlayerIdx = 0;
           if (players > 0) {
-            v125 = 0;
-            do {
-              v125 += 4;
-              i = switch_same - 666;
-              ++v127;
-              *(int *)((char *)infinite_laps + v125) = switch_same - 666;
-            } while (v127 < players);
+
+            for (iPlayerIdx = 0; iPlayerIdx < players; iPlayerIdx++)
+            {
+              Players_Cars[iPlayerIdx] = switch_same - 666;
+            }
+            //iPlayersCarsOffset = 0;
+            //do {
+            //  iPlayersCarsOffset += 4;
+            //  ++iPlayerIdx;
+            //  *(int *)((char *)&infinite_laps + iPlayersCarsOffset) = switch_same - 666;// offset into Players_Cars
+            //} while (iPlayerIdx < players);
+
           }
-          v128 = cheat_mode;
-          BYTE1(v128) = BYTE1(cheat_mode) | 0x40;
-          cheat_mode = v128;
+
+          cheat_mode |= CHEAT_MODE_CLONES;
+          //uiTempCheatMode = cheat_mode;
+          //BYTE1(uiTempCheatMode) = BYTE1(cheat_mode) | 0x40;
+          //cheat_mode = uiTempCheatMode;
         } else if (switch_same < 0) {
-          i = 0;
+          // Reset car cloning
           switch_same = 0;
-          v126 = 0;
+          iPlayerIdx_1 = 0;
           if (players > 0) {
-            v4 = -1;
-            v125 = 0;
-            do {
-              v125 += 4;
-              ++v126;
-              *(int *)((char *)infinite_laps + v125) = -1;
-            } while (v126 < players);
+
+            for (iPlayerIdx_1 = 0; iPlayerIdx_1 < players; iPlayerIdx_1++)
+            {
+              Players_Cars[iPlayerIdx_1] = -1;
+            }
+            //iPlayersCarsOffset_1 = 0;
+            //do {
+            //  iPlayersCarsOffset_1 += 4;
+            //  ++iPlayerIdx_1;
+            //  *(int *)((char *)&infinite_laps + iPlayersCarsOffset_1) = -1;// offset into Players_Cars
+            //} while (iPlayerIdx_1 < players);
+
           }
-          cheat_mode &= ~0x4000u;
+
+          cheat_mode &= ~CHEAT_MODE_CLONES;
+          //cheat_mode &= ~0x4000u;
         }
+
+        // Init screen fade
         if (!front_fade) {
           front_fade = -1;
-          fade_palette(32, v125, v4, i);
+          fade_palette(32);
           frames = 0;
         }
-        if (!v184) {
+
+        // Process keyboard input when not editing controls
+        if (!iControlsInEdit) {
           while (fatkbhit()) {
-            i = v189;
-            switch (v189) {
-              case 0:
-                v129 = fatgetch();
-                i = v129;
-                if (v129 < 0xD) {
-                  if (!v129) {
-                    v130 = fatgetch();
-                    i = v130;
-                    if (v130 >= 0x48) {
-                      if (v130 <= 0x48) {
-                        v132 = --v192;
-                        if (!network_on && v132 == 6)
-                          v192 = 5;
-                        if (v192 < 0)
-                          v192 = 0;
-                      } else if (v130 == 80) {
-                        v131 = ++v192;
-                        if (!network_on && v131 == 6)
-                          v192 = 7;
-                        if (v192 > 7)
-                          v192 = 7;
+            UpdateSDL();
+            switch (iConfigState) {
+              case 0:                           // MAIN MENU NAVIGATION
+                uiKeyCode = fatgetch();
+                if (uiKeyCode < 0xD) {
+                  if (!uiKeyCode)             // extended key
+                  {
+                    uiExtendedKey = fatgetch();
+                    if (uiExtendedKey >= 0x48)// Up arrow
+                    {
+                      if (uiExtendedKey <= 0x48) {
+                        iMenuDir2 = --iMenuSelection;
+                        // Skip network option if disabled
+                        if (!network_on && iMenuDir2 == 6)
+                          iMenuSelection = 5;
+                        if (iMenuSelection < 0)
+                          iMenuSelection = 0;
+                      } else if (uiExtendedKey == 80)// Down arrow
+                      {
+                        iMenuDir = ++iMenuSelection;
+                        // Skip network option if disabled
+                        if (!network_on && iMenuDir == 6)
+                          iMenuSelection = 7;
+                        if (iMenuSelection > 7)
+                          iMenuSelection = 7;
                       }
                     }
                   }
-                } else if (v129 <= 0xD) {
-                  v4 = v192;
-                  switch (v192) {
-                    case 0:
-                      i = 1;
-                      v189 = 1;
-                      v188 = 0;
+                } else if (uiKeyCode <= 0xD)    // enter key
+                {
+                  switch (iMenuSelection) {
+                    case 0:                     // drivers
+                      iConfigState = 1;
+                      iSelectedCar = 0;
                       break;
-                    case 1:
-                      v125 = 2;
-                      v4 = 0;
-                      v189 = 2;
-                      v187 = 0;
+                    case 1:                     // audio
+                      iConfigState = 2;
+                      iVolumeSelection = 0;
                       break;
-                    case 2:
-                      v189 = 3;
+                    case 2:                     // joystick
+                      iConfigState = 3;
                       check_joystickpresence();
                       break;
-                    case 3:
-                      v125 = 0;
-                      v189 = 4;
-                      v185 = 0;
-                      v184 = 0;
+                    case 3:                     // controls
+                      iConfigState = 4;
+                      iControlSelection = 0;
+                      iControlsInEdit = 0;
                       Joy1used = 0;
                       Joy2used = 0;
                       controlrelease = -1;
                       control_edit = -1;
                       break;
-                    case 4:
-                      i = 5;
-                      v189 = 5;
-                      v186 = 0;
+                    case 4:                     // video
+                      iConfigState = 5;
+                      iVideoState = 0;
                       break;
-                    case 5:
-                      v125 = 6;
-                      v4 = 0;
-                      v189 = 6;
-                      v182 = 0;
+                    case 5:                     // graphics
+                      iConfigState = 6;
+                      iGraphicsState = 0;
                       break;
-                    case 6:
-                      v189 = 7;
-                      v183 = 0;
-                      v191 = 0;
+                    case 6:                     // network
+                      iConfigState = 7;
+                      iNetworkState = 0;
+                      iEditingName = 0;
                       break;
-                    case 7:
-                      v125 = 0x8000;
-                      i = -1;
-                      sfxsample(v172);
-                      v193 = -1;
+                    case 7:                     // exit
+                      sfxsample(83, 0x8000);
+                      iExitFlag = -1;
                       break;
                     default:
                       continue;
                   }
-                } else if (v129 == 27) {
-                  v193 = -1;
-                  v125 = 0x8000;
-                  sfxsample(v172);
+                } else if (uiKeyCode == 27)     // ESC key
+                {
+                  iExitFlag = -1;
+                  sfxsample(83, 0x8000);
                 }
                 continue;
-              case 1:
-                v133 = fatgetch();
-                i = v133;
-                if ((unsigned int)v133 < 8) {
-                  if (v133)
-                    goto LABEL_754;
-                  v134 = fatgetch();
-                  i = v134;
-                  if (!v191 && v134 >= 0x48) {
-                    if (v134 <= 0x48) {
-                      v125 = v188 + 1;
-                      v4 = player_type;
-                      ++v188;
-                      if (player_type != 2 && v125 == 2)
-                        v188 = 3;
-                      if (v188 > 18)
-                        v188 = 18;
-                    } else if (v134 == 80) {
-                      v125 = v188 - 1;
-                      v4 = player_type;
-                      --v188;
-                      if (player_type != 2 && v125 == 2)
-                        v188 = 1;
-                      if (v188 < 0)
-                        v188 = 0;
+              case 1:                           // DRIVER/CAR CONFIG
+                iKeyInput = fatgetch();
+                iKeyChar = iKeyInput;
+                if ((unsigned int)iKeyInput < 8) {
+                  if (iKeyInput)
+                    goto HANDLE_CHAR_INPUT;     // Handle character input
+
+                  // Handle arrow keys for car selection
+                  uiArrowKey = fatgetch();
+                  if (!iEditingName && uiArrowKey >= 0x48) {
+                    if (uiArrowKey <= 0x48)   // up arrow
+                    {
+                      iNextSelectedCar = ++iSelectedCar;
+                      // Skip player 2 slot in single player mode
+                      if (player_type != 2 && iNextSelectedCar == 2)
+                        iSelectedCar = 3;
+                      if (iSelectedCar > 18)
+                        iSelectedCar = 18;
+                    } else if (uiArrowKey == 80)// down arrow
+                    {
+                      iPrevSelectedCar = --iSelectedCar;
+                      // Skip player 2 slot in single player mode
+                      if (player_type != 2 && iPrevSelectedCar == 2)
+                        iSelectedCar = 1;
+                      if (iSelectedCar < 0)
+                        iSelectedCar = 0;
                     }
                   }
-                } else if ((unsigned int)v133 <= 8) {
-                  if (v191) {
-                    v135 = v190;
-                    BYTE1(i) = 0;
-                    v179[v190] = 0;
-                    if (v135 > 0) {
-                      v125 = v135 - 1;
-                      v190 = v125;
-                      v179[v125] = 0;
+                } else if ((unsigned int)iKeyInput <= 8)// backspace
+                {
+                  if (iEditingName) {
+                    // Handle backspace in name editing
+                    iNameLength_1 = iNameLength;
+                    szNewNameBuf[iNameLength] = 0;
+                    if (iNameLength_1 > 0) {
+                      iNameLength = iNameLength_1 - 1;
+                      szNewNameBuf[iNameLength_1 - 1] = 0;
                     }
                   }
-                } else if ((unsigned int)v133 < 0xD) {
-                LABEL_754:
-                  if (v191) {
-                    if (v133 >= 97 && v133 <= 122)
-                      i = v133 - 32;
-                    if ((i == 32 || i >= 65 && i <= 90 || i >= 48 && i <= 57) && v190 < 8) {
-                      v144 = v190 + 1;
-                      BYTE1(v125) = 0;
-                      v179[v190] = i;
-                      v190 = v144;
-                      v179[v144] = 0;
+                } else if ((unsigned int)iKeyInput < 0xD)// regular character input
+                {
+                HANDLE_CHAR_INPUT:
+                  if (iEditingName) {
+                    // Convert lowercase to uppercase
+                    if (iKeyInput >= 97 && iKeyInput <= 122)
+                      iKeyChar = iKeyInput - 32;
+
+                    // Accept alphanumeric chars and space
+                    if ((iKeyChar == 32 || iKeyChar >= 65 && iKeyChar <= 90 || iKeyChar >= 48 && iKeyChar <= 57) && iNameLength < 8) {
+                      iNameLength_2 = iNameLength + 1;
+                      szNewNameBuf[iNameLength] = iKeyChar;
+                      iNameLength = iNameLength_2;
+                      szNewNameBuf[iNameLength_2] = 0;
                     }
                   }
-                } else if ((unsigned int)v133 <= 0xD) {
-                  v136 = v191;
-                  if (v191) {
-                    v125 = 0;
-                    v4 = v188;
-                    v191 = 0;
-                    if (v188) {
-                      if ((unsigned int)v188 <= 1) {
-                        for (i = 0; i < 9; cheat_names_variable_1[i + v137] = v125) {
-                          ++i;
-                          v137 = 9 * (__int16)player1_car;
-                          LOBYTE(v125) = v179[i - 1];
+                } else if ((unsigned int)iKeyInput <= 0xD)// enter key
+                {
+                  iEditingName_1 = iEditingName;
+                  if (iEditingName) {
+                    // Save edited name
+                    iEditingName = 0;
+                    if (iSelectedCar) {
+                      if ((unsigned int)iSelectedCar <= 1) {
+
+                        // Save player 1 name
+
+                        for (j = 0; j < 9; j++)
+                        {
+                            player_names[player1_car][j] = szNewNameBuf[j];
                         }
+                        //for (j = 0; j < 9; cheat_names[player1_car + 31][j + 8] = *((_BYTE *)&pJoyPos.iY2Count + j + 3))
+                        //  ++j;
+
                         broadcast_mode = -669;
                         while (broadcast_mode)
-                          ;
-                        if (!network_on) {
-                          v125 = (__int16)player1_car;
-                          v137 = CheckNames(&player_names[9 * (__int16)player1_car]);
-                          waste = v137;
-                        }
-                        check_cars(v137);
+                          UpdateSDL();
+                        if (!network_on)
+                          waste = CheckNames(player_names[player1_car], player1_car);
+                        check_cars();
                       } else {
-                        if (v188 != 2)
-                          goto LABEL_707;
-                        v125 = player2_car;
-                        for (i = 0; i < 9; cheat_names_variable_1[9 * v125 + i] = v4)
-                          LOBYTE(v4) = v179[i++];
-                        waste = CheckNames(&player_names[9 * v125]);
-                        check_cars(waste);
+                        if (iSelectedCar != 2)
+                          goto SAVE_AI_DRIVER_NAME;
+                        iPlayer2Car = player2_car;
+
+                        for (k = 0; k < 9; k++) 
+                        {
+                          player_names[player2_car][k] = szNewNameBuf[k];
+                        }
+                        //for (k = 0; k < 9; cheat_names[iPlayer2Car + 31][k + 8] = *((_BYTE *)&pJoyPos.iY2Count + k + 3))
+                        //  ++k;
+
+                        waste = CheckNames(player_names[iPlayer2Car], iPlayer2Car);
+                        check_cars();
                       }
-                    } else {
-                    LABEL_707:
-                      v138 = v188 - 3;
-                      LOBYTE(v138) = (v188 - 3) ^ 1;
-                      i = 0;
-                      v125 = 9 * v138;
-                      do {
-                        LOBYTE(v4) = v179[i++];
-                        team_col_variable_1[i + v125] = v4;
-                      } while (i < 9);
-                      if (!default_names[v125]) {
-                        sprintf(&buffer, "comp %i", v188 - 2);
-                        v139 = &default_names[v125];
-                        v125 = (int)&buffer;
-                        name_copy((int)v139, &buffer);
+                    } else                        // AI players
+                    {
+                    SAVE_AI_DRIVER_NAME:
+                      iDefaultNamesIdx_1 = iSelectedCar - 3;
+                      iDefaultNamesIdx_1 = (iSelectedCar - 3) ^ 1;// Toggle for paired AI drivers
+                      //LOBYTE(iDefaultNamesIdx_1) = (iSelectedCar - 3) ^ 1;// Toggle for paired AI drivers
+                      iDefaultNamesCharItr = 0;
+                      iDefaultNamesIdx = iDefaultNamesIdx_1;
+
+                      do
+                      {
+                        ++iDefaultNamesCharItr;
+                        default_names[iDefaultNamesIdx][iDefaultNamesCharItr] = szNewNameBuf[iDefaultNamesCharItr];
+                      }
+                      while (iDefaultNamesCharItr < 9);
+                      //do {
+                      //  ++iDefaultNamesCharItr;
+                      //  *((_BYTE *)&team_col[15] + iDefaultNamesCharItr + iDefaultNamesIdx * 9 + 3) = *((_BYTE *)&pJoyPos.iY2Count + iDefaultNamesCharItr + 3);// offset into default_names
+                      //} while (iDefaultNamesCharItr < 9);
+
+                      // Set default name if empty
+                      if (!default_names[iDefaultNamesIdx][0]) {
+                        sprintf(buffer, "comp %i", iSelectedCar - 2);
+                        name_copy(default_names[iDefaultNamesIdx], buffer);
                       }
                       broadcast_mode = -1;
                       while (broadcast_mode)
-                        ;
+                        UpdateSDL();
                     }
                   } else {
-                    if (!v188)
-                      goto LABEL_715;
-                    v191 = 1;
-                    if (v188 >= 3) {
-                      if ((((_BYTE)v188 - 3) & 1) != 0)
-                        v191 = allocated_cars[(v188 - 3) / 2] <= 0;
+                    // Start editing name
+                    if (!iSelectedCar)
+                      goto EXIT_NAME_EDITING;
+                    iEditingName = 1;
+                    if (iSelectedCar >= 3) {
+                      // Check if AI car slot is editable
+                      if ((((uint8)iSelectedCar - 3) & 1) != 0)
+                        iEditingName = allocated_cars[(iSelectedCar - 3) / 2] <= 0;
                       else
-                        v191 = allocated_cars[(v188 - 3) / 2] <= 1;
+                        iEditingName = allocated_cars[(iSelectedCar - 3) / 2] <= 1;
                     }
-                    v125 = v191;
-                    if (v191) {
-                      v4 = 0;
-                      v190 = 0;
-                      if ((unsigned int)v188 <= 1) {
-                        for (i = 0; i < 9; v179[i - 1] = cheat_names_variable_1[9 * (__int16)player1_car + i])
-                          ++i;
-                      } else if (v188 == 2) {
-                        for (i = 0; i < 9; v179[i - 1] = cheat_names_variable_1[9 * player2_car + i])
-                          ++i;
-                      } else {
-                        v140 = v188 - 3;
-                        LOBYTE(v140) = (v188 - 3) ^ 1;
-                        i = 0;
-                        v141 = 9 * v140;
-                        do {
-                          ++i;
-                          LOBYTE(v125) = default_names[v141++];
-                          v179[i - 1] = v125;
-                        } while (i < 9);
+
+                    if (iEditingName == 1) {
+                      iNameLength = 0;
+                      if ((unsigned int)iSelectedCar <= 1)// Load player 1 name
+                      {
+                        for (m = 0; m < 9; m++) 
+                        {
+                          szNewNameBuf[m] = player_names[player1_car][m];
+                        }
+                        //for (m = 0; m < 9; *((_BYTE *)&pJoyPos.iY2Count + m + 3) = cheat_names[player1_car + 31][m + 8])
+                        //  ++m;
+                      } else if (iSelectedCar == 2)// Load player 2 name
+                      {
+                        for (n = 0; n < 9; n++) 
+                        {
+                          szNewNameBuf[n] = player_names[player2_car][n];
+                        }
+                        //for (n = 0; n < 9; *((_BYTE *)&pJoyPos.iY2Count + n + 3) = cheat_names[player2_car + 31][n + 8])
+                        //  ++n;
+                      } else                      // Load AI driver name
+                      {
+                        iAIDriverIdx = iSelectedCar - 3;
+                        iAIDriverIdx ^= 1;  // Toggle the lowest bit
+                        for (int i = 0; i < 9; i++)
+                        {
+                          szNewNameBuf[i] = default_names[iAIDriverIdx][i];
+                        }
+                        //iAIDriverIdx = iSelectedCar - 3;
+                        //LOBYTE(iAIDriverIdx) = (iSelectedCar - 3) ^ 1;
+                        //v189 = 0;
+                        //iOffset = 9 * iAIDriverIdx;
+                        //do {
+                        //  ++v189;
+                        //  v191 = default_names[0][iOffset++];
+                        //  *((_BYTE *)&pJoyPos.iY2Count + v189 + 3) = v191;
+                        //} while (v189 < 9);
+
                       }
-                      while (v179[v190])
-                        ++v190;
+
+                      // Calculate current name length
+                      while (szNewNameBuf[iNameLength])
+                        ++iNameLength;
                     }
+
                   }
                 } else {
-                  if (v133 != 27)
-                    goto LABEL_754;
-                  v136 = v191;
-                  if (v191) {
-                    v125 = 0;
-                    v4 = v188;
-                    v191 = 0;
-                    if (v188) {
-                      if ((unsigned int)v188 <= 1) {
-                        for (i = 0; i < 9; cheat_names_variable_1[9 * (__int16)player1_car + i] = v125)
-                          LOBYTE(v125) = v179[i++];
+                  if (iKeyInput != 27)        // ESC key
+                    goto HANDLE_CHAR_INPUT;
+                  iEditingName_1 = iEditingName;
+                  if (iEditingName) {
+                    // Cancel editing, restore original name
+                    iEditingName = 0;
+                    if (iSelectedCar) {
+                      if ((unsigned int)iSelectedCar <= 1)// player 1
+                      {
+
+                        // Restore player 1 name
+
+                        for (ii = 0; ii < 9; ii++) 
+                        {
+                          player_names[player1_car][ii] = szNewNameBuf[ii];
+                        }
+                        //for (ii = 0; ii < 9; cheat_names[player1_car + 31][ii + 8] = *((_BYTE *)&pJoyPos.iY2Count + ii + 3))
+                        //  ++ii;
                         broadcast_mode = -669;
                         while (broadcast_mode)
-                          ;
-                        if (!network_on) {
-                          v125 = (__int16)player1_car;
-                          waste = CheckNames(&player_names[9 * (__int16)player1_car]);
-                        }
+                          UpdateSDL();
+                        if (!network_on)
+                          waste = CheckNames(player_names[player1_car], player1_car);
                       } else {
-                        if (v188 != 2)
-                          goto LABEL_747;
-                        v125 = player2_car;
-                        for (i = 0; i < 9; cheat_names_variable_1[9 * v125 + i] = v4)
-                          LOBYTE(v4) = v179[i++];
-                        waste = CheckNames(&player_names[9 * v125]);
+                        if (iSelectedCar != 2)// player 2
+                          goto CANCEL_AI_NAME_EDIT;
+                        iPlayer2Car_1 = player2_car;
+
+                        // Restore player 2 name
+
+                        for (jj = 0; jj < 9; jj++) 
+                        {
+                          player_names[player2_car][jj] = szNewNameBuf[jj];
+                        }
+                        //for (jj = 0; jj < 9; cheat_names[iPlayer2Car_1 + 31][jj + 8] = *((_BYTE *)&pJoyPos.iY2Count + jj + 3))
+                        //  ++jj;
+                        waste = CheckNames(player_names[iPlayer2Car_1], iPlayer2Car_1);
                       }
-                    } else {
-                    LABEL_747:
-                      v142 = v188 - 3;
-                      LOBYTE(v142) = (v188 - 3) ^ 1;
-                      i = 0;
-                      v125 = 9 * v142;
-                      do {
-                        LOBYTE(v4) = v179[i++];
-                        team_col_variable_1[i + v125] = v4;
-                      } while (i < 9);
-                      if (!default_names[9 * v142]) {
-                        sprintf(&buffer, "comp %i", v188 - 2);
-                        v143 = &default_names[v125];
-                        v125 = (int)&buffer;
-                        name_copy((int)v143, &buffer);
+                    } else                        // AI driver
+                    {
+                    CANCEL_AI_NAME_EDIT:
+                      // Restore AI driver name
+                      iAIDriverIdx_1 = iSelectedCar - 3;
+                      iAIDriverIdx_1 ^= 1;  // Toggle between paired AI drivers
+                      for (v196 = 0; v196 < 9; v196++)
+                      {
+                        default_names[iAIDriverIdx_1][v196] = szNewNameBuf[v196];
+                      }
+                      iAIDriverIdx_1 = iSelectedCar - 3;
+                      iAIDriverIdx_1 = (iSelectedCar - 3) ^ 1;
+                      //LOBYTE(iAIDriverIdx_1) = (iSelectedCar - 3) ^ 1;
+                      v196 = 0;
+                      v197 = iAIDriverIdx_1;
+                      
+                      
+                      //do {
+                      //  ++v196;
+                      //  *((_BYTE *)&team_col[15] + v196 + v197 * 9 + 3) = *((_BYTE *)&pJoyPos.iY2Count + v196 + 3);
+                      //} while (v196 < 9);
+
+                      if (!default_names[iAIDriverIdx_1][0]) {
+                        sprintf(buffer, "comp %i", iSelectedCar - 2);
+                        name_copy(default_names[v197], buffer);
                       }
                       broadcast_mode = -1;
                       while (broadcast_mode)
-                        ;
+                        UpdateSDL();
                     }
                   } else {
-                  LABEL_715:
-                    v189 = v136;
+                  EXIT_NAME_EDITING:
+                    iConfigState = iEditingName_1;
                   }
                 }
                 continue;
               case 2:
-                v145 = fatgetch();
-                i = v145;
-                if (v145 < 0xD) {
-                  if (!v145) {
-                    v146 = fatgetch();
-                    i = v146 - 72;
-                    switch (v146) {
-                      case 'H':
-                        v125 = v187;
-                        if (v187) {
-                          if (v187 > 1)
-                            i = --v187;
+                // Audio/Volume config
+                uiKey_5 = fatgetch();
+                if (uiKey_5 < 0xD) {
+                  if (!uiKey_5)               // Extended key
+                  {
+                    switch (fatgetch()) {
+                      case 0x48:                // UP arrow
+                        if (iVolumeSelection) {
+                          if (iVolumeSelection > 1)
+                            --iVolumeSelection;
                         } else {
-                          v187 = 7;
+                          iVolumeSelection = 7;
                         }
                         break;
-                      case 'K':
-                        switch (v187) {
-                          case 1:
+                      case 0x4B:                // Left arrow - decrease volume
+                        switch (iVolumeSelection) {
+                          case 1:               // Engine volume
                             EngineVolume -= 4;
                             if (EngineVolume < 0)
                               EngineVolume = 0;
                             break;
-                          case 2:
-                            v125 = SFXVolume - 4;
-                            SFXVolume = v125;
-                            if (v125 < 0) {
-                              i = 0;
+                          case 2:               // SFX volume
+                            SFXVolume -= 4;
+                            if (SFXVolume < 0)
                               SFXVolume = 0;
-                            }
                             break;
-                          case 3:
+                          case 3:               // Speech volume
                             SpeechVolume -= 4;
                             if (SpeechVolume < 0)
                               SpeechVolume = 0;
                             break;
-                          case 4:
+                          case 4:               // Music volume
                             MusicVolume -= 4;
-                            if (MusicVolume < 0) {
-                              v125 = 0;
+                            if (MusicVolume < 0)
                               MusicVolume = 0;
-                            }
+                            // Update hardware volume
                             if (MusicCard)
-                              sosMIDISetMasterVolume((unsigned __int8)MusicVolume);
+                              MIDISetMasterVolume(MusicVolume);
+                              //sosMIDISetMasterVolume(MusicVolume);
                             if (MusicCD)
-                              goto LABEL_790;
+                              goto SET_CD_VOLUME;// CONTINUE_AUDIO_INPUT: Continue processing audio menu input
                             break;
                           default:
                             continue;
                         }
                         break;
-                      case 'M':
-                        switch (v187) {
-                          case 1:
-                            v4 = EngineVolume + 4;
-                            EngineVolume = v4;
-                            if (v4 >= 128)
+                      case 0x4D:                // Right arrow - increase volume
+                        switch (iVolumeSelection) {
+                          case 1:               // Engine volume
+                            EngineVolume += 4;
+                            if (EngineVolume >= 128)
                               EngineVolume = 127;
                             break;
-                          case 2:
+                          case 2:               // SFX volume
                             SFXVolume += 4;
                             if (SFXVolume >= 128)
                               SFXVolume = 127;
                             break;
-                          case 3:
-                            v4 = SpeechVolume + 4;
-                            SpeechVolume = v4;
-                            if (v4 >= 128)
+                          case 3:               // Speech volume
+                            SpeechVolume += 4;
+                            if (SpeechVolume >= 128)
                               SpeechVolume = 127;
                             break;
-                          case 4:
-                            i = MusicVolume + 4;
-                            MusicVolume = i;
-                            if (i >= 128)
+                          case 4:               // Music volume
+                            MusicVolume += 4;
+                            if (MusicVolume >= 128)
                               MusicVolume = 127;
+                            // Update hardware volume
                             if (MusicCard)
-                              sosMIDISetMasterVolume((unsigned __int8)MusicVolume);
+                              MIDISetMasterVolume(MusicVolume);
+                              //sosMIDISetMasterVolume(MusicVolume);
                             if (MusicCD)
-                              LABEL_790:
+                              SET_CD_VOLUME:
                             SetAudioVolume(MusicVolume);
                             break;
                           default:
                             continue;
                         }
                         break;
-                      case 'P':
-                        v147 = v187;
-                        if (v187 > 0) {
-                          ++v187;
-                          if (v147 + 1 > 7) {
-                            v4 = 0;
-                            v187 = 0;
-                          }
+                      case 0x50:                // Down arrow
+                        iNextVolumeSelection = iVolumeSelection;
+                        if (iVolumeSelection > 0) {
+                          ++iVolumeSelection;
+                          if (iNextVolumeSelection + 1 > 7)
+                            iVolumeSelection = 0;
                         }
                         break;
                       default:
                         continue;
                     }
                   }
-                } else if (v145 <= 0xD) {
-                  v125 = v187;
-                  switch (v187) {
-                    case 0:
-                      goto LABEL_806;
-                    case 5:
+                } else if (uiKey_5 <= 0xD)      // Enter key
+                {
+                  switch (iVolumeSelection) {
+                    case 0:                     // Back
+                      goto EXIT_AUDIO_MENU;     // Return to main menu
+                    case 5:                     // Toggle engine mode
                       allengines = allengines == 0;
                       break;
-                    case 6:
+                    case 6:                     // Toggle sound effects
                       if (SoundCard) {
-                        j = soundon != 0;
+                        kk = soundon != 0;
                         soundon = soundon == 0;
-                        if (!j)
+                        if (!kk)
                           loadfatalsample();
                       } else {
                         soundon = 0;
                       }
                       break;
-                    case 7:
-                      v4 = MusicCard;
+                    case 7:                     // Toggle music
                       if (MusicCard || MusicCD) {
-                        v148 = musicon == 0;
-                        musicon = v148;
-                        reinitmusic(v148, v187, MusicCard, i);
+                        musicon = musicon == 0;
+                        reinitmusic();
                       } else {
                         musicon = MusicCard;
                       }
@@ -3204,115 +3784,103 @@ void select_configure()
                     default:
                       continue;
                   }
-                } else if (v145 == 27) {
-                LABEL_804:
-                  v189 = 0;
+                } else if (uiKey_5 == 0x1B)     // ESC key
+                {
+                EXIT_AUDIO_MENU_2:
+                  iConfigState = 0;
                 }
                 continue;
-              case 3:
-                v149 = fatgetch();
-                i = v149;
-                if (v149 < 0xD) {
-                  if (!v149)
-                    fatgetch();
-                } else if (v149 <= 0xD || v149 == 27) {
+              case 3:                           // JOYSTICK CALIBRATION INPUT
+                uiKey = fatgetch();
+                if (uiKey < 0xD) {
+                  if (!uiKey)
+                    fatgetch();                 // Consume extended key
+                } else if (uiKey <= 0xD || uiKey == 0x1B)// Enter or ESC
+                {
                   remove_uncalibrated();
-                  v189 = 0;
+                  iConfigState = 0;             // Return to main menu
                 }
                 continue;
-              case 4:
-                v150 = fatgetch();
-                i = v150;
-                if (v150 < 0xD) {
-                  if (!v150) {
-                    v151 = fatgetch();
-                    i = v151;
-                    if (v151 >= 0x48) {
-                      if (v151 <= 0x48) {
-                        if (!v184) {
-                          v152 = ++v185;
+              case 4:                           // CONTROL CONFIG INPUT
+                uiKey_1 = fatgetch();
+                if (uiKey_1 < 0xD) {
+                  if (!uiKey_1)               // Extended key
+                  {
+                    uiKey_6 = fatgetch();
+                    if (uiKey_6 >= 0x48) {
+                      if (uiKey_6 <= 0x48)    // Up arrow
+                      {
+                        if (!iControlsInEdit) {
+                          iNextControlSelection = ++iControlSelection;
                           if (player_type == 2) {
-                            if (v152 > 4)
-                              v185 = 4;
-                          } else if (v152 > 2) {
-                            v185 = 2;
+                            if (iNextControlSelection > 4)
+                              iControlSelection = 4;
+                          } else if (iNextControlSelection > 2) {
+                            iControlSelection = 2;
                           }
                         }
-                      } else if (v151 == 80 && !v184) {
-                        v125 = v185 - 1;
-                        v185 = v125;
-                        if (v125 < 0)
-                          v185 = v184;
+                      } else if (uiKey_6 == 80 && !iControlsInEdit && --iControlSelection < 0) {
+                        iControlSelection = iControlsInEdit;
                       }
                     }
                   }
-                } else if (v150 <= 0xD) {
-                  v4 = v185;
-                  switch (v185) {
-                    case 0:
-                      goto LABEL_841;
-                    case 1:
-                      v4 = 1;
+                } else if (uiKey_1 <= 0xD)      // Enter key
+                {
+                  switch (iControlSelection) {
+                    case 0:                     // Back
+                      goto EXIT_CONTROLS_MENU;  // Return to main menu
+                    case 1:                     // Customize Player 1
                       control_edit = 0;
                       disable_keyboard();
-                      qmemcpy(&oldkeys, userkey, 0xCu);
-                      qmemcpy((char *)&oldkeys + 12, &userkey[12], 2u);
-                      i = 0;
-                      v184 = 1;
+                      memcpy(oldkeys, userkey, 0xCu);// Backup current keys
+                      memcpy(&oldkeys[12], &userkey[12], 2u);// Backup cheat keys
+                      iControlsInEdit = 1;
                       controlrelease = -1;
                       break;
-                    case 2:
-                      if (manual_control[(__int16)player1_car] == 2)
-                        manual_control[(__int16)player1_car] = 1;
+                    case 2:                     // Toggle player 1 control method
+                      if (manual_control[player1_car] == 2)
+                        manual_control[player1_car] = 1;// Switch to keyboard
                       else
-                        manual_control[(__int16)player1_car] = 2;
+                        manual_control[player1_car] = 2;// Switch to joystick
                       broadcast_mode = -1;
                       while (broadcast_mode)
-                        ;
+                        UpdateSDL();
                       break;
-                    case 3:
-                      v125 = 6;
-                      v4 = -1;
-                      v184 = 2;
-                      control_edit = 6;
+                    case 3:                     // Customize player 2
+                      iControlsInEdit = 2;
+                      control_edit = 6;         // Start with player 2 controls
                       disable_keyboard();
-                      qmemcpy(&oldkeys, userkey, 0xCu);
-                      qmemcpy((char *)&oldkeys + 12, &userkey[12], 2u);
-                      i = 0;
+                      memcpy(oldkeys, userkey, 0xCu);// backup current keys
+                      memcpy(&oldkeys[12], &userkey[12], 2u);// backup cheat keys
                       controlrelease = -1;
                       break;
                     case 4:
                       if (manual_control[player2_car] == 2)
-                        manual_control[player2_car] = 1;
+                        manual_control[player2_car] = 1;// switch to keyboard
                       else
-                        manual_control[player2_car] = 2;
+                        manual_control[player2_car] = 2;// switch to joystick
                       break;
                     default:
                       continue;
                   }
-                } else if (v150 == 27) {
-                  v125 = 0;
-                  v189 = 0;
+                } else if (uiKey_1 == 27) {
+                  iConfigState = 0;
                 }
                 continue;
-              case 5:
-                v154 = fatgetch();
-                i = v154;
-                if (v154 < 0xD) {
-                  if (!v154) {
-                    v155 = fatgetch();
-                    i = v155 - 72;
-                    switch (v155) {
-                      case 'H':
-                        if (++v186 > 16)
-                          v186 = 16;
+              case 5:                           // VIDEO
+                uiKey_2 = fatgetch();
+                if (uiKey_2 < 0xD) {
+                  if (!uiKey_2) {
+                    switch (fatgetch()) {
+                      case 0x48:
+                        if (++iVideoState > 16)
+                          iVideoState = 16;
                         break;
-                      case 'K':
-                        if (v186 == 2) {
+                      case 0x4B:
+                        if (iVideoState == 2) {
                           if (game_svga) {
-                            v125 = game_size - 16;
-                            game_size = v125;
-                            if (v125 < 64)
+                            game_size -= 16;
+                            if (game_size < 64)
                               game_size = 64;
                           } else {
                             game_size -= 8;
@@ -3321,40 +3889,35 @@ void select_configure()
                           }
                         }
                         break;
-                      case 'M':
-                        if (v186 == 2) {
+                      case 0x4D:
+                        if (iVideoState == 2) {
                           if (game_svga) {
                             game_size += 16;
                             if (game_size > 128)
                               game_size = 128;
                           } else {
-                            v4 = game_size + 8;
-                            game_size = v4;
-                            if (v4 > 64)
+                            game_size += 8;
+                            if (game_size > 64)
                               game_size = 64;
                           }
                         }
                         break;
-                      case 'P':
-                        i = v186 - 1;
-                        v186 = i;
-                        if (i < 0)
-                          v186 = 0;
+                      case 0x50:
+                        if (--iVideoState < 0)
+                          iVideoState = 0;
                         break;
                       default:
                         continue;
                     }
                   }
-                } else if (v154 <= 0xD) {
-                  switch (v186) {
+                } else if (uiKey_2 <= 0xD) {
+                  switch (iVideoState) {
                     case 0:
-                      v4 = 0;
-                      v189 = 0;
+                      iConfigState = 0;
                       break;
                     case 1:
                       if (game_svga) {
                         game_svga = 0;
-                        v125 = game_size >> 31;
                         game_size /= 2;
                       } else if (svga_possible && !no_mem) {
                         game_svga = -1;
@@ -3367,9 +3930,8 @@ void select_configure()
                         if (game_size > 128)
                           game_size = 64;
                       } else {
-                        v4 = game_size + 8;
-                        game_size = v4;
-                        if (v4 > 64)
+                        game_size += 8;
+                        if (game_size > 64)
                           game_size = 32;
                       }
                       break;
@@ -3383,26 +3945,28 @@ void select_configure()
                       }
                       break;
                     case 4:
-                      v4 = textures_off;
                       if ((textures_off & 0x20) != 0) {
-                        v156 = textures_off;
-                        LOBYTE(v156) = textures_off ^ 0x20;
-                        textures_off = ((unsigned int)&loc_3FFFC + 4) | v156;
-                      } else if ((((unsigned int)&loc_3FFFC + 4) & textures_off) != 0) {
-                        textures_off ^= (unsigned int)&loc_3FFFC + 4;
+                        uiTexOffTemp_7 = textures_off;
+                        uiTexOffTemp_7 = textures_off ^ 0x20;
+                        //LOBYTE(uiTexOffTemp_7) = textures_off ^ 0x20;
+                        textures_off = uiTexOffTemp_7 | 0x40000;
+                      } else if ((textures_off & 0x40000) != 0) {
+                        textures_off ^= 0x40000u;
                       } else {
                         textures_off |= 0x20u;
                       }
                       break;
                     case 5:
-                      v125 = textures_off;
-                      LOBYTE(v125) = textures_off ^ 8;
-                      textures_off = v125;
+                      uiTexOffTemp = textures_off;
+                      uiTexOffTemp = textures_off ^ 8;
+                      //LOBYTE(uiTexOffTemp) = textures_off ^ 8;
+                      textures_off = uiTexOffTemp;
                       break;
                     case 6:
-                      v157 = textures_off;
-                      BYTE1(v157) = BYTE1(textures_off) ^ 1;
-                      textures_off = v157;
+                      uiTexOffTemp_1 = textures_off;
+                      uiTexOffTemp_1 = textures_off ^ 0x100;
+                      //BYTE1(uiTexOffTemp_1) = BYTE1(textures_off) ^ 1;
+                      textures_off = uiTexOffTemp_1;
                       break;
                     case 7:
                       textures_off ^= 2u;
@@ -3411,24 +3975,28 @@ void select_configure()
                       textures_off ^= 0x80u;
                       break;
                     case 9:
-                      i = textures_off;
-                      LOBYTE(i) = textures_off ^ 1;
-                      textures_off = i;
+                      uiTexOffTemp_2 = textures_off;
+                      uiTexOffTemp_2 = textures_off ^ 1;
+                      //LOBYTE(uiTexOffTemp_2) = textures_off ^ 1;
+                      textures_off = uiTexOffTemp_2;
                       break;
                     case 10:
-                      v4 = textures_off;
-                      LOBYTE(v4) = textures_off ^ 4;
-                      textures_off = v4;
+                      uiTexOffTemp_3 = textures_off;
+                      uiTexOffTemp_3 = textures_off ^ 4;
+                      //LOBYTE(uiTexOffTemp_3) = textures_off ^ 4;
+                      textures_off = uiTexOffTemp_3;
                       break;
                     case 11:
-                      v125 = textures_off;
-                      LOBYTE(v125) = textures_off ^ 0x40;
-                      textures_off = v125;
+                      uiTexOffTemp_4 = textures_off;
+                      uiTexOffTemp_4 = textures_off ^ 0x40;
+                      //LOBYTE(uiTexOffTemp_4) = textures_off ^ 0x40;
+                      textures_off = uiTexOffTemp_4;
                       break;
                     case 12:
-                      v158 = textures_off;
-                      LOBYTE(v158) = textures_off ^ 0x10;
-                      textures_off = v158;
+                      uiTexOffTemp_5 = textures_off;
+                      uiTexOffTemp_5 = textures_off ^ 0x10;
+                      //LOBYTE(uiTexOffTemp_5) = textures_off ^ 0x10;
+                      textures_off = uiTexOffTemp_5;
                       break;
                     case 13:
                       textures_off ^= 0x800u;
@@ -3437,189 +4005,154 @@ void select_configure()
                       textures_off ^= 0x200u;
                       break;
                     case 15:
-                      v125 = names_on + 1;
-                      names_on = v125;
-                      if (v125 > 2) {
-                        i = 0;
+                      if (++names_on > 2)
                         names_on = 0;
-                      }
                       break;
                     case 16:
-                      textures_off ^= (unsigned int)&loc_7FFFE + 2;
+                      textures_off ^= 0x80000u;
                       break;
                     default:
                       continue;
                   }
-                } else if (v154 == 27) {
-                LABEL_806:
-                  v189 = 0;
+                } else if (uiKey_2 == 27) {
+                EXIT_AUDIO_MENU:
+                  iConfigState = 0;
                 }
                 continue;
-              case 6:
-                v159 = fatgetch();
-                i = v159;
-                if (v159 < 0xD) {
-                  if (!v159) {
-                    v160 = fatgetch();
-                    i = v160 - 72;
-                    switch (v160) {
-                      case 'H':
-                        v161 = ++v182;
+              case 6:                           // GRAPHICS
+                uiKey_3 = fatgetch();
+                if (uiKey_3 < 0xD) {
+                  if (!uiKey_3) {
+                    switch (fatgetch()) {
+                      case 0x48:
+                        iPlayerIndex = ++iGraphicsState;
                         if (player_type == 2) {
-                          if (v161 > 6)
-                            v182 = 6;
-                        } else if (v161 > 5) {
-                          v182 = 5;
+                          if (iPlayerIndex > 6)
+                            iGraphicsState = 6;
+                        } else if (iPlayerIndex > 5) {
+                          iGraphicsState = 5;
                         }
                         break;
-                      case 'P':
-                        v125 = v182 - 1;
-                        v182 = v125;
-                        if (v125 < 0) {
-                          i = 0;
-                          v182 = 0;
-                        }
+                      case 0x50:
+                        if (--iGraphicsState < 0)
+                          iGraphicsState = 0;
                         break;
                       default:
                         continue;
                     }
                   }
-                } else if (v159 <= 0xD) {
-                  switch (v182) {
+                } else if (uiKey_3 <= 0xD) {
+                  switch (iGraphicsState) {
                     case 0:
-                      goto LABEL_804;
+                      goto EXIT_AUDIO_MENU_2;
                     case 1:
                       false_starts = false_starts == 0;
                       broadcast_mode = -1;
                       while (broadcast_mode)
-                        ;
+                        UpdateSDL();
                       break;
                     case 2:
-                      if (lots_of_mem) {
-                        if (p_tex_size == 1) {
-                          v4 = 0;
-                          p_tex_size = 0;
-                        } else {
-                          p_tex_size = 1;
-                        }
-                      }
+                      if (lots_of_mem)
+                        p_tex_size = p_tex_size != 1;
                       break;
                     case 3:
-                      if (replay_record) {
-                        i = 0;
-                        replay_record = 0;
-                      } else {
-                        replay_record = 1;
-                      }
+                      replay_record = replay_record == 0;
                       break;
                     case 4:
-                      v125 = textures_off;
-                      BYTE1(v125) = BYTE1(textures_off) ^ 4;
-                      textures_off = v125;
+                      uiTexOffTemp_6 = textures_off;
+                      uiTexOffTemp_6 = textures_off ^ 0x400;
+                      //BYTE1(uiTexOffTemp_6) = BYTE1(textures_off) ^ 4;
+                      textures_off = uiTexOffTemp_6;
                       break;
                     case 5:
                       do {
-                        if (++game_view == 9)
-                          game_view = 0;
-                      } while (!AllowedViews[game_view]);
+                        if (++game_view[0] == 9)
+                          game_view[0] = 0;
+                      } while (!AllowedViews[game_view[0]]);
                       break;
                     case 6:
                       do {
-                        if (++game_view_variable_1 == 9) {
-                          v4 = 0;
-                          game_view_variable_1 = 0;
-                        }
-                      } while (!AllowedViews[game_view_variable_1]);
+                        if (++game_view[1] == 9)
+                          game_view[1] = 0;
+                      } while (!AllowedViews[game_view[1]]);
                       break;
                     default:
                       continue;
                   }
-                } else if (v159 == 27) {
-                LABEL_841:
-                  v153 = 0;
-                  goto LABEL_842;
+                } else if (uiKey_3 == 27) {
+                EXIT_CONTROLS_MENU:
+                  iDisplayIndex = 0;
+                  goto LABEL_900;
                 }
                 continue;
-              case 7:
-                v162 = fatgetch();
-                v125 = v162;
-                i = v162;
-                if (v162 < 8) {
-                  if (v162)
-                    goto LABEL_974;
-                  v164 = v191;
-                  v165 = fatgetch();
-                  if (!v164 && v165 >= 0x48) {
-                    if (v165 <= 0x48) {
-                      v4 = v183 + 1;
-                      v183 = v4;
-                      if (v4 > 5)
-                        v183 = 5;
-                    } else if (v165 == 80 && --v183 < 0) {
-                      v183 = v125;
+              case 7:                           // NETWORK
+                uiKey_4 = fatgetch();
+                uiDataValue1 = uiKey_4;
+                iGameIndex = uiKey_4;
+                if (uiKey_4 < 8) {
+                  if (uiKey_4)
+                    goto LABEL_1028;
+                  iPlayerIndex2 = iEditingName;
+                  uiDataValue3 = fatgetch();
+                  if (!iPlayerIndex2 && uiDataValue3 >= 0x48) {
+                    if (uiDataValue3 <= 0x48) {
+                      if (++iNetworkState > 5)
+                        iNetworkState = 5;
+                    } else if (uiDataValue3 == 80 && --iNetworkState < 0) {
+                      iNetworkState = uiDataValue1;
                     }
                   }
                 } else {
-                  v163 = 14 * (4 - v183);
-                  if ((unsigned int)v125 <= 8) {
-                    if (v191) {
-                      v125 = v190;
-                      LOBYTE(v4) = 0;
-                      aSlowcoach[v190 + v163] = 0;
-                      if (v125 > 0) {
-                        v4 = --v125;
-                        BYTE1(v4) = 0;
-                        v190 = v125;
-                        aSlowcoach[v125 + v163] = 0;
+                  uiDataValue2 = 14 * (4 - iNetworkState);
+                  if (uiDataValue1 <= 8) {
+                    if (iEditingName) {
+                      iDataIndex = iNameLength;
+                      network_messages[0][iNameLength + uiDataValue2] = 0;
+                      if (iDataIndex > 0) {
+                        iNameLength = iDataIndex - 1;
+                        network_messages[0][iDataIndex - 1 + uiDataValue2] = 0;
                       }
                     }
                   } else {
-                    if ((unsigned int)v125 < 0xD)
-                      goto LABEL_974;
-                    if ((unsigned int)v125 <= 0xD) {
-                      v4 = v191;
-                      if (v191) {
-                        i ^= v125;
-                        v191 = i;
-                      } else if (v183) {
-                        if (v183 == 5) {
-                          select_messages(v163);
+                    if (uiDataValue1 < 0xD)
+                      goto LABEL_1028;
+                    if (uiDataValue1 <= 0xD) {
+                      if (iEditingName) {
+                        iEditingName = uiDataValue1 ^ iGameIndex;
+                      } else if (iNetworkState) {
+                        if (iNetworkState == 5) {
+                          select_messages();
                         } else {
-                          v190 = v191;
-                          i = 14 * (4 - v183);
-                          LOBYTE(v125) = aSlowcoach[v163];
-                          v191 = 1;
-                          for (j = (_BYTE)v125 == 0; !j; j = (_BYTE)v4 == 0) {
-                            LOBYTE(v4) = aSlowcoach[++i];
-                            ++v190;
+                          iNameLength = iEditingName;
+                          iCounterVar = 14 * (4 - iNetworkState);
+                          byTempFlag = network_messages[uiDataValue2 / 0xE][0];
+                          iEditingName = 1;
+                          for (kk = byTempFlag == 0; !kk; kk = byStatusFlag == 0) {
+                            byStatusFlag = network_messages[0][++iCounterVar];
+                            ++iNameLength;
                           }
                         }
                       } else {
-                        v189 = v191;
+                        iConfigState = iEditingName;
                       }
-                    } else if (v125 == 27) {
-                      v153 = v191;
-                      if (v191) {
-                        v125 = 0;
-                        v191 = 0;
-                      } else {
-                      LABEL_842:
-                        v189 = v153;
-                      }
+                    } else if (uiDataValue1 == 27) {
+                      iDisplayIndex = iEditingName;
+                      if (iEditingName)
+                        iEditingName = 0;
+                      else
+                        LABEL_900:
+                      iConfigState = iDisplayIndex;
                     } else {
-                    LABEL_974:
-                      if (v191 && v190 < 13) {
-                        if (i >= 97 && i <= 122)
-                          i -= 32;
-                        if (i >= 65 && i <= 90 || i >= 48 && i <= 57 || i == 32 || i == 46 || i == 39) {
-                          v167 = 14 * (4 - v183);
-                          v125 = v190;
-                          v4 = v190 + 1;
-                          aSlowcoach[v190 + v167] = i;
-                          i = v4;
-                          LOBYTE(i) = 0;
-                          v190 = v4;
-                          aSlowcoach[v4 + v167] = 0;
+                    LABEL_1028:
+                      if (iEditingName && iNameLength < 13) {
+                        if (iGameIndex >= 97 && iGameIndex <= 122)
+                          iGameIndex -= 32;
+                        if (iGameIndex >= 65 && iGameIndex <= 90 || iGameIndex >= 48 && iGameIndex <= 57 || iGameIndex == 32 || iGameIndex == 46 || iGameIndex == 39) {
+                          iResultValue = 14 * (4 - iNetworkState);
+                          iCalculation = iNameLength + 1;
+                          network_messages[0][iNameLength + iResultValue] = iGameIndex;
+                          iNameLength = iCalculation;
+                          network_messages[0][iCalculation + iResultValue] = 0;
                         }
                       }
                     }
@@ -3631,811 +4164,510 @@ void select_configure()
             }
           }
         }
-        if (!v193)
+        if (!iExitFlag)
           continue;
-        fade_palette(0, v125, 0, i);
+        fade_palette(0);
         front_fade = 0;
         return;
-      case 2:
-        if (v189 == 3) {
-          ReadJoys((int *)&v172);
-          _disable();
-          if (v173 < JAXmin)
-            JAXmin = v173;
-          if (v173 > JAXmax)
-            JAXmax = v173;
-          if (v174 < JAYmin)
-            JAYmin = v174;
-          if (v174 > JAYmax)
-            JAYmax = v174;
-          if (v177 < JBXmin)
-            JBXmin = v177;
-          if (v177 > JBXmax)
-            JBXmax = v177;
-          if (v178 < JBYmin)
-            JBYmin = v178;
-          if (v178 > JBYmax)
-            JBYmax = v178;
-          if (JAXmin == JAXmax)
-            JAXmax = JAXmin + 1;
-          if (JAYmin == JAYmax)
-            JAYmax = JAYmin + 1;
-          if (JBXmin == JBXmax)
-            JBXmax = JBXmin + 1;
-          if (JBYmin == JBYmax)
-            JBYmax = JBYmin + 1;
-          _enable();
-        }
-        if (v189 == 3) {
-          scale_text(400, 60, 143, 1, 200, 640);
-          scale_text(400, 78, 143, 1, 200, 640);
-        }
-        v38 = v189;
-        scale_text(400, 110, 143, 1, 200, 640);
-        if (v38 == 3) {
-          if (x1ok && JAXmax - JAXmin >= 100)
-            v39 = 140 * (2 * v173 - JAXmax - JAXmin) / (JAXmax - JAXmin);
-          else
-            v39 = 0;
-          front_displaycalibrationbar(300, 128, v39, &font1_offsets);
-        } else {
-          scale_text(400, 128, 143, 1, 200, 640);
-        }
-        scale_text(400, 160, 143, 1, 200, 640);
-        if (v189 == 3) {
-          if (y1ok && JAYmax - JAYmin >= 100)
-            v40 = 140 * (2 * v174 - JAYmax - JAYmin) / (JAYmax - JAYmin);
-          else
-            v40 = 0;
-          front_displaycalibrationbar(300, 178, v40, &font1_offsets);
-        } else {
-          scale_text(400, 178, 143, 1, 200, 640);
-        }
-        scale_text(400, 210, 143, 1, 200, 640);
-        if (v189 == 3) {
-          if (x2ok && JBXmax - JBXmin >= 100)
-            v41 = 140 * (2 * v177 - JBXmax - JBXmin) / (JBXmax - JBXmin);
-          else
-            v41 = 0;
-          front_displaycalibrationbar(300, 228, v41, &font1_offsets);
-        } else {
-          scale_text(400, 228, 143, 1, 200, 640);
-        }
-        i = (int)&font1_offsets;
-        v42 = v189;
-        scale_text(400, 260, 143, 1, 200, 640);
-        if (v42 == 3) {
-          if (y2ok && JBYmax - JBYmin >= 100)
-            v4 = 140 * (2 * v178 - JBYmax - JBYmin) / (JBYmax - JBYmin);
-          else
-            v4 = 0;
-          v6 = (unsigned int)front_displaycalibrationbar(300, 278, v4, &font1_offsets) | 0x11600000000LL;
-        } else {
-          i = (int)&font1_offsets;
-          v4 = (int)font1_ascii;
-          v6 = scale_text(400, 278, 143, 1, 200, 640);
-        }
-        goto LABEL_623;
-      case 3:
-        if (v189 == 4) {
-          if (controlrelease) {
-            v43 = -1;
-            v44 = 0;
-            v45 = 0;
-            do {
-              if (keyname[v45] && keys[v44])
-                v43 = 0;
-              ++v44;
-              ++v45;
-            } while (v44 < 128);
-            if (v43)
-              controlrelease = 0;
-          }
-        } else {
-          v185 = -1;
-        }
-        if (player_type == 2) {
-          if (manual_control[player2_car] == 2)
-            sprintf(&buffer, "%s %s", config_buffer_variable_57, config_buffer_variable_58);
-          else
-            sprintf(&buffer, "%s %s", config_buffer_variable_57, config_buffer_variable_59);
-          if (v185 == 4)
-            v46 = 171;
-          else
-            v46 = 143;
-          scale_text(420, 60, v46, 1, 200, 640);
-          if (v185 == 3)
-            v47 = 171;
-          else
-            v47 = 143;
-          scale_text(420, 78, v47, 1, 200, 640);
-        }
-        if (manual_control[(__int16)player1_car] == 2)
-          sprintf(&buffer, "%s %s", config_buffer_variable_56, config_buffer_variable_58);
-        else
-          sprintf(&buffer, "%s %s", config_buffer_variable_56, config_buffer_variable_59);
-        if (v185 == 2)
-          v48 = 171;
-        else
-          v48 = 143;
-        scale_text(420, 96, v48, 1, 200, 640);
-        if (v185 == 1)
-          v49 = 171;
-        else
-          v49 = 143;
-        scale_text(420, 114, v49, 1, 200, 640);
-        if (v185)
-          v50 = 143;
-        else
-          v50 = 171;
-        i = (int)&font1_offsets;
-        v6 = scale_text(420, 132, v50, 1, 200, 640);
-        v4 = v185;
-        if (v185 == 1 || v185 == 2) {
-          v51 = 0;
-          v52 = &config_buffer[896];
-          v198 = 200;
-          do {
-            if (v51 == control_edit)
-              v53 = 171;
-            else
-              v53 = 143;
-            front_text(475, v198, v53, 2);
-            if (v51 == control_edit)
-              v54 = 171;
-            else
-              v54 = 143;
-            v4 = (int)font1_ascii;
-            i = (int)&font1_offsets;
-            v6 = scale_text(480, v198, v54, 0, 200, 640);
-            v52 += 64;
-            ++v51;
-            v198 += 18;
-          } while (v51 < 6);
-          LODWORD(v6) = (__int16)player1_car;
-          if (Players_Cars[(__int16)player1_car] >= 8) {
-            if (control_edit == 12)
-              v55 = 171;
-            else
-              v55 = 143;
-            front_text(475, 308, v55, 2);
-            if (control_edit == 12)
-              v56 = 171;
-            else
-              v56 = 143;
-            v4 = (int)font1_ascii;
-            i = (int)&font1_offsets;
-            v6 = scale_text(480, 308, v56, 0, 200, 640);
-          }
-        } else if (v185 == 3 || v185 == 4) {
-          v57 = 6;
-          v58 = &config_buffer[1280];
-          v197 = 200;
-          do {
-            if (v57 == control_edit)
-              v59 = 171;
-            else
-              v59 = 143;
-            front_text(475, v197, v59, 2);
-            if (v57 == control_edit)
-              v60 = 171;
-            else
-              v60 = 143;
-            i = (int)&font1_offsets;
-            v6 = front_text(480, v197, v60, 0);
-            v58 += 64;
-            v4 = v197 + 18;
-            ++v57;
-            v197 += 18;
-          } while (v57 < 12);
-          LODWORD(v6) = player2_car;
-          if (Players_Cars[player2_car] >= 8) {
-            if (control_edit == 13)
-              v61 = 171;
-            else
-              v61 = 143;
-            front_text(475, 308, v61, 2);
-            if (control_edit == 13)
-              v62 = 171;
-            else
-              v62 = 143;
-            v4 = (int)font1_ascii;
-            i = (int)&font1_offsets;
-            v6 = front_text(480, 308, v62, 0);
-          }
-        }
-        if (!v184 || v189 != 4)
-          goto LABEL_623;
-        LODWORD(v6) = controlrelease;
-        if (controlrelease)
-          goto LABEL_341;
-        v6 = 0LL;
-        i = -1;
-        do {
-          if (*(int *)((char *)keyname + HIDWORD(v6)) && keys[v6])
-            i = v6;
-          LODWORD(v6) = v6 + 1;
-          HIDWORD(v6) += 4;
-        } while ((int)v6 < 128);
-        if (i == -1) {
-          LODWORD(v6) = ReadJoys((int *)&v172);
-          if ((_DWORD)v172)
-            i = 128;
-          if (HIDWORD(v172))
-            i = 129;
-          if (v175)
-            i = 130;
-          if (v176)
-            i = 131;
-        }
-        if (i == -1) {
-          if (y2ok) {
-            v4 = JBYmax - JBYmin;
-            LODWORD(v6) = 100 * (2 * v178 - JBYmax - JBYmin) / (JBYmax - JBYmin);
-            HIDWORD(v6) = 100 * (2 * v178 - JBYmax - JBYmin) % (JBYmax - JBYmin);
-            if ((int)v6 < -50)
-              i = 138;
-            if ((int)v6 > 50)
-              i = 139;
-          }
-          if (x2ok) {
-            v4 = JBXmax - JBXmin;
-            LODWORD(v6) = 100 * (2 * v177 - JBXmax - JBXmin) / (JBXmax - JBXmin);
-            HIDWORD(v6) = 100 * (2 * v177 - JBXmax - JBXmin) % (JBXmax - JBXmin);
-            if ((int)v6 < -50)
-              i = 136;
-            if ((int)v6 > 50)
-              i = 137;
-          }
-          if (y1ok) {
-            v4 = JAYmax - JAYmin;
-            LODWORD(v6) = 100 * (2 * v174 - JAYmax - JAYmin) / (JAYmax - JAYmin);
-            HIDWORD(v6) = 100 * (2 * v174 - JAYmax - JAYmin) % (JAYmax - JAYmin);
-            if ((int)v6 < -50)
-              i = 134;
-            if ((int)v6 > 50)
-              i = 135;
-          }
-          if (x1ok) {
-            v4 = JAXmax - JAXmin;
-            LODWORD(v6) = 100 * (2 * v173 - JAXmax - JAXmin) / (JAXmax - JAXmin);
-            HIDWORD(v6) = 100 * (2 * v173 - JAXmax - JAXmin) % (JAXmax - JAXmin);
-            if ((int)v6 < -50)
-              i = 132;
-            if ((int)v6 > 50)
-              i = 133;
-          }
-        }
-        if (i != -1 && (control_edit == 1 || control_edit == 7)) {
-          if ((LODWORD(v6) = control_edit, *((_BYTE *)&off_A4108 + control_edit + 3) <= 0x83u) && i > 131
-            || (LODWORD(v6) = control_edit, *((_BYTE *)&off_A4108 + control_edit + 3) > 0x83u) && i <= 131) {
-            i = -1;
-          }
-        }
-        if (i == -1)
-          goto LABEL_341;
-        HIDWORD(v6) = control_edit;
-        v4 = 0;
-        LODWORD(v6) = 0;
-        if (control_edit > 0) {
-          do {
-            HIDWORD(v6) = (unsigned __int8)userkey[v6];
-            if (HIDWORD(v6) == i)
-              v4 = -1;
-            LODWORD(v6) = v6 + 1;
-          } while ((int)v6 < control_edit);
-        }
-        if (v4)
-          goto LABEL_341;
-        HIDWORD(v6) = -1;
-        LODWORD(v6) = control_edit + 1;
-        v4 = v184;
-        controlrelease = -1;
-        *((_BYTE *)&off_A4108 + v6 + 3) = i;
-        control_edit = v6;
-        if (v4 == 1) {
-          if ((int)v6 < 6)
-            goto LABEL_341;
-          LODWORD(v6) = (__int16)player1_car;
-          if (Players_Cars[(__int16)player1_car] >= 8 && control_edit < 12) {
-            control_edit = 12;
-            goto LABEL_341;
-          }
-        } else {
-          if ((int)v6 < 12)
-            goto LABEL_341;
-          LODWORD(v6) = player2_car;
-          if (Players_Cars[player2_car] >= 8 && control_edit < 13) {
-            control_edit = 13;
-            goto LABEL_341;
-          }
-        }
-        HIDWORD(v6) = -1;
-        v184 = 0;
-        control_edit = -1;
-        enable_keyboard();
-      LABEL_341:
-        if (keys_variable_1) {
-          qmemcpy(userkey, &oldkeys, 0xCu);
-          qmemcpy(&userkey[12], (char *)&oldkeys + 12, 2u);
-          enable_keyboard();
-          i = 0;
-          v184 = 0;
-          control_edit = -1;
-          LODWORD(v6) = check_joystick_usage();
-        }
-        goto LABEL_623;
       case 4:
-        if (v189 != 5)
-          v186 = -1;
-        if (v186 == 16)
-          v63 = 171;
+        if (iConfigState != 5)
+          iVideoState = -1;
+        if (iVideoState == 16)
+          byColor_31 = 0xAB;
         else
-          v63 = 143;
-        scale_text(435, 60, v63, 2, 200, 640);
-        if ((((unsigned int)&loc_7FFFE + 2) & textures_off) != 0) {
-          if (v186 == 16)
-            v64 = 171;
+          byColor_31 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[6912], font1_ascii, font1_offsets, 435, 60, byColor_31, 2u, 200, 640);
+        if ((textures_off & 0x80000) != 0) {
+          if (iVideoState == 16)
+            byColor_32 = 0xAB;
           else
-            v64 = 143;
-          v168 = v64;
+            byColor_32 = 0x8F;
+          byTempChar1 = byColor_32;
+          szText_1 = &config_buffer[2688];
         } else {
-          if (v186 == 16)
-            v65 = 171;
+          if (iVideoState == 16)
+            byColor_33 = 0xAB;
           else
-            v65 = 143;
-          v168 = v65;
+            byColor_33 = 0x8F;
+          byTempChar1 = byColor_33;
+          szText_1 = &config_buffer[2624];
         }
-        scale_text(440, 60, v168, 0, 200, 640);
-        sprintf(&buffer, "%s:", config_buffer_variable_50);
-        if (v186 == 15)
-          v66 = 171;
+        scale_text((tBlockHeader *)front_vga[15], szText_1, font1_ascii, font1_offsets, 440, 60, byTempChar1, 0, 200, 640);
+        sprintf(buffer, "%s:", &config_buffer[3968]);
+        if (iVideoState == 15)
+          byColor_34 = 0xAB;
         else
-          v66 = 143;
-        scale_text(435, 80, v66, 2, 200, 640);
+          byColor_34 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 435, 80, byColor_34, 2u, 200, 640);
         if (names_on) {
           if (names_on == 2) {
-            if (v186 == 15)
-              v67 = 171;
+            if (iVideoState == 15)
+              byColor_105 = 0xAB;
             else
-              v67 = 143;
-          } else if (v186 == 15) {
-            v67 = 171;
+              byColor_105 = 0x8F;
+            scale_text((tBlockHeader *)front_vga[15], &config_buffer[2816], font1_ascii, font1_offsets, 440, 80, byColor_105, 0, 200, 640);
           } else {
-            v67 = 143;
-          }
-        } else if (v186 == 15) {
-          v67 = 171;
-        } else {
-          v67 = 143;
-        }
-        scale_text(440, 80, v67, 0, 200, 640);
-        if (v186 == 14)
-          v68 = 171;
-        else
-          v68 = 143;
-        scale_text(435, 100, v68, 2, 200, 640);
-        if ((textures_off & 0x200) != 0) {
-          if (v186 == 14)
-            v69 = 171;
-          else
-            v69 = 143;
-        } else if (v186 == 14) {
-          v69 = 171;
-        } else {
-          v69 = 143;
-        }
-        scale_text(440, 100, v69, 0, 200, 640);
-        if (v186 == 13)
-          v70 = 171;
-        else
-          v70 = 143;
-        scale_text(435, 120, v70, 2, 200, 640);
-        if ((textures_off & 0x800) != 0) {
-          if (v186 == 13)
-            v71 = 171;
-          else
-            v71 = 143;
-        } else if (v186 == 13) {
-          v71 = 171;
-        } else {
-          v71 = 143;
-        }
-        scale_text(440, 120, v71, 0, 200, 640);
-        if (v186 == 12)
-          v72 = 171;
-        else
-          v72 = 143;
-        scale_text(435, 140, v72, 2, 200, 640);
-        if ((textures_off & 0x10) != 0) {
-          if (v186 == 12)
-            v73 = 171;
-          else
-            v73 = 143;
-        } else if (v186 == 12) {
-          v73 = 171;
-        } else {
-          v73 = 143;
-        }
-        scale_text(440, 140, v73, 0, 200, 640);
-        if (v186 == 11)
-          v74 = 171;
-        else
-          v74 = 143;
-        scale_text(435, 160, v74, 2, 200, 640);
-        if ((textures_off & 0x40) != 0) {
-          if (v186 == 11)
-            v75 = 171;
-          else
-            v75 = 143;
-        } else if (v186 == 11) {
-          v75 = 171;
-        } else {
-          v75 = 143;
-        }
-        scale_text(440, 160, v75, 0, 200, 640);
-        if (v186 == 10)
-          v76 = 171;
-        else
-          v76 = 143;
-        scale_text(435, 180, v76, 2, 200, 640);
-        if ((textures_off & 4) != 0) {
-          if (v186 == 10)
-            v77 = 171;
-          else
-            v77 = 143;
-        } else if (v186 == 10) {
-          v77 = 171;
-        } else {
-          v77 = 143;
-        }
-        scale_text(440, 180, v77, 0, 200, 640);
-        if (v186 == 9)
-          v78 = 171;
-        else
-          v78 = 143;
-        scale_text(435, 200, v78, 2, 200, 640);
-        if ((textures_off & 1) != 0) {
-          if (v186 == 9)
-            v79 = 171;
-          else
-            v79 = 143;
-        } else if (v186 == 9) {
-          v79 = 171;
-        } else {
-          v79 = 143;
-        }
-        scale_text(440, 200, v79, 0, 200, 640);
-        if (v186 == 8)
-          v80 = 171;
-        else
-          v80 = 143;
-        scale_text(435, 220, v80, 2, 200, 640);
-        if ((textures_off & 0x80u) == 0) {
-          if (v186 == 8)
-            v81 = 171;
-          else
-            v81 = 143;
-        } else if (v186 == 8) {
-          v81 = 171;
-        } else {
-          v81 = 143;
-        }
-        scale_text(440, 220, v81, 0, 200, 640);
-        if (v186 == 7)
-          v82 = 171;
-        else
-          v82 = 143;
-        scale_text(435, 240, v82, 2, 200, 640);
-        if ((textures_off & 2) != 0) {
-          if (v186 == 7)
-            v83 = 171;
-          else
-            v83 = 143;
-        } else if (v186 == 7) {
-          v83 = 171;
-        } else {
-          v83 = 143;
-        }
-        scale_text(440, 240, v83, 0, 200, 640);
-        if (v186 == 6)
-          v84 = 171;
-        else
-          v84 = 143;
-        scale_text(435, 260, v84, 2, 200, 640);
-        if ((textures_off & 0x100) != 0) {
-          if (v186 == 6)
-            v85 = 171;
-          else
-            v85 = 143;
-        } else if (v186 == 6) {
-          v85 = 171;
-        } else {
-          v85 = 143;
-        }
-        scale_text(440, 260, v85, 0, 200, 640);
-        if (v186 == 5)
-          v86 = 171;
-        else
-          v86 = 143;
-        scale_text(435, 280, v86, 2, 200, 640);
-        if ((textures_off & 8) != 0) {
-          if (v186 == 5)
-            v87 = 171;
-          else
-            v87 = 143;
-        } else if (v186 == 5) {
-          v87 = 171;
-        } else {
-          v87 = 143;
-        }
-        scale_text(440, 280, v87, 0, 200, 640);
-        if (v186 == 4)
-          v88 = 171;
-        else
-          v88 = 143;
-        scale_text(435, 300, v88, 2, 200, 640);
-        if ((textures_off & 0x20) != 0) {
-          if (v186 == 4)
-            v89 = 171;
-          else
-            v89 = 143;
-        } else if ((((unsigned int)&loc_3FFFC + 4) & textures_off) != 0) {
-          if (v186 == 4)
-            v89 = 171;
-          else
-            v89 = 143;
-        } else if (v186 == 4) {
-          v89 = 171;
-        } else {
-          v89 = 143;
-        }
-        scale_text(440, 300, v89, 0, 200, 640);
-        if (v186 == 3)
-          v90 = 171;
-        else
-          v90 = 143;
-        scale_text(435, 320, v90, 2, 200, 640);
-        if (view_limit) {
-          if (v186 == 3)
-            v91 = 171;
-          else
-            v91 = 143;
-        } else if (v186 == 3) {
-          v91 = 171;
-        } else {
-          v91 = 143;
-        }
-        scale_text(440, 320, v91, 0, 200, 640);
-        if (v186 == 2)
-          v92 = 171;
-        else
-          v92 = 143;
-        scale_text(435, 340, v92, 2, 200, 640);
-        if (game_svga)
-          v93 = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 7) + ((100 * game_size) >> 31 << 7))) >> 7;
-        else
-          v93 = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 6) + ((100 * game_size) >> 31 << 6))) >> 6;
-        sprintf(&buffer, "%i %%", v93);
-        if (v186 == 2)
-          v94 = 171;
-        else
-          v94 = 143;
-        scale_text(440, 340, v94, 0, 200, 640);
-        if (game_svga) {
-          if (v186 == 1)
-            v95 = 171;
-          else
-            v95 = 143;
-          scale_text(440, 360, v95, 1, 20, 640);
-        } else {
-          if (v186 == 1)
-            v96 = 171;
-          else
-            v96 = 143;
-          scale_text(440, 360, v96, 1, 200, 640);
-        }
-        if (v186)
-          v97 = 143;
-        else
-          v97 = 171;
-        v4 = (int)font1_ascii;
-        i = (int)&font1_offsets;
-        v6 = scale_text(430, 380, v97, 2, 200, 640);
-        goto LABEL_623;
-      case 5:
-        if (v189 != 6)
-          v182 = -1;
-        if (player_type == 2) {
-          sprintf(&buffer, "%s %s", config_buffer_variable_57, config_buffer_variable_63);
-          if (v182 == 6)
-            v98 = 171;
-          else
-            v98 = 143;
-          scale_text(435, 78, v98, 2, 200, 640);
-          if (v182 == 6)
-            v99 = 171;
-          else
-            v99 = 143;
-          scale_text(440, 78, v99, 0, 200, 640);
-        }
-        sprintf(&buffer, "%s %s", config_buffer_variable_56, config_buffer_variable_63);
-        if (v182 == 5)
-          v100 = 171;
-        else
-          v100 = 143;
-        scale_text(435, 96, v100, 2, 200, 640);
-        if (v182 == 5)
-          v101 = 171;
-        else
-          v101 = 143;
-        scale_text(440, 96, v101, 0, 200, 640);
-        if (v182 == 4)
-          v102 = 171;
-        else
-          v102 = 143;
-        scale_text(435, 114, v102, 2, 200, 640);
-        if ((textures_off & 0x400) != 0) {
-          if (v182 == 4)
-            v103 = 171;
-          else
-            v103 = 143;
-        } else if (v182 == 4) {
-          v103 = 171;
-        } else {
-          v103 = 143;
-        }
-        scale_text(440, 114, v103, 0, 200, 640);
-        if (v182 == 3)
-          v104 = 171;
-        else
-          v104 = 143;
-        scale_text(435, 132, v104, 2, 200, 640);
-        if (replay_record) {
-          if (v182 == 3)
-            v105 = 171;
-          else
-            v105 = 143;
-        } else if (v182 == 3) {
-          v105 = 171;
-        } else {
-          v105 = 143;
-        }
-        scale_text(440, 132, v105, 0, 200, 640);
-        if (v182 == 2)
-          v106 = 171;
-        else
-          v106 = 143;
-        scale_text(435, 150, v106, 2, 200, 640);
-        if (p_tex_size == 1) {
-          if (v182 == 2)
-            v107 = 171;
-          else
-            v107 = 143;
-        } else if (v182 == 2) {
-          v107 = 171;
-        } else {
-          v107 = 143;
-        }
-        scale_text(440, 150, v107, 0, 200, 640);
-        if (v182 == 1)
-          v108 = 171;
-        else
-          v108 = 143;
-        scale_text(435, 168, v108, 2, 200, 640);
-        if (false_starts) {
-          if (v182 == 1)
-            v109 = 171;
-          else
-            v109 = 143;
-        } else if (v182 == 1) {
-          v109 = 171;
-        } else {
-          v109 = 143;
-        }
-        scale_text(440, 168, v109, 0, 200, 640);
-        if (v182)
-          v110 = 143;
-        else
-          v110 = 171;
-        v4 = (int)font1_ascii;
-        i = (int)&font1_offsets;
-        v6 = scale_text(430, 186, v110, 2, 200, 640);
-        goto LABEL_623;
-      case 6:
-        if (v191) {
-          v111 = 171;
-          v112 = 165;
-        } else {
-          v111 = 165;
-          v112 = 171;
-        }
-        if (v189 != 7) {
-          v111 = 143;
-          v112 = 143;
-        }
-        if (v191) {
-          v181 = 0;
-          for (k = &aSlowcoach[14 * (4 - v183)]; *k; ++k) {
-            v114 = (unsigned __int8)font1_ascii[(unsigned __int8)*k];
-            if (v114 == 255)
-              v181 += 8;
+            if (iVideoState == 15)
+              byColor_35 = 0xAB;
             else
-              v181 += *(_DWORD *)(front_vga_variable_10 + 12 * v114) + 1;
+              byColor_35 = 0x8F;
+            scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 80, byColor_35, 0, 200, 640);
           }
-          v181 += 390;
-          v180 = 140 - 18 * v183;
+        } else {
+          if (iVideoState == 15)
+            byColor_36 = 0xAB;
+          else
+            byColor_36 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 80, byColor_36, 0, 200, 640);
         }
-        if (v183 == 5)
-          v115 = v112;
+        if (iVideoState == 14)
+          byColor_37 = 0xAB;
         else
-          v115 = 143;
-        front_text(390, 50, v115, 1);
-        if (v183 == 4)
-          v116 = v112;
+          byColor_37 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3008], font1_ascii, font1_offsets, 435, 100, byColor_37, 2u, 200, 640);
+        if ((textures_off & 0x200) != 0) {
+          if (iVideoState == 14)
+            byColor_38 = 0xAB;
+          else
+            byColor_38 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 100, byColor_38, 0, 200, 640);
+        } else {
+          if (iVideoState == 14)
+            byColor_39 = 0xAB;
+          else
+            byColor_39 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 100, byColor_39, 0, 200, 640);
+        }
+        if (iVideoState == 13)
+          byColor_40 = 0xAB;
         else
-          v116 = 143;
-        front_text(385, 68, v116, 2);
-        if (v183 == 4)
-          v117 = v111;
+          byColor_40 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3072], font1_ascii, font1_offsets, 435, 120, byColor_40, 2u, 200, 640);
+        if ((textures_off & 0x800) != 0) {
+          if (iVideoState == 13)
+            byColor_41 = 0xAB;
+          else
+            byColor_41 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 120, byColor_41, 0, 200, 640);
+        } else {
+          if (iVideoState == 13)
+            byColor_42 = 0xAB;
+          else
+            byColor_42 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 120, byColor_42, 0, 200, 640);
+        }
+        if (iVideoState == 12)
+          byColor_43 = 0xAB;
         else
-          v117 = 143;
-        scale_text(390, 68, v117, 0, 200, 630);
-        if (v183 == 3)
-          v118 = v112;
+          byColor_43 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3200], font1_ascii, font1_offsets, 435, 140, byColor_43, 2u, 200, 640);
+        if ((textures_off & 0x10) != 0) {
+          if (iVideoState == 12)
+            byColor_44 = 0xAB;
+          else
+            byColor_44 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 140, byColor_44, 0, 200, 640);
+        } else {
+          if (iVideoState == 12)
+            byColor_45 = 0xAB;
+          else
+            byColor_45 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 140, byColor_45, 0, 200, 640);
+        }
+        if (iVideoState == 11)
+          byColor_46 = 0xAB;
         else
-          v118 = 143;
-        front_text(385, 86, v118, 2);
-        if (v183 == 3)
-          v119 = v111;
+          byColor_46 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3136], font1_ascii, font1_offsets, 435, 160, byColor_46, 2u, 200, 640);
+        if ((textures_off & 0x40) != 0) {
+          if (iVideoState == 11)
+            byColor_47 = 0xAB;
+          else
+            byColor_47 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 160, byColor_47, 0, 200, 640);
+        } else {
+          if (iVideoState == 11)
+            byColor_48 = 0xAB;
+          else
+            byColor_48 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 160, byColor_48, 0, 200, 640);
+        }
+        if (iVideoState == 10)
+          byColor_49 = 0xAB;
         else
-          v119 = 143;
-        scale_text(390, 86, v119, 0, 200, 630);
-        if (v183 == 2)
-          v120 = v112;
+          byColor_49 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3264], font1_ascii, font1_offsets, 435, 180, byColor_49, 2u, 200, 640);
+        if ((textures_off & 4) != 0) {
+          if (iVideoState == 10)
+            byColor_50 = 0xAB;
+          else
+            byColor_50 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 180, byColor_50, 0, 200, 640);
+        } else {
+          if (iVideoState == 10)
+            byColor_51 = 0xAB;
+          else
+            byColor_51 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 180, byColor_51, 0, 200, 640);
+        }
+        if (iVideoState == 9)
+          byColor_52 = 0xAB;
         else
-          v120 = 143;
-        front_text(385, 104, v120, 2);
-        if (v183 == 2)
-          v121 = v111;
+          byColor_52 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3328], font1_ascii, font1_offsets, 435, 200, byColor_52, 2u, 200, 640);
+        if ((textures_off & 1) != 0) {
+          if (iVideoState == 9)
+            byColor_53 = 0xAB;
+          else
+            byColor_53 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 200, byColor_53, 0, 200, 640);
+        } else {
+          if (iVideoState == 9)
+            byColor_54 = 0xAB;
+          else
+            byColor_54 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 200, byColor_54, 0, 200, 640);
+        }
+        if (iVideoState == 8)
+          byColor_55 = 0xAB;
         else
-          v121 = 143;
-        scale_text(390, 104, v121, 0, 200, 630);
-        if (v183 == 1)
-          v122 = v112;
+          byColor_55 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3392], font1_ascii, font1_offsets, 435, 220, byColor_55, 2u, 200, 640);
+        if ((textures_off & 0x80u) == 0) {
+          if (iVideoState == 8)
+            byColor_56 = 0xAB;
+          else
+            byColor_56 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 220, byColor_56, 0, 200, 640);
+        } else {
+          if (iVideoState == 8)
+            byColor_57 = 0xAB;
+          else
+            byColor_57 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 220, byColor_57, 0, 200, 640);
+        }
+        if (iVideoState == 7)
+          byColor_58 = 0xAB;
         else
-          v122 = 143;
-        front_text(385, 122, v122, 2);
-        if (v183 != 1)
-          v111 = 143;
-        v169 = v111;
-        v123 = v183;
-        scale_text(390, 122, v169, 0, 200, 630);
-        if (v123)
-          v112 = 143;
-        v4 = (int)font1_ascii;
-        i = (int)&font1_offsets;
-        v6 = front_text(390, 140, v112, 1);
-        if (v191) {
-          LODWORD(v6) = frames & 0xF;
-          if ((unsigned int)v6 < 8) {
-            v124 = stringwidth(&aSlowcoach[14 * (4 - v183)], HIDWORD(v6), font1_ascii, &font1_offsets) + 390;
-            if (v124 <= 620) {
-              i = (int)&font1_offsets;
-              v4 = (int)font1_ascii;
-              v6 = front_text(v124, v180, 171, 0);
-            } else {
-              v4 = (int)font1_ascii;
-              i = (int)&font1_offsets;
-              v6 = front_text(621, v180, 171, 0);
-            }
+          byColor_58 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3456], font1_ascii, font1_offsets, 435, 240, byColor_58, 2u, 200, 640);
+        if ((textures_off & 2) != 0) {
+          if (iVideoState == 7)
+            byColor_59 = 0xAB;
+          else
+            byColor_59 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 240, byColor_59, 0, 200, 640);
+        } else {
+          if (iVideoState == 7)
+            byColor_60 = 0xAB;
+          else
+            byColor_60 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 240, byColor_60, 0, 200, 640);
+        }
+        if (iVideoState == 6)
+          byColor_61 = 0xAB;
+        else
+          byColor_61 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3520], font1_ascii, font1_offsets, 435, 260, byColor_61, 2u, 200, 640);
+        if ((textures_off & 0x100) != 0) {
+          if (iVideoState == 6)
+            byColor_62 = 0xAB;
+          else
+            byColor_62 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 260, byColor_62, 0, 200, 640);
+        } else {
+          if (iVideoState == 6)
+            byColor_63 = 0xAB;
+          else
+            byColor_63 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 260, byColor_63, 0, 200, 640);
+        }
+        if (iVideoState == 5)
+          byColor_64 = 0xAB;
+        else
+          byColor_64 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3584], font1_ascii, font1_offsets, 435, 280, byColor_64, 2u, 200, 640);
+        if ((textures_off & 8) != 0) {
+          if (iVideoState == 5)
+            byColor_65 = 0xAB;
+          else
+            byColor_65 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 280, byColor_65, 0, 200, 640);
+        } else {
+          if (iVideoState == 5)
+            byColor_66 = 0xAB;
+          else
+            byColor_66 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 280, byColor_66, 0, 200, 640);
+        }
+        if (iVideoState == 4)
+          byColor_67 = 0xAB;
+        else
+          byColor_67 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3648], font1_ascii, font1_offsets, 435, 300, byColor_67, 2u, 200, 640);
+        if ((textures_off & 0x20) != 0) {
+          if (iVideoState == 4)
+            byColor_68 = 0xAB;
+          else
+            byColor_68 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 300, byColor_68, 0, 200, 640);
+        } else if ((textures_off & 0x40000) != 0) {
+          if (iVideoState == 4)
+            byColor_69 = 0xAB;
+          else
+            byColor_69 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[3776], font1_ascii, font1_offsets, 440, 300, byColor_69, 0, 200, 640);
+        } else {
+          if (iVideoState == 4)
+            byColor_70 = 0xAB;
+          else
+            byColor_70 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 300, byColor_70, 0, 200, 640);
+        }
+        if (iVideoState == 3)
+          byColor_71 = 0xAB;
+        else
+          byColor_71 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3712], font1_ascii, font1_offsets, 435, 320, byColor_71, 2u, 200, 640);
+        if (view_limit) {
+          if (iVideoState == 3)
+            byColor_72 = 0xAB;
+          else
+            byColor_72 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[3776], font1_ascii, font1_offsets, 440, 320, byColor_72, 0, 200, 640);
+        } else {
+          if (iVideoState == 3)
+            byColor_73 = 0xAB;
+          else
+            byColor_73 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[3840], font1_ascii, font1_offsets, 440, 320, byColor_73, 0, 200, 640);
+        }
+        if (iVideoState == 2)
+          byColor_74 = 0xAB;
+        else
+          byColor_74 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3904], font1_ascii, font1_offsets, 435, 340, byColor_74, 2u, 200, 640);
+        if (game_svga)
+          iReturnValue = (100 * game_size) % 128;
+          //iReturnValue = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 7) + ((100 * game_size) >> 31 << 7))) >> 7;
+        else
+          iReturnValue = (100 * game_size) % 64;
+          //iReturnValue = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 6) + ((100 * game_size) >> 31 << 6))) >> 6;
+        sprintf(buffer, "%i %%", iReturnValue);
+        if (iVideoState == 2)
+          byColor_76 = 0xAB;
+        else
+          byColor_76 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 440, 340, byColor_76, 0, 200, 640);
+        if (game_svga) {
+          if (iVideoState == 1)
+            byColor_75 = 0xAB;
+          else
+            byColor_75 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[512], font1_ascii, font1_offsets, 440, 360, byColor_75, 1u, 20, 640);
+        } else {
+          if (iVideoState == 1)
+            byColor_77 = 0xAB;
+          else
+            byColor_77 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[448], font1_ascii, font1_offsets, 440, 360, byColor_77, 1u, 200, 640);
+        }
+        if (iVideoState)
+          byColor_78 = 0x8F;
+        else
+          byColor_78 = 0xAB;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 430, 380, byColor_78, 2u, 200, 640);
+        goto RENDER_FRAME;
+      case 5:
+        if (iConfigState != 6)
+          iGraphicsState = -1;
+        if (player_type == 2) {
+          sprintf(buffer, "%s %s", &config_buffer[4480], &config_buffer[4864]);
+          if (iGraphicsState == 6)
+            byColor_79 = 0xAB;
+          else
+            byColor_79 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 435, 78, byColor_79, 2u, 200, 640);
+          if (iGraphicsState == 6)
+            byColor_80 = 0xAB;
+          else
+            byColor_80 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[64 * game_view[1] + 4928], font1_ascii, font1_offsets, 440, 78, byColor_80, 0, 200, 640);
+        }
+        sprintf(buffer, "%s %s", &config_buffer[4416], &config_buffer[4864]);
+        if (iGraphicsState == 5)
+          byColor_81 = 0xAB;
+        else
+          byColor_81 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 435, 96, byColor_81, 2u, 200, 640);
+        if (iGraphicsState == 5)
+          byColor_82 = 0xAB;
+        else
+          byColor_82 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[64 * game_view[0] + 4928], font1_ascii, font1_offsets, 440, 96, byColor_82, 0, 200, 640);
+        if (iGraphicsState == 4)
+          byColor_83 = 0xAB;
+        else
+          byColor_83 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[5440], font1_ascii, font1_offsets, 435, 114, byColor_83, 2u, 200, 640);
+        if ((textures_off & 0x400) != 0) {
+          if (iGraphicsState == 4)
+            byColor_84 = 0xAB;
+          else
+            byColor_84 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], "KMH", font1_ascii, font1_offsets, 440, 114, byColor_84, 0, 200, 640);
+        } else {
+          if (iGraphicsState == 4)
+            byColor_85 = 0xAB;
+          else
+            byColor_85 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], "MPH", font1_ascii, font1_offsets, 440, 114, byColor_85, 0, 200, 640);
+        }
+        if (iGraphicsState == 3)
+          byColor_86 = 0xAB;
+        else
+          byColor_86 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[5504], font1_ascii, font1_offsets, 435, 132, byColor_86, 2u, 200, 640);
+        if (replay_record) {
+          if (iGraphicsState == 3)
+            byColor_87 = 0xAB;
+          else
+            byColor_87 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 132, byColor_87, 0, 200, 640);
+        } else {
+          if (iGraphicsState == 3)
+            byColor_88 = 0xAB;
+          else
+            byColor_88 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 132, byColor_88, 0, 200, 640);
+        }
+        if (iGraphicsState == 2)
+          byColor_89 = 0xAB;
+        else
+          byColor_89 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[4672], font1_ascii, font1_offsets, 435, 150, byColor_89, 2u, 200, 640);
+        if (p_tex_size == 1) {
+          if (iGraphicsState == 2)
+            byColor_90 = 0xAB;
+          else
+            byColor_90 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[4736], font1_ascii, font1_offsets, 440, 150, byColor_90, 0, 200, 640);
+        } else {
+          if (iGraphicsState == 2)
+            byColor_91 = 0xAB;
+          else
+            byColor_91 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[4800], font1_ascii, font1_offsets, 440, 150, byColor_91, 0, 200, 640);
+        }
+        if (iGraphicsState == 1)
+          byColor_92 = 0xAB;
+        else
+          byColor_92 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[5888], font1_ascii, font1_offsets, 435, 168, byColor_92, 2u, 200, 640);
+        if (false_starts) {
+          if (iGraphicsState == 1)
+            byColor_93 = 0xAB;
+          else
+            byColor_93 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 168, byColor_93, 0, 200, 640);
+        } else {
+          if (iGraphicsState == 1)
+            byColor_94 = 0xAB;
+          else
+            byColor_94 = 0x8F;
+          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 168, byColor_94, 0, 200, 640);
+        }
+        if (iGraphicsState)
+          byColor_95 = 0x8F;
+        else
+          byColor_95 = 0xAB;
+        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 430, 186, byColor_95, 2u, 200, 640);
+        goto RENDER_FRAME;
+      case 6:
+        if (iEditingName == 1) {
+          byColor_96 = 0xAB;
+          byColor_97 = 0xA5;
+        } else {
+          byColor_96 = 0xA5;
+          byColor_97 = 0xAB;
+        }
+        if (iConfigState != 7) {
+          byColor_96 = 0x8F;
+          byColor_97 = 0x8F;
+        }
+        if (iEditingName == 1) {
+          iTextPosX = 0;
+          for (szMemPtr = network_messages[4 - iNetworkState]; *szMemPtr; ++szMemPtr) {
+            iFontChar = (unsigned __int8)font1_ascii[(unsigned __int8)*szMemPtr];
+            if (iFontChar == 255)
+              iTextPosX += 8;
+            else
+              iTextPosX += font1_offsets[iFontChar] + 1;
+              //iTextPosX += *(_DWORD *)&front_vga[15][12 * iFontChar] + 1;
           }
+          iTextPosX += 390;
+          iY = 140 - 18 * iNetworkState;
         }
-        goto LABEL_623;
+        if (iNetworkState == 5)
+          byColor_106 = byColor_97;
+        else
+          byColor_106 = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &language_buffer[7296], font1_ascii, font1_offsets, 390, 50, byColor_106, 1u);
+        if (iNetworkState == 4)
+          byColor_98 = byColor_97;
+        else
+          byColor_98 = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &config_buffer[5632], font1_ascii, font1_offsets, 385, 68, byColor_98, 2u);
+        if (iNetworkState == 4)
+          byColor_99 = byColor_96;
+        else
+          byColor_99 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], network_messages[0], font1_ascii, font1_offsets, 390, 68, byColor_99, 0, 200, 630);
+        if (iNetworkState == 3)
+          byColor_100 = byColor_97;
+        else
+          byColor_100 = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &config_buffer[5696], font1_ascii, font1_offsets, 385, 86, byColor_100, 2u);
+        if (iNetworkState == 3)
+          byColor_101 = byColor_96;
+        else
+          byColor_101 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], network_messages[1], font1_ascii, font1_offsets, 390, 86, byColor_101, 0, 200, 630);
+        if (iNetworkState == 2)
+          byColor_102 = byColor_97;
+        else
+          byColor_102 = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &config_buffer[5760], font1_ascii, font1_offsets, 385, 104, byColor_102, 2u);
+        if (iNetworkState == 2)
+          byColor_103 = byColor_96;
+        else
+          byColor_103 = 0x8F;
+        scale_text((tBlockHeader *)front_vga[15], network_messages[2], font1_ascii, font1_offsets, 390, 104, byColor_103, 0, 200, 630);
+        if (iNetworkState == 1)
+          byColor_104 = byColor_97;
+        else
+          byColor_104 = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &config_buffer[5824], font1_ascii, font1_offsets, 385, 122, byColor_104, 2u);
+        if (iNetworkState != 1)
+          byColor_96 = 0x8F;
+        byTempChar2 = byColor_96;
+        iNetworkState_1 = iNetworkState;
+        scale_text((tBlockHeader *)front_vga[15], network_messages[3], font1_ascii, font1_offsets, 390, 122, byTempChar2, 0, 200, 630);
+        if (iNetworkState_1)
+          byColor_97 = 0x8F;
+        front_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 390, 140, byColor_97, 1u);
+        if (iEditingName == 1 && (frames & 0xFu) < 8) {
+          iX = stringwidth(network_messages[4 - iNetworkState]) + 390;
+          if (iX <= 620)
+            front_text((tBlockHeader *)front_vga[15], "_", font1_ascii, font1_offsets, iX, iY, 0xABu, 0);
+          else
+            front_text((tBlockHeader *)front_vga[15], "_", font1_ascii, font1_offsets, 621, iY, 0xABu, 0);
+        }
+        goto RENDER_FRAME;
       default:
-        goto LABEL_623;
+        goto RENDER_FRAME;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4595,12 +4827,16 @@ void select_players()
     } while (broadcast_mode);
     if (switch_same > 0)                      // CHEAT MODE HANDLING: Process switch_same command for car synchronization
     {
-      for (iCheatPlayerIndex = 0;
-            iCheatPlayerIndex < players;
-            *(int *)((char *)&infinite_laps + uiCheatArrayOffset) = switch_same - 666) {
-        uiCheatArrayOffset += 4;
-        ++iCheatPlayerIndex;
+      for (iCheatPlayerIndex = 0; iCheatPlayerIndex < players; ++iCheatPlayerIndex)
+      {
+        Players_Cars[iCheatPlayerIndex] = switch_same - 666;
       }
+      //for (iCheatPlayerIndex = 0;
+      //      iCheatPlayerIndex < players;
+      //      *(int *)((char *)&infinite_laps + uiCheatArrayOffset) = switch_same - 666) {
+      //  uiCheatArrayOffset += 4;
+      //  ++iCheatPlayerIndex;
+      //}
       if ((cheat_mode & 0x4000) == 0)
         broadcast_mode = -1;
       while (broadcast_mode)
@@ -4608,10 +4844,14 @@ void select_players()
       cheat_mode |= CHEAT_MODE_CLONES;
     } else if (switch_same < 0) {
       switch_same = broadcast_mode;
-      for (iCheatPlayerLoop = 0; iCheatPlayerLoop < players; *(int *)((char *)&infinite_laps + uiCheatArrayOffset) = -1) {
-        uiCheatArrayOffset += 4;
-        ++iCheatPlayerLoop;
+      for (iCheatPlayerLoop = 0; iCheatPlayerLoop < players; ++iCheatPlayerLoop)
+      {
+        Players_Cars[iCheatPlayerLoop] = -1;
       }
+      //for (iCheatPlayerLoop = 0; iCheatPlayerLoop < players; *(int *)((char *)&infinite_laps + uiCheatArrayOffset) = -1) {
+      //  uiCheatArrayOffset += 4;
+      //  ++iCheatPlayerLoop;
+      //}
       cheat_mode &= ~CHEAT_MODE_CLONES;
     }
     if (iNetworkMode)                         // NETWORK MODE UI: Show connection info and player list

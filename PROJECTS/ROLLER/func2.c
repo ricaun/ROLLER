@@ -21,6 +21,106 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
+// Symbol names defined by ROLLER
+char szKey1[] = "1";
+char szKey2[] = "2";
+char szKey3[] = "3";
+char szKey4[] = "4";
+char szKey5[] = "5";
+char szKey6[] = "6";
+char szKey7[] = "7";
+char szKey8[] = "8";
+char szKey9[] = "9";
+char szKey0[] = "0";
+char szKeyMinus[] = "-";
+char szKeyPlus[] = "+";
+char szKeyBackspace[] = "BACKSPACE";
+char szKeyTab[] = "TAB";
+char szKeyQ[] = "Q";
+char szKeyW[] = "W";
+char szKeyE[] = "E";
+char szKeyR[] = "R";
+char szKeyT[] = "T";
+char szKeyY[] = "Y";
+char szKeyU[] = "U";
+char szKeyI[] = "I";
+char szKeyO[] = "O";
+char szKeyP[] = "P";
+char szKeyLeftBracket[] = "[";
+char szKeyRightBracket[] = "]";
+char szKeyEnter[] = "ENTER";
+char szKeyControl[] = "CONTROL";
+char szKeyA[] = "A";
+char szKeyS[] = "S";
+char szKeyD[] = "D";
+char szKeyF[] = "F";
+char szKeyG[] = "G";
+char szKeyH[] = "H";
+char szKeyJ[] = "J";
+char szKeyK[] = "K";
+char szKeyL[] = "L";
+char szKeySemicolon[] = ";";
+char szKeyQuote[] = "'";
+char szKeyTilde[] = "`";
+char szKeyLeftShift[] = "LEFT SHIFT";
+char szKeyBackslash[] = "\\";
+char szKeyZ[] = "Z";
+char szKeyX[] = "X";
+char szKeyC[] = "C";
+char szKeyV[] = "V";
+char szKeyB[] = "B";
+char szKeyN[] = "N";
+char szKeyM[] = "M";
+char szKeyComma[] = ",";
+char szKeyPeriod[] = ".";
+char szKeySlash[] = "/";
+char szKeyRightShift[] = "RIGHT SHIFT";
+char szKeyNumMult[] = "*";
+char szKeyAlt[] = "ALT";
+char szKeySpace[] = "SPACE";
+char szKeyCapsLock[] = "CAPS LOCK";
+char szKeyF1[] = "F1";
+char szKeyF2[] = "F2";
+char szKeyF3[] = "F3";
+char szKeyF4[] = "F4";
+char szKeyF5[] = "F5";
+char szKeyF6[] = "F6";
+char szKeyF7[] = "F7";
+char szKeyF8[] = "F8";
+char szKeyF9[] = "F9";
+char szKeyF10[] = "F10";
+char szKeyNumLock[] = "NUM LOCK";
+char szKeyScrollLock[] = "SCROLL LOCK";
+char szKeyHome[] = "HOME";
+char szKeyUpArrow[] = "UP ARROW";
+char szKeyPageUp[] = "PAGE UP";
+char szKeyNumMinus[] = "-";
+char szKeyLeftArrow[] = "LEFT ARROW";
+char szKeyCenter[] = "CENTER";
+char szKeyRightArrow[] = "RIGHT ARROW";
+char szKeyNumPlus[] = "+";
+char szKeyEnd[] = "END";
+char szKeyDownArrow[] = "DOWN ARROW";
+char szKeyPageDown[] = "PAGE DOWN";
+char szKeyInsert[] = "INSERT";
+char szKeyDelete[] = "DELETE";
+char szKeyF11[] = "F11";
+char szKeyF12[] = "F12";
+char szKeyJoy1Fire1[] = "JOY 1 FIRE 1";
+char szKeyJoy1Fire2[] = "JOY 1 FIRE 2";
+char szKeyJoy2Fire1[] = "JOY 2 FIRE 1";
+char szKeyJoy2Fire2[] = "JOY 2 FIRE 2";
+char szKeyJoy1Up[] = "JOY 1 UP";
+char szKeyJoy1Down[] = "JOY 1 DOWN";
+char szKeyJoy1Left[] = "JOY 1 LEFT";
+char szKeyJoy1Right[] = "JOY 1 RIGHT";
+char szKeyJoy2Up[] = "JOY 2 UP";
+char szKeyJoy2Down[] = "JOY 2 DOWN";
+char szKeyJoy2Left[] = "JOY 2 LEFT";
+char szKeyJoy2Right[] = "JOY 2 RIGHT";
+
+//-------------------------------------------------------------------------------------------------
+
 int write_key = 0;          //000A39E4
 int read_key = 0;           //000A39E8
 int zoom_ascii_variable_1 = 0; //000A3AEC no symbols for these?
@@ -43,11 +143,154 @@ uint8 mapping[] =           //000A3AF8
   0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 int twoparter = 0;          //000A3B78
+char *keyname[140] = {      //000A3EDC
+  NULL,                    /* 0x00 */
+  NULL,                    /* 0x01 */
+  szKey1,                  /* 0x02 */
+  szKey2,                  /* 0x03 */
+  szKey3,                  /* 0x04 */
+  szKey4,                  /* 0x05 */
+  szKey5,                  /* 0x06 */
+  szKey6,                  /* 0x07 */
+  szKey7,                  /* 0x08 */
+  szKey8,                  /* 0x09 */
+  szKey9,                  /* 0x0A */
+  szKey0,                  /* 0x0B */
+  szKeyMinus,              /* 0x0C */
+  szKeyPlus,               /* 0x0D */
+  szKeyBackspace,          /* 0x0E */
+  szKeyTab,                /* 0x0F */
+  szKeyQ,                  /* 0x10 */
+  szKeyW,                  /* 0x11 */
+  szKeyE,                  /* 0x12 */
+  szKeyR,                  /* 0x13 */
+  szKeyT,                  /* 0x14 */
+  szKeyY,                  /* 0x15 */
+  szKeyU,                  /* 0x16 */
+  szKeyI,                  /* 0x17 */
+  szKeyO,                  /* 0x18 */
+  szKeyP,                  /* 0x19 */
+  szKeyLeftBracket,        /* 0x1A */
+  szKeyRightBracket,       /* 0x1B */
+  szKeyEnter,              /* 0x1C */
+  szKeyControl,            /* 0x1D */
+  szKeyA,                  /* 0x1E */
+  szKeyS,                  /* 0x1F */
+  szKeyD,                  /* 0x20 */
+  szKeyF,                  /* 0x21 */
+  szKeyG,                  /* 0x22 */
+  szKeyH,                  /* 0x23 */
+  szKeyJ,                  /* 0x24 */
+  szKeyK,                  /* 0x25 */
+  szKeyL,                  /* 0x26 */
+  szKeySemicolon,          /* 0x27 */
+  szKeyQuote,              /* 0x28 */
+  szKeyTilde,              /* 0x29 */
+  szKeyLeftShift,          /* 0x2A */
+  szKeyBackslash,          /* 0x2B */
+  szKeyZ,                  /* 0x2C */
+  szKeyX,                  /* 0x2D */
+  szKeyC,                  /* 0x2E */
+  szKeyV,                  /* 0x2F */
+  szKeyB,                  /* 0x30 */
+  szKeyN,                  /* 0x31 */
+  szKeyM,                  /* 0x32 */
+  szKeyComma,              /* 0x33 */
+  szKeyPeriod,             /* 0x34 */
+  szKeySlash,              /* 0x35 */
+  szKeyRightShift,         /* 0x36 */
+  szKeyNumMult,            /* 0x37 */
+  szKeyAlt,                /* 0x38 */
+  szKeySpace,              /* 0x39 */
+  szKeyCapsLock,           /* 0x3A */
+  szKeyF1,                 /* 0x3B */
+  szKeyF2,                 /* 0x3C */
+  szKeyF3,                 /* 0x3D */
+  szKeyF4,                 /* 0x3E */
+  szKeyF5,                 /* 0x3F */
+  szKeyF6,                 /* 0x40 */
+  szKeyF7,                 /* 0x41 */
+  szKeyF8,                 /* 0x42 */
+  szKeyF9,                 /* 0x43 */
+  szKeyF10,                /* 0x44 */
+  szKeyNumLock,            /* 0x45 */
+  szKeyScrollLock,         /* 0x46 */
+  szKeyHome,               /* 0x47 */
+  szKeyUpArrow,            /* 0x48 */
+  szKeyPageUp,             /* 0x49 */
+  szKeyNumMinus,           /* 0x4A */
+  szKeyLeftArrow,          /* 0x4B */
+  szKeyCenter,             /* 0x4C */
+  szKeyRightArrow,         /* 0x4D */
+  szKeyNumPlus,            /* 0x4E */
+  szKeyEnd,                /* 0x4F */
+  szKeyDownArrow,          /* 0x50 */
+  szKeyPageDown,           /* 0x51 */
+  szKeyInsert,             /* 0x52 */
+  szKeyDelete,             /* 0x53 */
+  NULL,                    /* 0x54 */
+  NULL,                    /* 0x55 */
+  NULL,                    /* 0x56 */
+  szKeyF11,                /* 0x57 */
+  szKeyF12,                /* 0x58 */
+  NULL,                    /* 0x59 */
+  NULL,                    /* 0x5A */
+  NULL,                    /* 0x5B */
+  NULL,                    /* 0x5C */
+  NULL,                    /* 0x5D */
+  NULL,                    /* 0x5E */
+  NULL,                    /* 0x5F */
+  NULL,                    /* 0x60 */
+  NULL,                    /* 0x61 */
+  NULL,                    /* 0x62 */
+  NULL,                    /* 0x63 */
+  NULL,                    /* 0x64 */
+  NULL,                    /* 0x65 */
+  NULL,                    /* 0x66 */
+  NULL,                    /* 0x67 */
+  NULL,                    /* 0x68 */
+  NULL,                    /* 0x69 */
+  NULL,                    /* 0x6A */
+  NULL,                    /* 0x6B */
+  NULL,                    /* 0x6C */
+  NULL,                    /* 0x6D */
+  NULL,                    /* 0x6E */
+  NULL,                    /* 0x6F */
+  NULL,                    /* 0x70 */
+  NULL,                    /* 0x71 */
+  NULL,                    /* 0x72 */
+  NULL,                    /* 0x73 */
+  NULL,                    /* 0x74 */
+  NULL,                    /* 0x75 */
+  NULL,                    /* 0x76 */
+  NULL,                    /* 0x77 */
+  NULL,                    /* 0x78 */
+  NULL,                    /* 0x79 */
+  NULL,                    /* 0x7A */
+  NULL,                    /* 0x7B */
+  NULL,                    /* 0x7C */
+  NULL,                    /* 0x7D */
+  NULL,                    /* 0x7E */
+  NULL,                    /* 0x7F */
+  szKeyJoy1Fire1,          /* 0x80 */
+  szKeyJoy1Fire2,          /* 0x81 */
+  szKeyJoy2Fire1,          /* 0x82 */
+  szKeyJoy2Fire2,          /* 0x83 */
+  szKeyJoy1Up,             /* 0x84 */
+  szKeyJoy1Down,           /* 0x85 */
+  szKeyJoy1Left,           /* 0x86 */
+  szKeyJoy1Right,          /* 0x87 */
+  szKeyJoy2Up,             /* 0x88 */
+  szKeyJoy2Down,           /* 0x89 */
+  szKeyJoy2Left,           /* 0x8A */
+  szKeyJoy2Right           /* 0x8B */
+};
 int userkey[14] = {44u, 45u, 20u, 33u, 19u, 32u, 79u, 80u, 73u, 77u, 72u, 76u, 21u, 79u}; //000A410C
 uint8 key_buffer[64];       //0013FB90
 char config_buffer[8192];   //0013FBD8
 char language_buffer[8192]; //00141BD8
 int no_mem;                 //00143BE0
+int lots_of_mem;            //00143BE8
 
 //-------------------------------------------------------------------------------------------------
 

@@ -43,11 +43,13 @@ extern int write_key;
 extern int read_key;
 extern uint8 mapping[];
 extern int twoparter;
+extern char *keyname[140];
 extern int userkey[14];
 extern uint8 key_buffer[];
 extern char config_buffer[8192];
 extern char language_buffer[8192];
 extern int no_mem;
+extern int lots_of_mem;
 
 //-------------------------------------------------------------------------------------------------
 

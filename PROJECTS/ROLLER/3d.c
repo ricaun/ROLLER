@@ -136,6 +136,9 @@ int countdown;              //0013FA90
 int max_mem;                //0013FAA4
 int scrmode;                //0013FAB4
 int intro;                  //0013FAC0
+int control_edit;           //0013FACC
+int req_edit;               //0013FAD0
+int controlrelease;         //0013FAD4
 int fatal_ini_loaded;       //0013FADC
 int machine_speed;          //0013FAE0
 int netCD;                  //0013FAE4
