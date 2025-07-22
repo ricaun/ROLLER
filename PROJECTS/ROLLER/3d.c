@@ -71,6 +71,7 @@ int language = 0;           //000A4768
 tTrakColour TrakColour[500];//000BB360
 tData localdata[500];       //000BEA10
 tGroundPt GroundPt[500];    //000CE410
+tGroundPt TrakPt[500];      //000D7D30
 uint8 shade_palette[4096];  //000FFDD0
 tColor palette[256];        //00100DD0
 float tsin[16384];          //001010F0

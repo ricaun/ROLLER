@@ -1,7 +1,9 @@
 #include "loadtrak.h"
+#include "3d.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 uint8 TrackSelect = 0;      //000A5F9C
@@ -1410,75 +1412,48 @@ void readline2(uint8 **ppFileHandle, const char *pszFormat, ...)
 
 //-------------------------------------------------------------------------------------------------
 
-double *rotatepoint(
-        double a1,
-        double a2,
-        double a3,
-        double a4,
-        double a5,
-        double a6,
-        double *a7,
-        double *a8,
-        double *a9)
+void rotatepoint(double dX, double dY, double dZ, double dYaw, double dPitch, double dRoll, double *pdOutX, double *pdOutY, double *pdOutZ)
 {
-  return 0; /*
-  long double v9; // st7
-  long double v10; // st6
-  long double v11; // st5
-  double *result; // eax
-  double v13; // [esp+8h] [ebp-28h]
-  long double v14; // [esp+10h] [ebp-20h]
-  double v15; // [esp+18h] [ebp-18h]
-  long double v16; // [esp+4Ch] [ebp+1Ch]
-  long double v17; // [esp+54h] [ebp+24h]
-  long double v18; // [esp+5Ch] [ebp+2Ch]
+  long double dblCosX; // st7
+  long double dblSinY; // st6
+  long double dblSinZ; // st5
+  double dblSinX; // [esp+8h] [ebp-28h]
+  long double dblCosZ; // [esp+10h] [ebp-20h]
+  double dblCosY; // [esp+18h] [ebp-18h]
+  long double dYawRad; // [esp+4Ch] [ebp+1Ch]
+  long double dPitchRad; // [esp+54h] [ebp+24h]
+  long double dRollRad; // [esp+5Ch] [ebp+2Ch]
 
-  v16 = a4 * loadtrak_c_variable_57;
-  v17 = a5 * loadtrak_c_variable_57;
-  v18 = a6 * loadtrak_c_variable_57;
-  v9 = cos(v16);
-  v10 = sin(v17);
-  v11 = sin(v18);
-  v13 = sin(v16);
-  v14 = cos(v18);
-  v15 = cos(v17);
-  *a7 = (v9 * v10 * v11 - v13 * v14) * a2 + a1 * v9 * v15 + (-v9 * v10 * v14 - v13 * v11) * a3;
-  *a8 = (v13 * v10 * v11 + v9 * v14) * a2 + a1 * v13 * v15 + (-v13 * v10 * v14 + v9 * v11) * a3;
-  result = a9;
-  *a9 = v10 * a1 + v11 * (-v15 * a2) + a3 * v15 * v14;
-  return result;*/
+  dYawRad = dYaw * 0.0174532925199;             // Convert X angle from degrees to radians (PI/180 = 0.0174532925199)
+  dPitchRad = dPitch * 0.0174532925199;         // Convert Y angle from degrees to radians
+  dRollRad = dRoll * 0.0174532925199;           // Convert Z angle from degrees to radians
+  dblCosX = cos(dYawRad);                       // Calculate cos(X angle)
+  dblSinY = sin(dPitchRad);                     // Calculate sin(Y angle)
+  dblSinZ = sin(dRollRad);                      // Calculate sin(Z angle)
+  dblSinX = sin(dYawRad);                       // Calculate sin(X angle)
+  dblCosZ = cos(dRollRad);                      // Calculate cos(Z angle)
+  dblCosY = cos(dPitchRad);                     // Calculate cos(Y angle)
+  *pdOutX = (dblCosX * dblSinY * dblSinZ - dblSinX * dblCosZ) * dY + dX * dblCosX * dblCosY + (-dblCosX * dblSinY * dblCosZ - dblSinX * dblSinZ) * dZ;// Apply 3D rotation matrix to calculate new X coordinate
+  *pdOutY = (dblSinX * dblSinY * dblSinZ + dblCosX * dblCosZ) * dY + dX * dblSinX * dblCosY + (-dblSinX * dblSinY * dblCosZ + dblCosX * dblSinZ) * dZ;// Apply 3D rotation matrix to calculate new Y coordinate
+  *pdOutZ = dblSinY * dX + dblSinZ * (-dblCosY * dY) + dZ * dblCosY * dblCosZ;// Apply 3D rotation matrix to calculate new Z coordinate
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int setpoint(int a1, int a2, double a3, double a4, double a5)
+void setpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 {
-  return 0; /*
-  int v7; // ebx
-  int result; // eax
-
-  v7 = 18 * a1;
-  result = 3 * a2;
-  TrakPt[result + v7] = a3;
-  TrakPt_variable_1[result + v7] = a4;
-  TrakPt_variable_2[result + v7] = a5;
-  return result;*/
+  TrakPt[iChunkIdx].pointAy[iPointIdx].fX = (float)dX;
+  TrakPt[iChunkIdx].pointAy[iPointIdx].fY = (float)dY;
+  TrakPt[iChunkIdx].pointAy[iPointIdx].fZ = (float)dZ;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int setgpoint(int a1, int a2, double a3, double a4, double a5)
+void setgpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 {
-  return 0; /*
-  int v7; // ebx
-  int result; // eax
-
-  v7 = 18 * a1;
-  result = 3 * a2;
-  GroundPt[result + v7] = a3;
-  GroundPt_variable_1[result + v7] = a4;
-  GroundPt_variable_2[result + v7] = a5;
-  return result;*/
+  GroundPt[iChunkIdx].pointAy[iPointIdx].fX = (float)dX;
+  GroundPt[iChunkIdx].pointAy[iPointIdx].fY = (float)dY;
+  GroundPt[iChunkIdx].pointAy[iPointIdx].fZ = (float)dZ;
 }
 
 //-------------------------------------------------------------------------------------------------
