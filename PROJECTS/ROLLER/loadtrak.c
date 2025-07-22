@@ -1,5 +1,6 @@
 #include "loadtrak.h"
 #include "3d.h"
+#include "car.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1255,7 +1256,7 @@ uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 
 //-------------------------------------------------------------------------------------------------
 
-void readline2(uint8 **ppFileHandle, const char *pszFormat, ...)
+void readline2(uint8 **ppFileData, const char *pszFormat, ...)
 {
   char *pszToken; // ebp
   double dblValue; // st7
@@ -1296,7 +1297,7 @@ void readline2(uint8 **ppFileHandle, const char *pszFormat, ...)
   va_start(va, pszFormat);
   va_copy((va_list)ppVarArgs, va);
   while (1) {
-    memgets((uint8 *)szLineBuffer, ppFileHandle);// Read next line from file into buffer
+    memgets((uint8 *)szLineBuffer, ppFileData);// Read next line from file into buffer
     if (meof)
       break;                                    // Check for end of file
     pszToken = strtok(szLineBuffer, delims);    // Tokenize line using delimiters (whitespace)
@@ -1458,58 +1459,51 @@ void setgpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 
 //-------------------------------------------------------------------------------------------------
 
-int resetcars()
+void resetcars()
 {
-  return 0; /*
-  int v0; // esi
-  float *v1; // ecx
-  int result; // eax
+  int iCarIdx; // esi
+  tCar *pCurrCar; // ecx
 
-  v0 = 0;
+  iCarIdx = 0;
   if (numcars > 0) {
-    v1 = Car;
+    pCurrCar = Car;
     do {
-      result = memset(v1, 0, 308);
-      ++v0;
-      v1 += 77;
-    } while (v0 < numcars);
+      memset(pCurrCar, 0, sizeof(tCar));
+      ++iCarIdx;
+      ++pCurrCar;
+    } while (iCarIdx < numcars);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *min_skip_stuff(int *a1)
+void min_skip_stuff(uint8 **ppFileData)
 {
-  return 0; /*
-  _BYTE *result; // eax
-  _BYTE v3[256]; // [esp-100h] [ebp-130h] BYREF
-  _BYTE v4[4]; // [esp+0h] [ebp-30h] BYREF
-  _BYTE v5[4]; // [esp+4h] [ebp-2Ch] BYREF
-  _BYTE v6[4]; // [esp+8h] [ebp-28h] BYREF
-  _BYTE v7[4]; // [esp+Ch] [ebp-24h] BYREF
-  _BYTE v8[4]; // [esp+10h] [ebp-20h] BYREF
-  _BYTE v9[4]; // [esp+14h] [ebp-1Ch] BYREF
-  _BYTE v10[4]; // [esp+18h] [ebp-18h] BYREF
-  _BYTE v11[4]; // [esp+1Ch] [ebp-14h] BYREF
-  int v12; // [esp+20h] [ebp-10h] BYREF
-  _DWORD v13[3]; // [esp+24h] [ebp-Ch] BYREF
-
+  char szBuf[256]; // [esp-100h] [ebp-130h] BYREF
+  int iData9; // [esp+0h] [ebp-30h] BYREF
+  int iData8; // [esp+4h] [ebp-2Ch] BYREF
+  int iData7; // [esp+8h] [ebp-28h] BYREF
+  int iData6; // [esp+Ch] [ebp-24h] BYREF
+  int iData5; // [esp+10h] [ebp-20h] BYREF
+  int iData4; // [esp+14h] [ebp-1Ch] BYREF
+  int iData3; // [esp+18h] [ebp-18h] BYREF
+  int iData2; // [esp+1Ch] [ebp-14h] BYREF
+  int iData1; // [esp+20h] [ebp-10h] BYREF
+  int iData0; // [esp+24h] [ebp-Ch] BYREF
   do {
     do
-      readline2(a1, "ii", v13, &v12);
-    while (v13[0] != -1);
-  } while (v12 != -1);
+      readline2(ppFileData, "ii", &iData0, &iData1);
+    while (iData0 != -1);
+  } while (iData1 != -1);
   do
-    readline2(a1, &aUuuiiiiiiiiii[3], v13, &v12, v11, v10, v9, v8, v7, v6, v5, v4);
-  while (v13[0] != -1);
+    readline2(ppFileData, "iiiiiiiiii", &iData0, &iData1, &iData2, &iData3, &iData4, &iData5, &iData6, &iData7, &iData8, &iData9);
+  while (iData0 != -1);
   do
-    readline2(a1, "c", v3);
-  while (!strstr(v3, aBacks));
+    readline2(ppFileData, "c", szBuf);
+  while (!strstr(szBuf, "BACKS:"));
   do
-    result = readline2(a1, "ii", v13, &v12);
-  while (v13[0] != -1);
-  return result;*/
+    readline2(ppFileData, "ii", &iData0, &iData1);
+  while (iData0 != -1);
 }
 
 //-------------------------------------------------------------------------------------------------
