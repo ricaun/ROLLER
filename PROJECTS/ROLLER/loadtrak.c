@@ -1253,155 +1253,159 @@ uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 
 //-------------------------------------------------------------------------------------------------
 
-char *readline2(int *a1, const char *a2, ...)
+void readline2(uint8 **ppFileHandle, const char *pszFormat, ...)
 {
-  return 0; /*
-  _BYTE *result; // eax
-  int v3; // ebp
-  double v4; // st7
-  double v5; // st7
-  char *v6; // eax
-  char **v7; // esi
-  int v8; // eax
-  _DWORD *v9; // edx
-  __int16 v10; // ax
-  char **v11; // ebx
-  double v12; // st7
-  double *v13; // eax
-  char **v14; // esi
-  double v15; // st7
-  float *v16; // eax
-  int v17; // eax
-  char **v18; // ecx
-  __int16 v19; // ax
-  _WORD *v20; // edx
-  char *v21; // esi
-  char *v22; // edi
-  char v23; // al
-  char v24; // al
-  char *v25; // esi
-  char *v26; // edi
-  char **v27; // ebx
-  char v28; // al
-  char v29; // al
-  char **v30; // esi
-  char v31; // al
-  _BYTE *v32; // edx
-  unsigned int v33; // edi
-  _BYTE v34[512]; // [esp+0h] [ebp-220h] BYREF
-  char **v35; // [esp+200h] [ebp-20h]
-  unsigned int i; // [esp+204h] [ebp-1Ch]
+  char *pszToken; // ebp
+  double dblValue; // st7
+  double dblFloatValue; // st7
+  char *pDest; // eax
+  char **ppArgs; // esi
+  int iIntValue; // eax
+  uint32 *puiDest; // edx
+  int16 nShortValue; // ax
+  char **ppArgsDouble; // ebx
+  double dblPlainValue; // st7
+  double *pdblDest; // eax
+  char **ppArgsFloat; // esi
+  double dPlainValue; // st7
+  float *pfltDest; // eax
+  int iPlainValue; // eax
+  char **ppArgsShort; // ecx
+  int16 nPlainValue; // ax
+  int16 *pnDest; // edx
+  char *pszSrc; // esi
+  char *pszDestStr; // edi
+  char byChar1; // al
+  char byChar2; // al
+  char *pszSrc2; // esi
+  char *pszDest2; // edi
+  char **ppArgsNext; // ebx
+  char byChar3; // al
+  char byChar4; // al
+  char **ppArgsByte; // esi
+  uint8 byByteValue; // al
+  uint8 *pbyDest; // edx
+  unsigned int uiSavedIndex; // edi
+  char szLineBuffer[512]; // [esp+0h] [ebp-220h] BYREF
+  char **ppVarArgs; // [esp+200h] [ebp-20h]
+  unsigned int uiFormatIndex; // [esp+204h] [ebp-1Ch]
   va_list va; // [esp+22Ch] [ebp+Ch] BYREF
 
-  va_start(va, a2);
-  va_copy(v35, va);
+  va_start(va, pszFormat);
+  va_copy((va_list)ppVarArgs, va);
   while (1) {
-    result = memgets(v34, a1);
+    memgets((uint8 *)szLineBuffer, ppFileHandle);// Read next line from file into buffer
     if (meof)
-      break;
-    v3 = strtok(v34, delims);
-    if (strstr(v3, loadtrak_c_variable_53) == v3)
-      v3 = 0;
-    if (strstr(v3, &aE[1]) == v3)
-      v3 = 0;
-    if (v34[0] == 10)
-      v3 = 0;
-    if (v34[0] == 13)
-      v3 = 0;
-    if (v3) {
-      for (i = 0; ; i = v33 + 1) {
-        result = 0;
-        if (strlen(a2) <= i)
-          break;
-        if (a2[i] == 68) {
-          v4 = strtod(v3, 0);
-          *(double *)*v35++ = v4 * loadtrak_c_variable_56;
+      break;                                    // Check for end of file
+    pszToken = strtok(szLineBuffer, delims);    // Tokenize line using delimiters (whitespace)
+    if (strstr(pszToken, "//") == pszToken)   // Skip C++ style comments (//) 
+      pszToken = 0;
+    if (strstr(pszToken, ";") == pszToken)    // Skip lines starting with semicolon
+      pszToken = 0;
+    if (szLineBuffer[0] == 10)                // Skip newlines
+      pszToken = 0;
+    if (szLineBuffer[0] == 13)                // Skip carriage returns
+      pszToken = 0;
+    if (pszToken) {                                           // Process each format specifier in the format string
+      for (uiFormatIndex = 0; strlen(pszFormat) > uiFormatIndex; uiFormatIndex = uiSavedIndex + 1) {                                         // 'D' = double scaled by 256
+        if (pszFormat[uiFormatIndex] == 'D') {
+          dblValue = strtod(pszToken, 0);
+          *(double *)*ppVarArgs++ = dblValue * 256.0;
         }
-        if (a2[i] == 70) {
-          v5 = strtod(v3, 0);
-          v6 = *v35++;
-          *(float *)v6 = v5 * loadtrak_c_variable_56;
+        if (pszFormat[uiFormatIndex] == 'F')  // 'F' = float scaled by 256
+        {
+          dblFloatValue = strtod(pszToken, 0);
+          pDest = *ppVarArgs++;
+          *(float *)pDest = (float)(dblFloatValue * 256.0);
         }
-        if (a2[i] == 73) {
-          v7 = v35 + 1;
-          v8 = strtol(v3, 0, 10);
-          v9 = *(v7 - 1);
-          v35 = v7;
-          *v9 = v8 << 8;
+        if (pszFormat[uiFormatIndex] == 'I')  // 'I' = 32-bit integer shifted left by 8
+        {
+          ppArgs = ppVarArgs + 1;
+          iIntValue = strtol(pszToken, 0, 10);
+          puiDest = (uint32 *)*(ppArgs - 1);
+          ppVarArgs = ppArgs;
+          *puiDest = iIntValue << 8;
         }
-        if (a2[i] == 83) {
-          v10 = strtol(v3, 0, 10);
-          *(_WORD *)*v35++ = v10 << 8;
+        if (pszFormat[uiFormatIndex] == 'S')  // 'S' = 16-bit short shifted left by 8
+        {
+          nShortValue = (int16)strtol(pszToken, 0, 10);
+          *(int16 *)*ppVarArgs++ = nShortValue << 8;
         }
-        if (a2[i] == 100) {
-          v11 = v35 + 1;
-          v12 = strtod(v3, 0);
-          v13 = (double *)*(v11 - 1);
-          v35 = v11;
-          *v13 = v12;
+        if (pszFormat[uiFormatIndex] == 'd')  // 'd' = double (no scaling)
+        {
+          ppArgsDouble = ppVarArgs + 1;
+          dblPlainValue = strtod(pszToken, 0);
+          pdblDest = (double *)*(ppArgsDouble - 1);
+          ppVarArgs = ppArgsDouble;
+          *pdblDest = dblPlainValue;
         }
-        if (a2[i] == 102) {
-          v14 = v35 + 1;
-          v15 = strtod(v3, 0);
-          v16 = (float *)*(v14 - 1);
-          v35 = v14;
-          *v16 = v15;
+        if (pszFormat[uiFormatIndex] == 'f')  // 'f' = float (no scaling)
+        {
+          ppArgsFloat = ppVarArgs + 1;
+          dPlainValue = strtod(pszToken, 0);
+          pfltDest = (float *)*(ppArgsFloat - 1);
+          ppVarArgs = ppArgsFloat;
+          *pfltDest = (float)dPlainValue;
         }
-        if (a2[i] == 105) {
-          v17 = strtol(v3, 0, 10);
-          *(_DWORD *)*v35++ = v17;
+        if (pszFormat[uiFormatIndex] == 'i')  // 'i' = 32-bit integer (no shifting)
+        {
+          iPlainValue = strtol(pszToken, 0, 10);
+          *(int *)*ppVarArgs++ = iPlainValue;
         }
-        if (a2[i] == 115) {
-          v18 = v35 + 1;
-          v19 = strtol(v3, 0, 10);
-          v20 = *(v18 - 1);
-          v35 = v18;
-          *v20 = v19;
+        if (pszFormat[uiFormatIndex] == 's')  // 's' = 16-bit short (no shifting)
+        {
+          ppArgsShort = ppVarArgs + 1;
+          nPlainValue = (int16)strtol(pszToken, 0, 10);
+          pnDest = (int16 *)*(ppArgsShort - 1);
+          ppVarArgs = ppArgsShort;
+          *pnDest = nPlainValue;
         }
-        if (a2[i] == 67) {
-          v21 = (char *)v3;
-          v22 = *v35++;
+        if (pszFormat[uiFormatIndex] == 'C')  // 'C' = copy string (uppercase, likely null-terminated)
+        {
+          pszSrc = pszToken;
+          pszDestStr = *ppVarArgs++;
           do {
-            v23 = *v21;
-            *v22 = *v21;
-            if (!v23)
+            byChar1 = *pszSrc;
+            *pszDestStr = *pszSrc;
+            if (!byChar1)
               break;
-            v24 = v21[1];
-            v21 += 2;
-            v22[1] = v24;
-            v22 += 2;
-          } while (v24);
+            byChar2 = pszSrc[1];
+            pszSrc += 2;
+            pszDestStr[1] = byChar2;
+            pszDestStr += 2;
+          } while (byChar2);
         }
-        if (a2[i] == 99) {
-          v25 = (char *)v3;
-          v26 = *v35;
-          v27 = v35 + 1;
+        if (pszFormat[uiFormatIndex] == 'c')  // 'c' = copy string (lowercase)
+        {
+          pszSrc2 = pszToken;
+          pszDest2 = *ppVarArgs;
+          ppArgsNext = ppVarArgs + 1;
           do {
-            v28 = *v25;
-            *v26 = *v25;
-            if (!v28)
+            byChar3 = *pszSrc2;
+            *pszDest2 = *pszSrc2;
+            if (!byChar3)
               break;
-            v29 = v25[1];
-            v25 += 2;
-            v26[1] = v29;
-            v26 += 2;
-          } while (v29);
-          v35 = v27;
+            byChar4 = pszSrc2[1];
+            pszSrc2 += 2;
+            pszDest2[1] = byChar4;
+            pszDest2 += 2;
+          } while (byChar4);
+          ppVarArgs = ppArgsNext;
         }
-        if (a2[i] == 117) {
-          v30 = v35 + 1;
-          v31 = strtol(v3, 0, 10);
-          v32 = *(v30 - 1);
-          v35 = v30;
-          *v32 = v31;
+        if (pszFormat[uiFormatIndex] == 'u')  // 'u' = unsigned byte
+        {
+          ppArgsByte = ppVarArgs + 1;
+          byByteValue = (uint8)strtol(pszToken, 0, 10);
+          pbyDest = (uint8 *)*(ppArgsByte - 1);
+          ppVarArgs = ppArgsByte;
+          *pbyDest = byByteValue;
         }
-        v33 = i;
-        v3 = strtok(0, delims);
+        uiSavedIndex = uiFormatIndex;
+        pszToken = strtok(0, delims);           // Get next token from the line
       }
-      return result;
+      return;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

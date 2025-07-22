@@ -50,7 +50,7 @@ void activatestunts();
 int ReadAnimData(int result, int a2);
 void readline(FILE *pFile, const char *szFmt, ...);
 uint8 *memgets(uint8 *dst, uint8 **ppSrc);
-char *readline2(int *a1, const char *a2, ...);
+void readline2(uint8 **ppFileHandle, const char *pszFormat, ...);
 double *rotatepoint(
         double a1,
         double a2,
