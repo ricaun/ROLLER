@@ -6282,7 +6282,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
   // Process all cheat names until terminator '#'
   while (*szCurrCheat != '#') {
       // Check if player name matches current cheat name
-    if (name_cmp(szPlayerName, szCurrCheat) == 0) {
+    if (name_cmp(szPlayerName, szCurrCheat)) {
       // Handle cheats
       if (iCheatIdx <= 25) {
         switch (iCheatIdx) {
