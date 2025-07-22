@@ -2,6 +2,7 @@
 #define _ROLLER_FRONTEND_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include "func3.h"
 //-------------------------------------------------------------------------------------------------
 
 #define CHEAT_MODE_CHEAT_CAR        0x00000001
@@ -52,7 +53,7 @@ extern int last_type;
 extern int network_champ_on;
 extern void *font_vga;
 extern void *title_vga;
-extern void *front_vga[16];
+extern tBlockHeader *front_vga[16];
 extern int font1_offsets[104];
 extern char font1_ascii[256];
 extern int font2_offsets[96];

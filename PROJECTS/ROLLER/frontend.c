@@ -1,7 +1,6 @@
 #include "frontend.h"
 #include "graphics.h"
 #include "3d.h"
-#include "func3.h"
 #include "func2.h"
 #include "sound.h"
 #include "roller.h"
@@ -85,7 +84,7 @@ int last_type = 0;        //000A530C
 int network_champ_on = 0; //000A5318
 void *font_vga = NULL;    //000A531C
 void *title_vga = NULL;   //000A5320
-void *front_vga[16] = { NULL }; //000A5324
+tBlockHeader *front_vga[16] = { NULL }; //000A5324
 int font1_offsets[104] =  //000A5364
 {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -379,7 +378,7 @@ void title_screens()
   bool bHasTitle = ROLLERfexists("title.bm") && ROLLERfexists("title.pal");
 
   setpal(bHasTitle ? "title.pal" : "whipped.pal");
-  front_vga[0] = load_picture(bHasTitle ? "title.bm" : "whipped.bm");
+  front_vga[0] = (tBlockHeader*)load_picture(bHasTitle ? "title.bm" : "whipped.bm");
 
   if (front_vga[0] && scrbuf) //check added by ROLLER
     display_picture(scrbuf, front_vga[0]);
@@ -416,7 +415,7 @@ void copy_screens()
   mirror = 0;
 
   setpal("gremlin.pal");
-  front_vga[0] = load_picture("gremlin.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("gremlin.bm");
   
   display_picture(scrbuf, front_vga[0]);
 
@@ -529,14 +528,14 @@ void select_screen()
       p_tex_size = gfx_size;
 
       // Load graphical assets
-      front_vga[0] = load_picture("frontend.bm");
-      front_vga[1] = load_picture("selhead.bm");
-      front_vga[2] = load_picture("font2.bm");
-      front_vga[3] = load_picture("carnames.bm");
-      front_vga[4] = load_picture("opticon2.bm");
-      front_vga[5] = load_picture("selicons.bm");
-      front_vga[6] = load_picture("selexit.bm");
-      front_vga[15] = load_picture("font1.bm");
+      front_vga[0] = (tBlockHeader*)load_picture("frontend.bm");
+      front_vga[1] = (tBlockHeader*)load_picture("selhead.bm");
+      front_vga[2] = (tBlockHeader*)load_picture("font2.bm");
+      front_vga[3] = (tBlockHeader*)load_picture("carnames.bm");
+      front_vga[4] = (tBlockHeader*)load_picture("opticon2.bm");
+      front_vga[5] = (tBlockHeader*)load_picture("selicons.bm");
+      front_vga[6] = (tBlockHeader*)load_picture("selexit.bm");
+      front_vga[15] = (tBlockHeader *)load_picture("font1.bm");
       fade_palette(0);
       iQuitConfirmed = 0;
       SVGA_ON = -1;
@@ -584,7 +583,7 @@ void select_screen()
       intro = 0;
       Car[0].nPitch = 0;
       pBuf = (uint8 *)trybuffer(300000u);
-      front_vga[7] = pBuf;
+      front_vga[7] = (tBlockHeader *)pBuf;
       iMenuSelection = 8;
       if (no_mem)
         goto LABEL_24;
@@ -615,9 +614,9 @@ void select_screen()
       if (game_type == 1) {
         loadtrack(TrackLoad, -1);
         fre((void **)&front_vga[3]);
-        front_vga[3] = load_picture("trkname.bm");
-        front_vga[13] = load_picture("bonustrk.bm");
-        front_vga[14] = load_picture("cupicons.bm");
+        front_vga[3] = (tBlockHeader *)load_picture("trkname.bm");
+        front_vga[13] = (tBlockHeader *)load_picture("bonustrk.bm");
+        front_vga[14] = (tBlockHeader *)load_picture("cupicons.bm");
       } else if (iPlayer1Car2 >= 0) {
         carType = CarDesigns[iPlayer1Car2].carType;
         carType2 = carType;
@@ -731,15 +730,15 @@ void select_screen()
         fre((void **)&front_vga[3]);
         fre((void **)&front_vga[13]);
         fre((void **)&front_vga[14]);
-        front_vga[3] = load_picture("trkname.bm");
-        front_vga[13] = load_picture("bonustrk.bm");
-        front_vga[14] = load_picture("cupicons.bm");
+        front_vga[3] = (tBlockHeader *)load_picture("trkname.bm");
+        front_vga[13] = (tBlockHeader *)load_picture("bonustrk.bm");
+        front_vga[14] = (tBlockHeader *)load_picture("cupicons.bm");
         Race = ((uint8)TrackLoad - 1) & 7;
       } else {
         fre((void **)&front_vga[3]);
         fre((void **)&front_vga[13]);
         fre((void **)&front_vga[14]);
-        front_vga[3] = load_picture("carnames.bm");
+        front_vga[3] = (tBlockHeader *)load_picture("carnames.bm");
         if (iBlockIdx >= CAR_DESIGN_AUTO) {
           cartype3 = CarDesigns[iBlockIdx].carType;
           cartype4 = cartype3;
@@ -1089,11 +1088,11 @@ void select_screen()
             iBlockIdx = Players_Cars[player1_car];
             if (game_type == 1) {
               loadtrack(TrackLoad, -1);
-              front_vga[3] = load_picture("trkname.bm");
-              front_vga[13] = load_picture("bonustrk.bm");
-              front_vga[14] = load_picture("cupicons.bm");
+              front_vga[3] = (tBlockHeader *)load_picture("trkname.bm");
+              front_vga[13] = (tBlockHeader *)load_picture("bonustrk.bm");
+              front_vga[14] = (tBlockHeader *)load_picture("cupicons.bm");
             } else {
-              front_vga[3] = load_picture("carnames.bm");
+              front_vga[3] = (tBlockHeader *)load_picture("carnames.bm");
               if (iBlockIdx >= CAR_DESIGN_AUTO) {
                 carType_1 = CarDesigns[iBlockIdx].carType;
                 iLoadCarTex2 = 1;
@@ -1704,8 +1703,8 @@ void select_car()
 
   fade_palette(0);                              // Initialize screen fade and prepare UI graphics
   front_fade = 0;
-  front_vga[3] = load_picture("carnames.bm");   // Load car company name graphics (carnames.bm) and car selection UI (selcar2.bm)
-  front_vga[7] = load_picture("selcar2.bm");    // Load car selection UI bitmap
+  front_vga[3] = (tBlockHeader*)load_picture("carnames.bm");   // Load car company name graphics (carnames.bm) and car selection UI (selcar2.bm)
+  front_vga[7] = (tBlockHeader*)load_picture("selcar2.bm");    // Load car selection UI bitmap
   car_request = 0;
   byMenuExitFlag = 0;                           // Initialize selection state: byMenuExitFlag=0 (stay in menu), iOriginalCarSelection=-1 (no backup)
   iOriginalCarSelection = -1;                   // byExitCode = 0 - stay in selection, -1 = exit to menu
@@ -2611,8 +2610,7 @@ void select_configure()
             if (iCharIndex == 255)
               iTextPosX += 8;
             else
-              iTextPosX += font1_offsets[iCharIndex] + 1;
-              //iTextPosX += *(_DWORD *)&front_vga[15][12 * iCharIndex] + 1;
+              iTextPosX += front_vga[15][iCharIndex].iWidth + 1;
           }
           iTextPosX += 430;
           iY = 374 - 18 * iSelectedCar;
@@ -4617,12 +4615,11 @@ void select_configure()
         if (iEditingName == 1) {
           iTextPosX = 0;
           for (szMemPtr = network_messages[4 - iNetworkState]; *szMemPtr; ++szMemPtr) {
-            iFontChar = (unsigned __int8)font1_ascii[(unsigned __int8)*szMemPtr];
+            iFontChar = (uint8)font1_ascii[(uint8)*szMemPtr];
             if (iFontChar == 255)
               iTextPosX += 8;
             else
-              iTextPosX += font1_offsets[iFontChar] + 1;
-              //iTextPosX += *(_DWORD *)&front_vga[15][12 * iFontChar] + 1;
+              iTextPosX += front_vga[15][iFontChar].iWidth + 1;
           }
           iTextPosX += 390;
           iY = 140 - 18 * iNetworkState;
@@ -5354,7 +5351,7 @@ void select_type()
   else
     iCheatModesAvailable = 0;
   iBlockIdx = (TrackLoad - 1) / 8;// Calculate cup index from current track (TrackLoad): cups are groups of 8 tracks
-  front_vga[14] = load_picture("cupicons.bm");  // Load cup icons graphics and initialize screen
+  front_vga[14] = (tBlockHeader *)load_picture("cupicons.bm");  // Load cup icons graphics and initialize screen
   iMenuSelection = 0;
   fade_palette(0);
   front_fade = 0;
