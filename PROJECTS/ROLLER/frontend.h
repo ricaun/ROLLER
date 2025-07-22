@@ -62,6 +62,7 @@ extern char font4_ascii[256];
 extern tPoint sel_posns[12];
 extern int no_clear;
 extern char *descript[8];
+extern char comp_name[16][15];
 extern char cheat_names[32][9];
 extern char player_names[16][9];
 extern int teamorder[8];

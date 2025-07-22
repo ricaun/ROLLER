@@ -291,6 +291,25 @@ char *descript[8] =       //000A5E88
   "FZIZIN.RAW",
   "FREISE.RAW"
 };
+char comp_name[16][15] =  //000A5EA8
+{
+  "REISE WAGON 2:",
+  "REISE WAGON 1:",
+  "ZIZIN 2:",
+  "ZIZIN 1:",
+  "MISSION 2:",
+  "MISSION 1:",
+  "MILLION 2:",
+  "MILLION 1:",
+  "GLOBAL 2:",
+  "GLOBAL 1:",
+  "PULSE 2:",
+  "PULSE 1:",
+  "DESILVA 2:",
+  "DESILVA 1:",
+  "AUTO ARIEL 2:",
+  "AUTO ARIEL 1:"
+};
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
 int teamorder[8];         //0016FAA8
@@ -2605,7 +2624,7 @@ void select_configure()
         iCarDisplay = 15;
         iCarIndex = 18;
         iActiveColor = iNormalColor - 4;
-        szCarName = "REISE WAGON 2:";
+        szCarName = comp_name[0];
         iTextPosY = 50;
 
         // Display all 16 cars in reverse order
