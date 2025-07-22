@@ -6458,36 +6458,32 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
 
 void restart_net_game()
 {
-  /*
-  int v1; // eax
-  int v2; // eax
-  int v3; // edi
-  int v4; // edx
-  int i; // ecx
+  int iActualCompetitors; // edi
+  int iGridIndex; // edx
+  int iCompetitorLoop; // ecx
+  int i; // eax
+  int iTotalCars; // esi
+  int iCarIndex; // edx
+  int iGridOffset; // ecx
+  int iNonCompSearch; // eax
   int j; // eax
-  int v7; // esi
-  int v8; // edx
-  int v9; // ecx
-  int k; // eax
+  int iAISearch; // ebx
+  int iRandRange; // eax
+  int iFirstSwapPos; // ecx
+  int iSecondRand; // eax
+  int iSecondSwapPos; // eax
+  int iTempCarId; // ebp
+  int k; // esi
+  int iHandicapPos; // edx
+  int iHumanPos; // ebx
+  int iOrderLoop; // eax
   int m; // eax
-  int v12; // eax
-  int n; // ebx
-  int v14; // eax
-  int v15; // ecx
-  int v16; // eax
-  int v17; // ebp
-  int ii; // esi
-  int v19; // edx
-  int v20; // ebx
-  int jj; // eax
-  int kk; // eax
-  int v23; // ecx
-  int v24; // edx
-  int result; // eax
-  int v26; // [esp+4h] [ebp-1Ch]
+  int iAICarId; // ecx
+  int iHumanCarId; // edx
+  int iMaxCarOffset; // [esp+4h] [ebp-1Ch]
 
-  SVGA_ON = -1;
-  init_screen(a1, -1, 0);
+  SVGA_ON = -1;                                 // Initialize graphics and game state
+  init_screen();
   winx = 0;
   winy = 0;
   winw = XMAX;
@@ -6497,107 +6493,112 @@ void restart_net_game()
   time_to_start = 0;
   StartPressed = 0;
   tick_on = -1;
-  load_language_file((int)&aSelectEng[1], 0);
-  load_language_file((int)&aPconfigEng[1], 1);
-  remove_messages(-1, 1, 0);
-  v1 = reset_network(0);
+  load_language_file(szSelectEng, 0);           // Load language files for interface
+  load_language_file(szConfigEng, 1);
+  remove_messages(-1);
+  reset_network(0);                             // Reset network and wait for broadcast mode to clear
   broadcast_mode = -667;
   while (broadcast_mode)
     ;
   no_clear = 0;
   if (!quit_game && !intro) {
-    v2 = check_cars(v1);
-    v1 = NetworkWait(v2, 0, 0, -1);
+    check_cars();                               // Check cars and wait for network if not quitting or in intro
+    NetworkWait();
   }
   if (replaytype != 2 && !quit_game)
-    AllocateCars(v1);
-  Race = ((_BYTE)TrackLoad - 1) & 7;
+    AllocateCars();
+  Race = ((uint8)TrackLoad - 1) & 7;            // Calculate current race number (0-7)
   if (game_type == 1 && !Race) {
-    memset(championship_points, 0, sizeof(championship_points));
-    memset(team_points, 0, 64);
-    memset(total_kills, 0, 64);
-    memset(total_fasts, 0, 64);
-    memset(total_wins, 0, 64);
-    memset(team_kills, 0, 64);
+    memset(championship_points, 0, sizeof(championship_points));// Reset championship statistics for new championship
+    memset(team_points, 0, 0x40u);
+    memset(total_kills, 0, sizeof(total_kills));
+    memset(total_fasts, 0, sizeof(total_fasts));
+    memset(total_wins, 0, sizeof(total_wins));
+    memset(team_kills, 0, sizeof(team_kills));
     memset(team_fasts, 0, sizeof(team_fasts));
-    memset(team_wins, 0, 64);
+    memset(team_wins, 0, sizeof(team_wins));
   }
-  v3 = competitors;
-  if (competitors == 2) {
-    v3 = players;
+  iActualCompetitors = competitors;
+  if (competitors == 2)                       // Determine actual number of competitors based on game type
+  {
+    iActualCompetitors = players;
     if (players < 2)
-      v3 = competitors;
+      iActualCompetitors = competitors;
   }
   if (competitors == 1)
-    v3 = players;
-  v4 = 0;
-  if (v3 > 0) {
-    for (i = 0; i < v3; ++i) {
-      for (j = v4; non_competitors[j]; ++j)
-        ++v4;
-      grid[i] = v4++;
+    iActualCompetitors = players;
+  iGridIndex = 0;
+  if (iActualCompetitors > 0) {                                             // Fill grid with competing cars (skip non-competitors)
+    for (iCompetitorLoop = 0; iCompetitorLoop < iActualCompetitors; ++iCompetitorLoop) {
+      for (i = iGridIndex; non_competitors[i]; ++i)
+        ++iGridIndex;
+      grid[iCompetitorLoop] = iGridIndex++;
     }
   }
-  v7 = v3;
-  v8 = 0;
-  if (v3 < numcars) {
-    v9 = 4 * v3;
-    v26 = 4 * numcars;
+  iTotalCars = iActualCompetitors;
+  iCarIndex = 0;
+  if (iActualCompetitors < numcars) {
+    iGridOffset = 4 * iActualCompetitors;       // Fill remaining grid positions with AI cars
+    iMaxCarOffset = 4 * numcars;
     do {
-      for (k = v8; !non_competitors[k]; ++k)
-        ++v8;
-      ++v7;
-      grid[v9 / 4u] = v8;
-      v9 += 4;
-      ++v8;
-    } while (v9 < v26);
+      for (iNonCompSearch = iCarIndex; !non_competitors[iNonCompSearch]; ++iNonCompSearch)
+        ++iCarIndex;
+      ++iTotalCars;
+      grid[iGridOffset / 4u] = iCarIndex;
+      iGridOffset += 4;
+      ++iCarIndex;
+    } while (iGridOffset < iMaxCarOffset);
   }
   if (game_type == 1 && Race > 0) {
-    if (v3 > 0) {
-      for (m = 0; m < v3; finished_car_variable_1[m] = teamorder_variable_1[m])
-        ++m;
+    if (iActualCompetitors > 0) {
+      for (j = 0; j < iActualCompetitors; ++j) {
+          grid[j] = champorder[j];
+      }
+      //for (j = 0; j < iActualCompetitors; finished_car[j + 15] = teamorder[j + 7])
+      //  ++j;
     }
   } else {
-    racers = v3;
-    v12 = 6 * v3;
-    for (n = 0; n < 6 * v3; grid[v12] = v17) {
-      v14 = rand(v12);
-      v15 = (v3 * v14 - (__CFSHL__((v3 * v14) >> 31, 15) + ((v3 * v14) >> 31 << 15))) >> 15;
-      v16 = rand(v15);
-      v12 = (v3 * v16 - (__CFSHL__((v3 * v16) >> 31, 15) + ((v3 * v16) >> 31 << 15))) >> 15;
-      v17 = grid[v15];
-      grid[v15] = grid[v12];
-      ++n;
+    racers = iActualCompetitors;
+    for (iAISearch = 0; iAISearch < 6 * iActualCompetitors; grid[iSecondSwapPos] = iTempCarId)// Shuffle grid positions randomly for non-championship races
+    {
+      iRandRange = rand();
+      iFirstSwapPos = iRandRange % iActualCompetitors;  // Get random position within grid bounds
+      //iFirstSwapPos = (iActualCompetitors * iRandRange - (__CFSHL__((iActualCompetitors * iRandRange) >> 31, 15) + ((iActualCompetitors * iRandRange) >> 31 << 15))) >> 15;
+      iSecondRand = rand();
+      iSecondSwapPos = iSecondRand % iActualCompetitors;  // Get second random position within grid bounds
+      //iSecondSwapPos = (iActualCompetitors * iSecondRand - (__CFSHL__((iActualCompetitors * iSecondRand) >> 31, 15) + ((iActualCompetitors * iSecondRand) >> 31 << 15))) >> 15;
+      iTempCarId = grid[iFirstSwapPos];
+      grid[iFirstSwapPos] = grid[iSecondSwapPos];
+      ++iAISearch;
     }
-    v3 = racers;
-    for (ii = 0; ii < players; ++ii) {
+    iActualCompetitors = racers;
+    for (k = 0; k < players; ++k)             // Position human players based on difficulty level
+    {                                           // Calculate starting position handicap based on level
       if (level && (cheat_mode & 2) == 0)
-        v19 = v3 - 2 * level * players;
+        iHandicapPos = iActualCompetitors - 2 * level * players;
       else
-        v19 = v3 - players;
-      if (v19 < 0)
-        v19 = 0;
-      v20 = 0;
-      for (jj = 0; !human_control[grid[jj]]; ++jj)
-        ++v20;
-      if (v20 < v19) {
-        for (kk = v19; ; ++kk) {
-          v23 = grid[kk];
-          if (!human_control[v23])
+        iHandicapPos = iActualCompetitors - players;
+      if (iHandicapPos < 0)
+        iHandicapPos = 0;
+      iHumanPos = 0;
+      for (iOrderLoop = 0; !human_control[grid[iOrderLoop]]; ++iOrderLoop)// Find human player in grid and ensure proper positioning
+        ++iHumanPos;
+      if (iHumanPos < iHandicapPos) {
+        for (m = iHandicapPos; ; ++m) {
+          iAICarId = grid[m];
+          if (!human_control[iAICarId])
             break;
-          ++v19;
+          ++iHandicapPos;
         }
-        v24 = grid[v20];
-        grid[v20] = v23;
-        grid[kk] = v24;
+        iHumanCarId = grid[iHumanPos];
+        grid[iHumanPos] = iAICarId;
+        grid[m] = iHumanCarId;
       }
     }
   }
-  result = 0;
-  StartPressed = 0;
+  StartPressed = 0;                             // Finalize restart state
   restart_net = 0;
-  racers = v3;
-  return result;*/
+  racers = iActualCompetitors;
 }
 
 //-------------------------------------------------------------------------------------------------
