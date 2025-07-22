@@ -3229,7 +3229,7 @@ void select_configure()
         iControlState = iControlsInEdit;
         controlrelease = -1;
 
-        userkey[iEditIndex] = iFoundKey;
+        userkey[control_edit] = iFoundKey;
         //*((_BYTE *)&keyname[139] + iEditIndex + 3) = iFoundKey;
 
         // Handle completion logic for each player
