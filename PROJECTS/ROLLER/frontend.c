@@ -767,41 +767,41 @@ void select_screen()
     check_cars();
 
     display_picture(scrbuf, front_vga[0]);
-    display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[1], 0, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
     if (iMenuSelection >= 8) {
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 3, 52, 334, 0);
+      display_block(scrbuf, front_vga[6], 3, 52, 334, 0);
     } else {
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 1, 52, 334, 0);
-      front_text((tBlockHeader *)front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuSelection].x, sel_posns[iMenuSelection].y, 0x8Fu, 0);
+      display_block(scrbuf, front_vga[6], 1, 52, 334, 0);
+      front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuSelection].x, sel_posns[iMenuSelection].y, 0x8Fu, 0);
     }
     if (game_type == 1) {
-      front_text((tBlockHeader *)front_vga[2], language_buffer, font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], language_buffer, font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
       if (Race)
-        front_text((tBlockHeader *)front_vga[2], &language_buffer[128], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+        front_text(front_vga[2], &language_buffer[128], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
       else
-        front_text((tBlockHeader *)front_vga[2], &language_buffer[64], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+        front_text(front_vga[2], &language_buffer[64], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
     } else {
-      front_text((tBlockHeader *)front_vga[2], &language_buffer[256], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
-      front_text((tBlockHeader *)front_vga[2], &language_buffer[320], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], &language_buffer[256], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], &language_buffer[320], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
     }
-    front_text((tBlockHeader *)front_vga[2], &language_buffer[192], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], config_buffer, font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &language_buffer[384], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &language_buffer[448], font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &language_buffer[512], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[640], font2_ascii, font2_offsets, sel_posns[7].x + 132, sel_posns[7].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[192], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], config_buffer, font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[384], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[448], font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[512], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[640], font2_ascii, font2_offsets, sel_posns[7].x + 132, sel_posns[7].y + 7, 0x8Fu, 2u);
     if (game_type == 1) {
-      display_block(scrbuf, (tBlockHeader *)front_vga[14], (TrackLoad - 1) % 8, 500, 300, 0);
+      display_block(scrbuf, front_vga[14], (TrackLoad - 1) % 8, 500, 300, 0);
       if (TrackLoad <= 0) {
         if (TrackLoad)
-          front_text((tBlockHeader *)front_vga[2], "EDITOR", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
+          front_text(front_vga[2], "EDITOR", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
         else
-          front_text((tBlockHeader *)front_vga[2], "TRACK ZERO", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
+          front_text(front_vga[2], "TRACK ZERO", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
       } else if (TrackLoad >= 17) {
-        display_block(scrbuf, (tBlockHeader *)front_vga[13], TrackLoad - 17, 190, 356, 0);
+        display_block(scrbuf, front_vga[13], TrackLoad - 17, 190, 356, 0);
       } else {
-        display_block(scrbuf, (tBlockHeader *)front_vga[3], TrackLoad - 1, 190, 356, 0);
+        display_block(scrbuf, front_vga[3], TrackLoad - 1, 190, 356, 0);
       }
       show_3dmap(cur_TrackZ, 1280, iRotation);
       if (game_type < 2) {
@@ -810,8 +810,8 @@ void select_screen()
         if (competitors == 2)
           NoOfLaps = iCurLaps / 2;
         sprintf(buffer, "%s: %i", &language_buffer[4544], NoOfLaps);
-        front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 16, 0x8Fu, 1u);
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[4608], font1_ascii, font1_offsets, 420, 34, 0x8Fu, 1u);
+        front_text(front_vga[15], buffer, font1_ascii, font1_offsets, 420, 16, 0x8Fu, 1u);
+        front_text(front_vga[15], &language_buffer[4608], font1_ascii, font1_offsets, 420, 34, 0x8Fu, 1u);
         if (RecordCars[TrackLoad] < 0) {
           sprintf(buffer, "%s", RecordNames[TrackLoad]);
         } else {
@@ -847,7 +847,7 @@ void select_screen()
           //  iSeconds,
           //  (unsigned int)(llRecordLap % 100));
         }
-        front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 52, 0x8Fu, 1u);
+        front_text(front_vga[15], buffer, font1_ascii, font1_offsets, 420, 52, 0x8Fu, 1u);
       }
     } else if (iBlockIdx >= CAR_DESIGN_AUTO) {
       if (iBlockIdx == CAR_DESIGN_F1WACK)
@@ -855,41 +855,41 @@ void select_screen()
       else
         DrawCar(scrbuf + 34640, iBlockIdx, 2200.0, 1280, 0);
       if (iBlockIdx < CAR_DESIGN_ZIZIN2)
-        display_block(scrbuf, (tBlockHeader *)front_vga[3], iBlockIdx, 190, 356, 0);
+        display_block(scrbuf, front_vga[3], iBlockIdx, 190, 356, 0);
     }
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, front_vga[5], player_type, -4, 247, 0);
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
     switch (iMenuSelection) {
       case 1:
         if (game_type == 1)
           iBlockIdx2 = 8;
         else
           iBlockIdx2 = 1;
-        display_block(scrbuf, (tBlockHeader *)front_vga[4], iBlockIdx2, 76, 257, -1);
+        display_block(scrbuf, front_vga[4], iBlockIdx2, 76, 257, -1);
         break;
       case 3:
         if (game_type == 1 && Race > 0)
           goto LABEL_102;
-        display_block(scrbuf, (tBlockHeader *)front_vga[4], 3, 76, 257, -1);
+        display_block(scrbuf, front_vga[4], 3, 76, 257, -1);
         break;
       case 6:
       LABEL_102:
-        display_block(scrbuf, (tBlockHeader *)front_vga[4], 9, 76, 257, -1);
+        display_block(scrbuf, front_vga[4], 9, 76, 257, -1);
         break;
       case 7:
-        display_block(scrbuf, (tBlockHeader *)front_vga[4], 6, 76, 257, -1);
+        display_block(scrbuf, front_vga[4], 6, 76, 257, -1);
         break;
       case 8:
-        display_block(scrbuf, (tBlockHeader *)front_vga[4], 7, 76, 257, -1);
+        display_block(scrbuf, front_vga[4], 7, 76, 257, -1);
         break;
       default:
-        display_block(scrbuf, (tBlockHeader *)front_vga[4], iMenuSelection, 76, 257, -1);
+        display_block(scrbuf, front_vga[4], iMenuSelection, 76, 257, -1);
         break;
     }
     if (iBlockIdx < CAR_DESIGN_AUTO)
-      front_text((tBlockHeader *)front_vga[15], &language_buffer[4160], font1_ascii, font1_offsets, 400, 200, 0xE7u, 1u);
+      front_text(front_vga[15], &language_buffer[4160], font1_ascii, font1_offsets, 400, 200, 0xE7u, 1u);
     if (iQuitConfirmed)
-      front_text((tBlockHeader *)front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 250, 0xE7u, 1u);
+      front_text(front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 250, 0xE7u, 1u);
     show_received_mesage();
     copypic(scrbuf, screen);
     if (switch_same > 0) {
@@ -1365,62 +1365,54 @@ void select_disk()
     if (!uiMenuMode)
       iSelectedSlot = 0;
     display_picture(scrbuf, front_vga[0]);
-    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[1], 0, head_x, head_y, 0);
     if (iMenuCursor >= 2)                     // Draw selection cursor
     {
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+      display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
     } else {
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
-      front_text((tBlockHeader *)front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuCursor].x, sel_posns[iMenuCursor].y, 0x8Fu, 0);
+      display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+      front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuCursor].x, sel_posns[iMenuCursor].y, 0x8Fu, 0);
     }
-    front_text((tBlockHeader *)front_vga[2], &language_buffer[576], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u); // Display main menu options: "Load Game" and "Save Game"
-    front_text((tBlockHeader *)front_vga[2], &language_buffer[640], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[704], font1_ascii, font1_offsets, 400, 270, 0xABu, 1u);// CURRENT GAME INFO: Display current championship settings and progress
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[768], font1_ascii, font1_offsets, 400, 290, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[576], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u); // Display main menu options: "Load Game" and "Save Game"
+    front_text(front_vga[2], &language_buffer[640], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[15], &language_buffer[704], font1_ascii, font1_offsets, 400, 270, 0xABu, 1u);// CURRENT GAME INFO: Display current championship settings and progress
+    front_text(front_vga[15], &language_buffer[768], font1_ascii, font1_offsets, 400, 290, 0x8Fu, 2u);
     uiCupIndex = (TrackLoad - 1) / 8;
     //uiCupIndex = (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3;// Show current cup name based on track group
     if (uiCupIndex) {
       if (uiCupIndex <= 1) {
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[896], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
+        front_text(front_vga[15], &language_buffer[896], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
         goto LABEL_20;
       }
       if (uiCupIndex == 2) {
-        front_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4928],
-          font1_ascii,
-          font1_offsets,
-          405,
-          290,
-          0x8Fu,
-          0);
+        front_text(front_vga[15], &language_buffer[4928], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
         goto LABEL_20;
       }
     }
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[832], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
+    front_text(front_vga[15], &language_buffer[832], font1_ascii, font1_offsets, 405, 290, 0x8Fu, 0);
   LABEL_20:
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[960], font1_ascii, font1_offsets, 400, 308, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[15], CompanyNames[Race], font1_ascii, font1_offsets, 405, 308, 0x8Fu, 0);
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[1024], font1_ascii, font1_offsets, 400, 326, 0x8Fu, 2u);
+    front_text(front_vga[15], &language_buffer[960], font1_ascii, font1_offsets, 400, 308, 0x8Fu, 2u);
+    front_text(front_vga[15], CompanyNames[Race], font1_ascii, font1_offsets, 405, 308, 0x8Fu, 0);
+    front_text(front_vga[15], &language_buffer[1024], font1_ascii, font1_offsets, 400, 326, 0x8Fu, 2u);
     if ((unsigned int)competitors < 8) {
       if (competitors == 2)
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[1088], font1_ascii, font1_offsets, 405, 326, 0x8Fu,0);
+        front_text(front_vga[15], &language_buffer[1088], font1_ascii, font1_offsets, 405, 326, 0x8Fu,0);
     } else if ((unsigned int)competitors <= 8) {
-      front_text((tBlockHeader *)front_vga[15], &language_buffer[1152], font1_ascii, font1_offsets, 405, 326, 0x8Fu, 0);
+      front_text(front_vga[15], &language_buffer[1152], font1_ascii, font1_offsets, 405, 326, 0x8Fu, 0);
     } else if (competitors == 16) {
-      front_text((tBlockHeader *)front_vga[15], &language_buffer[1216], font1_ascii, font1_offsets, 405, 326, 0x8Fu, 0);
+      front_text(front_vga[15], &language_buffer[1216], font1_ascii, font1_offsets, 405, 326, 0x8Fu, 0);
     }
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[1280], font1_ascii, font1_offsets, 400, 344, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * level + 1472], font1_ascii, font1_offsets, 405, 344, 0x8Fu, 0);
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[1344], font1_ascii, font1_offsets, 400, 362, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * damage_level + 1856], font1_ascii, font1_offsets, 405, 362, 0x8Fu, 0);
-    front_text((tBlockHeader *)front_vga[15], &language_buffer[1408], font1_ascii, font1_offsets, 400, 380, 0x8Fu, 2u);
+    front_text(front_vga[15], &language_buffer[1280], font1_ascii, font1_offsets, 400, 344, 0x8Fu, 2u);
+    front_text(front_vga[15], &language_buffer[64 * level + 1472], font1_ascii, font1_offsets, 405, 344, 0x8Fu, 0);
+    front_text(front_vga[15], &language_buffer[1344], font1_ascii, font1_offsets, 400, 362, 0x8Fu, 2u);
+    front_text(front_vga[15], &language_buffer[64 * damage_level + 1856], font1_ascii, font1_offsets, 405, 362, 0x8Fu, 0);
+    front_text(front_vga[15], &language_buffer[1408], font1_ascii, font1_offsets, 400, 380, 0x8Fu, 2u);
     if (player_type == 1 && net_type) {
       if ((unsigned int)net_type >= (unsigned int)player_type && (unsigned int)net_type <= 2)
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[2304], font1_ascii, font1_offsets, 405, 380, 0x8Fu,0);
+        front_text(front_vga[15], &language_buffer[2304], font1_ascii, font1_offsets, 405, 380, 0x8Fu,0);
     } else {
-      front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * player_type + 2112], font1_ascii, font1_offsets, 405, 380, 0x8Fu, 0);
+      front_text(front_vga[15], &language_buffer[64 * player_type + 2112], font1_ascii, font1_offsets, 405, 380, 0x8Fu, 0);
     }
     iSlotLoop = 0;                              // SAVE SLOT DISPLAY: Show all 4 championship save slots with their details
     iSlotYPosition = 56;
@@ -1432,7 +1424,7 @@ void select_disk()
         bySlotColor = 0xAB;
       else
         bySlotColor = 0x8F;
-      front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 300, iSlotYPosition, bySlotColor, 2u);
+      front_text(front_vga[15], buffer, font1_ascii, font1_offsets, 300, iSlotYPosition, bySlotColor, 2u);
       iSlotNumber = iSlotLoop + 1;
       if (save_status[iSaveArrayIndex].iSlotUsed)// Show save slot contents: cup, track, difficulty, damage, player type
       {
@@ -1449,53 +1441,53 @@ void select_disk()
               byCupColor2 = 0xAB;
             else
               byCupColor2 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], &language_buffer[896], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor2, 0);
+            front_text(front_vga[15], &language_buffer[896], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor2, 0);
           } else if (uiSaveCupIndex == 2) {
             if (iSelectedSlot == iSlotNumber)
               byCupColor3 = 0xAB;
             else
               byCupColor3 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], &language_buffer[4928], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor3, 0);
+            front_text(front_vga[15], &language_buffer[4928], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor3, 0);
           }
         } else {
           if (iSelectedSlot == iSlotNumber)
             byCupColor1 = 0xAB;
           else
             byCupColor1 = 0x8F;
-          front_text((tBlockHeader *)front_vga[15], &language_buffer[832], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor1, 0);
+          front_text(front_vga[15], &language_buffer[832], font1_ascii, font1_offsets, 305, iSlotYPosition, byCupColor1, 0);
         }
         sprintf(buffer, "%s %i", &language_buffer[256], iSaveTrackNumber);
         if (iSelectedSlot == iSlotLoop + 1)
           byTrackColor = 0xAB;
         else
           byTrackColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], "-", font1_ascii, font1_offsets, 470, iSlotYPosition, byTrackColor, 0);
+        front_text(front_vga[15], "-", font1_ascii, font1_offsets, 470, iSlotYPosition, byTrackColor, 0);
         if (iSelectedSlot == iSlotLoop + 1)
           byDifficultyColor = 0xAB;
         else
           byDifficultyColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 480, iSlotYPosition, byDifficultyColor, 0);
+        front_text(front_vga[15], buffer, font1_ascii, font1_offsets, 480, iSlotYPosition, byDifficultyColor, 0);
         if (iSelectedSlot == iSlotLoop + 1)
           byLevelColor = 0xAB;
         else
           byLevelColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iDifficulty + 1472], font1_ascii, font1_offsets, 460, iY,  byLevelColor, 2u);
+        front_text(front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iDifficulty + 1472], font1_ascii, font1_offsets, 460, iY,  byLevelColor, 2u);
         if (iSelectedSlot == iSlotLoop + 1)
           byDamageColor = 0xAB;
         else
           byDamageColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], "-", font1_ascii, font1_offsets, 470, iY, byDamageColor, 0);
+        front_text(front_vga[15], "-", font1_ascii, font1_offsets, 470, iY, byDamageColor, 0);
         if (iSelectedSlot == iSlotLoop + 1)
           byPlayerTypeColor = 0xAB;
         else
           byPlayerTypeColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iPlayerType + 2112], font1_ascii, font1_offsets, 480, iY, byPlayerTypeColor, 0);
+        front_text(front_vga[15], &language_buffer[64 * save_status[iSaveArrayIndex].iPlayerType + 2112], font1_ascii, font1_offsets, 480, iY, byPlayerTypeColor, 0);
       } else {                                         // Display "Empty" for unused save slots
         if (iSelectedSlot == iSlotNumber)
           byEmptySlotColor = 0xAB;
         else
           byEmptySlotColor = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[2496], font1_ascii, font1_offsets, 305, iSlotYPosition, byEmptySlotColor, 0);
+        front_text(front_vga[15], &language_buffer[2496], font1_ascii, font1_offsets, 305, iSlotYPosition, byEmptySlotColor, 0);
       }
       iSlotYPosition += 40;
       ++iSaveArrayIndex;
@@ -1505,19 +1497,19 @@ void select_disk()
     switch (iStatusMessage) {
       case 0:
         if (network_on)                       // Case 0: Network save restriction message
-          front_text((tBlockHeader *)front_vga[15], &language_buffer[4864], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
+          front_text(front_vga[15], &language_buffer[4864], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
         break;
       case 1:
         if (iChampResult)                     // Case 1: Load operation messages (success/confirmation)
-          front_text((tBlockHeader *)front_vga[15], &language_buffer[2624], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
+          front_text(front_vga[15], &language_buffer[2624], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
         else
-          front_text((tBlockHeader *)front_vga[15], &language_buffer[2560], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
+          front_text(front_vga[15], &language_buffer[2560], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u);
         break;
       case 2:
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[2688], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u); // Case 2: Save operation success message
+        front_text(front_vga[15], &language_buffer[2688], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u); // Case 2: Save operation success message
         break;
       case 4:
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[2752], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u); // Case 4: Empty slot selected (no save to load)
+        front_text(front_vga[15], &language_buffer[2752], font1_ascii, font1_offsets, 400, 230, 0xE7u, 1u); // Case 4: Empty slot selected (no save to load)
         break;
       default:
         break;                                  // STATUS MESSAGES: Display operation results and warnings
@@ -1781,24 +1773,16 @@ void select_car()
       if (player_type == 2)                   // Two-player mode
       {
         if (iActivePlayer)
-          display_block(scrbuf, (tBlockHeader *)front_vga[1], 6, head_x, head_y, 0);
+          display_block(scrbuf, front_vga[1], 6, head_x, head_y, 0);
         else
-          display_block(scrbuf, (tBlockHeader *)front_vga[1], 5, head_x, head_y, 0);
-        display_block(scrbuf, (tBlockHeader *)front_vga[1], 7, 200, 56, 0);
+          display_block(scrbuf, front_vga[1], 5, head_x, head_y, 0);
+        display_block(scrbuf, front_vga[1], 7, 200, 56, 0);
       } else {
-        display_block(scrbuf, (tBlockHeader *)front_vga[1], 1, head_x, head_y, 0);
+        display_block(scrbuf, front_vga[1], 1, head_x, head_y, 0);
       }
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
+      display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
       if (iPlayer1Car < CAR_DESIGN_AUTO) {
-        front_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4160],
-          font1_ascii,
-          font1_offsets,
-          400,
-          200,
-          0xE7u,
-          1u);
+        front_text(front_vga[15], &language_buffer[4160], font1_ascii, font1_offsets, 400, 200, 0xE7u, 1u);
       } else {                                         // Render 3D car model with zoom/rotation
         if (iPlayer1Car == CAR_DESIGN_F1WACK) {
           DrawCar(scrbuf + 34640, CAR_DESIGN_F1WACK, 6000.0, 1280, 0);
@@ -1809,117 +1793,37 @@ void select_car()
           DrawCar(scrbuf + 34640, iPlayer1Car, fCarDrawDistance, 1280, 0);
         }
         if (iPlayer1Car < CAR_DESIGN_ZIZIN2)
-          display_block(scrbuf, (tBlockHeader *)front_vga[3], iPlayer1Car, 190, 356, 0);
+          display_block(scrbuf, front_vga[3], iPlayer1Car, 190, 356, 0);
       }
-      display_block(scrbuf, (tBlockHeader *)front_vga[7], 0, 560, 20, 0);// Draw car statistics as 7 pie chart segments (speed, acceleration, braking, etc.)
+      display_block(scrbuf, front_vga[7], 0, 560, 20, 0);// Draw car statistics as 7 pie chart segments (speed, acceleration, braking, etc.)
       uiNetworkLoop = 0;
       iPieChartY = 19;                          // Draw 7 pie chart segments (iY starts at 19, increments by 51)
       do {
-        display_block(scrbuf, (tBlockHeader *)front_vga[7], blockIdxAy[uiNetworkLoop / 4], 568, iPieChartY, 0);
+        display_block(scrbuf, front_vga[7], blockIdxAy[uiNetworkLoop / 4], 568, iPieChartY, 0);
         uiNetworkLoop += 4;
         iPieChartY += 51;
       } while (uiNetworkLoop != 28);
-      display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
-      display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
-      display_block(scrbuf, (tBlockHeader *)front_vga[4], 0, 76, 257, -1);
+      display_block(scrbuf, front_vga[5], player_type, -4, 247, 0);
+      display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+      display_block(scrbuf, front_vga[4], 0, 76, 257, -1);
       if (iCurrentCarSelectorPos >= 8)        // Draw car selection cursor
       {
-        display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+        display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
       } else {
-        display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
-        front_text(
-          (tBlockHeader *)front_vga[2],
-          "~",
-          font2_ascii,
-          font2_offsets,
-          sel_posns[iCurrentCarSelectorPos].x,
-          sel_posns[iCurrentCarSelectorPos].y,
-          0x8Fu,
-          0);
+        display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+        front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iCurrentCarSelectorPos].x, sel_posns[iCurrentCarSelectorPos].y, 0x8Fu, 0);
       }
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "AUTO ARIEL",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[0].x + 132,
-        sel_posns[0].y + 7,
-        0x8Fu,
-        2u);                                    // Draw all car company names
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "DESILVA",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[1].x + 132,
-        sel_posns[1].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "PULSE",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[2].x + 132,
-        sel_posns[2].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "GLOBAL",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[3].x + 132,
-        sel_posns[3].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "MILLION PLUS",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[4].x + 132,
-        sel_posns[4].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "MISSION",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[5].x + 132,
-        sel_posns[5].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "ZIZIN",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[6].x + 132,
-        sel_posns[6].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "REISE WAGON",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[7].x + 132,
-        sel_posns[7].y + 7,
-        0x8Fu,
-        2u);
+      front_text(front_vga[2], "AUTO ARIEL", font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);                                    // Draw all car company names
+      front_text(front_vga[2], "DESILVA", font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], "PULSE", font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], "GLOBAL", font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], "MILLION PLUS", font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], "MISSION", font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], "ZIZIN", font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], "REISE WAGON", font2_ascii, font2_offsets, sel_posns[7].x + 132, sel_posns[7].y + 7, 0x8Fu, 2u);
       if (iCurrentCarSelectorPos < 8 && network_on && (cheat_mode & 0x4000) == 0)// Network mode: show which players have allocated which cars
       {
-        front_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4672],
-          font1_ascii,
-          font1_offsets,
-          380,
-          380,
-          0x8Fu,
-          2u);
+        front_text(front_vga[15], &language_buffer[4672], font1_ascii, font1_offsets, 380, 380, 0x8Fu, 2u);
         if (allocated_cars[iCurrentCarSelectorPos]) {
           iPlayerNameX = 385;
           iNetworkPlayerCount = 0;
@@ -1932,15 +1836,7 @@ void select_car()
                   uiPlayerIndex = 0;
                 else
                   uiPlayerIndex = 2;
-                front_text(
-                  (tBlockHeader *)front_vga[15],
-                  szPlayerName,
-                  font1_ascii,
-                  font1_offsets,
-                  iPlayerNameX,
-                  380,
-                  0x8Fu,
-                  uiPlayerIndex);
+                front_text(front_vga[15], szPlayerName, font1_ascii, font1_offsets, iPlayerNameX, 380, 0x8Fu, uiPlayerIndex);
                 iPlayerNameX = 620;
               }
               uiNetworkPlayerIndex += 4;
@@ -1949,15 +1845,7 @@ void select_car()
             } while (iNetworkPlayerCount < players);
           }
         } else {
-          front_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[4736],
-            font1_ascii,
-            font1_offsets,
-            385,
-            380,
-            0x83u,
-            0);
+          front_text(front_vga[15], &language_buffer[4736], font1_ascii, font1_offsets, 385, 380, 0x83u, 0);
         }
       }
       if (iOriginalCarSelection >= 0)         // Display current player's selected car company name at bottom
@@ -1966,7 +1854,7 @@ void select_car()
           sprintf(buffer, "%s %s", &language_buffer[2880], CompanyNames[Players_Cars[player2_car]]);
         else
           sprintf(buffer, "%s %s", &language_buffer[2816], szCurrentCompanyName);
-        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 375, 316, 231, 1u, 170, 550);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 375, 316, 231, 1u, 170, 550);
       }
       show_received_mesage();
       copypic(scrbuf, screen);
@@ -2560,33 +2448,33 @@ void select_configure()
 
     // Draw background and ui elements
     display_picture(scrbuf, front_vga[0]);
-    display_block(scrbuf, (tBlockHeader *)front_vga[1], 0, head_x, head_y, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[4], 1, 76, 257, -1);
+    display_block(scrbuf, front_vga[1], 0, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[5], player_type, -4, 247, 0);
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, front_vga[4], 1, 76, 257, -1);
 
     // draw menu selector
     if (iMenuSelection >= 7) {
       // no menu item selected (exit)
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+      display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
     } else {
       // draw menu selector
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
-      front_text((tBlockHeader *)front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuSelection].x, sel_posns[iMenuSelection].y, 0x8Fu, 0);
+      display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+      front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iMenuSelection].x, sel_posns[iMenuSelection].y, 0x8Fu, 0);
     }
 
     // menu options labels
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[3968], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[256], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[1664], font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[4032], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[4096], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
-    front_text((tBlockHeader *)front_vga[2], &config_buffer[4160], font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[3968], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[256], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[1664], font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[4032], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[4096], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &config_buffer[4160], font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
 
     // network option if enabled
     if (network_on)
-      front_text((tBlockHeader *)front_vga[2], &config_buffer[5568], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], &config_buffer[5568], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
 
     // Config state machine
     switch (iMenuSelection) {
@@ -2632,19 +2520,19 @@ void select_configure()
             // Car is available for Ai palyers
             if (iCarIndex == iSelectedCar && iEditingName == 1) {
               // Selected car with name being edited
-              front_text((tBlockHeader *)front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, iNormalColor, 2u);
+              front_text(front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, iNormalColor, 2u);
               if (iCarIndex == iSelectedCar)
                 byTextColor3 = iHighlightColor;
               else
                 byTextColor3 = 0x8F;
-              front_text((tBlockHeader *)front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, iTextPosY, byTextColor3, 0);
+              front_text(front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, iTextPosY, byTextColor3, 0);
             } else {
               // Selected car with default name displayed
               if (iCarIndex == iSelectedCar)
                 byTextColor4 = iNormalColor;
               else
                 byTextColor4 = 0x8F;
-              front_text((tBlockHeader *)front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, byTextColor4, 2u);
+              front_text(front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, byTextColor4, 2u);
               if (iCarIndex == iSelectedCar)
                 byChar = iHighlightColor;
               else
@@ -2655,7 +2543,7 @@ void select_configure()
               iFontWidth = iCarDisplay;
               //LOBYTE(iFontWidth) = iCarDisplay ^ 1;
               iFontWidth = iCarDisplay ^ 1;
-              front_text((tBlockHeader *)front_vga[15], default_names[iFontWidth], font1_ascii, font1_offsets, 430, iTextPosY, byTempValue, 0);
+              front_text(front_vga[15], default_names[iFontWidth], font1_ascii, font1_offsets, 430, iTextPosY, byTempValue, 0);
             }
           } else {
             // Car is allocated to a human player
@@ -2663,14 +2551,14 @@ void select_configure()
               byTextColor1 = iActiveColor;
             else
               byTextColor1 = 0x8B;
-            front_text((tBlockHeader *)front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, byTextColor1, 2u);
+            front_text(front_vga[15], szCarName, font1_ascii, font1_offsets, 425, iTextPosY, byTextColor1, 2u);
             if (iCarIndex == iSelectedCar)
               byTextColor2 = iDimmedColor;
             else
               byTextColor2 = 0x7F;
 
             // Display human player name
-            front_text((tBlockHeader *)front_vga[15], player_names[car_to_player[14 - (iCarLoop & 0xFE) + (iCarLoop & 1)]], font1_ascii, font1_offsets, 430, iTextPosY, byTextColor2, 0);
+            front_text(front_vga[15], player_names[car_to_player[14 - (iCarLoop & 0xFE) + (iCarLoop & 1)]], font1_ascii, font1_offsets, 430, iTextPosY, byTextColor2, 0);
           }
 
           // Move to next car
@@ -2689,12 +2577,12 @@ void select_configure()
               byTextColor5 = iNormalColor;
             else
               byTextColor5 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], &config_buffer[4288], font1_ascii, font1_offsets, 425, 338, byTextColor5, player_type);
+            front_text(front_vga[15], &config_buffer[4288], font1_ascii, font1_offsets, 425, 338, byTextColor5, player_type);
             if (iSelectedCar == 2)
               byTextColor6 = iHighlightColor;
             else
               byTextColor6 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, 338, byTextColor6, 0);
+            front_text(front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, 338, byTextColor6, 0);
           } else {
             // Player 2 name display mode
             if (iSelectedCar == 2)
@@ -2702,24 +2590,24 @@ void select_configure()
             else
               byTextColor7 = 0x8F;
             iTemp1 = iSelectedCar;
-            front_text((tBlockHeader *)front_vga[15], &config_buffer[4288], font1_ascii, font1_offsets, 425, 338, byTextColor7, 2u);
+            front_text(front_vga[15], &config_buffer[4288], font1_ascii, font1_offsets, 425, 338, byTextColor7, 2u);
             if (iTemp1 == 2)
               byTextColor8 = iHighlightColor;
             else
               byTextColor8 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], player_names[player2_car], font1_ascii, font1_offsets, 430, 338, byTextColor8, 0);
+            front_text(front_vga[15], player_names[player2_car], font1_ascii, font1_offsets, 430, 338, byTextColor8, 0);
           }
         }
 
         // Display player 1 configuration
         if (iSelectedCar == 1 && iEditingName == 1) {
           // Player 1 name being edited
-          front_text((tBlockHeader *)front_vga[15], &config_buffer[4224], font1_ascii, font1_offsets, 425, 356, iNormalColor, 2u);
+          front_text(front_vga[15], &config_buffer[4224], font1_ascii, font1_offsets, 425, 356, iNormalColor, 2u);
           if (iSelectedCar == 1)
             byTextColor9 = iHighlightColor;
           else
             byTextColor9 = 0x8F;
-          front_text((tBlockHeader *)front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, 356, byTextColor9, 0);
+          front_text(front_vga[15], szNewNameBuf, font1_ascii, font1_offsets, 430, 356, byTextColor9, 0);
         } else {
           // Player 1 name display mode
           if (iSelectedCar == 1)
@@ -2727,12 +2615,12 @@ void select_configure()
           else
             byColor = 0x8F;
           iSelectedCar_1 = iSelectedCar;
-          front_text((tBlockHeader *)front_vga[15], &config_buffer[4224], font1_ascii, font1_offsets, 425, 356, byColor, 2u);
+          front_text(front_vga[15], &config_buffer[4224], font1_ascii, font1_offsets, 425, 356, byColor, 2u);
           if (iSelectedCar_1 == 1)
             byColor_1 = iHighlightColor;
           else
             byColor_1 = 0x8F;
-          front_text((tBlockHeader *)front_vga[15], player_names[player1_car], font1_ascii, font1_offsets, 430, 356, byColor_1, 0);
+          front_text(front_vga[15], player_names[player1_car], font1_ascii, font1_offsets, 430, 356, byColor_1, 0);
         }
 
         // Display "BACK" option
@@ -2740,12 +2628,12 @@ void select_configure()
           byColor_2 = 0x8F;
         else
           byColor_2 = iNormalColor;
-        front_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 374, byColor_2, 2u);
+        front_text(front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 374, byColor_2, 2u);
 
         // Display blinking cursor when editing names
         if (iEditingName == 1) {
           if ((frames & 0xFu) < 8)            // blink cursor based on frame counter
-            front_text((tBlockHeader *)front_vga[15], "_", font1_ascii, font1_offsets, iTextPosX, iY, 0xABu, 0);
+            front_text(front_vga[15], "_", font1_ascii, font1_offsets, iTextPosX, iY, 0xABu, 0);
           szNewNameBuf[iNameLength] = 0;
         }
         goto RENDER_FRAME;                      // skip to end of switch
@@ -2759,49 +2647,49 @@ void select_configure()
           byVolumeColor1 = 0xAB;
         else
           byVolumeColor1 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2304], font1_ascii, font1_offsets, 425, 80, byVolumeColor1, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2304], font1_ascii, font1_offsets, 425, 80, byVolumeColor1, 2u, 200, 640);
 
         // SFX volume
         if (iVolumeSelection == 2)
           byVolumeColor2 = 0xAB;
         else
           byVolumeColor2 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2368], font1_ascii, font1_offsets, 425, 104, byVolumeColor2, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2368], font1_ascii, font1_offsets, 425, 104, byVolumeColor2, 2u, 200, 640);
 
         // Speech volume
         if (iVolumeSelection == 3)
           byVolumeColor3 = 0xAB;
         else
           byVolumeColor3 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2432], font1_ascii, font1_offsets, 425, 128, byVolumeColor3, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2432], font1_ascii, font1_offsets, 425, 128, byVolumeColor3, 2u, 200, 640);
 
         // Music volume
         if (iVolumeSelection == 4)
           byVolumeColor4 = 0xAB;
         else
           byVolumeColor4 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2496], font1_ascii, font1_offsets, 425, 152, byVolumeColor4, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2496], font1_ascii, font1_offsets, 425, 152, byVolumeColor4, 2u, 200, 640);
 
         // Engine options
         if (iVolumeSelection == 5)
           byColor_3 = 0xAB;
         else
           byColor_3 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2560], font1_ascii, font1_offsets, 425, 176, byColor_3, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2560], font1_ascii, font1_offsets, 425, 176, byColor_3, 2u, 200, 640);
         if (allengines) {
           if (iVolumeSelection == 5)
             byColor_4 = 0xAB;
           else
             byColor_4 = 0x8F;
           // ALL ENGINES
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2752], font1_ascii, font1_offsets, 430, 176, byColor_4, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2752], font1_ascii, font1_offsets, 430, 176, byColor_4, 0, 200, 640);
         } else {
           if (iVolumeSelection == 5)
             byColor_5 = 0xAB;
           else
             byColor_5 = 0x8F;
           // STARTERS & TURBOS
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2816], font1_ascii, font1_offsets, 430, 176, byColor_5, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2816], font1_ascii, font1_offsets, 430, 176, byColor_5, 0, 200, 640);
         }
 
         // Sound effects options
@@ -2809,28 +2697,28 @@ void select_configure()
           byColor_6 = 0xAB;
         else
           byColor_6 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2880], font1_ascii, font1_offsets, 425, 200, byColor_6, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2880], font1_ascii, font1_offsets, 425, 200, byColor_6, 2u, 200, 640);
         if (soundon) {
           if (iVolumeSelection == 6)
             byColor_7 = 0xAB;
           else
             byColor_7 = 0x8F;
           // ON
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 430, 200, byColor_7, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 430, 200, byColor_7, 0, 200, 640);
         } else if (SoundCard) {
           if (iVolumeSelection == 6)
             byColor_8 = 0xAB;
           else
             byColor_8 = 0x8F;
           // OFF
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 430, 200, byColor_8, soundon, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 430, 200, byColor_8, soundon, 200, 640);
         } else {
           if (iVolumeSelection == 6)
             byColor_9 = 0xAB;
           else
             byColor_9 = 0x8F;
           // DISABLED
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[6848], font1_ascii, font1_offsets, 430, 200, byColor_9, soundon, 200, 640);
+          scale_text(front_vga[15], &config_buffer[6848], font1_ascii, font1_offsets, 430, 200, byColor_9, soundon, 200, 640);
         }
 
         // Music options
@@ -2838,28 +2726,28 @@ void select_configure()
           byColor_10 = 0xAB;
         else
           byColor_10 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[2944], font1_ascii, font1_offsets, 425, 224, byColor_10, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[2944], font1_ascii, font1_offsets, 425, 224, byColor_10, 2u, 200, 640);
         if (musicon) {
           if (iVolumeSelection == 7)
             byColor_11 = 0xAB;
           else
             byColor_11 = 0x8F;
           // ON
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 430, 224, byColor_11, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 430, 224, byColor_11, 0, 200, 640);
         } else if (MusicCard || MusicCD) {
           if (iVolumeSelection == 7)
             byColor_12 = 0xAB;
           else
             byColor_12 = 0x8F;
           // OFF
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 430, 224, byColor_12, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 430, 224, byColor_12, 0, 200, 640);
         } else {
           if (iVolumeSelection == 7)
             byColor_13 = 0xAB;
           else
             byColor_13 = 0x8F;
           // DISABLED
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[6848], font1_ascii, font1_offsets, 430, 224, byColor_13, musicon, 200, 640);
+          scale_text(front_vga[15], &config_buffer[6848], font1_ascii, font1_offsets, 430, 224, byColor_13, musicon, 200, 640);
         }
 
         // Back option
@@ -2867,7 +2755,7 @@ void select_configure()
           byColor_14 = 0x8F;
         else
           byColor_14 = 0xAB;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 248, byColor_14, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 248, byColor_14, 2u, 200, 640);
 
         // Display volume bars
         if (iVolumeSelection == 1)
@@ -2934,15 +2822,15 @@ void select_configure()
         // Display calibration instructions when active
         if (iConfigState == 3) {
           // MOVE JOYSTICKS TO FULL EXTENTS
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2112], font1_ascii, font1_offsets, 400, 60, 143, 1u, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2112], font1_ascii, font1_offsets, 400, 60, 143, 1u, 200, 640);
           // THEN PRESS ANY KEY
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2176], font1_ascii, font1_offsets, 400, 78, 143, 1u, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2176], font1_ascii, font1_offsets, 400, 78, 143, 1u, 200, 640);
         }
 
         iConfigState_1 = iConfigState;
 
         // X1 axis display
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1728], font1_ascii, font1_offsets, 400, 110, 143, 1u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[1728], font1_ascii, font1_offsets, 400, 110, 143, 1u, 200, 640);
         if (iConfigState_1 == 3) {
           // Show calibration bar
           if (x1ok && JAXmax - JAXmin >= 100)
@@ -2956,11 +2844,11 @@ void select_configure()
             szJoyStatus1 = &config_buffer[2048];
           else
             szJoyStatus1 = &config_buffer[1984];
-          scale_text((tBlockHeader *)front_vga[15], szJoyStatus1, font1_ascii, font1_offsets, 400, 128, 143, 1u, 200, 640);
+          scale_text(front_vga[15], szJoyStatus1, font1_ascii, font1_offsets, 400, 128, 143, 1u, 200, 640);
         }
 
         // Y1 axis display
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1792], font1_ascii, font1_offsets, 400, 160, 143, 1u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[1792], font1_ascii, font1_offsets, 400, 160, 143, 1u, 200, 640);
         if (iConfigState == 3) {
           // Show Calibration bar
           if (y1ok && JAYmax - JAYmin >= 100)
@@ -2974,11 +2862,11 @@ void select_configure()
             szJoyStatus2 = &config_buffer[2048];
           else
             szJoyStatus2 = &config_buffer[1984];
-          scale_text((tBlockHeader *)front_vga[15], szJoyStatus2, font1_ascii, font1_offsets, 400, 178, 143, 1u, 200, 640);
+          scale_text(front_vga[15], szJoyStatus2, font1_ascii, font1_offsets, 400, 178, 143, 1u, 200, 640);
         }
 
         // X2 axis display
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1856], font1_ascii, font1_offsets, 400, 210, 143, 1u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[1856], font1_ascii, font1_offsets, 400, 210, 143, 1u, 200, 640);
         if (iConfigState == 3) {
           // Calibration bar
           if (x2ok && JBXmax - JBXmin >= 100)
@@ -2992,13 +2880,13 @@ void select_configure()
             szX2Text = &config_buffer[2048];
           else
             szX2Text = &config_buffer[1984];
-          scale_text((tBlockHeader *)front_vga[15], szX2Text, font1_ascii, font1_offsets, 400, 228, 143, 1u, 200, 640);
+          scale_text(front_vga[15], szX2Text, font1_ascii, font1_offsets, 400, 228, 143, 1u, 200, 640);
         }
 
         iConfigState_2 = iConfigState;
 
         // Y2 axis display
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[1920], font1_ascii, font1_offsets, 400, 260, 143, 1u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[1920], font1_ascii, font1_offsets, 400, 260, 143, 1u, 200, 640);
         if (iConfigState_2 == 3) {
           // Calibration bar
           if (y2ok && JBYmax - JBYmin >= 100)
@@ -3012,7 +2900,7 @@ void select_configure()
             szY2Text = &config_buffer[2048];
           else
             szY2Text = &config_buffer[1984];
-          scale_text((tBlockHeader *)front_vga[15], szY2Text, font1_ascii, font1_offsets, 400, 278, 143, 1u, 200, 640);
+          scale_text(front_vga[15], szY2Text, font1_ascii, font1_offsets, 400, 278, 143, 1u, 200, 640);
         }
         goto RENDER_FRAME;
       case 3:
@@ -3047,7 +2935,7 @@ void select_configure()
             byColor_19 = 0xAB;
           else
             byColor_19 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 60, byColor_19, 1u, 200, 640);
+          scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 420, 60, byColor_19, 1u, 200, 640);
 
           // Player 2 customize controls option
           if (iControlSelection == 3)
@@ -3055,7 +2943,7 @@ void select_configure()
           else
             byColor_20 = 0x8F;
           // CUSTOMIZE PLAYER 2
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[704], font1_ascii, font1_offsets, 420, 78, byColor_20, 1u, 200, 640);
+          scale_text(front_vga[15], &config_buffer[704], font1_ascii, font1_offsets, 420, 78, byColor_20, 1u, 200, 640);
         }
 
         // Display player 1 controls
@@ -3067,21 +2955,21 @@ void select_configure()
           byColor_21 = 0xAB;
         else
           byColor_21 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 420, 96, byColor_21, 1u, 200, 640);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 420, 96, byColor_21, 1u, 200, 640);
         // Player 1 customize controls option
         if (iControlSelection == 1)
           byColor_22 = 0xAB;
         else
           byColor_22 = 0x8F;
         // CUSTOMIZE PLAYER 1
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[768], font1_ascii, font1_offsets, 420, 114, byColor_22, 1u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[768], font1_ascii, font1_offsets, 420, 114, byColor_22, 1u, 200, 640);
 
         // Back option
         if (iControlSelection)
           byColor_23 = 0x8F;
         else
           byColor_23 = 0xAB;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 132, byColor_23, 1u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 420, 132, byColor_23, 1u, 200, 640);
 
         // Display player 1 control customization screen
         if (iControlSelection == 1 || iControlSelection == 2) {
@@ -3094,12 +2982,12 @@ void select_configure()
               byControlColor = 0xAB;
             else
               byControlColor = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], szControlName, font1_ascii, font1_offsets, 475, iY_1, byControlColor, 2u);
+            front_text(front_vga[15], szControlName, font1_ascii, font1_offsets, 475, iY_1, byControlColor, 2u);
             if (iControlLoop == control_edit)
               byColor_24 = 0xAB;
             else
               byColor_24 = 0x8F;
-            scale_text((tBlockHeader *)front_vga[15], keyname[userkey[iControlLoop]], font1_ascii, font1_offsets, 480, iY_1, byColor_24, 0, 200, 640);
+            scale_text(front_vga[15], keyname[userkey[iControlLoop]], font1_ascii, font1_offsets, 480, iY_1, byColor_24, 0, 200, 640);
             szControlName += 64;                // next control name
             ++iControlLoop;
             iY_1 += 18;
@@ -3109,12 +2997,12 @@ void select_configure()
               byColor_25 = 0xAB;
             else
               byColor_25 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], "CHEAT:", font1_ascii, font1_offsets, 475, 308, byColor_25, 2u);
+            front_text(front_vga[15], "CHEAT:", font1_ascii, font1_offsets, 475, 308, byColor_25, 2u);
             if (control_edit == 12)
               byColor_26 = 0xAB;
             else
               byColor_26 = 0x8F;
-            scale_text((tBlockHeader *)front_vga[15], keyname[userkey[12]], font1_ascii, font1_offsets, 480, 308, byColor_26, 0, 200, 640);
+            scale_text(front_vga[15], keyname[userkey[12]], font1_ascii, font1_offsets, 480, 308, byColor_26, 0, 200, 640);
           }
         }
         // Display Player 2 control customization screen
@@ -3128,12 +3016,12 @@ void select_configure()
               byColor_27 = 0xAB;
             else
               byColor_27 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], szText, font1_ascii, font1_offsets, 475, iY_2, byColor_27, 2u);
+            front_text(front_vga[15], szText, font1_ascii, font1_offsets, 475, iY_2, byColor_27, 2u);
             if (iControlIndex2 == control_edit)
               byColor_28 = 0xAB;
             else
               byColor_28 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], keyname[userkey[iControlIndex2]], font1_ascii, font1_offsets, 480, iY_2, byColor_28, 0);
+            front_text(front_vga[15], keyname[userkey[iControlIndex2]], font1_ascii, font1_offsets, 480, iY_2, byColor_28, 0);
             szText += 64;                       // Next control name
             ++iControlIndex2;
             iY_2 += 18;
@@ -3145,12 +3033,12 @@ void select_configure()
               byColor_29 = 0xAB;
             else
               byColor_29 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], "CHEAT:", font1_ascii, font1_offsets, 475, 308, byColor_29, 2u);
+            front_text(front_vga[15], "CHEAT:", font1_ascii, font1_offsets, 475, 308, byColor_29, 2u);
             if (control_edit == 13)
               byColor_30 = 0xAB;
             else
               byColor_30 = 0x8F;
-            front_text((tBlockHeader *)front_vga[15], keyname[userkey[13]], font1_ascii, font1_offsets, 480, 308, byColor_30, 0);
+            front_text(front_vga[15], keyname[userkey[13]], font1_ascii, font1_offsets, 480, 308, byColor_30, 0);
           }
         }
 
@@ -4193,7 +4081,7 @@ void select_configure()
           byColor_31 = 0xAB;
         else
           byColor_31 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[6912], font1_ascii, font1_offsets, 435, 60, byColor_31, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[6912], font1_ascii, font1_offsets, 435, 60, byColor_31, 2u, 200, 640);
         if ((textures_off & 0x80000) != 0) {
           if (iVideoState == 16)
             byColor_32 = 0xAB;
@@ -4209,261 +4097,261 @@ void select_configure()
           byTempChar1 = byColor_33;
           szText_1 = &config_buffer[2624];
         }
-        scale_text((tBlockHeader *)front_vga[15], szText_1, font1_ascii, font1_offsets, 440, 60, byTempChar1, 0, 200, 640);
+        scale_text(front_vga[15], szText_1, font1_ascii, font1_offsets, 440, 60, byTempChar1, 0, 200, 640);
         sprintf(buffer, "%s:", &config_buffer[3968]);
         if (iVideoState == 15)
           byColor_34 = 0xAB;
         else
           byColor_34 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 435, 80, byColor_34, 2u, 200, 640);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 435, 80, byColor_34, 2u, 200, 640);
         if (names_on) {
           if (names_on == 2) {
             if (iVideoState == 15)
               byColor_105 = 0xAB;
             else
               byColor_105 = 0x8F;
-            scale_text((tBlockHeader *)front_vga[15], &config_buffer[2816], font1_ascii, font1_offsets, 440, 80, byColor_105, 0, 200, 640);
+            scale_text(front_vga[15], &config_buffer[2816], font1_ascii, font1_offsets, 440, 80, byColor_105, 0, 200, 640);
           } else {
             if (iVideoState == 15)
               byColor_35 = 0xAB;
             else
               byColor_35 = 0x8F;
-            scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 80, byColor_35, 0, 200, 640);
+            scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 80, byColor_35, 0, 200, 640);
           }
         } else {
           if (iVideoState == 15)
             byColor_36 = 0xAB;
           else
             byColor_36 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 80, byColor_36, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 80, byColor_36, 0, 200, 640);
         }
         if (iVideoState == 14)
           byColor_37 = 0xAB;
         else
           byColor_37 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3008], font1_ascii, font1_offsets, 435, 100, byColor_37, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3008], font1_ascii, font1_offsets, 435, 100, byColor_37, 2u, 200, 640);
         if ((textures_off & 0x200) != 0) {
           if (iVideoState == 14)
             byColor_38 = 0xAB;
           else
             byColor_38 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 100, byColor_38, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 100, byColor_38, 0, 200, 640);
         } else {
           if (iVideoState == 14)
             byColor_39 = 0xAB;
           else
             byColor_39 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 100, byColor_39, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 100, byColor_39, 0, 200, 640);
         }
         if (iVideoState == 13)
           byColor_40 = 0xAB;
         else
           byColor_40 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3072], font1_ascii, font1_offsets, 435, 120, byColor_40, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3072], font1_ascii, font1_offsets, 435, 120, byColor_40, 2u, 200, 640);
         if ((textures_off & 0x800) != 0) {
           if (iVideoState == 13)
             byColor_41 = 0xAB;
           else
             byColor_41 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 120, byColor_41, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 120, byColor_41, 0, 200, 640);
         } else {
           if (iVideoState == 13)
             byColor_42 = 0xAB;
           else
             byColor_42 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 120, byColor_42, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 120, byColor_42, 0, 200, 640);
         }
         if (iVideoState == 12)
           byColor_43 = 0xAB;
         else
           byColor_43 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3200], font1_ascii, font1_offsets, 435, 140, byColor_43, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3200], font1_ascii, font1_offsets, 435, 140, byColor_43, 2u, 200, 640);
         if ((textures_off & 0x10) != 0) {
           if (iVideoState == 12)
             byColor_44 = 0xAB;
           else
             byColor_44 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 140, byColor_44, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 140, byColor_44, 0, 200, 640);
         } else {
           if (iVideoState == 12)
             byColor_45 = 0xAB;
           else
             byColor_45 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 140, byColor_45, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 140, byColor_45, 0, 200, 640);
         }
         if (iVideoState == 11)
           byColor_46 = 0xAB;
         else
           byColor_46 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3136], font1_ascii, font1_offsets, 435, 160, byColor_46, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3136], font1_ascii, font1_offsets, 435, 160, byColor_46, 2u, 200, 640);
         if ((textures_off & 0x40) != 0) {
           if (iVideoState == 11)
             byColor_47 = 0xAB;
           else
             byColor_47 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 160, byColor_47, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 160, byColor_47, 0, 200, 640);
         } else {
           if (iVideoState == 11)
             byColor_48 = 0xAB;
           else
             byColor_48 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 160, byColor_48, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 160, byColor_48, 0, 200, 640);
         }
         if (iVideoState == 10)
           byColor_49 = 0xAB;
         else
           byColor_49 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3264], font1_ascii, font1_offsets, 435, 180, byColor_49, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3264], font1_ascii, font1_offsets, 435, 180, byColor_49, 2u, 200, 640);
         if ((textures_off & 4) != 0) {
           if (iVideoState == 10)
             byColor_50 = 0xAB;
           else
             byColor_50 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 180, byColor_50, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 180, byColor_50, 0, 200, 640);
         } else {
           if (iVideoState == 10)
             byColor_51 = 0xAB;
           else
             byColor_51 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 180, byColor_51, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 180, byColor_51, 0, 200, 640);
         }
         if (iVideoState == 9)
           byColor_52 = 0xAB;
         else
           byColor_52 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3328], font1_ascii, font1_offsets, 435, 200, byColor_52, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3328], font1_ascii, font1_offsets, 435, 200, byColor_52, 2u, 200, 640);
         if ((textures_off & 1) != 0) {
           if (iVideoState == 9)
             byColor_53 = 0xAB;
           else
             byColor_53 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 200, byColor_53, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 200, byColor_53, 0, 200, 640);
         } else {
           if (iVideoState == 9)
             byColor_54 = 0xAB;
           else
             byColor_54 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 200, byColor_54, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 200, byColor_54, 0, 200, 640);
         }
         if (iVideoState == 8)
           byColor_55 = 0xAB;
         else
           byColor_55 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3392], font1_ascii, font1_offsets, 435, 220, byColor_55, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3392], font1_ascii, font1_offsets, 435, 220, byColor_55, 2u, 200, 640);
         if ((textures_off & 0x80u) == 0) {
           if (iVideoState == 8)
             byColor_56 = 0xAB;
           else
             byColor_56 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 220, byColor_56, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 220, byColor_56, 0, 200, 640);
         } else {
           if (iVideoState == 8)
             byColor_57 = 0xAB;
           else
             byColor_57 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 220, byColor_57, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 220, byColor_57, 0, 200, 640);
         }
         if (iVideoState == 7)
           byColor_58 = 0xAB;
         else
           byColor_58 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3456], font1_ascii, font1_offsets, 435, 240, byColor_58, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3456], font1_ascii, font1_offsets, 435, 240, byColor_58, 2u, 200, 640);
         if ((textures_off & 2) != 0) {
           if (iVideoState == 7)
             byColor_59 = 0xAB;
           else
             byColor_59 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 240, byColor_59, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 240, byColor_59, 0, 200, 640);
         } else {
           if (iVideoState == 7)
             byColor_60 = 0xAB;
           else
             byColor_60 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 240, byColor_60, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 240, byColor_60, 0, 200, 640);
         }
         if (iVideoState == 6)
           byColor_61 = 0xAB;
         else
           byColor_61 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3520], font1_ascii, font1_offsets, 435, 260, byColor_61, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3520], font1_ascii, font1_offsets, 435, 260, byColor_61, 2u, 200, 640);
         if ((textures_off & 0x100) != 0) {
           if (iVideoState == 6)
             byColor_62 = 0xAB;
           else
             byColor_62 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 260, byColor_62, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 260, byColor_62, 0, 200, 640);
         } else {
           if (iVideoState == 6)
             byColor_63 = 0xAB;
           else
             byColor_63 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 260, byColor_63, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 260, byColor_63, 0, 200, 640);
         }
         if (iVideoState == 5)
           byColor_64 = 0xAB;
         else
           byColor_64 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3584], font1_ascii, font1_offsets, 435, 280, byColor_64, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3584], font1_ascii, font1_offsets, 435, 280, byColor_64, 2u, 200, 640);
         if ((textures_off & 8) != 0) {
           if (iVideoState == 5)
             byColor_65 = 0xAB;
           else
             byColor_65 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 280, byColor_65, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 280, byColor_65, 0, 200, 640);
         } else {
           if (iVideoState == 5)
             byColor_66 = 0xAB;
           else
             byColor_66 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 280, byColor_66, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 280, byColor_66, 0, 200, 640);
         }
         if (iVideoState == 4)
           byColor_67 = 0xAB;
         else
           byColor_67 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3648], font1_ascii, font1_offsets, 435, 300, byColor_67, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3648], font1_ascii, font1_offsets, 435, 300, byColor_67, 2u, 200, 640);
         if ((textures_off & 0x20) != 0) {
           if (iVideoState == 4)
             byColor_68 = 0xAB;
           else
             byColor_68 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 300, byColor_68, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 300, byColor_68, 0, 200, 640);
         } else if ((textures_off & 0x40000) != 0) {
           if (iVideoState == 4)
             byColor_69 = 0xAB;
           else
             byColor_69 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[3776], font1_ascii, font1_offsets, 440, 300, byColor_69, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[3776], font1_ascii, font1_offsets, 440, 300, byColor_69, 0, 200, 640);
         } else {
           if (iVideoState == 4)
             byColor_70 = 0xAB;
           else
             byColor_70 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 300, byColor_70, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 300, byColor_70, 0, 200, 640);
         }
         if (iVideoState == 3)
           byColor_71 = 0xAB;
         else
           byColor_71 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3712], font1_ascii, font1_offsets, 435, 320, byColor_71, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3712], font1_ascii, font1_offsets, 435, 320, byColor_71, 2u, 200, 640);
         if (view_limit) {
           if (iVideoState == 3)
             byColor_72 = 0xAB;
           else
             byColor_72 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[3776], font1_ascii, font1_offsets, 440, 320, byColor_72, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[3776], font1_ascii, font1_offsets, 440, 320, byColor_72, 0, 200, 640);
         } else {
           if (iVideoState == 3)
             byColor_73 = 0xAB;
           else
             byColor_73 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[3840], font1_ascii, font1_offsets, 440, 320, byColor_73, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[3840], font1_ascii, font1_offsets, 440, 320, byColor_73, 0, 200, 640);
         }
         if (iVideoState == 2)
           byColor_74 = 0xAB;
         else
           byColor_74 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[3904], font1_ascii, font1_offsets, 435, 340, byColor_74, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[3904], font1_ascii, font1_offsets, 435, 340, byColor_74, 2u, 200, 640);
         if (game_svga)
           iReturnValue = (100 * game_size) % 128;
           //iReturnValue = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 7) + ((100 * game_size) >> 31 << 7))) >> 7;
@@ -4475,25 +4363,25 @@ void select_configure()
           byColor_76 = 0xAB;
         else
           byColor_76 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 440, 340, byColor_76, 0, 200, 640);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 440, 340, byColor_76, 0, 200, 640);
         if (game_svga) {
           if (iVideoState == 1)
             byColor_75 = 0xAB;
           else
             byColor_75 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[512], font1_ascii, font1_offsets, 440, 360, byColor_75, 1u, 20, 640);
+          scale_text(front_vga[15], &config_buffer[512], font1_ascii, font1_offsets, 440, 360, byColor_75, 1u, 20, 640);
         } else {
           if (iVideoState == 1)
             byColor_77 = 0xAB;
           else
             byColor_77 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[448], font1_ascii, font1_offsets, 440, 360, byColor_77, 1u, 200, 640);
+          scale_text(front_vga[15], &config_buffer[448], font1_ascii, font1_offsets, 440, 360, byColor_77, 1u, 200, 640);
         }
         if (iVideoState)
           byColor_78 = 0x8F;
         else
           byColor_78 = 0xAB;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 430, 380, byColor_78, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 430, 380, byColor_78, 2u, 200, 640);
         goto RENDER_FRAME;
       case 5:
         if (iConfigState != 6)
@@ -4504,101 +4392,101 @@ void select_configure()
             byColor_79 = 0xAB;
           else
             byColor_79 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 435, 78, byColor_79, 2u, 200, 640);
+          scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 435, 78, byColor_79, 2u, 200, 640);
           if (iGraphicsState == 6)
             byColor_80 = 0xAB;
           else
             byColor_80 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[64 * game_view[1] + 4928], font1_ascii, font1_offsets, 440, 78, byColor_80, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[64 * game_view[1] + 4928], font1_ascii, font1_offsets, 440, 78, byColor_80, 0, 200, 640);
         }
         sprintf(buffer, "%s %s", &config_buffer[4416], &config_buffer[4864]);
         if (iGraphicsState == 5)
           byColor_81 = 0xAB;
         else
           byColor_81 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 435, 96, byColor_81, 2u, 200, 640);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 435, 96, byColor_81, 2u, 200, 640);
         if (iGraphicsState == 5)
           byColor_82 = 0xAB;
         else
           byColor_82 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[64 * game_view[0] + 4928], font1_ascii, font1_offsets, 440, 96, byColor_82, 0, 200, 640);
+        scale_text(front_vga[15], &config_buffer[64 * game_view[0] + 4928], font1_ascii, font1_offsets, 440, 96, byColor_82, 0, 200, 640);
         if (iGraphicsState == 4)
           byColor_83 = 0xAB;
         else
           byColor_83 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[5440], font1_ascii, font1_offsets, 435, 114, byColor_83, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[5440], font1_ascii, font1_offsets, 435, 114, byColor_83, 2u, 200, 640);
         if ((textures_off & 0x400) != 0) {
           if (iGraphicsState == 4)
             byColor_84 = 0xAB;
           else
             byColor_84 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], "KMH", font1_ascii, font1_offsets, 440, 114, byColor_84, 0, 200, 640);
+          scale_text(front_vga[15], "KMH", font1_ascii, font1_offsets, 440, 114, byColor_84, 0, 200, 640);
         } else {
           if (iGraphicsState == 4)
             byColor_85 = 0xAB;
           else
             byColor_85 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], "MPH", font1_ascii, font1_offsets, 440, 114, byColor_85, 0, 200, 640);
+          scale_text(front_vga[15], "MPH", font1_ascii, font1_offsets, 440, 114, byColor_85, 0, 200, 640);
         }
         if (iGraphicsState == 3)
           byColor_86 = 0xAB;
         else
           byColor_86 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[5504], font1_ascii, font1_offsets, 435, 132, byColor_86, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[5504], font1_ascii, font1_offsets, 435, 132, byColor_86, 2u, 200, 640);
         if (replay_record) {
           if (iGraphicsState == 3)
             byColor_87 = 0xAB;
           else
             byColor_87 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 132, byColor_87, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 132, byColor_87, 0, 200, 640);
         } else {
           if (iGraphicsState == 3)
             byColor_88 = 0xAB;
           else
             byColor_88 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 132, byColor_88, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 132, byColor_88, 0, 200, 640);
         }
         if (iGraphicsState == 2)
           byColor_89 = 0xAB;
         else
           byColor_89 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[4672], font1_ascii, font1_offsets, 435, 150, byColor_89, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[4672], font1_ascii, font1_offsets, 435, 150, byColor_89, 2u, 200, 640);
         if (p_tex_size == 1) {
           if (iGraphicsState == 2)
             byColor_90 = 0xAB;
           else
             byColor_90 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[4736], font1_ascii, font1_offsets, 440, 150, byColor_90, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[4736], font1_ascii, font1_offsets, 440, 150, byColor_90, 0, 200, 640);
         } else {
           if (iGraphicsState == 2)
             byColor_91 = 0xAB;
           else
             byColor_91 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[4800], font1_ascii, font1_offsets, 440, 150, byColor_91, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[4800], font1_ascii, font1_offsets, 440, 150, byColor_91, 0, 200, 640);
         }
         if (iGraphicsState == 1)
           byColor_92 = 0xAB;
         else
           byColor_92 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[5888], font1_ascii, font1_offsets, 435, 168, byColor_92, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[5888], font1_ascii, font1_offsets, 435, 168, byColor_92, 2u, 200, 640);
         if (false_starts) {
           if (iGraphicsState == 1)
             byColor_93 = 0xAB;
           else
             byColor_93 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 168, byColor_93, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2624], font1_ascii, font1_offsets, 440, 168, byColor_93, 0, 200, 640);
         } else {
           if (iGraphicsState == 1)
             byColor_94 = 0xAB;
           else
             byColor_94 = 0x8F;
-          scale_text((tBlockHeader *)front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 168, byColor_94, 0, 200, 640);
+          scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 168, byColor_94, 0, 200, 640);
         }
         if (iGraphicsState)
           byColor_95 = 0x8F;
         else
           byColor_95 = 0xAB;
-        scale_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 430, 186, byColor_95, 2u, 200, 640);
+        scale_text(front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 430, 186, byColor_95, 2u, 200, 640);
         goto RENDER_FRAME;
       case 6:
         if (iEditingName == 1) {
@@ -4628,56 +4516,56 @@ void select_configure()
           byColor_106 = byColor_97;
         else
           byColor_106 = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &language_buffer[7296], font1_ascii, font1_offsets, 390, 50, byColor_106, 1u);
+        front_text(front_vga[15], &language_buffer[7296], font1_ascii, font1_offsets, 390, 50, byColor_106, 1u);
         if (iNetworkState == 4)
           byColor_98 = byColor_97;
         else
           byColor_98 = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &config_buffer[5632], font1_ascii, font1_offsets, 385, 68, byColor_98, 2u);
+        front_text(front_vga[15], &config_buffer[5632], font1_ascii, font1_offsets, 385, 68, byColor_98, 2u);
         if (iNetworkState == 4)
           byColor_99 = byColor_96;
         else
           byColor_99 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], network_messages[0], font1_ascii, font1_offsets, 390, 68, byColor_99, 0, 200, 630);
+        scale_text(front_vga[15], network_messages[0], font1_ascii, font1_offsets, 390, 68, byColor_99, 0, 200, 630);
         if (iNetworkState == 3)
           byColor_100 = byColor_97;
         else
           byColor_100 = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &config_buffer[5696], font1_ascii, font1_offsets, 385, 86, byColor_100, 2u);
+        front_text(front_vga[15], &config_buffer[5696], font1_ascii, font1_offsets, 385, 86, byColor_100, 2u);
         if (iNetworkState == 3)
           byColor_101 = byColor_96;
         else
           byColor_101 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], network_messages[1], font1_ascii, font1_offsets, 390, 86, byColor_101, 0, 200, 630);
+        scale_text(front_vga[15], network_messages[1], font1_ascii, font1_offsets, 390, 86, byColor_101, 0, 200, 630);
         if (iNetworkState == 2)
           byColor_102 = byColor_97;
         else
           byColor_102 = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &config_buffer[5760], font1_ascii, font1_offsets, 385, 104, byColor_102, 2u);
+        front_text(front_vga[15], &config_buffer[5760], font1_ascii, font1_offsets, 385, 104, byColor_102, 2u);
         if (iNetworkState == 2)
           byColor_103 = byColor_96;
         else
           byColor_103 = 0x8F;
-        scale_text((tBlockHeader *)front_vga[15], network_messages[2], font1_ascii, font1_offsets, 390, 104, byColor_103, 0, 200, 630);
+        scale_text(front_vga[15], network_messages[2], font1_ascii, font1_offsets, 390, 104, byColor_103, 0, 200, 630);
         if (iNetworkState == 1)
           byColor_104 = byColor_97;
         else
           byColor_104 = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &config_buffer[5824], font1_ascii, font1_offsets, 385, 122, byColor_104, 2u);
+        front_text(front_vga[15], &config_buffer[5824], font1_ascii, font1_offsets, 385, 122, byColor_104, 2u);
         if (iNetworkState != 1)
           byColor_96 = 0x8F;
         byTempChar2 = byColor_96;
         iNetworkState_1 = iNetworkState;
-        scale_text((tBlockHeader *)front_vga[15], network_messages[3], font1_ascii, font1_offsets, 390, 122, byTempChar2, 0, 200, 630);
+        scale_text(front_vga[15], network_messages[3], font1_ascii, font1_offsets, 390, 122, byTempChar2, 0, 200, 630);
         if (iNetworkState_1)
           byColor_97 = 0x8F;
-        front_text((tBlockHeader *)front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 390, 140, byColor_97, 1u);
+        front_text(front_vga[15], &config_buffer[832], font1_ascii, font1_offsets, 390, 140, byColor_97, 1u);
         if (iEditingName == 1 && (frames & 0xFu) < 8) {
           iX = stringwidth(network_messages[4 - iNetworkState]) + 390;
           if (iX <= 620)
-            front_text((tBlockHeader *)front_vga[15], "_", font1_ascii, font1_offsets, iX, iY, 0xABu, 0);
+            front_text(front_vga[15], "_", font1_ascii, font1_offsets, iX, iY, 0xABu, 0);
           else
-            front_text((tBlockHeader *)front_vga[15], "_", font1_ascii, font1_offsets, 621, iY, 0xABu, 0);
+            front_text(front_vga[15], "_", font1_ascii, font1_offsets, 621, iY, 0xABu, 0);
         }
         goto RENDER_FRAME;
       default:
@@ -4807,36 +4695,16 @@ void select_players()
         network_champ_on = 0;
     }
     display_picture(scrbuf, front_vga[0]);
-    display_block(scrbuf, (tBlockHeader *)front_vga[1], 3, head_x, head_y, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], uiSelectedPlayerType, -4, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[4], 4, 76, 257, -1);
-    display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+    display_block(scrbuf, front_vga[1], 3, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[5], uiSelectedPlayerType, -4, 247, 0);
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, front_vga[4], 4, 76, 257, -1);
+    display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
     if (iNetworkStatus && (uiSelectedPlayerType == 1 || uiSelectedPlayerType == 3 || uiSelectedPlayerType == 4))// Show connection status message for network modes
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[4992],
-        font1_ascii,
-        font1_offsets,
-        400,
-        300,
-        231,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[4992], font1_ascii, font1_offsets, 400, 300, 231, 1u, 200, 640);
     if ((uiSelectedPlayerType == 3 || uiSelectedPlayerType == 4) && !iComPortStatus)// Show COM port error message if networking failed to initialize
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[8064],
-        font1_ascii,
-        font1_offsets,
-        400,
-        300,
-        231,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[8064], font1_ascii, font1_offsets, 400, 300, 231, 1u, 200, 640);
     do {
       uiCheatArrayOffset = broadcast_mode;
       UpdateSDL();
@@ -4882,42 +4750,12 @@ void select_players()
       }
       if (net_type) {
         if ((unsigned int)net_type <= 1) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[5056],
-            font1_ascii,
-            font1_offsets,
-            400,
-            60,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[5056], font1_ascii, font1_offsets, 400, 60, 143, 1u, 200, 640);
         } else if (net_type == 2) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[5120],
-            font1_ascii,
-            font1_offsets,
-            400,
-            60,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[5120], font1_ascii, font1_offsets, 400, 60, 143, 1u, 200, 640);
         }
       } else {
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4096],
-          font1_ascii,
-          font1_offsets,
-          400,
-          60,
-          143,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[4096], font1_ascii, font1_offsets, 400, 60, 143, 1u, 200, 640);
       }
       iPlayerListCount = 0;
       if (network_on > 0)                     // Display connected players and their selected cars
@@ -4926,32 +4764,12 @@ void select_players()
         iY = 80;
         szText = player_names[0];
         do {
-          scale_text((tBlockHeader *)front_vga[15], szText, font1_ascii, font1_offsets, 336, iY, 143, 2u, 200, 640);
+          scale_text(front_vga[15], szText, font1_ascii, font1_offsets, 336, iY, 143, 2u, 200, 640);
           iPlayerCarIndex = Players_Cars[iPlayerIndex];
           if (iPlayerCarIndex < 0)
-            scale_text(
-              (tBlockHeader *)front_vga[15],
-              &language_buffer[4160],
-              font1_ascii,
-              font1_offsets,
-              340,
-              iY,
-              131,
-              0,
-              200,
-              640);
+            scale_text(front_vga[15], &language_buffer[4160], font1_ascii, font1_offsets, 340, iY, 131, 0, 200, 640);
           else
-            scale_text(
-              (tBlockHeader *)front_vga[15],
-              CompanyNames[iPlayerCarIndex],
-              font1_ascii,
-              font1_offsets,
-              342,
-              iY,
-              143,
-              0,
-              200,
-              640);
+            scale_text(front_vga[15], CompanyNames[iPlayerCarIndex], font1_ascii, font1_offsets, 342, iY, 143, 0, 200, 640);
           ++iPlayerIndex;
           szText += 9;
           iY += 18;
@@ -4962,152 +4780,42 @@ void select_players()
       }
       if (net_type) {
         if ((unsigned int)net_type <= 1) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[5184],
-            font1_ascii,
-            font1_offsets,
-            400,
-            380,
-            231,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[5184], font1_ascii, font1_offsets, 400, 380, 231, 1u, 200, 640);
         } else if (net_type == 2) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[5248],
-            font1_ascii,
-            font1_offsets,
-            400,
-            380,
-            231,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[5248], font1_ascii, font1_offsets, 400, 380, 231, 1u, 200, 640);
         }
       } else {
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4224],
-          font1_ascii,
-          font1_offsets,
-          400,
-          380,
-          231,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[4224], font1_ascii, font1_offsets, 400, 380, 231, 1u, 200, 640);
       }
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[7104],
-        font1_ascii,
-        font1_offsets,
-        400,
-        360,
-        231,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[7104], font1_ascii, font1_offsets, 400, 360, 231, 1u, 200, 640);
     } else {
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[2944],
-        font1_ascii,
-        font1_offsets,
-        400,
-        75,
-        143,
-        1u,
-        200,
-        640);                                   // MENU MODE UI: Show player selection options with highlighting
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[3008],
-        font1_ascii,
-        font1_offsets,
-        400,
-        93,
-        143,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[2944], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// MENU MODE UI: Show player selection options with highlighting
+      scale_text(front_vga[15], &language_buffer[3008], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);
       if (uiSelectedPlayerType)               // Highlight current selection
         byMenuColor1 = 0x8F;
       else
         byMenuColor1 = 0xAB;
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[2112],
-        font1_ascii,
-        font1_offsets,
-        400,
-        135,
-        byMenuColor1,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[2112], font1_ascii, font1_offsets, 400, 135, byMenuColor1, 1u, 200, 640);
       if (uiSelectedPlayerType == 2)
         byMenuColor2 = 0xAB;
       else
         byMenuColor2 = 0x8F;
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[2240],
-        font1_ascii,
-        font1_offsets,
-        400,
-        153,
-        byMenuColor2,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[2240], font1_ascii, font1_offsets, 400, 153, byMenuColor2, 1u, 200, 640);
       if (uiSelectedPlayerType == 1)
         byMenuColor3 = 0xAB;
       else
         byMenuColor3 = 0x8F;
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[2176],
-        font1_ascii,
-        font1_offsets,
-        400,
-        171,
-        byMenuColor3,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[2176], font1_ascii, font1_offsets, 400, 171, byMenuColor3, 1u, 200, 640);
       if (uiSelectedPlayerType == 3)
         byMenuColor4 = 0xAB;
       else
         byMenuColor4 = 0x8F;
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[2304],
-        font1_ascii,
-        font1_offsets,
-        400,
-        189,
-        byMenuColor4,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[2304], font1_ascii, font1_offsets, 400, 189, byMenuColor4, 1u, 200, 640);
       if (uiSelectedPlayerType == 4)
         byMenuColor5 = 0xAB;
       else
         byMenuColor5 = 0x8F;
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[2368],
-        font1_ascii,
-        font1_offsets,
-        400,
-        207,
-        byMenuColor5,
-        1u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[2368], font1_ascii, font1_offsets, 400, 207, byMenuColor5, 1u, 200, 640);
     }
     show_received_mesage();
     copypic(scrbuf, screen);
@@ -5368,233 +5076,57 @@ void select_type()
         network_champ_on = 0;
     }
     display_picture(scrbuf, front_vga[0]);      // RENDER FRAME: Draw background, UI elements, and cup winner icon
-    display_block(scrbuf, (tBlockHeader *)front_vga[1], 4, head_x, head_y, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[6], 0, 36, 2, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], player_type, -4, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[5], game_type + 5, 135, 247, 0);
-    display_block(scrbuf, (tBlockHeader *)front_vga[4], 4, 76, 257, -1);
+    display_block(scrbuf, front_vga[1], 4, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[5], player_type, -4, 247, 0);
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, front_vga[4], 4, 76, 257, -1);
     if (cup_won && !iSkipColor)
-      display_block(scrbuf, (tBlockHeader *)front_vga[1], 8, 200, 56, 0);
+      display_block(scrbuf, front_vga[1], 8, 200, 56, 0);
     if (iCurrentOption >= 5)                  // Draw selection cursor or \"Random\" indicator (option 5 = Random)
     {
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 4, 62, 336, -1);
+      display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
     } else {
-      display_block(scrbuf, (tBlockHeader *)front_vga[6], 2, 62, 336, -1);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        "~",
-        font2_ascii,
-        font2_offsets,
-        sel_posns[iCurrentOption].x,
-        sel_posns[iCurrentOption].y,
-        0x8Fu,
-        0);
+      display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+      front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iCurrentOption].x, sel_posns[iCurrentOption].y, 0x8Fu, 0);
     }
     if (iSkipColor)                           // OPTION LABELS: Display main option categories (Game Type/Difficulty/etc.)
     {
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[3136],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[0].x + 132,
-        sel_posns[0].y + 7,
-        0x8Fu,
-        2u);
+      front_text(front_vga[2], &language_buffer[3136], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
     } else {
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[384],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[0].x + 132,
-        sel_posns[0].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[3200],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[1].x + 132,
-        sel_posns[1].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[3264],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[2].x + 132,
-        sel_posns[2].y + 7,
-        0x8Fu,
-        2u);
-      front_text(
-        (tBlockHeader *)front_vga[2],
-        &language_buffer[3328],
-        font2_ascii,
-        font2_offsets,
-        sel_posns[3].x + 132,
-        sel_posns[3].y + 7,
-        0x8Fu,
-        2u);
+      front_text(front_vga[2], &language_buffer[384], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], &language_buffer[3200], font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], &language_buffer[3264], font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+      front_text(front_vga[2], &language_buffer[3328], font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
       if (iCheatModesAvailable)
-        front_text(
-          (tBlockHeader *)front_vga[2],
-          &language_buffer[4288],
-          font2_ascii,
-          font2_offsets,
-          sel_posns[4].x + 132,
-          sel_posns[4].y + 7,
-          0x8Fu,
-          2u);
+        front_text(front_vga[2], &language_buffer[4288], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
     }
-    display_block(scrbuf, (tBlockHeader *)front_vga[14], iBlockIdx, 500, 300, 0);// Display cup icon corresponding to current track selection
+    display_block(scrbuf, front_vga[14], iBlockIdx, 500, 300, 0);// Display cup icon corresponding to current track selection
     if (iSkipColor)                           // CHAMPIONSHIP MODE UI: Show current settings and restrictions
     {
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[3392],
-        font1_ascii,
-        font1_offsets,
-        400,
-        75,
-        143,
-        1u,
-        200,
-        640);
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[1280],
-        font1_ascii,
-        font1_offsets,
-        400,
-        100,
-        143,
-        2u,
-        200,
-        640);
+      scale_text(front_vga[15], &language_buffer[3392], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);
+      scale_text(front_vga[15], &language_buffer[1280], font1_ascii, font1_offsets, 400, 100, 143, 2u, 200, 640);
       if ((cheat_mode & 2) != 0)
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[2048],
-          font1_ascii,
-          font1_offsets,
-          405,
-          100,
-          143,
-          0,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[2048], font1_ascii, font1_offsets, 405, 100, 143, 0, 200, 640);
       else
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[64 * level + 1472],
-          font1_ascii,
-          font1_offsets,
-          405,
-          100,
-          143,
-          0,
-          200,
-          640);
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[1344],
-        font1_ascii,
-        font1_offsets,
-        400,
-        118,
-        143,
-        2u,
-        200,
-        640);
+        scale_text(front_vga[15], &language_buffer[64 * level + 1472], font1_ascii, font1_offsets, 405, 100, 143, 0, 200, 640);
+      scale_text(front_vga[15], &language_buffer[1344], font1_ascii, font1_offsets, 400, 118, 143, 2u, 200, 640);
       if ((cheat_mode & 2) != 0)
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[2048],
-          font1_ascii,
-          font1_offsets,
-          405,
-          118,
-          143,
-          0,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[2048], font1_ascii, font1_offsets, 405, 118, 143, 0, 200, 640);
       else
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[64 * damage_level + 1856],
-          font1_ascii,
-          font1_offsets,
-          405,
-          118,
-          143,
-          0,
-          200,
-          640);
-      scale_text(
-        (tBlockHeader *)front_vga[15],
-        &language_buffer[1024],
-        font1_ascii,
-        font1_offsets,
-        400,
-        136,
-        143,
-        2u,
-        200,
-        640);
+        scale_text(front_vga[15], &language_buffer[64 * damage_level + 1856], font1_ascii, font1_offsets, 405, 118, 143, 0, 200, 640);
+      scale_text(front_vga[15], &language_buffer[1024], font1_ascii, font1_offsets, 400, 136, 143, 2u, 200, 640);
       if ((unsigned int)competitors < 8) {
         if (competitors == 2)
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1088],
-            font1_ascii,
-            font1_offsets,
-            405,
-            136,
-            143,
-            0,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1088], font1_ascii, font1_offsets, 405, 136, 143, 0, 200, 640);
       } else if ((unsigned int)competitors <= 8) {
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[1152],
-          font1_ascii,
-          font1_offsets,
-          405,
-          136,
-          143,
-          0,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[1152], font1_ascii, font1_offsets, 405, 136, 143, 0, 200, 640);
       } else if (competitors == 16) {
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[1216],
-          font1_ascii,
-          font1_offsets,
-          405,
-          136,
-          143,
-          0,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[1216], font1_ascii, font1_offsets, 405, 136, 143, 0, 200, 640);
       }
       if (network_on)                         // NETWORK MODE: Display connected players list
       {
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4672],
-          font1_ascii,
-          font1_offsets,
-          400,
-          154,
-          143,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[4672], font1_ascii, font1_offsets, 400, 154, 143, 1u, 200, 640);
         iNetworkPlayerCount = 0;
         if (players > 0) {
           szText = player_names[0];
@@ -5602,19 +5134,9 @@ void select_type()
           iNetworkDisplayY = 172;
           do {
             if (iNetworkPlayerCount >= 8)
-              scale_text((tBlockHeader *)front_vga[15], szText, font1_ascii, font1_offsets, 405, iY, 143, 0, 200, 640);
+              scale_text(front_vga[15], szText, font1_ascii, font1_offsets, 405, iY, 143, 0, 200, 640);
             else
-              scale_text(
-                (tBlockHeader *)front_vga[15],
-                szText,
-                font1_ascii,
-                font1_offsets,
-                400,
-                iNetworkDisplayY,
-                143,
-                2u,
-                200,
-                640);
+              scale_text(front_vga[15], szText, font1_ascii, font1_offsets, 400, iNetworkDisplayY, 143, 2u, 200, 640);
             szText += 9;
             iY += 18;
             iNetworkDisplayY += 18;
@@ -5629,29 +5151,9 @@ void select_type()
       case 0:
         if (!iSkipColor)                      // Option 0 - Game Type: Show race modes with highlighting for current selection
         {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[384],
-            font1_ascii,
-            font1_offsets,
-            400,
-            75,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[384], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);
           if (iMenuSelection == 1) {
-            scale_text(
-              (tBlockHeader *)front_vga[15],
-              &language_buffer[3584],
-              font1_ascii,
-              font1_offsets,
-              400,
-              93,
-              143,
-              1u,
-              200,
-              640);
+            scale_text(front_vga[15], &language_buffer[3584], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);
             byTextColor = -85;
           } else {
             byTextColor = -87;
@@ -5660,32 +5162,12 @@ void select_type()
             byGameModeColor1 = -113;
           else
             byGameModeColor1 = byTextColor;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[3648],
-            font1_ascii,
-            font1_offsets,
-            400,
-            135,
-            byGameModeColor1,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[3648], font1_ascii, font1_offsets, 400, 135, byGameModeColor1, 1u, 200, 640);
           if (game_type == 1)
             byGameModeColor2 = byTextColor;
           else
             byGameModeColor2 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[3520],
-            font1_ascii,
-            font1_offsets,
-            400,
-            153,
-            byGameModeColor2,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[3520], font1_ascii, font1_offsets, 400, 153, byGameModeColor2, 1u, 200, 640);
           if (game_type == 2)
             byGameModeColor3 = byTextColor;
           else
@@ -5696,17 +5178,7 @@ void select_type()
           goto LABEL_130;
         }
         if (iMenuSelection == 6) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[3456],
-            font1_ascii,
-            font1_offsets,
-            400,
-            320,
-            231,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[3456], font1_ascii, font1_offsets, 400, 320, 231, 1u, 200, 640);
           byFinalTextColor = -25;
           iTextYPosition = 338;
           pszTextBuffer = &language_buffer[3520];
@@ -5714,29 +5186,9 @@ void select_type()
         }
         break;
       case 1:
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[3776],
-          font1_ascii,
-          font1_offsets,
-          400,
-          75,
-          143,
-          1u,
-          200,
-          640);                                 // Option 1 - Difficulty: Show skill levels with cheat mode override
+        scale_text(front_vga[15], &language_buffer[3776], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// Option 1 - Difficulty: Show skill levels with cheat mode override
         if (iMenuSelection == 2) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[3840],
-            font1_ascii,
-            font1_offsets,
-            400,
-            93,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[3840], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);
           byDifficultyMenuColor = -85;
         } else {
           byDifficultyMenuColor = -87;
@@ -5746,77 +5198,27 @@ void select_type()
             byDifficultyColor1 = byDifficultyMenuColor;
           else
             byDifficultyColor1 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1792],
-            font1_ascii,
-            font1_offsets,
-            400,
-            135,
-            byDifficultyColor1,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1792], font1_ascii, font1_offsets, 400, 135, byDifficultyColor1, 1u, 200, 640);
           if (level == 4)
             byDifficultyColor2 = byDifficultyMenuColor;
           else
             byDifficultyColor2 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1728],
-            font1_ascii,
-            font1_offsets,
-            400,
-            153,
-            byDifficultyColor2,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1728], font1_ascii, font1_offsets, 400, 153, byDifficultyColor2, 1u, 200, 640);
           if (level == 3)
             byDifficultyColor3 = byDifficultyMenuColor;
           else
             byDifficultyColor3 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1664],
-            font1_ascii,
-            font1_offsets,
-            400,
-            171,
-            byDifficultyColor3,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1664], font1_ascii, font1_offsets, 400, 171, byDifficultyColor3, 1u, 200, 640);
           if (level == 2)
             byDifficultyColor4 = byDifficultyMenuColor;
           else
             byDifficultyColor4 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1600],
-            font1_ascii,
-            font1_offsets,
-            400,
-            189,
-            byDifficultyColor4,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1600], font1_ascii, font1_offsets, 400, 189, byDifficultyColor4, 1u, 200, 640);
           if (level == 1)
             byDifficultyColor5 = byDifficultyMenuColor;
           else
             byDifficultyColor5 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1536],
-            font1_ascii,
-            font1_offsets,
-            400,
-            207,
-            byDifficultyColor5,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1536], font1_ascii, font1_offsets, 400, 207, byDifficultyColor5, 1u, 200, 640);
           if (level)
             byDifficultyColor6 = -113;
           else
@@ -5826,42 +5228,12 @@ void select_type()
           pszTextBuffer = &language_buffer[1472];
           goto LABEL_130;
         }
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[2048],
-          font1_ascii,
-          font1_offsets,
-          400,
-          135,
-          byDifficultyMenuColor,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[2048], font1_ascii, font1_offsets, 400, 135, byDifficultyMenuColor, 1u, 200, 640);
         break;
       case 2:
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[3904],
-          font1_ascii,
-          font1_offsets,
-          400,
-          75,
-          143,
-          1u,
-          200,
-          640);                                 // Option 2 - Competitors: Show number of opponent cars (2/8/16 or \"Just Me\")
+        scale_text(front_vga[15], &language_buffer[3904], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// Option 2 - Competitors: Show number of opponent cars (2/8/16 or \"Just Me\")
         if (iMenuSelection == 3) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[3008],
-            font1_ascii,
-            font1_offsets,
-            400,
-            93,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[3008], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);
           byDamageMenuColor = -85;
         } else {
           byDamageMenuColor = -87;
@@ -5871,32 +5243,12 @@ void select_type()
             byCompetitorColor1 = byDamageMenuColor;
           else
             byCompetitorColor1 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1088],
-            font1_ascii,
-            font1_offsets,
-            400,
-            135,
-            byCompetitorColor1,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1088], font1_ascii, font1_offsets, 400, 135, byCompetitorColor1, 1u, 200, 640);
           if (competitors == 8)
             byCompetitorColor2 = byDamageMenuColor;
           else
             byCompetitorColor2 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1152],
-            font1_ascii,
-            font1_offsets,
-            400,
-            153,
-            byCompetitorColor2,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1152], font1_ascii, font1_offsets, 400, 153, byCompetitorColor2, 1u, 200, 640);
           if (competitors == 16)
             byCompetitorColor3 = byDamageMenuColor;
           else
@@ -5906,42 +5258,12 @@ void select_type()
           pszTextBuffer = &language_buffer[1216];
           goto LABEL_130;
         }
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[3968],
-          font1_ascii,
-          font1_offsets,
-          400,
-          135,
-          byDamageMenuColor,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[3968], font1_ascii, font1_offsets, 400, 135, byDamageMenuColor, 1u, 200, 640);
         break;
       case 3:
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4032],
-          font1_ascii,
-          font1_offsets,
-          400,
-          75,
-          143,
-          1u,
-          200,
-          640);                                 // Option 3 - Damage: Show car damage levels (None/Cosmetic/Realistic)
+        scale_text(front_vga[15], &language_buffer[4032], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640); // Option 3 - Damage: Show car damage levels (None/Cosmetic/Realistic)
         if (iMenuSelection == 4) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[3840],
-            font1_ascii,
-            font1_offsets,
-            400,
-            93,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[3840], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);
           byTextureMenuColor = -85;
         } else {
           byTextureMenuColor = -87;
@@ -5951,32 +5273,12 @@ void select_type()
             byDamageColor1 = -113;
           else
             byDamageColor1 = byTextureMenuColor;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1856],
-            font1_ascii,
-            font1_offsets,
-            400,
-            135,
-            byDamageColor1,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1856], font1_ascii, font1_offsets, 400, 135, byDamageColor1, 1u, 200, 640);
           if (damage_level == 1)
             byDamageColor2 = byTextureMenuColor;
           else
             byDamageColor2 = -113;
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[1920],
-            font1_ascii,
-            font1_offsets,
-            400,
-            153,
-            byDamageColor2,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[1920], font1_ascii, font1_offsets, 400, 153, byDamageColor2, 1u, 200, 640);
           if (damage_level == 2)
             byDamageColor3 = byTextureMenuColor;
           else
@@ -5986,42 +5288,12 @@ void select_type()
           pszTextBuffer = &language_buffer[1984];
           goto LABEL_130;
         }
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[2048],
-          font1_ascii,
-          font1_offsets,
-          400,
-          135,
-          byTextureMenuColor,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[2048], font1_ascii, font1_offsets, 400, 135, byTextureMenuColor, 1u, 200, 640);
         break;
       case 4:
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4288],
-          font1_ascii,
-          font1_offsets,
-          400,
-          75,
-          143,
-          1u,
-          200,
-          640);                                 // Option 4 - Textures: Show texture quality options (On/Off)
+        scale_text(front_vga[15], &language_buffer[4288], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// Option 4 - Textures: Show texture quality options (On/Off)
         if (iMenuSelection == 5) {
-          scale_text(
-            (tBlockHeader *)front_vga[15],
-            &language_buffer[4480],
-            font1_ascii,
-            font1_offsets,
-            400,
-            93,
-            143,
-            1u,
-            200,
-            640);
+          scale_text(front_vga[15], &language_buffer[4480], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);
           byCompetitorMenuColor = -85;
         } else {
           byCompetitorMenuColor = -87;
@@ -6030,17 +5302,7 @@ void select_type()
           byTextureColor1 = -113;
         else
           byTextureColor1 = byCompetitorMenuColor;
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          &language_buffer[4352],
-          font1_ascii,
-          font1_offsets,
-          400,
-          135,
-          byTextureColor1,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], &language_buffer[4352], font1_ascii, font1_offsets, 400, 135, byTextureColor1, 1u, 200, 640);
         if ((textures_off & 0x10000) != 0)
           byTextureColor2 = byCompetitorMenuColor;
         else
@@ -6049,17 +5311,7 @@ void select_type()
         iTextYPosition = 153;
         pszTextBuffer = &language_buffer[4416];
       LABEL_130:
-        scale_text(
-          (tBlockHeader *)front_vga[15],
-          pszTextBuffer,
-          font1_ascii,
-          font1_offsets,
-          400,
-          iTextYPosition,
-          byFinalTextColor,
-          1u,
-          200,
-          640);
+        scale_text(front_vga[15], pszTextBuffer, font1_ascii, font1_offsets, 400, iTextYPosition, byFinalTextColor, 1u, 200, 640);
         break;
       default:
         break;                                  // OPTION-SPECIFIC UI: Display details for currently selected option

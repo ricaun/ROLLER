@@ -4087,7 +4087,7 @@ void no_cd()
   // load resources
   title_vga = load_picture("resround.bm");
   font_vga = load_picture("font4.bm");
-  front_vga[0] = load_picture("font5.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("font5.bm");
 
   // enable frontend and timing
   frontend_on = -1;
@@ -4109,15 +4109,7 @@ void no_cd()
   memcpy(&pScrBuf[4 * uiAlignedCopySize], &pTitleVga[4 * uiAlignedCopySize], uiRemainderBytes & 3);
 
   // Display error text
-  front_text(
-    (tBlockHeader *)font_vga,
-    &language_buffer[6336],
-    font4_ascii,
-    font4_offsets,
-    320,
-    192,
-    0x8Fu,
-    1u);
+  front_text(font_vga, &language_buffer[6336], font4_ascii, font4_offsets, 320, 192, 0x8Fu, 1u);
 
   // Copy to scrbuf and fade in
   copypic(scrbuf, screen);
@@ -5446,8 +5438,8 @@ void show_received_mesage()
     if (iWindowRight > 639)                   // Ensure window doesn't go past screen edge (max x=639)
       iWindowRight = 639;
     blankwindow(iAdjustedLeft / 2, 86, iWindowRight / 2, 118);// Draw message window background (coordinates are halved for some reason)
-    scale_text((tBlockHeader *)front_vga[15], buffer, font1_ascii, font1_offsets, 400, 180, 143, 1u, 180, 640);// Draw sender info text at y=180
-    scale_text((tBlockHeader *)front_vga[15], rec_mes_buf, font1_ascii, font1_offsets, 400, 210, 143, 1u, 180, 640);// Draw message text at y=210
+    scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 400, 180, 143, 1u, 180, 640);// Draw sender info text at y=180
+    scale_text(front_vga[15], rec_mes_buf, font1_ascii, font1_offsets, 400, 210, 143, 1u, 180, 640);// Draw message text at y=210
     copypic(scrbuf, screen);                    // Copy rendered screen buffer to display
     rec_status = 0;                             // Clear message received flag
     frames = 0;                                 // Reset frame counter for message display duration
