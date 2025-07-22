@@ -3530,8 +3530,8 @@ void select_configure()
 
                       do
                       {
-                        ++iDefaultNamesCharItr;
                         default_names[iDefaultNamesIdx][iDefaultNamesCharItr] = szNewNameBuf[iDefaultNamesCharItr];
+                        ++iDefaultNamesCharItr;
                       }
                       while (iDefaultNamesCharItr < 9);
                       //do {
