@@ -1,6 +1,7 @@
 #include "loadtrak.h"
 #include "3d.h"
 #include "car.h"
+#include "moving.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
@@ -988,47 +989,61 @@ char *read_bldmap(char **a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int readstuntdata(int a1, int a2, int a3, int a4)
+void readstuntdata(uint8 **pTrackData)
 {
-  return 0; /*
-  _DWORD *v5; // edx
-  int result; // eax
-  _DWORD *v7; // edx
-  int v8; // [esp+0h] [ebp-3Ch] BYREF
-  int v9; // [esp+4h] [ebp-38h] BYREF
-  int v10; // [esp+8h] [ebp-34h] BYREF
-  int v11; // [esp+Ch] [ebp-30h] BYREF
-  int v12; // [esp+10h] [ebp-2Ch] BYREF
-  int v13; // [esp+14h] [ebp-28h] BYREF
-  int v14; // [esp+18h] [ebp-24h] BYREF
-  int v15; // [esp+1Ch] [ebp-20h] BYREF
-  int v16; // [esp+20h] [ebp-1Ch] BYREF
-  _DWORD v17[6]; // [esp+24h] [ebp-18h] BYREF
+  int *pStuntData; // edx
+  int *pDataItr; // edx
+  int iFlags; // [esp+0h] [ebp-3Ch] BYREF
+  int iRampSideLength; // [esp+4h] [ebp-38h] BYREF
+  int iTimeFlat; // [esp+8h] [ebp-34h] BYREF
+  int iTimeBulging; // [esp+Ch] [ebp-30h] BYREF
+  int iTimingGroup; // [esp+10h] [ebp-2Ch] BYREF
+  int iHeight; // [esp+14h] [ebp-28h] BYREF
+  int iTickStartIdx; // [esp+18h] [ebp-24h] BYREF
+  int iNumTicks; // [esp+1Ch] [ebp-20h] BYREF
+  int iChunkCount; // [esp+20h] [ebp-1Ch] BYREF
+  int iGeometryIndex; // [esp+24h] [ebp-18h] BYREF
 
-  v17[4] = a4;
-  v5 = (_DWORD *)scrbuf;
+  pStuntData = (int *)scrbuf;                   // tStuntData
   totalramps = 0;
-  freestunts(a1, scrbuf, a1);
+
+  // Free existing stunts at the beginning of scrbuf
+  freestunts(pTrackData, (int *)scrbuf);
+
+  // Read stunt entries until we encounter a terminator (iGeometryIndex == -1)
   do {
-    result = readline2(a1, &aUuuiiiiiiiiii[3], v17, &v16, &v15, &v14, &v12, &v13, &v11, &v10, &v9, &v8);
-    if (v17[0] != -1) {
-      v7 = v5 + 1;
-      *(v7++ - 1) = v17[0];
-      *(v7++ - 1) = v16;
-      *(v7++ - 1) = v15;
-      *(v7++ - 1) = v14;
-      *(v7++ - 1) = v12;
-      *(v7++ - 1) = v13;
-      *(v7++ - 1) = v11;
-      *(v7++ - 1) = v10;
-      *(v7 - 1) = v9;
-      v5 = v7 + 1;
-      result = v8;
-      *(v5 - 1) = v8;
+    readline2(
+
+      pTrackData,
+      "iiiiiiiiii",
+      &iGeometryIndex,
+      &iChunkCount,
+      &iNumTicks,
+      &iTickStartIdx,
+      &iTimingGroup,
+      &iHeight,
+      &iTimeBulging,
+      &iTimeFlat,
+      &iRampSideLength,
+      &iFlags);
+    if (iGeometryIndex != -1) {
+      pDataItr = pStuntData + 1;
+      *(pDataItr++ - 1) = iGeometryIndex;
+      *(pDataItr++ - 1) = iChunkCount;
+      *(pDataItr++ - 1) = iNumTicks;
+      *(pDataItr++ - 1) = iTickStartIdx;
+      *(pDataItr++ - 1) = iTimingGroup;
+      *(pDataItr++ - 1) = iHeight;
+      *(pDataItr++ - 1) = iTimeBulging;
+      *(pDataItr++ - 1) = iTimeFlat;
+      *(pDataItr - 1) = iRampSideLength;
+      pStuntData = pDataItr + 1;
+      *(pStuntData - 1) = iFlags;
     }
-  } while (v17[0] != -1);
-  *v5 = -1;
-  return result;*/
+  } while (iGeometryIndex != -1);
+
+  // Write the terminator to mark the end of stunt data
+  *pStuntData = -1;
 }
 
 //-------------------------------------------------------------------------------------------------

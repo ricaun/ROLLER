@@ -45,7 +45,7 @@ void loadtrack(int iTrackIdx, int a2);
 int read_backs(int *a1, int a2, int a3, int a4);
 char *read_texturemap(int a1);
 char *read_bldmap(char **a1);
-int readstuntdata(int a1, int a2, int a3, int a4);
+void readstuntdata(uint8 **pTrackData);
 void activatestunts();
 int ReadAnimData(int result, int a2);
 void readline(FILE *pFile, const char *szFmt, ...);

@@ -1,7 +1,11 @@
 #ifndef _ROLLER_MOVING_H
 #define _ROLLER_MOVING_H
 //-------------------------------------------------------------------------------------------------
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
 
+extern int totalramps;
+extern void *ramp[50];
 extern int replaytype;
 
 //-------------------------------------------------------------------------------------------------
@@ -12,7 +16,7 @@ int updateramp(int result);
 int updatestunts();
 int reinitstunts();
 void *freeramp(void *result);
-void freestunts(int a1, int a2, int a3, int a4);
+void freestunts(uint8 **pTrackData, int *pBuf);
 
 //-------------------------------------------------------------------------------------------------
 #endif
