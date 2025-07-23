@@ -15,7 +15,7 @@ int reinitramp(float *a1);
 int updateramp(int result);
 int updatestunts();
 int reinitstunts();
-void *freeramp(void *result);
+void freeramp(void **pRampData);
 void freestunts(uint8 **pTrackData, int *pBuf);
 
 //-------------------------------------------------------------------------------------------------

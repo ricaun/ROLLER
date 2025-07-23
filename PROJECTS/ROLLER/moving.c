@@ -475,18 +475,16 @@ int reinitstunts()
 
 //-------------------------------------------------------------------------------------------------
 
-void *freeramp(void *result)
+void freeramp(void **pRampData)
 {
-  return 0; /*
-  _DWORD *v1; // [esp+0h] [ebp-4h] BYREF
+  void *pRampToFree; // [esp+0h] [ebp-4h] BYREF
 
-  v1 = result;
-  if (result) {
-    if (result[20])
-      fre(result + 20);
-    return fre(&v1);
+  pRampToFree = pRampData;
+  if (pRampData) {
+    if (pRampData[20])
+      fre(pRampData + 20);
+    fre(&pRampToFree);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
