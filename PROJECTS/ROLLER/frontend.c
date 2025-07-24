@@ -391,7 +391,7 @@ void title_screens()
   disable_keyboard();
   if ((cheat_mode & (CHEAT_MODE_KILLER_OPPONENTS | CHEAT_MODE_DEATH_MODE)) != 0)
     waitsampledone(SOUND_SAMPLE_FATAL);
-  fre(&front_vga[0]);
+  fre((void**)&front_vga[0]);
   freefatalsample();
 
   // Add by ROLLER, check language to change font table to support Brazilian / Saspanish.
@@ -427,7 +427,7 @@ void copy_screens()
     UpdateSDL();
     UpdateSDLWindow();
   }
-  fre(&front_vga[0]);
+  fre((void**)&front_vga[0]);
   fade_palette(0);
 }
 

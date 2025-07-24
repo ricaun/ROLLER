@@ -4121,9 +4121,9 @@ void no_cd()
     UpdateSDL(); //added by ROLLER
 
   // Cleanup
-  fre(&title_vga);
-  fre(&font_vga);
-  fre(&front_vga[0]);
+  fre((void**)&title_vga);
+  fre((void**)&font_vga);
+  fre((void**)&front_vga[0]);
 
   // Fade out and exit
   scr_size = iScrSize;

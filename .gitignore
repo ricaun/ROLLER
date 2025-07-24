@@ -375,3 +375,6 @@ zig-out/
 /compileData.scor
 /compileData.scor.gbl
 compile_flags.txt
+packages.microsoft.gpg
+.vscode/tasks.json
+.vscode/launch.json
