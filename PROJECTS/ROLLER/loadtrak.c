@@ -1301,7 +1301,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           double *pdDest = va_arg(vaCopy, double *);  //get arg
           double dValue = strtod(pszToken, 0);        //get val
           *pdDest = dValue * 256.0;                   //copy val to arg
-          vaCopy[0] += 4;                             //advance pointer
 
           //dblValue = strtod(pszToken, 0);
           //vaCopy[0] += 4;
@@ -1312,7 +1311,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           float *pfDest = va_arg(vaCopy, float *);  //get arg
           double dFltValue = strtod(pszToken, 0);   //get val
           *pfDest = (float)(dFltValue * 256.0);     //copy val to arg
-          vaCopy[0] += 4;                           //advance pointer
 
           //dblFloatValue = strtod(pszToken, 0);
           //pDest = *(float **)vaCopy[0];
@@ -1324,7 +1322,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           uint32 *puiDest = va_arg(vaCopy, uint32 *);   //get arg
           uint32 uiIntValue = strtol(pszToken, 0, 10);  //get val
           *puiDest = uiIntValue << 8;                   //copy val to arg
-          vaCopy[0] += 4;                               //advance pointer
 
           //args[0] = vaCopy[0] + 4;
           //iIntValue = strtol(pszToken, 0, 10);
@@ -1336,7 +1333,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           int16 *pnDest = va_arg(vaCopy, int16 *);            //get arg
           int16 nShortValue = (int16)strtol(pszToken, 0, 10); //get val
           *pnDest = nShortValue << 8;                         //copy val to arg
-          vaCopy[0] += 4;                                     //advance pointer
 
           //nShortValue = strtol(pszToken, 0, 10);
           //vaCopy[0] += 4;
@@ -1347,7 +1343,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           double *pdDest = va_arg(vaCopy, double *);  //get arg
           double dPlainVal = strtod(pszToken, 0);     //get val
           *pdDest = dPlainVal;                        //copy val to arg
-          vaCopy[0] += 4;                             //advance pointer
 
           //argsDouble[0] = vaCopy[0] + 4;
           //dblPlainValue = strtod(pszToken, 0);
@@ -1360,7 +1355,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           float *pfDest_1 = va_arg(vaCopy, float *);      //get arg
           float fPlainValue = (float)strtod(pszToken, 0); //get val
           *pfDest_1 = fPlainValue;                        //copy val to arg
-          vaCopy[0] += 4;                                 //advance pointer
 
           //argsFloat[0] = vaCopy[0] + 4;
           //fltPlainValue = strtod(pszToken, 0);
@@ -1373,7 +1367,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           int *piDest = va_arg(vaCopy, int *);        //get arg
           int iPlainValue = strtol(pszToken, 0, 10);  //get val
           *piDest = iPlainValue;                      //copy val to arg
-          vaCopy[0] += 4;                             //advance pointer
 
           //iPlainValue = strtol(pszToken, 0, 10);
           //vaCopy[0] += 4;
@@ -1384,7 +1377,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           int16 *pnDest = va_arg(vaCopy, int16 *);            //get arg
           int16 nPlainValue = (int16)strtol(pszToken, 0, 10); //get val
           *pnDest = nPlainValue;                              //copy val to arg
-          vaCopy[0] += 4;                                     //advance pointer
 
           //argsShort[0] = vaCopy[0] + 4;
           //nPlainValue = strtol(pszToken, 0, 10);
@@ -1396,7 +1388,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
         {
           char *pszDestStr = va_arg(vaCopy, char *);  //get arg
           strcpy(pszDestStr, pszToken);               //copy val to arg
-          vaCopy[0] += 4;                             //advance pointer
 
           //pszSrc = pszToken;
           //vaCopy[0] += 4;
@@ -1416,7 +1407,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
         {
           char *pszSrc2 = va_arg(vaCopy, char *); //get arg
           strcpy(pszSrc2, pszToken);              //copy val to arg
-          vaCopy[0] += 4;                         //advance pointer
 
           //pszSrc2 = pszToken;
           //pszDest2 = *(char **)vaCopy[0];
@@ -1438,7 +1428,6 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           uint8 *pbyDest = va_arg(vaCopy, uint8 *);           //get arg
           uint8 byByteValue = (uint8)strtol(pszToken, 0, 10); //get val
           *pbyDest = byByteValue;                             //copy val to arg
-          vaCopy[0] += 4;                                     //advance pointer
 
           //argsByte[0] = vaCopy[0] + 4;
           //byByteValue = strtol(pszToken, 0, 10);
