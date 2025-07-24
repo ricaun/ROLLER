@@ -1274,45 +1274,16 @@ uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 void readline2(uint8 **ppFileData, const char *pszFormat, ...)
 {
   char *pszToken; // ebp
-  double dblValue; // st7
-  double dblFloatValue; // st7
-  char *pDest; // eax
-  char **ppArgs; // esi
-  int iIntValue; // eax
-  uint32 *puiDest; // edx
-  int16 nShortValue; // ax
-  char **ppArgsDouble; // ebx
-  double dblPlainValue; // st7
-  double *pdblDest; // eax
-  char **ppArgsFloat; // esi
-  double dPlainValue; // st7
-  float *pfltDest; // eax
-  int iPlainValue; // eax
-  char **ppArgsShort; // ecx
-  int16 nPlainValue; // ax
-  int16 *pnDest; // edx
-  char *pszSrc; // esi
-  char *pszDestStr; // edi
-  char byChar1; // al
-  char byChar2; // al
-  char *pszSrc2; // esi
-  char *pszDest2; // edi
-  char **ppArgsNext; // ebx
-  char byChar3; // al
-  char byChar4; // al
-  char **ppArgsByte; // esi
-  uint8 byByteValue; // al
-  uint8 *pbyDest; // edx
   unsigned int uiSavedIndex; // edi
   char szLineBuffer[512]; // [esp+0h] [ebp-220h] BYREF
-  char **ppVarArgs; // [esp+200h] [ebp-20h]
+  va_list vaCopy; // [esp+200h] [ebp-20h] BYREF
   unsigned int uiFormatIndex; // [esp+204h] [ebp-1Ch]
   va_list va; // [esp+22Ch] [ebp+Ch] BYREF
 
   va_start(va, pszFormat);
-  va_copy((va_list)ppVarArgs, va);
+  va_copy(vaCopy, va);
   while (1) {
-    memgets((uint8 *)szLineBuffer, ppFileData);// Read next line from file into buffer
+    memgets((uint8 *)szLineBuffer, ppFileData); // Read next line from file into buffer
     if (meof)
       break;                                    // Check for end of file
     pszToken = strtok(szLineBuffer, delims);    // Tokenize line using delimiters (whitespace)
@@ -1327,96 +1298,153 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
     if (pszToken) {                                           // Process each format specifier in the format string
       for (uiFormatIndex = 0; strlen(pszFormat) > uiFormatIndex; uiFormatIndex = uiSavedIndex + 1) {                                         // 'D' = double scaled by 256
         if (pszFormat[uiFormatIndex] == 'D') {
-          dblValue = strtod(pszToken, 0);
-          *(double *)*ppVarArgs++ = dblValue * 256.0;
+          double *pdDest = va_arg(vaCopy, double *);  //get arg
+          double dValue = strtod(pszToken, 0);        //get val
+          *pdDest = dValue * 256.0;                   //copy val to arg
+          vaCopy[0] += 4;                             //advance pointer
+
+          //dblValue = strtod(pszToken, 0);
+          //vaCopy[0] += 4;
+          //*(double *)*((int *)vaCopy[0] - 1) = dblValue * 256.0;
         }
         if (pszFormat[uiFormatIndex] == 'F')  // 'F' = float scaled by 256
         {
-          dblFloatValue = strtod(pszToken, 0);
-          pDest = *ppVarArgs++;
-          *(float *)pDest = (float)(dblFloatValue * 256.0);
+          float *pfDest = va_arg(vaCopy, float *);  //get arg
+          double dFltValue = strtod(pszToken, 0);   //get val
+          *pfDest = (float)(dFltValue * 256.0);     //copy val to arg
+          vaCopy[0] += 4;                           //advance pointer
+
+          //dblFloatValue = strtod(pszToken, 0);
+          //pDest = *(float **)vaCopy[0];
+          //vaCopy[0] += 4;
+          //*pfDest = dblFloatValue * 256.0;
         }
         if (pszFormat[uiFormatIndex] == 'I')  // 'I' = 32-bit integer shifted left by 8
         {
-          ppArgs = ppVarArgs + 1;
-          iIntValue = strtol(pszToken, 0, 10);
-          puiDest = (uint32 *)*(ppArgs - 1);
-          ppVarArgs = ppArgs;
-          *puiDest = iIntValue << 8;
+          uint32 *puiDest = va_arg(vaCopy, uint32 *);   //get arg
+          uint32 uiIntValue = strtol(pszToken, 0, 10);  //get val
+          *puiDest = uiIntValue << 8;                   //copy val to arg
+          vaCopy[0] += 4;                               //advance pointer
+
+          //args[0] = vaCopy[0] + 4;
+          //iIntValue = strtol(pszToken, 0, 10);
+          //puiDest = (uint32 *)*((int *)args[0] - 1);
+          //va_copy(vaCopy, args);
         }
         if (pszFormat[uiFormatIndex] == 'S')  // 'S' = 16-bit short shifted left by 8
         {
-          nShortValue = (int16)strtol(pszToken, 0, 10);
-          *(int16 *)*ppVarArgs++ = nShortValue << 8;
+          int16 *pnDest = va_arg(vaCopy, int16 *);            //get arg
+          int16 nShortValue = (int16)strtol(pszToken, 0, 10); //get val
+          *pnDest = nShortValue << 8;                         //copy val to arg
+          vaCopy[0] += 4;                                     //advance pointer
+
+          //nShortValue = strtol(pszToken, 0, 10);
+          //vaCopy[0] += 4;
+          //**((int16 **)vaCopy[0] - 1) = nShortValue << 8;
         }
         if (pszFormat[uiFormatIndex] == 'd')  // 'd' = double (no scaling)
         {
-          ppArgsDouble = ppVarArgs + 1;
-          dblPlainValue = strtod(pszToken, 0);
-          pdblDest = (double *)*(ppArgsDouble - 1);
-          ppVarArgs = ppArgsDouble;
-          *pdblDest = dblPlainValue;
+          double *pdDest = va_arg(vaCopy, double *);  //get arg
+          double dPlainVal = strtod(pszToken, 0);     //get val
+          *pdDest = dPlainVal;                        //copy val to arg
+          vaCopy[0] += 4;                             //advance pointer
+
+          //argsDouble[0] = vaCopy[0] + 4;
+          //dblPlainValue = strtod(pszToken, 0);
+          //pdblDest = (double *)*((int *)argsDouble[0] - 1);
+          //va_copy(vaCopy, argsDouble);
+          //*pdblDest = dblPlainValue;
         }
         if (pszFormat[uiFormatIndex] == 'f')  // 'f' = float (no scaling)
         {
-          ppArgsFloat = ppVarArgs + 1;
-          dPlainValue = strtod(pszToken, 0);
-          pfltDest = (float *)*(ppArgsFloat - 1);
-          ppVarArgs = ppArgsFloat;
-          *pfltDest = (float)dPlainValue;
+          float *pfDest_1 = va_arg(vaCopy, float *);      //get arg
+          float fPlainValue = (float)strtod(pszToken, 0); //get val
+          *pfDest_1 = fPlainValue;                        //copy val to arg
+          vaCopy[0] += 4;                                 //advance pointer
+
+          //argsFloat[0] = vaCopy[0] + 4;
+          //fltPlainValue = strtod(pszToken, 0);
+          //pfDest_1 = (float *)*((int *)argsFloat[0] - 1);
+          //va_copy(vaCopy, argsFloat);
+          //*pfDest_1 = fltPlainValue;
         }
         if (pszFormat[uiFormatIndex] == 'i')  // 'i' = 32-bit integer (no shifting)
         {
-          iPlainValue = strtol(pszToken, 0, 10);
-          *(int *)*ppVarArgs++ = iPlainValue;
+          int *piDest = va_arg(vaCopy, int *);        //get arg
+          int iPlainValue = strtol(pszToken, 0, 10);  //get val
+          *piDest = iPlainValue;                      //copy val to arg
+          vaCopy[0] += 4;                             //advance pointer
+
+          //iPlainValue = strtol(pszToken, 0, 10);
+          //vaCopy[0] += 4;
+          //**((int **)vaCopy[0] - 1) = iPlainValue;
         }
         if (pszFormat[uiFormatIndex] == 's')  // 's' = 16-bit short (no shifting)
         {
-          ppArgsShort = ppVarArgs + 1;
-          nPlainValue = (int16)strtol(pszToken, 0, 10);
-          pnDest = (int16 *)*(ppArgsShort - 1);
-          ppVarArgs = ppArgsShort;
-          *pnDest = nPlainValue;
+          int16 *pnDest = va_arg(vaCopy, int16 *);            //get arg
+          int16 nPlainValue = (int16)strtol(pszToken, 0, 10); //get val
+          *pnDest = nPlainValue;                              //copy val to arg
+          vaCopy[0] += 4;                                     //advance pointer
+
+          //argsShort[0] = vaCopy[0] + 4;
+          //nPlainValue = strtol(pszToken, 0, 10);
+          //pnDest = (int16 *)*((int *)argsShort[0] - 1);
+          //va_copy(vaCopy, argsShort);
+          //*pnDest = nPlainValue;
         }
         if (pszFormat[uiFormatIndex] == 'C')  // 'C' = copy string (uppercase, likely null-terminated)
         {
-          pszSrc = pszToken;
-          pszDestStr = *ppVarArgs++;
-          do {
-            byChar1 = *pszSrc;
-            *pszDestStr = *pszSrc;
-            if (!byChar1)
-              break;
-            byChar2 = pszSrc[1];
-            pszSrc += 2;
-            pszDestStr[1] = byChar2;
-            pszDestStr += 2;
-          } while (byChar2);
+          char *pszDestStr = va_arg(vaCopy, char *);  //get arg
+          strcpy(pszDestStr, pszToken);               //copy val to arg
+          vaCopy[0] += 4;                             //advance pointer
+
+          //pszSrc = pszToken;
+          //vaCopy[0] += 4;
+          //pszDestStr = (char *)*((int *)vaCopy[0] - 1);
+          //do {
+          //  byChar1 = *pszSrc;
+          //  *pszDestStr = *pszSrc;
+          //  if (!byChar1)
+          //    break;
+          //  byChar2 = pszSrc[1];
+          //  pszSrc += 2;
+          //  pszDestStr[1] = byChar2;
+          //  pszDestStr += 2;
+          //} while (byChar2);
         }
         if (pszFormat[uiFormatIndex] == 'c')  // 'c' = copy string (lowercase)
         {
-          pszSrc2 = pszToken;
-          pszDest2 = *ppVarArgs;
-          ppArgsNext = ppVarArgs + 1;
-          do {
-            byChar3 = *pszSrc2;
-            *pszDest2 = *pszSrc2;
-            if (!byChar3)
-              break;
-            byChar4 = pszSrc2[1];
-            pszSrc2 += 2;
-            pszDest2[1] = byChar4;
-            pszDest2 += 2;
-          } while (byChar4);
-          ppVarArgs = ppArgsNext;
+          char *pszSrc2 = va_arg(vaCopy, char *); //get arg
+          strcpy(pszSrc2, pszToken);              //copy val to arg
+          vaCopy[0] += 4;                         //advance pointer
+
+          //pszSrc2 = pszToken;
+          //pszDest2 = *(char **)vaCopy[0];
+          //argsNext[0] = vaCopy[0] + 4;
+          //do {
+          //  byChar3 = *pszSrc2;
+          //  *pszDest2 = *pszSrc2;
+          //  if (!byChar3)
+          //    break;
+          //  byChar4 = pszSrc2[1];
+          //  pszSrc2 += 2;
+          //  pszDest2[1] = byChar4;
+          //  pszDest2 += 2;
+          //} while (byChar4);
+          //va_copy(vaCopy, argsNext);
         }
         if (pszFormat[uiFormatIndex] == 'u')  // 'u' = unsigned byte
         {
-          ppArgsByte = ppVarArgs + 1;
-          byByteValue = (uint8)strtol(pszToken, 0, 10);
-          pbyDest = (uint8 *)*(ppArgsByte - 1);
-          ppVarArgs = ppArgsByte;
-          *pbyDest = byByteValue;
+          uint8 *pbyDest = va_arg(vaCopy, uint8 *);           //get arg
+          uint8 byByteValue = (uint8)strtol(pszToken, 0, 10); //get val
+          *pbyDest = byByteValue;                             //copy val to arg
+          vaCopy[0] += 4;                                     //advance pointer
+
+          //argsByte[0] = vaCopy[0] + 4;
+          //byByteValue = strtol(pszToken, 0, 10);
+          //pbyDest = (uint8 *)*((int *)argsByte[0] - 1);
+          //va_copy(vaCopy, argsByte);
+          //*pbyDest = byByteValue;
         }
         uiSavedIndex = uiFormatIndex;
         pszToken = strtok(0, delims);           // Get next token from the line
