@@ -1,7 +1,10 @@
 #include "moving.h"
+#include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
-int replaytype; //001A1B48
+int totalramps = 0; //000A7508
+void *ramp[50];     //001A1A80
+int replaytype;     //001A1B48
 
 //-------------------------------------------------------------------------------------------------
 
@@ -472,46 +475,44 @@ int reinitstunts()
 
 //-------------------------------------------------------------------------------------------------
 
-void *freeramp(void *result)
+void freeramp(void **pRampData)
 {
-  return 0; /*
-  _DWORD *v1; // [esp+0h] [ebp-4h] BYREF
+  void *pRampToFree; // [esp+0h] [ebp-4h] BYREF
 
-  v1 = result;
-  if (result) {
-    if (result[20])
-      fre(result + 20);
-    return fre(&v1);
+  pRampToFree = pRampData;
+  if (pRampData) {
+    if (pRampData[20])
+      fre(pRampData + 20);
+    fre(&pRampToFree);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void freestunts(int a1, int a2, int a3, int a4)
+void freestunts(uint8 **pTrackData, int *pBuf)
 {
-  /*
-  int *v4; // edx
-  int v5; // eax
-  int v6; // ecx
-  _DWORD v7[4]; // [esp+0h] [ebp-10h] BYREF
+  void **ppRampArray; // edx
+  void *pRampData; // eax
+  void *pNextRamp; // ecx
+  void *pRampToFree; // [esp+0h] [ebp-10h] BYREF
+  int *pBufSaved; // [esp+4h] [ebp-Ch]
 
-  v7[2] = a4;
-  v7[1] = a2;
-  v4 = ramp;
-  if (ramp[0]) {
+  pBufSaved = pBuf;
+  ppRampArray = ramp;                           // Start at the beginning of the global ramp pointer array
+  if (ramp[0])                                // Check if there are any ramps to free
+  {
     do {
-      v5 = *v4;
-      v7[0] = v5;
-      if (v5) {
-        if (*(_DWORD *)(v5 + 80))
-          fre((_DWORD *)(v5 + 80));
-        fre(v7);
+      pRampData = *ppRampArray;                 // Get pointer to current ramp structure
+      pRampToFree = pRampData;
+      if (pRampData) {                                         // Check if ramp has allocated data at offset 0x50 (80 bytes)
+        if (*((int *)pRampData + 20))
+          fre((void **)pRampData + 20);         // Free the allocated data at offset 0x50
+        fre(&pRampToFree);                      // Free the ramp structure itself
       }
-      v6 = v4[1];
-      ++v4;
-    } while (v6);
-  }*/
+      pNextRamp = ppRampArray[1];               // Get next ramp pointer for loop condition
+      ++ppRampArray;                            // Move to next ramp pointer in array
+    } while (pNextRamp);                        // Continue until we find a NULL pointer
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

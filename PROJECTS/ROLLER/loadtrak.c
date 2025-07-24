@@ -1,7 +1,11 @@
 #include "loadtrak.h"
+#include "3d.h"
+#include "car.h"
+#include "moving.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 uint8 TrackSelect = 0;      //000A5F9C
@@ -985,47 +989,61 @@ char *read_bldmap(char **a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int readstuntdata(int a1, int a2, int a3, int a4)
+void readstuntdata(uint8 **pTrackData)
 {
-  return 0; /*
-  _DWORD *v5; // edx
-  int result; // eax
-  _DWORD *v7; // edx
-  int v8; // [esp+0h] [ebp-3Ch] BYREF
-  int v9; // [esp+4h] [ebp-38h] BYREF
-  int v10; // [esp+8h] [ebp-34h] BYREF
-  int v11; // [esp+Ch] [ebp-30h] BYREF
-  int v12; // [esp+10h] [ebp-2Ch] BYREF
-  int v13; // [esp+14h] [ebp-28h] BYREF
-  int v14; // [esp+18h] [ebp-24h] BYREF
-  int v15; // [esp+1Ch] [ebp-20h] BYREF
-  int v16; // [esp+20h] [ebp-1Ch] BYREF
-  _DWORD v17[6]; // [esp+24h] [ebp-18h] BYREF
+  int *pStuntData; // edx
+  int *pDataItr; // edx
+  int iFlags; // [esp+0h] [ebp-3Ch] BYREF
+  int iRampSideLength; // [esp+4h] [ebp-38h] BYREF
+  int iTimeFlat; // [esp+8h] [ebp-34h] BYREF
+  int iTimeBulging; // [esp+Ch] [ebp-30h] BYREF
+  int iTimingGroup; // [esp+10h] [ebp-2Ch] BYREF
+  int iHeight; // [esp+14h] [ebp-28h] BYREF
+  int iTickStartIdx; // [esp+18h] [ebp-24h] BYREF
+  int iNumTicks; // [esp+1Ch] [ebp-20h] BYREF
+  int iChunkCount; // [esp+20h] [ebp-1Ch] BYREF
+  int iGeometryIndex; // [esp+24h] [ebp-18h] BYREF
 
-  v17[4] = a4;
-  v5 = (_DWORD *)scrbuf;
+  pStuntData = (int *)scrbuf;                   // tStuntData
   totalramps = 0;
-  freestunts(a1, scrbuf, a1);
+
+  // Free existing stunts at the beginning of scrbuf
+  freestunts(pTrackData, (int *)scrbuf);
+
+  // Read stunt entries until we encounter a terminator (iGeometryIndex == -1)
   do {
-    result = readline2(a1, &aUuuiiiiiiiiii[3], v17, &v16, &v15, &v14, &v12, &v13, &v11, &v10, &v9, &v8);
-    if (v17[0] != -1) {
-      v7 = v5 + 1;
-      *(v7++ - 1) = v17[0];
-      *(v7++ - 1) = v16;
-      *(v7++ - 1) = v15;
-      *(v7++ - 1) = v14;
-      *(v7++ - 1) = v12;
-      *(v7++ - 1) = v13;
-      *(v7++ - 1) = v11;
-      *(v7++ - 1) = v10;
-      *(v7 - 1) = v9;
-      v5 = v7 + 1;
-      result = v8;
-      *(v5 - 1) = v8;
+    readline2(
+
+      pTrackData,
+      "iiiiiiiiii",
+      &iGeometryIndex,
+      &iChunkCount,
+      &iNumTicks,
+      &iTickStartIdx,
+      &iTimingGroup,
+      &iHeight,
+      &iTimeBulging,
+      &iTimeFlat,
+      &iRampSideLength,
+      &iFlags);
+    if (iGeometryIndex != -1) {
+      pDataItr = pStuntData + 1;
+      *(pDataItr++ - 1) = iGeometryIndex;
+      *(pDataItr++ - 1) = iChunkCount;
+      *(pDataItr++ - 1) = iNumTicks;
+      *(pDataItr++ - 1) = iTickStartIdx;
+      *(pDataItr++ - 1) = iTimingGroup;
+      *(pDataItr++ - 1) = iHeight;
+      *(pDataItr++ - 1) = iTimeBulging;
+      *(pDataItr++ - 1) = iTimeFlat;
+      *(pDataItr - 1) = iRampSideLength;
+      pStuntData = pDataItr + 1;
+      *(pStuntData - 1) = iFlags;
     }
-  } while (v17[0] != -1);
-  *v5 = -1;
-  return result;*/
+  } while (iGeometryIndex != -1);
+
+  // Write the terminator to mark the end of stunt data
+  *pStuntData = -1;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1253,284 +1271,254 @@ uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 
 //-------------------------------------------------------------------------------------------------
 
-char *readline2(int *a1, const char *a2, ...)
+void readline2(uint8 **ppFileData, const char *pszFormat, ...)
 {
-  return 0; /*
-  _BYTE *result; // eax
-  int v3; // ebp
-  double v4; // st7
-  double v5; // st7
-  char *v6; // eax
-  char **v7; // esi
-  int v8; // eax
-  _DWORD *v9; // edx
-  __int16 v10; // ax
-  char **v11; // ebx
-  double v12; // st7
-  double *v13; // eax
-  char **v14; // esi
-  double v15; // st7
-  float *v16; // eax
-  int v17; // eax
-  char **v18; // ecx
-  __int16 v19; // ax
-  _WORD *v20; // edx
-  char *v21; // esi
-  char *v22; // edi
-  char v23; // al
-  char v24; // al
-  char *v25; // esi
-  char *v26; // edi
-  char **v27; // ebx
-  char v28; // al
-  char v29; // al
-  char **v30; // esi
-  char v31; // al
-  _BYTE *v32; // edx
-  unsigned int v33; // edi
-  _BYTE v34[512]; // [esp+0h] [ebp-220h] BYREF
-  char **v35; // [esp+200h] [ebp-20h]
-  unsigned int i; // [esp+204h] [ebp-1Ch]
+  char *pszToken; // ebp
+  double dblValue; // st7
+  double dblFloatValue; // st7
+  char *pDest; // eax
+  char **ppArgs; // esi
+  int iIntValue; // eax
+  uint32 *puiDest; // edx
+  int16 nShortValue; // ax
+  char **ppArgsDouble; // ebx
+  double dblPlainValue; // st7
+  double *pdblDest; // eax
+  char **ppArgsFloat; // esi
+  double dPlainValue; // st7
+  float *pfltDest; // eax
+  int iPlainValue; // eax
+  char **ppArgsShort; // ecx
+  int16 nPlainValue; // ax
+  int16 *pnDest; // edx
+  char *pszSrc; // esi
+  char *pszDestStr; // edi
+  char byChar1; // al
+  char byChar2; // al
+  char *pszSrc2; // esi
+  char *pszDest2; // edi
+  char **ppArgsNext; // ebx
+  char byChar3; // al
+  char byChar4; // al
+  char **ppArgsByte; // esi
+  uint8 byByteValue; // al
+  uint8 *pbyDest; // edx
+  unsigned int uiSavedIndex; // edi
+  char szLineBuffer[512]; // [esp+0h] [ebp-220h] BYREF
+  char **ppVarArgs; // [esp+200h] [ebp-20h]
+  unsigned int uiFormatIndex; // [esp+204h] [ebp-1Ch]
   va_list va; // [esp+22Ch] [ebp+Ch] BYREF
 
-  va_start(va, a2);
-  va_copy(v35, va);
+  va_start(va, pszFormat);
+  va_copy((va_list)ppVarArgs, va);
   while (1) {
-    result = memgets(v34, a1);
+    memgets((uint8 *)szLineBuffer, ppFileData);// Read next line from file into buffer
     if (meof)
-      break;
-    v3 = strtok(v34, delims);
-    if (strstr(v3, loadtrak_c_variable_53) == v3)
-      v3 = 0;
-    if (strstr(v3, &aE[1]) == v3)
-      v3 = 0;
-    if (v34[0] == 10)
-      v3 = 0;
-    if (v34[0] == 13)
-      v3 = 0;
-    if (v3) {
-      for (i = 0; ; i = v33 + 1) {
-        result = 0;
-        if (strlen(a2) <= i)
-          break;
-        if (a2[i] == 68) {
-          v4 = strtod(v3, 0);
-          *(double *)*v35++ = v4 * loadtrak_c_variable_56;
+      break;                                    // Check for end of file
+    pszToken = strtok(szLineBuffer, delims);    // Tokenize line using delimiters (whitespace)
+    if (strstr(pszToken, "//") == pszToken)   // Skip C++ style comments (//) 
+      pszToken = 0;
+    if (strstr(pszToken, ";") == pszToken)    // Skip lines starting with semicolon
+      pszToken = 0;
+    if (szLineBuffer[0] == 10)                // Skip newlines
+      pszToken = 0;
+    if (szLineBuffer[0] == 13)                // Skip carriage returns
+      pszToken = 0;
+    if (pszToken) {                                           // Process each format specifier in the format string
+      for (uiFormatIndex = 0; strlen(pszFormat) > uiFormatIndex; uiFormatIndex = uiSavedIndex + 1) {                                         // 'D' = double scaled by 256
+        if (pszFormat[uiFormatIndex] == 'D') {
+          dblValue = strtod(pszToken, 0);
+          *(double *)*ppVarArgs++ = dblValue * 256.0;
         }
-        if (a2[i] == 70) {
-          v5 = strtod(v3, 0);
-          v6 = *v35++;
-          *(float *)v6 = v5 * loadtrak_c_variable_56;
+        if (pszFormat[uiFormatIndex] == 'F')  // 'F' = float scaled by 256
+        {
+          dblFloatValue = strtod(pszToken, 0);
+          pDest = *ppVarArgs++;
+          *(float *)pDest = (float)(dblFloatValue * 256.0);
         }
-        if (a2[i] == 73) {
-          v7 = v35 + 1;
-          v8 = strtol(v3, 0, 10);
-          v9 = *(v7 - 1);
-          v35 = v7;
-          *v9 = v8 << 8;
+        if (pszFormat[uiFormatIndex] == 'I')  // 'I' = 32-bit integer shifted left by 8
+        {
+          ppArgs = ppVarArgs + 1;
+          iIntValue = strtol(pszToken, 0, 10);
+          puiDest = (uint32 *)*(ppArgs - 1);
+          ppVarArgs = ppArgs;
+          *puiDest = iIntValue << 8;
         }
-        if (a2[i] == 83) {
-          v10 = strtol(v3, 0, 10);
-          *(_WORD *)*v35++ = v10 << 8;
+        if (pszFormat[uiFormatIndex] == 'S')  // 'S' = 16-bit short shifted left by 8
+        {
+          nShortValue = (int16)strtol(pszToken, 0, 10);
+          *(int16 *)*ppVarArgs++ = nShortValue << 8;
         }
-        if (a2[i] == 100) {
-          v11 = v35 + 1;
-          v12 = strtod(v3, 0);
-          v13 = (double *)*(v11 - 1);
-          v35 = v11;
-          *v13 = v12;
+        if (pszFormat[uiFormatIndex] == 'd')  // 'd' = double (no scaling)
+        {
+          ppArgsDouble = ppVarArgs + 1;
+          dblPlainValue = strtod(pszToken, 0);
+          pdblDest = (double *)*(ppArgsDouble - 1);
+          ppVarArgs = ppArgsDouble;
+          *pdblDest = dblPlainValue;
         }
-        if (a2[i] == 102) {
-          v14 = v35 + 1;
-          v15 = strtod(v3, 0);
-          v16 = (float *)*(v14 - 1);
-          v35 = v14;
-          *v16 = v15;
+        if (pszFormat[uiFormatIndex] == 'f')  // 'f' = float (no scaling)
+        {
+          ppArgsFloat = ppVarArgs + 1;
+          dPlainValue = strtod(pszToken, 0);
+          pfltDest = (float *)*(ppArgsFloat - 1);
+          ppVarArgs = ppArgsFloat;
+          *pfltDest = (float)dPlainValue;
         }
-        if (a2[i] == 105) {
-          v17 = strtol(v3, 0, 10);
-          *(_DWORD *)*v35++ = v17;
+        if (pszFormat[uiFormatIndex] == 'i')  // 'i' = 32-bit integer (no shifting)
+        {
+          iPlainValue = strtol(pszToken, 0, 10);
+          *(int *)*ppVarArgs++ = iPlainValue;
         }
-        if (a2[i] == 115) {
-          v18 = v35 + 1;
-          v19 = strtol(v3, 0, 10);
-          v20 = *(v18 - 1);
-          v35 = v18;
-          *v20 = v19;
+        if (pszFormat[uiFormatIndex] == 's')  // 's' = 16-bit short (no shifting)
+        {
+          ppArgsShort = ppVarArgs + 1;
+          nPlainValue = (int16)strtol(pszToken, 0, 10);
+          pnDest = (int16 *)*(ppArgsShort - 1);
+          ppVarArgs = ppArgsShort;
+          *pnDest = nPlainValue;
         }
-        if (a2[i] == 67) {
-          v21 = (char *)v3;
-          v22 = *v35++;
+        if (pszFormat[uiFormatIndex] == 'C')  // 'C' = copy string (uppercase, likely null-terminated)
+        {
+          pszSrc = pszToken;
+          pszDestStr = *ppVarArgs++;
           do {
-            v23 = *v21;
-            *v22 = *v21;
-            if (!v23)
+            byChar1 = *pszSrc;
+            *pszDestStr = *pszSrc;
+            if (!byChar1)
               break;
-            v24 = v21[1];
-            v21 += 2;
-            v22[1] = v24;
-            v22 += 2;
-          } while (v24);
+            byChar2 = pszSrc[1];
+            pszSrc += 2;
+            pszDestStr[1] = byChar2;
+            pszDestStr += 2;
+          } while (byChar2);
         }
-        if (a2[i] == 99) {
-          v25 = (char *)v3;
-          v26 = *v35;
-          v27 = v35 + 1;
+        if (pszFormat[uiFormatIndex] == 'c')  // 'c' = copy string (lowercase)
+        {
+          pszSrc2 = pszToken;
+          pszDest2 = *ppVarArgs;
+          ppArgsNext = ppVarArgs + 1;
           do {
-            v28 = *v25;
-            *v26 = *v25;
-            if (!v28)
+            byChar3 = *pszSrc2;
+            *pszDest2 = *pszSrc2;
+            if (!byChar3)
               break;
-            v29 = v25[1];
-            v25 += 2;
-            v26[1] = v29;
-            v26 += 2;
-          } while (v29);
-          v35 = v27;
+            byChar4 = pszSrc2[1];
+            pszSrc2 += 2;
+            pszDest2[1] = byChar4;
+            pszDest2 += 2;
+          } while (byChar4);
+          ppVarArgs = ppArgsNext;
         }
-        if (a2[i] == 117) {
-          v30 = v35 + 1;
-          v31 = strtol(v3, 0, 10);
-          v32 = *(v30 - 1);
-          v35 = v30;
-          *v32 = v31;
+        if (pszFormat[uiFormatIndex] == 'u')  // 'u' = unsigned byte
+        {
+          ppArgsByte = ppVarArgs + 1;
+          byByteValue = (uint8)strtol(pszToken, 0, 10);
+          pbyDest = (uint8 *)*(ppArgsByte - 1);
+          ppVarArgs = ppArgsByte;
+          *pbyDest = byByteValue;
         }
-        v33 = i;
-        v3 = strtok(0, delims);
+        uiSavedIndex = uiFormatIndex;
+        pszToken = strtok(0, delims);           // Get next token from the line
       }
-      return result;
+      return;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-double *rotatepoint(
-        double a1,
-        double a2,
-        double a3,
-        double a4,
-        double a5,
-        double a6,
-        double *a7,
-        double *a8,
-        double *a9)
+void rotatepoint(double dX, double dY, double dZ, double dYaw, double dPitch, double dRoll, double *pdOutX, double *pdOutY, double *pdOutZ)
 {
-  return 0; /*
-  long double v9; // st7
-  long double v10; // st6
-  long double v11; // st5
-  double *result; // eax
-  double v13; // [esp+8h] [ebp-28h]
-  long double v14; // [esp+10h] [ebp-20h]
-  double v15; // [esp+18h] [ebp-18h]
-  long double v16; // [esp+4Ch] [ebp+1Ch]
-  long double v17; // [esp+54h] [ebp+24h]
-  long double v18; // [esp+5Ch] [ebp+2Ch]
+  long double dblCosX; // st7
+  long double dblSinY; // st6
+  long double dblSinZ; // st5
+  double dblSinX; // [esp+8h] [ebp-28h]
+  long double dblCosZ; // [esp+10h] [ebp-20h]
+  double dblCosY; // [esp+18h] [ebp-18h]
+  long double dYawRad; // [esp+4Ch] [ebp+1Ch]
+  long double dPitchRad; // [esp+54h] [ebp+24h]
+  long double dRollRad; // [esp+5Ch] [ebp+2Ch]
 
-  v16 = a4 * loadtrak_c_variable_57;
-  v17 = a5 * loadtrak_c_variable_57;
-  v18 = a6 * loadtrak_c_variable_57;
-  v9 = cos(v16);
-  v10 = sin(v17);
-  v11 = sin(v18);
-  v13 = sin(v16);
-  v14 = cos(v18);
-  v15 = cos(v17);
-  *a7 = (v9 * v10 * v11 - v13 * v14) * a2 + a1 * v9 * v15 + (-v9 * v10 * v14 - v13 * v11) * a3;
-  *a8 = (v13 * v10 * v11 + v9 * v14) * a2 + a1 * v13 * v15 + (-v13 * v10 * v14 + v9 * v11) * a3;
-  result = a9;
-  *a9 = v10 * a1 + v11 * (-v15 * a2) + a3 * v15 * v14;
-  return result;*/
+  dYawRad = dYaw * 0.0174532925199;             // Convert X angle from degrees to radians (PI/180 = 0.0174532925199)
+  dPitchRad = dPitch * 0.0174532925199;         // Convert Y angle from degrees to radians
+  dRollRad = dRoll * 0.0174532925199;           // Convert Z angle from degrees to radians
+  dblCosX = cos(dYawRad);                       // Calculate cos(X angle)
+  dblSinY = sin(dPitchRad);                     // Calculate sin(Y angle)
+  dblSinZ = sin(dRollRad);                      // Calculate sin(Z angle)
+  dblSinX = sin(dYawRad);                       // Calculate sin(X angle)
+  dblCosZ = cos(dRollRad);                      // Calculate cos(Z angle)
+  dblCosY = cos(dPitchRad);                     // Calculate cos(Y angle)
+  *pdOutX = (dblCosX * dblSinY * dblSinZ - dblSinX * dblCosZ) * dY + dX * dblCosX * dblCosY + (-dblCosX * dblSinY * dblCosZ - dblSinX * dblSinZ) * dZ;// Apply 3D rotation matrix to calculate new X coordinate
+  *pdOutY = (dblSinX * dblSinY * dblSinZ + dblCosX * dblCosZ) * dY + dX * dblSinX * dblCosY + (-dblSinX * dblSinY * dblCosZ + dblCosX * dblSinZ) * dZ;// Apply 3D rotation matrix to calculate new Y coordinate
+  *pdOutZ = dblSinY * dX + dblSinZ * (-dblCosY * dY) + dZ * dblCosY * dblCosZ;// Apply 3D rotation matrix to calculate new Z coordinate
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int setpoint(int a1, int a2, double a3, double a4, double a5)
+void setpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 {
-  return 0; /*
-  int v7; // ebx
-  int result; // eax
-
-  v7 = 18 * a1;
-  result = 3 * a2;
-  TrakPt[result + v7] = a3;
-  TrakPt_variable_1[result + v7] = a4;
-  TrakPt_variable_2[result + v7] = a5;
-  return result;*/
+  TrakPt[iChunkIdx].pointAy[iPointIdx].fX = (float)dX;
+  TrakPt[iChunkIdx].pointAy[iPointIdx].fY = (float)dY;
+  TrakPt[iChunkIdx].pointAy[iPointIdx].fZ = (float)dZ;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int setgpoint(int a1, int a2, double a3, double a4, double a5)
+void setgpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 {
-  return 0; /*
-  int v7; // ebx
-  int result; // eax
-
-  v7 = 18 * a1;
-  result = 3 * a2;
-  GroundPt[result + v7] = a3;
-  GroundPt_variable_1[result + v7] = a4;
-  GroundPt_variable_2[result + v7] = a5;
-  return result;*/
+  GroundPt[iChunkIdx].pointAy[iPointIdx].fX = (float)dX;
+  GroundPt[iChunkIdx].pointAy[iPointIdx].fY = (float)dY;
+  GroundPt[iChunkIdx].pointAy[iPointIdx].fZ = (float)dZ;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int resetcars()
+void resetcars()
 {
-  return 0; /*
-  int v0; // esi
-  float *v1; // ecx
-  int result; // eax
+  int iCarIdx; // esi
+  tCar *pCurrCar; // ecx
 
-  v0 = 0;
+  iCarIdx = 0;
   if (numcars > 0) {
-    v1 = Car;
+    pCurrCar = Car;
     do {
-      result = memset(v1, 0, 308);
-      ++v0;
-      v1 += 77;
-    } while (v0 < numcars);
+      memset(pCurrCar, 0, sizeof(tCar));
+      ++iCarIdx;
+      ++pCurrCar;
+    } while (iCarIdx < numcars);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *min_skip_stuff(int *a1)
+void min_skip_stuff(uint8 **ppFileData)
 {
-  return 0; /*
-  _BYTE *result; // eax
-  _BYTE v3[256]; // [esp-100h] [ebp-130h] BYREF
-  _BYTE v4[4]; // [esp+0h] [ebp-30h] BYREF
-  _BYTE v5[4]; // [esp+4h] [ebp-2Ch] BYREF
-  _BYTE v6[4]; // [esp+8h] [ebp-28h] BYREF
-  _BYTE v7[4]; // [esp+Ch] [ebp-24h] BYREF
-  _BYTE v8[4]; // [esp+10h] [ebp-20h] BYREF
-  _BYTE v9[4]; // [esp+14h] [ebp-1Ch] BYREF
-  _BYTE v10[4]; // [esp+18h] [ebp-18h] BYREF
-  _BYTE v11[4]; // [esp+1Ch] [ebp-14h] BYREF
-  int v12; // [esp+20h] [ebp-10h] BYREF
-  _DWORD v13[3]; // [esp+24h] [ebp-Ch] BYREF
-
+  char szBuf[256]; // [esp-100h] [ebp-130h] BYREF
+  int iData9; // [esp+0h] [ebp-30h] BYREF
+  int iData8; // [esp+4h] [ebp-2Ch] BYREF
+  int iData7; // [esp+8h] [ebp-28h] BYREF
+  int iData6; // [esp+Ch] [ebp-24h] BYREF
+  int iData5; // [esp+10h] [ebp-20h] BYREF
+  int iData4; // [esp+14h] [ebp-1Ch] BYREF
+  int iData3; // [esp+18h] [ebp-18h] BYREF
+  int iData2; // [esp+1Ch] [ebp-14h] BYREF
+  int iData1; // [esp+20h] [ebp-10h] BYREF
+  int iData0; // [esp+24h] [ebp-Ch] BYREF
   do {
     do
-      readline2(a1, "ii", v13, &v12);
-    while (v13[0] != -1);
-  } while (v12 != -1);
+      readline2(ppFileData, "ii", &iData0, &iData1);
+    while (iData0 != -1);
+  } while (iData1 != -1);
   do
-    readline2(a1, &aUuuiiiiiiiiii[3], v13, &v12, v11, v10, v9, v8, v7, v6, v5, v4);
-  while (v13[0] != -1);
+    readline2(ppFileData, "iiiiiiiiii", &iData0, &iData1, &iData2, &iData3, &iData4, &iData5, &iData6, &iData7, &iData8, &iData9);
+  while (iData0 != -1);
   do
-    readline2(a1, "c", v3);
-  while (!strstr(v3, aBacks));
+    readline2(ppFileData, "c", szBuf);
+  while (!strstr(szBuf, "BACKS:"));
   do
-    result = readline2(a1, "ii", v13, &v12);
-  while (v13[0] != -1);
-  return result;*/
+    readline2(ppFileData, "ii", &iData0, &iData1);
+  while (iData0 != -1);
 }
 
 //-------------------------------------------------------------------------------------------------

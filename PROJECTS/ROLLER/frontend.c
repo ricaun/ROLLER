@@ -53,6 +53,11 @@ char network_messages[5][14] = { //000A4AC8
 };
 int competitors = 16;     //000A4B70
 int manual_control[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //000A4B74
+int smallcars[2][16] =    //000A4BB4
+{
+  { 1, 2, 3, 6, 4, 5, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1 },
+  { 12, 13, 14, 15, 16, 17, 18, 19, 1, 1, 1, 1, 1, 1, 1, 1 }
+};
 int infinite_laps = 0;    //000A4C34
 int Players_Cars[16] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; //000A4C38
 int player_type = 0;      //000A4CB8
@@ -309,6 +314,7 @@ char comp_name[16][15] =  //000A5EA8
   "AUTO ARIEL 2:",
   "AUTO ARIEL 1:"
 };
+int network_test = 0;     //000A5F98
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
 int teamorder[8];         //0016FAA8
@@ -5599,319 +5605,334 @@ void select_type()
 
 void select_track()
 {
-  return;
-  /*
-  int v4; // edi
-  int v5; // ebp
-  int v6; // esi
-  int v7; // eax
-  __int64 v8; // rax
-  double v9; // st7
-  __int64 v10; // rtt
-  int v11; // ecx
-  int v12; // ebx
-  int v13; // ecx
-  void *v14; // ebx
-  __int64 v15; // rax
-  int v16; // eax
-  int v17; // edx
-  int v18; // eax
-  int v19; // eax
-  int v20; // edx
-  double v21; // st7
-  unsigned int v22; // ecx
-  unsigned __int8 v23; // al
-  unsigned __int8 v24; // al
-  int v25; // edx
-  _DWORD *result; // eax
-  __int64 v27; // [esp+0h] [ebp-50h]
-  float v28; // [esp+8h] [ebp-48h]
-  int v29; // [esp+Ch] [ebp-44h]
-  int v30; // [esp+10h] [ebp-40h]
-  int v31; // [esp+14h] [ebp-3Ch]
-  int v32; // [esp+18h] [ebp-38h]
-  int v33; // [esp+1Ch] [ebp-34h]
-  float v34; // [esp+20h] [ebp-30h]
-  int v35; // [esp+24h] [ebp-2Ch]
-  int v36; // [esp+28h] [ebp-28h]
-  int v37; // [esp+2Ch] [ebp-24h]
-  int v38; // [esp+30h] [ebp-20h]
+  int iAnimationTimer; // edi
+  int iSelectedTrack; // ebp
+  int iCurrentTrack; // esi
+  int iLapsForLevel; // eax
+  double dZoomInterpolation; // st7
+  unsigned int uiKeyDirection; // ecx
+  uint8 byKey; // al
+  uint8 byKey_1; // al
+  float fZ_1; // [esp+4h] [ebp-4Ch]
+  float fTargetZoom; // [esp+8h] [ebp-48h]
+  int iFrameCount; // [esp+Ch] [ebp-44h]
+  int iBlockIdx; // [esp+10h] [ebp-40h]
+  int iSoundFlag; // [esp+14h] [ebp-3Ch]
+  int iYaw; // [esp+18h] [ebp-38h]
+  int iPrevTrackLoad; // [esp+1Ch] [ebp-34h]
+  float fZ; // [esp+20h] [ebp-30h]
+  int iCupOffset; // [esp+24h] [ebp-2Ch]
+  int iTrackInCup; // [esp+28h] [ebp-28h]
+  int iExitFlag; // [esp+2Ch] [ebp-24h]
+  int iCalculatedTrack; // [esp+30h] [ebp-20h]
 
-  v4 = 36;
-  fade_palette(0, 0, a3, a4);
-  v31 = 0;
+  iAnimationTimer = 36;
+  fade_palette(0);                              // Initialize track selection screen - fade out and reset state
+  iSoundFlag = 0;
   front_fade = 0;
-  v37 = 0;
-  if (TrackLoad > 0) {
-    v5 = ((_BYTE)TrackLoad - 1) & 7;
+  iExitFlag = 0;
+  if (TrackLoad > 0)                          // Set initial track selection based on current TrackLoad and game type
+  {
+    iSelectedTrack = ((uint8)TrackLoad - 1) & 7;
     if (game_type == 1)
-      v5 = 8;
+      iSelectedTrack = 8;
   } else {
-    v5 = 0;
+    iSelectedTrack = 0;
   }
-  v6 = TrackLoad;
-  fre(&front_vga_variable_3);
+  iCurrentTrack = TrackLoad;
+  fre((void **)&front_vga[3]);                  // Load track selection UI graphics and 3D track preview
   if (TrackLoad >= 0)
     loadtrack(TrackLoad, -1);
-  front_vga_variable_3 = load_picture(aTrknameBm);
-  front_vga_variable_8 = load_picture(&aBonustrkBm[1]);
-  v32 = 0;
-  front_vga_variable_9 = load_picture(aCupiconsBm);
+  front_vga[3] = (tBlockHeader *)load_picture("trkname.bm");
+  front_vga[13] = (tBlockHeader *)load_picture("bonustrk.bm");
+  iYaw = 0;
+  front_vga[14] = (tBlockHeader *)load_picture("cupicons.bm");
   frames = 0;
-  v34 = cur_TrackZ;
-  *((float *)&v27 + 1) = cur_TrackZ;
-  v28 = -(cur_TrackZ + frontend_c_variable_54) * frontend_c_variable_55;
-  do {
+  fZ = cur_TrackZ;
+  fZ_1 = cur_TrackZ;
+  fTargetZoom = -(cur_TrackZ + -10000000.0f) * 0.05f;
+  do {                                             // Main track selection display loop
     if (game_type == 1)
-      v5 = 8;
-    v29 = frames;
+      iSelectedTrack = 8;
+    iFrameCount = frames;
     frames = 0;
-    v33 = TrackLoad;
-    if (SoundCard
-      && front_fade
-      && SampleHandleCar_variable_2 != -1
-      && sosDIGISampleDone(DIGIHandle, SampleHandleCar_variable_2)) {
+    iPrevTrackLoad = TrackLoad;
+    //if (SoundCard && front_fade && SampleHandleCar[86].handles[0] != -1 && sosDIGISampleDone(*(int *)&DIGIHandle, SampleHandleCar[86].handles[0]))// Handle frontend car engine sound sample playback
+    if (SoundCard && front_fade && SampleHandleCar[86].handles[0] != -1 && DIGISampleDone(SampleHandleCar[86].handles[0]))// Handle frontend car engine sound sample playback
+    {
       frontendsample(0x8000);
-      SampleHandleCar_variable_2 = -1;
+      SampleHandleCar[86].handles[0] = -1;
     }
-    if (switch_types) {
+    if (switch_types)                         // Handle game type switching (championship/single race/team game)
+    {
       game_type = switch_types - 1;
       if (switch_types == 1 && competitors == 1)
         competitors = 16;
       switch_types = 0;
       if (game_type == 1)
-        Race = ((_BYTE)TrackLoad - 1) & 7;
+        Race = ((uint8)TrackLoad - 1) & 7;
       else
         network_champ_on = 0;
     }
-    display_picture(scrbuf, front_vga[0], 2);
-    display_block(head_y, 0);
-    if (cup_won)
-      display_block(388, 0);
-    display_block(2, 0);
-    display_block(247, 0);
-    display_block(247, 0);
-    display_block(257, -1);
-    display_block(336, -1);
-    if (v5 < 8)
-      front_text(sel_posns[2 * v5], sel_posns_variable_1[2 * v5], 143, 0);
-    front_text(sel_posns[0] + 132, sel_posns_variable_1[0] + 7, 143, 2);
-    front_text(sel_posns_variable_2 + 132, sel_posns_variable_3 + 7, 143, 2);
-    front_text(sel_posns_variable_4 + 132, sel_posns_variable_5 + 7, 143, 2);
-    front_text(sel_posns_variable_6 + 132, sel_posns_variable_7 + 7, 143, 2);
-    front_text(sel_posns_variable_8 + 132, sel_posns_variable_9 + 7, 143, 2);
-    front_text(sel_posns_variable_10 + 132, sel_posns_variable_11 + 7, 143, 2);
-    front_text(sel_posns_variable_12 + 132, sel_posns_variable_13 + 7, 143, 2);
-    front_text(sel_posns_variable_14 + 132, sel_posns_variable_15 + 7, 143, 2);
-    v30 = (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3;
-    if (TrackLoad >= 0) {
-      if (v4)
-        show_3dmap(v34, 1280, v32);
+    display_picture(scrbuf, front_vga[0]);      // Draw main background and UI elements
+    display_block(scrbuf, front_vga[1], 2, head_x, head_y, 0);
+    if (cup_won)                              // Show cup trophy if championship won
+      display_block(scrbuf, front_vga[1], 8, 480, 388, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[5], player_type, -4, 247, 0);// Display player type and game type indicators
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+    display_block(scrbuf, front_vga[4], 1, 76, 257, -1);
+    if (iSelectedTrack >= 8)                  // Draw track selector: championship view or individual track selector
+    {
+      display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
+    } else {
+      display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+      front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[iSelectedTrack].x, sel_posns[iSelectedTrack].y, 0x8Fu, 0);
+    }
+    front_text(front_vga[2], "AUTO ARIEL", font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);// Display hardcoded track names (should use track name data)
+    front_text(front_vga[2], "DESILVA", font2_ascii, font2_offsets, sel_posns[1].x + 132, sel_posns[1].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], "PULSE", font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], "GLOBAL", font2_ascii, font2_offsets, sel_posns[3].x + 132, sel_posns[3].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], "MILLION PLUS", font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], "MISSION", font2_ascii, font2_offsets, sel_posns[5].x + 132, sel_posns[5].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], "ZIZIN", font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], "REISE WAGON", font2_ascii, font2_offsets, sel_posns[7].x + 132, sel_posns[7].y + 7, 0x8Fu, 2u);
+    iBlockIdx = (TrackLoad - 1) / 8;  // Calculate cup icon index (8 tracks per cup)
+    //iBlockIdx = (TrackLoad - 1 - (__CFSHL__((TrackLoad - 1) >> 31, 3) + 8 * ((TrackLoad - 1) >> 31))) >> 3;// Calculate cup icon index for display
+    if (TrackLoad >= 0) {                                           // Render 3D track preview
+      if (iAnimationTimer)
+        show_3dmap(fZ, 1280, iYaw);
       else
-        show_3dmap(*((float *)&v27 + 1), 1280, v32);
-      if (game_type >= 2) {
+        show_3dmap(fZ_1, 1280, iYaw);
+      if (game_type >= 2)                     // Set number of laps based on game type and difficulty level
+      {
         NoOfLaps = 5;
       } else {
-        v7 = cur_laps[level];
-        NoOfLaps = v7;
+        iLapsForLevel = cur_laps[level];
+        NoOfLaps = iLapsForLevel;
         if (competitors == 2)
-          NoOfLaps = v7 / 2;
+          NoOfLaps = iLapsForLevel / 2;
       }
-      sprintf(&buffer, "%s: %i", language_buffer_variable_71, NoOfLaps);
-      front_text(420, 16, 143, 1);
-      v8 = front_text(420, 34, 143, 1);
-      if (RecordCars[TrackLoad] < 0) {
-        sprintf(&buffer, "%s", &RecordNames[9 * TrackLoad]);
+      sprintf(buffer, "%s: %i", &language_buffer[4544], NoOfLaps);
+      front_text(front_vga[15], buffer, font1_ascii, font1_offsets, 420, 16, 0x8Fu, 1u);
+      front_text(front_vga[15], &language_buffer[4608], font1_ascii, font1_offsets, 420, 34, 0x8Fu, 1u);
+      if (RecordCars[TrackLoad] < 0)          // Display track record holder and lap time
+      {
+        sprintf(buffer, "%s", RecordNames[TrackLoad]);
       } else {
-        v9 = RecordLaps[TrackLoad] * frontend_c_variable_56;
-        _CHP(TrackLoad, HIDWORD(v8));
-        LODWORD(v10) = (int)v9;
-        HIDWORD(v10) = (int)v9 >> 31;
-        v11 = v10 / 6000;
-        LODWORD(v10) = (int)v9;
-        v12 = (int)(v10 / 100) % 60;
-        LODWORD(v10) = (int)v9;
-        LODWORD(v27) = v10 % 100;
-        sprintf(
-          &buffer,
-          "%s - %s - %02i:%02i:%02i",
-          &RecordNames[9 * TrackLoad],
-          &CompanyNames[20 * (RecordCars[TrackLoad] & 0xF)],
-          v11,
-          v12,
-          (_DWORD)v27);
+        // Format lap time as MM:SS:CC (minutes:seconds:centiseconds)
+        int iTotalCentiseconds = (int)(RecordLaps[TrackLoad] * 100.0);
+        int iRecordMinutes = iTotalCentiseconds / 6000;
+        int iRecordSeconds = (iTotalCentiseconds / 100) % 60;
+        int iRecordCentiseconds = iTotalCentiseconds % 100;
+
+        sprintf(buffer, "%s - %s - %02i:%02i:%02i",
+            RecordNames[TrackLoad],
+            CompanyNames[RecordCars[TrackLoad] & 0xF],
+            iRecordMinutes,
+            iRecordSeconds,
+            iRecordCentiseconds);
+        //dRecordTimeFloat = RecordLaps[TrackLoad] * 100.0;// Format lap time as MM:SS:CC (minutes:seconds:centiseconds)
+        //_CHP();
+        //LODWORD(llTimeCalc) = (int)dRecordTimeFloat;
+        //HIDWORD(llTimeCalc) = (int)dRecordTimeFloat >> 31;
+        //iRecordMinutes = llTimeCalc / 6000;
+        //LODWORD(llTimeCalc) = (int)dRecordTimeFloat;
+        //iRecordSeconds = (int)(llTimeCalc / 100) % 60;
+        //LODWORD(llTimeCalc) = (int)dRecordTimeFloat;
+        //sprintf(
+        //  buffer,
+        //  "%s - %s - %02i:%02i:%02i",
+        //  RecordNames[TrackLoad],
+        //  CompanyNames[RecordCars[TrackLoad] & 0xF],
+        //  iRecordMinutes,
+        //  iRecordSeconds,
+        //  (unsigned int)(llTimeCalc % 100));
       }
-      front_text(420, 52, 143, 1);
+      front_text(front_vga[15], buffer, font1_ascii, font1_offsets, 420, 52, 0x8Fu, 1u);
     }
-    display_block(300, 0);
+    display_block(scrbuf, front_vga[14], iBlockIdx, 500, 300, 0);// Display cup icon and track name/type
     if (TrackLoad <= 0) {
-      v14 = &font2_ascii;
-      v13 = (int)&font2_offsets;
-      v15 = front_text(190, 350, 143, 0);
-    } else {
-      v13 = 190;
-      if (TrackLoad >= 17)
-        v14 = (void *)(TrackLoad - 17);
+      if (TrackLoad)
+        front_text(front_vga[2], "EDITOR", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
       else
-        v14 = (void *)(TrackLoad - 1);
-      v15 = display_block(356, 0);
+        front_text(front_vga[2], "TRACK ZERO", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);
+    } else if (TrackLoad >= 17)                 // Display track name: bonus tracks (17+), regular tracks (1-16), or special tracks
+    {
+      display_block(scrbuf, front_vga[13], TrackLoad - 17, 190, 356, 0);
+    } else {
+      display_block(scrbuf, front_vga[3], TrackLoad - 1, 190, 356, 0);
     }
-    show_received_mesage(v15, HIDWORD(v15), v14, v13);
-    copypic((char *)scrbuf, (int)screen);
-    if (switch_same > 0) {
-      v19 = 0;
-      if (players > 0) {
-        v20 = 0;
-        do {
-          ++v20;
-          ++v19;
-          infinite_laps[v20] = switch_same - 666;
-        } while (v19 < players);
+    show_received_mesage();
+    copypic(scrbuf, screen);
+    if (switch_same > 0)                      // Handle same-car mode activation/deactivation
+    {
+
+      for (int i = 0; i < players; i++) {
+          Players_Cars[i] = switch_same - 666;
       }
-      v13 = cheat_mode;
-      BYTE1(v13) = BYTE1(cheat_mode) | 0x40;
-      cheat_mode = v13;
+      //iPlayerLoop2 = 0;                         // Activate same-car mode: set all players to same car type
+      //if (players > 0) {
+      //  iArrayOffset2 = 0;
+      //  do {
+      //    iArrayOffset2 += 4;
+      //    ++iPlayerLoop2;
+      //    *(int *)((char *)&infinite_laps + iArrayOffset2) = switch_same - 666;
+      //  } while (iPlayerLoop2 < players);
+      //}
+
+      cheat_mode |= CHEAT_MODE_CLONES;
     } else if (switch_same < 0) {
-      v16 = 0;
+
       switch_same = 0;
-      if (players > 0) {
-        v17 = 0;
-        do {
-          ++v17;
-          ++v16;
-          infinite_laps[v17] = -1;
-        } while (v16 < players);
+      for (int i = 0; i < players; i++) {
+          Players_Cars[i] = -1;
       }
-      v18 = cheat_mode;
-      BYTE1(v18) = BYTE1(cheat_mode) & 0xBF;
-      cheat_mode = v18;
+      //iPlayerLoop1 = 0;                         // Deactivate same-car mode: reset all player car selections
+      //switch_same = 0;
+      //if (players > 0) {
+      //  iArrayOffset1 = 0;
+      //  do {
+      //    iArrayOffset1 += 4;
+      //    ++iPlayerLoop1;
+      //    *(int *)((char *)&infinite_laps + iArrayOffset1) = -1;
+      //  } while (iPlayerLoop1 < players);
+      //}
+
+      cheat_mode &= ~CHEAT_MODE_CLONES;
     }
-    if (!v4) {
-      v21 = (double)v29 * v28 + *((float *)&v27 + 1);
-      *((float *)&v27 + 1) = v21;
-      if (v21 <= frontend_c_variable_57) {
-        if (*((float *)&v27 + 1) < (double)v34) {
-          *((float *)&v27 + 1) = v34;
-          v4 = 72;
-          HIBYTE(v28) ^= 0x80u;
+    if (!iAnimationTimer)                     // Handle 3D camera zoom animation
+    {
+      dZoomInterpolation = (double)iFrameCount * fTargetZoom + fZ_1;
+      fZ_1 = (float)dZoomInterpolation;
+      if (dZoomInterpolation <= 10000000.0) {
+        if (fZ_1 < fZ) {
+          fZ_1 = fZ;
+          iAnimationTimer = 72;
+          fTargetZoom = -fTargetZoom;  // Reverse zoom direction
         }
       } else {
-        HIDWORD(v27) = 1259902592;
-        if (v6 == TrackLoad)
-          v33 = -1;
-        TrackLoad = v6;
+        fZ_1 = 10000000.0;                      // Camera reached max zoom - load new track and reset animation
+        if (iCurrentTrack == TrackLoad)
+          iPrevTrackLoad = -1;
+        TrackLoad = iCurrentTrack;
         if (frontendspeechptr)
-          fre(&frontendspeechptr);
+          fre((void **)&frontendspeechptr);
         if (TrackLoad >= 0)
           loadtrack(TrackLoad, -1);
         loadtracksample(TrackLoad);
-        v34 = cur_TrackZ;
-        v31 = -1;
-        v28 = (cur_TrackZ + frontend_c_variable_54) * frontend_c_variable_55;
-        if (v33 != -1) {
+        fZ = cur_TrackZ;
+        iSoundFlag = -1;
+        fTargetZoom = (cur_TrackZ + -10000000.0f) * 0.05f;
+        if (iPrevTrackLoad != -1) {
           broadcast_mode = -1;
           while (broadcast_mode)
-            ;
+            UpdateSDL();
         }
-        v13 = -1;
-        v33 = -1;
+        iPrevTrackLoad = -1;
         frames = 0;
       }
     }
-    if (!front_fade) {
+    if (!front_fade)                          // Initialize screen fade and sound effects on first display
+    {
       loadtracksample(TrackLoad);
       front_fade = -1;
-      fade_palette(32, 0, -1, v13);
+      fade_palette(32);
       frontendsample(0x8000);
       frames = 0;
     }
-    if (TrackLoad != v33) {
-      if (!v31)
-        sfxsample(v27);
-      v31 = 0;
-      v6 = TrackLoad;
-      v4 = 0;
+    if (TrackLoad != iPrevTrackLoad)          // Track changed - play selection sound and reset animation
+    {
+      if (!iSoundFlag)
+        sfxsample(86, 0x8000);
+      iSoundFlag = 0;
+      iCurrentTrack = TrackLoad;
+      iAnimationTimer = 0;
     }
-    v35 = 8 * v30;
-    v36 = v5 + 1;
-    v22 = 0;
-    v38 = 8 * v30 + v5 + 1;
-    while (fatkbhit()) {
-      v23 = fatgetch();
-      if (v23 < 0xDu) {
-        if (!v23) {
-          v24 = fatgetch();
-          if (v24 >= 0x48u) {
-            if (v24 <= 0x48u) {
-              v22 = 2;
-            } else if (v24 == 80) {
-              v22 = 1;
+    iCupOffset = 8 * iBlockIdx;                 // Calculate track selection values for input handling
+    iTrackInCup = iSelectedTrack + 1;
+    uiKeyDirection = 0;
+    iCalculatedTrack = 8 * iBlockIdx + iSelectedTrack + 1;
+    while (fatkbhit())                        // Process keyboard input for track selection
+    {
+      UpdateSDL();
+      byKey = fatgetch();
+      if (byKey < 0xDu) {
+        if (!byKey) {
+          byKey_1 = fatgetch();                 // Handle arrow keys: Up (0x48) and Down (0x50)
+          if (byKey_1 >= 0x48u) {
+            if (byKey_1 <= 0x48u) {
+              uiKeyDirection = 2;
+            } else if (byKey_1 == 0x50) {
+              uiKeyDirection = 1;
             }
           }
         }
-      } else if (v23 <= 0xDu) {
-        if (v5 != 8 && v6 != v38 || v5 == 8) {
+      } else if (byKey <= 0xDu) {                                         // Enter key pressed - confirm track selection
+        if (iSelectedTrack != 8 && iCurrentTrack != iCalculatedTrack || iSelectedTrack == 8) {
           remove_frontendspeech();
-          sfxsample(v27);
+          sfxsample(83, 0x8000);
         }
-        if (v6 == v38 && SoundCard && frontendspeechhandle != -1 && sosDIGISampleDone(DIGIHandle, frontendspeechhandle)) {
+        //if (iCurrentTrack == iCalculatedTrack && SoundCard && frontendspeechhandle != -1 && sosDIGISampleDone(*(int *)&DIGIHandle, frontendspeechhandle)) {
+        if (iCurrentTrack == iCalculatedTrack && SoundCard && frontendspeechhandle != -1 && DIGISampleDone(frontendspeechhandle)) {
           frontendspeechhandle = -1;
           frontendsample(0x8000);
         }
-        if (v5 == 8) {
-          v37 = -1;
-        } else if (game_type != 1 && v6 != v35 + v36) {
-          sfxsample(v27);
-          v6 = v35 + v36;
-          if (v4) {
-            v4 = 0;
-          } else if (v28 < 0.0) {
-            HIBYTE(v28) ^= 0x80u;
+        if (iSelectedTrack == 8) {
+          iExitFlag = -1;
+        } else if (game_type != 1 && iCurrentTrack != iCupOffset + iTrackInCup) {
+          sfxsample(86, 0x8000);
+          iCurrentTrack = iCupOffset + iTrackInCup;
+          if (iAnimationTimer) {
+            iAnimationTimer = 0;
+          } else if (fTargetZoom < 0.0) {
+            fTargetZoom = -fTargetZoom;  // Reverse zoom direction
           }
         }
-      } else if (v23 >= 0x1Bu) {
-        if (v23 <= 0x1Bu) {
-          remove_frontendspeech();
-          sfxsample(v27);
-          v37 = -1;
-        } else if (v23 == 32 && game_type != 1 && TrackLoad > 0) {
-          v6 += 8;
-          sfxsample(v27);
-          if (v6 > 8 && v6 < 17 && (cup_won & 1) == 0)
-            v6 += 8;
-          if (v6 > 16 && v6 < 25 && (cup_won & 2) == 0)
-            v6 += 8;
-          if (v6 > 24)
-            v6 -= 24;
-          if (v4) {
-            v4 = 0;
-          } else if (v28 < 0.0) {
-            HIBYTE(v28) ^= 0x80u;
+      } else if (byKey >= 0x1Bu) {
+        if (byKey <= 0x1Bu) {
+          remove_frontendspeech();              // Escape key pressed - exit track selection
+          sfxsample(83, 0x8000);
+          iExitFlag = -1;
+        } else if (byKey == 32 && game_type != 1 && TrackLoad > 0)// Space key pressed - cycle through cup categories
+        {
+          iCurrentTrack += 8;
+          sfxsample(86, 0x8000);
+          if (iCurrentTrack > 8 && iCurrentTrack < 17 && (cup_won & 1) == 0)// Skip locked cup categories based on championship progress
+            iCurrentTrack += 8;
+          if (iCurrentTrack > 16 && iCurrentTrack < 25 && (cup_won & 2) == 0)
+            iCurrentTrack += 8;
+          if (iCurrentTrack > 24)
+            iCurrentTrack -= 24;
+          if (iAnimationTimer) {
+            iAnimationTimer = 0;
+          } else if (fTargetZoom < 0.0) {
+            fTargetZoom = -fTargetZoom;  // Reverse zoom direction
           }
         }
       }
     }
-    if (v22) {
-      if (v22 > 1) {
-        if (game_type != 1 && --v5 < 0)
-          v5 = 0;
-      } else if (game_type != 1 && ++v5 > 8) {
-        v5 = 8;
+    if (uiKeyDirection)                       // Process up/down arrow key movement in track list
+    {
+      if (uiKeyDirection > 1) {
+        if (game_type != 1 && --iSelectedTrack < 0)
+          iSelectedTrack = 0;
+      } else if (game_type != 1 && ++iSelectedTrack > 8) {
+        iSelectedTrack = 8;
       }
     }
-    v25 = v32;
-    v32 = ((_WORD)v32 + 32 * (_WORD)v29) & 0x3FFF;
-  } while (!v37);
-  fade_palette(0, v25, v37, v22);
+    iYaw = ((uint16)iYaw + 32 * (uint16)iFrameCount) & 0x3FFF;
+
+    UpdateSDL();
+  } while (!iExitFlag);
+  fade_palette(0);                              // Cleanup: fade out, free graphics memory, restore car selection graphics
   front_fade = 0;
-  fre(&front_vga_variable_3);
-  fre(&front_vga_variable_8);
-  fre(&front_vga_variable_9);
-  result = (_DWORD *)load_picture(&aCarnamesBm[3]);
-  front_vga_variable_3 = (int)result;
+  fre((void **)&front_vga[3]);
+  fre((void **)&front_vga[13]);
+  fre((void **)&front_vga[14]);
+  front_vga[3] = (tBlockHeader *)load_picture("carnames.bm");
   if (frontendspeechptr)
-    return fre(&frontendspeechptr);
-  return result;*/
+    fre((void **)&frontendspeechptr);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -5930,285 +5951,255 @@ void reset_params()
 
 //-------------------------------------------------------------------------------------------------
 
-int NetworkWait()
+void NetworkWait()
 {
-  return 0;
-  /*
-  int v4; // ebx
-  int v5; // eax
-  __int64 picture; // rax
-  int v7; // esi
-  int v8; // eax
-  int v9; // eax
-  int v10; // esi
-  int v11; // eax
-  __int64 v12; // rax
-  int v13; // ebp
-  int v14; // esi
-  int v15; // edi
-  int v16; // ecx
-  int v17; // ebx
-  unsigned int v18; // eax
-  int result; // eax
-  int v20; // [esp+0h] [ebp-2Ch]
-  int v21; // [esp+8h] [ebp-24h]
-  const char *v22; // [esp+Ch] [ebp-20h]
-  int v23; // [esp+10h] [ebp-1Ch]
+  int iPlayerLoop1; // esi
+  int iPlayerLoop2; // esi
+  int iPlayerDisplayLoop; // ebp
+  int iPlayerIndex; // esi
+  int iTextYPos; // edi
+  int iCarType; // ecx
+  int iCarTypeForSprite; // ebx
+  unsigned int uiKeyPressed; // eax
+  int iSavedScrSize; // [esp+0h] [ebp-2Ch]
+  int iCarSpriteYOffset; // [esp+4h] [ebp-28h]
+  int iContinueLoop; // [esp+8h] [ebp-24h]
+  char *szCurrentPlayerName; // [esp+Ch] [ebp-20h]
+  int iY; // [esp+10h] [ebp-1Ch]
 
-  v4 = -1;
-  v20 = scr_size;
+  iSavedScrSize = scr_size;                     // Initialize network wait screen - save screen size and setup display
   front_fade = 0;
   tick_on = -1;
   frontend_on = -1;
-  v5 = clear_network_game(scr_size);
+  clear_network_game();
   netCD = 0;
   cd_error = 0;
   SVGA_ON = -1;
   network_test = 1;
-  init_screen(v5, 0, -1);
-  front_vga[0] = load_picture(aResultBm);
-  front_vga_variable_1 = load_picture(&aFont2Bm[1]);
-  front_vga_variable_2 = load_picture(&aLcsmallcarBm[2]);
-  front_vga_variable_3 = load_picture(aTabtextBm);
-  picture = load_picture(&aZfont1Bm[1]);
-  front_vga_variable_10 = picture;
-  v21 = -1;
-  LODWORD(picture) = setpal((int)&aIresultPal[1], SHIDWORD(picture), (_WORD *)0xFFFFFFFF, (_BYTE *)a4);
+  init_screen();
+  front_vga[0] = (tBlockHeader *)load_picture("result.bm");// Load UI graphics: result screen, fonts, car sprites, and text tables
+  front_vga[1] = (tBlockHeader *)load_picture("font2.bm");
+  front_vga[2] = (tBlockHeader *)load_picture("smallcar.bm");
+  front_vga[3] = (tBlockHeader *)load_picture("tabtext.bm");
+  front_vga[15] = (tBlockHeader *)load_picture("font1.bm");
+  iContinueLoop = -1;
+  setpal("result.pal");
   if (network_on) {
     while (1) {
-      if (!v21)
-        goto LABEL_85;
-      if (switch_types) {
-        LODWORD(picture) = switch_types - 1;
+      UpdateSDL();
+      if (!iContinueLoop)
+        goto LABEL_83;
+      if (switch_types)                       // Handle game type switching (championship/single race/team game)
+      {
         game_type = switch_types - 1;
         if (switch_types == 1 && competitors == 1)
           competitors = 16;
         switch_types = 0;
-        v4 = game_type;
-        if (game_type == 1) {
-          LODWORD(picture) = ((_BYTE)TrackLoad - 1) & 7;
-          Race = picture;
-        } else {
+        if (game_type == 1)
+          Race = ((uint8)TrackLoad - 1) & 7;
+        else
           network_champ_on = 0;
-        }
       }
       if (switch_same <= 0)
-        break;
-      v10 = 0;
-      if (players > 0) {
-        v11 = 0;
-        do {
-          ++v11;
-          ++v10;
-          infinite_laps[v11] = switch_same - 666;
-        } while (v10 < players);
+        break;                                  // Check for same-car mode activation
+
+      // Force all players to use the same car type in same-car mode
+      for (iPlayerLoop2 = 0; iPlayerLoop2 < players; iPlayerLoop2++) {
+          Players_Cars[iPlayerLoop2] = switch_same - 666;  // Convert switch value to car type
       }
-      v4 = cheat_mode;
-      BYTE1(v4) = BYTE1(cheat_mode) | 0x40;
-      cheat_mode = v4;
-      LODWORD(picture) = (__int16)player1_car;
-      if (Players_Cars[(__int16)player1_car] < 0) {
+      //iPlayerLoop2 = 0;
+      //if (players > 0) {
+      //  iArrayOffset2 = 0;                      // Set same-car mode for all players (switch_same - 666 magic number)
+      //  do {
+      //    iArrayOffset2 += 4;
+      //    ++iPlayerLoop2;
+      //    *(int *)((char *)&infinite_laps + iArrayOffset2) = switch_same - 666;
+      //  } while (iPlayerLoop2 < players);
+      //}
+
+      cheat_mode |= CHEAT_MODE_CLONES;
+
+      if (Players_Cars[player1_car] < 0)      // Check if player1 car is invalid (negative) - disconnect from network
+      {
         StartPressed = 0;
         time_to_start = 0;
         broadcast_mode = -670;
         while (broadcast_mode)
           ;
-        v4 = 0;
-        v21 = 0;
+        iContinueLoop = 0;
       LABEL_25:
         --players_waiting;
       }
     LABEL_26:
-      check_cars(picture);
-      display_picture(scrbuf, front_vga[0], v4);
-      sprintf(&buffer, "%s: %i", language_buffer_variable_1, players);
-      front_text(16, 4, 143, 0);
-      sprintf(&buffer, "%s: %i", language_buffer_variable_4, TrackLoad);
-      front_text(16, 24, 143, 0);
-      if (game_type) {
+      check_cars();
+      display_picture(scrbuf, front_vga[0]);    // Main network lobby display loop - show waiting screen
+      sprintf(buffer, "%s: %i", &language_buffer[64], players);
+      front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 16, 4, 0x8Fu, 0);
+      sprintf(buffer, "%s: %i", &language_buffer[256], TrackLoad);
+      front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 16, 24, 0x8Fu, 0);
+      if (game_type)                          // Display game type text based on current mode
+      {
         if ((unsigned int)game_type <= 1) {
-          sprintf(&buffer, "%s", language_buffer_variable_55);
+          sprintf(buffer, "%s", &language_buffer[3520]);
         } else if (game_type == 2) {
-          sprintf(&buffer, "%s", language_buffer_variable_58);
+          sprintf(buffer, "%s", &language_buffer[3712]);
         }
       } else {
-        sprintf(&buffer, "%s", language_buffer_variable_57);
+        sprintf(buffer, "%s", &language_buffer[3648]);
       }
-      v4 = (int)&font2_ascii;
-      a4 = (int)&font2_offsets;
-      v12 = front_text(200, 4, 143, 1);
-      LODWORD(v12) = players_waiting;
-      if (players_waiting == network_on) {
-        LODWORD(v12) = frames & 0xF;
-        if ((unsigned int)v12 < 8) {
-          v4 = (int)&font2_ascii;
-          a4 = (int)&font2_offsets;
-          v12 = front_text(200, 22, 143, 1);
-        }
+      front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 200, 4, 0x8Fu, 1u);
+      if (players_waiting == network_on)      // Show flashing "Ready to start" message when all players connected
+      {
+        if ((frames & 0xFu) < 8)
+          front_text(front_vga[1], &language_buffer[4800], font2_ascii, font2_offsets, 200, 22, 0x8Fu, 1u);
         if (time_to_start)
-          v21 = 0;
+          iContinueLoop = 0;
       }
-      v13 = 0;
+      iPlayerDisplayLoop = 0;
       if (players > 0) {
-        v14 = 0;
-        v23 = 44;
-        v22 = player_names;
-        v15 = 49;
-        do {
-          if (player_started[v14] && (!v13 && (frames & 0xFu) < 8 || v13 > 0))
-            display_block(v23, 0);
-          sprintf(&buffer, "%i", v13 + 1);
-          front_text(33, v15, 143, 0);
-          sprintf(&buffer, "%s", v22);
-          front_text(85, v15, 143, 0);
-          v16 = Players_Cars[v14];
-          if (v16 >= 0) {
-            sprintf(&buffer, "%s", &CompanyNames[20 * v16]);
-            front_text(218, v15, 143, 0);
-            v17 = Players_Cars[v14];
-            if (v17 < 8) {
-              a4 = 165;
-              if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-                v4 = smallcars_variable_1[v17];
+        iPlayerIndex = 0;                       // Display player list with names, car selections, and connection status
+        iY = 44;
+        szCurrentPlayerName = player_names[0];
+        iTextYPos = 49;
+        do {                                       // Show flashing indicator for player1, solid for others
+          if (player_started[iPlayerIndex] && (!iPlayerDisplayLoop && (frames & 0xFu) < 8 || iPlayerDisplayLoop > 0))
+            display_block(scrbuf, front_vga[2], 0, 13, iY, 0);
+          sprintf(buffer, "%i", iPlayerDisplayLoop + 1);
+          iCarSpriteYOffset = 22 * iPlayerDisplayLoop;
+          front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 33, iTextYPos, 0x8Fu, 0);
+          sprintf(buffer, "%s", szCurrentPlayerName);
+          front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 85, iTextYPos, 0x8Fu, 0);
+          iCarType = Players_Cars[iPlayerIndex];
+          if (iCarType >= 0)                  // Display car company name and sprite if valid car selected
+          {
+            sprintf(buffer, "%s", CompanyNames[iCarType]);
+            front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 218, iTextYPos, 0x8Fu, 0);
+            iCarTypeForSprite = Players_Cars[iPlayerIndex];
+            if (iCarTypeForSprite < 8) {
+              if ((textures_off & 0x10000) != 0)
+                display_block(scrbuf, front_vga[2], smallcars[1][iCarTypeForSprite], 165, iCarSpriteYOffset + 46, 0);
               else
-                v4 = smallcars[v17];
-              display_block(22 * v13 + 46, 0);
+                display_block(scrbuf, front_vga[2], smallcars[0][iCarTypeForSprite], 165, iCarSpriteYOffset + 46, 0);
             } else {
-              v4 = (int)&font2_ascii;
-              a4 = (int)&font2_offsets;
-              front_text(165, v15, 143, 0);
+              front_text(front_vga[1], "CHEAT", font2_ascii, font2_offsets, 165, iTextYPos, 0x8Fu, 0);
             }
           } else {
-            v4 = (int)&font2_ascii;
-            a4 = (int)&font2_offsets;
-            front_text(218, v15, 143, 0);
+            front_text(front_vga[1], &language_buffer[4160], font2_ascii, font2_offsets, 218, iTextYPos, 0x8Fu, 0);
           }
-          ++v14;
-          v15 += 22;
-          ++v13;
-          LODWORD(v12) = v23 + 22;
-          HIDWORD(v12) = v22 + 9;
-          v23 += 22;
-          v22 += 9;
-        } while (v13 < players);
+          ++iPlayerIndex;
+          iTextYPos += 22;
+          ++iPlayerDisplayLoop;
+          iY += 22;
+          szCurrentPlayerName += 9;
+        } while (iPlayerDisplayLoop < players);
       }
       if (time_to_start)
-        v21 = 0;
-      if (v21) {
-        show_received_mesage(v12, HIDWORD(v12), v4, a4);
-        copypic((char *)scrbuf, (int)screen);
+        iContinueLoop = 0;
+      if (iContinueLoop) {
+        show_received_mesage();
+        copypic(scrbuf, screen);
         if (!front_fade) {
-          front_fade = -1;
-          fade_palette(32, -668, v4, a4);
+          front_fade = -1;                      // Initialize screen fade and network synchronization
+          fade_palette(32);
           broadcast_mode = -668;
           while (broadcast_mode)
-            ;
+            UpdateSDL();
           broadcast_mode = -668;
           while (broadcast_mode)
-            ;
+            UpdateSDL();
           frames = 0;
         }
       }
-      HIDWORD(picture) = 0;
-      while (1) {
-        LODWORD(picture) = fatkbhit();
-        if (!(_DWORD)picture)
-          break;
-        v18 = fatgetch();
-        if (v18 < 0xD) {
-          if (!v18)
+      while (fatkbhit())                      // Handle keyboard input for network lobby
+      {
+        UpdateSDL();
+        uiKeyPressed = fatgetch();
+        if (uiKeyPressed < 0xD) {
+          if (!uiKeyPressed)
             fatgetch();
-        } else if (v18 <= 0xD) {
+        } else if (uiKeyPressed <= 0xD) {                                       // Enter key pressed - start race if all players ready
           if (players_waiting == network_on && !time_to_start) {
-            v4 = -671;
-            v21 = 0;
+            iContinueLoop = 0;
             broadcast_mode = -671;
             while (broadcast_mode)
-              ;
+              UpdateSDL();
             broadcast_mode = -671;
             while (broadcast_mode)
-              ;
+              UpdateSDL();
             broadcast_mode = -671;
             while (broadcast_mode)
-              ;
+              UpdateSDL();
             time_to_start = -1;
           }
-        } else if (v18 == 27) {
-          v4 = time_to_start;
-          if (!time_to_start) {
-            a4 = restart_net;
-            if (!restart_net) {
-              StartPressed = 0;
-              time_to_start = 0;
-              broadcast_mode = -670;
-              while (broadcast_mode)
-                ;
-              v21 = 0;
-              --players_waiting;
-              no_clear = -1;
-            }
-          }
+        } else if (uiKeyPressed == 27 && !time_to_start && !restart_net)// Escape key pressed - leave network game
+        {
+          StartPressed = 0;
+          time_to_start = 0;
+          broadcast_mode = -670;
+          while (broadcast_mode)
+            UpdateSDL();
+          iContinueLoop = 0;
+          --players_waiting;
+          no_clear = -1;
         }
       }
     }
     if (switch_same >= 0)
       goto LABEL_26;
-    v7 = 0;
-    if (players > 0) {
-      v8 = 0;
-      do {
-        ++v8;
-        ++v7;
-        infinite_laps[v8] = -1;
-      } while (v7 < players);
+
+    for (iPlayerLoop1 = 0; iPlayerLoop1 < players; iPlayerLoop1++) {
+        Players_Cars[iPlayerLoop1] = -1;
     }
-    v9 = cheat_mode;
-    BYTE1(v9) = BYTE1(cheat_mode) & 0xBF;
-    cheat_mode = v9;
+    //iPlayerLoop1 = 0;                           // Reset same-car mode - clear player settings
+    //if (players > 0) {
+    //  iArrayOffset1 = 0;
+    //  do {
+    //    iArrayOffset1 += 4;
+    //    ++iPlayerLoop1;
+    //    *(int *)((char *)&infinite_laps + iArrayOffset1) = -1;
+    //  } while (iPlayerLoop1 < players);
+    //}
+
+    cheat_mode &= ~CHEAT_MODE_CLONES;
+
     switch_same = 0;
     StartPressed = 0;
     time_to_start = 0;
     broadcast_mode = -670;
     while (broadcast_mode)
       ;
-    LODWORD(picture) = 0;
-    v21 = 0;
+    iContinueLoop = 0;
     goto LABEL_25;
   }
-LABEL_85:
-  LODWORD(picture) = ticks + 18;
-  if (ticks + 18 > ticks) {
-    while ((int)picture > ticks)
-      ;
-  }
-  if (time_to_start) {
+LABEL_83:
+  while (ticks + 18 > ticks)                  // Wait loop for network synchronization timing
+    ;
+  if (time_to_start)                          // Final network synchronization before race starts
+  {
     broadcast_mode = -314;
     while (broadcast_mode)
       ;
-    LODWORD(picture) = wConsoleNode;
-    if (wConsoleNode == master) {
-      do
-        LODWORD(picture) = received_records;
-      while (received_records < network_on);
+    if (wConsoleNode == master)               // Master node waits for all client records, then broadcasts seed
+    {
+      while (received_records < network_on)
+        ;
       broadcast_mode = -2718;
       while (broadcast_mode)
         ;
-    } else {
+    } else {                                           // Client nodes wait for random seed from master
       while (!received_seed)
         ;
     }
   }
-  check_cars(picture);
-  fade_palette(0, SHIDWORD(picture), v4, a4);
+  check_cars();                                 // Cleanup: fade screen, free graphics memory, restore screen size
+  fade_palette(0);
   front_fade = 0;
-  fre(front_vga);
-  fre(&front_vga_variable_1);
-  fre(&front_vga_variable_2);
-  fre(&front_vga_variable_3);
-  fre(&front_vga_variable_10);
-  result = v20;
-  scr_size = v20;
-  return result;*/
+  fre((void **)front_vga);
+  fre((void **)&front_vga[1]);
+  fre((void **)&front_vga[2]);
+  fre((void **)&front_vga[3]);
+  fre((void **)&front_vga[15]);
+  scr_size = iSavedScrSize;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -6282,7 +6273,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
   // Process all cheat names until terminator '#'
   while (*szCurrCheat != '#') {
       // Check if player name matches current cheat name
-    if (name_cmp(szPlayerName, szCurrCheat) == 0) {
+    if (name_cmp(szPlayerName, szCurrCheat)) {
       // Handle cheats
       if (iCheatIdx <= 25) {
         switch (iCheatIdx) {
@@ -6458,36 +6449,32 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
 
 void restart_net_game()
 {
-  /*
-  int v1; // eax
-  int v2; // eax
-  int v3; // edi
-  int v4; // edx
-  int i; // ecx
+  int iActualCompetitors; // edi
+  int iGridIndex; // edx
+  int iCompetitorLoop; // ecx
+  int i; // eax
+  int iTotalCars; // esi
+  int iCarIndex; // edx
+  int iGridOffset; // ecx
+  int iNonCompSearch; // eax
   int j; // eax
-  int v7; // esi
-  int v8; // edx
-  int v9; // ecx
-  int k; // eax
+  int iAISearch; // ebx
+  int iRandRange; // eax
+  int iFirstSwapPos; // ecx
+  int iSecondRand; // eax
+  int iSecondSwapPos; // eax
+  int iTempCarId; // ebp
+  int k; // esi
+  int iHandicapPos; // edx
+  int iHumanPos; // ebx
+  int iOrderLoop; // eax
   int m; // eax
-  int v12; // eax
-  int n; // ebx
-  int v14; // eax
-  int v15; // ecx
-  int v16; // eax
-  int v17; // ebp
-  int ii; // esi
-  int v19; // edx
-  int v20; // ebx
-  int jj; // eax
-  int kk; // eax
-  int v23; // ecx
-  int v24; // edx
-  int result; // eax
-  int v26; // [esp+4h] [ebp-1Ch]
+  int iAICarId; // ecx
+  int iHumanCarId; // edx
+  int iMaxCarOffset; // [esp+4h] [ebp-1Ch]
 
-  SVGA_ON = -1;
-  init_screen(a1, -1, 0);
+  SVGA_ON = -1;                                 // Initialize graphics and game state
+  init_screen();
   winx = 0;
   winy = 0;
   winw = XMAX;
@@ -6497,107 +6484,112 @@ void restart_net_game()
   time_to_start = 0;
   StartPressed = 0;
   tick_on = -1;
-  load_language_file((int)&aSelectEng[1], 0);
-  load_language_file((int)&aPconfigEng[1], 1);
-  remove_messages(-1, 1, 0);
-  v1 = reset_network(0);
+  load_language_file(szSelectEng, 0);           // Load language files for interface
+  load_language_file(szConfigEng, 1);
+  remove_messages(-1);
+  reset_network(0);                             // Reset network and wait for broadcast mode to clear
   broadcast_mode = -667;
   while (broadcast_mode)
-    ;
+    UpdateSDL();
   no_clear = 0;
   if (!quit_game && !intro) {
-    v2 = check_cars(v1);
-    v1 = NetworkWait(v2, 0, 0, -1);
+    check_cars();                               // Check cars and wait for network if not quitting or in intro
+    NetworkWait();
   }
   if (replaytype != 2 && !quit_game)
-    AllocateCars(v1);
-  Race = ((_BYTE)TrackLoad - 1) & 7;
+    AllocateCars();
+  Race = ((uint8)TrackLoad - 1) & 7;            // Calculate current race number (0-7)
   if (game_type == 1 && !Race) {
-    memset(championship_points, 0, sizeof(championship_points));
-    memset(team_points, 0, 64);
-    memset(total_kills, 0, 64);
-    memset(total_fasts, 0, 64);
-    memset(total_wins, 0, 64);
-    memset(team_kills, 0, 64);
+    memset(championship_points, 0, sizeof(championship_points));// Reset championship statistics for new championship
+    memset(team_points, 0, 0x40u);
+    memset(total_kills, 0, sizeof(total_kills));
+    memset(total_fasts, 0, sizeof(total_fasts));
+    memset(total_wins, 0, sizeof(total_wins));
+    memset(team_kills, 0, sizeof(team_kills));
     memset(team_fasts, 0, sizeof(team_fasts));
-    memset(team_wins, 0, 64);
+    memset(team_wins, 0, sizeof(team_wins));
   }
-  v3 = competitors;
-  if (competitors == 2) {
-    v3 = players;
+  iActualCompetitors = competitors;
+  if (competitors == 2)                       // Determine actual number of competitors based on game type
+  {
+    iActualCompetitors = players;
     if (players < 2)
-      v3 = competitors;
+      iActualCompetitors = competitors;
   }
   if (competitors == 1)
-    v3 = players;
-  v4 = 0;
-  if (v3 > 0) {
-    for (i = 0; i < v3; ++i) {
-      for (j = v4; non_competitors[j]; ++j)
-        ++v4;
-      grid[i] = v4++;
+    iActualCompetitors = players;
+  iGridIndex = 0;
+  if (iActualCompetitors > 0) {                                             // Fill grid with competing cars (skip non-competitors)
+    for (iCompetitorLoop = 0; iCompetitorLoop < iActualCompetitors; ++iCompetitorLoop) {
+      for (i = iGridIndex; non_competitors[i]; ++i)
+        ++iGridIndex;
+      grid[iCompetitorLoop] = iGridIndex++;
     }
   }
-  v7 = v3;
-  v8 = 0;
-  if (v3 < numcars) {
-    v9 = 4 * v3;
-    v26 = 4 * numcars;
+  iTotalCars = iActualCompetitors;
+  iCarIndex = 0;
+  if (iActualCompetitors < numcars) {
+    iGridOffset = 4 * iActualCompetitors;       // Fill remaining grid positions with AI cars
+    iMaxCarOffset = 4 * numcars;
     do {
-      for (k = v8; !non_competitors[k]; ++k)
-        ++v8;
-      ++v7;
-      grid[v9 / 4u] = v8;
-      v9 += 4;
-      ++v8;
-    } while (v9 < v26);
+      for (iNonCompSearch = iCarIndex; !non_competitors[iNonCompSearch]; ++iNonCompSearch)
+        ++iCarIndex;
+      ++iTotalCars;
+      grid[iGridOffset / 4u] = iCarIndex;
+      iGridOffset += 4;
+      ++iCarIndex;
+    } while (iGridOffset < iMaxCarOffset);
   }
   if (game_type == 1 && Race > 0) {
-    if (v3 > 0) {
-      for (m = 0; m < v3; finished_car_variable_1[m] = teamorder_variable_1[m])
-        ++m;
+    if (iActualCompetitors > 0) {
+      for (j = 0; j < iActualCompetitors; ++j) {
+          grid[j] = champorder[j];
+      }
+      //for (j = 0; j < iActualCompetitors; finished_car[j + 15] = teamorder[j + 7])
+      //  ++j;
     }
   } else {
-    racers = v3;
-    v12 = 6 * v3;
-    for (n = 0; n < 6 * v3; grid[v12] = v17) {
-      v14 = rand(v12);
-      v15 = (v3 * v14 - (__CFSHL__((v3 * v14) >> 31, 15) + ((v3 * v14) >> 31 << 15))) >> 15;
-      v16 = rand(v15);
-      v12 = (v3 * v16 - (__CFSHL__((v3 * v16) >> 31, 15) + ((v3 * v16) >> 31 << 15))) >> 15;
-      v17 = grid[v15];
-      grid[v15] = grid[v12];
-      ++n;
+    racers = iActualCompetitors;
+    for (iAISearch = 0; iAISearch < 6 * iActualCompetitors; grid[iSecondSwapPos] = iTempCarId)// Shuffle grid positions randomly for non-championship races
+    {
+      iRandRange = rand();
+      iFirstSwapPos = iRandRange % iActualCompetitors;  // Get random position within grid bounds
+      //iFirstSwapPos = (iActualCompetitors * iRandRange - (__CFSHL__((iActualCompetitors * iRandRange) >> 31, 15) + ((iActualCompetitors * iRandRange) >> 31 << 15))) >> 15;
+      iSecondRand = rand();
+      iSecondSwapPos = iSecondRand % iActualCompetitors;  // Get second random position within grid bounds
+      //iSecondSwapPos = (iActualCompetitors * iSecondRand - (__CFSHL__((iActualCompetitors * iSecondRand) >> 31, 15) + ((iActualCompetitors * iSecondRand) >> 31 << 15))) >> 15;
+      iTempCarId = grid[iFirstSwapPos];
+      grid[iFirstSwapPos] = grid[iSecondSwapPos];
+      ++iAISearch;
     }
-    v3 = racers;
-    for (ii = 0; ii < players; ++ii) {
+    iActualCompetitors = racers;
+    for (k = 0; k < players; ++k)             // Position human players based on difficulty level
+    {                                           // Calculate starting position handicap based on level
       if (level && (cheat_mode & 2) == 0)
-        v19 = v3 - 2 * level * players;
+        iHandicapPos = iActualCompetitors - 2 * level * players;
       else
-        v19 = v3 - players;
-      if (v19 < 0)
-        v19 = 0;
-      v20 = 0;
-      for (jj = 0; !human_control[grid[jj]]; ++jj)
-        ++v20;
-      if (v20 < v19) {
-        for (kk = v19; ; ++kk) {
-          v23 = grid[kk];
-          if (!human_control[v23])
+        iHandicapPos = iActualCompetitors - players;
+      if (iHandicapPos < 0)
+        iHandicapPos = 0;
+      iHumanPos = 0;
+      for (iOrderLoop = 0; !human_control[grid[iOrderLoop]]; ++iOrderLoop)// Find human player in grid and ensure proper positioning
+        ++iHumanPos;
+      if (iHumanPos < iHandicapPos) {
+        for (m = iHandicapPos; ; ++m) {
+          iAICarId = grid[m];
+          if (!human_control[iAICarId])
             break;
-          ++v19;
+          ++iHandicapPos;
         }
-        v24 = grid[v20];
-        grid[v20] = v23;
-        grid[kk] = v24;
+        iHumanCarId = grid[iHumanPos];
+        grid[iHumanPos] = iAICarId;
+        grid[m] = iHumanCarId;
       }
     }
   }
-  result = 0;
-  StartPressed = 0;
+  StartPressed = 0;                             // Finalize restart state
   restart_net = 0;
-  racers = v3;
-  return result;*/
+  racers = iActualCompetitors;
 }
 
 //-------------------------------------------------------------------------------------------------

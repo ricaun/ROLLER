@@ -106,6 +106,7 @@ extern int language;
 extern tTrakColour TrakColour[500];
 extern tData localdata[500];
 extern tGroundPt GroundPt[500];
+extern tGroundPt TrakPt[500];
 extern uint8 shade_palette[4096];
 extern tColor palette[256];
 extern float tsin[16384];
