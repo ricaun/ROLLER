@@ -2,6 +2,10 @@
 #define _ROLLER_VIEW_H
 //-------------------------------------------------------------------------------------------------
 
+extern int NearTow;
+
+//-------------------------------------------------------------------------------------------------
+
 int calculateview(int a1, int a2, int a3);
 int initcarview(int result, int a2);
 int newchaseview(int a1, int a2);

@@ -1,136 +1,141 @@
 #include "tower.h"
+#include "loadtrak.h"
+#include "3d.h"
+#include "view.h"
+#include "transfrm.h"
+#include <string.h>
+#include <math.h>
+//-------------------------------------------------------------------------------------------------
+
+int TowerSect[500];       //001A1FA0
+float TowerX[32];         //001A2770
+float TowerY[32];         //001A27F0
+float TowerZ[32];         //001A2870
+tTowerBase TowerBase[32]; //001A28F0
+tPolyParams TowerPol;     //001A2B70
+int NumTowers;            //001A2B9C
+
 //-------------------------------------------------------------------------------------------------
 
 void InitTowers()
-{/*
-  int result; // eax
-  int v1; // esi
-  int v2; // edx
-  int v3; // ebx
-  int v4; // edi
-  int v5; // ecx
-  float *v6; // eax
-  float *v7; // ebp
-  double v8; // st7
-  int v9; // ecx
-  float v10; // [esp+4h] [ebp-34h]
-  float v11; // [esp+8h] [ebp-30h]
-  float v12; // [esp+Ch] [ebp-2Ch]
-  float v13; // [esp+10h] [ebp-28h]
-  float v14; // [esp+14h] [ebp-24h]
-  float v15; // [esp+18h] [ebp-20h]
-  int v16; // [esp+1Ch] [ebp-1Ch]
+{
+  int iTowerIndex; // esi
+  int iTowerBaseIndex; // edx
+  int iTowerArrayIndex; // ebx
+  int iTrackSegmentIndex; // edi
+  int iNextSegmentIndex; // ecx
+  tData *pCurrentTrackData; // eax
+  tData *pNextTrackData; // ebp
+  int iTotalTowers; // ecx
+  float fNegTrackX; // [esp+4h] [ebp-34h]
+  float fNegTrackY; // [esp+8h] [ebp-30h]
+  float fTrackDistance; // [esp+Ch] [ebp-2Ch]
+  float fTowerOffset; // [esp+10h] [ebp-28h]
+  float fTrackDeltaX; // [esp+14h] [ebp-24h]
+  float fTrackDeltaY; // [esp+18h] [ebp-20h]
+  float fTowerHeight; // [esp+1Ch] [ebp-1Ch]
 
-  result = memset(TowerSect, 255, sizeof(TowerSect));
-  v1 = 0;
-  if (NumTowers > 0) {
-    v2 = 0;
-    v3 = 0;
+  memset(TowerSect, 255, sizeof(TowerSect));    // Initialize tower sector array to -1 (no towers)
+  iTowerIndex = 0;
+  if (NumTowers > 0)                          // Process each tower if any towers exist
+  {
+    iTowerBaseIndex = 0;
+    iTowerArrayIndex = 0;
     do {
-      v4 = TowerBase[v2];
-      v5 = v4 + 1;
-      v13 = (float)TowerBase_variable_1[v2];
-      if (v4 + 1 >= TRAK_LEN)
-        v5 -= TRAK_LEN;
-      v6 = (float *)((char *)&localdata + 128 * v4);
-      v11 = -v6[10];
-      v7 = (float *)((char *)&localdata + 128 * v5);
-      *(float *)&v16 = (double)(32 * TowerBase_variable_2[v2]) - v6[11];
-      v14 = v6[9] - v7[9];
-      v15 = v6[10] - v7[10];
-      v12 = sqrt(v14 * v14 + v15 * v15);
-      if ((LODWORD(v14) & 0x7FFFFFFF) != 0)
-        v14 = v14 / v12;
-      if (fabs(v6[10] - v7[10]))
-        v15 = v15 / v12;
-      v10 = -v6[9];
-      TowerX[v3] = v10 - v13 * v15 * tower_c_variable_1;
-      v8 = v13 * v14 * tower_c_variable_1 + v11;
-      result = v16;
-      v9 = NumTowers;
-      v2 += 5;
-      ++v3;
-      TowerSect[v4] = v1++;
-      TowerY_variable_1[v3] = v16;
-      TowerX_variable_1[v3] = v8;
-    } while (v1 < v9);
+      iTrackSegmentIndex = TowerBase[iTowerBaseIndex].iChunkIdx;// Get track segment index for this tower
+      iNextSegmentIndex = iTrackSegmentIndex + 1;// Calculate next track segment with wraparound
+      fTowerOffset = (float)TowerBase[iTowerBaseIndex].iHOffset;// Convert tower offset to float
+      if (iTrackSegmentIndex + 1 >= TRAK_LEN)
+        iNextSegmentIndex -= TRAK_LEN;
+      pCurrentTrackData = &localdata[iTrackSegmentIndex];// Get track data for current and next segments
+      fNegTrackY = -pCurrentTrackData->pointAy[3].fY;
+      pNextTrackData = &localdata[iNextSegmentIndex];
+      fTowerHeight = (float)((double)(32 * TowerBase[iTowerBaseIndex].iVOffset) - (double)pCurrentTrackData->pointAy[3].fZ);// Calculate tower height from track Z and tower height parameter
+      fTrackDeltaX = pCurrentTrackData->pointAy[3].fX - pNextTrackData->pointAy[3].fX;// Calculate track direction vector between segments
+      fTrackDeltaY = pCurrentTrackData->pointAy[3].fY - pNextTrackData->pointAy[3].fY;
+      fTrackDistance = (float)sqrt(fTrackDeltaX * fTrackDeltaX + fTrackDeltaY * fTrackDeltaY);// Calculate distance between track segments
+      if ( fabs(fTrackDeltaX) > 0.0f )
+      //if ((LODWORD(fTrackDeltaX) & 0x7FFFFFFF) != 0)// Normalize direction vector components
+        fTrackDeltaX = fTrackDeltaX / fTrackDistance;
+      if (fabs(pCurrentTrackData->pointAy[3].fY - pNextTrackData->pointAy[3].fY))
+        fTrackDeltaY = fTrackDeltaY / fTrackDistance;
+      fNegTrackX = -pCurrentTrackData->pointAy[3].fX;
+      TowerX[iTowerArrayIndex] = fNegTrackX - fTowerOffset * fTrackDeltaY * 32.0f;// Calculate tower X position with perpendicular offset
+      iTotalTowers = NumTowers;
+      
+      //loop offset fix
+      TowerZ[iTowerArrayIndex] = fTowerHeight;
+      TowerY[iTowerArrayIndex] = fTowerOffset * fTrackDeltaX * 32.0f + fNegTrackY;
+
+      ++iTowerBaseIndex;
+      ++iTowerArrayIndex;
+      TowerSect[iTrackSegmentIndex] = iTowerIndex++;// Store tower index in track segment lookup table
+      //TowerY[iTowerArrayIndex + 31] = fTowerHeight;// offset into TowerZ
+      //TowerX[iTowerArrayIndex + 31] = fTowerOffset * fTrackDeltaX * 32.0 + fNegTrackY;// offset into TowerY
+    } while (iTowerIndex < iTotalTowers);
   }
-  TowerPol_variable_1 = 4;
-  return result;*/
+  TowerPol.uiNumVerts = 4;                      // Set tower polygon to 4 vertices (rectangular)
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void DrawTower(int a1, int a2)
-{/*
-  double v2; // st7
-  double v3; // st6
-  double v4; // st5
-  double v5; // st7
-  __int16 v6; // fps
-  _BOOL1 v7; // c0
-  char v8; // c2
-  _BOOL1 v9; // c3
-  int v10; // eax
-  double v11; // st7
-  double v12; // st6
-  double v13; // st5
-  double v14; // st7
-  int v15; // ebp
-  int v16; // ecx
-  int v17; // eax
-  int v18; // ecx
-  int v19; // ebx
-  float v20; // [esp+20h] [ebp-20h]
-  float v21; // [esp+24h] [ebp-1Ch]
-  float v22; // [esp+28h] [ebp-18h]
-  float v23; // [esp+2Ch] [ebp-14h]
+void DrawTower(int iTowerIdx, uint8 *pScrBuf)
+{                                               
+  double TowerMinusViewX; // st7
+  double TowerMinusViewY; // st6
+  double TowerMinusViewZ; // st5
+  double dTransformed3DZ; // st7
+  double dViewDistance; // st7
+  double dZInverse; // st6
+  double dScreenX; // st5
+  double dScreenY; // st7
+  int iScreenSize; // ebp
+  int iPixelOffsetX; // ecx
+  int iPixelX; // ecx
+  int iPixelY; // ebx
+  float fTransformed3DY; // [esp+20h] [ebp-20h]
+  float fTransformed3DX; // [esp+24h] [ebp-1Ch]
+  float fOriginalZ; // [esp+28h] [ebp-18h]
+  float fClampedZ; // [esp+2Ch] [ebp-14h]
 
-  if (a1 != NearTow && TowerBase_variable_3[5 * a1] > -1) {
-    v2 = TowerX[a1] - viewx;
-    v3 = TowerY[a1] - viewy;
-    v4 = TowerZ[a1] - viewz;
-    v21 = v2 * vk1 + v3 * vk4 + v4 * vk7;
-    v20 = v2 * vk2 + v3 * vk5 + v4 * vk8;
-    v5 = v2 * vk3 + v3 * vk6 + v4 * vk9;
-    v23 = v5;
-    HIWORD(v10) = HIWORD(v23);
-    v22 = v23;
-    v7 = v5 < tower_c_variable_2;
-    v8 = 0;
-    v9 = v5 == tower_c_variable_2;
-    LOWORD(v10) = v6;
-    if (v5 < tower_c_variable_2)
-      v23 = 80.0;
-    v11 = (double)VIEWDIST;
-    v12 = 1.0 / v23;
-    v13 = v11 * v21 * v12 + (double)xbase;
-    _CHP(v10, a2);
-    xp = (int)v13;
-    v14 = v12 * (v11 * v20) + (double)ybase;
-    v15 = scr_size;
-    v16 = scr_size * (int)v13;
-    _CHP(v17, a2);
-    yp = (int)v14;
-    v18 = v16 >> 6;
-    v19 = (v15 * (199 - (int)v14)) >> 6;
-    if (v22 >= (double)tower_c_variable_3 && xp >= -50 && xp < 370 && yp >= -50 && yp < 250
-      || v22 >(double)tower_c_variable_4
-      && v22 < (double)tower_c_variable_3
-      && (v21 > (double)tower_c_variable_4 && v21 < (double)tower_c_variable_5 || xp > -200 && xp < 520)) {
-      TowerPol_variable_2 = v18 + 3;
-      TowerPol_variable_4 = v18 - 3;
-      TowerPol_variable_6 = v18 - 3;
-      TowerPol_variable_3 = v19 - 3;
-      TowerPol_variable_5 = v19 - 3;
-      TowerPol_variable_7 = v19 + 3;
-      TowerPol_variable_9 = v19 + 3;
-      TowerPol_variable_8 = v18 + 3;
-      TowerPol = 8423;
-      TowerPol_variable_1 = 4;
-      POLYFLAT(a2, &TowerPol);
+  if (iTowerIdx != NearTow && TowerBase[iTowerIdx].iEnabled > -1) {// Skip if tower is nearby or disabled
+    TowerMinusViewX = TowerX[iTowerIdx] - viewx;// Calculate tower position relative to camera view
+    TowerMinusViewY = TowerY[iTowerIdx] - viewy;
+    TowerMinusViewZ = TowerZ[iTowerIdx] - viewz;
+    fTransformed3DX = (float)TowerMinusViewX * vk1 + (float)TowerMinusViewY * vk4 + (float)TowerMinusViewZ * vk7;// Transform 3D tower position using view matrix
+    fTransformed3DY = (float)TowerMinusViewX * vk2 + (float)TowerMinusViewY * vk5 + (float)TowerMinusViewZ * vk8;
+    dTransformed3DZ = (float)TowerMinusViewX * vk3 + (float)TowerMinusViewY * vk6 + (float)TowerMinusViewZ * vk9;
+    fClampedZ = (float)dTransformed3DZ;
+    fOriginalZ = fClampedZ;
+    if (dTransformed3DZ < 80.0)               // Clamp Z distance to minimum for perspective division
+      fClampedZ = 80.0;
+    dViewDistance = (double)VIEWDIST;           // Project 3D coordinates to 2D screen space
+    dZInverse = 1.0 / fClampedZ;
+    dScreenX = dViewDistance * fTransformed3DX * dZInverse + (double)xbase;
+    //_CHP();
+    xp = (int)dScreenX;
+    dScreenY = dZInverse * (dViewDistance * fTransformed3DY) + (double)ybase;
+    iScreenSize = scr_size;
+    iPixelOffsetX = scr_size * (int)dScreenX;   // Calculate pixel buffer coordinates with bit shift scaling
+    //_CHP();
+    yp = (int)dScreenY;
+    iPixelX = iPixelOffsetX >> 6;
+    iPixelY = (iScreenSize * (199 - (int)dScreenY)) >> 6;// Complex visibility test for different distance ranges
+    if (fOriginalZ >= 5000.0 && xp >= -50 && xp < 370 && yp >= -50 && yp < 250
+      || fOriginalZ > -1000.0 && fOriginalZ < 5000.0 && (fTransformed3DX > -1000.0 && fTransformed3DX < 1000.0 || xp > -200 && xp < 520)) {
+      TowerPol.vertices[0].x = iPixelX + 3;     // Create 6x6 pixel rectangle for tower visualization
+      TowerPol.vertices[1].x = iPixelX - 3;
+      TowerPol.vertices[2].x = iPixelX - 3;
+      TowerPol.vertices[0].y = iPixelY - 3;
+      TowerPol.vertices[1].y = iPixelY - 3;
+      TowerPol.vertices[2].y = iPixelY + 3;
+      TowerPol.vertices[3].y = iPixelY + 3;
+      TowerPol.vertices[3].x = iPixelX + 3;
+      TowerPol.uiSurfaceType = 0x20E7;          // Set tower polygon properties and draw to screen buffer
+      TowerPol.uiNumVerts = 4;
+      POLYFLAT(pScrBuf, &TowerPol);
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
