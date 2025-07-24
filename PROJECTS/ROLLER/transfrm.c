@@ -1,6 +1,9 @@
 #include "transfrm.h"
 #include "3d.h"
 #include "control.h"
+#include "loadtrak.h"
+#include "userfns.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 float vk1;  //00189950
@@ -115,360 +118,361 @@ void initlocaltrack()
 
 //-------------------------------------------------------------------------------------------------
 
-void initlocalsection(int a1)
-{/*
-  int v1; // ecx
-  int v2; // esi
-  int v4; // eax
-  char *v5; // edx
-  unsigned int v6; // eax
-  double v7; // st7
-  int v8; // ebx
-  double v9; // st7
-  long double v10; // rt0
-  long double v11; // st5
-  int v12; // ebx
-  double v13; // st7
-  long double v14; // st6
-  long double v15; // st5
-  int v16; // ebx
-  long double v17; // st6
-  long double v18; // st7
-  long double v19; // st5
-  double v20; // st7
-  double v21; // st6
-  double v22; // st7
-  int v23; // eax
-  long double v24; // rt0
-  long double v25; // rt1
-  unsigned int v26; // eax
-  long double v27; // st7
-  long double v28; // st6
-  long double v29; // st5
-  long double v30; // st4
-  long double v31; // st3
-  long double v32; // st2
-  int v33; // ebx
-  double v34; // st7
-  long double v35; // rt0
-  long double v36; // st5
-  int v37; // ebx
-  double v38; // st7
-  long double v39; // st6
-  long double v40; // st5
-  double v41; // st7
-  int v42; // eax
-  double v43; // st7
-  int v44; // eax
-  double v45; // st7
-  int v46; // eax
-  int v47; // esi
-  int v48; // ebp
-  int v49; // ebx
-  _DWORD v50[30]; // [esp+0h] [ebp-2A8h]
-  double v51; // [esp+78h] [ebp-230h]
-  double v52; // [esp+80h] [ebp-228h]
-  double v53; // [esp+88h] [ebp-220h]
-  double v54; // [esp+90h] [ebp-218h]
-  double v55; // [esp+98h] [ebp-210h]
-  double v56; // [esp+A0h] [ebp-208h]
-  double v57; // [esp+B0h] [ebp-1F8h]
-  double v58; // [esp+B8h] [ebp-1F0h]
-  double v59; // [esp+C8h] [ebp-1E0h]
-  double v60; // [esp+D0h] [ebp-1D8h]
-  _DWORD v61[6]; // [esp+D8h] [ebp-1D0h]
-  double v62; // [esp+F0h] [ebp-1B8h]
-  double v63; // [esp+F8h] [ebp-1B0h]
-  double v64; // [esp+100h] [ebp-1A8h]
-  double v65; // [esp+108h] [ebp-1A0h]
-  double v66; // [esp+110h] [ebp-198h]
-  double v67; // [esp+118h] [ebp-190h]
-  double v68; // [esp+120h] [ebp-188h]
-  double v69; // [esp+128h] [ebp-180h]
-  double v70; // [esp+130h] [ebp-178h]
-  double v71; // [esp+138h] [ebp-170h]
-  double v72; // [esp+140h] [ebp-168h]
-  double v73; // [esp+148h] [ebp-160h]
-  double v74; // [esp+150h] [ebp-158h]
-  double v75; // [esp+158h] [ebp-150h]
-  double v76; // [esp+160h] [ebp-148h]
-  double v77; // [esp+168h] [ebp-140h]
-  double v78; // [esp+170h] [ebp-138h]
-  double v79; // [esp+178h] [ebp-130h]
-  double v80; // [esp+180h] [ebp-128h]
-  double v81; // [esp+188h] [ebp-120h]
-  double v82; // [esp+190h] [ebp-118h]
-  double v83; // [esp+198h] [ebp-110h]
-  double v84; // [esp+1A0h] [ebp-108h]
-  double v85; // [esp+1A8h] [ebp-100h]
-  double v86; // [esp+1B0h] [ebp-F8h]
-  double v87; // [esp+1B8h] [ebp-F0h]
-  double v88; // [esp+1C0h] [ebp-E8h]
-  long double v89; // [esp+1C8h] [ebp-E0h]
-  long double v90; // [esp+1D0h] [ebp-D8h]
-  long double v91; // [esp+1D8h] [ebp-D0h]
-  long double v92; // [esp+1E0h] [ebp-C8h]
-  long double v93; // [esp+1E8h] [ebp-C0h]
-  double v94; // [esp+1F0h] [ebp-B8h]
-  double v95; // [esp+1F8h] [ebp-B0h]
-  long double v96; // [esp+208h] [ebp-A0h]
-  long double v97; // [esp+210h] [ebp-98h]
-  double v98; // [esp+218h] [ebp-90h]
-  double v99; // [esp+220h] [ebp-88h]
-  long double v100; // [esp+228h] [ebp-80h]
-  long double v101; // [esp+230h] [ebp-78h]
-  long double v102; // [esp+238h] [ebp-70h]
-  long double v103; // [esp+240h] [ebp-68h]
-  long double v104; // [esp+248h] [ebp-60h]
-  long double v105; // [esp+250h] [ebp-58h]
-  long double v106; // [esp+258h] [ebp-50h]
-  long double v107; // [esp+260h] [ebp-48h]
-  double v108; // [esp+268h] [ebp-40h]
-  double v109; // [esp+270h] [ebp-38h]
-  long double v110; // [esp+278h] [ebp-30h]
-  double v111; // [esp+280h] [ebp-28h]
-  long double v112; // [esp+288h] [ebp-20h]
+void initlocalsection(int iChunkIdx)
+{
+  int iNextChunk; // ecx
+  int iNextNextChunk; // esi
+  int iArrayIndex; // eax
+  tData *pData; // edx
+  uint32 uiOffset; // eax
+  double fTemp; // st7
+  int iLoop1; // ebx
+  double fAngleY; // st7
+  double dSinY; // rt0
+  double dTempRot; // st5
+  int iLoop2; // ebx
+  double fAngleZ; // st7
+  double dSinZ; // st6
+  double dTempRotZ; // st5
+  int iLoop3; // ebx
+  double dAngleX; // st6
+  double dCosX; // st7
+  double dTempRotX; // st5
+  //int16 nFpStatus1; // fps
+  double fBankAngle; // st7
+  //int16 nFpStatus2; // fps
+  double fBankDelta; // st7
+  double dCosAngleY; // rt0
+  double dCosAngleZ; // rt1
+  uint32 uiOffset2; // eax
+  double dMatrix_2_2; // st7
+  double dMatrix_0_2; // st6
+  double dMatrix_1_2; // st5
+  double dMatrix_2_1; // st4
+  double dMatrix_0_1; // st3
+  double dTransformedZ; // st2
+  int iLoop4; // ebx
+  double dNextAngleY; // st7
+  double dSinNextY; // rt0
+  double dTemPRotNextY; // st5
+  int iLoop5; // ebx
+  double dNextAngleZ; // st7
+  double dSinNextZ; // st6
+  double dTempRotNextZ; // st5
+  double dAngleYFixed; // st7
+  double dAngleZFixed; // st7
+  double dAngleXFixed; // st7
+  int iYawTemp; // esi
+  int iPitchTemp; // ebp
+  int iRollTemp; // ebx
+  double matrixWork[30]; // [esp+0h] [ebp-2A8h]
+  double pointArray[27]; // [esp+F0h] [ebp-1B8h]
+  double dRotatedZ; // [esp+1C8h] [ebp-E0h]
+  double dRotatedY; // [esp+1D0h] [ebp-D8h]
+  double dRotatedX; // [esp+1D8h] [ebp-D0h]
+  double dAngleZSaved; // [esp+1E0h] [ebp-C8h]
+  double dCosXSaved; // [esp+1E8h] [ebp-C0h]
+  double dSinXSaved; // [esp+1F0h] [ebp-B8h]
+  double dCosY_1; // [esp+1F8h] [ebp-B0h]
+  double dCosYSinZ; // [esp+208h] [ebp-A0h]
+  double dSinZMat; // [esp+210h] [ebp-98h]
+  double dAngleXBank; // [esp+218h] [ebp-90h]
+  double dNextAngleZSaved; // [esp+220h] [ebp-88h]
+  double dMatrix00; // [esp+228h] [ebp-80h]
+  double dMatrix01; // [esp+230h] [ebp-78h]
+  double dSinZSaved; // [esp+238h] [ebp-70h]
+  double dMatrix10; // [esp+240h] [ebp-68h]
+  double dMatrix12; // [esp+248h] [ebp-60h]
+  double dMatrix02; // [esp+250h] [ebp-58h]
+  double dMatrix21; // [esp+258h] [ebp-50h]
+  double dMatrix10_2; // [esp+260h] [ebp-48h]
+  double dCosY; // [esp+268h] [ebp-40h]
+  double dNextAngleYSaved; // [esp+270h] [ebp-38h]
+  double dMatrix22; // [esp+278h] [ebp-30h]
+  double dWorkAngle; // [esp+280h] [ebp-28h]
+  double dAngleYSaved; // [esp+288h] [ebp-20h]
 
-  v1 = a1 + 1;
-  if (a1 + 1 == TRAK_LEN)
-    v1 ^= TRAK_LEN;
-  v2 = v1 + 1;
-  if (v1 + 1 == TRAK_LEN)
-    v2 ^= TRAK_LEN;
-  v4 = 9 * a1;
-  v62 = TrakPt_variable_3[2 * v4];
-  v63 = TrakPt_variable_4[2 * v4];
-  v64 = TrakPt_variable_5[2 * v4];
-  v65 = TrakPt_variable_6[2 * v4];
-  v66 = TrakPt_variable_7[2 * v4];
-  v67 = TrakPt_variable_8[2 * v4];
-  v68 = TrakPt_variable_3[18 * v1];
-  v69 = TrakPt_variable_4[18 * v1];
-  v70 = TrakPt_variable_5[18 * v1];
-  v71 = TrakPt_variable_6[18 * v1];
-  v72 = TrakPt_variable_7[18 * v1];
-  v73 = TrakPt_variable_8[18 * v1];
-  v74 = (v62 + v65) * transfrm_c_variable_1;
-  v75 = (v63 + v66) * transfrm_c_variable_1;
-  v76 = (v64 + v67) * transfrm_c_variable_1;
-  v77 = (v68 + v71) * transfrm_c_variable_1;
-  v78 = (v69 + v72) * transfrm_c_variable_1;
-  v79 = (v70 + v73) * transfrm_c_variable_1;
-  v80 = (v62 + v68) * transfrm_c_variable_1;
-  v81 = (v63 + v69) * transfrm_c_variable_1;
-  v82 = (v64 + v70) * transfrm_c_variable_1;
-  v83 = (v65 + v71) * transfrm_c_variable_1;
-  v84 = (v66 + v72) * transfrm_c_variable_1;
-  v85 = (v67 + v73) * transfrm_c_variable_1;
-  v86 = (v74 + v77) * transfrm_c_variable_1;
-  v87 = (v75 + v78) * transfrm_c_variable_1;
-  v88 = (v76 + v79) * transfrm_c_variable_1;
-  v5 = (char *)&localdata + 128 * a1;
-  *((float *)v5 + 9) = -v86;
-  *((float *)v5 + 10) = -v87;
-  v6 = 0;
-  *((float *)v5 + 11) = -v88;
+  iNextChunk = iChunkIdx + 1;                   // Get next chunk index with wraparound
+  if (iChunkIdx + 1 == TRAK_LEN)
+    iNextChunk ^= TRAK_LEN;
+  iNextNextChunk = iNextChunk + 1;              // Get chunk index two ahead with wraparound
+  if (iNextChunk + 1 == TRAK_LEN)
+    iNextNextChunk ^= TRAK_LEN;
+  iArrayIndex = iChunkIdx;
+
+  // Extract track points for current chunk (left and right edges)
+  pointArray[0] = TrakPt[iArrayIndex].pointAy[2].fX;// Point 0: Current left edge
+  pointArray[1] = TrakPt[iArrayIndex].pointAy[2].fY;
+  pointArray[2] = TrakPt[iArrayIndex].pointAy[2].fZ;
+  pointArray[3] = TrakPt[iArrayIndex].pointAy[3].fX;// Point 1: Current right edge
+  pointArray[4] = TrakPt[iArrayIndex].pointAy[3].fY;
+  pointArray[5] = TrakPt[iArrayIndex].pointAy[3].fZ;
+  pointArray[6] = TrakPt[iNextChunk].pointAy[2].fX;// Point 2: Next left edge
+  pointArray[7] = TrakPt[iNextChunk].pointAy[2].fY;
+  pointArray[8] = TrakPt[iNextChunk].pointAy[2].fZ;
+  pointArray[9] = TrakPt[iNextChunk].pointAy[3].fX;// Point 3: Next right edge
+  pointArray[10] = TrakPt[iNextChunk].pointAy[3].fY;
+  pointArray[11] = TrakPt[iNextChunk].pointAy[3].fZ;
+  // Calculate midpoints between left and right track edges
+  pointArray[12] = (pointArray[0] + pointArray[3]) * 0.5;
+  pointArray[13] = (pointArray[1] + pointArray[4]) * 0.5;
+  pointArray[14] = (pointArray[2] + pointArray[5]) * 0.5;
+  pointArray[15] = (pointArray[6] + pointArray[9]) * 0.5;
+  pointArray[16] = (pointArray[7] + pointArray[10]) * 0.5;
+  pointArray[17] = (pointArray[8] + pointArray[11]) * 0.5;
+  pointArray[18] = (pointArray[0] + pointArray[6]) * 0.5;
+  pointArray[19] = (pointArray[1] + pointArray[7]) * 0.5;
+  pointArray[20] = (pointArray[2] + pointArray[8]) * 0.5;
+  pointArray[21] = (pointArray[3] + pointArray[9]) * 0.5;
+  pointArray[22] = (pointArray[4] + pointArray[10]) * 0.5;
+  pointArray[23] = (pointArray[5] + pointArray[11]) * 0.5;
+  // Calculate track center position
+  pointArray[24] = (pointArray[12] + pointArray[15]) * 0.5;
+  pointArray[25] = (pointArray[13] + pointArray[16]) * 0.5;
+  pointArray[26] = (pointArray[14] + pointArray[17]) * 0.5;
+  pData = &localdata[iChunkIdx];
+  // Store negated center position as origin for local coordinate system
+  pData->pointAy[3].fX = (float)-pointArray[24];
+  pData->pointAy[3].fY = (float)-pointArray[25];
+  uiOffset = 0;
+  pData->pointAy[3].fZ = (float) - pointArray[26];
   do {
-    *(double *)((char *)&v62 + v6) = *((float *)v5 + 9) + *(double *)((char *)&v62 + v6);
-    *(double *)((char *)&v63 + v6) = *((float *)v5 + 10) + *(double *)((char *)&v63 + v6);
-    *(double *)((char *)&v64 + v6) = *((float *)v5 + 11) + *(double *)((char *)&v64 + v6);
-    *(double *)((char *)&v65 + v6) = *((float *)v5 + 9) + *(double *)((char *)&v65 + v6);
-    *(double *)((char *)&v66 + v6) = *((float *)v5 + 10) + *(double *)((char *)&v66 + v6);
-    *(double *)((char *)&v67 + v6) = *((float *)v5 + 11) + *(double *)((char *)&v67 + v6);
-    *(double *)((char *)&v68 + v6) = *((float *)v5 + 9) + *(double *)((char *)&v68 + v6);
-    *(double *)((char *)&v69 + v6) = *((float *)v5 + 10) + *(double *)((char *)&v69 + v6);
-    v7 = *((float *)v5 + 11) + *(double *)((char *)&v70 + v6);
-    v6 += 72;
-    *(double *)&v61[v6 / 4 + 4] = v7;
-  } while (v6 != 216);
-  v8 = 0;
-  v9 = getdirection(v77 - v74, v78 - v75);
-  v112 = v9;
+    // Transform all points to local coordinate system (centered at track section)
+    pointArray[uiOffset] = pData->pointAy[3].fX + pointArray[uiOffset];
+    pointArray[uiOffset + 1] = pData->pointAy[3].fY + pointArray[uiOffset + 1];
+    pointArray[uiOffset + 2] = pData->pointAy[3].fZ + pointArray[uiOffset + 2];
+    pointArray[uiOffset + 3] = pData->pointAy[3].fX + pointArray[uiOffset + 3];
+    pointArray[uiOffset + 4] = pData->pointAy[3].fY + pointArray[uiOffset + 4];
+    pointArray[uiOffset + 5] = pData->pointAy[3].fZ + pointArray[uiOffset + 5];
+    pointArray[uiOffset + 6] = pData->pointAy[3].fX + pointArray[uiOffset + 6];
+    pointArray[uiOffset + 7] = pData->pointAy[3].fY + pointArray[uiOffset + 7];
+    fTemp = pData->pointAy[3].fZ + pointArray[uiOffset + 8];
+
+    //moving this above offset increment
+    pointArray[uiOffset + 8] = fTemp;
+    
+    uiOffset += 9u;
+    //matrixWork[uiOffset + 29] = fTemp;          // pointArray[uiOffset + 8] = if moved above uiOffset increment
+  } while (uiOffset != 27);
+  iLoop1 = 0;
+  fAngleY = getdirection(pointArray[15] - pointArray[12], pointArray[16] - pointArray[13]);// Calculate Y rotation angle from track direction
+  dAngleYSaved = fAngleY;
   do {
-    v10 = sin(-v9);
-    v108 = cos(-v9);
-    v11 = *(double *)((char *)&v63 + v8 * 4) * v10;
-    v95 = v108;
-    v91 = *(double *)((char *)&v62 + v8 * 4) * v108 - v11;
-    v90 = v10 * *(double *)((char *)&v62 + v8 * 4) + *(double *)((char *)&v63 + v8 * 4) * v108;
-    v8 += 6;
-    v61[v8] = LODWORD(v91);
-    v61[v8 + 1] = HIDWORD(v91);
-    v61[v8 + 2] = LODWORD(v90);
-    v61[v8 + 3] = HIDWORD(v90);
-  } while (v8 != 54);
-  v12 = 0;
-  v13 = getdirection(v77 - v74, v79 - v76);
-  v92 = v13;
+    dSinY = sin(-fAngleY);                      // Apply Y-axis rotation to align track with coordinate axes
+    dCosY = cos(-fAngleY);
+    dTempRot = pointArray[iLoop1 + 1] * dSinY;
+    dCosY_1 = dCosY;
+    dRotatedX = pointArray[iLoop1] * dCosY - dTempRot;
+    dRotatedY = dSinY * pointArray[iLoop1] + pointArray[iLoop1 + 1] * dCosY;
+
+    //moving this above loop increment
+    pointArray[iLoop1] = dRotatedX;
+    pointArray[iLoop1 + 1] = dRotatedY;
+
+    iLoop1 += 3;
+    //LODWORD(matrixWork[iLoop1 + 27]) = LODWORD(dRotatedX);// pointArray[iLoop] = if moved above iLoop increment
+    //HIDWORD(matrixWork[iLoop1 + 27]) = HIDWORD(dRotatedX);
+    //LODWORD(matrixWork[iLoop1 + 28]) = LODWORD(dRotatedY);
+    //HIDWORD(matrixWork[iLoop1 + 28]) = HIDWORD(dRotatedY);
+  } while (iLoop1 != 27);
+  iLoop2 = 0;
+  fAngleZ = getdirection(pointArray[15] - pointArray[12], pointArray[17] - pointArray[14]);// Calculate Z rotation angle (track slope/elevation)
+  dAngleZSaved = fAngleZ;
   do {
-    v14 = sin(v13);
-    v108 = cos(v13);
-    v15 = *(double *)((char *)&v64 + v12 * 4) * v14;
-    v95 = v108;
-    v91 = v15 + *(double *)((char *)&v62 + v12 * 4) * v108;
-    v89 = *(double *)((char *)&v64 + v12 * 4) * v108 + -v14 * *(double *)((char *)&v62 + v12 * 4);
-    v12 += 6;
-    v61[v12] = LODWORD(v91);
-    v61[v12 + 1] = HIDWORD(v91);
-    v61[v12 + 4] = LODWORD(v89);
-    v61[v12 + 5] = HIDWORD(v89);
-  } while (v12 != 54);
-  v16 = 0;
-  v98 = getdirection(v81 - v84, v85 - v82);
-  v17 = v98;
+    dSinZ = sin(fAngleZ);
+    dCosY = cos(fAngleZ);
+    dTempRotZ = pointArray[iLoop2 + 2] * dSinZ;
+    dCosY_1 = dCosY;
+    dRotatedX = dTempRotZ + pointArray[iLoop2] * dCosY;
+    dRotatedZ = pointArray[iLoop2 + 2] * dCosY + -dSinZ * pointArray[iLoop2];
+
+    //moving this above loop increment
+    pointArray[iLoop2] = dRotatedX;
+    pointArray[iLoop2 + 2] = dRotatedZ;
+
+    iLoop2 += 3;
+    //LODWORD(matrixWork[iLoop2 + 27]) = LODWORD(dRotatedX);// pointArray[iLoop2] = if moved above iLoop2 increment
+    //HIDWORD(matrixWork[iLoop2 + 27]) = HIDWORD(dRotatedX);
+    //LODWORD(matrixWork[iLoop2 + 29]) = LODWORD(dRotatedZ);
+    //HIDWORD(matrixWork[iLoop2 + 29]) = HIDWORD(dRotatedZ);
+  } while (iLoop2 != 27);
+  iLoop3 = 0;
+  dAngleXBank = getdirection(pointArray[19] - pointArray[22], pointArray[23] - pointArray[20]);// Calculate X rotation angle (track banking)
+  dAngleX = dAngleXBank;
   do {
-    v18 = cos(v17);
-    v108 = sin(v17);
-    v19 = *(double *)((char *)&v63 + v16 * 4) * v18;
-    v94 = v108;
-    v90 = v19 - *(double *)((char *)&v64 + v16 * 4) * v108;
-    v89 = *(double *)((char *)&v63 + v16 * 4) * v108 + *(double *)((char *)&v64 + v16 * 4) * v18;
-    v16 += 6;
-    v61[v16 + 2] = LODWORD(v90);
-    v61[v16 + 3] = HIDWORD(v90);
-    v61[v16 + 4] = LODWORD(v89);
-    v61[v16 + 5] = HIDWORD(v89);
-  } while (v16 != 54);
-  v93 = v18;
-  v20 = v73 - v70;
-  IF_DATAN2(v20);
-  v21 = v67 - v64;
-  IF_DATAN2(v20);
-  v22 = (v20 - v21) * transfrm_c_variable_2 / transfrm_c_variable_3 + transfrm_c_variable_1;
-  v23 = floor(v22);
-  _CHP(v23, v5);
-  *((_DWORD *)v5 + 22) = (int)-v22;
-  *((float *)v5 + 12) = (v77 - v74) * transfrm_c_variable_1;
-  *((float *)v5 + 13) = (v63 - v66) * transfrm_c_variable_1;
-  v24 = cos(v112);
-  v108 = sin(v112);
-  v25 = cos(v92);
-  v100 = v24 * v25;
-  v97 = sin(v92);
-  v96 = v24 * v97;
-  v111 = v108;
-  v101 = v96 * v94 + -v108 * v93;
-  v105 = -v108 * v94 - v96 * v93;
-  v107 = v108 * v25;
-  v103 = v108 * v97 * v94 + v24 * v93;
-  v104 = v24 * v94 - v108 * v97 * v93;
-  v106 = v94 * -v25;
-  v110 = v93 * v25;
-  *(float *)v5 = v100;
-  *((float *)v5 + 1) = v101;
-  *((float *)v5 + 2) = v105;
-  v102 = v97;
-  *((float *)v5 + 3) = v107;
-  *((float *)v5 + 4) = v103;
-  *((float *)v5 + 5) = v104;
-  *((float *)v5 + 6) = v97;
-  *((float *)v5 + 7) = v106;
-  *((float *)v5 + 8) = v110;
-  v62 = TrakPt_variable_3[18 * v1];
-  v63 = TrakPt_variable_4[18 * v1];
-  v64 = TrakPt_variable_5[18 * v1];
-  v65 = TrakPt_variable_6[18 * v1];
-  v66 = TrakPt_variable_7[18 * v1];
-  v67 = TrakPt_variable_8[18 * v1];
-  v68 = TrakPt_variable_3[18 * v2];
-  v69 = TrakPt_variable_4[18 * v2];
-  v70 = TrakPt_variable_5[18 * v2];
-  v71 = TrakPt_variable_6[18 * v2];
-  v72 = TrakPt_variable_7[18 * v2];
-  v73 = TrakPt_variable_8[18 * v2];
-  v74 = (v62 + v65) * transfrm_c_variable_1;
-  v75 = (v63 + v66) * transfrm_c_variable_1;
-  v76 = (v64 + v67) * transfrm_c_variable_1;
-  v77 = (v68 + v71) * transfrm_c_variable_1;
-  v78 = (v69 + v72) * transfrm_c_variable_1;
-  v79 = (v70 + v73) * transfrm_c_variable_1;
-  v80 = (v62 + v68) * transfrm_c_variable_1;
-  v81 = (v63 + v69) * transfrm_c_variable_1;
-  v82 = (v64 + v70) * transfrm_c_variable_1;
-  v83 = (v65 + v71) * transfrm_c_variable_1;
-  v84 = (v66 + v72) * transfrm_c_variable_1;
-  v85 = (v67 + v73) * transfrm_c_variable_1;
-  v86 = (v74 + v77) * transfrm_c_variable_1;
-  v87 = (v75 + v78) * transfrm_c_variable_1;
-  v26 = 0;
-  v88 = (v76 + v79) * transfrm_c_variable_1;
-  v27 = v110;
-  v28 = v105;
-  v29 = v104;
-  v30 = v106;
-  v31 = v101;
+    dCosX = cos(dAngleX);
+    dCosY = sin(dAngleX);
+    dTempRotX = pointArray[iLoop3 + 1] * dCosX;
+    dSinXSaved = dCosY;
+    dRotatedY = dTempRotX - pointArray[iLoop3 + 2] * dCosY;
+    dRotatedZ = pointArray[iLoop3 + 1] * dCosY + pointArray[iLoop3 + 2] * dCosX;
+
+    //moving this above loop increment
+    pointArray[iLoop3 + 1] = dRotatedY;
+    pointArray[iLoop3 + 2] = dRotatedZ;
+
+    iLoop3 += 3;
+    //LODWORD(matrixWork[iLoop3 + 28]) = LODWORD(dRotatedY);// pointArray[iLoop3] = if moved above iLoop3 increment
+    //HIDWORD(matrixWork[iLoop3 + 28]) = HIDWORD(dRotatedY);
+    //LODWORD(matrixWork[iLoop3 + 29]) = LODWORD(dRotatedZ);
+    //HIDWORD(matrixWork[iLoop3 + 29]) = HIDWORD(dRotatedZ);
+  } while (iLoop3 != 27);
+  dCosXSaved = dCosX;
+
+  // Calculate banking angle difference for physics
+  fBankAngle = atan2(pointArray[7] - pointArray[10], pointArray[11] - pointArray[8]);
+  //fBankAngle = IF_DATAN2(nFpStatus1, pointArray[7] - pointArray[10], pointArray[11] - pointArray[8]);
+  fBankDelta = (fBankAngle - atan2(pointArray[5] - pointArray[2], fBankAngle)) * 16384.0 / 6.28318530718 + 0.5;
+  //fBankDelta = (fBankAngle - IF_DATAN2(nFpStatus2, pointArray[5] - pointArray[2], fBankAngle)) * 16384.0 / 6.28318530718 + 0.5;
+  floor(fBankDelta);
+  //_CHP();
+  pData->iBankDelta = (int)-fBankDelta;
+
+  // Store track section dimensions
+  pData->fTrackHalfLength = (float)((pointArray[15] - pointArray[12]) * 0.5);
+  pData->fTrackHalfWidth = (float)((pointArray[1] - pointArray[4]) * 0.5);
+
+  // Build rotation matrix from three angles
+  dCosAngleY = cos(dAngleYSaved);
+  dCosY = sin(dAngleYSaved);
+  dCosAngleZ = cos(dAngleZSaved);
+  dMatrix00 = dCosAngleY * dCosAngleZ;
+  dSinZMat = sin(dAngleZSaved);
+  dCosYSinZ = dCosAngleY * dSinZMat;
+  dWorkAngle = dCosY;
+  dMatrix01 = dCosYSinZ * dSinXSaved + -dCosY * dCosXSaved;
+  dMatrix02 = -dCosY * dSinXSaved - dCosYSinZ * dCosXSaved;
+  dMatrix10_2 = dCosY * dCosAngleZ;
+  dMatrix10 = dCosY * dSinZMat * dSinXSaved + dCosAngleY * dCosXSaved;
+  dMatrix12 = dCosAngleY * dSinXSaved - dCosY * dSinZMat * dCosXSaved;
+  dMatrix21 = dSinXSaved * -dCosAngleZ;
+  dMatrix22 = dCosXSaved * dCosAngleZ;
+
+  // Store rotation matrix rows in localdata structure
+  pData->pointAy[0].fX = (float)dMatrix00;
+  pData->pointAy[0].fY = (float)dMatrix01;
+  pData->pointAy[0].fZ = (float)dMatrix02;
+  dSinZSaved = dSinZMat;
+  pData->pointAy[1].fX = (float)dMatrix10_2;
+  pData->pointAy[1].fY = (float)dMatrix10;
+  pData->pointAy[1].fZ = (float)dMatrix12;
+  pData->pointAy[2].fX = (float)dSinZMat;
+  pData->pointAy[2].fY = (float)dMatrix21;
+  pData->pointAy[2].fZ = (float)dMatrix22;
+
+  // Process next track section for smooth transitions
+  pointArray[0] = TrakPt[iNextChunk].pointAy[2].fX;
+  pointArray[1] = TrakPt[iNextChunk].pointAy[2].fY;
+  pointArray[2] = TrakPt[iNextChunk].pointAy[2].fZ;
+  pointArray[3] = TrakPt[iNextChunk].pointAy[3].fX;
+  pointArray[4] = TrakPt[iNextChunk].pointAy[3].fY;
+  pointArray[5] = TrakPt[iNextChunk].pointAy[3].fZ;
+  pointArray[6] = TrakPt[iNextNextChunk].pointAy[2].fX;
+  pointArray[7] = TrakPt[iNextNextChunk].pointAy[2].fY;
+  pointArray[8] = TrakPt[iNextNextChunk].pointAy[2].fZ;
+  pointArray[9] = TrakPt[iNextNextChunk].pointAy[3].fX;
+  pointArray[10] = TrakPt[iNextNextChunk].pointAy[3].fY;
+  pointArray[11] = TrakPt[iNextNextChunk].pointAy[3].fZ;
+  pointArray[12] = (pointArray[0] + pointArray[3]) * 0.5;
+  pointArray[13] = (pointArray[1] + pointArray[4]) * 0.5;
+  pointArray[14] = (pointArray[2] + pointArray[5]) * 0.5;
+  pointArray[15] = (pointArray[6] + pointArray[9]) * 0.5;
+  pointArray[16] = (pointArray[7] + pointArray[10]) * 0.5;
+  pointArray[17] = (pointArray[8] + pointArray[11]) * 0.5;
+  pointArray[18] = (pointArray[0] + pointArray[6]) * 0.5;
+  pointArray[19] = (pointArray[1] + pointArray[7]) * 0.5;
+  pointArray[20] = (pointArray[2] + pointArray[8]) * 0.5;
+  pointArray[21] = (pointArray[3] + pointArray[9]) * 0.5;
+  pointArray[22] = (pointArray[4] + pointArray[10]) * 0.5;
+  pointArray[23] = (pointArray[5] + pointArray[11]) * 0.5;
+  pointArray[24] = (pointArray[12] + pointArray[15]) * 0.5;
+  pointArray[25] = (pointArray[13] + pointArray[16]) * 0.5;
+  uiOffset2 = 0;
+  pointArray[26] = (pointArray[14] + pointArray[17]) * 0.5;
+  dMatrix_2_2 = dMatrix22;
+  dMatrix_0_2 = dMatrix02;
+  dMatrix_1_2 = dMatrix12;
+  dMatrix_2_1 = dMatrix21;
+  dMatrix_0_1 = dMatrix01;
   do {
-    *(long double *)&v50[v26 / 4 + 6] = (*((float *)v5 + 10) + *(double *)((char *)&v63 + v26)) * v107
-      + (*((float *)v5 + 9) + *(double *)((char *)&v62 + v26)) * v100
-      + (*((float *)v5 + 11) + *(double *)((char *)&v64 + v26)) * v102;
-    *(long double *)&v50[v26 / 4 + 8] = (*((float *)v5 + 10) + *(double *)((char *)&v63 + v26)) * v103
-      + (*((float *)v5 + 9) + *(double *)((char *)&v62 + v26)) * v31
-      + (*((float *)v5 + 11) + *(double *)((char *)&v64 + v26)) * v30;
-    v32 = (*((float *)v5 + 10) + *(double *)((char *)&v63 + v26)) * v29
-      + (*((float *)v5 + 9) + *(double *)((char *)&v62 + v26)) * v28
-      + (*((float *)v5 + 11) + *(double *)((char *)&v64 + v26)) * v27;
-    v26 += 24;
-    *(long double *)&v50[v26 / 4 + 4] = v32;
-  } while (v26 != 216);
-  v33 = 0;
-  v34 = getdirection(v54 - v51, v55 - v52);
-  v109 = v34;
+    matrixWork[uiOffset2 + 3] = (pData->pointAy[3].fY + pointArray[uiOffset2 + 1]) * dMatrix10_2
+      + (pData->pointAy[3].fX + pointArray[uiOffset2]) * dMatrix00
+      + (pData->pointAy[3].fZ + pointArray[uiOffset2 + 2]) * dSinZSaved;
+    matrixWork[uiOffset2 + 4] = (pData->pointAy[3].fY + pointArray[uiOffset2 + 1]) * dMatrix10
+      + (pData->pointAy[3].fX + pointArray[uiOffset2]) * dMatrix_0_1
+      + (pData->pointAy[3].fZ + pointArray[uiOffset2 + 2]) * dMatrix_2_1;
+    dTransformedZ = (pData->pointAy[3].fY + pointArray[uiOffset2 + 1]) * dMatrix_1_2
+      + (pData->pointAy[3].fX + pointArray[uiOffset2]) * dMatrix_0_2
+      + (pData->pointAy[3].fZ + pointArray[uiOffset2 + 2]) * dMatrix_2_2;
+    uiOffset2 += 3;
+    matrixWork[uiOffset2 + 2] = dTransformedZ;
+  } while (uiOffset2 != 27);
+  iLoop4 = 0;
+  dNextAngleY = getdirection(matrixWork[18] - matrixWork[15], matrixWork[19] - matrixWork[16]);
+  dNextAngleYSaved = dNextAngleY;
   do {
-    v35 = sin(-v34);
-    v111 = cos(-v34);
-    v36 = *(double *)&v50[v33 + 8] * v35;
-    v108 = v111;
-    v91 = *(double *)&v50[v33 + 6] * v111 - v36;
-    v90 = v35 * *(double *)&v50[v33 + 6] + *(double *)&v50[v33 + 8] * v111;
-    v33 += 6;
-    v50[v33] = LODWORD(v91);
-    v50[v33 + 1] = HIDWORD(v91);
-    v50[v33 + 2] = LODWORD(v90);
-    v50[v33 + 3] = HIDWORD(v90);
-  } while (v33 != 54);
-  v37 = 0;
-  v38 = getdirection(v54 - v51, v56 - v53);
-  v99 = v38;
+    dSinNextY = sin(-dNextAngleY);
+    dWorkAngle = cos(-dNextAngleY);
+    dTemPRotNextY = matrixWork[iLoop4 + 4] * dSinNextY;
+    dCosY = dWorkAngle;
+    dRotatedX = matrixWork[iLoop4 + 3] * dWorkAngle - dTemPRotNextY;
+    dRotatedY = dSinNextY * matrixWork[iLoop4 + 3] + matrixWork[iLoop4 + 4] * dWorkAngle;
+    iLoop4 += 3;
+
+    matrixWork[iLoop4] = dRotatedX;
+    matrixWork[iLoop4 + 1] = dRotatedY;
+    //LODWORD(matrixWork[iLoop4]) = LODWORD(dRotatedX);
+    //HIDWORD(matrixWork[iLoop4]) = HIDWORD(dRotatedX);
+    //LODWORD(matrixWork[iLoop4 + 1]) = LODWORD(dRotatedY);
+    //HIDWORD(matrixWork[iLoop4 + 1]) = HIDWORD(dRotatedY);
+  } while (iLoop4 != 27);
+  iLoop5 = 0;
+  dNextAngleZ = getdirection(matrixWork[18] - matrixWork[15], matrixWork[20] - matrixWork[17]);
+  dNextAngleZSaved = dNextAngleZ;
   do {
-    v39 = sin(v38);
-    v111 = cos(v38);
-    v40 = *(double *)&v50[v37 + 10] * v39;
-    v95 = v111;
-    v91 = v40 + *(double *)&v50[v37 + 6] * v111;
-    v89 = *(double *)&v50[v37 + 10] * v111 + -v39 * *(double *)&v50[v37 + 6];
-    v37 += 6;
-    v50[v37] = LODWORD(v91);
-    v50[v37 + 1] = HIDWORD(v91);
-    v50[v37 + 4] = LODWORD(v89);
-    v50[v37 + 5] = HIDWORD(v89);
-  } while (v37 != 54);
-  v111 = getdirection(v57 - v59, v60 - v58);
-  v108 = transfrm_c_variable_4 / transfrm_c_variable_3;
-  v41 = v109 * transfrm_c_variable_2 * v108 + transfrm_c_variable_1;
-  v42 = floor(v41);
-  _CHP(v42, v5);
-  *((_DWORD *)v5 + 15) = (int)v41;
-  v43 = v99 * transfrm_c_variable_2 * v108 + transfrm_c_variable_1;
-  v44 = floor(v43);
-  _CHP(v44, v5);
-  *((_DWORD *)v5 + 14) = (int)v43;
-  v45 = v111 * transfrm_c_variable_2 * v108 + transfrm_c_variable_1;
-  v46 = floor(v45);
-  _CHP(v46, v5);
-  *((_DWORD *)v5 + 14) &= 0x3FFFu;
-  v47 = *((_DWORD *)v5 + 15);
-  *((_DWORD *)v5 + 16) = (int)v45;
-  if (v47 > 0x2000)
-    *((_DWORD *)v5 + 15) = v47 - 0x4000;
-  v48 = *((_DWORD *)v5 + 14);
-  if (v48 > 0x2000)
-    *((_DWORD *)v5 + 14) = v48 - 0x4000;
-  v49 = *((_DWORD *)v5 + 16);
-  if (v49 > 0x2000)
-    *((_DWORD *)v5 + 16) = v49 - 0x4000;
-  *((float *)v5 + 19) = v102 * transfrm_c_variable_5;
-  *((float *)v5 + 20) = v106 * transfrm_c_variable_5;
-  *((float *)v5 + 21) = v110 * transfrm_c_variable_5;*/
+    dSinNextZ = sin(dNextAngleZ);
+    dWorkAngle = cos(dNextAngleZ);
+    dTempRotNextZ = matrixWork[iLoop5 + 5] * dSinNextZ;
+    dCosY_1 = dWorkAngle;
+    dRotatedX = dTempRotNextZ + matrixWork[iLoop5 + 3] * dWorkAngle;
+    dRotatedZ = matrixWork[iLoop5 + 5] * dWorkAngle + -dSinNextZ * matrixWork[iLoop5 + 3];
+    iLoop5 += 3;
+
+    matrixWork[iLoop5] = dRotatedX;
+    matrixWork[iLoop5 + 2] = dRotatedZ;
+    //LODWORD(matrixWork[iLoop5]) = LODWORD(dRotatedX);
+    //HIDWORD(matrixWork[iLoop5]) = HIDWORD(dRotatedX);
+    //LODWORD(matrixWork[iLoop5 + 2]) = LODWORD(dRotatedZ);
+    //HIDWORD(matrixWork[iLoop5 + 2]) = HIDWORD(dRotatedZ);
+  } while (iLoop5 != 27);
+
+  dWorkAngle = getdirection(matrixWork[22] - matrixWork[25], matrixWork[26] - matrixWork[23]);
+  dCosY = 1.0 / 6.28318530718;                  // Convert angles to internal fixed-point format (16384 = 2pi radians)
+  dAngleYFixed = dNextAngleYSaved * 16384.0 * dCosY + 0.5;
+  floor(dAngleYFixed);
+  //_CHP();
+  pData->iYaw = (int)dAngleYFixed;
+  dAngleZFixed = dNextAngleZSaved * 16384.0 * dCosY + 0.5;
+  floor(dAngleZFixed);
+  //_CHP();
+  pData->iPitch = (int)dAngleZFixed;
+  dAngleXFixed = dWorkAngle * 16384.0 * dCosY + 0.5;
+  floor(dAngleXFixed);
+  //_CHP();
+  pData->iPitch &= 0x3FFFu;
+  iYawTemp = pData->iYaw;
+  pData->iRoll = (int)dAngleXFixed;
+  if (iYawTemp > 0x2000)
+    pData->iYaw = iYawTemp - 0x4000;
+  iPitchTemp = pData->iPitch;
+  if (iPitchTemp > 0x2000)
+    pData->iPitch = iPitchTemp - 0x4000;
+  iRollTemp = pData->iRoll;
+  if (iRollTemp > 0x2000)
+    pData->iRoll = iRollTemp - 0x4000;
+  pData->gravity.fX = (float)(dSinZSaved * -3.0);        // Store up vector scaled by -3 for physics calculations
+  pData->gravity.fY = (float)(dMatrix21 * -3.0);
+  pData->gravity.fZ = (float)(dMatrix22 * -3.0);
 }
 
 //-------------------------------------------------------------------------------------------------

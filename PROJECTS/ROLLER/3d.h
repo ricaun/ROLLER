@@ -18,17 +18,15 @@ typedef struct
 typedef struct
 {
   tVec3 pointAy[4];
-  float fUnk13;
+  float fTrackHalfLength;
   float fTrackHalfWidth;
-  int iUnk15;
-  int iUnk16;
-  float fUnk17;
+  int iPitch;
+  int iYaw;
+  int iRoll;
   int iUnk18;
   int iUnk19;
-  float fUnk20;
-  float fUnk21;
-  float fUnk22;
-  float fUnk23;
+  tVec3 gravity;
+  int iBankDelta;
   float fUnk24;
   float fUnk25;
   float fUnk26;
@@ -39,6 +37,7 @@ typedef struct
   int iUnk1;
   int iUnk2;
 } tData;
+
 
 //-------------------------------------------------------------------------------------------------
 
