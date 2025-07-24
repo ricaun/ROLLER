@@ -23,8 +23,8 @@ typedef struct
   int iPitch;
   int iYaw;
   int iRoll;
-  int iUnk18;
-  int iUnk19;
+  int iInnerLanePitchAngle;
+  int iOuterLanePitchAngle;
   tVec3 gravity;
   int iBankDelta;
   float fUnk24;
@@ -37,7 +37,6 @@ typedef struct
   int iUnk1;
   int iUnk2;
 } tData;
-
 
 //-------------------------------------------------------------------------------------------------
 

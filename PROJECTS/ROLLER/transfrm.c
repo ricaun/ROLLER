@@ -20,17 +20,9 @@ int yp;     //00189978
 
 //-------------------------------------------------------------------------------------------------
 
-void calculatetransform(
-        int iTrackChunkIdx,
-        int iDirection,
-        int iElevation,
-        int iTilt,
-        float fViewX,
-        float fViewY,
-        float fViewZ,
-        float fPosX,
-        float fPosY,
-        float fPosZ)
+void calculatetransform(int iTrackChunkIdx, int iDirection, int iElevation, int iTilt,
+                        float fViewX, float fViewY, float fViewZ,
+                        float fPosX, float fPosY, float fPosZ)
 {
   double v10; // st7
   double v11; // st7
@@ -106,14 +98,13 @@ void calculatetransform(
 //-------------------------------------------------------------------------------------------------
 
 void initlocaltrack()
-{
-/*
+{                                               // Initialize each track segment's local data
   int i; // edx
 
   for (i = 0; i < TRAK_LEN; ++i)
     initlocalsection(i);
-  dopitchchanges(0, 2);
-  return dopitchchanges(3, 4);*/
+  dopitchchanges(0, 2);                         // Calculate pitch angles for inner track lanes (left=0, right=2)
+  dopitchchanges(3, 4);                         // Calculate pitch angles for outer track lanes (left=3, right=4)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -477,471 +468,475 @@ void initlocalsection(int iChunkIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-void dopitchchanges(int a1, int a2)
-{/*
-  int v2; // esi
-  int v3; // ebp
-  int v4; // edi
-  int v5; // ecx
-  float *v6; // ebx
-  unsigned int v7; // eax
-  double v8; // st7
-  int v9; // eax
-  int v10; // eax
-  unsigned int v11; // eax
-  double v12; // st7
-  unsigned int v13; // eax
-  double v14; // st7
-  double v15; // st6
-  double v16; // st5
-  double v17; // st4
-  int v18; // ebx
-  double v19; // st7
-  long double v20; // rt0
-  long double v21; // st5
-  int v22; // ebx
-  double v23; // st7
-  long double v24; // st6
-  long double v25; // st5
-  int v26; // ebx
-  long double v27; // st6
-  long double v28; // st7
-  long double v29; // st5
-  long double v30; // rt2
-  long double v31; // st6
-  float *v32; // ebx
-  unsigned int v33; // eax
-  double v34; // st7
-  int v35; // eax
-  int v36; // eax
-  unsigned int v37; // eax
-  double v38; // st7
-  unsigned int v39; // eax
-  long double v40; // st7
-  long double v41; // st6
-  double v42; // st5
-  double v43; // st3
-  double v44; // rt2
-  int v45; // ebx
-  double v46; // st7
-  long double v47; // rtt
-  long double v48; // st5
-  double v49; // st7
-  char *v50; // edx
-  int v51; // eax
-  int v52; // eax
-  _DWORD v53[6]; // [esp+0h] [ebp-3DCh]
-  double v54; // [esp+18h] [ebp-3C4h]
-  double v55; // [esp+20h] [ebp-3BCh]
-  double v56; // [esp+28h] [ebp-3B4h]
-  int v57; // [esp+30h] [ebp-3ACh]
-  int v58; // [esp+34h] [ebp-3A8h]
-  double v59; // [esp+38h] [ebp-3A4h]
-  double v60; // [esp+40h] [ebp-39Ch]
-  int v61; // [esp+48h] [ebp-394h]
-  int v62; // [esp+4Ch] [ebp-390h]
-  double v63; // [esp+50h] [ebp-38Ch]
-  double v64; // [esp+58h] [ebp-384h]
-  int v65; // [esp+60h] [ebp-37Ch]
-  int v66; // [esp+64h] [ebp-378h]
-  double v67; // [esp+68h] [ebp-374h]
-  double v68; // [esp+70h] [ebp-36Ch]
-  double v69; // [esp+78h] [ebp-364h]
-  double v70; // [esp+80h] [ebp-35Ch]
-  double v71; // [esp+88h] [ebp-354h]
-  double v72; // [esp+90h] [ebp-34Ch]
-  double v73; // [esp+98h] [ebp-344h]
-  double v74; // [esp+A0h] [ebp-33Ch]
-  double v75; // [esp+F0h] [ebp-2ECh]
-  double v76; // [esp+F8h] [ebp-2E4h]
-  double v77; // [esp+100h] [ebp-2DCh]
-  int v78; // [esp+108h] [ebp-2D4h]
-  int v79; // [esp+10Ch] [ebp-2D0h]
-  double v80; // [esp+110h] [ebp-2CCh]
-  double v81; // [esp+118h] [ebp-2C4h]
-  int v82; // [esp+120h] [ebp-2BCh]
-  int v83; // [esp+124h] [ebp-2B8h]
-  double v84; // [esp+128h] [ebp-2B4h]
-  double v85; // [esp+130h] [ebp-2ACh]
-  int v86; // [esp+138h] [ebp-2A4h]
-  int v87; // [esp+13Ch] [ebp-2A0h]
-  double v88; // [esp+140h] [ebp-29Ch]
-  double v89; // [esp+148h] [ebp-294h]
-  _DWORD v90[6]; // [esp+1B0h] [ebp-22Ch]
-  double v91; // [esp+1C8h] [ebp-214h]
-  double v92; // [esp+1D0h] [ebp-20Ch]
-  double v93; // [esp+1D8h] [ebp-204h]
-  double v94; // [esp+1E0h] [ebp-1FCh]
-  double v95; // [esp+1E8h] [ebp-1F4h]
-  double v96; // [esp+1F0h] [ebp-1ECh]
-  double v97; // [esp+1F8h] [ebp-1E4h]
-  double v98; // [esp+200h] [ebp-1DCh]
-  double v99; // [esp+208h] [ebp-1D4h]
-  double v100; // [esp+210h] [ebp-1CCh]
-  double v101; // [esp+218h] [ebp-1C4h]
-  double v102; // [esp+220h] [ebp-1BCh]
-  double v103; // [esp+228h] [ebp-1B4h]
-  double v104; // [esp+230h] [ebp-1ACh]
-  double v105; // [esp+238h] [ebp-1A4h]
-  double v106; // [esp+240h] [ebp-19Ch]
-  double v107; // [esp+248h] [ebp-194h]
-  double v108; // [esp+250h] [ebp-18Ch]
-  double v109; // [esp+258h] [ebp-184h]
-  double v110; // [esp+260h] [ebp-17Ch]
-  double v111; // [esp+268h] [ebp-174h]
-  double v112; // [esp+270h] [ebp-16Ch]
-  double v113; // [esp+278h] [ebp-164h]
-  double v114; // [esp+280h] [ebp-15Ch]
-  double v115; // [esp+288h] [ebp-154h]
-  double v116; // [esp+290h] [ebp-14Ch]
-  double v117; // [esp+298h] [ebp-144h]
-  long double v118; // [esp+2A0h] [ebp-13Ch]
-  long double v119; // [esp+2A8h] [ebp-134h]
-  long double v120; // [esp+2B0h] [ebp-12Ch]
-  long double v121; // [esp+2B8h] [ebp-124h]
-  long double v122; // [esp+2C0h] [ebp-11Ch]
-  long double v123; // [esp+2C8h] [ebp-114h]
-  long double v124; // [esp+2D0h] [ebp-10Ch]
-  long double v125; // [esp+2D8h] [ebp-104h]
-  long double v126; // [esp+2E8h] [ebp-F4h]
-  long double v127; // [esp+2F0h] [ebp-ECh]
-  double v128; // [esp+2F8h] [ebp-E4h]
-  double v129; // [esp+300h] [ebp-DCh]
-  double v130; // [esp+308h] [ebp-D4h]
-  double v131; // [esp+310h] [ebp-CCh]
-  double v132; // [esp+318h] [ebp-C4h]
-  long double v133; // [esp+320h] [ebp-BCh]
-  double v134; // [esp+328h] [ebp-B4h]
-  long double v135; // [esp+330h] [ebp-ACh]
-  long double v136; // [esp+338h] [ebp-A4h]
-  long double v137; // [esp+340h] [ebp-9Ch]
-  long double v138; // [esp+348h] [ebp-94h]
-  long double v139; // [esp+350h] [ebp-8Ch]
-  long double v140; // [esp+358h] [ebp-84h]
-  long double v141; // [esp+360h] [ebp-7Ch]
-  long double v142; // [esp+368h] [ebp-74h]
-  double v143; // [esp+370h] [ebp-6Ch]
-  double v144; // [esp+378h] [ebp-64h]
-  double v145; // [esp+380h] [ebp-5Ch]
-  long double v146; // [esp+388h] [ebp-54h]
-  double v147; // [esp+390h] [ebp-4Ch]
-  double v148; // [esp+398h] [ebp-44h]
-  double v149; // [esp+3A0h] [ebp-3Ch]
-  double v150; // [esp+3A8h] [ebp-34h]
-  long double v151; // [esp+3B0h] [ebp-2Ch]
-  unsigned int v152; // [esp+3B8h] [ebp-24h]
-  unsigned int v153; // [esp+3BCh] [ebp-20h]
-  int v154; // [esp+3C0h] [ebp-1Ch]
-  int v155; // [esp+3C4h] [ebp-18h]
+void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
+{
+  int iTrackIndex; // esi
+  int iLeftLaneOffset; // ebp
+  int iRightLaneOffset; // edi
+  int iNextTrackIndex; // ecx
+  tData *pCurrentTrackData; // ebx
+  int uiLoopCounter1; // eax
+  double dTransformZ1; // st7
+  int iBankAngle1; // eax
+  int iBankAngle2; // eax
+  int uiLoopCounter2; // eax
+  double dTransformZ2; // st7
+  int iPointIndex; // eax
+  double dLaneCenterOffsetZ; // st7
+  double dLaneCenterOffsetY; // st6
+  double dLaneCenterOffsetX; // st5
+  double dTempValue; // st4
+  int iRotationIndex1; // ebx
+  double dLaneDirection1; // st7
+  long double dSinValue1; // rt0
+  long double dCosValue1; // st5
+  int iRotationIndex2; // ebx
+  double dLaneDirection2; // st7
+  long double dSinValue2; // st6
+  long double dCosValue2; // st5
+  int iRotationIndex3; // ebx
+  long double dLaneDirection3; // st6
+  long double dCosValue3; // st7
+  long double dSinValue3; // st5
+  long double dMatrixComp1; // rt2
+  long double dMatrixComp2; // st6
+  tData *pNextTrackData; // ebx
+  int uiTransformLoop; // eax
+  double dNextTransformZ; // st7
+  int iNextBankAngle1; // eax
+  int iNextBankAngle2; // eax
+  int uiNextTransformLoop; // eax
+  double dNextSegmentTransformZ; // st7
+  int uiFinalRotationLoop; // eax
+  long double dMatrixRotValue1; // st7
+  long double dMatrixRotValue2; // st6
+  double dPointY; // st5
+  double dPointX; // st3
+  double dPointZ; // rt2
+  int iDirectionCalcLoop; // ebx
+  double dFinalDirection; // st7
+  long double dSinFinal; // rtt
+  long double dCosFinal; // st5
+  double dFinalLanePitchAngle; // st7
+  tData *pOutputTrackData; // edx
+  //double transformCoordsOffset[3]; // [esp+0h] [ebp-3DCh]
+  double transformCoords[12]; // [esp+18h] [ebp-3C4h]
+  double midpoint1[3]; // [esp+78h] [ebp-364h]
+  double midpoint2[12]; // [esp+90h] [ebp-34Ch]
+  double dBaseTransformX; // [esp+F0h] [ebp-2ECh]
+  double leftLaneBankRot[4]; // [esp+F8h] [ebp-2E4h]
+  double rightLaneBankRotY[4]; // [esp+118h] [ebp-2C4h]
+  double dUnused_6; // [esp+138h] [ebp-2A4h]
+  double dNextBankRotX2; // [esp+140h] [ebp-29Ch]
+  double dNextBankRotY2; // [esp+148h] [ebp-294h]
+  //double laneCornerPointsOffset[3]; // [esp+1B0h] [ebp-22Ch]
+  double laneCornerPoints[27]; // [esp+1C8h] [ebp-214h]
+  long double dRotMatrix00; // [esp+2A0h] [ebp-13Ch]
+  long double dRotMatrix01; // [esp+2A8h] [ebp-134h]
+  long double dRotMatrix02; // [esp+2B0h] [ebp-12Ch]
+  long double dRotMatrix10; // [esp+2B8h] [ebp-124h]
+  long double dRotMatrix11; // [esp+2C0h] [ebp-11Ch]
+  long double dRotMatrix12; // [esp+2C8h] [ebp-114h]
+  long double dRotMatrix20; // [esp+2D0h] [ebp-10Ch]
+  long double dRotMatrix21; // [esp+2D8h] [ebp-104h]
+  long double dRotMatrix22; // [esp+2E8h] [ebp-F4h]
+  long double dTempRotValue1; // [esp+2F0h] [ebp-ECh]
+  double dSinBank2; // [esp+2F8h] [ebp-E4h]
+  double dNextSinBank2; // [esp+300h] [ebp-DCh]
+  double dNextSinBank1; // [esp+308h] [ebp-D4h]
+  double dSinBank1; // [esp+310h] [ebp-CCh]
+  double dNextCosBank1; // [esp+318h] [ebp-C4h]
+  long double dLaneDirection1Stored; // [esp+320h] [ebp-BCh]
+  double dLaneDirectionAngle; // [esp+328h] [ebp-B4h]
+  long double dCosMatrix22; // [esp+330h] [ebp-ACh]
+  long double dSinMatrix10; // [esp+338h] [ebp-A4h]
+  long double dNegSinMatrix20; // [esp+340h] [ebp-9Ch]
+  long double dCosMatrix11; // [esp+348h] [ebp-94h]
+  long double dCosMatrix00; // [esp+350h] [ebp-8Ch]
+  long double dLaneDirection2Stored; // [esp+358h] [ebp-84h]
+  long double dCosDirection3; // [esp+360h] [ebp-7Ch]
+  long double dSinDirection3; // [esp+368h] [ebp-74h]
+  double dNegCenterOffsetY; // [esp+370h] [ebp-6Ch]
+  double dNegCenterOffsetZ; // [esp+378h] [ebp-64h]
+  double dNegCenterOffsetX; // [esp+380h] [ebp-5Ch]
+  long double dTempSin; // [esp+388h] [ebp-54h]
+  double dStoredPitchAngle; // [esp+390h] [ebp-4Ch]
+  double dNextCosBank2; // [esp+398h] [ebp-44h]
+  double dCosBank2; // [esp+3A0h] [ebp-3Ch]
+  double dCosBank1; // [esp+3A8h] [ebp-34h]
+  long double dTempCos; // [esp+3B0h] [ebp-2Ch]
+  unsigned int uiLeftLaneOffset12; // [esp+3B8h] [ebp-24h]
+  unsigned int uiRightLaneOffset12; // [esp+3BCh] [ebp-20h]
+  int iNextTrackIndex2; // [esp+3C0h] [ebp-1Ch]
+  int iLeftLaneIndex; // [esp+3C4h] [ebp-18h]
 
-  v155 = a1;
-  v2 = 0;
+  // a1 = iLeftLaneIndex (0=inner left, 3=outer left), a2 = iRightLaneIndex (2=inner right, 4=outer right)
+  iLeftLaneIndex = iLLaneIdx;
+  iTrackIndex = 0;
+
+  // Main loop through all track segments
   if (TRAK_LEN > 0) {
-    v152 = 12 * a1;
-    v3 = 3 * a1;
-    v153 = 12 * a2;
-    v4 = 3 * a2;
+    // Calculate 12-byte offsets for left and right lane indices
+    uiLeftLaneOffset12 = 12 * iLLaneIdx;
+    iLeftLaneOffset = iLLaneIdx;
+    uiRightLaneOffset12 = 12 * iRLaneIdx;
+    iRightLaneOffset = iRLaneIdx;
     do {
-      v5 = v2 + 1;
-      if (v2 + 1 == TRAK_LEN)
-        v5 ^= TRAK_LEN;
-      v154 = v5 + 1;
-      if (v5 + 1 == TRAK_LEN)
-        v154 = 0;
-      v91 = TrakPt[v3];
-      v92 = TrakPt_variable_1[v3];
-      v93 = TrakPt_variable_2[v3];
-      v94 = TrakPt[v4];
-      v95 = TrakPt_variable_1[v4];
-      v96 = TrakPt_variable_2[v4];
-      v97 = TrakPt[18 * v5 + v152 / 4];
-      v98 = TrakPt_variable_1[18 * v5 + v152 / 4];
-      v99 = TrakPt_variable_2[18 * v5 + v152 / 4];
-      v100 = TrakPt[18 * v5 + v153 / 4];
-      v101 = TrakPt_variable_1[18 * v5 + v153 / 4];
-      v6 = (float *)((char *)&localdata + 128 * v2);
-      v7 = 0;
-      v102 = TrakPt_variable_2[18 * v5 + v153 / 4];
+      // Calculate next track index with wraparound
+      iNextTrackIndex = iTrackIndex + 1;
+      if (iTrackIndex + 1 == TRAK_LEN)
+        iNextTrackIndex ^= TRAK_LEN;
+      iNextTrackIndex2 = iNextTrackIndex + 1;
+      if (iNextTrackIndex + 1 == TRAK_LEN)
+        iNextTrackIndex2 = 0;
+      laneCornerPoints[0] = TrakPt[0].pointAy[iLeftLaneOffset].fX;// Load current track segment lane corner points into working array
+      laneCornerPoints[1] = TrakPt[0].pointAy[iLeftLaneOffset].fY;
+      laneCornerPoints[2] = TrakPt[0].pointAy[iLeftLaneOffset].fZ;
+      laneCornerPoints[3] = TrakPt[0].pointAy[iRightLaneOffset].fX;
+      laneCornerPoints[4] = TrakPt[0].pointAy[iRightLaneOffset].fY;
+      laneCornerPoints[5] = TrakPt[0].pointAy[iRightLaneOffset].fZ;
+      laneCornerPoints[6] = TrakPt[iNextTrackIndex].pointAy[uiLeftLaneOffset12 / 0xC].fX;
+      laneCornerPoints[7] = TrakPt[iNextTrackIndex].pointAy[uiLeftLaneOffset12 / 0xC].fY;
+      laneCornerPoints[8] = TrakPt[iNextTrackIndex].pointAy[uiLeftLaneOffset12 / 0xC].fZ;
+      laneCornerPoints[9] = TrakPt[iNextTrackIndex].pointAy[uiRightLaneOffset12 / 0xC].fX;
+      laneCornerPoints[10] = TrakPt[iNextTrackIndex].pointAy[uiRightLaneOffset12 / 0xC].fY;
+      pCurrentTrackData = &localdata[iTrackIndex];
+      uiLoopCounter1 = 0;
+      laneCornerPoints[11] = TrakPt[iNextTrackIndex].pointAy[uiRightLaneOffset12 / 0xC].fZ;
       do {
-        *(double *)((char *)&v54 + v7) = (v6[10] + *(double *)((char *)&v92 + v7)) * v6[3]
-          + (v6[9] + *(double *)((char *)&v91 + v7)) * *v6
-          + (v6[11] + *(double *)((char *)&v93 + v7)) * v6[6];
-        *(double *)((char *)&v55 + v7) = (v6[10] + *(double *)((char *)&v92 + v7)) * v6[4]
-          + (v6[9] + *(double *)((char *)&v91 + v7)) * v6[1]
-          + (v6[11] + *(double *)((char *)&v93 + v7)) * v6[7];
-        v8 = (v6[10] + *(double *)((char *)&v92 + v7)) * v6[5]
-          + (v6[9] + *(double *)((char *)&v91 + v7)) * v6[2]
-          + (v6[11] + *(double *)((char *)&v93 + v7)) * v6[8];
-        v7 += 24;
-        *(double *)&v53[v7 / 4 + 4] = v8;
-      } while (v7 != 96);
-      v9 = (-*((_DWORD *)v6 + 22) / 2) & 0x3FFF;
-      v150 = tcos[v9];
-      v131 = tsin[v9];
-      v76 = v55 * v150 - v56 * v131;
-      v77 = v55 * v131 + v56 * v150;
-      v80 = v59 * v150 - v60 * v131;
-      v81 = v59 * v131 + v60 * v150;
-      v75 = v54;
-      v78 = v57;
-      v79 = v58;
-      v10 = (*((_DWORD *)v6 + 22) / 2) & 0x3FFF;
-      v149 = tcos[v10];
-      v128 = tsin[v10];
-      v84 = v63 * v149 - v64 * v128;
-      v85 = v63 * v128 + v64 * v149;
-      v88 = v67 * v149 - v68 * v128;
-      v82 = v61;
-      v83 = v62;
-      v86 = v65;
-      v87 = v66;
-      v11 = 0;
-      v89 = v67 * v128 + v68 * v149;
+        transformCoords[uiLoopCounter1] = (pCurrentTrackData->pointAy[3].fY + laneCornerPoints[uiLoopCounter1 + 1]) * pCurrentTrackData->pointAy[1].fX
+          + (pCurrentTrackData->pointAy[3].fX + laneCornerPoints[uiLoopCounter1]) * pCurrentTrackData->pointAy[0].fX
+          + (pCurrentTrackData->pointAy[3].fZ + laneCornerPoints[uiLoopCounter1 + 2]) * pCurrentTrackData->pointAy[2].fX;// Transform points using matrix multiplication
+        transformCoords[uiLoopCounter1 + 1] = (pCurrentTrackData->pointAy[3].fY + laneCornerPoints[uiLoopCounter1 + 1]) * pCurrentTrackData->pointAy[1].fY
+          + (pCurrentTrackData->pointAy[3].fX + laneCornerPoints[uiLoopCounter1]) * pCurrentTrackData->pointAy[0].fY
+          + (pCurrentTrackData->pointAy[3].fZ + laneCornerPoints[uiLoopCounter1 + 2]) * pCurrentTrackData->pointAy[2].fY;
+        dTransformZ1 = (pCurrentTrackData->pointAy[3].fY + laneCornerPoints[uiLoopCounter1 + 1]) * pCurrentTrackData->pointAy[1].fZ
+          + (pCurrentTrackData->pointAy[3].fX + laneCornerPoints[uiLoopCounter1]) * pCurrentTrackData->pointAy[0].fZ
+          + (pCurrentTrackData->pointAy[3].fZ + laneCornerPoints[uiLoopCounter1 + 2]) * pCurrentTrackData->pointAy[2].fZ;
+        
+        //loop offset fix
+        transformCoords[uiLoopCounter1 + 2] = dTransformZ1;
+        
+        uiLoopCounter1 += 3;
+        //transformCoordsOffset[uiLoopCounter1 + 2] = dTransformZ1;// Store Z coordinate into transformCoords[2+loop_index] via offset alias
+      } while (uiLoopCounter1 != 12);
+
+      // Calculate bank angle for rotation (negative half)
+      iBankAngle1 = (-pCurrentTrackData->iBankDelta / 2) & 0x3FFF;
+      dCosBank1 = tcos[iBankAngle1];            // Get cosine from lookup table
+      dSinBank1 = tsin[iBankAngle1];
+      leftLaneBankRot[0] = transformCoords[1] * dCosBank1 - transformCoords[2] * dSinBank1;// Apply first bank rotation transformation
+      leftLaneBankRot[1] = transformCoords[1] * dSinBank1 + transformCoords[2] * dCosBank1;
+      leftLaneBankRot[3] = transformCoords[4] * dCosBank1 - transformCoords[5] * dSinBank1;
+      rightLaneBankRotY[0] = transformCoords[4] * dSinBank1 + transformCoords[5] * dCosBank1;
+      dBaseTransformX = transformCoords[0];
+      leftLaneBankRot[2] = transformCoords[3];
+      iBankAngle2 = (pCurrentTrackData->iBankDelta / 2) & 0x3FFF;// Calculate bank angle for rotation (positive half)
+      dCosBank2 = tcos[iBankAngle2];
+      dSinBank2 = tsin[iBankAngle2];
+      rightLaneBankRotY[2] = transformCoords[7] * dCosBank2 - transformCoords[8] * dSinBank2;// Apply second bank rotation transformation
+      rightLaneBankRotY[3] = transformCoords[7] * dSinBank2 + transformCoords[8] * dCosBank2;
+      dNextBankRotX2 = transformCoords[10] * dCosBank2 - transformCoords[11] * dSinBank2;
+      rightLaneBankRotY[1] = transformCoords[6];
+      dUnused_6 = transformCoords[9];
+      uiLoopCounter2 = 0;
+      dNextBankRotY2 = transformCoords[10] * dSinBank2 + transformCoords[11] * dCosBank2;
       do {
-        *(double *)((char *)&v91 + v11) = v6[1] * *(double *)((char *)&v76 + v11)
-          + *v6 * *(double *)((char *)&v75 + v11)
-          + v6[2] * *(double *)((char *)&v77 + v11)
-          - v6[9];
-        *(double *)((char *)&v92 + v11) = v6[4] * *(double *)((char *)&v76 + v11)
-          + v6[3] * *(double *)((char *)&v75 + v11)
-          + v6[5] * *(double *)((char *)&v77 + v11)
-          - v6[10];
-        v12 = v6[7] * *(double *)((char *)&v76 + v11)
-          + v6[6] * *(double *)((char *)&v75 + v11)
-          + v6[8] * *(double *)((char *)&v77 + v11)
-          - v6[11];
-        v11 += 24;
-        *(double *)&v90[v11 / 4 + 4] = v12;
-      } while (v11 != 96);
-      v103 = (v91 + v94) * transfrm_c_variable_6;
-      v104 = (v92 + v95) * transfrm_c_variable_6;
-      v105 = (v93 + v96) * transfrm_c_variable_6;
-      v106 = (v97 + v100) * transfrm_c_variable_6;
-      v107 = (v98 + v101) * transfrm_c_variable_6;
-      v108 = (v99 + v102) * transfrm_c_variable_6;
-      v109 = (v91 + v97) * transfrm_c_variable_6;
-      v110 = (v92 + v98) * transfrm_c_variable_6;
-      v111 = (v93 + v99) * transfrm_c_variable_6;
-      v112 = (v94 + v100) * transfrm_c_variable_6;
-      v113 = (v95 + v101) * transfrm_c_variable_6;
-      v114 = (v96 + v102) * transfrm_c_variable_6;
-      v115 = (v103 + v106) * transfrm_c_variable_6;
-      v116 = (v104 + v107) * transfrm_c_variable_6;
-      v117 = (v105 + v108) * transfrm_c_variable_6;
-      v145 = -v115;
-      v143 = -v116;
-      v144 = -v117;
-      v91 = v91 - v115;
-      v92 = v92 - v116;
-      v13 = 24;
-      v93 = v93 - v117;
-      v14 = v144;
-      v15 = v143;
-      v16 = v145;
+        laneCornerPoints[uiLoopCounter2] = pCurrentTrackData->pointAy[0].fY * leftLaneBankRot[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[0].fX * leftLaneBankRot[uiLoopCounter2 - 1]
+          + pCurrentTrackData->pointAy[0].fZ * leftLaneBankRot[uiLoopCounter2 + 1]
+          - pCurrentTrackData->pointAy[3].fX;// Transform coordinates and subtract offset
+        laneCornerPoints[uiLoopCounter2 + 1] = pCurrentTrackData->pointAy[1].fY * leftLaneBankRot[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[1].fX * leftLaneBankRot[uiLoopCounter2 - 1]
+          + pCurrentTrackData->pointAy[1].fZ * leftLaneBankRot[uiLoopCounter2 + 1]
+          - pCurrentTrackData->pointAy[3].fY;
+        dTransformZ2 = pCurrentTrackData->pointAy[2].fY * leftLaneBankRot[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[2].fX * leftLaneBankRot[uiLoopCounter2 - 1]
+          + pCurrentTrackData->pointAy[2].fZ * leftLaneBankRot[uiLoopCounter2 + 1]
+          - pCurrentTrackData->pointAy[3].fZ;
+        
+        //loop offset fix
+        laneCornerPoints[uiLoopCounter2 + 2] = dTransformZ2;
+        
+        uiLoopCounter2 += 3;
+        //laneCornerPointsOffset[uiLoopCounter2 + 2] = dTransformZ2;// laneCornerPoints[uiLoopCounter2 + 2] when above loop inc
+      } while (uiLoopCounter2 != 12);
+
+      // Calculate midpoints between corner pairs
+      laneCornerPoints[12] = (laneCornerPoints[0] + laneCornerPoints[3]) * 0.5;
+      laneCornerPoints[13] = (laneCornerPoints[1] + laneCornerPoints[4]) * 0.5;
+      laneCornerPoints[14] = (laneCornerPoints[2] + laneCornerPoints[5]) * 0.5;
+      laneCornerPoints[15] = (laneCornerPoints[6] + laneCornerPoints[9]) * 0.5;
+      laneCornerPoints[16] = (laneCornerPoints[7] + laneCornerPoints[10]) * 0.5;
+      laneCornerPoints[17] = (laneCornerPoints[8] + laneCornerPoints[11]) * 0.5;
+      laneCornerPoints[18] = (laneCornerPoints[0] + laneCornerPoints[6]) * 0.5;
+      laneCornerPoints[19] = (laneCornerPoints[1] + laneCornerPoints[7]) * 0.5;
+      laneCornerPoints[20] = (laneCornerPoints[2] + laneCornerPoints[8]) * 0.5;
+      laneCornerPoints[21] = (laneCornerPoints[3] + laneCornerPoints[9]) * 0.5;
+      laneCornerPoints[22] = (laneCornerPoints[4] + laneCornerPoints[10]) * 0.5;
+      laneCornerPoints[23] = (laneCornerPoints[5] + laneCornerPoints[11]) * 0.5;
+      laneCornerPoints[24] = (laneCornerPoints[12] + laneCornerPoints[15]) * 0.5;
+      laneCornerPoints[25] = (laneCornerPoints[13] + laneCornerPoints[16]) * 0.5;
+      laneCornerPoints[26] = (laneCornerPoints[14] + laneCornerPoints[17]) * 0.5;
+      dNegCenterOffsetX = -laneCornerPoints[24];
+      dNegCenterOffsetY = -laneCornerPoints[25];
+      dNegCenterOffsetZ = -laneCornerPoints[26];
+      laneCornerPoints[0] = laneCornerPoints[0] - laneCornerPoints[24];
+      laneCornerPoints[1] = laneCornerPoints[1] - laneCornerPoints[25];
+      iPointIndex = 3;
+      laneCornerPoints[2] = laneCornerPoints[2] - laneCornerPoints[26];
+      dLaneCenterOffsetZ = dNegCenterOffsetZ;
+      dLaneCenterOffsetY = dNegCenterOffsetY;
+      dLaneCenterOffsetX = dNegCenterOffsetX;
       do {
-        *(double *)((char *)&v91 + v13) = *(double *)((char *)&v91 + v13) + v16;
-        *(double *)((char *)&v92 + v13) = *(double *)((char *)&v92 + v13) + v15;
-        *(double *)((char *)&v93 + v13) = *(double *)((char *)&v93 + v13) + v14;
-        *(double *)((char *)&v94 + v13) = *(double *)((char *)&v94 + v13) + v16;
-        *(double *)((char *)&v95 + v13) = *(double *)((char *)&v95 + v13) + v15;
-        *(double *)((char *)&v96 + v13) = *(double *)((char *)&v96 + v13) + v14;
-        *(double *)((char *)&v97 + v13) = *(double *)((char *)&v97 + v13) + v16;
-        *(double *)((char *)&v98 + v13) = *(double *)((char *)&v98 + v13) + v15;
-        *(double *)((char *)&v99 + v13) = *(double *)((char *)&v99 + v13) + v14;
-        *(double *)((char *)&v100 + v13) = *(double *)((char *)&v100 + v13) + v16;
-        *(double *)((char *)&v101 + v13) = *(double *)((char *)&v101 + v13) + v15;
-        v17 = *(double *)((char *)&v102 + v13) + v14;
-        v13 += 96;
-        *(double *)&v90[v13 / 4 + 4] = v17;
-      } while (v13 != 216);
-      v18 = 0;
-      v19 = getdirection(v106 - v103, v107 - v104);
-      v133 = v19;
+        laneCornerPoints[iPointIndex] = laneCornerPoints[iPointIndex] + dLaneCenterOffsetX;
+        laneCornerPoints[iPointIndex + 1] = laneCornerPoints[iPointIndex + 1] + dLaneCenterOffsetY;
+        laneCornerPoints[iPointIndex + 2] = laneCornerPoints[iPointIndex + 2] + dLaneCenterOffsetZ;
+        laneCornerPoints[iPointIndex + 3] = laneCornerPoints[iPointIndex + 3] + dLaneCenterOffsetX;
+        laneCornerPoints[iPointIndex + 4] = laneCornerPoints[iPointIndex + 4] + dLaneCenterOffsetY;
+        laneCornerPoints[iPointIndex + 5] = laneCornerPoints[iPointIndex + 5] + dLaneCenterOffsetZ;
+        laneCornerPoints[iPointIndex + 6] = laneCornerPoints[iPointIndex + 6] + dLaneCenterOffsetX;
+        laneCornerPoints[iPointIndex + 7] = laneCornerPoints[iPointIndex + 7] + dLaneCenterOffsetY;
+        laneCornerPoints[iPointIndex + 8] = laneCornerPoints[iPointIndex + 8] + dLaneCenterOffsetZ;
+        laneCornerPoints[iPointIndex + 9] = laneCornerPoints[iPointIndex + 9] + dLaneCenterOffsetX;
+        laneCornerPoints[iPointIndex + 10] = laneCornerPoints[iPointIndex + 10] + dLaneCenterOffsetY;
+        dTempValue = laneCornerPoints[iPointIndex + 11] + dLaneCenterOffsetZ;
+        
+        //loop offset fix
+        laneCornerPoints[iPointIndex + 11] = dTempValue;
+        
+        iPointIndex += 12;
+        //laneCornerPointsOffset[iPointIndex + 2] = dTempValue;// laneCornerPoints[iPointIndex + 11] when before loop inc
+      } while (iPointIndex != 27);
+      iRotationIndex1 = 0;
+      dLaneDirection1 = getdirection(laneCornerPoints[15] - laneCornerPoints[12], laneCornerPoints[16] - laneCornerPoints[13]);// Get direction angle for first rotation axis
+      dLaneDirection1Stored = dLaneDirection1;
       do {
-        v20 = sin(-v19);
-        v151 = cos(-v19);
-        v21 = *(double *)((char *)&v92 + v18 * 4) * v20;
-        v125 = v151;
-        v120 = *(double *)((char *)&v91 + v18 * 4) * v151 - v21;
-        v119 = v20 * *(double *)((char *)&v91 + v18 * 4) + *(double *)((char *)&v92 + v18 * 4) * v151;
-        v18 += 6;
-        v90[v18] = LODWORD(v120);
-        v90[v18 + 1] = HIDWORD(v120);
-        v90[v18 + 2] = LODWORD(v119);
-        v90[v18 + 3] = HIDWORD(v119);
-      } while (v18 != 54);
-      v22 = 0;
-      v23 = getdirection(v106 - v103, v108 - v105);
-      v140 = v23;
+        // First rotation pass around calculated direction
+        dSinValue1 = sin(-dLaneDirection1);
+        dTempCos = cos(-dLaneDirection1);
+        dCosValue1 = laneCornerPoints[iRotationIndex1 + 1] * dSinValue1;
+        dRotMatrix21 = dTempCos;
+        dRotMatrix02 = laneCornerPoints[iRotationIndex1] * dTempCos - dCosValue1;
+        dRotMatrix01 = dSinValue1 * laneCornerPoints[iRotationIndex1] + laneCornerPoints[iRotationIndex1 + 1] * dTempCos;
+        
+        //loop offset fix
+        laneCornerPoints[iRotationIndex1] = dRotMatrix02;
+        laneCornerPoints[iRotationIndex1 = 1]  = dRotMatrix01;
+        
+        iRotationIndex1 += 3;        
+        //LODWORD(laneCornerPointsOffset[iRotationIndex1]) = LODWORD(dRotMatrix02);// laneCornerPoints[iRotationIndex1] when before loop inc
+        //HIDWORD(laneCornerPointsOffset[iRotationIndex1]) = HIDWORD(dRotMatrix02);
+        //LODWORD(laneCornerPointsOffset[iRotationIndex1 + 1]) = LODWORD(dRotMatrix01);// laneCornerPoints[iRotationIndex1 + 1] when before loop inc
+        //HIDWORD(laneCornerPointsOffset[iRotationIndex1 + 1]) = HIDWORD(dRotMatrix01);
+      } while (iRotationIndex1 != 27);
+      iRotationIndex2 = 0;
+      dLaneDirection2 = getdirection(laneCornerPoints[15] - laneCornerPoints[12], laneCornerPoints[17] - laneCornerPoints[14]);// Get direction angle for second rotation axis
+      dLaneDirection2Stored = dLaneDirection2;
       do {
-        v24 = sin(v23);
-        v151 = cos(v23);
-        v25 = *(double *)((char *)&v93 + v22 * 4) * v24;
-        v125 = v151;
-        v120 = v25 + *(double *)((char *)&v91 + v22 * 4) * v151;
-        v118 = *(double *)((char *)&v93 + v22 * 4) * v151 + -v24 * *(double *)((char *)&v91 + v22 * 4);
-        v22 += 6;
-        v90[v22] = LODWORD(v120);
-        v90[v22 + 1] = HIDWORD(v120);
-        v90[v22 + 4] = LODWORD(v118);
-        v90[v22 + 5] = HIDWORD(v118);
-      } while (v22 != 54);
-      v26 = 0;
-      v134 = getdirection(v110 - v113, v114 - v111);
-      v27 = v134;
+        // Second rotation pass around calculated direction
+        dSinValue2 = sin(dLaneDirection2);
+        dTempCos = cos(dLaneDirection2);
+        dCosValue2 = laneCornerPoints[iRotationIndex2 + 2] * dSinValue2;
+        dRotMatrix21 = dTempCos;
+        dRotMatrix02 = dCosValue2 + laneCornerPoints[iRotationIndex2] * dTempCos;
+        dRotMatrix00 = laneCornerPoints[iRotationIndex2 + 2] * dTempCos + -dSinValue2 * laneCornerPoints[iRotationIndex2];
+        
+        //loop offset fix
+        laneCornerPoints[iRotationIndex2] = dRotMatrix02;
+        laneCornerPoints[iRotationIndex2 + 2] = dRotMatrix00;
+        
+        iRotationIndex2 += 3;
+        //LODWORD(laneCornerPointsOffset[iRotationIndex2]) = LODWORD(dRotMatrix02);// laneCornerPoints[iRotationIndex2] when before loop inc
+        //HIDWORD(laneCornerPointsOffset[iRotationIndex2]) = HIDWORD(dRotMatrix02);
+        //LODWORD(laneCornerPointsOffset[iRotationIndex2 + 2]) = LODWORD(dRotMatrix00);// laneCornerPoints[iRotationIndex2 + 2] when before loop inc
+        //HIDWORD(laneCornerPointsOffset[iRotationIndex2 + 2]) = HIDWORD(dRotMatrix00);
+      } while (iRotationIndex2 != 27);
+      iRotationIndex3 = 0;
+      dLaneDirectionAngle = getdirection(laneCornerPoints[19] - laneCornerPoints[22], laneCornerPoints[23] - laneCornerPoints[20]);// Get direction for third rotation axis
+      dLaneDirection3 = dLaneDirectionAngle;
       do {
-        v28 = cos(v27);
-        v151 = sin(v27);
-        v29 = *(double *)((char *)&v92 + v26 * 4) * v28;
-        v142 = v151;
-        v119 = v29 - *(double *)((char *)&v93 + v26 * 4) * v151;
-        v118 = *(double *)((char *)&v92 + v26 * 4) * v151 + *(double *)((char *)&v93 + v26 * 4) * v28;
-        v26 += 6;
-        v90[v26 + 2] = LODWORD(v119);
-        v90[v26 + 3] = HIDWORD(v119);
-        v90[v26 + 4] = LODWORD(v118);
-        v90[v26 + 5] = HIDWORD(v118);
-      } while (v26 != 54);
-      v141 = v28;
-      v30 = cos(v133);
-      v146 = sin(v133);
-      v31 = cos(v140);
-      v139 = v30 * v31;
-      v126 = sin(v140);
-      v127 = v30 * v126;
-      v151 = v146;
-      v121 = v127 * v142 + -v146 * v28;
-      v137 = -v146 * v142 - v127 * v28;
-      v136 = v146 * v31;
-      v138 = v146 * v126 * v142 + v30 * v28;
-      v122 = v30 * v142 - v146 * v126 * v28;
-      v124 = v142 * -v31;
-      v135 = v28 * v31;
-      v123 = v126;
-      v91 = TrakPt[18 * v5 + v152 / 4];
-      v92 = TrakPt_variable_1[18 * v5 + v152 / 4];
-      v93 = TrakPt_variable_2[18 * v5 + v152 / 4];
-      v94 = TrakPt[18 * v5 + v153 / 4];
-      v95 = TrakPt_variable_1[18 * v5 + v153 / 4];
-      v96 = TrakPt_variable_2[18 * v5 + v153 / 4];
-      v97 = TrakPt[18 * v154 + v152 / 4];
-      v98 = TrakPt_variable_1[18 * v154 + v152 / 4];
-      v99 = TrakPt_variable_2[18 * v154 + v152 / 4];
-      v100 = TrakPt[18 * v154 + v153 / 4];
-      v101 = TrakPt_variable_1[18 * v154 + v153 / 4];
-      v32 = (float *)((char *)&localdata + 128 * v5);
-      v33 = 0;
-      v102 = TrakPt_variable_2[18 * v154 + v153 / 4];
+        dCosValue3 = cos(dLaneDirection3);
+        dTempCos = sin(dLaneDirection3);
+        dSinValue3 = laneCornerPoints[iRotationIndex3 + 1] * dCosValue3;
+        dSinDirection3 = dTempCos;
+        dRotMatrix01 = dSinValue3 - laneCornerPoints[iRotationIndex3 + 2] * dTempCos;
+        dRotMatrix00 = laneCornerPoints[iRotationIndex3 + 1] * dTempCos + laneCornerPoints[iRotationIndex3 + 2] * dCosValue3;
+        
+        //loop offset fix
+        laneCornerPoints[iRotationIndex3 + 1] = dRotMatrix01;
+        laneCornerPoints[iRotationIndex3 + 2] = dRotMatrix00;
+        
+        iRotationIndex3 += 3;
+        //LODWORD(laneCornerPointsOffset[iRotationIndex3 + 1]) = LODWORD(dRotMatrix01);// laneCornerPoints[iRotationIndex3 + 1] when before loop inc
+        //HIDWORD(laneCornerPointsOffset[iRotationIndex3 + 1]) = HIDWORD(dRotMatrix01);
+        //LODWORD(laneCornerPointsOffset[iRotationIndex3 + 2]) = LODWORD(dRotMatrix00);// laneCornerPoints[iRotationIndex3 + 2] when before loop inc
+        //HIDWORD(laneCornerPointsOffset[iRotationIndex3 + 2]) = HIDWORD(dRotMatrix00);
+      } while (iRotationIndex3 != 27);
+
+      // Prepare rotation matrix components
+      dCosDirection3 = dCosValue3;
+      dMatrixComp1 = cos(dLaneDirection1Stored);
+      dTempSin = sin(dLaneDirection1Stored);
+      dMatrixComp2 = cos(dLaneDirection2Stored);
+      dCosMatrix00 = dMatrixComp1 * dMatrixComp2;
+      dRotMatrix22 = sin(dLaneDirection2Stored);
+      dTempRotValue1 = dMatrixComp1 * dRotMatrix22;
+      dTempCos = dTempSin;
+      dRotMatrix10 = dTempRotValue1 * dSinDirection3 + -dTempSin * dCosValue3;
+      dNegSinMatrix20 = -dTempSin * dSinDirection3 - dTempRotValue1 * dCosValue3;
+      dSinMatrix10 = dTempSin * dMatrixComp2;
+      dCosMatrix11 = dTempSin * dRotMatrix22 * dSinDirection3 + dMatrixComp1 * dCosValue3;
+      dRotMatrix11 = dMatrixComp1 * dSinDirection3 - dTempSin * dRotMatrix22 * dCosValue3;
+      dRotMatrix20 = dSinDirection3 * -dMatrixComp2;
+      dCosMatrix22 = dCosValue3 * dMatrixComp2;
+      dRotMatrix12 = dRotMatrix22;
+
+      // Load next track segment lane points for pitch comparison
+      laneCornerPoints[0] = TrakPt[iNextTrackIndex].pointAy[uiLeftLaneOffset12 / 0xC].fX;
+      laneCornerPoints[1] = TrakPt[iNextTrackIndex].pointAy[uiLeftLaneOffset12 / 0xC].fY;
+      laneCornerPoints[2] = TrakPt[iNextTrackIndex].pointAy[uiLeftLaneOffset12 / 0xC].fZ;
+      laneCornerPoints[3] = TrakPt[iNextTrackIndex].pointAy[uiRightLaneOffset12 / 0xC].fX;
+      laneCornerPoints[4] = TrakPt[iNextTrackIndex].pointAy[uiRightLaneOffset12 / 0xC].fY;
+      laneCornerPoints[5] = TrakPt[iNextTrackIndex].pointAy[uiRightLaneOffset12 / 0xC].fZ;
+      laneCornerPoints[6] = TrakPt[iNextTrackIndex2].pointAy[uiLeftLaneOffset12 / 0xC].fX;
+      laneCornerPoints[7] = TrakPt[iNextTrackIndex2].pointAy[uiLeftLaneOffset12 / 0xC].fY;
+      laneCornerPoints[8] = TrakPt[iNextTrackIndex2].pointAy[uiLeftLaneOffset12 / 0xC].fZ;
+      laneCornerPoints[9] = TrakPt[iNextTrackIndex2].pointAy[uiRightLaneOffset12 / 0xC].fX;
+      laneCornerPoints[10] = TrakPt[iNextTrackIndex2].pointAy[uiRightLaneOffset12 / 0xC].fY;
+      pNextTrackData = &localdata[iNextTrackIndex];
+      uiTransformLoop = 0;
+      laneCornerPoints[11] = TrakPt[iNextTrackIndex2].pointAy[uiRightLaneOffset12 / 0xC].fZ;
       do {
-        *(double *)((char *)&v54 + v33) = (v32[10] + *(double *)((char *)&v92 + v33)) * v32[3]
-          + (v32[9] + *(double *)((char *)&v91 + v33)) * *v32
-          + (v32[11] + *(double *)((char *)&v93 + v33)) * v32[6];
-        *(double *)((char *)&v55 + v33) = (v32[10] + *(double *)((char *)&v92 + v33)) * v32[4]
-          + (v32[9] + *(double *)((char *)&v91 + v33)) * v32[1]
-          + (v32[11] + *(double *)((char *)&v93 + v33)) * v32[7];
-        v34 = (v32[10] + *(double *)((char *)&v92 + v33)) * v32[5]
-          + (v32[9] + *(double *)((char *)&v91 + v33)) * v32[2]
-          + (v32[11] + *(double *)((char *)&v93 + v33)) * v32[8];
-        v33 += 24;
-        *(double *)&v53[v33 / 4 + 4] = v34;
-      } while (v33 != 96);
-      v35 = (-*((_DWORD *)v32 + 22) / 2) & 0x3FFF;
-      v148 = tcos[v35];
-      v130 = tsin[v35];
-      v76 = v55 * v148 - v56 * v130;
-      v77 = v55 * v130 + v56 * v148;
-      v80 = v59 * v148 - v60 * v130;
-      v81 = v59 * v130 + v60 * v148;
-      v75 = v54;
-      v78 = v57;
-      v79 = v58;
-      v36 = (*((_DWORD *)v32 + 22) / 2) & 0x3FFF;
-      v132 = tcos[v36];
-      v129 = tsin[v36];
-      v84 = v63 * v132 - v64 * v129;
-      v85 = v63 * v129 + v64 * v132;
-      v88 = v67 * v132 - v68 * v129;
-      v82 = v61;
-      v83 = v62;
-      v86 = v65;
-      v87 = v66;
-      v37 = 0;
-      v89 = v67 * v129 + v68 * v132;
+        transformCoords[uiTransformLoop] = (pNextTrackData->pointAy[3].fY + laneCornerPoints[uiTransformLoop + 1]) * pNextTrackData->pointAy[1].fX
+          + (pNextTrackData->pointAy[3].fX + laneCornerPoints[uiTransformLoop]) * pNextTrackData->pointAy[0].fX
+          + (pNextTrackData->pointAy[3].fZ + laneCornerPoints[uiTransformLoop + 2]) * pNextTrackData->pointAy[2].fX;
+        transformCoords[uiTransformLoop + 1] = (pNextTrackData->pointAy[3].fY + laneCornerPoints[uiTransformLoop + 1]) * pNextTrackData->pointAy[1].fY
+          + (pNextTrackData->pointAy[3].fX + laneCornerPoints[uiTransformLoop]) * pNextTrackData->pointAy[0].fY
+          + (pNextTrackData->pointAy[3].fZ + laneCornerPoints[uiTransformLoop + 2]) * pNextTrackData->pointAy[2].fY;
+        dNextTransformZ = (pNextTrackData->pointAy[3].fY + laneCornerPoints[uiTransformLoop + 1]) * pNextTrackData->pointAy[1].fZ
+          + (pNextTrackData->pointAy[3].fX + laneCornerPoints[uiTransformLoop]) * pNextTrackData->pointAy[0].fZ
+          + (pNextTrackData->pointAy[3].fZ + laneCornerPoints[uiTransformLoop + 2]) * pNextTrackData->pointAy[2].fZ;
+        
+        //loop offset fix
+        transformCoords[uiTransformLoop + 2] = dNextTransformZ;
+
+        uiTransformLoop += 3;        
+        //transformCoordsOffset[uiTransformLoop + 2] = dNextTransformZ;// transformCoords[uiTransformLoop + 2] when before loop inc
+      } while (uiTransformLoop != 12);
+      iNextBankAngle1 = (-pNextTrackData->iBankDelta / 2) & 0x3FFF;
+      dNextCosBank2 = tcos[iNextBankAngle1];
+      dNextSinBank1 = tsin[iNextBankAngle1];
+      leftLaneBankRot[0] = transformCoords[1] * dNextCosBank2 - transformCoords[2] * dNextSinBank1;
+      leftLaneBankRot[1] = transformCoords[1] * dNextSinBank1 + transformCoords[2] * dNextCosBank2;
+      leftLaneBankRot[3] = transformCoords[4] * dNextCosBank2 - transformCoords[5] * dNextSinBank1;
+      rightLaneBankRotY[0] = transformCoords[4] * dNextSinBank1 + transformCoords[5] * dNextCosBank2;
+      dBaseTransformX = transformCoords[0];
+      leftLaneBankRot[2] = transformCoords[3];
+      iNextBankAngle2 = (pNextTrackData->iBankDelta / 2) & 0x3FFF;
+      dNextCosBank1 = tcos[iNextBankAngle2];
+      dNextSinBank2 = tsin[iNextBankAngle2];
+      rightLaneBankRotY[2] = transformCoords[7] * dNextCosBank1 - transformCoords[8] * dNextSinBank2;
+      rightLaneBankRotY[3] = transformCoords[7] * dNextSinBank2 + transformCoords[8] * dNextCosBank1;
+      dNextBankRotX2 = transformCoords[10] * dNextCosBank1 - transformCoords[11] * dNextSinBank2;
+      rightLaneBankRotY[1] = transformCoords[6];
+      dUnused_6 = transformCoords[9];
+      uiNextTransformLoop = 0;
+      dNextBankRotY2 = transformCoords[10] * dNextSinBank2 + transformCoords[11] * dNextCosBank1;
       do {
-        *(double *)((char *)&v91 + v37) = v32[1] * *(double *)((char *)&v76 + v37)
-          + *v32 * *(double *)((char *)&v75 + v37)
-          + v32[2] * *(double *)((char *)&v77 + v37)
-          - v32[9];
-        *(double *)((char *)&v92 + v37) = v32[4] * *(double *)((char *)&v76 + v37)
-          + v32[3] * *(double *)((char *)&v75 + v37)
-          + v32[5] * *(double *)((char *)&v77 + v37)
-          - v32[10];
-        v38 = v32[7] * *(double *)((char *)&v76 + v37)
-          + v32[6] * *(double *)((char *)&v75 + v37)
-          + v32[8] * *(double *)((char *)&v77 + v37)
-          - v32[11];
-        v37 += 24;
-        *(double *)&v90[v37 / 4 + 4] = v38;
-      } while (v37 != 96);
-      v103 = (v91 + v94) * transfrm_c_variable_6;
-      v104 = (v92 + v95) * transfrm_c_variable_6;
-      v105 = (v93 + v96) * transfrm_c_variable_6;
-      v106 = (v97 + v100) * transfrm_c_variable_6;
-      v107 = (v98 + v101) * transfrm_c_variable_6;
-      v108 = (v99 + v102) * transfrm_c_variable_6;
-      v109 = (v91 + v97) * transfrm_c_variable_6;
-      v110 = (v92 + v98) * transfrm_c_variable_6;
-      v111 = (v93 + v99) * transfrm_c_variable_6;
-      v112 = (v94 + v100) * transfrm_c_variable_6;
-      v113 = (v95 + v101) * transfrm_c_variable_6;
-      v114 = (v96 + v102) * transfrm_c_variable_6;
-      v115 = (v103 + v106) * transfrm_c_variable_6;
-      v116 = (v104 + v107) * transfrm_c_variable_6;
-      v39 = 0;
-      v117 = (v105 + v108) * transfrm_c_variable_6;
-      v40 = v137;
-      v41 = v121;
+        laneCornerPoints[uiNextTransformLoop] = pNextTrackData->pointAy[0].fY * leftLaneBankRot[uiNextTransformLoop]
+          + pNextTrackData->pointAy[0].fX * leftLaneBankRot[uiNextTransformLoop - 1]
+          + pNextTrackData->pointAy[0].fZ * leftLaneBankRot[uiNextTransformLoop + 1]
+          - pNextTrackData->pointAy[3].fX;
+        laneCornerPoints[uiNextTransformLoop + 1] = pNextTrackData->pointAy[1].fY * leftLaneBankRot[uiNextTransformLoop]
+          + pNextTrackData->pointAy[1].fX * leftLaneBankRot[uiNextTransformLoop - 1]
+          + pNextTrackData->pointAy[1].fZ * leftLaneBankRot[uiNextTransformLoop + 1]
+          - pNextTrackData->pointAy[3].fY;
+        dNextSegmentTransformZ = pNextTrackData->pointAy[2].fY * leftLaneBankRot[uiNextTransformLoop]
+          + pNextTrackData->pointAy[2].fX * leftLaneBankRot[uiNextTransformLoop - 1]
+          + pNextTrackData->pointAy[2].fZ * leftLaneBankRot[uiNextTransformLoop + 1]
+          - pNextTrackData->pointAy[3].fZ;
+        
+        //loop offset fix
+        laneCornerPoints[uiNextTransformLoop + 2] = dNextSegmentTransformZ;
+        
+        uiNextTransformLoop += 3;
+        //laneCornerPointsOffset[uiNextTransformLoop + 2] = dNextSegmentTransformZ;// laneCornerPoints[uiNextTransformLoop + 2] when before loop inc
+      } while (uiNextTransformLoop != 12);
+      laneCornerPoints[12] = (laneCornerPoints[0] + laneCornerPoints[3]) * 0.5;
+      laneCornerPoints[13] = (laneCornerPoints[1] + laneCornerPoints[4]) * 0.5;
+      laneCornerPoints[14] = (laneCornerPoints[2] + laneCornerPoints[5]) * 0.5;
+      laneCornerPoints[15] = (laneCornerPoints[6] + laneCornerPoints[9]) * 0.5;
+      laneCornerPoints[16] = (laneCornerPoints[7] + laneCornerPoints[10]) * 0.5;
+      laneCornerPoints[17] = (laneCornerPoints[8] + laneCornerPoints[11]) * 0.5;
+      laneCornerPoints[18] = (laneCornerPoints[0] + laneCornerPoints[6]) * 0.5;
+      laneCornerPoints[19] = (laneCornerPoints[1] + laneCornerPoints[7]) * 0.5;
+      laneCornerPoints[20] = (laneCornerPoints[2] + laneCornerPoints[8]) * 0.5;
+      laneCornerPoints[21] = (laneCornerPoints[3] + laneCornerPoints[9]) * 0.5;
+      laneCornerPoints[22] = (laneCornerPoints[4] + laneCornerPoints[10]) * 0.5;
+      laneCornerPoints[23] = (laneCornerPoints[5] + laneCornerPoints[11]) * 0.5;
+      laneCornerPoints[24] = (laneCornerPoints[12] + laneCornerPoints[15]) * 0.5;
+      laneCornerPoints[25] = (laneCornerPoints[13] + laneCornerPoints[16]) * 0.5;
+      uiFinalRotationLoop = 0;
+      laneCornerPoints[26] = (laneCornerPoints[14] + laneCornerPoints[17]) * 0.5;
+      dMatrixRotValue1 = dNegSinMatrix20;
+      dMatrixRotValue2 = dRotMatrix10;
       do {
-        v42 = *(double *)((char *)&v92 + v39) + v143;
-        v43 = *(double *)((char *)&v91 + v39) + v145;
-        v44 = *(double *)((char *)&v93 + v39) + v144;
-        *(double *)((char *)&v54 + v39) = v136 * v42 + v139 * v43 + v123 * v44;
-        *(double *)((char *)&v55 + v39) = v138 * v42 + v41 * v43 + v124 * v44;
-        v39 += 24;
-        *(long double *)&v53[v39 / 4 + 4] = v42 * v122 + v43 * v40 + v44 * v135;
-      } while (v39 != 216);
-      v45 = 0;
-      v46 = getdirection(v72 - v69, v73 - v70);
+        // Apply final 3D rotation matrix to transformed points
+        dPointY = laneCornerPoints[uiFinalRotationLoop + 1] + dNegCenterOffsetY;
+        dPointX = laneCornerPoints[uiFinalRotationLoop] + dNegCenterOffsetX;
+        dPointZ = laneCornerPoints[uiFinalRotationLoop + 2] + dNegCenterOffsetZ;
+        transformCoords[uiFinalRotationLoop] = dSinMatrix10 * dPointY + dCosMatrix00 * dPointX + dRotMatrix12 * dPointZ;
+        transformCoords[uiFinalRotationLoop + 1] = dCosMatrix11 * dPointY + dMatrixRotValue2 * dPointX + dRotMatrix20 * dPointZ;
+        
+        //loop offset fix
+        transformCoords[uiFinalRotationLoop + 2] = dPointY * dRotMatrix11 + dPointX * dMatrixRotValue1 + dPointZ * dCosMatrix22;
+        
+        uiFinalRotationLoop += 3;
+        //transformCoordsOffset[uiFinalRotationLoop + 2] = dPointY * dRotMatrix11 + dPointX * dMatrixRotValue1 + dPointZ * dCosMatrix22;// transformCoords[uiFinalRotationLoop + 1] when before loop inc
+      } while (uiFinalRotationLoop != 27);
+      iDirectionCalcLoop = 0;
+      dFinalDirection = getdirection(midpoint2[0] - midpoint1[0], midpoint2[1] - midpoint1[1]);// Get final direction angle for last rotation
       do {
-        v47 = sin(-v46);
-        v151 = cos(-v46);
-        v48 = *(double *)((char *)&v55 + v45 * 4) * v47;
-        v146 = v151;
-        v120 = *(double *)((char *)&v54 + v45 * 4) * v151 - v48;
-        v119 = v47 * *(double *)((char *)&v54 + v45 * 4) + *(double *)((char *)&v55 + v45 * 4) * v151;
-        v45 += 6;
-        v53[v45] = LODWORD(v120);
-        v53[v45 + 1] = HIDWORD(v120);
-        v53[v45 + 2] = LODWORD(v119);
-        v53[v45 + 3] = HIDWORD(v119);
-      } while (v45 != 54);
-      v49 = getdirection(v72 - v69, v74 - v71) * transfrm_c_variable_7 / transfrm_c_variable_8 + transfrm_c_variable_6;
-      v50 = (char *)&localdata + 128 * v2;
-      v147 = v49;
-      if (v155) {
-        v52 = floor(v147);
-        _CHP(v52, v50);
-        *((_DWORD *)v50 + 18) = (int)v49;
+        // Final rotation transformation
+        dSinFinal = sin(-dFinalDirection);
+        dTempCos = cos(-dFinalDirection);
+        dCosFinal = transformCoords[iDirectionCalcLoop + 1] * dSinFinal;
+        dTempSin = dTempCos;
+        dRotMatrix02 = transformCoords[iDirectionCalcLoop] * dTempCos - dCosFinal;
+        dRotMatrix01 = dSinFinal * transformCoords[iDirectionCalcLoop] + transformCoords[iDirectionCalcLoop + 1] * dTempCos;
+        
+        //loop offset fix
+        transformCoords[iDirectionCalcLoop] = dRotMatrix02;
+        transformCoords[iDirectionCalcLoop + 1] = dRotMatrix01;
+        
+        iDirectionCalcLoop += 3;
+        //LODWORD(transformCoordsOffset[iDirectionCalcLoop]) = LODWORD(dRotMatrix02);// transformCoords[iDirectionCalcLoop] when before loop inc
+        //HIDWORD(transformCoordsOffset[iDirectionCalcLoop]) = HIDWORD(dRotMatrix02);
+        //LODWORD(transformCoordsOffset[iDirectionCalcLoop + 1]) = LODWORD(dRotMatrix01);// transformCoords[iDirectionCalcLoop + 1] when before loop inc
+        //HIDWORD(transformCoordsOffset[iDirectionCalcLoop + 1]) = HIDWORD(dRotMatrix01);
+      } while (iDirectionCalcLoop != 27);
+
+      // Calculate final pitch angle in degrees and store result
+      dFinalLanePitchAngle = getdirection(midpoint2[0] - midpoint1[0], midpoint2[2] - midpoint1[2]) * 16384.0 / 6.28318530718 + 0.5;
+      pOutputTrackData = &localdata[iTrackIndex];
+      dStoredPitchAngle = dFinalLanePitchAngle;
+
+      // Store calculated pitch angle: iUnk18 for inner lanes, iUnk19 for outer lanes
+      if (iLeftLaneIndex) {
+        floor(dStoredPitchAngle);
+        //_CHP();
+        pOutputTrackData->iOuterLanePitchAngle = (int)dFinalLanePitchAngle;
       } else {
-        v51 = floor(v147);
-        _CHP(v51, v50);
-        *((_DWORD *)v50 + 17) = (int)v49;
+        floor(dStoredPitchAngle);
+        //_CHP();
+        pOutputTrackData->iInnerLanePitchAngle = (int)dFinalLanePitchAngle;
       }
-      v4 += 18;
-      ++v2;
-      v3 += 18;
-    } while (v2 < TRAK_LEN);
-  }*/
+      iRightLaneOffset += 6;
+      ++iTrackIndex;
+      iLeftLaneOffset += 6;
+    } while (iTrackIndex < TRAK_LEN);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
