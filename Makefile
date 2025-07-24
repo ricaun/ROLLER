@@ -22,7 +22,7 @@ OUTPUTDIR = ./bin
 TARGET = ./bin/ROLLER
 
 FULLCONFIG=$(BUILDCONFIG)-$(ARCH)
-CFLAGS = -g $(DEBUGFLAGS) $(INCLUDES)
+CFLAGS = -g $(DEBUGFLAGS) $(INCLUDES) -Wno-format-truncation -Wno-format-overflow
 LDFLAGS = -Wl,-R\$$ORIGIN -static-libgcc
 
 .SUFFIXES: .o
