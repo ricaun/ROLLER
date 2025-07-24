@@ -941,296 +941,303 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-int getpitchchange(int a1, int a2, int a3)
+int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
 {
-  return 0; /*
-  int v5; // ecx
-  float *v6; // ebx
-  int v7; // ebp
-  int v8; // eax
-  int v9; // eax
-  unsigned int v10; // eax
-  double v11; // st7
-  double v12; // st6
-  double v13; // st5
-  double v14; // st4
-  int v15; // edx
-  double v16; // st7
-  long double v17; // rt0
-  long double v18; // st5
-  int v19; // edx
-  double v20; // st7
-  long double v21; // st6
-  long double v22; // st5
-  int v23; // edx
-  long double v24; // st6
-  long double v25; // st7
-  long double v26; // st5
-  double v27; // st7
-  double v28; // st6
-  double v29; // st7
-  int v30; // eax
-  int v31; // eax
-  int v32; // eax
-  double v33; // st7
-  double v34; // st6
-  double v35; // st5
-  double v36; // st3
-  double v37; // rt0
-  int v38; // edx
-  double v39; // st7
-  long double v40; // rt1
-  long double v41; // st5
-  double v42; // st7
-  int v43; // eax
-  _DWORD v45[6]; // [esp+0h] [ebp-28Ch]
-  double v46; // [esp+18h] [ebp-274h]
-  double v47; // [esp+20h] [ebp-26Ch]
-  double v48; // [esp+28h] [ebp-264h]
-  double v49; // [esp+30h] [ebp-25Ch]
-  double v50; // [esp+38h] [ebp-254h]
-  double v51; // [esp+40h] [ebp-24Ch]
-  double v52; // [esp+48h] [ebp-244h]
-  double v53; // [esp+50h] [ebp-23Ch]
-  double v54; // [esp+58h] [ebp-234h]
-  double v55; // [esp+60h] [ebp-22Ch]
-  double v56; // [esp+68h] [ebp-224h]
-  double v57; // [esp+70h] [ebp-21Ch]
-  double v58; // [esp+78h] [ebp-214h]
-  double v59; // [esp+80h] [ebp-20Ch]
-  double v60; // [esp+88h] [ebp-204h]
-  double v61; // [esp+90h] [ebp-1FCh]
-  double v62; // [esp+98h] [ebp-1F4h]
-  double v63; // [esp+A0h] [ebp-1ECh]
-  double v64; // [esp+A8h] [ebp-1E4h]
-  double v65; // [esp+B0h] [ebp-1DCh]
-  double v66; // [esp+B8h] [ebp-1D4h]
-  double v67; // [esp+C0h] [ebp-1CCh]
-  double v68; // [esp+C8h] [ebp-1C4h]
-  double v69; // [esp+D0h] [ebp-1BCh]
-  double v70; // [esp+D8h] [ebp-1B4h]
-  double v71; // [esp+E0h] [ebp-1ACh]
-  double v72[13]; // [esp+E8h] [ebp-1A4h]
-  double v73; // [esp+150h] [ebp-13Ch]
-  double v74; // [esp+158h] [ebp-134h]
-  double v75; // [esp+160h] [ebp-12Ch]
-  double v76; // [esp+168h] [ebp-124h]
-  double v77; // [esp+170h] [ebp-11Ch]
-  double v78; // [esp+178h] [ebp-114h]
-  long double v79; // [esp+1C8h] [ebp-C4h]
-  long double v80; // [esp+1D0h] [ebp-BCh]
-  long double v81; // [esp+1D8h] [ebp-B4h]
-  double v82; // [esp+1E0h] [ebp-ACh]
-  double v83; // [esp+1E8h] [ebp-A4h]
-  double v84; // [esp+1F0h] [ebp-9Ch]
-  double v85; // [esp+1F8h] [ebp-94h]
-  double v86; // [esp+200h] [ebp-8Ch]
-  double v87; // [esp+208h] [ebp-84h]
-  double v88; // [esp+210h] [ebp-7Ch]
-  double v89; // [esp+218h] [ebp-74h]
-  long double v90; // [esp+220h] [ebp-6Ch]
-  long double v91; // [esp+228h] [ebp-64h]
-  long double v92; // [esp+230h] [ebp-5Ch]
-  double v93; // [esp+238h] [ebp-54h]
-  double v94; // [esp+240h] [ebp-4Ch]
-  double v95; // [esp+248h] [ebp-44h]
-  double v96; // [esp+250h] [ebp-3Ch]
-  long double v97; // [esp+258h] [ebp-34h]
-  long double v98; // [esp+260h] [ebp-2Ch]
-  double v99; // [esp+268h] [ebp-24h]
-  int v100; // [esp+270h] [ebp-1Ch]
-  int v101; // [esp+274h] [ebp-18h]
-  int v102; // [esp+278h] [ebp-14h]
+  int iNextTrackIndex; // ecx
+  tData *pCurrentTrackData; // ebx
+  int iNextTrackIndex2; // ebp
+  int iLaneAOffset; // eax
+  int iLaneBOffset; // eax
+  int iPointIndex; // eax
+  double dOffsetZ; // st7
+  double dOffsetY; // st6
+  double dOffsetX; // st5
+  double dTempValue; // st4
+  int iRotationIndex1; // edx
+  double dDirection1; // st7
+  long double dSin1; // rt0
+  long double dCos1; // st5
+  int iRotationIndex2; // edx
+  double dDirection2; // st7
+  long double dSin2; // st6
+  long double dCos2; // st5
+  int iRotationIndex3; // edx
+  long double dDirection3; // st6
+  long double dCos3; // st7
+  long double dSin3; // st5
+  double dPitchAngle1; // st7
+  double dPitchAngle2; // st7
+  //int iNextLaneAOffset; // eax
+  int iTransformIndex; // eax
+  double dCurrentZ; // st7
+  double dCurrentY; // st6
+  double dPointY; // st5
+  double dPointX; // st3
+  double dPointZ; // rt0
+  int iFinalRotationIndex; // edx
+  double dFinalDirection; // st7
+  long double dFinalSin; // rt1
+  long double dFinalCos; // st5
+  double dFinalPitchAngle; // st7
+  //double laneCornerPointsOffset[3]; // [esp+0h] [ebp-28Ch]
+  double laneCornerPoints[27]; // [esp+18h] [ebp-274h]
+  double transformCoords[27]; // [esp+F0h] [ebp-19Ch]
+  long double dRotMatrix02; // [esp+1C8h] [ebp-C4h]
+  long double dRotMatrix01; // [esp+1D0h] [ebp-BCh]
+  long double dRotMatrix00; // [esp+1D8h] [ebp-B4h]
+  double dCurrentMatrixY; // [esp+1E0h] [ebp-ACh]
+  double dMatrixRotX; // [esp+1E8h] [ebp-A4h]
+  double dMatrixScaleY; // [esp+1F0h] [ebp-9Ch]
+  double dCurrentMatrixX; // [esp+1F8h] [ebp-94h]
+  double dMatrixRotZ; // [esp+200h] [ebp-8Ch]
+  double dMatrixScaleZ; // [esp+208h] [ebp-84h]
+  double dMatrixRotY; // [esp+210h] [ebp-7Ch]
+  double dMatrixScaleX; // [esp+218h] [ebp-74h]
+  long double dTempCos; // [esp+220h] [ebp-6Ch]
+  long double dTempSin; // [esp+228h] [ebp-64h]
+  long double dTempCos3; // [esp+230h] [ebp-5Ch]
+  double dNegOffsetX; // [esp+238h] [ebp-54h]
+  double dNegOffsetY; // [esp+240h] [ebp-4Ch]
+  double dNegOffsetZ; // [esp+248h] [ebp-44h]
+  double dDirection3Stored; // [esp+250h] [ebp-3Ch]
+  long double dTempSin3; // [esp+258h] [ebp-34h]
+  long double dFinalCosSin; // [esp+260h] [ebp-2Ch]
+  double dCurrentMatrixZ; // [esp+268h] [ebp-24h]
+  int iTrack72ByteOffset; // [esp+270h] [ebp-1Ch]
+  int iLane12ByteOffset; // [esp+274h] [ebp-18h]
+  int iOriginalTrackIndex; // [esp+278h] [ebp-14h]
 
-  v5 = a1 + 1;
-  v6 = (float *)((char *)&localdata + 128 * a1);
-  if (a1 + 1 == TRAK_LEN)
-    v5 ^= TRAK_LEN;
-  v7 = v5 + 1;
-  if (v5 + 1 == TRAK_LEN)
-    v7 ^= TRAK_LEN;
-  v102 = a1;
-  v100 = 72 * a1;
-  v101 = 12 * a2;
-  v8 = 12 * a2 + 72 * a1;
-  v46 = *(float *)((char *)TrakPt + v8);
-  v47 = *(float *)((char *)TrakPt_variable_1 + v8);
-  v48 = *(float *)((char *)TrakPt_variable_2 + v8);
-  v102 = 12 * a3;
-  v9 = 12 * a3 + v100;
-  v49 = *(float *)((char *)TrakPt + v9);
-  v50 = *(float *)((char *)TrakPt_variable_1 + v9);
-  v51 = *(float *)((char *)TrakPt_variable_2 + v9);
-  v52 = TrakPt[18 * v5 + 3 * a2];
-  v53 = TrakPt_variable_1[18 * v5 + 3 * a2];
-  v54 = TrakPt_variable_2[18 * v5 + 3 * a2];
-  v55 = TrakPt[18 * v5 + 3 * a3];
-  v56 = TrakPt_variable_1[18 * v5 + 3 * a3];
-  v57 = TrakPt_variable_2[18 * v5 + 3 * a3];
-  v58 = (v46 + v49) * transfrm_c_variable_9;
-  v59 = (v47 + v50) * transfrm_c_variable_9;
-  v60 = (v48 + v51) * transfrm_c_variable_9;
-  v61 = (v52 + v55) * transfrm_c_variable_9;
-  v62 = (v53 + v56) * transfrm_c_variable_9;
-  v63 = (v54 + v57) * transfrm_c_variable_9;
-  v64 = (v46 + v52) * transfrm_c_variable_9;
-  v65 = (v47 + v53) * transfrm_c_variable_9;
-  v66 = (v48 + v54) * transfrm_c_variable_9;
-  v67 = (v49 + v55) * transfrm_c_variable_9;
-  v68 = (v50 + v56) * transfrm_c_variable_9;
-  v69 = (v51 + v57) * transfrm_c_variable_9;
-  v70 = (v58 + v61) * transfrm_c_variable_9;
-  v71 = (v59 + v62) * transfrm_c_variable_9;
-  v72[0] = (v60 + v63) * transfrm_c_variable_9;
-  v93 = -v6[9];
-  v94 = -v6[10];
-  v95 = -v6[11];
-  v46 = v46 + v93;
-  v47 = v47 + v94;
-  v10 = 24;
-  v48 = v48 + v95;
-  v11 = v95;
-  v12 = v94;
-  v13 = v93;
+  iNextTrackIndex = iChunkIdx + 1;              // Calculate next track indices with wraparound
+  pCurrentTrackData = &localdata[iChunkIdx];
+  if (iChunkIdx + 1 == TRAK_LEN)
+    iNextTrackIndex ^= TRAK_LEN;
+  iNextTrackIndex2 = iNextTrackIndex + 1;
+  if (iNextTrackIndex + 1 == TRAK_LEN)
+    iNextTrackIndex2 ^= TRAK_LEN;
+  iOriginalTrackIndex = iChunkIdx;
+  iTrack72ByteOffset = 72 * iChunkIdx;          // Calculate byte offsets for track and lane data access
+  iLane12ByteOffset = 12 * iLLaneIdx;
+  iLaneAOffset = 12 * iLLaneIdx + 72 * iChunkIdx;
+
+  laneCornerPoints[0] = TrakPt[iChunkIdx].pointAy[iLLaneIdx].fX;
+  laneCornerPoints[1] = TrakPt[iChunkIdx].pointAy[iLLaneIdx].fY;
+  laneCornerPoints[2] = TrakPt[iChunkIdx].pointAy[iLLaneIdx].fZ;
+  //laneCornerPoints[0] = *(float *)((char *)&TrakPt[0].pointAy[0].fX + iLaneAOffset);// Load current track segment corner points for lanes a2 and a3
+  //laneCornerPoints[1] = *(float *)((char *)&TrakPt[0].pointAy[0].fY + iLaneAOffset);
+  //laneCornerPoints[2] = *(float *)((char *)&TrakPt[0].pointAy[0].fZ + iLaneAOffset);
+
+  iOriginalTrackIndex = 12 * iRLaneIdx;
+  iLaneBOffset = 12 * iRLaneIdx + iTrack72ByteOffset;
+
+  laneCornerPoints[3] = TrakPt[iChunkIdx].pointAy[iRLaneIdx].fX;
+  laneCornerPoints[4] = TrakPt[iChunkIdx].pointAy[iRLaneIdx].fY;
+  laneCornerPoints[5] = TrakPt[iChunkIdx].pointAy[iRLaneIdx].fZ;
+  //laneCornerPoints[3] = *(float *)((char *)&TrakPt[0].pointAy[0].fX + iLaneBOffset);
+  //laneCornerPoints[4] = *(float *)((char *)&TrakPt[0].pointAy[0].fY + iLaneBOffset);
+  //laneCornerPoints[5] = *(float *)((char *)&TrakPt[0].pointAy[0].fZ + iLaneBOffset);
+
+  laneCornerPoints[6] = TrakPt[iNextTrackIndex].pointAy[iLLaneIdx].fX;
+  laneCornerPoints[7] = TrakPt[iNextTrackIndex].pointAy[iLLaneIdx].fY;
+  laneCornerPoints[8] = TrakPt[iNextTrackIndex].pointAy[iLLaneIdx].fZ;
+  laneCornerPoints[9] = TrakPt[iNextTrackIndex].pointAy[iRLaneIdx].fX;
+  laneCornerPoints[10] = TrakPt[iNextTrackIndex].pointAy[iRLaneIdx].fY;
+  laneCornerPoints[11] = TrakPt[iNextTrackIndex].pointAy[iRLaneIdx].fZ;
+  laneCornerPoints[12] = (laneCornerPoints[0] + laneCornerPoints[3]) * 0.5;// Calculate midpoints between lane corner pairs
+  laneCornerPoints[13] = (laneCornerPoints[1] + laneCornerPoints[4]) * 0.5;
+  laneCornerPoints[14] = (laneCornerPoints[2] + laneCornerPoints[5]) * 0.5;
+  laneCornerPoints[15] = (laneCornerPoints[6] + laneCornerPoints[9]) * 0.5;
+  laneCornerPoints[16] = (laneCornerPoints[7] + laneCornerPoints[10]) * 0.5;
+  laneCornerPoints[17] = (laneCornerPoints[8] + laneCornerPoints[11]) * 0.5;
+  laneCornerPoints[18] = (laneCornerPoints[0] + laneCornerPoints[6]) * 0.5;
+  laneCornerPoints[19] = (laneCornerPoints[1] + laneCornerPoints[7]) * 0.5;
+  laneCornerPoints[20] = (laneCornerPoints[2] + laneCornerPoints[8]) * 0.5;
+  laneCornerPoints[21] = (laneCornerPoints[3] + laneCornerPoints[9]) * 0.5;
+  laneCornerPoints[22] = (laneCornerPoints[4] + laneCornerPoints[10]) * 0.5;
+  laneCornerPoints[23] = (laneCornerPoints[5] + laneCornerPoints[11]) * 0.5;
+  laneCornerPoints[24] = (laneCornerPoints[12] + laneCornerPoints[15]) * 0.5;
+  laneCornerPoints[25] = (laneCornerPoints[13] + laneCornerPoints[16]) * 0.5;
+  laneCornerPoints[26] = (laneCornerPoints[14] + laneCornerPoints[17]) * 0.5;
+  dNegOffsetX = -pCurrentTrackData->pointAy[3].fX;// Calculate negative track offset coordinates
+  dNegOffsetY = -pCurrentTrackData->pointAy[3].fY;
+  dNegOffsetZ = -pCurrentTrackData->pointAy[3].fZ;
+  laneCornerPoints[0] = laneCornerPoints[0] + dNegOffsetX;// Apply offset to all corner points to center at origin
+  laneCornerPoints[1] = laneCornerPoints[1] + dNegOffsetY;
+  iPointIndex = 3;
+  laneCornerPoints[2] = laneCornerPoints[2] + dNegOffsetZ;
+  dOffsetZ = dNegOffsetZ;
+  dOffsetY = dNegOffsetY;
+  dOffsetX = dNegOffsetX;
   do {
-    *(double *)((char *)&v46 + v10) = *(double *)((char *)&v46 + v10) + v13;
-    *(double *)((char *)&v47 + v10) = *(double *)((char *)&v47 + v10) + v12;
-    *(double *)((char *)&v48 + v10) = *(double *)((char *)&v48 + v10) + v11;
-    *(double *)((char *)&v49 + v10) = *(double *)((char *)&v49 + v10) + v13;
-    *(double *)((char *)&v50 + v10) = *(double *)((char *)&v50 + v10) + v12;
-    *(double *)((char *)&v51 + v10) = *(double *)((char *)&v51 + v10) + v11;
-    *(double *)((char *)&v52 + v10) = *(double *)((char *)&v52 + v10) + v13;
-    *(double *)((char *)&v53 + v10) = *(double *)((char *)&v53 + v10) + v12;
-    *(double *)((char *)&v54 + v10) = *(double *)((char *)&v54 + v10) + v11;
-    *(double *)((char *)&v55 + v10) = *(double *)((char *)&v55 + v10) + v13;
-    *(double *)((char *)&v56 + v10) = *(double *)((char *)&v56 + v10) + v12;
-    v14 = *(double *)((char *)&v57 + v10) + v11;
-    v10 += 96;
-    *(double *)&v45[v10 / 4 + 4] = v14;
-  } while (v10 != 216);
-  v15 = 0;
-  v16 = getdirection(v61 - v58, v62 - v59);
+    laneCornerPoints[iPointIndex] = laneCornerPoints[iPointIndex] + dOffsetX;
+    laneCornerPoints[iPointIndex + 1] = laneCornerPoints[iPointIndex + 1] + dOffsetY;
+    laneCornerPoints[iPointIndex + 2] = laneCornerPoints[iPointIndex + 2] + dOffsetZ;
+    laneCornerPoints[iPointIndex + 3] = laneCornerPoints[iPointIndex + 3] + dOffsetX;
+    laneCornerPoints[iPointIndex + 4] = laneCornerPoints[iPointIndex + 4] + dOffsetY;
+    laneCornerPoints[iPointIndex + 5] = laneCornerPoints[iPointIndex + 5] + dOffsetZ;
+    laneCornerPoints[iPointIndex + 6] = laneCornerPoints[iPointIndex + 6] + dOffsetX;
+    laneCornerPoints[iPointIndex + 7] = laneCornerPoints[iPointIndex + 7] + dOffsetY;
+    laneCornerPoints[iPointIndex + 8] = laneCornerPoints[iPointIndex + 8] + dOffsetZ;
+    laneCornerPoints[iPointIndex + 9] = laneCornerPoints[iPointIndex + 9] + dOffsetX;
+    laneCornerPoints[iPointIndex + 10] = laneCornerPoints[iPointIndex + 10] + dOffsetY;
+    dTempValue = laneCornerPoints[iPointIndex + 11] + dOffsetZ;
+    
+    //loop offset fix
+    laneCornerPoints[iPointIndex + 11] = dTempValue;
+    
+    iPointIndex += 12;
+    //laneCornerPointsOffset[iPointIndex + 2] = dTempValue;// laneCornerPoints[iPointIndex + 11] when before loop inc
+  } while (iPointIndex != 27);
+  iRotationIndex1 = 0;
+  dDirection1 = getdirection(laneCornerPoints[15] - laneCornerPoints[12], laneCornerPoints[16] - laneCornerPoints[13]);// First rotation pass around calculated direction
   do {
-    v17 = sin(-v16);
-    v90 = cos(-v16);
-    v18 = *(double *)((char *)&v47 + v15 * 4) * v17;
-    v91 = v90;
-    v81 = *(double *)((char *)&v46 + v15 * 4) * v90 - v18;
-    v80 = v17 * *(double *)((char *)&v46 + v15 * 4) + *(double *)((char *)&v47 + v15 * 4) * v90;
-    v15 += 6;
-    v45[v15] = LODWORD(v81);
-    v45[v15 + 1] = HIDWORD(v81);
-    v45[v15 + 2] = LODWORD(v80);
-    v45[v15 + 3] = HIDWORD(v80);
-  } while (v15 != 54);
-  v19 = 0;
-  v20 = getdirection(v61 - v58, v63 - v60);
+    dSin1 = sin(-dDirection1);
+    dTempCos = cos(-dDirection1);
+    dCos1 = laneCornerPoints[iRotationIndex1 + 1] * dSin1;
+    dTempSin = dTempCos;
+    dRotMatrix00 = laneCornerPoints[iRotationIndex1] * dTempCos - dCos1;
+    dRotMatrix01 = dSin1 * laneCornerPoints[iRotationIndex1] + laneCornerPoints[iRotationIndex1 + 1] * dTempCos;
+    
+    //loop offset fix
+    laneCornerPoints[iRotationIndex1] = dRotMatrix00;
+    laneCornerPoints[iRotationIndex1 + 1] = dRotMatrix01;
+
+    iRotationIndex1 += 3;    
+    //LODWORD(laneCornerPointsOffset[iRotationIndex1]) = LODWORD(dRotMatrix00);// laneCornerPoints[iRotationIndex1] when before loop inc
+    //HIDWORD(laneCornerPointsOffset[iRotationIndex1]) = HIDWORD(dRotMatrix00);
+    //LODWORD(laneCornerPointsOffset[iRotationIndex1 + 1]) = LODWORD(dRotMatrix01);// laneCornerPoints[iRotationIndex1 + 1] when before loop inc
+    //HIDWORD(laneCornerPointsOffset[iRotationIndex1 + 1]) = HIDWORD(dRotMatrix01);
+  } while (iRotationIndex1 != 27);
+  iRotationIndex2 = 0;
+  dDirection2 = getdirection(laneCornerPoints[15] - laneCornerPoints[12], laneCornerPoints[17] - laneCornerPoints[14]);// Second rotation pass around different direction
   do {
-    v21 = sin(v20);
-    v90 = cos(v20);
-    v22 = *(double *)((char *)&v48 + v19 * 4) * v21;
-    v91 = v90;
-    v81 = v22 + *(double *)((char *)&v46 + v19 * 4) * v90;
-    v79 = *(double *)((char *)&v48 + v19 * 4) * v90 + -v21 * *(double *)((char *)&v46 + v19 * 4);
-    v19 += 6;
-    v45[v19] = LODWORD(v81);
-    v45[v19 + 1] = HIDWORD(v81);
-    v45[v19 + 4] = LODWORD(v79);
-    v45[v19 + 5] = HIDWORD(v79);
-  } while (v19 != 54);
-  v23 = 0;
-  v96 = getdirection(v65 - v68, v69 - v66);
-  v24 = v96;
+    dSin2 = sin(dDirection2);
+    dTempCos = cos(dDirection2);
+    dCos2 = laneCornerPoints[iRotationIndex2 + 2] * dSin2;
+    dTempSin = dTempCos;
+    dRotMatrix00 = dCos2 + laneCornerPoints[iRotationIndex2] * dTempCos;
+    dRotMatrix02 = laneCornerPoints[iRotationIndex2 + 2] * dTempCos + -dSin2 * laneCornerPoints[iRotationIndex2];
+    
+    //loop offset fix
+    laneCornerPoints[iRotationIndex2] = dRotMatrix00;
+    laneCornerPoints[iRotationIndex2 + 2] = dRotMatrix02;
+    
+    iRotationIndex2 += 3;
+    //LODWORD(laneCornerPointsOffset[iRotationIndex2]) = LODWORD(dRotMatrix00);// laneCornerPoints[iRotationIndex2] when before loop inc
+    //HIDWORD(laneCornerPointsOffset[iRotationIndex2]) = HIDWORD(dRotMatrix00);
+    //LODWORD(laneCornerPointsOffset[iRotationIndex2 + 2]) = LODWORD(dRotMatrix02);// laneCornerPoints[iRotationIndex2 + 1] when before loop inc
+    //HIDWORD(laneCornerPointsOffset[iRotationIndex2 + 2]) = HIDWORD(dRotMatrix02);
+  } while (iRotationIndex2 != 27);
+  iRotationIndex3 = 0;
+  dDirection3Stored = getdirection(laneCornerPoints[19] - laneCornerPoints[22], laneCornerPoints[23] - laneCornerPoints[20]);// Third rotation pass around third direction
+  dDirection3 = dDirection3Stored;
   do {
-    v25 = cos(v24);
-    v91 = sin(v24);
-    v26 = *(double *)((char *)&v47 + v23 * 4) * v25;
-    v97 = v91;
-    v80 = v26 - *(double *)((char *)&v48 + v23 * 4) * v91;
-    v79 = *(double *)((char *)&v47 + v23 * 4) * v91 + *(double *)((char *)&v48 + v23 * 4) * v25;
-    v23 += 6;
-    v45[v23 + 2] = LODWORD(v80);
-    v45[v23 + 3] = HIDWORD(v80);
-    v45[v23 + 4] = LODWORD(v79);
-    v45[v23 + 5] = HIDWORD(v79);
-  } while (v23 != 54);
-  v92 = v25;
-  v27 = v57 - v54;
-  IF_DATAN2(v27);
-  v28 = v51 - v48;
-  IF_DATAN2(v27);
-  v29 = (v27 - v28) * transfrm_c_variable_10 / transfrm_c_variable_11 + transfrm_c_variable_9;
-  v30 = floor(v29);
-  _CHP(v30, 216);
-  *((_DWORD *)v6 + 23) = (int)-v29;
-  v85 = *v6;
-  v82 = v6[1];
-  v99 = v6[2];
-  v83 = v6[3];
-  v88 = v6[4];
-  v86 = v6[5];
-  v89 = v6[6];
-  v84 = v6[7];
-  v87 = v6[8];
-  v31 = 72 * v5 + 12 * a2;
-  v46 = *(float *)((char *)TrakPt + v31);
-  v47 = *(float *)((char *)TrakPt_variable_1 + v31);
-  v48 = *(float *)((char *)TrakPt_variable_2 + v31);
-  v49 = TrakPt[18 * v5 + 3 * a3];
-  v50 = TrakPt_variable_1[18 * v5 + 3 * a3];
-  v51 = TrakPt_variable_2[18 * v5 + 3 * a3];
-  v52 = TrakPt[18 * v7 + 3 * a2];
-  v53 = TrakPt_variable_1[18 * v7 + 3 * a2];
-  v54 = TrakPt_variable_2[18 * v7 + 3 * a2];
-  v55 = TrakPt[18 * v7 + 3 * a3];
-  v56 = TrakPt_variable_1[18 * v7 + 3 * a3];
-  v57 = TrakPt_variable_2[18 * v7 + 3 * a3];
-  v58 = (v46 + v49) * transfrm_c_variable_9;
-  v59 = (v47 + v50) * transfrm_c_variable_9;
-  v60 = (v48 + v51) * transfrm_c_variable_9;
-  v61 = (v52 + v55) * transfrm_c_variable_9;
-  v62 = (v53 + v56) * transfrm_c_variable_9;
-  v63 = (v54 + v57) * transfrm_c_variable_9;
-  v64 = (v46 + v52) * transfrm_c_variable_9;
-  v65 = (v47 + v53) * transfrm_c_variable_9;
-  v66 = (v48 + v54) * transfrm_c_variable_9;
-  v67 = (v49 + v55) * transfrm_c_variable_9;
-  v68 = (v50 + v56) * transfrm_c_variable_9;
-  v69 = (v51 + v57) * transfrm_c_variable_9;
-  v70 = (v58 + v61) * transfrm_c_variable_9;
-  v71 = (v59 + v62) * transfrm_c_variable_9;
-  v32 = 0;
-  v72[0] = (v60 + v63) * transfrm_c_variable_9;
-  v33 = v99;
-  v34 = v82;
+    dCos3 = cos(dDirection3);
+    dTempSin = sin(dDirection3);
+    dSin3 = laneCornerPoints[iRotationIndex3 + 1] * dCos3;
+    dTempSin3 = dTempSin;
+    dRotMatrix01 = dSin3 - laneCornerPoints[iRotationIndex3 + 2] * dTempSin;
+    dRotMatrix02 = laneCornerPoints[iRotationIndex3 + 1] * dTempSin + laneCornerPoints[iRotationIndex3 + 2] * dCos3;
+    
+    //loop offset fix
+    laneCornerPoints[iRotationIndex3 + 1] = dRotMatrix01;
+    laneCornerPoints[iRotationIndex3 + 2] = dRotMatrix02;
+    
+    iRotationIndex3 += 3;
+    //LODWORD(laneCornerPointsOffset[iRotationIndex3 + 1]) = LODWORD(dRotMatrix01);// laneCornerPoints[iRotationIndex3 + 1] when before loop inc
+    //HIDWORD(laneCornerPointsOffset[iRotationIndex3 + 1]) = HIDWORD(dRotMatrix01);
+    //LODWORD(laneCornerPointsOffset[iRotationIndex3 + 2]) = LODWORD(dRotMatrix02);// laneCornerPoints[iRotationIndex3 + 2] when before loop inc
+    //HIDWORD(laneCornerPointsOffset[iRotationIndex3 + 2]) = HIDWORD(dRotMatrix02);
+  } while (iRotationIndex3 != 27);
+  dTempCos3 = dCos3;
+  dPitchAngle1 = atan2(laneCornerPoints[7] - laneCornerPoints[10], laneCornerPoints[11] - laneCornerPoints[8]);// Calculate intermediate pitch angle using atan2
+  //dPitchAngle1 = IF_DATAN2(v27, laneCornerPoints[7] - laneCornerPoints[10], laneCornerPoints[11] - laneCornerPoints[8]);// Calculate intermediate pitch angle using atan2
+  dPitchAngle2 = (dPitchAngle1 - atan2(laneCornerPoints[5] - laneCornerPoints[2], dPitchAngle1)) * 16384.0 / 6.28318530718 + 0.5;// Calculate and store banking angle difference
+  //dPitchAngle2 = (dPitchAngle1 - IF_DATAN2(v29, laneCornerPoints[5] - laneCornerPoints[2], dPitchAngle1)) * 16384.0 / 6.28318530718 + 0.5;// Calculate and store banking angle difference
+  floor(dPitchAngle2);
+  //_CHP();
+  pCurrentTrackData->iBankAngleDelta = (int)-dPitchAngle2;
+  dCurrentMatrixX = pCurrentTrackData->pointAy[0].fX;// Load current track transformation matrix components
+  dCurrentMatrixY = pCurrentTrackData->pointAy[0].fY;
+  dCurrentMatrixZ = pCurrentTrackData->pointAy[0].fZ;
+  dMatrixRotX = pCurrentTrackData->pointAy[1].fX;
+  dMatrixRotY = pCurrentTrackData->pointAy[1].fY;
+  dMatrixRotZ = pCurrentTrackData->pointAy[1].fZ;
+  dMatrixScaleX = pCurrentTrackData->pointAy[2].fX;
+  dMatrixScaleY = pCurrentTrackData->pointAy[2].fY;
+  dMatrixScaleZ = pCurrentTrackData->pointAy[2].fZ;
+
+  laneCornerPoints[0] = TrakPt[iNextTrackIndex].pointAy[iLLaneIdx].fX;
+  laneCornerPoints[1] = TrakPt[iNextTrackIndex].pointAy[iLLaneIdx].fY;
+  laneCornerPoints[2] = TrakPt[iNextTrackIndex].pointAy[iLLaneIdx].fZ;
+  //iNextLaneAOffset = 72 * iNextTrackIndex + 12 * iLLaneIdx;// Load next track segment points for comparison
+  //laneCornerPoints[0] = *(float *)((char *)&TrakPt[0].pointAy[0].fX + iNextLaneAOffset);
+  //laneCornerPoints[1] = *(float *)((char *)&TrakPt[0].pointAy[0].fY + iNextLaneAOffset);
+  //laneCornerPoints[2] = *(float *)((char *)&TrakPt[0].pointAy[0].fZ + iNextLaneAOffset);
+
+  laneCornerPoints[3] = TrakPt[iNextTrackIndex].pointAy[iRLaneIdx].fX;
+  laneCornerPoints[4] = TrakPt[iNextTrackIndex].pointAy[iRLaneIdx].fY;
+  laneCornerPoints[5] = TrakPt[iNextTrackIndex].pointAy[iRLaneIdx].fZ;
+  laneCornerPoints[6] = TrakPt[iNextTrackIndex2].pointAy[iLLaneIdx].fX;
+  laneCornerPoints[7] = TrakPt[iNextTrackIndex2].pointAy[iLLaneIdx].fY;
+  laneCornerPoints[8] = TrakPt[iNextTrackIndex2].pointAy[iLLaneIdx].fZ;
+  laneCornerPoints[9] = TrakPt[iNextTrackIndex2].pointAy[iRLaneIdx].fX;
+  laneCornerPoints[10] = TrakPt[iNextTrackIndex2].pointAy[iRLaneIdx].fY;
+  laneCornerPoints[11] = TrakPt[iNextTrackIndex2].pointAy[iRLaneIdx].fZ;
+  laneCornerPoints[12] = (laneCornerPoints[0] + laneCornerPoints[3]) * 0.5;
+  laneCornerPoints[13] = (laneCornerPoints[1] + laneCornerPoints[4]) * 0.5;
+  laneCornerPoints[14] = (laneCornerPoints[2] + laneCornerPoints[5]) * 0.5;
+  laneCornerPoints[15] = (laneCornerPoints[6] + laneCornerPoints[9]) * 0.5;
+  laneCornerPoints[16] = (laneCornerPoints[7] + laneCornerPoints[10]) * 0.5;
+  laneCornerPoints[17] = (laneCornerPoints[8] + laneCornerPoints[11]) * 0.5;
+  laneCornerPoints[18] = (laneCornerPoints[0] + laneCornerPoints[6]) * 0.5;
+  laneCornerPoints[19] = (laneCornerPoints[1] + laneCornerPoints[7]) * 0.5;
+  laneCornerPoints[20] = (laneCornerPoints[2] + laneCornerPoints[8]) * 0.5;
+  laneCornerPoints[21] = (laneCornerPoints[3] + laneCornerPoints[9]) * 0.5;
+  laneCornerPoints[22] = (laneCornerPoints[4] + laneCornerPoints[10]) * 0.5;
+  laneCornerPoints[23] = (laneCornerPoints[5] + laneCornerPoints[11]) * 0.5;
+  laneCornerPoints[24] = (laneCornerPoints[12] + laneCornerPoints[15]) * 0.5;
+  laneCornerPoints[25] = (laneCornerPoints[13] + laneCornerPoints[16]) * 0.5;
+  iTransformIndex = 0;
+  laneCornerPoints[26] = (laneCornerPoints[14] + laneCornerPoints[17]) * 0.5;
+  dCurrentZ = dCurrentMatrixZ;
+  dCurrentY = dCurrentMatrixY;
   do {
-    v35 = *(double *)((char *)&v47 + v32 * 8) + v94;
-    v36 = *(double *)((char *)&v46 + v32 * 8) + v93;
-    v37 = *(double *)((char *)&v48 + v32 * 8) + v95;
-    v72[v32 + 1] = v83 * v35 + v85 * v36 + v89 * v37;
-    v72[v32 + 2] = v88 * v35 + v34 * v36 + v84 * v37;
-    v32 += 3;
-    v72[v32] = v35 * v86 + v36 * v33 + v37 * v87;
-  } while (v32 != 27);
-  v38 = 0;
-  v39 = getdirection(v76 - v73, v77 - v74);
+    dPointY = laneCornerPoints[iTransformIndex + 1] + dNegOffsetY;// Transform points using current track matrix
+    dPointX = laneCornerPoints[iTransformIndex] + dNegOffsetX;
+    dPointZ = laneCornerPoints[iTransformIndex + 2] + dNegOffsetZ;
+    transformCoords[iTransformIndex] = dMatrixRotX * dPointY + dCurrentMatrixX * dPointX + dMatrixScaleX * dPointZ;
+    transformCoords[iTransformIndex + 1] = dMatrixRotY * dPointY + dCurrentY * dPointX + dMatrixScaleY * dPointZ;
+    
+    //loop offset fix
+    transformCoords[iTransformIndex + 2] = dPointY * dMatrixRotZ + dPointX * dCurrentZ + dPointZ * dMatrixScaleZ;
+    
+    iTransformIndex += 3;
+    //laneCornerPoints[iTransformIndex + 26] = dPointY * dMatrixRotZ + dPointX * dCurrentZ + dPointZ * dMatrixScaleZ;// transformCoords[iTransformIndex + 2] when before loop inc
+  } while (iTransformIndex != 27);
+  iFinalRotationIndex = 0;
+  dFinalDirection = getdirection(transformCoords[15] - transformCoords[12], transformCoords[16] - transformCoords[13]);// Final rotation pass for pitch calculation
   do {
-    v40 = sin(-v39);
-    v98 = cos(-v39);
-    v41 = v72[v38 + 2] * v40;
-    v91 = v98;
-    v81 = v72[v38 + 1] * v98 - v41;
-    v80 = v40 * v72[v38 + 1] + v72[v38 + 2] * v98;
-    v38 += 3;
-    *(_DWORD *)((char *)&v70 + v38 * 8) = LODWORD(v81);
-    *(_DWORD *)((char *)&v70 + v38 * 8 + 4) = HIDWORD(v81);
-    LODWORD(v72[v38 - 1]) = LODWORD(v80);
-    *(_DWORD *)((char *)&v71 + v38 * 8 + 4) = HIDWORD(v80);
-  } while (v38 != 27);
-  v42 = getdirection(v76 - v73, v78 - v75) * transfrm_c_variable_10 / transfrm_c_variable_11 + transfrm_c_variable_9;
-  v43 = floor(v42);
-  _CHP(v43, 216);
-  return (int)v42;*/
+    dFinalSin = sin(-dFinalDirection);
+    dFinalCosSin = cos(-dFinalDirection);
+    dFinalCos = transformCoords[iFinalRotationIndex + 1] * dFinalSin;
+    dTempSin = dFinalCosSin;
+    dRotMatrix00 = transformCoords[iFinalRotationIndex] * dFinalCosSin - dFinalCos;
+    dRotMatrix01 = dFinalSin * transformCoords[iFinalRotationIndex] + transformCoords[iFinalRotationIndex + 1] * dFinalCosSin;
+    
+    //loop offset fix
+    transformCoords[iFinalRotationIndex] = dRotMatrix00;
+    transformCoords[iFinalRotationIndex + 1] = dRotMatrix01;
+    
+    iFinalRotationIndex += 3;
+    //LODWORD(laneCornerPoints[iFinalRotationIndex + 24]) = LODWORD(dRotMatrix00);// transformCoords[iFinalRotationIndex] when before loop inc
+    //HIDWORD(laneCornerPoints[iFinalRotationIndex + 24]) = HIDWORD(dRotMatrix00);
+    //LODWORD(laneCornerPoints[iFinalRotationIndex + 25]) = LODWORD(dRotMatrix01);// transformCoords[iFinalRotationIndex + 1] when before loop inc
+    //HIDWORD(laneCornerPoints[iFinalRotationIndex + 25]) = HIDWORD(dRotMatrix01);
+  } while (iFinalRotationIndex != 27);
+  dFinalPitchAngle = getdirection(transformCoords[15] - transformCoords[12], transformCoords[17] - transformCoords[14]) * 16384.0 / 6.28318530718 + 0.5;// Calculate final pitch change angle and return as integer
+  floor(dFinalPitchAngle);
+  //_CHP();
+  return (int)dFinalPitchAngle;
 }
 
 //-------------------------------------------------------------------------------------------------

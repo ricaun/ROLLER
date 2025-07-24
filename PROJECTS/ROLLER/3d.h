@@ -27,7 +27,7 @@ typedef struct
   int iOuterLanePitchAngle;
   tVec3 gravity;
   int iBankDelta;
-  float fUnk24;
+  int iBankAngleDelta;
   float fUnk25;
   float fUnk26;
   float fUnk27;
