@@ -6501,7 +6501,7 @@ void restart_net_game()
   Race = ((uint8)TrackLoad - 1) & 7;            // Calculate current race number (0-7)
   if (game_type == 1 && !Race) {
     memset(championship_points, 0, sizeof(championship_points));// Reset championship statistics for new championship
-    memset(team_points, 0, 0x40u);
+    memset(team_points, 0, sizeof(team_points));
     memset(total_kills, 0, sizeof(total_kills));
     memset(total_fasts, 0, sizeof(total_fasts));
     memset(total_wins, 0, sizeof(total_wins));
