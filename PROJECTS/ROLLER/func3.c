@@ -3959,8 +3959,8 @@ void network_fucked()
     uiBufferSize = 64000;
   byBufferSizeRemainder = uiBufferSize;
   uiDwordCopyCount = uiBufferSize >> 2;
-  qmemcpy(scrbuf, title_vga, 4 * uiDwordCopyCount);// Copy title image to screen buffer (optimized 32-bit copy + remainder)
-  qmemcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pszTitleImageData[4 * uiDwordCopyCount], byBufferSizeRemainder & 3);
+  memcpy(scrbuf, title_vga, 4 * uiDwordCopyCount);// Copy title image to screen buffer (optimized 32-bit copy + remainder)
+  memcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pszTitleImageData[4 * uiDwordCopyCount], byBufferSizeRemainder & 3);
   if (network_buggered == 666)                // Check if this is a data loss error (network_buggered == 666)
   {
     front_text((tBlockHeader *)font_vga, "ERROR", font4_ascii, font4_offsets, 320, 100, 0x8Fu, 1u);// Display data loss error messages and prompt for restart
