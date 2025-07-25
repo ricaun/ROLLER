@@ -44,12 +44,12 @@ extern int TRAK_LEN;
 //-------------------------------------------------------------------------------------------------
 
 void loadtrack(int iTrackIdx, int a2);
-int read_backs(int *a1, int a2, int a3, int a4);
+void read_backs(uint8 **ppTrackData);
 void read_texturemap(uint8 **ppTrackData);
 void read_bldmap(uint8 **ppTrackData);
 void readstuntdata(uint8 **pTrackData);
 void activatestunts();
-int ReadAnimData(int result, int a2);
+void ReadAnimData(FILE *pFile, uint8 **ppFileData);
 void readline(FILE *pFile, const char *szFmt, ...);
 uint8 *memgets(uint8 *dst, uint8 **ppSrc);
 void readline2(uint8 **ppFileData, const char *pszFormat, ...);

@@ -3,6 +3,8 @@
 #include "car.h"
 #include "moving.h"
 #include "graphics.h"
+#include "polytex.h"
+#include "building.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
@@ -869,44 +871,32 @@ void loadtrack(int iTrackIdx, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int read_backs(int *a1, int a2, int a3, int a4)
+void read_backs(uint8 **ppTrackData)
 {
-  return 0; /*
-  int v5; // ecx
-  int v6; // esi
-  int result; // eax
-  int v8; // edi
-  unsigned int v9; // [esp+0h] [ebp-1Ch] BYREF
-  _DWORD v10[6]; // [esp+4h] [ebp-18h] BYREF
+  int iBacksEnd; // ecx
+  int iFoundBacks; // esi
+  uint8 *pTrackData; // edi
+  int iTextureIndex; // [esp+0h] [ebp-1Ch] BYREF
+  int iReplacementTexture; // [esp+4h] [ebp-18h] BYREF
 
-  v10[4] = a4;
-  v5 = 0;
-  v6 = 0;
+  iBacksEnd = 0;
+  iFoundBacks = 0;
   do {
-    if (v6) {
-      result = readline2(a1, &loadtrak_c_variable_49, &v9, v10);
-      if (v9 < 0x100) {
-        result = v10[0];
-        texture_back[v9] = v10[0];
-      } else {
-        v5 = -1;
-      }
+    if (iFoundBacks) {
+      readline2(ppTrackData, "ii", &iTextureIndex, &iReplacementTexture);
+      if ((unsigned int)iTextureIndex < 0x100)
+        texture_back[iTextureIndex] = iReplacementTexture;
+      else
+        iBacksEnd = -1;
     } else {
-      v8 = *a1;
-      memgets(&fp_buf, a1);
-      result = *a1;
-      if (v8 == *a1)
-        return result;
-      if (fp_buf == 66
-        && fp_buf_variable_1 == 65
-        && fp_buf_variable_2 == 67
-        && fp_buf_variable_3 == 75
-        && fp_buf_variable_4 == 83) {
-        v6 = -1;
-      }
+      pTrackData = *ppTrackData;
+      memgets(fp_buf, ppTrackData);
+      if (pTrackData == *ppTrackData)
+        return;
+      if (fp_buf[0] == 'B' && fp_buf[1] == 'A' && fp_buf[2] == 'C' && fp_buf[3] == 'K' && fp_buf[4] == 'S')
+        iFoundBacks = -1;
     }
-  } while (!v5);
-  return result;*/
+  } while (!iBacksEnd);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1099,30 +1089,24 @@ void activatestunts()
 
 //-------------------------------------------------------------------------------------------------
 
-int ReadAnimData(int result, int a2)
+void ReadAnimData(FILE *pFile, uint8 **ppFileData)
 {
-  return 0; /*
-  int v2; // [esp+0h] [ebp-14h] BYREF
-  int v3[4]; // [esp+4h] [ebp-10h] BYREF
+  int iSignType; // [esp+0h] [ebp-14h] BYREF
+  int iSignTex; // [esp+4h] [ebp-10h] BYREF
 
-  v2 = 0;
-  v3[0] = 0;
-  if (result) {
+  iSignType = 0;
+  iSignTex = 0;
+  if (pFile) {
     do {
-      readline2(a2, aSs, &v2, v3);
-      if ((v2 & 0x8000u) == 0) {
-        result = v3[0];
-        advert_list[(__int16)v2] = v3[0];
-      } else {
-        result = (__int16)v2;
-        if ((__int16)v2 < -1) {
-          result = -(__int16)v2;
-          VisibleBuildings_variable_1[-(__int16)v2] = 0;
-        }
+      readline2(ppFileData, "ss", &iSignType, &iSignTex);
+      if ((iSignType & 0x8000u) == 0) {
+        advert_list[(int16)iSignType] = iSignTex;
+      } else if ((int16)iSignType < -1) {
+        advert_list[-iSignType - 1] = 0;
+        //VisibleBuildings_variable_1[-(__int16)iSignType] = 0;// offset into advert_list
       }
-    } while (SLOWORD(v3[0]) >= 0);
+    } while ((iSignTex & 0x8000u) == 0);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
