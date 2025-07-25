@@ -367,7 +367,8 @@ void UpdateDebugLoop()
       -6, -6, -6, -6, 0, -6, -6, -6, -6, -6, 0, 0,
     };
 
-    unsigned char  object_3_variable_1648[] = { // Font3
+    char font3_ascii_br[256] = // Fatal Brazilian/Saspanish - object_3_variable_1648
+    {
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -396,6 +397,17 @@ void UpdateDebugLoop()
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
 
+    int font5_offsets[80] =
+    {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, -2, 0, 0, 0, 0, 0, -5, 0, 0, -5,
+    0, -5, -5, -5, -5, -5, -7, 0, -5, -5, -5, -5,
+    -5, -5, -5, -5, -5, -1, -5, -5, -5, -5, -5, 0,
+    -5, -5, -5, -5, -5, 0, 0, 0,
+    };
+
     while (debugEnable) {
 
       uint8 size = 24; // Font size
@@ -415,7 +427,7 @@ void UpdateDebugLoop()
         font_offsets = &font2_offsets;
       } else if (font == 2) {
         front_vga_font = front_vga_font3;
-        font_ascii = &object_3_variable_1648;
+        font_ascii = &font3_ascii_br;
         font_offsets = &font3_offsets;
         size = 40;
       } else {
