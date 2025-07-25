@@ -1309,100 +1309,136 @@ uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 
 void readline2(uint8 **ppFileData, const char *pszFormat, ...)
 {
-  char *pszToken; // ebp
-  unsigned int uiSavedIndex; // edi
-  char szLineBuffer[512]; // [esp+0h] [ebp-220h] BYREF
-  va_list vaCopy; // [esp+200h] [ebp-20h] BYREF
-  unsigned int uiFormatIndex; // [esp+204h] [ebp-1Ch]
-  va_list va; // [esp+22Ch] [ebp+Ch] BYREF
+  char szLineBuffer[512];
+  va_list va;
+  va_list vaCopy;
+  char *pszToken;
+  uint32 uiFormatIndex;
 
   va_start(va, pszFormat);
   va_copy(vaCopy, va);
+
   while (1) {
-    memgets((uint8 *)szLineBuffer, ppFileData); // Read next line from file into buffer
+      // Read next line from file into buffer
+    memgets((uint8 *)szLineBuffer, ppFileData);
+
+    // Check for end of file
     if (meof)
-      break;                                    // Check for end of file
-    pszToken = strtok(szLineBuffer, delims);    // Tokenize line using delimiters (whitespace)
-    if (strstr(pszToken, "//") == pszToken)   // Skip C++ style comments (//) 
-      pszToken = 0;
-    if (strstr(pszToken, ";") == pszToken)    // Skip lines starting with semicolon
-      pszToken = 0;
-    if (szLineBuffer[0] == 10)                // Skip newlines
-      pszToken = 0;
-    if (szLineBuffer[0] == 13)                // Skip carriage returns
-      pszToken = 0;                                  // Process each format specifier in the format string
-    for (uiFormatIndex = 0; strlen(pszFormat) > uiFormatIndex; uiFormatIndex = uiSavedIndex + 1) { // 'D' = double scaled by 256
-      if (pszToken) {
-        if (pszFormat[uiFormatIndex] == 'D') {
-          double *pdDest = va_arg(vaCopy, double *);  //get arg
-          double dValue = strtod(pszToken, 0);        //get val
-          *pdDest = dValue * 256.0;                   //copy val to arg
+      break;
+
+  // Tokenize line using delimiters (whitespace)
+    pszToken = strtok(szLineBuffer, delims);
+
+    // Skip C++ style comments (//)
+    if (pszToken && strstr(pszToken, "//") == pszToken)
+      pszToken = NULL;
+
+  // Skip lines starting with semicolon
+    if (pszToken && strstr(pszToken, ";") == pszToken)
+      pszToken = NULL;
+
+  // Skip newlines and carriage returns
+    if (szLineBuffer[0] == '\n' || szLineBuffer[0] == '\r')
+      pszToken = NULL;
+
+    if (pszToken) {
+        // Process each format specifier in the format string
+      for (uiFormatIndex = 0; uiFormatIndex < strlen(pszFormat); ++uiFormatIndex) {
+        switch (pszFormat[uiFormatIndex]) {
+          case 'D': // double scaled by 256
+          {
+            double *pdblDest = va_arg(vaCopy, double *);
+            double dblValue = strtod(pszToken, NULL);
+            *pdblDest = dblValue * 256.0;
+            break;
+          }
+
+          case 'F': // float scaled by 256
+          {
+            float *pfDest = va_arg(vaCopy, float *);
+            double dblFloatValue = strtod(pszToken, NULL);
+            *pfDest = (float)(dblFloatValue * 256.0);
+            break;
+          }
+
+          case 'I': // 32-bit integer shifted left by 8
+          {
+            uint32 *puiDest = va_arg(vaCopy, uint32 *);
+            int32 iIntValue = strtol(pszToken, NULL, 10);
+            *puiDest = iIntValue << 8;
+            break;
+          }
+
+          case 'S': // 16-bit short shifted left by 8
+          {
+            int16 *pnDest = va_arg(vaCopy, int16 *);
+            int16 nShortValue = (int16)strtol(pszToken, NULL, 10);
+            *pnDest = nShortValue << 8;
+            break;
+          }
+
+          case 'd': // double (no scaling)
+          {
+            double *pdblDest = va_arg(vaCopy, double *);
+            double dblPlainValue = strtod(pszToken, NULL);
+            *pdblDest = dblPlainValue;
+            break;
+          }
+
+          case 'f': // float (no scaling)
+          {
+            float *pfDest = va_arg(vaCopy, float *);
+            double fltPlainValue = strtod(pszToken, NULL);
+            *pfDest = (float)fltPlainValue;
+            break;
+          }
+
+          case 'i': // 32-bit integer (no shifting)
+          {
+            int32 *piDest = va_arg(vaCopy, int32 *);
+            int32 iPlainValue = strtol(pszToken, NULL, 10);
+            *piDest = iPlainValue;
+            break;
+          }
+
+          case 's': // 16-bit short (no shifting)
+          {
+            int16 *pnDest = va_arg(vaCopy, int16 *);
+            int16 nPlainValue = (int16)strtol(pszToken, NULL, 10);
+            *pnDest = nPlainValue;
+            break;
+          }
+
+          case 'C': // copy string (uppercase)
+          case 'c': // copy string (lowercase)
+          {
+            char *pszDestStr = va_arg(vaCopy, char *);
+            strcpy(pszDestStr, pszToken);
+            break;
+          }
+
+          case 'u': // unsigned byte
+          {
+            uint8 *pbyDest = va_arg(vaCopy, uint8 *);
+            uint8 byByteValue = (uint8)strtol(pszToken, NULL, 10);
+            *pbyDest = byByteValue;
+            break;
+          }
         }
-        if (pszFormat[uiFormatIndex] == 'F')  // 'F' = float scaled by 256
-        {
-          float *pfDest = va_arg(vaCopy, float *);  //get arg
-          double dFltValue = strtod(pszToken, 0);   //get val
-          *pfDest = (float)(dFltValue * 256.0);     //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'I')  // 'I' = 32-bit integer shifted left by 8
-        {
-          uint32 *puiDest = va_arg(vaCopy, uint32 *);   //get arg
-          uint32 uiIntValue = strtol(pszToken, 0, 10);  //get val
-          *puiDest = uiIntValue << 8;                   //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'S')  // 'S' = 16-bit short shifted left by 8
-        {
-          int16 *pnDest = va_arg(vaCopy, int16 *);            //get arg
-          int16 nShortValue = (int16)strtol(pszToken, 0, 10); //get val
-          *pnDest = nShortValue << 8;                         //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'd')  // 'd' = double (no scaling)
-        {
-          double *pdDest = va_arg(vaCopy, double *);  //get arg
-          double dPlainVal = strtod(pszToken, 0);     //get val
-          *pdDest = dPlainVal;                        //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'f')  // 'f' = float (no scaling)
-        {
-          float *pfDest_1 = va_arg(vaCopy, float *);      //get arg
-          float fPlainValue = (float)strtod(pszToken, 0); //get val
-          *pfDest_1 = fPlainValue;                        //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'i')  // 'i' = 32-bit integer (no shifting)
-        {
-          int *piDest = va_arg(vaCopy, int *);        //get arg
-          int iPlainValue = strtol(pszToken, 0, 10);  //get val
-          *piDest = iPlainValue;                      //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 's')  // 's' = 16-bit short (no shifting)
-        {
-          int16 *pnDest = va_arg(vaCopy, int16 *);            //get arg
-          int16 nPlainValue = (int16)strtol(pszToken, 0, 10); //get val
-          *pnDest = nPlainValue;                              //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'C')  // 'C' = copy string (uppercase, likely null-terminated)
-        {
-          char *pszDestStr = va_arg(vaCopy, char *);  //get arg
-          strcpy(pszDestStr, pszToken);               //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'c')  // 'c' = copy string (lowercase)
-        {
-          char *pszSrc2 = va_arg(vaCopy, char *); //get arg
-          strcpy(pszSrc2, pszToken);              //copy val to arg
-        }
-        if (pszFormat[uiFormatIndex] == 'u')  // 'u' = unsigned byte
-        {
-          uint8 *pbyDest = va_arg(vaCopy, uint8 *);           //get arg
-          uint8 byByteValue = (uint8)strtol(pszToken, 0, 10); //get val
-          *pbyDest = byByteValue;                             //copy val to arg
-        }
+
+        // Get next token from the line
+        pszToken = strtok(NULL, delims);
+        if (!pszToken)
+          break;
       }
-      uiSavedIndex = uiFormatIndex;
-      pszToken = strtok(0, delims);           // Get next token from the line
+
+      va_end(vaCopy);
+      va_end(va);
+      return;
     }
-    va_end(va);
-    return;
   }
+
+  va_end(vaCopy);
   va_end(va);
 }
 
