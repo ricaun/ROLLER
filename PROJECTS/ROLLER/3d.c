@@ -4,7 +4,6 @@
 #include "drawtrk3.h"
 #include "loadtrak.h"
 #include "moving.h"
-#include "frontend.h"
 #include "func2.h"
 #include "func3.h"
 #include "replay.h"
@@ -72,6 +71,7 @@ tTrakColour TrakColour[500];//000BB360
 tData localdata[500];       //000BEA10
 tGroundPt GroundPt[500];    //000CE410
 tGroundPt TrakPt[500];      //000D7D30
+tTrackScreenXYZ TrackScreenXYZ[500]; //000F03D0
 uint8 shade_palette[4096];  //000FFDD0
 tColor palette[256];        //00100DD0
 float tsin[16384];          //001010F0
@@ -148,6 +148,7 @@ int I_Want_Out;             //0013FAF0
 int winner_mode;            //0013FB08
 int network_mes_mode;       //0013FB0C
 int network_slot;           //0013FB14
+int network_buggered;       //0013FB24
 int w95;                    //0013FB30
 int send_finished;          //0013FB40
 int winh;                   //0013FB68

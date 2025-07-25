@@ -3,6 +3,7 @@
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
 #include "engines.h"
+#include "frontend.h"
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
@@ -49,13 +50,39 @@ typedef struct
 
 typedef struct
 {
-  uint32 uiSurfType1;
-  uint32 uiSurfType2;
-  uint32 uiSurfType3;
-  uint32 uiSurfType4;
-  uint32 uiSurfType5;
-  uint32 uiSurfType6;
+  uint32 uiLeftSurfType;
+  uint32 uiCenterSurfType;
+  uint32 uiRightSurfType;
+  uint32 uiLeftWallType;
+  uint32 uiRightWallType;
+  uint32 uiRoofType;
 } tTrakColour;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int iUnk1;
+  int iClipCount;
+  tPoint screen1;
+  tVec3 proj1;
+  tPoint screen2;
+  tVec3 proj2;
+  tPoint screen3;
+  tVec3 proj3;
+  tPoint screen4;
+  tVec3 proj4;
+  int iUnk23;
+  int iUnk24;
+  int iUnk25;
+  int iUnk26;
+  int iUnk27;
+  int iUnk28;
+  int iUnk29;
+  int iUnk30;
+  int iUnk31;
+  int iUnk32;
+} tTrackScreenXYZ;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -105,6 +132,7 @@ extern tTrakColour TrakColour[500];
 extern tData localdata[500];
 extern tGroundPt GroundPt[500];
 extern tGroundPt TrakPt[500];
+extern tTrackScreenXYZ TrackScreenXYZ[500];
 extern uint8 shade_palette[4096];
 extern tColor palette[256];
 extern float tsin[16384];
@@ -181,6 +209,7 @@ extern int I_Want_Out;
 extern int winner_mode;
 extern int network_mes_mode;
 extern int network_slot;
+extern int network_buggered;
 extern int w95;
 extern int send_finished;
 extern int winh;

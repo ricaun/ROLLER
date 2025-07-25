@@ -16,6 +16,7 @@
 #include "control.h"
 #include "comms.h"
 #include "function.h"
+#include "loadtrak.h"
 #include <memory.h>
 #include <fcntl.h>
 #include <math.h>
@@ -1296,646 +1297,606 @@ void ShowLapRecords(int a1, int a2, int a3, char *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void show_3dmap(float a1, int a2, int a3)
+void show_3dmap(float fZ, int iElevation, int iYaw)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  /*
-  int v3; // edx
-  double v4; // st7
-  double v5; // st7
-  double v6; // st7
-  double v7; // st7
-  double v8; // st7
-  double v9; // st7
-  double v10; // st5
-  double v11; // st4
-  double v12; // st2
-  double v13; // st6
-  double v14; // rt2
-  double v15; // st5
-  double v16; // st7
-  __int16 v17; // fps
-  _BOOL1 v18; // c0
-  char v19; // c2
-  _BOOL1 v20; // c3
-  int v21; // eax
-  double v22; // st7
-  double v23; // st6
-  double v24; // st5
-  double v25; // st7
-  int v26; // eax
-  double v27; // st6
-  double v28; // st5
-  double v29; // st3
-  double v30; // st7
-  double v31; // rtt
-  double v32; // st5
-  double v33; // st4
-  int v34; // edi
-  double v35; // st3
-  float v36; // eax
-  double v37; // st4
-  float v38; // eax
-  double v39; // st7
-  __int16 v40; // fps
-  _BOOL1 v41; // c0
-  char v42; // c2
-  _BOOL1 v43; // c3
-  int v44; // eax
-  double v45; // st7
-  double v46; // st6
-  double v47; // st5
-  double v48; // st7
-  int v49; // eax
-  double v50; // st6
-  double v51; // st5
-  double v52; // st3
-  double v53; // st7
-  double v54; // rt1
-  double v55; // st5
-  double v56; // st4
-  int v57; // edi
-  double v58; // st3
-  float v59; // eax
-  double v60; // st4
-  float v61; // eax
-  double v62; // st7
-  __int16 v63; // fps
-  _BOOL1 v64; // c0
-  char v65; // c2
-  _BOOL1 v66; // c3
-  int v67; // eax
-  double v68; // st7
-  double v69; // st6
-  double v70; // st5
-  double v71; // st7
-  int v72; // eax
-  double v73; // st6
-  double v74; // st5
-  double v75; // st3
-  double v76; // st7
-  double v77; // rtt
-  double v78; // st5
-  double v79; // st4
-  int v80; // edi
-  double v81; // st3
-  float v82; // eax
-  double v83; // st4
-  float v84; // eax
-  double v85; // st7
-  __int16 v86; // fps
-  _BOOL1 v87; // c0
-  char v88; // c2
-  _BOOL1 v89; // c3
-  int v90; // eax
-  double v91; // st7
-  double v92; // st6
-  double v93; // st5
-  double v94; // st7
-  int v95; // edi
-  int v96; // eax
-  int v97; // eax
-  int v98; // ecx
-  float *v99; // ebx
-  float *v100; // edi
-  float *v101; // eax
-  double v102; // st6
-  double v103; // st5
-  double v104; // st3
-  double v105; // st7
-  double v106; // rt1
-  double v107; // st5
-  double v108; // st7
-  __int16 v109; // fps
-  _BOOL1 v110; // c0
-  char v111; // c2
-  _BOOL1 v112; // c3
-  int v113; // eax
-  double v114; // st7
-  double v115; // st6
-  double v116; // st5
-  double v117; // st7
-  int v118; // eax
-  double v119; // st6
-  double v120; // st5
-  double v121; // st3
-  double v122; // st7
-  double v123; // rtt
-  double v124; // st5
-  double v125; // st7
-  __int16 v126; // fps
-  _BOOL1 v127; // c0
-  char v128; // c2
-  _BOOL1 v129; // c3
-  int v130; // eax
-  double v131; // st7
-  double v132; // st6
-  double v133; // st5
-  double v134; // st7
-  int v135; // ebp
-  int v136; // esi
-  int v137; // eax
-  int v138; // ecx
-  float *v139; // edi
-  int v140; // esi
-  int v141; // edx
-  float *v142; // edx
-  float v143; // eax
-  float v144; // eax
-  int v145; // eax
-  int v146; // eax
-  int v147; // edx
-  int v148; // ebp
-  int v149; // ecx
-  int v150; // ebx
-  _DWORD *v151; // esi
-  double v152; // st7
-  _DWORD *v153; // edi
-  int v154; // eax
-  int v155; // edx
-  int v156; // ebx
-  int v157; // eax
-  float v158; // [esp+34h] [ebp-B0h]
-  float v159; // [esp+38h] [ebp-ACh]
-  float v160; // [esp+3Ch] [ebp-A8h]
-  float v161; // [esp+40h] [ebp-A4h]
-  float v162; // [esp+40h] [ebp-A4h]
-  float v163; // [esp+40h] [ebp-A4h]
-  float v164; // [esp+40h] [ebp-A4h]
-  float v165; // [esp+44h] [ebp-A0h]
-  float v166; // [esp+44h] [ebp-A0h]
-  float v167; // [esp+44h] [ebp-A0h]
-  float v168; // [esp+44h] [ebp-A0h]
-  float v169; // [esp+48h] [ebp-9Ch]
-  float v170; // [esp+48h] [ebp-9Ch]
-  float v171; // [esp+48h] [ebp-9Ch]
-  float v172; // [esp+48h] [ebp-9Ch]
-  float v173; // [esp+4Ch] [ebp-98h]
-  float v174; // [esp+4Ch] [ebp-98h]
-  float v175; // [esp+4Ch] [ebp-98h]
-  float v176; // [esp+4Ch] [ebp-98h]
-  float v177; // [esp+50h] [ebp-94h]
-  float v178; // [esp+58h] [ebp-8Ch]
-  float v179; // [esp+5Ch] [ebp-88h]
-  float v180; // [esp+60h] [ebp-84h]
-  float v181; // [esp+64h] [ebp-80h]
-  float v182; // [esp+68h] [ebp-7Ch]
-  float v183; // [esp+6Ch] [ebp-78h]
-  float v184; // [esp+70h] [ebp-74h]
-  float v185; // [esp+74h] [ebp-70h]
-  float v186; // [esp+78h] [ebp-6Ch]
-  float v187; // [esp+8Ch] [ebp-58h]
-  int v188; // [esp+90h] [ebp-54h]
-  float v189; // [esp+94h] [ebp-50h]
-  float v190; // [esp+94h] [ebp-50h]
-  float v191; // [esp+98h] [ebp-4Ch]
-  float v192; // [esp+98h] [ebp-4Ch]
-  float v193; // [esp+9Ch] [ebp-48h]
-  float v194; // [esp+9Ch] [ebp-48h]
-  float v195; // [esp+A0h] [ebp-44h]
-  float v196; // [esp+A0h] [ebp-44h]
-  float v197; // [esp+A4h] [ebp-40h]
-  float v198; // [esp+A4h] [ebp-40h]
-  float v199; // [esp+A8h] [ebp-3Ch]
-  float v200; // [esp+A8h] [ebp-3Ch]
-  float v201; // [esp+ACh] [ebp-38h]
-  float v202; // [esp+ACh] [ebp-38h]
-  float v203; // [esp+B0h] [ebp-34h]
-  float v204; // [esp+B0h] [ebp-34h]
-  float v205; // [esp+B4h] [ebp-30h]
-  float v206; // [esp+B4h] [ebp-30h]
-  float v207; // [esp+B8h] [ebp-2Ch]
-  float v208; // [esp+BCh] [ebp-28h]
-  float v209; // [esp+BCh] [ebp-28h]
-  float v210; // [esp+C0h] [ebp-24h]
-  float v211; // [esp+C0h] [ebp-24h]
-  float v212; // [esp+C4h] [ebp-20h]
-  float v213; // [esp+C4h] [ebp-20h]
-  int v214; // [esp+C8h] [ebp-1Ch]
-  int v215; // [esp+C8h] [ebp-1Ch]
+  int iChunkIdx; // edx
+  double dBoundingBoxExpansionX; // st7
+  double dBoundingBoxExpansionY; // st7
+  double dZRange; // st7
+  double dCenterDivisor; // st7
+  double dTempTransform; // st7
+  double dTempTransform2; // st7
+  double dCorner1Y; // st5
+  double dCorner1Z; // st4
+  double dCorner1X; // st2
+  double dTransformedX1; // st6
+  double dTransformedY1; // rt2
+  double dTransformedZ1; // st5
+  double dDepth1; // st7
+  double dViewDistance; // st7
+  double dDepthInverse1; // st6
+  double dScreenX1; // st5
+  double dScreenY1; // st7
+  double dCorner2Y; // st6
+  double dCorner2Z; // st5
+  double dCorner2X; // st3
+  double dTransformedX2; // st7
+  double dTransformedY2; // rtt
+  double dTransformedZ2; // st5
+  double dProjX2; // st4
+  int iScreenSize; // edi
+  double dProjZ2; // st3
+  float fProjX1Int; // eax
+  double dProjY2Full; // st4
+  float fProjY2; // eax
+  double dDepth2Full; // st7
+  double dViewDistance2Full; // st7
+  double dDepthInverse2; // st6
+  double dScreenX2; // st5
+  double dScreenY2; // st7
+  double dCorner3Y; // st6
+  double dCorner3Z; // st5
+  double dCorner3X; // st3
+  double dTransformedX3; // st7
+  double fTransformedY3; // rt1
+  double dTransformedZ3; // st5
+  double dProjX3; // st4
+  int iScreenSize2; // edi
+  double dProjZ3Full; // st3
+  float fProjX2Temp; // eax
+  double dProjY3; // st4
+  float fProjY2Temp; // eax
+  double dDepth3; // st7
+  double dViewDistance3; // st7
+  double dDepthInverse3; // st6
+  double dScreenX3; // st5
+  double dScreenY3Full; // st7
+  double dCorner4Y; // st6
+  double dCorner4Z; // st5
+  double dCorner4X; // st3
+  double dTransformedX4; // st7
+  double dTransformedY4; // rtt
+  double dTransformedZ4; // st5
+  double dProjX4; // st4
+  int iScreenSize3; // edi
+  double dProjZ4; // st3
+  float fProjX3; // eax
+  double dProjY4; // st4
+  float fProjY3Full; // eax
+  double dDepth4Full; // st7
+  double dViewDistance4; // st7
+  double dDepthInverse4; // st6
+  double dScreenX4; // st5
+  double dScreenY4; // st7
+  int iScreenSize4; // edi
+  int iProjX4Int; // eax
+  int iScreenXFinal; // eax
+  int iLoopIndex; // ecx
+  tTrackScreenXYZ *pTrackScreenXYZ; // ebx
+  tVec3 *pTrackPt; // edi
+  tGroundPt *pCurrentGroundPt; // eax
+  double dTrackPointY; // st6
+  double dTrackPointZ; // st5
+  double dTrackPointX; // st3
+  double dTransformedTrackX; // st7
+  double dTransformedTrackY; // rt1
+  double dTransformedTrackZ; // st5
+  double dViewDistanceTrackFull; // st7
+  double dViewDistanceTrack; // st7
+  double dDepthInverseTrack; // st6
+  double dScreenXTrack; // st5
+  double dScreenYTrack; // st7
+  int iScreenXTrackInt; // eax
+  double dTrackPoint2Y; // st6
+  double dTrackPoint2Z; // st5
+  double dTrackPoint2X; // st3
+  double dTransformedTrack2X; // st7
+  double dTransformedTrack2Y; // rtt
+  double dTransformedTrack2Z; // st5
+  double dDepthTrack2Full; // st7
+  double dViewDistanceTrack2; // st7
+  double dDepthInverseTrack2; // st6
+  double dScreenXTrack2; // st5
+  double dScreenYTrack2; // st7
+  int iScreenSize5; // ebp
+  int iScreenXCalc; // esi
+  int iTrackSegmentLoop; // ecx
+  tTrackScreenXYZ *pTrackScreenXYZ_1; // edi
+  int iZOrderIndex; // esi
+  int iNextSegmentIdx; // edx
+  tTrackScreenXYZ *pNextTrackScreenXYZ; // edx
+  float fMaxDepthCurrent; // eax
+  float fDepthForZOrderFinal; // eax
+  float fDepthForZOrder; // eax
+  signed int iRenderLoopIndex; // ebp
+  int iColorGradient; // ecx
+  int iCurrentSegmentIdx; // ebx
+  tTrackScreenXYZ *pCurrentSegmentScreenXYZ; // esi
+  double dHeightColorCalc; // st7
+  tTrackScreenXYZ *pCurrTrackScreenXYZ; // edi
+  uint32 uiSurfaceColor; // eax
+  tPoint pointTemp; // kr00_8
+  float fBaseY; // [esp+34h] [ebp-B0h]
+  float fBaseX; // [esp+38h] [ebp-ACh]
+  float fTransformTemp; // [esp+3Ch] [ebp-A8h]
+  float fDepthTemp1; // [esp+40h] [ebp-A4h]
+  float fDepthTemp2; // [esp+40h] [ebp-A4h]
+  float fDepth1; // [esp+40h] [ebp-A4h]
+  float fDepth2; // [esp+40h] [ebp-A4h]
+  float fProjectedX1; // [esp+44h] [ebp-A0h]
+  float fProjectedX2; // [esp+44h] [ebp-A0h]
+  float fProjectedX3; // [esp+44h] [ebp-A0h]
+  float fProjectedX4; // [esp+44h] [ebp-A0h]
+  float fProjectedY1; // [esp+48h] [ebp-9Ch]
+  float fProjectedY2; // [esp+48h] [ebp-9Ch]
+  float fProjectedY3; // [esp+48h] [ebp-9Ch]
+  float fProjectedY4; // [esp+48h] [ebp-9Ch]
+  float fProjectedZ1; // [esp+4Ch] [ebp-98h]
+  float fProjectedZ2; // [esp+4Ch] [ebp-98h]
+  float fProjectedZ3; // [esp+4Ch] [ebp-98h]
+  float fProjectedZ4; // [esp+4Ch] [ebp-98h]
+  float fZRangeForColor; // [esp+50h] [ebp-94h]
+  float fTransform33; // [esp+58h] [ebp-8Ch]
+  float fTransform21; // [esp+5Ch] [ebp-88h]
+  float fTransform31; // [esp+60h] [ebp-84h]
+  float fTransform32; // [esp+64h] [ebp-80h]
+  float fTransform23; // [esp+68h] [ebp-7Ch]
+  float fTransform22; // [esp+6Ch] [ebp-78h]
+  float fTransform12; // [esp+70h] [ebp-74h]
+  float fTransform11; // [esp+74h] [ebp-70h]
+  float fTransform13; // [esp+78h] [ebp-6Ch]
+  float fMaxDepthForZOrder; // [esp+8Ch] [ebp-58h]
+  signed int iTrackSegmentCount; // [esp+90h] [ebp-54h]
+  float fTrackDepth1; // [esp+94h] [ebp-50h]
+  float fTrackDepth2; // [esp+94h] [ebp-50h]
+  float fMinY; // [esp+98h] [ebp-4Ch]
+  float fBoundingMinY; // [esp+98h] [ebp-4Ch]
+  float fMinX; // [esp+9Ch] [ebp-48h]
+  float fBoundingMinX; // [esp+9Ch] [ebp-48h]
+  float fY; // [esp+A0h] [ebp-44h]
+  float fBoundingMaxY; // [esp+A0h] [ebp-44h]
+  float fX; // [esp+A4h] [ebp-40h]
+  float fBoundingMaxX; // [esp+A4h] [ebp-40h]
+  float fAccumulatedX; // [esp+A8h] [ebp-3Ch]
+  float fTrackCenterX; // [esp+A8h] [ebp-3Ch]
+  float fAccumulatedY; // [esp+ACh] [ebp-38h]
+  float fTrackCenterY; // [esp+ACh] [ebp-38h]
+  float fAccumulatedZ; // [esp+B0h] [ebp-34h]
+  float fTrackCenterZ; // [esp+B0h] [ebp-34h]
+  float fMinZ; // [esp+B4h] [ebp-30h]
+  float fBoundingMinZ; // [esp+B4h] [ebp-30h]
+  float fBoundingMaxZ; // [esp+B8h] [ebp-2Ch]
+  float fTrackProjY1; // [esp+BCh] [ebp-28h]
+  float fTrackProjY2; // [esp+BCh] [ebp-28h]
+  float fTrackProjX1; // [esp+C0h] [ebp-24h]
+  float fTrackProjX2; // [esp+C0h] [ebp-24h]
+  float fTrackProjZ1; // [esp+C4h] [ebp-20h]
+  float fTrackProjZ2; // [esp+C4h] [ebp-20h]
+  int iColorValueFinal; // [esp+C8h] [ebp-1Ch]
+  int iSurfaceColor; // [esp+C8h] [ebp-1Ch]
 
-  v159 = (float)xbase;
-  v158 = (float)ybase;
-  *(float *)&worldx = -a1 * tcos[a2];
-  *(float *)&worldz = a1 * tsin[a2];
-  worldy = 0;
-  v205 = 9.9999998e17;
-  v191 = 9.9999998e17;
-  v193 = 9.9999998e17;
-  v207 = -9.9999998e17;
-  v195 = -9.9999998e17;
-  v197 = -9.9999998e17;
+  // Initialize base screen coordinates
+  fBaseX = (float)xbase;
+  fBaseY = (float)ybase;
+
+  // Set world camera position based on elevation and distance
+  worldx = -fZ * tcos[iElevation];
+  worldz = fZ * tsin[iElevation];
+  worldy = 0.0;
+
+  // Initialize bounding box coordinates (min/max values)
+  fMinZ = 9.9999998e17f;
+  fMinY = 9.9999998e17f;
+  fMinX = 9.9999998e17f;
+  fBoundingMaxZ = -9.9999998e17f;
+  fY = -9.9999998e17f;
+  fX = -9.9999998e17f;
   vdirection = 0;
   vtilt = 0;
-  velevation = -a2 & 0x3FFF;
-  v199 = 0.0;
+  velevation = -iElevation & 0x3FFF;
+  fAccumulatedX = 0.0;
   xbase += 40;
-  calculatetransform(-1, 0, -a2 & 0x3FFF, 0, *(float *)&worldx, 0.0, worldz, 0.0, 0.0, 0.0);
-  v201 = 0.0;
+  calculatetransform(-1, 0, -iElevation & 0x3FFF, 0, worldx, 0.0, worldz, 0.0, 0.0, 0.0);
+  fAccumulatedY = 0.0;
   worlddirn = vdirection;
-  v203 = 0.0;
+  fAccumulatedZ = 0.0;
   worldelev = velevation;
   worldtilt = vtilt;
   if (TRAK_LEN > 0) {
-    v3 = 0;
+    // Calculate track bounding box and center point
+    iChunkIdx = 0;
     do {
-      v199 = TrakPt[v3] + TrakPt_variable_9[v3] + v199;
-      v201 = TrakPt_variable_1[v3] + TrakPt_variable_10[v3] + v201;
-      v203 = TrakPt_variable_2[v3] + TrakPt_variable_11[v3] + v203;
-      if (TrakPt[v3] < (double)v193)
-        v193 = TrakPt[v3];
-      if (TrakPt_variable_9[v3] < (double)v193)
-        v193 = TrakPt_variable_9[v3];
-      if (TrakPt_variable_1[v3] < (double)v191)
-        v191 = TrakPt_variable_1[v3];
-      if (TrakPt_variable_10[v3] < (double)v191)
-        v191 = TrakPt_variable_10[v3];
-      if (TrakPt_variable_2[v3] < (double)v205)
-        v205 = TrakPt_variable_2[v3];
-      if (TrakPt_variable_11[v3] < (double)v205)
-        v205 = TrakPt_variable_11[v3];
-      if (TrakPt[v3] > (double)v197)
-        v197 = TrakPt[v3];
-      if (TrakPt_variable_9[v3] > (double)v197)
-        v197 = TrakPt_variable_9[v3];
-      if (TrakPt_variable_1[v3] > (double)v195)
-        v195 = TrakPt_variable_1[v3];
-      if (TrakPt_variable_10[v3] > (double)v195)
-        v195 = TrakPt_variable_10[v3];
-      if (TrakPt_variable_2[v3] > (double)v207)
-        v207 = TrakPt_variable_2[v3];
-      if (TrakPt_variable_11[v3] > (double)v207)
-        v207 = TrakPt_variable_11[v3];
-      v3 += 18;
-    } while (v3 < 18 * TRAK_LEN);
+      // Accumulate track point coordinates for center calculation
+      fAccumulatedX = TrakPt[iChunkIdx].pointAy[0].fX + TrakPt[iChunkIdx].pointAy[4].fX + fAccumulatedX;
+      fAccumulatedY = TrakPt[iChunkIdx].pointAy[0].fY + TrakPt[iChunkIdx].pointAy[4].fY + fAccumulatedY;
+      fAccumulatedZ = TrakPt[iChunkIdx].pointAy[0].fZ + TrakPt[iChunkIdx].pointAy[4].fZ + fAccumulatedZ;
+      // Update minimum bounding box coordinates
+      if (TrakPt[iChunkIdx].pointAy[0].fX < (double)fMinX)
+        fMinX = TrakPt[iChunkIdx].pointAy[0].fX;
+      if (TrakPt[iChunkIdx].pointAy[4].fX < (double)fMinX)
+        fMinX = TrakPt[iChunkIdx].pointAy[4].fX;
+      if (TrakPt[iChunkIdx].pointAy[0].fY < (double)fMinY)
+        fMinY = TrakPt[iChunkIdx].pointAy[0].fY;
+      if (TrakPt[iChunkIdx].pointAy[4].fY < (double)fMinY)
+        fMinY = TrakPt[iChunkIdx].pointAy[4].fY;
+      if (TrakPt[iChunkIdx].pointAy[0].fZ < (double)fMinZ)
+        fMinZ = TrakPt[iChunkIdx].pointAy[0].fZ;
+      if (TrakPt[iChunkIdx].pointAy[4].fZ < (double)fMinZ)
+        fMinZ = TrakPt[iChunkIdx].pointAy[4].fZ;
+      // Update maximum bounding box coordinates
+      if (TrakPt[iChunkIdx].pointAy[0].fX > (double)fX)
+        fX = TrakPt[iChunkIdx].pointAy[0].fX;
+      if (TrakPt[iChunkIdx].pointAy[4].fX > (double)fX)
+        fX = TrakPt[iChunkIdx].pointAy[4].fX;
+      if (TrakPt[iChunkIdx].pointAy[0].fY > (double)fY)
+        fY = TrakPt[iChunkIdx].pointAy[0].fY;
+      if (TrakPt[iChunkIdx].pointAy[4].fY > (double)fY)
+        fY = TrakPt[iChunkIdx].pointAy[4].fY;
+      if (TrakPt[iChunkIdx].pointAy[0].fZ > (double)fBoundingMaxZ)
+        fBoundingMaxZ = TrakPt[iChunkIdx].pointAy[0].fZ;
+      if (TrakPt[iChunkIdx].pointAy[4].fZ > (double)fBoundingMaxZ)
+        fBoundingMaxZ = TrakPt[iChunkIdx].pointAy[4].fZ;
+      ++iChunkIdx;
+    } while (iChunkIdx < TRAK_LEN);
   }
-  v4 = (v197 - v193) * func3_c_variable_23;
-  v194 = v193 - v4;
-  v198 = v4 + v197;
-  v5 = (v195 - v191) * func3_c_variable_23;
-  v192 = v191 - v5;
-  v196 = v5 + v195;
-  v6 = v207 - v205;
-  v177 = v6;
-  v206 = v205 - v6 * func3_c_variable_24;
-  v7 = 1.0 / (double)(2 * TRAK_LEN);
-  v200 = -v199 * v7;
-  v202 = -v201 * v7;
-  v204 = v7 * -v203;
-  v185 = tcos[a3] * tcos[0];
-  v184 = tsin[a3] * tcos[0];
-  v186 = tsin[0];
-  v8 = tcos[a3] * tsin[0];
-  v160 = v8;
-  v179 = v8 * tsin[0] - v184;
-  v9 = tsin[a3] * tsin[0];
-  v183 = v9 * tsin[0] + v185;
-  v180 = -tsin[0] * tcos[0];
-  v181 = -tcos[a3] * tsin[0] * tcos[0] - v9;
-  v182 = -tsin[a3] * tsin[0] * tcos[0] + v160;
-  v178 = tcos[0] * tcos[0];
-  v10 = v192 + v202;
-  v11 = v206 + v204;
-  v12 = v194 + v200;
-  v13 = v12 * v185 + v10 * v179 + v11 * v181 - viewx;
-  v14 = v12 * v184 + v10 * v183 + v11 * v182 - viewy;
-  v15 = tsin[0] * v12 + v10 * v180 + v11 * v178 - viewz;
-  v165 = v13 * vk1 + v14 * vk4 + v15 * vk7;
-  v169 = v13 * vk2 + v14 * vk5 + v15 * vk8;
-  v16 = v13 * vk3 + v14 * vk6 + v15 * vk9;
-  v173 = v16;
-  HIWORD(v21) = HIWORD(v173);
-  v161 = v173;
-  v18 = v16 < func3_c_variable_25;
-  v19 = 0;
-  v20 = v16 == func3_c_variable_25;
-  LOWORD(v21) = v17;
-  if (v16 < func3_c_variable_25) {
-    v173 = 80.0;
-    ++TrackScreenXYZ_variable_1;
+
+  // Calculate expanded bounding box (min/max coordinates with 10% margin)
+  dBoundingBoxExpansionX = (fX - fMinX) * 0.1;
+  fBoundingMinX = fMinX - (float)dBoundingBoxExpansionX;
+  fBoundingMaxX = (float)dBoundingBoxExpansionX + fX;
+  dBoundingBoxExpansionY = (fY - fMinY) * 0.1;
+  fBoundingMinY = fMinY - (float)dBoundingBoxExpansionY;
+  fBoundingMaxY = (float)dBoundingBoxExpansionY + fY;
+  dZRange = fBoundingMaxZ - fMinZ;
+  fZRangeForColor = (float)dZRange;
+  fBoundingMinZ = fMinZ - (float)(dZRange * 0.4);
+
+  // Calculate track center point from accumulated coordinates
+  dCenterDivisor = 1.0 / (double)(2 * TRAK_LEN);
+  fTrackCenterX = -fAccumulatedX * (float)dCenterDivisor;
+  fTrackCenterY = -fAccumulatedY * (float)dCenterDivisor;
+  fTrackCenterZ = (float)dCenterDivisor * -fAccumulatedZ;
+
+  // Build 3D rotation transformation matrix
+  fTransform11 = tcos[iYaw] * tcos[0];
+  fTransform12 = tsin[iYaw] * tcos[0];
+  fTransform13 = tsin[0];
+  dTempTransform = tcos[iYaw] * tsin[0];
+  fTransformTemp = (float)dTempTransform;
+  fTransform21 = (float)dTempTransform * tsin[0] - fTransform12;
+  dTempTransform2 = tsin[iYaw] * tsin[0];
+  fTransform22 = (float)dTempTransform2 * tsin[0] + fTransform11;
+  fTransform31 = -tsin[0] * tcos[0];
+  fTransform32 = -tcos[iYaw] * tsin[0] * tcos[0] - (float)dTempTransform2;
+  fTransform23 = -tsin[iYaw] * tsin[0] * tcos[0] + fTransformTemp;
+  fTransform33 = tcos[0] * tcos[0];
+
+  // Transform corner 1 (min X, min Y) of bounding box to screen coordinates
+  dCorner1Y = fBoundingMinY + fTrackCenterY;
+  dCorner1Z = fBoundingMinZ + fTrackCenterZ;
+  dCorner1X = fBoundingMinX + fTrackCenterX;
+  dTransformedX1 = dCorner1X * fTransform11 + dCorner1Y * fTransform21 + dCorner1Z * fTransform32 - viewx;
+  dTransformedY1 = dCorner1X * fTransform12 + dCorner1Y * fTransform22 + dCorner1Z * fTransform23 - viewy;
+  dTransformedZ1 = tsin[0] * dCorner1X + dCorner1Y * fTransform31 + dCorner1Z * fTransform33 - viewz;
+  fProjectedX1 = (float)dTransformedX1 * vk1 + (float)dTransformedY1 * vk4 + (float)dTransformedZ1 * vk7;
+  fProjectedY1 = (float)dTransformedX1 * vk2 + (float)dTransformedY1 * vk5 + (float)dTransformedZ1 * vk8;
+  dDepth1 = (float)dTransformedX1 * vk3 + (float)dTransformedY1 * vk6 + (float)dTransformedZ1 * vk9;
+  fProjectedZ1 = (float)dDepth1;
+  fDepthTemp1 = fProjectedZ1;
+  if (dDepth1 < 80.0) {
+    fProjectedZ1 = 80.0;
+    ++TrackScreenXYZ[0].iClipCount;
   }
-  v22 = (double)VIEWDIST;
-  v23 = 1.0 / v173;
-  v24 = v22 * v165 * v23 + (double)xbase;
-  _CHP(v21, &TrackScreenXYZ);
-  xp = (int)v24;
-  v25 = v23 * (v22 * v169) + (double)ybase;
-  _CHP(v26, &TrackScreenXYZ);
-  yp = (int)v25;
-  v27 = v192 + v202;
-  v28 = v206 + v204;
-  v29 = v198 + v200;
-  v30 = v29 * v185 + v27 * v179 + v28 * v181 - viewx;
-  v31 = v29 * v184 + v27 * v183 + v28 * v182 - viewy;
-  v32 = v29 * v186 + v27 * v180 + v28 * v178 - viewz;
-  v33 = v30 * vk1 + v31 * vk4;
-  v34 = scr_size;
-  v35 = v32 * vk7;
-  *((_DWORD *)&TrackScreenXYZ + 2) = (scr_size * xp) >> 6;
-  *((_DWORD *)&TrackScreenXYZ + 3) = (v34 * (199 - yp)) >> 6;
-  v36 = v165;
-  v166 = v33 + v35;
-  v37 = v30 * vk2 + v31 * vk5 + v32 * vk8;
-  *((float *)&TrackScreenXYZ + 4) = v36;
-  v38 = v169;
-  v170 = v37;
-  v39 = v30 * vk3 + v31 * vk6 + v32 * vk9;
-  v174 = v39;
-  *((float *)&TrackScreenXYZ + 5) = v38;
-  *((float *)&TrackScreenXYZ + 6) = v161;
-  HIWORD(v44) = HIWORD(v174);
-  v162 = v174;
-  v41 = v39 < func3_c_variable_25;
-  v42 = 0;
-  v43 = v39 == func3_c_variable_25;
-  LOWORD(v44) = v40;
-  if (v39 < func3_c_variable_25) {
-    v174 = 80.0;
-    ++*((_DWORD *)&TrackScreenXYZ + 1);
+  dViewDistance = (double)VIEWDIST;
+  dDepthInverse1 = 1.0 / fProjectedZ1;
+  dScreenX1 = dViewDistance * fProjectedX1 * dDepthInverse1 + (double)xbase;
+  //_CHP();
+  xp = (int)dScreenX1;
+  dScreenY1 = dDepthInverse1 * (dViewDistance * fProjectedY1) + (double)ybase;
+  //_CHP();
+  yp = (int)dScreenY1;
+
+  // Transform corner 2 (max X, min Y) of bounding box to screen coordinates
+  dCorner2Y = fBoundingMinY + fTrackCenterY;
+  dCorner2Z = fBoundingMinZ + fTrackCenterZ;
+  dCorner2X = fBoundingMaxX + fTrackCenterX;
+  dTransformedX2 = dCorner2X * fTransform11 + dCorner2Y * fTransform21 + dCorner2Z * fTransform32 - viewx;
+  dTransformedY2 = dCorner2X * fTransform12 + dCorner2Y * fTransform22 + dCorner2Z * fTransform23 - viewy;
+  dTransformedZ2 = dCorner2X * fTransform13 + dCorner2Y * fTransform31 + dCorner2Z * fTransform33 - viewz;
+  dProjX2 = dTransformedX2 * vk1 + dTransformedY2 * vk4;
+  iScreenSize = scr_size;
+  dProjZ2 = dTransformedZ2 * vk7;
+  TrackScreenXYZ[0].screen1.x = (scr_size * xp) >> 6;
+  TrackScreenXYZ[0].screen1.y = (iScreenSize * (199 - yp)) >> 6;
+  fProjX1Int = fProjectedX1;
+  fProjectedX2 = (float)(dProjX2 + dProjZ2);
+  dProjY2Full = dTransformedX2 * vk2 + dTransformedY2 * vk5 + dTransformedZ2 * vk8;
+  TrackScreenXYZ[0].proj1.fX = fProjX1Int;
+  fProjY2 = fProjectedY1;
+  fProjectedY2 = (float)dProjY2Full;
+  dDepth2Full = dTransformedX2 * vk3 + dTransformedY2 * vk6 + dTransformedZ2 * vk9;
+  fProjectedZ2 = (float)dDepth2Full;
+  TrackScreenXYZ[0].proj1.fY = fProjY2;
+  TrackScreenXYZ[0].proj1.fZ = fDepthTemp1;
+  fDepthTemp2 = fProjectedZ2;
+  if (dDepth2Full < 80.0) {
+    fProjectedZ2 = 80.0;
+    ++TrackScreenXYZ[0].iClipCount;
   }
-  v45 = (double)VIEWDIST;
-  v46 = 1.0 / v174;
-  v47 = v45 * v166 * v46 + (double)xbase;
-  _CHP(v44, &TrackScreenXYZ);
-  xp = (int)v47;
-  v48 = v46 * (v45 * v170) + (double)ybase;
-  _CHP(v49, &TrackScreenXYZ);
-  yp = (int)v48;
-  v50 = v196 + v202;
-  v51 = v206 + v204;
-  v52 = v198 + v200;
-  v53 = v52 * v185 + v50 * v179 + v51 * v181 - viewx;
-  v54 = v52 * v184 + v50 * v183 + v51 * v182 - viewy;
-  v55 = v52 * v186 + v50 * v180 + v51 * v178 - viewz;
-  v56 = v53 * vk1 + v54 * vk4;
-  v57 = scr_size;
-  v58 = v55 * vk7;
-  *((_DWORD *)&TrackScreenXYZ + 7) = (scr_size * xp) >> 6;
-  *((_DWORD *)&TrackScreenXYZ + 8) = (v57 * (199 - yp)) >> 6;
-  v59 = v166;
-  v167 = v56 + v58;
-  v60 = v53 * vk2 + v54 * vk5 + v55 * vk8;
-  *((float *)&TrackScreenXYZ + 9) = v59;
-  v61 = v170;
-  v171 = v60;
-  v62 = v53 * vk3 + v54 * vk6 + v55 * vk9;
-  v175 = v62;
-  *((float *)&TrackScreenXYZ + 10) = v61;
-  *((float *)&TrackScreenXYZ + 11) = v162;
-  HIWORD(v67) = HIWORD(v175);
-  v163 = v175;
-  v64 = v62 < func3_c_variable_25;
-  v65 = 0;
-  v66 = v62 == func3_c_variable_25;
-  LOWORD(v67) = v63;
-  if (v62 < func3_c_variable_25) {
-    v175 = 80.0;
-    ++*((_DWORD *)&TrackScreenXYZ + 1);
+  dViewDistance2Full = (double)VIEWDIST;
+  dDepthInverse2 = 1.0 / fProjectedZ2;
+  dScreenX2 = dViewDistance2Full * fProjectedX2 * dDepthInverse2 + (double)xbase;
+  //_CHP();
+  xp = (int)dScreenX2;
+  dScreenY2 = dDepthInverse2 * (dViewDistance2Full * fProjectedY2) + (double)ybase;
+  //_CHP();
+  yp = (int)dScreenY2;
+
+  // Transform corner 3 (max X, max Y) of bounding box to screen coordinates
+  dCorner3Y = fBoundingMaxY + fTrackCenterY;
+  dCorner3Z = fBoundingMinZ + fTrackCenterZ;
+  dCorner3X = fBoundingMaxX + fTrackCenterX;
+  dTransformedX3 = dCorner3X * fTransform11 + dCorner3Y * fTransform21 + dCorner3Z * fTransform32 - viewx;
+  fTransformedY3 = dCorner3X * fTransform12 + dCorner3Y * fTransform22 + dCorner3Z * fTransform23 - viewy;
+  dTransformedZ3 = dCorner3X * fTransform13 + dCorner3Y * fTransform31 + dCorner3Z * fTransform33 - viewz;
+  dProjX3 = dTransformedX3 * vk1 + fTransformedY3 * vk4;
+  iScreenSize2 = scr_size;
+  dProjZ3Full = dTransformedZ3 * vk7;
+  TrackScreenXYZ[0].screen2.x = (scr_size * xp) >> 6;
+  TrackScreenXYZ[0].screen2.y = (iScreenSize2 * (199 - yp)) >> 6;
+  fProjX2Temp = fProjectedX2;
+  fProjectedX3 = (float)(dProjX3 + dProjZ3Full);
+  dProjY3 = dTransformedX3 * vk2 + fTransformedY3 * vk5 + dTransformedZ3 * vk8;
+  TrackScreenXYZ[0].proj2.fX = fProjX2Temp;
+  fProjY2Temp = fProjectedY2;
+  fProjectedY3 = (float)dProjY3;
+  dDepth3 = dTransformedX3 * vk3 + fTransformedY3 * vk6 + dTransformedZ3 * vk9;
+  fProjectedZ3 = (float)dDepth3;
+  TrackScreenXYZ[0].proj2.fY = fProjY2Temp;
+  TrackScreenXYZ[0].proj2.fZ = fDepthTemp2;
+  fDepth1 = fProjectedZ3;
+  if (dDepth3 < 80.0) {
+    fProjectedZ3 = 80.0;
+    ++TrackScreenXYZ[0].iClipCount;
   }
-  v68 = (double)VIEWDIST;
-  v69 = 1.0 / v175;
-  v70 = v68 * v167 * v69 + (double)xbase;
-  _CHP(v67, &TrackScreenXYZ);
-  xp = (int)v70;
-  v71 = v69 * (v68 * v171) + (double)ybase;
-  _CHP(v72, &TrackScreenXYZ);
-  yp = (int)v71;
-  v73 = v196 + v202;
-  v74 = v206 + v204;
-  v75 = v194 + v200;
-  v76 = v75 * v185 + v73 * v179 + v74 * v181 - viewx;
-  v77 = v75 * v184 + v73 * v183 + v74 * v182 - viewy;
-  v78 = v75 * v186 + v73 * v180 + v74 * v178 - viewz;
-  v79 = v76 * vk1 + v77 * vk4;
-  v80 = scr_size;
-  v81 = v78 * vk7;
-  *((_DWORD *)&TrackScreenXYZ + 12) = (scr_size * xp) >> 6;
-  *((_DWORD *)&TrackScreenXYZ + 13) = (v80 * (199 - yp)) >> 6;
-  v82 = v167;
-  v168 = v79 + v81;
-  v83 = v76 * vk2 + v77 * vk5 + v78 * vk8;
-  *((float *)&TrackScreenXYZ + 14) = v82;
-  v84 = v171;
-  v172 = v83;
-  v85 = v76 * vk3 + v77 * vk6 + v78 * vk9;
-  v176 = v85;
-  *((float *)&TrackScreenXYZ + 15) = v84;
-  *((float *)&TrackScreenXYZ + 16) = v163;
-  HIWORD(v90) = HIWORD(v176);
-  v164 = v176;
-  v87 = v85 < func3_c_variable_25;
-  v88 = 0;
-  v89 = v85 == func3_c_variable_25;
-  LOWORD(v90) = v86;
-  if (v85 < func3_c_variable_25) {
-    v176 = 80.0;
-    ++*((_DWORD *)&TrackScreenXYZ + 1);
+  dViewDistance3 = (double)VIEWDIST;
+  dDepthInverse3 = 1.0 / fProjectedZ3;
+  dScreenX3 = dViewDistance3 * fProjectedX3 * dDepthInverse3 + (double)xbase;
+  //_CHP();
+  xp = (int)dScreenX3;
+  dScreenY3Full = dDepthInverse3 * (dViewDistance3 * fProjectedY3) + (double)ybase;
+  //_CHP();
+  yp = (int)dScreenY3Full;
+
+  // Transform corner 4 (min X, max Y) of bounding box to screen coordinates
+  dCorner4Y = fBoundingMaxY + fTrackCenterY;
+  dCorner4Z = fBoundingMinZ + fTrackCenterZ;
+  dCorner4X = fBoundingMinX + fTrackCenterX;
+  dTransformedX4 = dCorner4X * fTransform11 + dCorner4Y * fTransform21 + dCorner4Z * fTransform32 - viewx;
+  dTransformedY4 = dCorner4X * fTransform12 + dCorner4Y * fTransform22 + dCorner4Z * fTransform23 - viewy;
+  dTransformedZ4 = dCorner4X * fTransform13 + dCorner4Y * fTransform31 + dCorner4Z * fTransform33 - viewz;
+  dProjX4 = dTransformedX4 * vk1 + dTransformedY4 * vk4;
+  iScreenSize3 = scr_size;
+  dProjZ4 = dTransformedZ4 * vk7;
+  TrackScreenXYZ[0].screen3.x = (scr_size * xp) >> 6;
+  TrackScreenXYZ[0].screen3.y = (iScreenSize3 * (199 - yp)) >> 6;
+  fProjX3 = fProjectedX3;
+  fProjectedX4 = (float)(dProjX4 + dProjZ4);
+  dProjY4 = dTransformedX4 * vk2 + dTransformedY4 * vk5 + dTransformedZ4 * vk8;
+  TrackScreenXYZ[0].proj3.fX = fProjX3;
+  fProjY3Full = fProjectedY3;
+  fProjectedY4 = (float)dProjY4;
+  dDepth4Full = dTransformedX4 * vk3 + dTransformedY4 * vk6 + dTransformedZ4 * vk9;
+  fProjectedZ4 = (float)dDepth4Full;
+  TrackScreenXYZ[0].proj3.fY = fProjY3Full;
+  TrackScreenXYZ[0].proj3.fZ = fDepth1;
+  fDepth2 = fProjectedZ4;
+  if (dDepth4Full < 80.0) {
+    fProjectedZ4 = 80.0;
+    ++TrackScreenXYZ[0].iClipCount;
   }
-  v91 = (double)VIEWDIST;
-  v92 = 1.0 / v176;
-  v93 = v91 * v168 * v92 + (double)xbase;
-  _CHP(v90, &TrackScreenXYZ);
-  xp = (int)v93;
-  v94 = v92 * (v91 * v172) + (double)ybase;
-  v95 = scr_size;
-  _CHP(scr_size * (int)v93, &TrackScreenXYZ);
-  yp = (int)v94;
-  *((_DWORD *)&TrackScreenXYZ + 17) = v96 >> 6;
-  *((_DWORD *)&TrackScreenXYZ + 18) = (v95 * (199 - yp)) >> 6;
-  *((float *)&TrackScreenXYZ + 19) = v168;
-  *((float *)&TrackScreenXYZ + 20) = v172;
-  *((float *)&TrackScreenXYZ + 21) = v164;
-  RoadPoly_variable_4 = *((_DWORD *)&TrackScreenXYZ + 2);
-  RoadPoly_variable_5 = *((_DWORD *)&TrackScreenXYZ + 3);
-  RoadPoly_variable_6 = *((_DWORD *)&TrackScreenXYZ + 7);
-  RoadPoly_variable_7 = *((_DWORD *)&TrackScreenXYZ + 8);
-  RoadPoly_variable_8 = *((_DWORD *)&TrackScreenXYZ + 12);
-  RoadPoly_variable_9 = *((_DWORD *)&TrackScreenXYZ + 13);
-  v97 = *((_DWORD *)&TrackScreenXYZ + 17);
-  RoadPoly_variable_3 = 4;
-  RoadPoly_variable_10 = v97;
-  RoadPoly_variable_11 = *((_DWORD *)&TrackScreenXYZ + 18);
-  RoadPoly = 2105346;
+  dViewDistance4 = (double)VIEWDIST;
+  dDepthInverse4 = 1.0 / fProjectedZ4;
+  dScreenX4 = dViewDistance4 * fProjectedX4 * dDepthInverse4 + (double)xbase;
+  //_CHP();
+  iProjX4Int = scr_size * (int)dScreenX4; //lost line, decompiler artifact
+  xp = (int)dScreenX4;
+  dScreenY4 = dDepthInverse4 * (dViewDistance4 * fProjectedY4) + (double)ybase;
+  iScreenSize4 = scr_size;
+  //_CHP();
+  yp = (int)dScreenY4;
+  TrackScreenXYZ[0].screen4.x = iProjX4Int >> 6;
+  TrackScreenXYZ[0].screen4.y = (iScreenSize4 * (199 - yp)) >> 6;
+  TrackScreenXYZ[0].proj4.fX = fProjectedX4;
+  TrackScreenXYZ[0].proj4.fY = fProjectedY4;
+  TrackScreenXYZ[0].proj4.fZ = fDepth2;
+  RoadPoly.vertices[0] = TrackScreenXYZ[0].screen1;
+  RoadPoly.vertices[1] = TrackScreenXYZ[0].screen2;
+  RoadPoly.vertices[2] = TrackScreenXYZ[0].screen3;
+  iScreenXFinal = TrackScreenXYZ[0].screen4.x;
+  RoadPoly.uiNumVerts = 4;
+  RoadPoly.vertices[3].x = iScreenXFinal;
+  RoadPoly.vertices[3].y = TrackScreenXYZ[0].screen4.y;
+  RoadPoly.uiSurfaceType = 2105346;
+
+  // Render background polygon for track area
   POLYFLAT(scrbuf, &RoadPoly);
-  v98 = 0;
+  iLoopIndex = 0;
   if (TRAK_LEN > 0) {
-    v99 = (float *)&TrackScreenXYZ;
-    v100 = &TrakPt[12];
+    // Transform all track points to screen coordinates
+    pTrackScreenXYZ = TrackScreenXYZ;
+    pTrackPt = &TrakPt[0].pointAy[4];
     do {
-      v101 = &TrakPt[18 * v98];
-      v99[1] = 0.0;
-      v102 = v101[1] + v202;
-      v103 = v101[2] + v204;
-      v104 = *v101 + v200;
-      v105 = v104 * v185 + v102 * v179 + v103 * v181 - viewx;
-      v106 = v104 * v184 + v102 * v183 + v103 * v182 - viewy;
-      v107 = v104 * v186 + v102 * v180 + v103 * v178 - viewz;
-      v210 = v105 * vk1 + v106 * vk4 + v107 * vk7;
-      v208 = v105 * vk2 + v106 * vk5 + v107 * vk8;
-      v108 = v105 * vk3 + v106 * vk6 + v107 * vk9;
-      v212 = v108;
-      HIWORD(v113) = HIWORD(v212);
-      v189 = v212;
-      v110 = v108 < func3_c_variable_25;
-      v111 = 0;
-      v112 = v108 == func3_c_variable_25;
-      LOWORD(v113) = v109;
-      if (v108 < func3_c_variable_25) {
-        v113 = *((_DWORD *)v99 + 1) + 1;
-        v212 = 80.0;
-        *((_DWORD *)v99 + 1) = v113;
+      pCurrentGroundPt = &TrakPt[iLoopIndex];
+      pTrackScreenXYZ->iClipCount = 0;
+
+      // Transform first track point (pointAy[0]) to screen coordinates
+      dTrackPointY = pCurrentGroundPt->pointAy[0].fY + fTrackCenterY;
+      dTrackPointZ = pCurrentGroundPt->pointAy[0].fZ + fTrackCenterZ;
+      dTrackPointX = pCurrentGroundPt->pointAy[0].fX + fTrackCenterX;
+      // Apply 3D transformation matrix to track point
+      dTransformedTrackX = dTrackPointX * fTransform11 + dTrackPointY * fTransform21 + dTrackPointZ * fTransform32 - viewx;
+      dTransformedTrackY = dTrackPointX * fTransform12 + dTrackPointY * fTransform22 + dTrackPointZ * fTransform23 - viewy;
+      dTransformedTrackZ = dTrackPointX * fTransform13 + dTrackPointY * fTransform31 + dTrackPointZ * fTransform33 - viewz;
+      fTrackProjX1 = (float)dTransformedTrackX * vk1 + (float)dTransformedTrackY * vk4 + (float)dTransformedTrackZ * vk7;
+      fTrackProjY1 = (float)dTransformedTrackX * vk2 + (float)dTransformedTrackY * vk5 + (float)dTransformedTrackZ * vk8;
+      dViewDistanceTrackFull = (float)dTransformedTrackX * vk3 + (float)dTransformedTrackY * vk6 + (float)dTransformedTrackZ * vk9;
+      fTrackProjZ1 = (float)dViewDistanceTrackFull;
+      fTrackDepth1 = fTrackProjZ1;
+      if (dViewDistanceTrackFull < 80.0) {
+        fTrackProjZ1 = 80.0;
+        ++pTrackScreenXYZ->iClipCount;
       }
-      v114 = (double)VIEWDIST;
-      v115 = 1.0 / v212;
-      v116 = v114 * v210 * v115 + (double)xbase;
-      _CHP(v113, v99);
-      xp = (int)v116;
-      v117 = v115 * (v114 * v208) + (double)ybase;
-      _CHP(scr_size * (int)v116, v99);
-      yp = (int)v117;
-      *((_DWORD *)v99 + 7) = v118 >> 6;
-      *((_DWORD *)v99 + 8) = (scr_size * (199 - yp)) >> 6;
-      v99[9] = v210;
-      v99[10] = v208;
-      v99[11] = v189;
-      v119 = v100[1] + v202;
-      v120 = v100[2] + v204;
-      v121 = *v100 + v200;
-      v122 = v121 * v185 + v119 * v179 + v120 * v181 - viewx;
-      v123 = v121 * v184 + v119 * v183 + v120 * v182 - viewy;
-      v124 = v121 * v186 + v119 * v180 + v120 * v178 - viewz;
-      v211 = v122 * vk1 + v123 * vk4 + v124 * vk7;
-      v209 = v122 * vk2 + v123 * vk5 + v124 * vk8;
-      v125 = v122 * vk3 + v123 * vk6 + v124 * vk9;
-      v213 = v125;
-      HIWORD(v130) = HIWORD(v213);
-      v190 = v213;
-      v127 = v125 < func3_c_variable_25;
-      v128 = 0;
-      v129 = v125 == func3_c_variable_25;
-      LOWORD(v130) = v126;
-      if (v125 < func3_c_variable_25) {
-        v130 = 1117782016;
-        v213 = 80.0;
-        ++*((_DWORD *)v99 + 1);
+      dViewDistanceTrack = (double)VIEWDIST;
+      // Project 3D coordinates to 2D screen coordinates
+      dDepthInverseTrack = 1.0 / fTrackProjZ1;
+      dScreenXTrack = dViewDistanceTrack * fTrackProjX1 * dDepthInverseTrack + (double)xbase;
+      //_CHP();
+      iScreenXTrackInt = scr_size * (int)dScreenXTrack; //lost line, decompiler artifact
+      xp = (int)dScreenXTrack;
+      dScreenYTrack = dDepthInverseTrack * (dViewDistanceTrack * fTrackProjY1) + (double)ybase;
+      //_CHP();
+      yp = (int)dScreenYTrack;
+      pTrackScreenXYZ->screen2.x = iScreenXTrackInt >> 6;
+      pTrackScreenXYZ->screen2.y = (scr_size * (199 - yp)) >> 6;
+      pTrackScreenXYZ->proj2.fX = fTrackProjX1;
+      pTrackScreenXYZ->proj2.fY = fTrackProjY1;
+      pTrackScreenXYZ->proj2.fZ = fTrackDepth1;
+
+      // Transform second track point (pointAy[4]) to screen coordinates
+      dTrackPoint2Y = pTrackPt->fY + fTrackCenterY;
+      dTrackPoint2Z = pTrackPt->fZ + fTrackCenterZ;
+      dTrackPoint2X = pTrackPt->fX + fTrackCenterX;
+      dTransformedTrack2X = dTrackPoint2X * fTransform11 + dTrackPoint2Y * fTransform21 + dTrackPoint2Z * fTransform32 - viewx;
+      dTransformedTrack2Y = dTrackPoint2X * fTransform12 + dTrackPoint2Y * fTransform22 + dTrackPoint2Z * fTransform23 - viewy;
+      dTransformedTrack2Z = dTrackPoint2X * fTransform13 + dTrackPoint2Y * fTransform31 + dTrackPoint2Z * fTransform33 - viewz;
+      fTrackProjX2 = (float)dTransformedTrack2X * vk1 + (float)dTransformedTrack2Y * vk4 + (float)dTransformedTrack2Z * vk7;
+      fTrackProjY2 = (float)dTransformedTrack2X * vk2 + (float)dTransformedTrack2Y * vk5 + (float)dTransformedTrack2Z * vk8;
+      dDepthTrack2Full = (float)dTransformedTrack2X * vk3 + (float)dTransformedTrack2Y * vk6 + (float)dTransformedTrack2Z * vk9;
+      fTrackProjZ2 = (float)dDepthTrack2Full;
+      fTrackDepth2 = fTrackProjZ2;
+      if (dDepthTrack2Full < 80.0) {
+        fTrackProjZ2 = 80.0;
+        ++pTrackScreenXYZ->iClipCount;
       }
-      v131 = (double)VIEWDIST;
-      v132 = 1.0 / v213;
-      v133 = v131 * v211 * v132 + (double)xbase;
-      _CHP(v130, v99);
-      xp = (int)v133;
-      v134 = v132 * (v131 * v209) + (double)ybase;
-      v135 = scr_size;
-      v136 = scr_size * (int)v133;
-      _CHP(v137, v99);
-      yp = (int)v134;
-      *((_DWORD *)v99 + 2) = v136 >> 6;
-      *((_DWORD *)v99 + 3) = (v135 * (199 - yp)) >> 6;
-      v99[4] = v211;
-      v100 += 36;
-      v99[5] = v209;
-      v98 += 2;
-      v99[6] = v190;
-      v99 += 64;
-    } while (v98 < TRAK_LEN);
+      dViewDistanceTrack2 = (double)VIEWDIST;
+      dDepthInverseTrack2 = 1.0 / fTrackProjZ2;
+      dScreenXTrack2 = dViewDistanceTrack2 * fTrackProjX2 * dDepthInverseTrack2 + (double)xbase;
+      //_CHP();
+      xp = (int)dScreenXTrack2;
+      dScreenYTrack2 = dDepthInverseTrack2 * (dViewDistanceTrack2 * fTrackProjY2) + (double)ybase;
+      iScreenSize5 = scr_size;
+      iScreenXCalc = scr_size * (int)dScreenXTrack2;
+      //_CHP();
+      yp = (int)dScreenYTrack2;
+      pTrackScreenXYZ->screen1.x = iScreenXCalc >> 6;
+      pTrackScreenXYZ->screen1.y = (iScreenSize5 * (199 - yp)) >> 6;
+      pTrackScreenXYZ->proj1.fX = fTrackProjX2;
+      pTrackPt += 12;
+      pTrackScreenXYZ->proj1.fY = fTrackProjY2;
+      iLoopIndex += 2;
+      pTrackScreenXYZ->proj1.fZ = fTrackDepth2;
+      pTrackScreenXYZ += 2;
+    } while (iLoopIndex < TRAK_LEN);
   }
-  v138 = 0;
-  v188 = 0;
+  iTrackSegmentLoop = 0;
+  iTrackSegmentCount = 0;
+
+  // Build Z-order list for depth sorting
   if (TRAK_LEN > 0) {
-    v139 = (float *)&TrackScreenXYZ;
-    v140 = 0;
+    pTrackScreenXYZ_1 = TrackScreenXYZ;
+    iZOrderIndex = 0;
     do {
-      v141 = v138 + 2;
-      if (v138 + 2 >= TRAK_LEN)
-        v141 = 0;
-      CarZOrder_variable_1[v140] = v138;
-      v142 = (float *)((char *)&TrackScreenXYZ + 128 * v141);
-      if (v139[11] <= (double)v139[6])
-        v143 = v139[6];
+      // Determine maximum depth for Z-order sorting
+      iNextSegmentIdx = iTrackSegmentLoop + 2;
+      if (iTrackSegmentLoop + 2 >= TRAK_LEN)
+        iNextSegmentIdx = 0;
+      CarZOrder[iZOrderIndex].iPolygonIndex = iTrackSegmentLoop;
+      pNextTrackScreenXYZ = &TrackScreenXYZ[iNextSegmentIdx];
+      if (pTrackScreenXYZ_1->proj2.fZ <= (double)pTrackScreenXYZ_1->proj1.fZ)
+        fMaxDepthCurrent = pTrackScreenXYZ_1->proj1.fZ;
       else
-        v143 = v139[11];
-      v187 = v143;
-      if (v142[11] <= (double)v142[6])
-        v144 = v142[6];
+        fMaxDepthCurrent = pTrackScreenXYZ_1->proj2.fZ;
+      fMaxDepthForZOrder = fMaxDepthCurrent;
+      if (pNextTrackScreenXYZ->proj2.fZ <= (double)pNextTrackScreenXYZ->proj1.fZ)
+        fDepthForZOrderFinal = pNextTrackScreenXYZ->proj1.fZ;
       else
-        v144 = v142[11];
-      if (v187 <= (double)v144) {
-        if (v142[11] <= (double)v142[6])
-          v145 = *((_DWORD *)v142 + 6);
+        fDepthForZOrderFinal = pNextTrackScreenXYZ->proj2.fZ;
+      if (fMaxDepthForZOrder <= (double)fDepthForZOrderFinal) {
+        if (pNextTrackScreenXYZ->proj2.fZ <= (double)pNextTrackScreenXYZ->proj1.fZ)
+          fDepthForZOrder = pNextTrackScreenXYZ->proj1.fZ;
         else
-          v145 = *((_DWORD *)v142 + 11);
-      } else if (v139[11] <= (double)v139[6]) {
-        v145 = *((_DWORD *)v139 + 6);
+          fDepthForZOrder = pNextTrackScreenXYZ->proj2.fZ;
+      } else if (pTrackScreenXYZ_1->proj2.fZ <= (double)pTrackScreenXYZ_1->proj1.fZ) {
+        fDepthForZOrder = pTrackScreenXYZ_1->proj1.fZ;
       } else {
-        v145 = *((_DWORD *)v139 + 11);
+        fDepthForZOrder = pTrackScreenXYZ_1->proj2.fZ;
       }
-      v140 += 3;
-      v139 += 64;
-      v138 += 2;
-      CarPt_variable_14[v140] = v145;
-      ++v188;
-    } while (v138 < TRAK_LEN);
+
+      //loop offset fixup
+      CarZOrder[iZOrderIndex].fZDepth = fDepthForZOrder;
+
+      ++iZOrderIndex;
+      pTrackScreenXYZ_1 += 2;
+      iTrackSegmentLoop += 2;
+      //*(float *)((char *)&CarPt[127].view.fZ + iZOrderIndex * 12) = fDepthForZOrder;// offset into CarZOrder if placed above loop inc
+      ++iTrackSegmentCount;
+    } while (iTrackSegmentLoop < TRAK_LEN);
   }
-  v146 = qsort(CarZOrder, v188, 12, carZcmp);
-  v147 = v188;
-  if (v188 > 0) {
-    v148 = 0;
-    v149 = 15 * v188;
+
+  // Sort track segments by depth (Z-order)
+  qsort(CarZOrder, iTrackSegmentCount, 0xCu, carZcmp);
+
+  if (iTrackSegmentCount > 0) {
+    // Render track segments in back-to-front order
+    iRenderLoopIndex = 0;
+    iColorGradient = 15 * iTrackSegmentCount;
     do {
-      v150 = CarZOrder_variable_1[v148];
-      if (v150 >= 0) {
-        v147 = 24 * v150;
-        if ((TrakColour_variable_1[12 * v150] & 2) == 0
-          || (TrakColour_variable_5[12 * v150] & 2) == 0
-          || (TrakColour_variable_8[12 * v150] & 2) == 0) {
-          v214 = v150 + 2;
-          v151 = (_DWORD *)((char *)&TrackScreenXYZ + 128 * v150);
-          if (v150 + 2 >= TRAK_LEN)
-            v214 = 0;
-          RoadPoly_variable_3 = 4;
-          v152 = (v207 - TrakPt_variable_5[18 * v150]) * func3_c_variable_26 / v177 + (double)(v149 / v188);
-          _CHP(v149 / v188, v149 % v188);
-          v153 = (_DWORD *)((char *)&TrackScreenXYZ + 128 * v214);
-          v215 = 143 - (int)v152;
-          if (v215 > 139)
-            v215 = 139;
-          if (!v150)
-            v215 = 143;
-          v154 = v215;
-          BYTE1(v154) = BYTE1(v215) | 0x60;
-          RoadPoly = v154;
-          RoadPoly_variable_4 = v153[2];
-          RoadPoly_variable_5 = v153[3];
-          RoadPoly_variable_6 = v153[7];
-          RoadPoly_variable_7 = v153[8];
-          RoadPoly_variable_8 = v151[7];
-          RoadPoly_variable_9 = v151[8];
-          RoadPoly_variable_10 = v151[2];
-          RoadPoly_variable_11 = v151[3];
-          POLYFLAT(scrbuf, &RoadPoly);
-          v155 = RoadPoly_variable_4;
-          RoadPoly_variable_4 = RoadPoly_variable_6;
-          v156 = RoadPoly_variable_5;
-          RoadPoly_variable_5 = RoadPoly_variable_7;
-          RoadPoly_variable_6 = RoadPoly_variable_8;
-          RoadPoly_variable_7 = RoadPoly_variable_9;
-          RoadPoly_variable_8 = RoadPoly_variable_10;
-          RoadPoly_variable_10 = v155;
-          v147 = (int)&RoadPoly;
-          RoadPoly_variable_9 = RoadPoly_variable_11;
-          RoadPoly_variable_11 = v156;
-          POLYFLAT(scrbuf, &RoadPoly);
-        }
+      iCurrentSegmentIdx = CarZOrder[iRenderLoopIndex].iPolygonIndex;
+      if (iCurrentSegmentIdx >= 0
+        && ((TrakColour[iCurrentSegmentIdx].uiLeftSurfType & 0x20000) == 0
+            || (TrakColour[iCurrentSegmentIdx].uiCenterSurfType & 0x20000) == 0
+            || (TrakColour[iCurrentSegmentIdx].uiRightSurfType & 0x20000) == 0)) {
+        iColorValueFinal = iCurrentSegmentIdx + 2;
+        pCurrentSegmentScreenXYZ = &TrackScreenXYZ[iCurrentSegmentIdx];
+        if (iCurrentSegmentIdx + 2 >= TRAK_LEN)
+          iColorValueFinal = 0;
+        RoadPoly.uiNumVerts = 4;
+        // Calculate color based on height (elevation mapping)
+        dHeightColorCalc = (fBoundingMaxZ - TrakPt[iCurrentSegmentIdx].pointAy[2].fZ) * 15.0 / fZRangeForColor + (double)(iColorGradient / iTrackSegmentCount);
+        //_CHP();
+        pCurrTrackScreenXYZ = &TrackScreenXYZ[iColorValueFinal];
+        iSurfaceColor = 143 - (int)dHeightColorCalc;
+        if (iSurfaceColor > 139)
+          iSurfaceColor = 139;
+        if (!iCurrentSegmentIdx)
+          iSurfaceColor = 143;
+        uiSurfaceColor = iSurfaceColor;
+        SET_BYTE1(uiSurfaceColor, GET_BYTE1(iSurfaceColor) | 0x60);
+        RoadPoly.uiSurfaceType = uiSurfaceColor;
+        RoadPoly.vertices[0] = pCurrTrackScreenXYZ->screen1;
+        RoadPoly.vertices[1] = pCurrTrackScreenXYZ->screen2;
+        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen2;
+        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1;
+        // Render road segment as two triangular polygons
+        POLYFLAT(scrbuf, &RoadPoly);
+        pointTemp = RoadPoly.vertices[0];
+        RoadPoly.vertices[0] = RoadPoly.vertices[1];
+        RoadPoly.vertices[1] = RoadPoly.vertices[2];
+        RoadPoly.vertices[2] = RoadPoly.vertices[3];
+        RoadPoly.vertices[3] = pointTemp;
+        POLYFLAT(scrbuf, &RoadPoly);
       }
-      v146 = 12 * v188;
-      v148 += 3;
-      v149 -= 15;
-    } while (v148 < 3 * v188);
+      ++iRenderLoopIndex;
+      iColorGradient -= 15;
+    } while (iRenderLoopIndex < iTrackSegmentCount);
   }
-  _CHP(v146, v147);
-  xbase = (int)v159;
-  _CHP(v157, v147);
-  ybase = (int)v158;*/
+
+  // Restore original base coordinates
+  //_CHP();
+  xbase = (int)fBaseX;
+  //_CHP();
+  ybase = (int)fBaseY;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3962,99 +3923,97 @@ void *EndChampSequence(int a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void network_fucked(int a1, int a2, int a3)
-{
-  (void)(a1); (void)(a2); (void)(a3);
-  /*
-  int v3; // ebp
-  int v4; // edi
-  int v5; // esi
-  unsigned int v6; // ecx
-  char v7; // al
-  unsigned int v8; // ecx
-  _UNKNOWN **v9; // edx
-  int v10; // ebx
-  int v11; // eax
-  int v12; // eax
-  int v13; // [esp-Ch] [ebp-24h]
+void network_fucked()
+{                                               // Check if network is in error state and close if needed
+  int iOriginalScreenSize; // ebp
+  uint8 *pbyScreenBuffer; // edi
+  char *pszTitleImageData; // esi
+  unsigned int uiBufferSize; // ecx
+  char byBufferSizeRemainder; // al
+  unsigned int uiDwordCopyCount; // ecx
+  int iInputReceived; // ebx
+  int iKeyCode; // eax
 
   if (network_buggered != 666)
-    a1 = close_network(a1, a2, a3);
-  tick_on = 0;
-  v3 = scr_size;
-  SVGA_ON = -1;
-  init_screen(a1, a2, 0);
-  setpal((int)aResroundPal, a2, 0, (_BYTE *)0xFFFFFFFF);
-  winx = 0;
+    close_network();
+  tick_on = 0;                                  // Disable game ticking
+  iOriginalScreenSize = scr_size;               // Save original screen size for restoration later
+  SVGA_ON = -1;                                 // Enable SVGA mode for error display
+  init_screen();                                // Initialize screen for error display
+  setpal("resround.pal");
+  winx = 0;                                     // Set window to full screen dimensions
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  title_vga = load_picture(&a00ResroundBm[3]);
-  font_vga = load_picture(aFont4Bm);
-  front_vga[0] = load_picture(aFont5Bm);
-  frontend_on = -1;
+  title_vga = load_picture("resround.bm");      // Load background image and fonts for error screen
+  font_vga = load_picture("font4.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("font5.bm");
+  frontend_on = -1;                             // Enable frontend mode and re-enable ticking
   tick_on = -1;
-  v4 = scrbuf;
-  v5 = title_vga;
-  if (SVGA_ON)
-    v6 = 256000;
+  pbyScreenBuffer = scrbuf;
+  pszTitleImageData = (char *)title_vga;
+  if (SVGA_ON)                                // Determine buffer size based on video mode (SVGA=256K, VGA=64K)
+    uiBufferSize = 256000;
   else
-    v6 = 64000;
-  v7 = v6;
-  v8 = v6 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)title_vga, 4 * v8);
-  qmemcpy((void *)(v4 + 4 * v8), (const void *)(v5 + 4 * v8), v7 & 3);
-  if (network_buggered == 666) {
-    front_text(320, 100, 143, 1);
-    front_text(320, 140, 143, 1);
-    front_text(320, 200, 143, 1);
-    v13 = 260;
+    uiBufferSize = 64000;
+  byBufferSizeRemainder = uiBufferSize;
+  uiDwordCopyCount = uiBufferSize >> 2;
+  qmemcpy(scrbuf, title_vga, 4 * uiDwordCopyCount);// Copy title image to screen buffer (optimized 32-bit copy + remainder)
+  qmemcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pszTitleImageData[4 * uiDwordCopyCount], byBufferSizeRemainder & 3);
+  if (network_buggered == 666)                // Check if this is a data loss error (network_buggered == 666)
+  {
+    front_text((tBlockHeader *)font_vga, "ERROR", font4_ascii, font4_offsets, 320, 100, 0x8Fu, 1u);// Display data loss error messages and prompt for restart
+    front_text((tBlockHeader *)font_vga, "DATA LOSS", font4_ascii, font4_offsets, 320, 140, 0x8Fu, 1u);
+    front_text((tBlockHeader *)font_vga, "PLAY AGAIN?", font4_ascii, font4_offsets, 320, 200, 0x8Fu, 1u);
+    front_text((tBlockHeader *)font_vga, "YES OR NO", font4_ascii, font4_offsets, 320, 260, 0x8Fu, 1u);
   } else {
-    v13 = 192;
+    front_text((tBlockHeader *)font_vga, &language_buffer[6208], font4_ascii, font4_offsets, 320, 192, 0x8Fu, 1u);// Display general network error message from language buffer
   }
-  front_text(320, v13, 143, 1);
-  v9 = screen;
-  copypic((char *)scrbuf, (int)screen);
+  copypic(scrbuf, screen);                      // Display the error screen and start background music
   startmusic(leaderboardsong);
-  fade_palette(32, (int)v9, (int)font4_ascii, (int)&font4_offsets);
+  fade_palette(32);                             // Fade in the error screen
   ticks = 0;
-  if (network_buggered == 666) {
-    v10 = 0;
+  if (network_buggered == 666)                // Handle user input based on error type
+  {
+    iInputReceived = 0;                         // Data loss error: wait for Y/N input to restart network
     do {
       while (fatkbhit()) {
-        v11 = fatgetch();
-        v9 = (_UNKNOWN **)v11;
-        if (v11) {
-          if (v11 == 121 || v11 == 89) {
-            v10 = -1;
+        UpdateSDL();
+        iKeyCode = fatgetch();
+        if (iKeyCode) {                                       // Handle Y/y key: restart network
+          if (iKeyCode == 0x79 || iKeyCode == 0x59) {
+            iInputReceived = -1;
             restart_net = -1;
           }
-          if (v11 == 110 || v11 == 78) {
-            v10 = -1;
+          if (iKeyCode == 0x6E || iKeyCode == 0x4E)// Handle N/n key: don't restart network
+          {
+            iInputReceived = -1;
             restart_net = 0;
           }
         } else {
           fatgetch();
         }
       }
-    } while (!v10);
-  } else {
+      UpdateSDL();
+    } while (!iInputReceived);
+  } else {                                             // General network error: wait for any key or timeout (2160 ticks)
     while (!fatkbhit() && ticks < 2160)
-      ;
+      UpdateSDL();
   }
-  fre(&title_vga);
+  fre(&title_vga);                              // Clean up loaded images and restore original screen settings
   fre(&font_vga);
-  fre(front_vga);
-  scr_size = v3;
-  holdmusic = -1;
-  fade_palette(0, (int)v9, -1, (int)&font4_offsets);
-  if (network_buggered == 666 && !restart_net) {
+  fre((void **)front_vga);
+  scr_size = iOriginalScreenSize;
+  holdmusic = -1;                               // Hold music and fade out screen
+  fade_palette(0);
+  if (network_buggered == 666 && !restart_net)// If data loss occurred and user chose not to restart, close network
+  {
     broadcast_mode = -666;
     while (broadcast_mode)
-      ;
-    close_network(v12, (int)v9, -1);
-  }*/
+      UpdateSDL();
+    close_network();
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@ extern int subpolytype;
 extern tPolyParams *subpoly;
 extern int tex_wid;
 extern int flatpol;
+extern tPolyParams RoadPoly;
 extern int start_sect;
 extern int gap_size;
 extern int first_size;
