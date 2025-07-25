@@ -3448,249 +3448,210 @@ void check_saves()
 
 //-------------------------------------------------------------------------------------------------
 
-void ResultRoundUp(int a1, int a2, int a3, char *a4)
+void ResultRoundUp()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  /*
-  int v4; // edi
-  int v5; // esi
-  unsigned int v6; // ecx
-  char v7; // al
-  unsigned int v8; // ecx
-  int v9; // edi
-  __int64 v10; // rax
-  double v11; // st7
-  int v12; // esi
-  int v13; // eax
-  int v14; // edx
-  int v15; // ebx
-  int v16; // edi
-  int v17; // edi
-  int v18; // ebp
-  int v19; // esi
-  int v20; // eax
-  int v21; // edx
-  int v22; // edi
-  double v23; // st7
-  int v24; // edi
-  int v25; // ebp
-  int v26; // esi
-  int v27; // edi
-  __int64 v28; // rax
-  int v29; // edi
-  double v30; // st7
-  _UNKNOWN **v31; // edx
-  int v32; // [esp+0h] [ebp-28h]
-  int v33; // [esp+4h] [ebp-24h]
-  int v34; // [esp+4h] [ebp-24h]
-  int v35; // [esp+8h] [ebp-20h]
-  int v36; // [esp+8h] [ebp-20h]
-  int v37; // [esp+Ch] [ebp-1Ch]
-  int v38; // [esp+Ch] [ebp-1Ch]
+  uint8 *pbyScreenBuffer; // edi
+  tBlockHeader *pBackgroundImage; // esi
+  unsigned int uiBufferSize; // ecx
+  char byBufferRemainder; // al
+  unsigned int uiDwordCopyCount; // ecx
+  int iCurrentYPos; // edi
+  double dBestTimeFloat; // st7
+  int iMostKillsDriver; // esi
+  int iMaxKillCount; // eax
+  int iDriverIndex; // edx
+  int iCurrentDriver; // ebx
+  int iKillsYPos; // edi
+  int iP1HeaderYPos; // edi
+  int iPlayer1Id; // ebp
+  int iP1DriverId; // esi
+  int iP1StatsYPos; // edi
+  double dP1BestTime; // st7
+  int iP2HeaderYPos; // edi
+  int iPlayer2Id; // ebp
+  int iP2DriverId; // esi
+  int iP2NameYPos; // edi
+  int iP2StatsYPos; // edi
+  double dP2BestTime; // st7
+  int iOriginalScrSize; // [esp+0h] [ebp-28h]
+  int iP2Time1; // [esp+4h] [ebp-24h]
+  int iP2Time2; // [esp+4h] [ebp-24h]
+  int iP1Time1; // [esp+8h] [ebp-20h]
+  int iP1Time2; // [esp+8h] [ebp-20h]
+  int iLapTime1; // [esp+Ch] [ebp-1Ch]
+  int iLapTime2; // [esp+Ch] [ebp-1Ch]
 
-  tick_on = 0;
-  v32 = scr_size;
+  tick_on = 0;                                  // Initialize race results screen display
+  iOriginalScrSize = scr_size;
   SVGA_ON = -1;
-  init_screen(scr_size, 0, -1);
-  setpal((int)aResroundPal, 0, (_WORD *)0xFFFFFFFF, a4);
+  init_screen();
+  setpal("resround.pal");
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  front_vga_variable_2 = load_picture(&a00ResroundBm[3]);
-  front_vga_variable_1 = load_picture(aFont4Bm);
-  front_vga[0] = load_picture(aFont5Bm);
+  front_vga[2] = (tBlockHeader *)load_picture("resround.bm");// Load race results screen resources (background, fonts)
+  front_vga[1] = (tBlockHeader *)load_picture("font4.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("font5.bm");
   frontend_on = -1;
   tick_on = -1;
-  v4 = scrbuf;
-  v5 = front_vga_variable_2;
-  if (SVGA_ON)
-    v6 = 256000;
+  pbyScreenBuffer = scrbuf;
+  pBackgroundImage = front_vga[2];
+  if (SVGA_ON)                                // Copy background image to screen buffer (optimized copy)
+    uiBufferSize = 256000;
   else
-    v6 = 64000;
-  v7 = v6;
-  v8 = v6 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)front_vga_variable_2, 4 * v8);
-  qmemcpy((void *)(v4 + 4 * v8), (const void *)(v5 + 4 * v8), v7 & 3);
-  front_text(320, 8, 143, 1);
-  sprintf(&buffer, "%s  %s", &driver_names[9 * result_order[0]], &CompanyNames[20 * result_design[result_order[0]]]);
-  front_text(320, 41, 143, 1);
-  v9 = 74;
-  if (FastestLap >= 0 && BestTime < (double)func3_c_variable_47) {
-    v10 = front_text(320, 74, 143, 1);
-    v11 = BestTime * func3_c_variable_48;
-    _CHP(v10, HIDWORD(v10));
-    v37 = (int)v11;
-    if ((int)v11 > 599999)
-      v37 = 599999;
-    fp_buf_variable_8 = 0;
-    fp_buf_variable_7 = v37 % 10 + 48;
-    v38 = v37 / 10;
-    fp_buf_variable_6 = v38 % 10 + 48;
-    fp_buf_variable_5 = 58;
-    v38 /= 10;
-    fp_buf_variable_4 = v38 % 10 + 48;
-    v38 /= 10;
-    fp_buf_variable_3 = v38 % 6 + 48;
-    v38 /= 6;
-    fp_buf_variable_1 = v38 % 10 + 48;
-    fp_buf = v38 / 10 % 10 + 48;
-    fp_buf_variable_2 = 58;
-    sprintf(
-      &buffer,
-      "%s  %s  %s",
-      &driver_names[9 * FastestLap],
-      &CompanyNames[20 * result_design[FastestLap]],
-      &fp_buf);
-    front_text(320, 107, 143, 1);
-    v9 = 140;
+    uiBufferSize = 64000;
+  byBufferRemainder = uiBufferSize;
+  uiDwordCopyCount = uiBufferSize >> 2;
+  memcpy(scrbuf, front_vga[2], 4 * uiDwordCopyCount);
+  memcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pBackgroundImage->iWidth + uiDwordCopyCount, byBufferRemainder & 3);
+  front_text(front_vga[1], &language_buffer[2560], font4_ascii, font4_offsets, 320, 8, 0x8Fu, 1u);// Display race winner information
+  sprintf(buffer, "%s  %s", driver_names[result_order[0]], CompanyNames[result_design[result_order[0]]]);
+  front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, 41, 0x8Fu, 1u);
+  iCurrentYPos = 74;
+  if (FastestLap >= 0 && BestTime < 5000.0)// Display fastest lap information if valid
+  {
+    front_text(front_vga[1], &language_buffer[2880], font4_ascii, font4_offsets, 320, 74, 0x8Fu, 1u);
+    dBestTimeFloat = BestTime * 100.0;          // Convert fastest lap time to display format (MM:SS:HH)
+    //_CHP();
+    iLapTime1 = (int)dBestTimeFloat;
+    if ((int)dBestTimeFloat > 599999)
+      iLapTime1 = 599999;
+    fp_buf[8] = 0;
+    fp_buf[7] = iLapTime1 % 10 + 48;
+    iLapTime2 = iLapTime1 / 10;
+    fp_buf[6] = iLapTime2 % 10 + 48;
+    fp_buf[5] = 58;
+    iLapTime2 /= 10;
+    fp_buf[4] = iLapTime2 % 10 + 48;
+    iLapTime2 /= 10;
+    fp_buf[3] = iLapTime2 % 6 + 48;
+    iLapTime2 /= 6;
+    fp_buf[1] = iLapTime2 % 10 + 48;
+    fp_buf[0] = iLapTime2 / 10 % 10 + 48;
+    fp_buf[2] = 58;
+    sprintf(buffer, "%s  %s  %s", driver_names[FastestLap], CompanyNames[result_design[FastestLap]], (const char *)fp_buf);
+    front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, 107, 0x8Fu, 1u);
+    iCurrentYPos = 140;
   }
-  v12 = -1;
-  v13 = 0;
+  iMostKillsDriver = -1;
+  iMaxKillCount = 0;                            // Find driver with most kills in the race
   if (racers > 0) {
-    v14 = 0;
+    iDriverIndex = 0;
     do {
-      v15 = result_order[v14];
-      if (v13 < result_kills[v15]) {
-        v12 = result_order[v14];
-        v13 = result_kills[v15];
+      iCurrentDriver = result_order[iDriverIndex];
+      if (iMaxKillCount < result_kills[iCurrentDriver]) {
+        iMostKillsDriver = result_order[iDriverIndex];
+        iMaxKillCount = result_kills[iCurrentDriver];
       }
-      ++v14;
-    } while (v14 < racers);
+      ++iDriverIndex;
+    } while (iDriverIndex < racers);
   }
-  if (v12 >= 0) {
-    front_text(320, v9, 143, 1);
-    sprintf(
-      &buffer,
-      "%s  %s  %s %i",
-      &driver_names[9 * v12],
-      &CompanyNames[20 * result_design[v12]],
-      language_buffer_variable_62,
-      result_kills[v12]);
-    v16 = v9 + 33;
-    front_text(320, v16, 143, 1);
-    v9 = v16 + 33;
+  if (iMostKillsDriver >= 0)                  // Display most kills information if any kills occurred
+  {
+    front_text(front_vga[1], &language_buffer[4032], font4_ascii, font4_offsets, 320, iCurrentYPos, 0x8Fu, 1u);
+    sprintf(buffer, "%s  %s  %s %i", driver_names[iMostKillsDriver], CompanyNames[result_design[iMostKillsDriver]], &language_buffer[3968], result_kills[iMostKillsDriver]);
+    iKillsYPos = iCurrentYPos + 33;
+    front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, iKillsYPos, 0x8Fu, 1u);
+    iCurrentYPos = iKillsYPos + 33;
   }
-  v17 = v9 + 4;
-  front_text(320, v17, 143, 1);
-  v18 = result_p1;
-  v19 = result_p1;
-  sprintf(&buffer, "%s  %s", &driver_names[9 * result_p1], &CompanyNames[20 * result_design[result_p1]]);
-  v17 += 33;
-  v20 = front_text(320, v17, 143, 1);
-  v21 = LODWORD(result_lap[v19]);
-  v22 = v17 + 29;
-  if (v21 >= 2) {
-    v23 = *(float *)&result_best[v19] * func3_c_variable_48;
-    _CHP(v20, v21);
-    v35 = (int)v23;
-    if ((int)v23 > 599999)
-      v35 = 599999;
-    fp_buf_variable_8 = 0;
-    fp_buf_variable_7 = v35 % 10 + 48;
-    v36 = v35 / 10;
-    fp_buf_variable_6 = v36 % 10 + 48;
-    fp_buf_variable_5 = 58;
-    v36 /= 10;
-    fp_buf_variable_4 = v36 % 10 + 48;
-    v36 /= 10;
-    fp_buf_variable_3 = v36 % 6 + 48;
-    v36 /= 6;
-    fp_buf_variable_1 = v36 % 10 + 48;
-    fp_buf_variable_2 = 58;
-    fp_buf = v36 / 10 % 10 + 48;
+  iP1HeaderYPos = iCurrentYPos + 4;
+  front_text(front_vga[1], &language_buffer[4672], font4_ascii, font4_offsets, 320, iP1HeaderYPos, 0x8Fu, 1u);// Display Player 1 results section
+  iPlayer1Id = result_p1;
+  iP1DriverId = result_p1;
+  sprintf(buffer, "%s  %s", driver_names[result_p1], CompanyNames[result_design[result_p1]]);
+  iP1HeaderYPos += 33;
+  front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, iP1HeaderYPos, 0x8Fu, 1u);
+  iP1StatsYPos = iP1HeaderYPos + 29;
+  if (result_lap[iP1DriverId] >= 2)           // Format Player 1's best lap time or show dashes if no valid laps
+  {
+    dP1BestTime = result_best[iP1DriverId] * 100.0;// Convert P1's best time to display format (MM:SS:HH)
+    //_CHP();
+    iP1Time1 = (int)dP1BestTime;
+    if ((int)dP1BestTime > 599999)
+      iP1Time1 = 599999;
+    fp_buf[8] = 0;
+    fp_buf[7] = iP1Time1 % 10 + 48;
+    iP1Time2 = iP1Time1 / 10;
+    fp_buf[6] = iP1Time2 % 10 + 48;
+    fp_buf[5] = 58;
+    iP1Time2 /= 10;
+    fp_buf[4] = iP1Time2 % 10 + 48;
+    iP1Time2 /= 10;
+    fp_buf[3] = iP1Time2 % 6 + 48;
+    iP1Time2 /= 6;
+    fp_buf[1] = iP1Time2 % 10 + 48;
+    fp_buf[2] = 58;
+    fp_buf[0] = iP1Time2 / 10 % 10 + 48;
   } else {
-    fp_buf_variable_8 = 0;
-    fp_buf_variable_7 = 45;
-    fp_buf_variable_6 = 45;
-    fp_buf_variable_5 = 58;
-    fp_buf_variable_4 = 45;
-    fp_buf_variable_3 = 45;
-    fp_buf_variable_2 = 58;
-    fp_buf_variable_1 = 45;
-    fp_buf = 45;
+    memcpy(fp_buf, "--:--:--", 8);
   }
   if (racers - 1 > result_p1_pos || racers == 1)
-    sprintf(&buffer, "%s: %s", language_buffer_variable_22, (const char *)&language_buffer + 64 * result_p1_pos + 384);
+    sprintf(buffer, "%s: %s", &language_buffer[1408], &language_buffer[64 * result_p1_pos + 384]);
   else
-    sprintf(&buffer, "%s: %s", language_buffer_variable_22, language_buffer_variable_21);
-  sprintf(
-    &buffer,
-    "%s  %s %s  %s %i",
-    &buffer,
-    language_buffer_variable_1,
-    &fp_buf,
-    language_buffer_variable_62,
-    result_kills[v18]);
-  front_text(320, v22, 143, 1);
-  v24 = v22 + 37;
+    sprintf(buffer, "%s: %s", &language_buffer[1408], &language_buffer[1344]);
+  sprintf(buffer, "%s  %s %s  %s %i", buffer, &language_buffer[64], (const char *)fp_buf, &language_buffer[3968], result_kills[iPlayer1Id]);
+  front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, iP1StatsYPos, 0x8Fu, 1u);
+  iP2HeaderYPos = iP1StatsYPos + 37;
   if (player_type == 2) {
-    front_text(320, v24, 143, 1);
-    v25 = result_p2;
-    v26 = result_p2;
-    sprintf(&buffer, "%s  %s", &driver_names[9 * result_p2], &CompanyNames[20 * result_design[result_p2]]);
-    v27 = v24 + 33;
-    v28 = front_text(320, v27, 143, 1);
-    *(float *)&v28 = result_lap[v26];
-    v29 = v27 + 29;
-    if ((int)v28 >= 2) {
-      v30 = *(float *)&result_best[v26] * func3_c_variable_48;
-      _CHP(v28, HIDWORD(v28));
-      v33 = (int)v30;
-      if ((int)v30 > 599999)
-        v33 = 599999;
-      fp_buf_variable_8 = 0;
-      fp_buf_variable_7 = v33 % 10 + 48;
-      v34 = v33 / 10;
-      fp_buf_variable_5 = 58;
-      fp_buf_variable_6 = v34 % 10 + 48;
-      v34 /= 10;
-      fp_buf_variable_4 = v34 % 10 + 48;
-      v34 /= 10;
-      fp_buf_variable_3 = v34 % 6 + 48;
-      fp_buf_variable_2 = 58;
-      v34 /= 6;
-      fp_buf_variable_1 = v34 % 10 + 48;
-      fp_buf = v34 / 10 % 10 + 48;
+    front_text(front_vga[1], &language_buffer[4736], font4_ascii, font4_offsets, 320, iP2HeaderYPos, 0x8Fu, 1u);// Display Player 2 results section (if two-player mode)
+    iPlayer2Id = result_p2;
+    iP2DriverId = result_p2;
+    sprintf(buffer, "%s  %s", driver_names[result_p2], CompanyNames[result_design[result_p2]]);
+    iP2NameYPos = iP2HeaderYPos + 33;
+    front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, iP2NameYPos, 0x8Fu, 1u);
+    iP2StatsYPos = iP2NameYPos + 29;
+    if (result_lap[iP2DriverId] >= 2)         // Format Player 2's best lap time or show dashes if no valid laps
+    {
+      dP2BestTime = result_best[iP2DriverId] * 100.0;// Convert P2's best time to display format (MM:SS:HH)
+      //_CHP();
+      iP2Time1 = (int)dP2BestTime;
+      if ((int)dP2BestTime > 599999)
+        iP2Time1 = 599999;
+      fp_buf[8] = 0;
+      fp_buf[7] = iP2Time1 % 10 + 48;
+      iP2Time2 = iP2Time1 / 10;
+      fp_buf[5] = 58;
+      fp_buf[6] = iP2Time2 % 10 + 48;
+      iP2Time2 /= 10;
+      fp_buf[4] = iP2Time2 % 10 + 48;
+      iP2Time2 /= 10;
+      fp_buf[3] = iP2Time2 % 6 + 48;
+      fp_buf[2] = 58;
+      iP2Time2 /= 6;
+      fp_buf[1] = iP2Time2 % 10 + 48;
+      fp_buf[0] = iP2Time2 / 10 % 10 + 48;
     } else {
-      fp_buf_variable_8 = 0;
-      fp_buf_variable_7 = 45;
-      fp_buf_variable_6 = 45;
-      fp_buf_variable_5 = 58;
-      fp_buf_variable_4 = 45;
-      fp_buf_variable_3 = 45;
-      fp_buf_variable_2 = 58;
-      fp_buf_variable_1 = 45;
-      fp_buf = 45;
+      fp_buf[8] = 0;
+      fp_buf[7] = 45;
+      fp_buf[6] = 45;
+      fp_buf[5] = 58;
+      fp_buf[4] = 45;
+      fp_buf[3] = 45;
+      fp_buf[2] = 58;
+      fp_buf[1] = 45;
+      fp_buf[0] = 45;
     }
     if (racers - 1 > result_p2_pos || racers == 1)
-      sprintf(&buffer, "%s: %s", language_buffer_variable_22, (const char *)&language_buffer + 64 * result_p2_pos + 384);
+      sprintf(buffer, "%s: %s", &language_buffer[1408], &language_buffer[64 * result_p2_pos + 384]);
     else
-      sprintf(&buffer, "%s: %s", language_buffer_variable_22, language_buffer_variable_21);
-    sprintf(
-      &buffer,
-      "%s  %s %s  %s %i",
-      &buffer,
-      language_buffer_variable_1,
-      &fp_buf,
-      language_buffer_variable_62,
-      result_kills[v25]);
-    front_text(320, v29, 143, 1);
+      sprintf(buffer, "%s: %s", &language_buffer[1408], &language_buffer[1344]);
+    sprintf(buffer, "%s  %s %s  %s %i", buffer, &language_buffer[64], (const char *)fp_buf, &language_buffer[3968], result_kills[iPlayer2Id]);
+    front_text(front_vga[0], buffer, font4_ascii, font5_offsets, 320, iP2StatsYPos, 0x8Fu, 1u);
   }
-  v31 = screen;
-  copypic((char *)scrbuf, (int)screen);
+  copypic(scrbuf, screen);                      // Display results screen and wait for user input
   startmusic(leaderboardsong);
-  fade_palette(32, (int)v31, (int)&font4_ascii, 0);
+  fade_palette(32);
   ticks = 0;
   while (!fatkbhit() && ticks < 2160)
-    ;
-  fre(&front_vga_variable_2);
-  fre(&front_vga_variable_1);
-  fre(front_vga);
-  scr_size = v32;
+    UpdateSDL();
+  fre((void **)&front_vga[2]);                  // Clean up resources and restore screen settings
+  fre((void **)&front_vga[1]);
+  fre((void **)front_vga);
+  scr_size = iOriginalScrSize;
   holdmusic = -1;
-  fade_palette(0, -1, (int)&font4_ascii, 0);*/
+  fade_palette(0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3782,7 +3743,7 @@ void ChampionshipOver()
   char byBufferSizeRemainder; // al
   unsigned int uiDwordCopyCount; // ecx
   int id; // [esp+0h] [ebp-20h]
-  signed int a8; // [esp+4h] [ebp-1Ch]
+  signed int iBestPos; // [esp+4h] [ebp-1Ch]
 
   iPlayer1Position = 0;                         // Initialize championship analysis and disable network championship mode
   network_champ_on = 0;
@@ -3794,7 +3755,7 @@ void ChampionshipOver()
       ++iPlayer1Position;
     } while (iCurrentChampEntry != result_p1);
   }
-  a8 = iPlayer1Position;
+  iBestPos = iPlayer1Position;
   if (player_type == 2)                       // If two-player mode, find Player 2's position and use the better one
   {
     iPlayer2Position = 0;
@@ -3805,10 +3766,10 @@ void ChampionshipOver()
         ++iPlayer2Position;
       } while (iCurrentP2Entry != result_p2);
     }
-    if (iPlayer2Position < a8)                // Use the better position between both players
-      a8 = iPlayer2Position;
+    if (iPlayer2Position < iBestPos)                // Use the better position between both players
+      iBestPos = iPlayer2Position;
   }
-  if (!a8)                                    // If player won championship (position 0), show victory sequence
+  if (!iBestPos)                                    // If player won championship (position 0), show victory sequence
   {
     championship_winner();
     champion_race();
@@ -3840,9 +3801,9 @@ void ChampionshipOver()
   uiDwordCopyCount = uiBufferSize >> 2;
   memcpy(scrbuf, title_vga, 4 * uiDwordCopyCount);
   memcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pszTitleImageData[4 * uiDwordCopyCount], byBufferSizeRemainder & 3);
-  if (a8)                                     // Display different messages based on championship position
+  if (iBestPos)                                     // Display different messages based on championship position
   {                                             // Second place - show runner-up messages
-    if (a8 == 1) {
+    if (iBestPos == 1) {
       front_text((tBlockHeader *)font_vga, &language_buffer[4160], font4_ascii, font4_offsets, 320, 64, 0x8Fu, 1u);
       front_text(front_vga[0], &language_buffer[4288], font4_ascii, font5_offsets, 320, 100, 0x8Fu, 1u);
       front_text((tBlockHeader *)font_vga, &language_buffer[4352], font4_ascii, font4_offsets, 320, 140, 0x8Fu, 1u);

@@ -70,7 +70,7 @@ uint8 *lod_champ_char(uint8 *pSrc, int *piValue);
 uint8 *sav_champ_char(uint8 *pSrc, int *piValue); //actually loads an int
 uint8 *sav_champ_int(uint8 *pDest, int iValue);
 void check_saves();
-void ResultRoundUp(int a1, int a2, int a3, char *a4);
+void ResultRoundUp();
 void RollCredits();
 void ChampionshipOver();
 void EndChampSequence();
