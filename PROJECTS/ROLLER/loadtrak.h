@@ -17,33 +17,52 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-typedef struct
+typedef struct 
 {
-  tVec3 center;
-  int iUnk1;
-  int iUnk2;
-  int iUnk3;
+  float fLShoulderWidth;
+  float fLShoulderHeight;
+  float fRShoulderWidth;
+  float fRShoulderHeight;
+  int iLeftBankAngle;
+  int iRightBankAngle;
   int iLeftSurfaceType;
   int iRightSurfaceType;
-  float fUnk6;
+  float fRoofHeight;
 } tTrackInfo;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct 
+{
+  char subdivides[11];
+} tSubdivide;
 
 //-------------------------------------------------------------------------------------------------
 
 extern uint8 TrackSelect;
 extern char *delims;
+extern char *names[25];
 extern tTrakView TrakView[500];
+extern int16 samplespeed[500];
+extern int16 samplemax[500];
+extern float GroundLevel[500];
+extern tTrackInfo TrackInfo[500];
+extern int cur_mapsect;
+extern float cur_TrackZ;
+extern float cur_mapsize;
+extern int TRAK_LEN;
+extern int16 samplemin[500];
 extern int cur_laps[6];
 extern uint8 fp_buf[512];
+extern int actualtrack;
 extern uint8 *start_f;
+extern int TrackFlags;
 extern int meof;
-extern tTrackInfo TrackInfo[500];
-extern float cur_TrackZ;
-extern int TRAK_LEN;
+extern tSubdivide Subdivide[500];
 
 //-------------------------------------------------------------------------------------------------
 
-void loadtrack(int iTrackIdx, int a2);
+void loadtrack(int iTrackIdx, int iPreviewMode);
 void read_backs(uint8 **ppTrackData);
 void read_texturemap(uint8 **ppTrackData);
 void read_bldmap(uint8 **ppTrackData);

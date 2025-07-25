@@ -1895,9 +1895,9 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
     do {
       iCurrentSegmentIdx = CarZOrder[iRenderLoopIndex].iPolygonIndex;
       if (iCurrentSegmentIdx >= 0
-        && ((TrakColour[iCurrentSegmentIdx].uiLeftSurfType & 0x20000) == 0
-            || (TrakColour[iCurrentSegmentIdx].uiCenterSurfType & 0x20000) == 0
-            || (TrakColour[iCurrentSegmentIdx].uiRightSurfType & 0x20000) == 0)) {
+        && ((TrakColour[iCurrentSegmentIdx].iLeftSurfType & 0x20000) == 0
+            || (TrakColour[iCurrentSegmentIdx].iCenterSurfType & 0x20000) == 0
+            || (TrakColour[iCurrentSegmentIdx].iRightSurfType & 0x20000) == 0)) {
         iColorValueFinal = iCurrentSegmentIdx + 2;
         pCurrentSegmentScreenXYZ = &TrackScreenXYZ[iCurrentSegmentIdx];
         if (iCurrentSegmentIdx + 2 >= TRAK_LEN)

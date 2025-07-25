@@ -165,9 +165,9 @@ int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode)
   // This triggers special rendering for better visibility
   if (fViewAlignment < 0.3
     && fViewAlignment >= -0.3
-    && ((TrakColour[iCurrChunk].uiLeftSurfType & 0x20000) == 0// SURFACE_FLAG_SKIP_RENDER
-        || (TrakColour[iCurrChunk].uiCenterSurfType & 0x20000) == 0
-        || (TrakColour[iCurrChunk].uiRightSurfType & 0x20000) == 0)) {
+    && ((TrakColour[iCurrChunk].iLeftSurfType & 0x20000) == 0// SURFACE_FLAG_SKIP_RENDER
+        || (TrakColour[iCurrChunk].iCenterSurfType & 0x20000) == 0
+        || (TrakColour[iCurrChunk].iRightSurfType & 0x20000) == 0)) {
        // Extend view range when looking perpendicular to track
     if (uiViewMode >= 3 && (uiViewMode <= 3 || uiViewMode == 6)) {
       TrackSize = 48;                           // render 48 chunks

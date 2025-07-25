@@ -35,6 +35,7 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern int false_starts;
+extern float TrackZs[25];
 extern int head_x;
 extern int head_y;
 extern char network_messages[5][14];
@@ -47,6 +48,7 @@ extern int player_type;
 extern int cup_won;
 extern int game_type;
 extern int car_pies[112];
+extern int track_laps[25][6];
 extern int AllowedViews[9];
 extern int replay_record;
 extern int last_replay;

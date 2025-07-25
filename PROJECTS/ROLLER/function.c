@@ -5,6 +5,22 @@
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
+float mapsize[25] =       //000A45C0
+{
+  6000.0, 6000.0, 3500.0, 4500.0, 6000.0,
+  3000.0, 4000.0, 3000.0, 4000.0, 6000.0,
+  6000.0, 6000.0, 6000.0, 6000.0, 6000.0,
+  6000.0, 6000.0, 6000.0, 6000.0, 6000.0,
+  6000.0, 6000.0, 6000.0, 6000.0, 6000.0
+};
+int mapsect[25] =         //000A4624
+{
+  10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10
+};
 int invulnerable[16];     //00149EB0
 
 //-------------------------------------------------------------------------------------------------
@@ -583,7 +599,7 @@ void initpits()
     iStopsIdx = 0;
     iChunkIdx = iChunkIdx_1;
     do {
-      if ((TrakColour[iChunkIdx].uiCenterSurfType & SURFACE_FLAG_PIT_2) != 0)
+      if ((TrakColour[iChunkIdx].iCenterSurfType & SURFACE_FLAG_PIT_2) != 0)
       {
         // store pit stop position
         stops[iStopsIdx] = iChunkIdx_1; // reference into stops
@@ -1118,7 +1134,7 @@ bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
     iLeftBarierPresent = false;
 
   // Check if invisible
-  iNotRendered = abs(TrakColour[iChunkIdx].uiCenterSurfType) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
+  iNotRendered = abs(TrakColour[iChunkIdx].iCenterSurfType) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
 
   // Determine line validity based on region crossing and surface blocking
   if (!uiStartRegion)                         // start outside positive side

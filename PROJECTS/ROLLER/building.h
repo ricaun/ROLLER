@@ -4,7 +4,11 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+extern float BuildingAngles[768];
+extern int BuildingBase[1024];
 extern int16 advert_list[256];
+extern int NumBuildings;
+extern int NumVisibleBuildings;
 
 //-------------------------------------------------------------------------------------------------
 

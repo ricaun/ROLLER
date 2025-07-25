@@ -29,14 +29,14 @@ typedef struct
   tVec3 gravity;
   int iBankDelta;
   int iBankAngleDelta;
-  float fUnk25;
-  float fUnk26;
-  float fUnk27;
-  float fUnk28;
-  float fUnk29;
-  float fUnk30;
-  int iUnk1;
-  int iUnk2;
+  float fAILine1;
+  float fAILine2;
+  float fAILine3;
+  float fAILine4;
+  int iCenterGrip;
+  int iLeftShoulderGrip;
+  int iRightShoulderGrip;
+  float fAIMaxSpeed;
 } tData;
 
 //-------------------------------------------------------------------------------------------------
@@ -50,12 +50,12 @@ typedef struct
 
 typedef struct
 {
-  uint32 uiLeftSurfType;
-  uint32 uiCenterSurfType;
-  uint32 uiRightSurfType;
-  uint32 uiLeftWallType;
-  uint32 uiRightWallType;
-  uint32 uiRoofType;
+  int iLeftSurfType;
+  int iCenterSurfType;
+  int iRightSurfType;
+  int iLeftWallType;
+  int iRightWallType;
+  int iRoofType;
 } tTrakColour;
 
 //-------------------------------------------------------------------------------------------------
@@ -83,6 +83,17 @@ typedef struct
   int iUnk31;
   int iUnk32;
 } tTrackScreenXYZ;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int iLUOWallType;
+  int iLLOWallType;
+  int iOFloorType;
+  int iRLOWallType;
+  int iRUOWallType;
+} tGroundColour;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -116,6 +127,7 @@ extern int oldbut;
 extern int mclick;
 extern int mouse;
 extern int network_on;
+extern int Play_View;
 extern int mirror;
 extern int mpressed;
 extern int jpressed;
@@ -130,7 +142,9 @@ extern uint8 *cargen_vga;
 extern uint8 *rev_vga[16];
 extern int firstrun;
 extern int language;
+extern tGroundColour GroundColour[500];
 extern tTrakColour TrakColour[500];
+extern int HorizonColour[500];
 extern tData localdata[500];
 extern tGroundPt GroundPt[500];
 extern tGroundPt TrakPt[500];

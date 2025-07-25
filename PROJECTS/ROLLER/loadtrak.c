@@ -5,6 +5,12 @@
 #include "graphics.h"
 #include "polytex.h"
 #include "building.h"
+#include "roller.h"
+#include "tower.h"
+#include "function.h"
+#include "transfrm.h"
+#include "view.h"
+#include "control.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,860 +19,914 @@
 
 uint8 TrackSelect = 0;      //000A5F9C
 char *delims = " ,\n\t\r";  //000A6088
+char *names[25] = {         //000A608C
+    "TRACK0.TRK",   // 0
+    "TRACK1.TRK",   // 1
+    "TRACK2.TRK",   // 2
+    "TRACK3.TRK",   // 3
+    "TRACK4.TRK",   // 4
+    "TRACK5.TRK",   // 5
+    "TRACK6.TRK",   // 6
+    "TRACK7.TRK",   // 7
+    "TRACK8.TRK",   // 8
+    "TRACK9.TRK",   // 9
+    "TRACK10.TRK",  // 10
+    "TRACK11.TRK",  // 11
+    "TRACK12.TRK",  // 12
+    "TRACK13.TRK",  // 13
+    "TRACK14.TRK",  // 14
+    "TRACK15.TRK",  // 15
+    "TRACK16.TRK",  // 16
+    "TRACK17.TRK",  // 17
+    "TRACK18.TRK",  // 18
+    "TRACK19.TRK",  // 19
+    "TRACK20.TRK",  // 20
+    "TRACK21.TRK",  // 21
+    "TRACK22.TRK",  // 22
+    "TRACK23.TRK",  // 23
+    "TRACK24.TRK"   // 24
+};
 tTrakView TrakView[500];    //0016FF20
+int16 samplespeed[500];     //00170EC0
+int16 samplemax[500];       //001712A8
+float GroundLevel[500];     //00171690
+tTrackInfo TrackInfo[500];  //00171E60
+int cur_mapsect;            //00178044
+float cur_TrackZ;           //00178048
+float cur_mapsize;          //0017804C
+int TRAK_LEN;               //00178050
+int16 samplemin[500];       //001764B0
 int cur_laps[6];            //00176898
 uint8 fp_buf[512];          //001768B0
+int actualtrack;            //00176AB8
 uint8 *start_f;             //00176ABC
+int TrackFlags;             //00176AC0
 int meof;                   //00176AC4
-tTrackInfo TrackInfo[500];  //00171E60
-float cur_TrackZ;           //00178048
-int TRAK_LEN;               //00178050
+tSubdivide Subdivide[500];  //00176AC8
 
 //-------------------------------------------------------------------------------------------------
 
-void loadtrack(int iTrackIdx, int a2)
-{ /*
-  int v2; // ebx
-  int v3; // ecx
-  float *v4; // edi
-  int v5; // edx
-  int v6; // edx
-  int v7; // ebx
-  int v8; // eax
-  __int64 v9; // rax
-  int v10; // ebx
-  int v11; // esi
-  unsigned int v12; // eax
-  unsigned int v13; // eax
-  int v14; // ecx
-  int v15; // edi
-  int v16; // esi
-  int v17; // ebp
-  char *v18; // edx
-  int v19; // ebx
-  int v20; // edx
-  int v21; // eax
-  double v22; // st7
-  int v23; // edx
-  int v24; // ebx
-  int v25; // eax
-  unsigned int v26; // edx
-  int v27; // ecx
-  int v28; // ecx
-  unsigned int v29; // edx
-  int *v30; // edx
-  int *v31; // edx
-  _DWORD *v32; // ebx
-  int *v33; // ecx
-  int *v34; // edx
-  int *v35; // eax
-  _DWORD *v36; // ebx
-  float *v37; // eax
-  int v38; // edx
-  int v39; // eax
-  double v40; // st7
-  long double v41; // st6
-  long double v42; // st6
-  int v43; // eax
-  long double v44; // st7
-  double v45; // st7
-  unsigned int v46; // eax
-  unsigned int v47; // edx
-  double v48; // st7
-  unsigned int v49; // eax
-  int v50; // edx
-  int v51; // eax
-  int v52; // ecx
-  int v53; // ebx
-  int v54; // edx
-  long double v55; // rt1
-  int v56; // eax
-  int inited; // eax
-  int v58; // eax
-  int v59; // eax
-  int v60; // edx
-  double v61; // st7
-  __int64 v62; // rax
-  __int16 *v63; // [esp+30h] [ebp-25Ch]
-  double v64; // [esp+34h] [ebp-258h] BYREF
-  int v65[2]; // [esp+3Ch] [ebp-250h] BYREF
-  int v66[2]; // [esp+44h] [ebp-248h] BYREF
-  double v67; // [esp+4Ch] [ebp-240h] BYREF
-  double v68; // [esp+54h] [ebp-238h] BYREF
-  double v69; // [esp+5Ch] [ebp-230h] BYREF
-  double v70; // [esp+64h] [ebp-228h] BYREF
-  double v71; // [esp+6Ch] [ebp-220h] BYREF
-  double v72; // [esp+74h] [ebp-218h] BYREF
-  double v73; // [esp+7Ch] [ebp-210h] BYREF
-  double v74; // [esp+84h] [ebp-208h] BYREF
-  double v75; // [esp+8Ch] [ebp-200h] BYREF
-  double v76; // [esp+94h] [ebp-1F8h] BYREF
-  double v77; // [esp+9Ch] [ebp-1F0h] BYREF
-  double v78; // [esp+A4h] [ebp-1E8h] BYREF
-  double v79; // [esp+ACh] [ebp-1E0h] BYREF
-  double v80; // [esp+B4h] [ebp-1D8h] BYREF
-  double v81; // [esp+BCh] [ebp-1D0h] BYREF
-  double v82; // [esp+C4h] [ebp-1C8h] BYREF
-  double v83; // [esp+CCh] [ebp-1C0h] BYREF
-  double v84; // [esp+D4h] [ebp-1B8h] BYREF
-  double v85; // [esp+DCh] [ebp-1B0h] BYREF
-  double v86; // [esp+E4h] [ebp-1A8h] BYREF
-  double v87; // [esp+ECh] [ebp-1A0h] BYREF
-  double v88; // [esp+F4h] [ebp-198h] BYREF
-  double v89; // [esp+FCh] [ebp-190h] BYREF
-  double v90; // [esp+104h] [ebp-188h] BYREF
-  double v91; // [esp+10Ch] [ebp-180h] BYREF
-  double v92; // [esp+114h] [ebp-178h] BYREF
-  double v93; // [esp+11Ch] [ebp-170h] BYREF
-  double v94; // [esp+124h] [ebp-168h] BYREF
-  long double v95; // [esp+12Ch] [ebp-160h] BYREF
-  long double v96; // [esp+134h] [ebp-158h] BYREF
-  long double v97; // [esp+13Ch] [ebp-150h] BYREF
-  double v98; // [esp+144h] [ebp-148h]
-  double v99; // [esp+14Ch] [ebp-140h]
-  double v100; // [esp+154h] [ebp-138h]
-  double v101; // [esp+15Ch] [ebp-130h]
-  double v102; // [esp+164h] [ebp-128h]
-  double v103; // [esp+16Ch] [ebp-120h]
-  double v104; // [esp+174h] [ebp-118h]
-  double v105; // [esp+17Ch] [ebp-110h]
-  double v106; // [esp+184h] [ebp-108h]
-  double v107; // [esp+18Ch] [ebp-100h]
-  double v108; // [esp+194h] [ebp-F8h]
-  double v109; // [esp+19Ch] [ebp-F0h]
-  double v110; // [esp+1A4h] [ebp-E8h]
-  double v111; // [esp+1BCh] [ebp-D0h]
-  char *v112; // [esp+1C4h] [ebp-C8h]
-  char *v113; // [esp+1C8h] [ebp-C4h]
-  int v114; // [esp+1CCh] [ebp-C0h] BYREF
-  int v115; // [esp+1D0h] [ebp-BCh] BYREF
-  int v116; // [esp+1D4h] [ebp-B8h] BYREF
-  char *v117; // [esp+1D8h] [ebp-B4h]
-  int v118; // [esp+1DCh] [ebp-B0h] BYREF
-  char *v119; // [esp+1E0h] [ebp-ACh]
-  int v120; // [esp+1E4h] [ebp-A8h] BYREF
-  int v121; // [esp+1E8h] [ebp-A4h] BYREF
-  unsigned int v122; // [esp+1ECh] [ebp-A0h] BYREF
-  int v123; // [esp+1F0h] [ebp-9Ch] BYREF
-  int v124; // [esp+1F4h] [ebp-98h] BYREF
-  int v125; // [esp+1F8h] [ebp-94h] BYREF
-  int v126; // [esp+1FCh] [ebp-90h] BYREF
-  int v127; // [esp+200h] [ebp-8Ch] BYREF
-  _DWORD *v128; // [esp+204h] [ebp-88h]
-  int v129; // [esp+208h] [ebp-84h] BYREF
-  int v130; // [esp+20Ch] [ebp-80h] BYREF
-  int v131; // [esp+210h] [ebp-7Ch] BYREF
-  int v132; // [esp+214h] [ebp-78h] BYREF
-  char *v133; // [esp+218h] [ebp-74h]
-  int v134; // [esp+21Ch] [ebp-70h]
-  _DWORD *v135; // [esp+220h] [ebp-6Ch]
-  int v136; // [esp+224h] [ebp-68h]
-  int v137; // [esp+228h] [ebp-64h] BYREF
-  int v138; // [esp+22Ch] [ebp-60h]
-  char *v139; // [esp+230h] [ebp-5Ch]
-  __int16 *v140; // [esp+234h] [ebp-58h]
-  __int16 *v141; // [esp+238h] [ebp-54h]
-  float *v142; // [esp+23Ch] [ebp-50h]
-  __int16 *v143; // [esp+240h] [ebp-4Ch]
-  char *v144; // [esp+244h] [ebp-48h]
-  char *v145; // [esp+248h] [ebp-44h]
-  char *v146; // [esp+24Ch] [ebp-40h]
-  char *v147; // [esp+250h] [ebp-3Ch]
-  int v148; // [esp+254h] [ebp-38h]
-  unsigned int v149; // [esp+258h] [ebp-34h]
-  unsigned int v150; // [esp+25Ch] [ebp-30h]
-  float *v151; // [esp+260h] [ebp-2Ch]
-  unsigned int v152; // [esp+264h] [ebp-28h]
-  int *v153; // [esp+268h] [ebp-24h]
-  unsigned int v154; // [esp+26Ch] [ebp-20h]
-  int *v155; // [esp+270h] [ebp-1Ch]
-  unsigned int v156; // [esp+274h] [ebp-18h]
+void loadtrack(int iTrackIdx, int iPreviewMode)
+{
+  int iCarIdx; // ecx
+  tCar *pCar; // edi
+  FILE *pFile; // edx
+  int iCompactedFileLength; // edx
+  //int iFileHandle_1; // edx
+  unsigned int iFileLength; // ebx
+  uint8 *pTrackBuffer_1; // eax
+  uint8 *pTrackBuffer; // eax
+  FILE *pFile_1; // eax
+  int iChunkIdx; // edi
+  int iTrackInfoIdx; // esi
+  int iTrakColourIdx; // ebp
+  uint32 *p_uiLUOWallType; // edx
+  int iSubdivideIdx; // ebx
+  int iTemp1; // edx
+  int iTemp2; // eax
+  double dTemp1; // st7
+  int iSubdivLoopIdx; // edx
+  int iSubdivOffset; // ebx
+  int iSubdivArrayIdx; // eax
+  unsigned int v22; // edx
+  int uiTrakViewOffset1; // ecx
+  int iBackwardExtraStart; // ecx
+  unsigned int uiTrakViewOffset2; // edx
+  int *pTowerBase; // edx
+  int *v27; // edx
+  int *p_iData1; // ebx
+  int *pTowerBase2; // ecx
+  int *pTowerBase3; // edx
+  int *p_iBuildingData; // eax
+  int *p_iBuildingData2; // ebx
+  float *p_fBuildingAngles; // eax
+  int v34; // edx
+  double dAngleCalc1; // st7
+  long double dLeftAngle; // st6
+  long double dRightAngle; // st6
+  double dAILine1_1; // st7
+  unsigned int uiLocalDataOffset1; // eax
+  unsigned int uiLocalDataOffset2; // edx
+  double dAIMaxSpeed_1; // st7
+  unsigned int uiGroundColourOffset1; // eax
+  int iOFloorType; // edx
+  int iLeftSurfaceType; // eax
+  int iRightSurfaceType; // ecx
+  int iLeftSurfCheck; // ebx
+  int iRightSurfCheck; // edx
+  long double dCos; // rt1
+  int iDifficulty; // eax
+  int iTrackLapOffset; // edx
+  int iLapValue; // ebx
+  double dTrackZ; // st7
+  int16 *p_nAudioBelowTrigger; // [esp+30h] [ebp-25Ch]
+  double dZ; // [esp+34h] [ebp-258h] BYREF
+  double dY; // [esp+3Ch] [ebp-250h] BYREF
+  double dX; // [esp+44h] [ebp-248h] BYREF
+  double dRoofHeight; // [esp+4Ch] [ebp-240h] BYREF
+  double dRUOWallHeight; // [esp+54h] [ebp-238h] BYREF
+  double dRLOWallHeight; // [esp+5Ch] [ebp-230h] BYREF
+  double dROFloorHeight; // [esp+64h] [ebp-228h] BYREF
+  double dLOFloorHeight; // [esp+6Ch] [ebp-220h] BYREF
+  double dLLOWallHeight; // [esp+74h] [ebp-218h] BYREF
+  double dLUOWallHeight; // [esp+7Ch] [ebp-210h] BYREF
+  double dRUOWallHOffset; // [esp+84h] [ebp-208h] BYREF
+  double dRLOWallHOffset; // [esp+8Ch] [ebp-200h] BYREF
+  double dROFloorHOffset; // [esp+94h] [ebp-1F8h] BYREF
+  double dLOFloorHOffset; // [esp+9Ch] [ebp-1F0h] BYREF
+  double dLLOWallHOffset; // [esp+A4h] [ebp-1E8h] BYREF
+  double dLUOWallHOffset; // [esp+ACh] [ebp-1E0h] BYREF
+  double dAIMaxSpeed; // [esp+B4h] [ebp-1D8h] BYREF
+  double dAILine4; // [esp+BCh] [ebp-1D0h] BYREF
+  double dAILine3; // [esp+C4h] [ebp-1C8h] BYREF
+  double dAILine2; // [esp+CCh] [ebp-1C0h] BYREF
+  double dAILine1; // [esp+D4h] [ebp-1B8h] BYREF
+  double dRoll; // [esp+DCh] [ebp-1B0h] BYREF
+  double dPitch; // [esp+E4h] [ebp-1A8h] BYREF
+  double dYaw; // [esp+ECh] [ebp-1A0h] BYREF
+  double dLength; // [esp+F4h] [ebp-198h] BYREF
+  double dRightShoulderHeight; // [esp+FCh] [ebp-190h] BYREF
+  double dLeftShoulderHeight; // [esp+104h] [ebp-188h] BYREF
+  double dRightShoulderWidth; // [esp+10Ch] [ebp-180h] BYREF
+  double dRightLaneWidth; // [esp+114h] [ebp-178h] BYREF
+  double dLeftLaneWidth; // [esp+11Ch] [ebp-170h] BYREF
+  double dLeftShoulderWidth; // [esp+124h] [ebp-168h] BYREF
+  long double dWallCalc1; // [esp+12Ch] [ebp-160h] BYREF
+  long double dWallCalc2; // [esp+134h] [ebp-158h] BYREF
+  long double dWallCalc3; // [esp+13Ch] [ebp-150h] BYREF
+  double dTempPitch_3; // [esp+144h] [ebp-148h]
+  double dTempYaw_1; // [esp+14Ch] [ebp-140h]
+  double dLeftWallTotalHeight; // [esp+154h] [ebp-138h]
+  double dTempPitch; // [esp+15Ch] [ebp-130h]
+  double dTempYaw; // [esp+164h] [ebp-128h]
+  double dTempPitch_2; // [esp+16Ch] [ebp-120h]
+  double dTempYaw_2; // [esp+174h] [ebp-118h]
+  double dTempYaw_3; // [esp+17Ch] [ebp-110h]
+  double dTempPitch_1; // [esp+184h] [ebp-108h]
+  double dClampedPitch; // [esp+18Ch] [ebp-100h]
+  double dClampedYaw; // [esp+194h] [ebp-F8h]
+  double dTempCalc1; // [esp+19Ch] [ebp-F0h]
+  double dRadiansPerDegree; // [esp+1A4h] [ebp-E8h]
+  double dTempCalc2; // [esp+1BCh] [ebp-D0h]
+  int *p_iOFloorType; // [esp+1C4h] [ebp-C8h]
+  int *p_iLLOWallType; // [esp+1C8h] [ebp-C4h]
+  int iLeftShoulderGrip; // [esp+1CCh] [ebp-C0h] BYREF
+  int iDrawOrderBackward; // [esp+1D0h] [ebp-BCh] BYREF
+  int iRightShoulderGrip; // [esp+1D4h] [ebp-B8h] BYREF
+  int *p_iRUOWallType; // [esp+1D8h] [ebp-B4h]
+  int iDrawOrder3; // [esp+1DCh] [ebp-B0h] BYREF
+  int *p_iCenterSurfType; // [esp+1E0h] [ebp-ACh]
+  int iBackwardExtraStart2; // [esp+1E4h] [ebp-A8h] BYREF
+  int iBackwardExtraChunks; // [esp+1E8h] [ebp-A4h] BYREF
+  uint8 *pData; // [esp+1ECh] [ebp-A0h] BYREF
+  int iSignYaw; // [esp+1F0h] [ebp-9Ch] BYREF
+  int iSignVOffset; // [esp+1F4h] [ebp-98h] BYREF
+  int iSignHOffset; // [esp+1F8h] [ebp-94h] BYREF
+  int iSignType; // [esp+1FCh] [ebp-90h] BYREF
+  int iForwardExtraStart; // [esp+200h] [ebp-8Ch] BYREF
+  int iTrackIdx_1; // [esp+204h] [ebp-88h]
+  uint8 *pCurrDataPtr = NULL; // [esp+208h] [ebp-84h] BYREF
+  int iSignRoll; // [esp+20Ch] [ebp-80h] BYREF
+  int iSignPitch; // [esp+210h] [ebp-7Ch] BYREF
+  int iDrawOrder1; // [esp+214h] [ebp-78h] BYREF
+  int *p_iRLOWallType; // [esp+218h] [ebp-74h]
+  int iCompactedFlag; // [esp+21Ch] [ebp-70h]
+  FILE *pFile_2; // [esp+220h] [ebp-6Ch]
+  int iTemp3; // [esp+224h] [ebp-68h]
+  int iTrackGrip; // [esp+228h] [ebp-64h] BYREF
+  int iSubdivArrayBaseOffset; // [esp+22Ch] [ebp-60h]
+  int *p_uiRoofType; // [esp+230h] [ebp-5Ch]
+  int16 *p_nAudioAboveTrigger; // [esp+234h] [ebp-58h]
+  int16 *p_nSampleMin; // [esp+238h] [ebp-54h]
+  float *p_fGroundLevel; // [esp+23Ch] [ebp-50h]
+  int16 *p_nAudioTriggerSpeed; // [esp+240h] [ebp-4Ch]
+  int *p_iHorizonType; // [esp+244h] [ebp-48h]
+  int *p_iRightWallType; // [esp+248h] [ebp-44h]
+  int *p_iRightSurfType; // [esp+24Ch] [ebp-40h]
+  int *p_iLeftWallType; // [esp+250h] [ebp-3Ch]
+  int bMinimalMode; // [esp+254h] [ebp-38h]
+  unsigned int uiGroundLevelOffset; // [esp+258h] [ebp-34h]
+  unsigned int uiTrakViewOffset; // [esp+25Ch] [ebp-30h]
+  float *p_fBuildingAnglesBase; // [esp+260h] [ebp-2Ch]
+  unsigned int uiLocalDataOffset; // [esp+264h] [ebp-28h]
+  int *p_iBuildingBase; // [esp+268h] [ebp-24h]
+  unsigned int uiGroundColourOffset; // [esp+26Ch] [ebp-20h]
+  int *pTowerBasePtr; // [esp+270h] [ebp-1Ch]
+  unsigned int uiGroundPtOffset; // [esp+274h] [ebp-18h]
 
-  v128 = result;
-  v148 = a2;
-  v2 = (int)&BuildingAngles;
-  v153 = &BuildingBase;
-  v151 = (float *)&BuildingAngles;
-  v155 = TowerBase;
-  v134 = 0;
-  v122 = 0;
+  iTrackIdx_1 = iTrackIdx;                      // Initialize variables and clear car structures
+  bMinimalMode = iPreviewMode;
+  p_iBuildingBase = BuildingBase;
+  p_fBuildingAnglesBase = BuildingAngles;
+  pTowerBasePtr = (int *)TowerBase;
+  iCompactedFlag = 0;
+  pData = 0;
   NumBuildings = 0;
   NumTowers = 0;
-  v3 = 0;
+  iCarIdx = 0;
   if (numcars > 0) {
-    v4 = Car;
+    pCar = Car;
     do {
-      result = (_DWORD *)memset(v4, 0, 308);
-      ++v3;
-      v2 = numcars;
-      v4 += 77;
-    } while (v3 < numcars);
+      memset(pCar, 0, sizeof(tCar));
+      ++iCarIdx;
+      ++pCar;
+    } while (iCarIdx < numcars);
   }
-  v135 = 0;
-  if ((unsigned int)v128 <= 0x18) {
-    v5 = fopen(*(&names + (_DWORD)v128), aR_1);
-    if (!v5) {
-      __asm { int     10h; -VIDEO - SET VIDEO MODE }
-      printf(&a0TrackDNotFoun[2]);
-      doexit();
+  pFile_2 = 0;
+  if ((unsigned int)iTrackIdx_1 <= 0x18) {
+    pFile = fopen(names[iTrackIdx_1], "r");     // Open and validate track file
+    if (!pFile) {
+      ErrorBoxExit("Track %d not found\n", iTrackIdx_1);
+      //__asm { int     10h; -VIDEO - SET VIDEO MODE }
+      //printf("Track %d not found\n", iTrackIdx_1);
+      //doexit();
     }
-    fclose(v5);
-    v6 = getcompactedfilelength((int)*(&names + (_DWORD)v128), v5, v2, 0);
-    v7 = v6;
-    if ((unsigned __int16)v6 == 8224) {
-      v8 = open(*(&names + (_DWORD)v128), 0);
-      v9 = filelength(v8, v8, v7);
-      v10 = v9;
-      v11 = v9;
-      close(HIDWORD(v9), HIDWORD(v9));
-      if (v148)
-        v12 = scrbuf;
+    fclose(pFile);
+    iCompactedFileLength = getcompactedfilelength(names[iTrackIdx_1]);
+    if ((int16)iCompactedFileLength == 8224)// Check if file is compacted (magic number 8224)
+    {
+      iFileLength = ROLLERfilelength(names[iTrackIdx_1]);
+      //iFileHandle_1 = ROLLERopen(names[iTrackIdx_1], 0);
+      //iFileLength = filelength(iFileHandle_1);
+      //close(iFileHandle_1);
+      if (bMinimalMode)
+        pTrackBuffer_1 = scrbuf;
       else
-        v12 = getbuffer(v10 + 1);
-      v122 = v12;
-      v129 = v12;
-      v2 = 1;
-      v135 = (_DWORD *)fopen(*(&names + (_DWORD)v128), aRb);
-      fread(v122, v11, 1, v135);
-      result = 0;
-      v134 = 0;
-      *(_BYTE *)(v122 + v11) = 26;
+        pTrackBuffer_1 = (uint8 *)getbuffer(iFileLength + 1);
+      pData = pTrackBuffer_1;
+      pCurrDataPtr = pTrackBuffer_1;
+      pFile_2 = fopen(names[iTrackIdx_1], "rb");
+      fread(pData, iFileLength, 1u, pFile_2);
+      iCompactedFlag = 0;
+      pData[iFileLength] = 26;
     } else {
-      if (v148)
-        v13 = scrbuf;
+      if (bMinimalMode)
+        pTrackBuffer = scrbuf;
       else
-        v13 = getbuffer(v6 + 1);
-      v122 = v13;
-      v129 = v13;
-      loadcompactedfile((int)*(&names + (_DWORD)v128), v13);
-      result = (_DWORD *)fopen(*(&names + (_DWORD)v128), aR_1);
-      *(_BYTE *)(v122 + v7) = 26;
-      v2 = -1;
-      v135 = result;
-      v134 = -1;
+        pTrackBuffer = (uint8 *)getbuffer(iCompactedFileLength + 1);
+      pData = pTrackBuffer;
+      pCurrDataPtr = pTrackBuffer;
+      loadcompactedfile(names[iTrackIdx_1], pTrackBuffer);
+      pFile_1 = fopen(names[iTrackIdx_1], "r");
+      pData[iCompactedFileLength] = 26;
+      pFile_2 = pFile_1;
+      iCompactedFlag = -1;
     }
   }
   meof = 0;
-  if ((int)v128 >= 0)
-    result = (_DWORD *)readline2(&v129, &aIddd[1], &TRAK_LEN, &v97, &v96, &v95);
-  v14 = 0;
-  v15 = 0;
+  if (iTrackIdx_1 >= 0)
+    readline2(&pCurrDataPtr, "iddd", &TRAK_LEN, &dWallCalc3, &dWallCalc2, &dWallCalc1);// Read track header: length and initial position
+  iChunkIdx = 0;
   TrackFlags = 0;
   if (TRAK_LEN > 0) {
-    v119 = (char *)&TrakColour + 4;
-    v146 = (char *)&TrakColour + 8;
-    v147 = (char *)&TrakColour + 12;
-    v150 = 0;
-    v152 = 0;
-    v145 = (char *)&TrakColour + 16;
-    v156 = 0;
-    v154 = 0;
-    v139 = (char *)&TrakColour + 20;
-    v138 = 11;
-    v142 = GroundLevel;
-    v113 = (char *)&GroundColour + 4;
-    v140 = samplemax;
-    v143 = samplespeed;
-    v112 = (char *)&GroundColour + 8;
-    v141 = samplemin;
-    v133 = (char *)&GroundColour + 12;
-    v16 = 0;
-    v17 = 0;
-    v117 = (char *)&GroundColour + 16;
-    v149 = 0;
-    v144 = &HorizonColour;
-    v110 = loadtrak_c_variable_38 / loadtrak_c_variable_39;
+    p_iCenterSurfType = &TrakColour[0].iCenterSurfType;// Main track chunk processing loop
+    p_iRightSurfType = &TrakColour[0].iRightSurfType;
+    p_iLeftWallType = &TrakColour[0].iLeftWallType;
+    uiTrakViewOffset = 0;
+    uiLocalDataOffset = 0;
+    p_iRightWallType = &TrakColour[0].iRightWallType;
+    uiGroundPtOffset = 0;
+    uiGroundColourOffset = 0;
+    p_uiRoofType = &TrakColour[0].iRoofType;
+    iSubdivArrayBaseOffset = 11;
+    p_fGroundLevel = GroundLevel;
+    p_iLLOWallType = &GroundColour[0].iLLOWallType;
+    p_nAudioAboveTrigger = samplemax;
+    p_nAudioTriggerSpeed = samplespeed;
+    p_iOFloorType = &GroundColour[0].iOFloorType;
+    p_nSampleMin = samplemin;
+    p_iRLOWallType = &GroundColour[0].iRLOWallType;
+    iTrackInfoIdx = 0;
+    iTrakColourIdx = 0;
+    p_iRUOWallType = &GroundColour[0].iRUOWallType;
+    uiGroundLevelOffset = 0;
+    p_iHorizonType = HorizonColour;
+    dRadiansPerDegree = 1.0 / 6.28318530718;
     do {
-      if ((int)v128 >= 0) {
-        v18 = (char *)&GroundColour + v154;
-        GroundLevel[v149 / 4] = 0.0;
-        v63 = v141;
-        samplemin[v15] = 0;
-        samplemax[v15] = 0;
-        samplespeed[v15] = 0;
+      if (iTrackIdx_1 >= 0) {
+        p_uiLUOWallType = (uint32 *)&GroundColour[uiGroundColourOffset / 0x14];
+        GroundLevel[uiGroundLevelOffset / 4] = 0.0;
+        p_nAudioBelowTrigger = p_nSampleMin;
+        samplemin[iChunkIdx] = 0;
+        samplemax[iChunkIdx] = 0;
+        samplespeed[iChunkIdx] = 0;
         readline2(
-          &v129,
-          &aRacddddddddddd[3],
-          &v94,
-          &v93,
-          &v92,
-          &v91,
-          &v90,
-          &v89,
-          &v88,
-          &v87,
-          &v86,
-          &v85,
-          &v84,
-          &v83,
-          &v82,
-          &v81,
-          &v137,
-          &v114,
-          &v116,
-          &v80,
-          v142,
-          v140,
-          v143,
-          v63);
+          &pCurrDataPtr,
+          "ddddddddddddddiiidfsss",
+          &dLeftShoulderWidth,
+          &dLeftLaneWidth,
+          &dRightLaneWidth,
+          &dRightShoulderWidth,
+          &dLeftShoulderHeight,
+          &dRightShoulderHeight,
+          &dLength,
+          &dYaw,
+          &dPitch,
+          &dRoll,
+          &dAILine1,
+          &dAILine2,
+          &dAILine3,
+          &dAILine4,
+          &iTrackGrip,
+          &iLeftShoulderGrip,
+          &iRightShoulderGrip,
+          &dAIMaxSpeed,
+          p_fGroundLevel,
+          p_nAudioAboveTrigger,
+          p_nAudioTriggerSpeed,
+          p_nAudioBelowTrigger);                // Read track segment geometry data
         readline2(
-          &v129,
-          &aKiiiiiiiiiiiii[1],
-          (char *)&TrakColour + v17 * 4,
-          v119,
-          v146,
-          v147,
-          v145,
-          v139,
-          v18,
-          v113,
-          v112,
-          v133,
-          v117,
-          v144,
-          &v126,
-          &v125,
-          &v124,
-          &v123,
-          &v131,
-          &v130);
-        v20 = v138;
-        v21 = 11 * v15;
+          &pCurrDataPtr,
+          "iiiiiiiiiiiiiiiiii",
+          &TrakColour[iTrakColourIdx],          // LeftSurfType
+          p_iCenterSurfType,
+          p_iRightSurfType,
+          p_iLeftWallType,
+          p_iRightWallType,
+          p_uiRoofType,
+          p_uiLUOWallType,
+          p_iLLOWallType,
+          p_iOFloorType,
+          p_iRLOWallType,
+          p_iRUOWallType,
+          p_iHorizonType,
+          &iSignType,
+          &iSignHOffset,
+          &iSignVOffset,
+          &iSignYaw,
+          &iSignPitch,
+          &iSignRoll);                          // Read track surface and wall color data
+        iTemp1 = iSubdivArrayBaseOffset;
+        iTemp2 = 11 * iChunkIdx;
+        do
+          *((uint8 *)&meof + ++iTemp2 + 3) = 0;
+        while (iTemp2 != iTemp1);
+        iSubdivideIdx = iChunkIdx;
+        readline2(
+          &pCurrDataPtr,
+          "dddddddddddddiiiuuuuuuuuuuuiii",
+          &dLUOWallHOffset,
+          &dLLOWallHOffset,
+          &dLOFloorHOffset,
+          &dROFloorHOffset,
+          &dRLOWallHOffset,
+          &dRUOWallHOffset,
+          &dLUOWallHeight,
+          &dLLOWallHeight,
+          &dLOFloorHeight,
+          &dROFloorHeight,
+          &dRLOWallHeight,
+          &dRUOWallHeight,
+          &dRoofHeight,
+          &iDrawOrder1,
+          &iForwardExtraStart,
+          &iDrawOrder3,
+          &Subdivide[iSubdivideIdx],
+          &Subdivide[iSubdivideIdx].subdivides[1],
+          &Subdivide[iSubdivideIdx].subdivides[2],
+          &Subdivide[iSubdivideIdx].subdivides[3],
+          &Subdivide[iSubdivideIdx].subdivides[4],
+          &Subdivide[iSubdivideIdx].subdivides[5],
+          &Subdivide[iSubdivideIdx].subdivides[6],
+          &Subdivide[iSubdivideIdx].subdivides[7],
+          &Subdivide[iSubdivideIdx].subdivides[8],
+          &Subdivide[iSubdivideIdx].subdivides[9],
+          &Subdivide[iSubdivideIdx].subdivides[10],
+          &iDrawOrderBackward,
+          &iBackwardExtraStart2,
+          &iBackwardExtraChunks);               // Read wall heights, offsets and view distance data
+        if (bMinimalMode) {
+          dLeftLaneWidth = dLeftLaneWidth * 2.0;
+          dRightLaneWidth = dRightLaneWidth * 2.0;
+        }
+        if ((cheat_mode & 0x1000) != 0 && !bMinimalMode)// Apply double track width cheat if enabled
+        {
+          dLeftShoulderWidth = dLeftShoulderWidth * 2.0;
+          dLeftLaneWidth = dLeftLaneWidth * 2.0;
+          dRightLaneWidth = dRightLaneWidth * 2.0;
+          dRightShoulderWidth = dRightShoulderWidth * 2.0;
+          dLeftShoulderHeight = dLeftShoulderHeight * 2.0;
+          dRightShoulderHeight = dRightShoulderHeight * 2.0;
+          dLength = dLength * 2.0;
+          dAILine1 = dAILine1 * 2.0;
+          dAILine2 = dAILine2 * 2.0;
+          dAILine3 = dAILine3 * 2.0;
+          dAILine4 = dAILine4 * 2.0;
+          dLUOWallHOffset = dLUOWallHOffset * 2.0;
+          dLLOWallHOffset = dLLOWallHOffset * 2.0;
+          dLOFloorHOffset = dLOFloorHOffset * 2.0;
+          dROFloorHOffset = dROFloorHOffset * 2.0;
+          dRLOWallHOffset = dRLOWallHOffset * 2.0;
+          dRUOWallHOffset = dRUOWallHOffset * 2.0;
+          dLUOWallHeight = dLUOWallHeight * 2.0;
+          dLLOWallHeight = dLLOWallHeight * 2.0;
+          dLOFloorHeight = dLOFloorHeight * 2.0;
+          dROFloorHeight = dROFloorHeight * 2.0;
+          dRLOWallHeight = dRLOWallHeight * 2.0;
+          dRUOWallHeight = dRUOWallHeight * 2.0;
+          dRoofHeight = dRoofHeight * 2.0;
+          iSignVOffset *= 2;
+          dTemp1 = GroundLevel[uiGroundLevelOffset / 4] * 2.0;
+          iSignHOffset *= 2;
+          GroundLevel[uiGroundLevelOffset / 4] = (float)dTemp1;
+        }
+        iSubdivLoopIdx = 0;                     // Initialize subdivision array for current chunk
+        iSubdivOffset = 0;
+        iSubdivArrayIdx = 11 * iChunkIdx;
         do {
-          ++v21;
-          *((_BYTE *)&meof_variable_1 + v21) = 0;
-        } while (v21 != v20);
-        v19 = 11 * v15;
-        readline2(
-          &v129,
-          &aTddddddddddddd[1],
-          &v79,
-          &v78,
-          &v77,
-          &v76,
-          &v75,
-          &v74,
-          &v73,
-          &v72,
-          &v71,
-          &v70,
-          &v69,
-          &v68,
-          &v67,
-          &v132,
-          &v127,
-          &v118,
-          &Subdivide[v19],
-          &Subdivide[v19 + 1],
-          &Subdivide[v19 + 2],
-          &Subdivide[v19 + 3],
-          &Subdivide[v19 + 4],
-          &Subdivide[v19 + 5],
-          &Subdivide[v19 + 6],
-          &Subdivide[v19 + 7],
-          &Subdivide[v19 + 8],
-          &Subdivide[v19 + 9],
-          &Subdivide[v19 + 10],
-          &v115,
-          &v120,
-          &v121);
-        if (v148) {
-          v93 = v93 * loadtrak_c_variable_40;
-          v92 = v92 * loadtrak_c_variable_40;
+          //int iChunkIdx = iSubdivArrayIdx / 11;  // Which chunk we're in
+          int iElementIdx = iSubdivArrayIdx % 11; // Which element within the chunk's subdivides array
+          if (!Subdivide[iChunkIdx].subdivides[iElementIdx] && (unsigned int)iSubdivLoopIdx <= 10) {
+            switch (iSubdivLoopIdx) {
+              case 0:
+              case 1:
+              case 2:
+              case 3:
+              case 4:
+              case 5:
+              case 7:
+              case 9:
+                Subdivide[iChunkIdx].subdivides[iElementIdx] = 20;  // 0x14 - Default subdivision level
+                break;
+              case 6:
+              case 8:
+              case 10:
+                Subdivide[iChunkIdx].subdivides[iElementIdx] = 4;   // Special subdivision level for specific geometry
+                break;
+              default:
+                  // Should never reach here due to the <= 0xA check
+                break;
+            }
+          }
+          //if (!Subdivide[0].subdivides[iSubdivArrayIdx] && (unsigned int)iSubdivLoopIdx <= 10)
+          //  __asm { jmp     cs : off_4AF00[ebx]; jumptable 0004BC6D case 257 }
+          iSubdivOffset += 4;
+          ++iSubdivLoopIdx;
+          ++iSubdivArrayIdx;
+        } while (iSubdivLoopIdx <= 10);
+        if (iDrawOrder1 < 8)
+          iDrawOrder1 = 32;
+        if (iDrawOrder1 > 128)
+          iDrawOrder1 = 32;
+        TrakView[uiTrakViewOffset / 8].byForwardMainChunks = iDrawOrder1;
+        if (iForwardExtraStart < 0 || iForwardExtraStart > TRAK_LEN || iDrawOrder3 < 8 || iDrawOrder3 > 128) {
+          iForwardExtraStart = -1;
+          iDrawOrder3 = 0;
         }
-        if ((cheat_mode & 0x1000) != 0 && !v148) {
-          v94 = v94 * loadtrak_c_variable_40;
-          v93 = v93 * loadtrak_c_variable_40;
-          v92 = v92 * loadtrak_c_variable_40;
-          v91 = v91 * loadtrak_c_variable_40;
-          v90 = v90 * loadtrak_c_variable_40;
-          v89 = v89 * loadtrak_c_variable_40;
-          v88 = v88 * loadtrak_c_variable_40;
-          v84 = v84 * loadtrak_c_variable_40;
-          v83 = v83 * loadtrak_c_variable_40;
-          v82 = v82 * loadtrak_c_variable_40;
-          v81 = v81 * loadtrak_c_variable_40;
-          v79 = v79 * loadtrak_c_variable_40;
-          v78 = v78 * loadtrak_c_variable_40;
-          v77 = v77 * loadtrak_c_variable_40;
-          v76 = v76 * loadtrak_c_variable_40;
-          v75 = v75 * loadtrak_c_variable_40;
-          v74 = v74 * loadtrak_c_variable_40;
-          v73 = v73 * loadtrak_c_variable_40;
-          v72 = v72 * loadtrak_c_variable_40;
-          v71 = v71 * loadtrak_c_variable_40;
-          v70 = v70 * loadtrak_c_variable_40;
-          v69 = v69 * loadtrak_c_variable_40;
-          v68 = v68 * loadtrak_c_variable_40;
-          v67 = v67 * loadtrak_c_variable_40;
-          v124 *= 2;
-          v22 = GroundLevel[v149 / 4] * loadtrak_c_variable_41;
-          v125 *= 2;
-          GroundLevel[v149 / 4] = v22;
+        v22 = uiTrakViewOffset;
+        TrakView[uiTrakViewOffset / 8].nForwardExtraStart = iForwardExtraStart;
+        uiTrakViewOffset1 = iDrawOrderBackward;
+        *(&TrakView[0].byForwardExtraChunks + v22) = iDrawOrder3;
+        if (uiTrakViewOffset1 < 8)
+          iDrawOrderBackward = 32;
+        if (iDrawOrderBackward > 128)
+          iDrawOrderBackward = 32;
+        iBackwardExtraStart = iBackwardExtraStart2;
+        TrakView[uiTrakViewOffset / 8].byBackwardMainChunks = iDrawOrderBackward;
+        if (iBackwardExtraStart < 0 || iBackwardExtraStart > TRAK_LEN || iBackwardExtraChunks < 8 || iBackwardExtraChunks > 128) {
+          iBackwardExtraStart2 = -1;
+          iBackwardExtraChunks = 0;
         }
-        v23 = 0;
-        v24 = 0;
-        v25 = 11 * v15;
-        do {
-          if (!Subdivide[v25] && (unsigned int)v23 <= 0xA)
-            __asm { jmp     cs : off_4AF00[ebx]; jumptable 0004BC6D case 257 }
-          v24 += 4;
-          ++v23;
-          ++v25;
-        } while (v23 <= 10);
-        if (v132 < 8)
-          v132 = 32;
-        if (v132 > 128)
-          v132 = 32;
-        TrakView_variable_1[v150] = v132;
-        if (v127 < 0 || v127 > TRAK_LEN || v118 < 8 || v118 > 128) {
-          v127 = -1;
-          v118 = 0;
-        }
-        v26 = v150;
-        TrakView[v150 / 2] = v127;
-        v27 = v115;
-        TrakView_variable_2[v26] = v118;
-        if (v27 < 8)
-          v115 = 32;
-        if (v115 > 128)
-          v115 = 32;
-        v28 = v120;
-        TrakView_variable_4[v150] = v115;
-        if (v28 < 0 || v28 > TRAK_LEN || v121 < 8 || v121 > 128) {
-          v120 = -1;
-          v121 = 0;
-        }
-        v29 = v150;
-        TrakView_variable_3[v150 / 2] = v120;
-        TrakView_variable_5[v29] = v121;
+        uiTrakViewOffset2 = uiTrakViewOffset;
+        TrakView[uiTrakViewOffset / 8].nBackwardExtraStart = iBackwardExtraStart2;
+        TrakView[uiTrakViewOffset2 / 8].byBackwardExtraChunks = iBackwardExtraChunks;
+        //*(&TrakView[0].byBackwardExtraChunks + uiTrakViewOffset2) = iBackwardExtraChunks;
       }
-      if (TrakColour_variable_10[v17] == -1)
-        TrakColour_variable_10[v17] = 0;
-      if (TrakColour_variable_11[v17] == -1)
-        TrakColour_variable_11[v17] = 0;
-      if (!v15) {
-        v102 = v87;
-        v101 = v86;
+      if (TrakColour[iTrakColourIdx].iLeftWallType == -1)
+        TrakColour[iTrakColourIdx].iLeftWallType = 0;
+      if (TrakColour[iTrakColourIdx].iRightWallType == -1)
+        TrakColour[iTrakColourIdx].iRightWallType = 0;
+      if (!iChunkIdx) {
+        dTempYaw = dYaw;
+        dTempPitch = dPitch;
       }
-      v104 = v87;
-      v99 = v102;
-      if (v87 - v102 > loadtrak_c_variable_45)
-        v104 = v87 + loadtrak_c_variable_46;
-      if (v104 - v99 < loadtrak_c_variable_47)
-        v104 = v104 + loadtrak_c_variable_48;
-      v105 = v104 - v99;
-      if (v105 > loadtrak_c_variable_45)
-        v105 = v105 + loadtrak_c_variable_46;
-      if (v105 < loadtrak_c_variable_47)
-        v105 = v105 + loadtrak_c_variable_48;
-      v108 = v105 * loadtrak_c_variable_42 + v102;
-      v103 = v86;
-      v98 = v101;
-      if (v86 - v101 > loadtrak_c_variable_45)
-        v103 = v86 + loadtrak_c_variable_46;
-      if (v103 - v98 < loadtrak_c_variable_47)
-        v103 = v103 + loadtrak_c_variable_48;
-      v106 = v103 - v98;
-      if (v106 > loadtrak_c_variable_45)
-        v106 = v106 + loadtrak_c_variable_46;
-      if (v106 < loadtrak_c_variable_47)
-        v106 = v106 + loadtrak_c_variable_48;
-      v107 = v106 * loadtrak_c_variable_42 + v101;
-      if (v126 != -1) {
-        if (v126 < 256) {
-          v35 = v153 + 1;
-          *v153 = v126;
-          *v35 = v15;
-          v35[1] = v125;
-          v36 = v35 + 2;
-          v35[2] = v124;
-          v37 = v151;
-          *v151 = (float)v123;
-          v37[1] = (float)v131;
-          v153 = v36 + 1;
-          ++v37;
+      dTempYaw_2 = dYaw;
+      dTempYaw_1 = dTempYaw;
+      if (dYaw - dTempYaw > 180.0)
+        dTempYaw_2 = dYaw + -360.0;
+      if (dTempYaw_2 - dTempYaw_1 < -180.0)
+        dTempYaw_2 = dTempYaw_2 + 360.0;
+      dTempYaw_3 = dTempYaw_2 - dTempYaw_1;
+      if (dTempYaw_3 > 180.0)
+        dTempYaw_3 = dTempYaw_3 + -360.0;
+      if (dTempYaw_3 < -180.0)
+        dTempYaw_3 = dTempYaw_3 + 360.0;
+      dClampedYaw = dTempYaw_3 * 0.5 + dTempYaw;
+      dTempPitch_2 = dPitch;
+      dTempPitch_3 = dTempPitch;
+      if (dPitch - dTempPitch > 180.0)
+        dTempPitch_2 = dPitch + -360.0;
+      if (dTempPitch_2 - dTempPitch_3 < -180.0)
+        dTempPitch_2 = dTempPitch_2 + 360.0;
+      dTempPitch_1 = dTempPitch_2 - dTempPitch_3;
+      if (dTempPitch_1 > 180.0)
+        dTempPitch_1 = dTempPitch_1 + -360.0;
+      if (dTempPitch_1 < -180.0)
+        dTempPitch_1 = dTempPitch_1 + 360.0;
+      dClampedPitch = dTempPitch_1 * 0.5 + dTempPitch;
+      if (iSignType != -1) {                                         // Process signs/objects: buildings vs towers
+        if (iSignType < 256) {
+          p_iBuildingData = p_iBuildingBase + 1;
+          *p_iBuildingBase = iSignType;
+          *p_iBuildingData = iChunkIdx;
+          p_iBuildingData[1] = iSignHOffset;
+          p_iBuildingData2 = p_iBuildingData + 2;
+          p_iBuildingData[2] = iSignVOffset;
+          p_fBuildingAngles = p_fBuildingAnglesBase;
+          *p_fBuildingAnglesBase = (float)iSignYaw;
+          p_fBuildingAngles[1] = (float)iSignPitch;
+          p_iBuildingBase = p_iBuildingData2 + 1;
+          ++p_fBuildingAngles;
           ++NumBuildings;
-          v151 = v37 + 2;
-          v37[1] = (float)v130;
+          p_fBuildingAnglesBase = p_fBuildingAngles + 2;
+          p_fBuildingAngles[1] = (float)iSignRoll;
         } else {
-          *v155++ = v15;
-          v30 = v155;
-          *v155 = v125;
-          v30[1] = v124;
-          v31 = v30 + 1;
-          v32 = v31 + 1;
-          v155 = v31 + 1;
-          switch (v126 & 0xFF0F) {
+          *pTowerBasePtr++ = iChunkIdx;
+          pTowerBase = pTowerBasePtr;
+          *pTowerBasePtr = iSignHOffset;
+          pTowerBase[1] = iSignVOffset;
+          v27 = pTowerBase + 1;
+          p_iData1 = v27 + 1;
+          pTowerBasePtr = v27 + 1;
+          switch (iSignType & 0xFF0F) {
             case 0x101:
-              v155 = v31 + 2;
-              *v32 = -4;
+              pTowerBasePtr = v27 + 2;
+              *p_iData1 = -4;
               break;
             case 0x103:
-              v155 = v31 + 2;
-              *v32 = -2;
+              pTowerBasePtr = v27 + 2;
+              *p_iData1 = -2;
               break;
             case 0x104:
-              v155 = v31 + 2;
-              *v32 = -5;
+              pTowerBasePtr = v27 + 2;
+              *p_iData1 = -5;
               break;
             case 0x105:
-              v155 = v31 + 2;
-              *v32 = -3;
+              pTowerBasePtr = v27 + 2;
+              *p_iData1 = -3;
               break;
             default:
-              v33 = v155 + 1;
-              *v155 = -1;
-              v155 = v33;
+              pTowerBase2 = pTowerBasePtr + 1;
+              *pTowerBasePtr = -1;
+              pTowerBasePtr = pTowerBase2;
               break;
           }
-          v34 = v155;
-          *v155 = (v126 - 256 - (__CFSHL__((v126 - 256) >> 31, 4) + 16 * ((v126 - 256) >> 31))) >> 4;
-          v155 = v34 + 1;
+          pTowerBase3 = pTowerBasePtr;
+          *pTowerBasePtr = (iSignType - 256) / 16;
+          //*pTowerBasePtr = (iSignType - 256 - (__CFSHL__((iSignType - 256) >> 31, 4) + 16 * ((iSignType - 256) >> 31))) >> 4;
+          pTowerBasePtr = pTowerBase3 + 1;
           ++NumTowers;
         }
       }
-      rotatepoint(0.0, v94 + v93, v90, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-      setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-      rotatepoint(0.0, v94 + v93, 0.0, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-      setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-      rotatepoint(0.0, v93, 0.0, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-      setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-      rotatepoint(0.0, -v92, 0.0, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-      setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-      rotatepoint(0.0, -v92 - v91, v89, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-      setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-      rotatepoint(0.0, -v92 - v91, 0.0, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-      setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-      if (!v148) {
-        if (GroundColour_variable_4[v154 / 4] == -2) {
-          v71 = -v90;
-          v77 = v94;
-          v76 = v91;
-          v70 = -v89;
+      rotatepoint(0.0, dLeftShoulderWidth + dLeftLaneWidth, dLeftShoulderHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);// Calculate and set track geometry points
+      setpoint(iChunkIdx, 0, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+      rotatepoint(0.0, dLeftShoulderWidth + dLeftLaneWidth, 0.0, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+      setpoint(iChunkIdx, 1, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+      rotatepoint(0.0, dLeftLaneWidth, 0.0, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+      setpoint(iChunkIdx, 2, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+      rotatepoint(0.0, -dRightLaneWidth, 0.0, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+      setpoint(iChunkIdx, 3, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+      rotatepoint(0.0, -dRightLaneWidth - dRightShoulderWidth, dRightShoulderHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+      setpoint(iChunkIdx, 4, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+      rotatepoint(0.0, -dRightLaneWidth - dRightShoulderWidth, 0.0, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+      setpoint(iChunkIdx, 5, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+      if (!bMinimalMode) {                                         // Calculate ground points based on floor type
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          dLOFloorHeight = -dLeftShoulderHeight;
+          dLOFloorHOffset = dLeftShoulderWidth;
+          dROFloorHOffset = dRightShoulderWidth;
+          dROFloorHeight = -dRightShoulderHeight;
         }
-        if (*(int *)((char *)&TrakColour + v17 * 4) < 0) {
-          v77 = v94;
-          v71 = 0.0;
+        if (TrakColour[iTrakColourIdx].iLeftSurfType < 0) {
+          dLOFloorHOffset = dLeftShoulderWidth;
+          dLOFloorHeight = 0.0;
         }
-        if (*(int *)((char *)&TrakColour_variable_7 + v17 * 4) < 0) {
-          v76 = v91;
-          v70 = 0.0;
+        if (TrakColour[iTrakColourIdx].iRightSurfType < 0) {
+          dROFloorHOffset = dRightShoulderWidth;
+          dROFloorHeight = 0.0;
         }
-        v111 = v79 + v78;
-        v100 = v73 + v72;
-        v38 = GroundColour_variable_4[v154 / 4];
-        v109 = v111 + v77 + v93;
-        if (v38 == -2) {
-          rotatepoint(0.0, v109, v100 - v71, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-          rotatepoint(0.0, v78 + v77 + v93, v72 - v71, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-          rotatepoint(0.0, v77 + v93, -v71, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-          rotatepoint(0.0, -v76 - v92, -v70, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-          rotatepoint(0.0, -v75 - v76 - v92, v69 - v70, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-          rotatepoint(0.0, -v74 - v75 - v76 - v92, v68 + v69 - v70, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
+        dTempCalc2 = dLUOWallHOffset + dLLOWallHOffset;
+        dLeftWallTotalHeight = dLUOWallHeight + dLLOWallHeight;
+        v34 = GroundColour[uiGroundColourOffset / 0x14].iOFloorType;
+        dTempCalc1 = dTempCalc2 + dLOFloorHOffset + dLeftLaneWidth;
+        if (v34 == -2) {
+          rotatepoint(0.0, dTempCalc1, dLeftWallTotalHeight - dLOFloorHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 0, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+          rotatepoint(0.0, dLLOWallHOffset + dLOFloorHOffset + dLeftLaneWidth, dLLOWallHeight - dLOFloorHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 1, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+          rotatepoint(0.0, dLOFloorHOffset + dLeftLaneWidth, -dLOFloorHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 2, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+          rotatepoint(0.0, -dROFloorHOffset - dRightLaneWidth, -dROFloorHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 3, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+          rotatepoint(0.0, -dRLOWallHOffset - dROFloorHOffset - dRightLaneWidth, dRLOWallHeight - dROFloorHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 4, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+          rotatepoint(
+            0.0,
+            -dRUOWallHOffset - dRLOWallHOffset - dROFloorHOffset - dRightLaneWidth,
+            dRUOWallHeight + dRLOWallHeight - dROFloorHeight,
+            dClampedYaw,
+            dClampedPitch,
+            dRoll,
+            &dX,
+            &dY,
+            &dZ);
+          setgpoint(iChunkIdx, 5, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
         } else {
-          rotatepoint(0.0, v109, v100 + v71, v108, v107, 0.0, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v64);
-          rotatepoint(0.0, v78 + v77 + v93, v72 + v71, v108, v107, 0.0, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v64);
-          rotatepoint(0.0, v77 + v93, v71, v108, v107, 0.0, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v64);
-          rotatepoint(0.0, -v76 - v92, v70, v108, v107, 0.0, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v64);
-          rotatepoint(0.0, -v75 - v76 - v92, v69 + v70, v108, v107, 0.0, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v64);
-          rotatepoint(0.0, -v74 - v75 - v76 - v92, v68 + v69 + v70, v108, v107, 0.0, (int)v66, (int)v65, (int)&v64);
-          setgpoint(v97 + *(double *)v66, v96 + *(double *)v65, v64);
+          rotatepoint(0.0, dTempCalc1, dLeftWallTotalHeight + dLOFloorHeight, dClampedYaw, dClampedPitch, 0.0, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 0, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
+          rotatepoint(0.0, dLLOWallHOffset + dLOFloorHOffset + dLeftLaneWidth, dLLOWallHeight + dLOFloorHeight, dClampedYaw, dClampedPitch, 0.0, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 1, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
+          rotatepoint(0.0, dLOFloorHOffset + dLeftLaneWidth, dLOFloorHeight, dClampedYaw, dClampedPitch, 0.0, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 2, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
+          rotatepoint(0.0, -dROFloorHOffset - dRightLaneWidth, dROFloorHeight, dClampedYaw, dClampedPitch, 0.0, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 3, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
+          rotatepoint(0.0, -dRLOWallHOffset - dROFloorHOffset - dRightLaneWidth, dRLOWallHeight + dROFloorHeight, dClampedYaw, dClampedPitch, 0.0, &dX, &dY, &dZ);
+          setgpoint(iChunkIdx, 4, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
+          rotatepoint(
+            0.0,
+            -dRUOWallHOffset - dRLOWallHOffset - dROFloorHOffset - dRightLaneWidth,
+            dRUOWallHeight + dRLOWallHeight + dROFloorHeight,
+            dClampedYaw,
+            dClampedPitch,
+            0.0,
+            &dX,
+            &dY,
+            &dZ);
+          setgpoint(iChunkIdx, 5, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
         }
-        if (TrakColour_variable_10[v17] >= 0) {
-          rotatepoint(0.0, v93 + v94, v67 + v90, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
+        if (TrakColour[iTrakColourIdx].iLeftWallType >= 0) {
+          rotatepoint(0.0, dLeftLaneWidth + dLeftShoulderWidth, dRoofHeight + dLeftShoulderHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         } else {
-          v90 = 0.0;
-          rotatepoint(0.0, v93, v67, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
+          dLeftShoulderHeight = 0.0;
+          rotatepoint(0.0, dLeftLaneWidth, dRoofHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         }
-        setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-        if (TrakColour_variable_11[v17] >= 0) {
-          rotatepoint(0.0, -v92 - v91, v67 + v89, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
+        setpoint(iChunkIdx, 1, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+        if (TrakColour[iTrakColourIdx].iRightWallType >= 0) {
+          rotatepoint(0.0, -dRightLaneWidth - dRightShoulderWidth, dRoofHeight + dRightShoulderHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         } else {
-          v89 = 0.0;
-          rotatepoint(0.0, -v92, v67, v108, v107, v85, (int)v66, (int)v65, (int)&v64);
+          dRightShoulderHeight = 0.0;
+          rotatepoint(0.0, -dRightLaneWidth, dRoofHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         }
-        v39 = setpoint(v97 + *(double *)v66, v96 + *(double *)v65, v95 + v64);
-        *(float *)&TrackInfo[v16] = v94;
-        TrackInfo_variable_1[v16] = v90;
-        *(float *)&TrackInfo_variable_2[v16] = v91;
-        TrackInfo_variable_3[v16] = v89;
-        TrackInfo_variable_8[v16] = v67;
-        v40 = v110;
-        v41 = atan2(v90 / v94, 1.0) * loadtrak_c_variable_43 * v110;
-        _CHP(v39, 5);
-        v136 = (int)v41;
-        v42 = v89 / v91;
-        v43 = v136;
-        TrackInfo_variable_4[v16] = v136;
-        v44 = v40 * (atan2(v42, 1.0) * loadtrak_c_variable_43);
-        _CHP(v43, 5);
-        v136 = (int)v44;
-        v45 = v84;
-        TrackInfo_variable_5[v16] = v136;
-        v46 = v152;
-        *(float *)&localdata_variable_8[v152 / 4] = v45;
-        *(float *)((char *)&localdata_variable_9 + v46) = v83;
-        *(float *)((char *)&localdata_variable_10 + v46) = v82;
-        *(float *)((char *)&localdata_variable_11 + v46) = v81;
-        v47 = v152;
-        localdata_variable_12[v152 / 4] = v137;
-        v48 = v80;
-        *(int *)((char *)localdata_variable_13 + v47) = v114;
-        *(int *)((char *)localdata_variable_14 + v47) = v116;
-        v49 = v154;
-        TrackInfo_variable_6[v16] = -100;
-        *(float *)((char *)localdata_variable_15 + v47) = v48;
-        v50 = *(int *)((char *)GroundColour_variable_4 + v49);
-        TrackInfo_variable_7[v16] = -100;
-        if (v50 != -2) {
-          TrackInfo_variable_6[v16] = 0;
-          TrackInfo_variable_7[v16] = 0;
+        setpoint(iChunkIdx, 5, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
+        TrackInfo[iTrackInfoIdx].fLShoulderWidth = (float)dLeftShoulderWidth;// Store track info data for current chunk
+        TrackInfo[iTrackInfoIdx].fLShoulderHeight = (float)dLeftShoulderHeight;
+        TrackInfo[iTrackInfoIdx].fRShoulderWidth = (float)dRightShoulderWidth;
+        TrackInfo[iTrackInfoIdx].fRShoulderHeight = (float)dRightShoulderHeight;
+        TrackInfo[iTrackInfoIdx].fRoofHeight = (float)dRoofHeight;
+        dAngleCalc1 = dRadiansPerDegree;
+        dLeftAngle = atan2(dLeftShoulderHeight / dLeftShoulderWidth, 1.0) * 16384.0 * dRadiansPerDegree;
+        //_CHP();
+        iTemp3 = (int)dLeftAngle;
+        dRightAngle = dRightShoulderHeight / dRightShoulderWidth;
+        TrackInfo[iTrackInfoIdx].iLeftBankAngle = iTemp3;
+        //_CHP();
+        iTemp3 = (int)(dAngleCalc1 * (atan2(dRightAngle, 1.0) * 16384.0));
+        dAILine1_1 = dAILine1;
+        TrackInfo[iTrackInfoIdx].iRightBankAngle = iTemp3;
+        uiLocalDataOffset1 = uiLocalDataOffset;
+        localdata[uiLocalDataOffset / 0x80].fAILine1 = (float)dAILine1_1;
+        localdata[uiLocalDataOffset1 / 0x80].fAILine2 = (float)dAILine2;
+        localdata[uiLocalDataOffset1 / 0x80].fAILine3 = (float)dAILine3;
+        localdata[uiLocalDataOffset1 / 0x80].fAILine4 = (float)dAILine4;
+        //*(float *)((char *)&localdata[0].fAILine2 + uiLocalDataOffset1) = dAILine2;
+        //*(float *)((char *)&localdata[0].fAILine3 + uiLocalDataOffset1) = dAILine3;
+        //*(float *)((char *)&localdata[0].fAILine4 + uiLocalDataOffset1) = dAILine4;
+        uiLocalDataOffset2 = uiLocalDataOffset;
+        localdata[uiLocalDataOffset / 0x80].iCenterGrip = iTrackGrip;
+        dAIMaxSpeed_1 = dAIMaxSpeed;
+        localdata[uiLocalDataOffset2 / 0x80].iLeftShoulderGrip = iLeftShoulderGrip;
+        localdata[uiLocalDataOffset2 / 0x80].iRightShoulderGrip = iRightShoulderGrip;
+        //*(int *)((char *)&localdata[0].iLeftShoulderGrip + uiLocalDataOffset2) = iLeftShoulderGrip;
+        //*(int *)((char *)&localdata[0].iRightShoulderGrip + uiLocalDataOffset2) = iRightShoulderGrip;
+        uiGroundColourOffset1 = uiGroundColourOffset;
+        TrackInfo[iTrackInfoIdx].iLeftSurfaceType = -100;
+        localdata[uiLocalDataOffset2 / 0x80].fAIMaxSpeed = (float)dAIMaxSpeed_1;
+        //*(float *)((char *)&localdata[0].fAIMaxSpeed + uiLocalDataOffset2) = dAIMaxSpeed_1;
+        iOFloorType = GroundColour[uiGroundColourOffset1].iOFloorType;
+        //iOFloorType = *(int *)((char *)&GroundColour[0].iOFloorType + uiGroundColourOffset1);
+        TrackInfo[iTrackInfoIdx].iRightSurfaceType = -100;// Determine surface grip types for physics
+        if (iOFloorType != -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 0;
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 0;
         }
-        if (GroundPt_variable_3[v156 / 4] >= (double)GroundPt_variable_4[v156 / 4]
-          && !TrakColour_variable_10[v17]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_6[v16] = 1;
+        if (GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
+          && !TrakColour[iTrakColourIdx].iLeftWallType
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 1;
         }
-        if (GroundPt_variable_6[v156 / 4] >= (double)GroundPt_variable_5[v156 / 4]
-          && !TrakColour_variable_11[v17]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_7[v16] = 1;
+        if (GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
+          && !TrakColour[iTrakColourIdx].iRightWallType
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 1;
         }
-        if (GroundPt_variable_3[v156 / 4] < (double)GroundPt_variable_4[v156 / 4]
-          && !TrakColour_variable_10[v17]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_6[v16] = 2;
+        if (GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
+          && !TrakColour[iTrakColourIdx].iLeftWallType
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 2;
         }
-        if (GroundPt_variable_6[v156 / 4] < (double)GroundPt_variable_5[v156 / 4]
-          && !TrakColour_variable_11[v17]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_7[v16] = 2;
+        if (GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
+          && !TrakColour[iTrakColourIdx].iRightWallType
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 2;
         }
-        if (TrakColour_variable_10[v17] > 0
-          && GroundPt_variable_3[v156 / 4] >= (double)GroundPt_variable_4[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_6[v16] = 3;
+        if (TrakColour[iTrakColourIdx].iLeftWallType > 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 3;
         }
-        if (TrakColour_variable_11[v17] > 0
-          && GroundPt_variable_6[v156 / 4] >= (double)GroundPt_variable_5[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_7[v16] = 3;
+        if (TrakColour[iTrakColourIdx].iRightWallType > 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 3;
         }
-        if (TrakColour_variable_10[v17] > 0
-          && GroundPt_variable_3[v156 / 4] < (double)GroundPt_variable_4[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_6[v16] = 4;
+        if (TrakColour[iTrakColourIdx].iLeftWallType > 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 4;
         }
-        if (TrakColour_variable_11[v17] > 0
-          && GroundPt_variable_6[v156 / 4] < (double)GroundPt_variable_5[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_7[v16] = 4;
+        if (TrakColour[iTrakColourIdx].iRightWallType > 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 4;
         }
-        if (TrakColour_variable_10[v17] < 0
-          && GroundPt_variable_3[v156 / 4] >= (double)GroundPt_variable_4[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_6[v16] = 5;
+        if (TrakColour[iTrakColourIdx].iLeftWallType < 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 5;
         }
-        if (TrakColour_variable_11[v17] < 0
-          && GroundPt_variable_6[v156 / 4] >= (double)GroundPt_variable_5[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_7[v16] = 5;
+        if (TrakColour[iTrakColourIdx].iRightWallType < 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 5;
         }
-        if (TrakColour_variable_10[v17] < 0
-          && GroundPt_variable_3[v156 / 4] < (double)GroundPt_variable_4[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_6[v16] = 6;
+        if (TrakColour[iTrakColourIdx].iLeftWallType < 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 6;
         }
-        if (TrakColour_variable_11[v17] < 0
-          && GroundPt_variable_6[v156 / 4] < (double)GroundPt_variable_5[v156 / 4]
-          && GroundColour_variable_4[v154 / 4] == -2) {
-          TrackInfo_variable_7[v16] = 6;
+        if (TrakColour[iTrakColourIdx].iRightWallType < 0
+          && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
+          && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 6;
         }
-        if (GroundColour_variable_4[v154 / 4] == -1 && TrakColour_variable_10[v17] > 0)
-          TrackInfo_variable_6[v16] = 7;
-        if (GroundColour_variable_4[v154 / 4] == -1 && TrakColour_variable_11[v17] > 0)
-          TrackInfo_variable_7[v16] = 7;
-        if (GroundColour_variable_4[v154 / 4] >= 0 && TrakColour_variable_10[v17] > 0)
-          TrackInfo_variable_6[v16] = 8;
-        if (GroundColour_variable_4[v154 / 4] >= 0 && TrakColour_variable_11[v17] > 0)
-          TrackInfo_variable_7[v16] = 8;
-        if (GroundColour_variable_4[v154 / 4] == -1 && TrakColour_variable_10[v17] < 0)
-          TrackInfo_variable_6[v16] = 9;
-        if (GroundColour_variable_4[v154 / 4] == -1 && TrakColour_variable_11[v17] < 0)
-          TrackInfo_variable_7[v16] = 9;
-        v51 = TrackInfo_variable_6[v16];
-        if ((!v51 || v51 == 2) && ((unsigned int)&unk_100000 & abs32(*(_DWORD *)((char *)&TrakColour + v17 * 4))) == 0)
-          TrackInfo_variable_6[v16] = 1;
-        v52 = TrackInfo_variable_7[v16];
-        if ((!v52 || v52 == 2)
-          && ((unsigned int)&unk_100000 & abs32(*(_DWORD *)((char *)&TrakColour_variable_7 + v17 * 4))) == 0) {
-          TrackInfo_variable_7[v16] = 1;
-        }
-        v53 = TrackInfo_variable_6[v16];
-        if ((v53 == 6 || v53 == 9)
-          && ((unsigned int)&unk_100000 & abs32(*(_DWORD *)((char *)&TrakColour + v17 * 4))) == 0) {
-          TrackInfo_variable_6[v16] = 5;
-        }
-        v54 = TrackInfo_variable_7[v16];
-        if ((v54 == 6 || v54 == 9)
-          && ((unsigned int)&unk_100000 & abs32(*(_DWORD *)((char *)&TrakColour_variable_7 + v17 * 4))) == 0) {
-          TrackInfo_variable_7[v16] = 5;
-        }
-        if ((abs32(TrakColour_variable_10[v17]) & 0x20000) != 0) {
-          switch (TrackInfo_variable_6[v16]) {
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iLeftWallType > 0)
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 7;
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iRightWallType > 0)
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 7;
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType >= 0 && TrakColour[iTrakColourIdx].iLeftWallType > 0)
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 8;
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType >= 0 && TrakColour[iTrakColourIdx].iRightWallType > 0)
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 8;
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iLeftWallType < 0)
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 9;
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iRightWallType < 0)
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 9;
+        iLeftSurfaceType = TrackInfo[iTrackInfoIdx].iLeftSurfaceType;
+        if ((!iLeftSurfaceType || iLeftSurfaceType == 2) && (abs(TrakColour[iTrakColourIdx].iLeftSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 1;
+        iRightSurfaceType = TrackInfo[iTrackInfoIdx].iRightSurfaceType;
+        if ((!iRightSurfaceType || iRightSurfaceType == 2) && (abs(TrakColour[iTrakColourIdx].iRightSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 1;
+        iLeftSurfCheck = TrackInfo[iTrackInfoIdx].iLeftSurfaceType;
+        if ((iLeftSurfCheck == 6 || iLeftSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx].iLeftSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+          TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 5;
+        iRightSurfCheck = TrackInfo[iTrackInfoIdx].iRightSurfaceType;
+        if ((iRightSurfCheck == 6 || iRightSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx].iRightSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+          TrackInfo[iTrackInfoIdx].iRightSurfaceType = 5;
+        if ((abs(TrakColour[iTrakColourIdx].iLeftWallType) & 0x20000) != 0) {
+          switch (TrackInfo[iTrackInfoIdx].iLeftSurfaceType) {
             case 3:
             case 5:
-              TrackInfo_variable_6[v16] = 1;
+              TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 1;
               break;
             case 4:
             case 6:
-              TrackInfo_variable_6[v16] = 2;
+              TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 2;
               break;
             case 7:
             case 8:
             case 9:
-              TrackInfo_variable_6[v16] = 0;
+              TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 0;
               break;
             default:
               break;
           }
         }
-        if ((abs32(TrakColour_variable_11[v17]) & 0x20000) != 0) {
-          switch (TrackInfo_variable_7[v16]) {
+        if ((abs(TrakColour[iTrakColourIdx].iRightWallType) & 0x20000) != 0) {
+          switch (TrackInfo[iTrackInfoIdx].iRightSurfaceType) {
             case 3:
             case 5:
-              TrackInfo_variable_7[v16] = 1;
+              TrackInfo[iTrackInfoIdx].iRightSurfaceType = 1;
               break;
             case 4:
             case 6:
-              TrackInfo_variable_7[v16] = 2;
+              TrackInfo[iTrackInfoIdx].iRightSurfaceType = 2;
               break;
             case 7:
             case 8:
             case 9:
-              TrackInfo_variable_7[v16] = 0;
+              TrackInfo[iTrackInfoIdx].iRightSurfaceType = 0;
               break;
             default:
               break;
           }
         }
       }
-      v55 = cos(loadtrak_c_variable_44 * v86);
-      v17 += 6;
-      v16 += 9;
-      ++v15;
-      v119 += 24;
-      v97 = cos(loadtrak_c_variable_44 * v87) * (v55 * v88) + v97;
-      v146 += 24;
-      v147 += 24;
-      v139 += 24;
-      v113 += 20;
-      v112 += 20;
-      v117 += 20;
-      ++v142;
-      ++v140;
-      v102 = v87;
-      ++v141;
-      v96 = v55 * v88 * sin(loadtrak_c_variable_44 * v87) + v96;
-      v144 += 4;
-      v101 = v86;
-      v149 += 4;
-      v138 += 11;
-      v145 += 24;
-      v2 = v156 + 72;
-      v14 = v154 + 20;
-      v133 += 20;
-      v152 += 128;
-      ++v143;
-      v156 += 72;
-      v154 += 20;
-      v150 += 8;
-      result = (_DWORD *)TRAK_LEN;
-      v95 = sin(loadtrak_c_variable_44 * v86) * v88 + v95;
-    } while (v15 < TRAK_LEN);
+      dCos = cos(0.0174532925199 * dPitch);     // Calculate cosine for length projection
+      ++iTrakColourIdx;
+      ++iTrackInfoIdx;
+      ++iChunkIdx;
+      p_iCenterSurfType += 6;
+      dWallCalc3 = cos(0.0174532925199 * dYaw) * (dCos * dLength) + dWallCalc3;// Update position coordinates using trigonometry
+      p_iRightSurfType += 6;
+      p_iLeftWallType += 6;
+      p_uiRoofType += 6;
+      p_iLLOWallType += 5;
+      p_iOFloorType += 5;
+      p_iRUOWallType += 5;
+      ++p_fGroundLevel;
+      ++p_nAudioAboveTrigger;
+      dTempYaw = dYaw;                          // Increment array offsets and pointers for next chunk
+      ++p_nSampleMin;
+      dWallCalc2 = dCos * dLength * sin(0.0174532925199 * dYaw) + dWallCalc2;
+      ++p_iHorizonType;
+      dTempPitch = dPitch;
+      uiGroundLevelOffset += 4;
+      iSubdivArrayBaseOffset += 11;
+      p_iRightWallType += 6;
+      p_iRLOWallType += 5;
+      uiLocalDataOffset += 128;
+      ++p_nAudioTriggerSpeed;
+      uiGroundPtOffset += 72;
+      uiGroundColourOffset += 20;
+      uiTrakViewOffset += 8;
+      dWallCalc1 = sin(0.0174532925199 * dPitch) * dLength + dWallCalc1;
+    } while (iChunkIdx < TRAK_LEN);
   }
-  if (!v148)
-    result = (_DWORD *)ReadAnimData(v135, &v129);
-  if (v148) {
-    if ((int)v128 >= 0)
-      result = (_DWORD *)min_skip_stuff(&v129);
+  if (!bMinimalMode)
+    ReadAnimData(pFile_2, &pCurrDataPtr);       // Load animation data if not in minimal mode
+  if (bMinimalMode) {
+    if (iTrackIdx_1 >= 0)
+      min_skip_stuff(&pCurrDataPtr);
   } else {
-    v56 = initlocaltrack();
-    inited = InitTowers(v56);
-    v58 = InitBuildings(inited);
-    placecars(v58);
-    if ((int)v128 >= 0) {
-      start_f = v129;
-      readstuntdata(&v129);
-      read_texturemap(&v129);
-      read_bldmap(&v129);
-      read_backs(&v129);
+    initlocaltrack();                           // Initialize track objects and car placement
+    InitTowers();
+    InitBuildings();
+    placecars();
+    if (iTrackIdx_1 >= 0) {
+      start_f = pCurrDataPtr;                   // Read additional track data: stunts, textures, buildings
+      readstuntdata(&pCurrDataPtr);
+      read_texturemap(&pCurrDataPtr);
+      read_bldmap(&pCurrDataPtr);
+      read_backs(&pCurrDataPtr);
     }
     if (Play_View == 1)
-      testteaminit((int)&Car[77 * ViewType[0]]);
+      testteaminit(&Car[ViewType[0]]);
     else
       initcarview(ViewType[0], 0);
     if (player_type == 2)
-      initcarview(ViewType_variable_1, 1);
-    result = (_DWORD *)initpits();
+      initcarview(ViewType[1], 1);
+    initpits();
   }
-  if ((int)v128 >= 0) {
-    readline2(&v129, &aTi[1], &actualtrack);
-    if (v134 && replaytype != 2 && v128 != (_DWORD *)actualtrack && !v148) {
-      __asm { int     10h; -VIDEO - SET VIDEO MODE }
-      printf(aCheatTrackDIsR);
-      doexit();
+  if (iTrackIdx_1 >= 0) {
+    readline2(&pCurrDataPtr, "i", &actualtrack);// Read actual track ID and validate against requested
+    if (iCompactedFlag && replaytype != 2 && iTrackIdx_1 != actualtrack && !bMinimalMode) {
+      ErrorBoxExit("Cheat!!!! Track %d is really track %d!!!\n", iTrackIdx_1, actualtrack);
+      //__asm { int     10h; -VIDEO - SET VIDEO MODE }
+      //printf("Cheat!!!! Track %d is really track %d!!!\n", iTrackIdx_1, actualtrack);
+      //doexit();
     }
-    cur_laps[0] = 0;
+    cur_laps[0] = 0;                            // Initialize lap counters
     if (!meof) {
-      readline2(
-        &v129,
-        &aTiiiiii[2],
-        cur_laps,
-        &cur_laps_variable_1,
-        &cur_laps_variable_2,
-        &cur_laps_variable_3,
-        &cur_laps_variable_4,
-        &cur_laps_variable_5);
-      readline2(&v129, &aKfif[1], &cur_mapsize, &cur_mapsect, &cur_TrackZ);
+      readline2(&pCurrDataPtr, "iiiiii", cur_laps, &cur_laps[1], &cur_laps[2], &cur_laps[3], &cur_laps[4], &cur_laps[5]);// Read lap configuration and map settings
+      readline2(&pCurrDataPtr, "fif", &cur_mapsize, &cur_mapsect, &cur_TrackZ);
     }
     if (meof) {
-      v59 = 0;
-      v60 = 6 * actualtrack;
+      iDifficulty = 0;                          // Use default values if EOF reached
+      iTrackLapOffset = 6 * actualtrack;
       do {
-        ++v59;
-        v2 = track_laps[v60++];
-        samplemin_variable_1[v59] = v2;
-      } while (v59 < 6);
+        iLapValue = track_laps[0][iTrackLapOffset++];
+        cur_laps[iDifficulty] = iLapValue;
+        ++iDifficulty;
+        //iLapValue = track_laps[0][iTrackLapOffset++];
+        //*(_DWORD *)&samplemin[2 * iDifficulty + 498] = iLapValue;// offset into cur_laps
+      } while (iDifficulty < 6);
       cur_mapsize = mapsize[actualtrack];
-      v61 = TrackZs[actualtrack];
+      dTrackZ = TrackZs[actualtrack];
       cur_mapsect = mapsect[actualtrack];
-      cur_TrackZ = v61;
+      cur_TrackZ = (float)dTrackZ;
     }
-    result = (_DWORD *)fclose(v135);
+    fclose(pFile_2);
   }
-  if (!v148) {
-    if (v122)
-      result = fre(&v122);
-    if ((int)v128 >= 0) {
-      v62 = activatestunts(result);
-      LODWORD(v62) = LoadBldTextures(v62, SHIDWORD(v62), v2, v14);
-      return (_DWORD *)LoadTextures(v62, SHIDWORD(v62), v2);
+  if (!bMinimalMode) {                                             // Cleanup and load textures if not in minimal mode
+    if (pData)
+      fre((void **)&pData);
+    if (iTrackIdx_1 >= 0) {
+      activatestunts();
+      LoadBldTextures();
+      LoadTextures();
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

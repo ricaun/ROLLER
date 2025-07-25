@@ -3845,10 +3845,8 @@ LABEL_113:
 
 //-------------------------------------------------------------------------------------------------
 
-int testteaminit(int a1)
+void testteaminit(tCar *pCar)
 {
-  (void)(a1);
-  return 0;
   /*
   int result; // eax
 
