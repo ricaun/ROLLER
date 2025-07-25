@@ -59,6 +59,8 @@ extern int font1_offsets[104];
 extern char font1_ascii[256];
 extern int font2_offsets[96];
 extern char font2_ascii[256];
+extern int font3_offsets[72];
+extern char font3_ascii[256];
 extern int font4_offsets[80];
 extern int font5_offsets[80];
 extern char font4_ascii[256];
