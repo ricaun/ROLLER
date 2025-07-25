@@ -51,7 +51,7 @@ void ShowLapRecords(int a1, int a2, int a3, char *a4);
 void show_3dmap(float fZ, int iElevation, int iYaw);
 void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, int iAngle, char byAnimFrame);
 void *championship_winner(int a1, int a2, int a3, char *a4);
-int print_mem_used();
+void print_mem_used(const char *szMsg);
 uint8 *try_load_picture(const char *szFile);
 void save_champ(int iSlot);
 int load_champ(int iSlot);

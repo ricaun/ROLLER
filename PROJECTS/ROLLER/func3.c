@@ -2629,13 +2629,11 @@ void *championship_winner(int a1, int a2, int a3, char *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int print_mem_used()
+void print_mem_used(const char *szMsg)
 {
-  return 0;
-  /*
-  printf(&func3_c_variable_34);
-  printf(aHiMemUsedI);
-  return printf(aLoMemUsedI);*/
+  printf("%s\n", szMsg);
+  printf("hi mem used: %i\n", mem_used);
+  printf("lo mem used: %i\n\n", mem_used_low);
 }
 
 //-------------------------------------------------------------------------------------------------
