@@ -1283,33 +1283,26 @@ void readline(FILE *pFile, const char *szFmt, ...)
 
 uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 {
-  int iEof = 0;
-  uint8 *pDstItr = pDst;
-  int i = 0;
+  int iEof; // esi
+  uint8 *pDst2; // eax
+  uint8 byte; // bl
+  uint8 *ppSrcNext; // ebx
 
-  while (1) {
-    uint8 *pSrc = *ppSrc;
-    uint8 byte = *pSrc;
-    *pDstItr++ = byte;
-
-    if (byte == 0x1A)  // End-of-input marker
-      iEof = -1;
-
-    (*ppSrc)++;  // advance source pointer
-
-    if (byte >= 13) {
-      if (!iEof)
-        continue;
-    }
-
-    if (pDst[0] >= 13)
-      continue;
-
-    break;
-  }
-
+  iEof = 0;
+  do {
+    pDst2 = pDst;
+    do {
+      byte = **ppSrc;
+      *pDst2 = byte;
+      if (byte == 0x1A)
+        iEof = -1;
+      ppSrcNext = *ppSrc + 1;
+      *ppSrc = ppSrcNext;
+      ++pDst2;
+    } while (*(ppSrcNext - 1) > 13u && !iEof);
+  } while (*pDst <= 13u);
   meof = iEof;
-  return pDst;
+  return pDst2;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1337,9 +1330,9 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
     if (szLineBuffer[0] == 10)                // Skip newlines
       pszToken = 0;
     if (szLineBuffer[0] == 13)                // Skip carriage returns
-      pszToken = 0;
-    if (pszToken) {                                           // Process each format specifier in the format string
-      for (uiFormatIndex = 0; strlen(pszFormat) > uiFormatIndex; uiFormatIndex = uiSavedIndex + 1) { // 'D' = double scaled by 256
+      pszToken = 0;                                  // Process each format specifier in the format string
+    for (uiFormatIndex = 0; strlen(pszFormat) > uiFormatIndex; uiFormatIndex = uiSavedIndex + 1) { // 'D' = double scaled by 256
+      if (pszToken) {
         if (pszFormat[uiFormatIndex] == 'D') {
           double *pdDest = va_arg(vaCopy, double *);  //get arg
           double dValue = strtod(pszToken, 0);        //get val
@@ -1403,12 +1396,14 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
           uint8 byByteValue = (uint8)strtol(pszToken, 0, 10); //get val
           *pbyDest = byByteValue;                             //copy val to arg
         }
-        uiSavedIndex = uiFormatIndex;
-        pszToken = strtok(0, delims);           // Get next token from the line
       }
-      return;
+      uiSavedIndex = uiFormatIndex;
+      pszToken = strtok(0, delims);           // Get next token from the line
     }
+    va_end(va);
+    return;
   }
+  va_end(va);
 }
 
 //-------------------------------------------------------------------------------------------------

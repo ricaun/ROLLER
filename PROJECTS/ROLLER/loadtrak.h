@@ -70,7 +70,7 @@ void readstuntdata(uint8 **pTrackData);
 void activatestunts();
 void ReadAnimData(FILE *pFile, uint8 **ppFileData);
 void readline(FILE *pFile, const char *szFmt, ...);
-uint8 *memgets(uint8 *dst, uint8 **ppSrc);
+uint8 *memgets(uint8 *pDst, uint8 **ppSrc);
 void readline2(uint8 **ppFileData, const char *pszFormat, ...);
 void rotatepoint(double dX, double dY, double dZ, double dYaw, double dPitch, double dRoll, double *pdOutX, double *pdOutY, double *pdOutZ);
 void setpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ);
