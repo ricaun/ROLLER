@@ -17,6 +17,8 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern char save_slots[4][13];
+extern char round_pals[8][13];
+extern char round_pics[8][13];
 extern int send_message_to;
 extern int rec_status;
 extern char rec_mes_buf[32];
@@ -60,7 +62,7 @@ void check_saves();
 void ResultRoundUp(int a1, int a2, int a3, char *a4);
 int RollCredits(void *a1, void *a2, unsigned int a3);
 int ChampionshipOver(int a1, int a2, int a3, char *a4);
-void *EndChampSequence(int a1, int a2, int a3, int a4);
+void EndChampSequence();
 void network_fucked();
 void no_cd();
 int name_cmp(char *szName1, char *szName2);
