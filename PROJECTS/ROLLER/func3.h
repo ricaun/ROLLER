@@ -23,12 +23,23 @@ extern int send_message_to;
 extern int rec_status;
 extern char rec_mes_buf[32];
 extern tSaveStatus save_status[4];
+extern int result_lap[16];
 extern int result_order[16];
+extern float result_time[16];
 extern int result_design[16];
+extern float result_best[16];
+extern int result_competing[16];
 extern int result_control[16];
+extern int result_lives[16];
+extern int result_kills[16];
 extern int send_status;
 extern char rec_mes_name[12];
 extern int restart_net;
+extern float BestTime;
+extern int result_p1;
+extern int result_p2;
+extern int result_p2_pos;
+extern int result_p1_pos;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -42,7 +53,7 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 int winner_screen(int a1, char a2, void *a3);
-int StoreResult();
+void StoreResult();
 void RaceResult(int a1, int a2, int a3, char *a4);
 void TimeTrials(int a1, int a2, int a3, char *a4);
 void ChampionshipStandings(int a1, int a2, int a3, char *a4);
@@ -50,7 +61,7 @@ void TeamStandings(int a1, int a2, int a3, char *a4);
 void ShowLapRecords(int a1, int a2, int a3, char *a4);
 void show_3dmap(float fZ, int iElevation, int iYaw);
 void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, int iAngle, char byAnimFrame);
-void *championship_winner(int a1, int a2, int a3, char *a4);
+void championship_winner();
 void print_mem_used(const char *szMsg);
 uint8 *try_load_picture(const char *szFile);
 void save_champ(int iSlot);
@@ -60,8 +71,8 @@ uint8 *sav_champ_char(uint8 *pSrc, int *piValue); //actually loads an int
 uint8 *sav_champ_int(uint8 *pDest, int iValue);
 void check_saves();
 void ResultRoundUp(int a1, int a2, int a3, char *a4);
-int RollCredits(void *a1, void *a2, unsigned int a3);
-int ChampionshipOver(int a1, int a2, int a3, char *a4);
+void RollCredits();
+void ChampionshipOver();
 void EndChampSequence();
 void network_fucked();
 void no_cd();

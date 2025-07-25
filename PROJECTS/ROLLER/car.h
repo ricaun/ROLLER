@@ -41,7 +41,7 @@ typedef struct
   int iUnk20_2;
   int16 nUnk21;
   uint8 byCarDesignIdx;
-  uint8 byUnk23;
+  uint8 byResultLives;
   uint8 byUnk24;
   uint8 byPadding5;
   int16 nUnk25;
@@ -51,7 +51,7 @@ typedef struct
   float fUnk28;
   float fPower;
   uint8 byGearAyMax;
-  uint8 byUnk31;
+  uint8 byResultLap;
   uint8 byUnk32;
   uint8 byUnk33;
   int iUnk34;
@@ -69,7 +69,7 @@ typedef struct
   float fUnk39;
   uint8 byUnk40;
   uint8 byUnk41;
-  uint8 byUnk42;
+  uint8 byResultKills;
   uint8 byUnk43;
   int iUnk44;
   int iUnk45;
@@ -80,9 +80,9 @@ typedef struct
   int iUnk50;
   int iLastValidChunk;
   float iUnk52;
-  float fUnk53;
+  float fResultBestTime;
   int iUnk54;
-  int iUnk55;
+  float fResultTime;
   int16 nUnk56;
   int16 nUnk57;
   uint8 byUnk58;

@@ -60,6 +60,7 @@ extern char font1_ascii[256];
 extern int font2_offsets[96];
 extern char font2_ascii[256];
 extern int font4_offsets[80];
+extern int font5_offsets[80];
 extern char font4_ascii[256];
 extern tPoint sel_posns[12];
 extern int no_clear;

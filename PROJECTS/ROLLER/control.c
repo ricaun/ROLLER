@@ -4,6 +4,7 @@
 
 float levels[7] = { 100.0, 97.0, 94.0, 90.0, 85.0, 80.0, -1.0 }; //000A4290
 int level = 3;                    //000A42DC
+int carorder[16];                 //00149790
 int stops[10];                    //001497D0
 float eng_chg_revs[168];          //00149978
 int JBYmax;                       //00149C24

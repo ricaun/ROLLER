@@ -20,6 +20,7 @@
 #include <memory.h>
 #include <fcntl.h>
 #include <math.h>
+#include <float.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
@@ -69,14 +70,23 @@ int send_message_to = -1; //000A6394
 int rec_status = 0;       //000A6398
 char rec_mes_buf[32];     //00188530
 tSaveStatus save_status[4]; //00188570
+int result_lap[16];       //001885D0
 int result_order[16];     //00188610
+float result_time[16];    //00188650
 int result_design[16];    //00188690
+float result_best[16];    //001886D0
+int result_competing[16]; //00188710
 int result_control[16];   //00188750
+int result_lives[16];     //00188790
+int result_kills[16];     //001887D0
 int send_status;          //00188810
 char rec_mes_name[12];    //00188814
 int restart_net;          //00188828
-
-
+float BestTime;           //0018882C
+int result_p1;            //00188830
+int result_p2;            //00188834
+int result_p2_pos;        //00188838
+int result_p1_pos;        //0018883C
 
 //-------------------------------------------------------------------------------------------------
 
@@ -233,76 +243,83 @@ int winner_screen(int a1, char a2, void *a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int StoreResult()
+void StoreResult()
 {
-  return 0;
-  /*
-  int v0; // edi
-  int v1; // ebx
-  unsigned int v2; // eax
-  int v3; // ebp
-  int v4; // esi
-  unsigned int v5; // ebx
-  int v6; // edx
-  double v7; // st7
-  unsigned __int8 v8; // al
-  int result; // eax
-  int v10; // esi
-  int i; // edx
-  int v12; // edx
+  int iResultP2Pos; // edi
+  int iFastestLap; // ebp
+  int iMaxOffset_1; // esi
+  unsigned int iOffset; // ebx
+  int iCarIdx; // edx
+  double dResultTime; // st7
+  uint8 byCarDesignIdx; // al
+  int iResultP1Pos; // esi
+  int iCarOrderIdx; // edx
+  int iCarResult; // eax
+  int iCarOrderIdx_1; // eax
+  int iCarResult_1; // edx
 
-  v0 = result_p2_pos;
-  if (numcars > 0) {
-    v1 = 4 * numcars;
-    v2 = 0;
-    do {
-      v2 += 4;
-      result_lap_variable_1[v2 / 4] = nearcall_variable_4[v2 / 4];
-      result_competing_variable_1[v2 / 4] = team_wins_variable_1[v2 / 4];
-      result_best_variable_1[v2 / 4] = TrackArrow_variable_1[v2 / 4];
-    } while ((int)v2 < v1);
+  iResultP2Pos = result_p2_pos;
+
+  for (int i = 0; i < numcars; ++i) {
+    result_order[i] = carorder[i];
+    result_control[i] = human_control[i];
+    result_competing[i] = non_competitors[i];
   }
-  v3 = -1;
+  //if (numcars > 0) {
+  //  iMaxOffset = 4 * numcars;
+  //  iResultOffset = 0;
+  //  do {
+  //    iResultOffset += 4;
+  //    // offsets into adjacent data
+  //    result_lap[iResultOffset / 4 + 15] = nearcall[iResultOffset / 4 + 15];
+  //    result_competing[iResultOffset / 4 + 15] = team_wins[iResultOffset / 4 + 15];
+  //    LODWORD(result_best[iResultOffset / 4 + 15]) = TrackArrow_variable_1[iResultOffset / 4];
+  //  } while ((int)iResultOffset < iMaxOffset);
+  //}
+
+  iFastestLap = -1;
   BestTime = 100000000.0;
   if (racers > 0) {
-    v4 = 4 * racers;
-    v5 = 0;
+    iMaxOffset_1 = 4 * racers;
+    iOffset = 0;
     do {
-      v6 = result_order[v5 / 4];
-      if ((Car_variable_53[77 * v6] & 0x7FFFFFFF) != 0 && *(float *)&Car_variable_53[77 * v6] < (double)BestTime) {
-        v3 = result_order[v5 / 4];
-        BestTime = *(float *)&Car_variable_53[77 * v6];
+      iCarIdx = result_order[iOffset / 4];
+      if (fabs(Car[iCarIdx].fResultBestTime) > FLT_EPSILON && Car[iCarIdx].fResultBestTime < (double)BestTime) {
+        iFastestLap = result_order[iOffset / 4];
+        BestTime = Car[iCarIdx].fResultBestTime;
       }
-      result_best[v6] = Car_variable_53[77 * v6];
-      v7 = *(float *)&Car_variable_55[77 * v6];
-      result_kills[v6] = (unsigned __int8)Car_variable_42[308 * v6];
-      LODWORD(result_lap[v6]) = Car_variable_31[308 * v6];
-      result_lives[v6] = Car_variable_23[308 * v6];
-      v8 = Car_variable_22[308 * v6];
-      result_time[v6] = v7;
-      v5 += 4;
-      result_design[v6] = v8;
-    } while ((int)v5 < v4);
+      result_best[iCarIdx] = Car[iCarIdx].fResultBestTime;
+      dResultTime = Car[iCarIdx].fResultTime;
+      result_kills[iCarIdx] = Car[iCarIdx].byResultKills;
+      result_lap[iCarIdx] = (char)Car[iCarIdx].byResultLap;
+      result_lives[iCarIdx] = (char)Car[iCarIdx].byResultLives;
+      byCarDesignIdx = Car[iCarIdx].byCarDesignIdx;
+      result_time[iCarIdx] = (float)dResultTime;
+      iOffset += 4;
+      result_design[iCarIdx] = byCarDesignIdx;
+    } while ((int)iOffset < iMaxOffset_1);
   }
-  result = carorder[0];
-  v10 = 0;
-  for (i = 0; result != result_p1; ++v10)
-    result = carorder_variable_1[i++];
+  iResultP1Pos = 0;
+  iCarOrderIdx = 0;
+  if (carorder[0] != result_p1) {
+    do {
+      iCarResult = carorder[++iCarOrderIdx];
+      ++iResultP1Pos;
+    } while (iCarResult != result_p1);
+  }
   if (player_type == 2) {
-    v0 = 0;
-    result = 0;
+    iResultP2Pos = 0;
+    iCarOrderIdx_1 = 0;
     if (carorder[0] != result_p2) {
       do {
-        v12 = *(int *)((char *)carorder_variable_1 + result);
-        result += 4;
-        ++v0;
-      } while (v12 != result_p2);
+        iCarResult_1 = carorder[++iCarOrderIdx_1];
+        ++iResultP2Pos;
+      } while (iCarResult_1 != result_p2);
     }
   }
-  FastestLap = v3;
-  result_p2_pos = v0;
-  result_p1_pos = v10;
-  return result;*/
+  FastestLap = iFastestLap;
+  result_p2_pos = iResultP2Pos;
+  result_p1_pos = iResultP1Pos;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2542,10 +2559,8 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
 
 //-------------------------------------------------------------------------------------------------
 
-void *championship_winner(int a1, int a2, int a3, char *a4)
+void championship_winner()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
   /*
   int v4; // edi
   int v5; // esi
@@ -3678,9 +3693,8 @@ void ResultRoundUp(int a1, int a2, int a3, char *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-int RollCredits(void *a1, void *a2, unsigned int a3)
+void RollCredits()
 {
-  (void)(a1); (void)(a2); (void)(a3); return 0;
   /*
   __int64 picture; // rax
   int v4; // edi
@@ -3752,145 +3766,146 @@ int RollCredits(void *a1, void *a2, unsigned int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int ChampionshipOver(int a1, int a2, int a3, char *a4)
+void ChampionshipOver()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  int v4; // edx
-  int v5; // eax
-  int v6; // ebx
-  int v7; // ebx
-  int i; // eax
-  int v9; // edi
-  int v10; // esi
-  unsigned int v11; // ecx
-  char v12; // al
-  unsigned int v13; // ecx
-  unsigned int v14; // edi
-  int v15; // eax
-  _BYTE *v16; // ecx
-  _UNKNOWN **v17; // edx
-  int v18; // eax
-  int result; // eax
-  int v20; // [esp-4h] [ebp-24h]
-  int v21; // [esp+0h] [ebp-20h]
-  int v22; // [esp+4h] [ebp-1Ch]
+  signed int iPlayer1Position; // edx
+  int iP1SearchIndex; // eax
+  int iCurrentChampEntry; // ebx
+  signed int iPlayer2Position; // edx
+  int iP2SearchIndex; // eax
+  int iCurrentP2Entry; // ebx
+  uint8 *pbyScreenBuffer; // edi
+  char *pszTitleImageData; // esi
+  unsigned int uiBufferSize; // ecx
+  char byBufferSizeRemainder; // al
+  unsigned int uiDwordCopyCount; // ecx
+  int id; // [esp+0h] [ebp-20h]
+  signed int a8; // [esp+4h] [ebp-1Ch]
 
-  v4 = 0;
+  iPlayer1Position = 0;                         // Initialize championship analysis and disable network championship mode
   network_champ_on = 0;
-  v5 = 0;
-  if (champorder[0] != result_p1) {
+  iP1SearchIndex = 0;
+  if (champorder[0] != result_p1)             // Find Player 1's position in championship order
+  {
     do {
-      v6 = champorder_variable_1[v5++];
-      ++v4;
-    } while (v6 != result_p1);
+      iCurrentChampEntry = champorder[++iP1SearchIndex];
+      ++iPlayer1Position;
+    } while (iCurrentChampEntry != result_p1);
   }
-  v7 = player_type;
-  v22 = v4;
-  if (player_type == 2) {
-    v7 = champorder[0];
-    a4 = (_BYTE *)result_p2;
-    v4 = 0;
-    for (i = 0; v7 != result_p2; ++v4)
-      v7 = champorder_variable_1[i++];
-    if (v4 < v22)
-      v22 = v4;
+  a8 = iPlayer1Position;
+  if (player_type == 2)                       // If two-player mode, find Player 2's position and use the better one
+  {
+    iPlayer2Position = 0;
+    iP2SearchIndex = 0;
+    if (champorder[0] != result_p2) {
+      do {
+        iCurrentP2Entry = champorder[++iP2SearchIndex];
+        ++iPlayer2Position;
+      } while (iCurrentP2Entry != result_p2);
+    }
+    if (iPlayer2Position < a8)                // Use the better position between both players
+      a8 = iPlayer2Position;
   }
-  if (!v22) {
-    championship_winner(0, v4, v7, a4);
+  if (!a8)                                    // If player won championship (position 0), show victory sequence
+  {
+    championship_winner();
     champion_race();
   }
-  tick_on = 0;
-  v21 = scr_size;
+  tick_on = 0;                                  // Initialize screen for championship results display
+  id = scr_size;
   SVGA_ON = -1;
-  init_screen(scr_size, 0, -1);
-  setpal((int)aResroundPal, 0, (_WORD *)0xFFFFFFFF, a4);
-  winx = 0;
+  init_screen();
+  setpal("resround.pal");
+  winx = 0;                                     // Set window to full screen and start victory music
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
   startmusic(winsong);
   holdmusic = -1;
-  title_vga = load_picture(&a00ResroundBm[3]);
-  font_vga = load_picture(aFont4Bm);
-  front_vga[0] = load_picture(aFont5Bm);
+  title_vga = load_picture("resround.bm");      // Load championship results screen resources
+  font_vga = load_picture("font4.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("font5.bm");
   frontend_on = -1;
   tick_on = -1;
-  v9 = scrbuf;
-  v10 = title_vga;
-  if (SVGA_ON)
-    v11 = 256000;
+  pbyScreenBuffer = scrbuf;
+  pszTitleImageData = (char *)title_vga;
+  if (SVGA_ON)                                // Copy title background to screen buffer (optimized copy)
+    uiBufferSize = 256000;
   else
-    v11 = 64000;
-  v20 = scrbuf;
-  v12 = v11;
-  v13 = v11 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)title_vga, 4 * v13);
-  qmemcpy((void *)(v9 + 4 * v13), (const void *)(v10 + 4 * v13), v12 & 3);
-  v14 = v20;
-  if (v22) {
-    if (v22 == 1) {
-      front_text(320, 64, 143, 1);
-      front_text(320, 100, 143, 1);
-      front_text(320, 140, 143, 1);
-      v16 = &font5_offsets;
-      front_text(320, 180, 143, 1);
+    uiBufferSize = 64000;
+  byBufferSizeRemainder = uiBufferSize;
+  uiDwordCopyCount = uiBufferSize >> 2;
+  memcpy(scrbuf, title_vga, 4 * uiDwordCopyCount);
+  memcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pszTitleImageData[4 * uiDwordCopyCount], byBufferSizeRemainder & 3);
+  if (a8)                                     // Display different messages based on championship position
+  {                                             // Second place - show runner-up messages
+    if (a8 == 1) {
+      front_text((tBlockHeader *)font_vga, &language_buffer[4160], font4_ascii, font4_offsets, 320, 64, 0x8Fu, 1u);
+      front_text(front_vga[0], &language_buffer[4288], font4_ascii, font5_offsets, 320, 100, 0x8Fu, 1u);
+      front_text((tBlockHeader *)font_vga, &language_buffer[4352], font4_ascii, font4_offsets, 320, 140, 0x8Fu, 1u);
+      front_text((tBlockHeader *)font_vga, driver_names[champorder[0]], font4_ascii, font5_offsets, 320, 180, 0x8Fu, 1u);
       if (Race == 8) {
-        TrackLoad = (((_BYTE)TrackLoad - 1) & 7) + 1;
+        TrackLoad = (((uint8)TrackLoad - 1) & 7) + 1;
         Race = 0;
       }
     } else {
-      front_text(320, 64, 143, 1);
-      front_text(320, 140, 143, 1);
-      v16 = &font4_offsets;
-      front_text(320, 180, 143, 1);
+      front_text((tBlockHeader *)font_vga, &language_buffer[4224], font4_ascii, font4_offsets, 320, 64, 0x8Fu, 1u);// Third place or lower - show completion message
+      front_text((tBlockHeader *)font_vga, &language_buffer[4352], font4_ascii, font4_offsets, 320, 140, 0x8Fu, 1u);
+      front_text((tBlockHeader *)font_vga, driver_names[champorder[0]], font4_ascii, font4_offsets, 320, 180, 0x8Fu, 1u);
       if (Race == 8) {
-        TrackLoad = (((_BYTE)TrackLoad - 1) & 7) + 1;
-        v14 = 0;
+        TrackLoad = (((uint8)TrackLoad - 1) & 7) + 1;
         Race = 0;
       }
     }
-  } else {
-    front_text(320, 64, 143, 1);
-    if (Race == 8) {
-      if (level < 4)
-        textures_off |= 0x1000u;
-      if (level < 2) {
-        v15 = textures_off;
-        BYTE1(v15) = BYTE1(textures_off) | 0x80;
-        textures_off = v15;
-      }
-    }
-    if (TrackLoad >= 17 || level >= 4) {
-      TrackLoad = 17;
-      if (level > 0 && Race == 8)
-        --level;
-    }
-    v16 = &font4_offsets;
-    front_text(320, 100, 143, 1);
-    if (Race == 8) {
-      v16 = 0;
-      Race = 0;
+    goto LABEL_36;
+  }
+  front_text((tBlockHeader *)font_vga, &language_buffer[4096], font4_ascii, font4_offsets, 320, 64, 0x8Fu, 1u);// Championship winner - display congratulations
+  if (Race == 8)                              // Handle completion rewards and progression
+  {                                             // Unlock texture quality improvements for winning championship
+    if (level < 4)
+      textures_off |= 0x1000u;
+    if (level < 2) {
+      textures_off |= 0x00008000;
+      //uiTextureSettings = textures_off;
+      //BYTE1(uiTextureSettings) = BYTE1(textures_off) | 0x80;
+      //textures_off = uiTextureSettings;
     }
   }
-  v17 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  fade_palette(32, (int)v17, (int)font4_ascii, (int)v16);
+  if (TrackLoad < 17 && level < 4)            // Determine next level progression or reset
+  {                                             // Continue in same track group at higher difficulties
+    if (level > 0) {
+      front_text((tBlockHeader *)font_vga, &language_buffer[4480], font4_ascii, font4_offsets, 320, 100, 0x8Fu, 1u);
+      goto LABEL_30;
+    }
+  } else {
+    TrackLoad = 17;                             // Reset to first track group and decrease difficulty if at higher levels
+    if (level > 0) {
+      if (Race == 8)
+        --level;
+      front_text((tBlockHeader *)font_vga, &language_buffer[4416], font4_ascii, font4_offsets, 320, 100, 0x8Fu, 1u);
+      goto LABEL_30;
+    }
+  }
+  front_text((tBlockHeader *)font_vga, &language_buffer[4544], font4_ascii, font4_offsets, 320, 100, 0x8Fu, 1u);// Ultimate completion - show mastery message
+LABEL_30:
+  if (Race == 8)                              // Reset race counter after completing championship
+    Race = 0;
+LABEL_36:
+  copypic(scrbuf, screen);                      // Display results screen and wait for user input
+  fade_palette(32);
   ticks = 0;
   while (!fatkbhit() && ticks < 2160)
-    ;
-  fre(&title_vga);
+    UpdateSDL();
+  fre(&title_vga);                              // Clean up resources and show end sequence
   fre(&font_vga);
-  fre(front_vga);
-  scr_size = v21;
-  fade_palette(0, (int)v17, (int)font4_ascii, (int)v16);
-  EndChampSequence(v18);
-  result = RollCredits(font4_ascii, v16, v14);
-  if (TrackLoad >= 17)
+  fre((void **)front_vga);
+  scr_size = id;
+  fade_palette(0);
+  EndChampSequence();                           // Run championship end sequence and credits
+  RollCredits();
+  if (TrackLoad >= 17)                        // Reset track selection if at maximum
     TrackLoad = 1;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
