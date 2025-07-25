@@ -2561,85 +2561,87 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
 
 void championship_winner()
 {
-  /*
-  int v4; // edi
-  int v5; // esi
-  int v6; // ebp
-  unsigned int v7; // ecx
-  char v8; // al
-  unsigned int v9; // ecx
-  int v10; // ebx
-  int v11; // edi
-  char *v12; // esi
-  unsigned int v13; // ecx
-  char v14; // al
-  unsigned int v15; // ecx
-  int v17; // [esp+0h] [ebp-20h]
-  int v18; // [esp+4h] [ebp-1Ch]
+  uint8 *pbyScreenBuffer; // edi
+  tBlockHeader *pChampImageData; // esi
+  int iCurrentFrame; // ebp
+  unsigned int uiBufferSize; // ecx
+  char byBufferSizeRemainder; // al
+  unsigned int uiDwordCopyCount; // ecx
+  int iFrameTimer; // ebx
+  uint8 *pbyAnimScreenBuf; // edi
+  char *pszCurrentFrameData; // esi
+  unsigned int uiAnimBufferSize; // ecx
+  char byAnimRemainder; // al
+  unsigned int uiAnimDwordCount; // ecx
+  int iNumAnimFrames; // [esp+0h] [ebp-20h]
+  int iDuration; // [esp+4h] [ebp-1Ch]
 
-  SVGA_ON = -1;
-  init_screen(a1, -1, 0);
+  SVGA_ON = -1;                                 // Initialize SVGA mode and full screen window for championship victory
+  init_screen();
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  setpal((int)&aReschampPal[3], -1, 0, a4);
-  front_vga[0] = try_load_picture(&aOnchampBm[2]);
+  setpal("champ.pal");                          // Set championship palette and load victory image
+  front_vga[0] = (tBlockHeader *)try_load_picture("champ.bm");// Try to load animated championship image, fallback to static
   if (front_vga[0]) {
-    v17 = 12;
+    iNumAnimFrames = 12;                        // Animated version has 12 frames
   } else {
-    front_vga[0] = load_picture(&aSmachumpBm[3]);
-    v17 = 1;
+    front_vga[0] = (tBlockHeader *)load_picture("chump.bm");// Static fallback version has 1 frame
+    iNumAnimFrames = 1;
   }
-  if (v17 != 1 && MusicVolume && MusicCard)
-    v18 = 720;
+  if (iNumAnimFrames != 1 && MusicVolume && MusicCard)// Set display duration: longer for animated with music, shorter otherwise
+    iDuration = 720;
   else
-    v18 = 180;
-  v4 = scrbuf;
-  v5 = front_vga[0];
-  v6 = 0;
+    iDuration = 180;
+  pbyScreenBuffer = scrbuf;
+  pChampImageData = front_vga[0];
+  iCurrentFrame = 0;                            // Copy first frame to screen buffer (optimized memory copy)
   if (SVGA_ON)
-    v7 = 256000;
+    uiBufferSize = 256000;
   else
-    v7 = 64000;
-  v8 = v7;
-  v9 = v7 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)front_vga[0], 4 * v9);
-  qmemcpy((void *)(v4 + 4 * v9), (const void *)(v5 + 4 * v9), v8 & 3);
-  copypic((char *)scrbuf, (int)screen);
-  v10 = 0;
+    uiBufferSize = 64000;
+  byBufferSizeRemainder = uiBufferSize;
+  uiDwordCopyCount = uiBufferSize >> 2;
+  memcpy(scrbuf, front_vga[0], 4 * uiDwordCopyCount);
+  memcpy(&pbyScreenBuffer[4 * uiDwordCopyCount], &pChampImageData->iWidth + uiDwordCopyCount, byBufferSizeRemainder & 3);
+  copypic(scrbuf, screen);                      // Display initial frame and start championship music
+  iFrameTimer = 0;
   startmusic(winchampsong);
   enable_keyboard();
-  fade_palette(32, -1, 0, 0);
+  fade_palette(32);                             // Enable input, fade in display, and initialize animation timing
   front_fade = -1;
   ticks = 0;
   frames = 1;
-  do {
+  do {                                             // Main animation loop - exit on keyboard input
     if (fatkbhit())
       break;
-    v10 -= frames;
+    iFrameTimer -= frames;                      // Update frame timer based on game frame rate
     frames = 0;
-    if (v10 < 0) {
-      v11 = scrbuf;
-      v12 = (char *)(front_vga[0] + 256000 * v6);
+    if (iFrameTimer < 0)                      // Time to advance to next animation frame
+    {
+      pbyAnimScreenBuf = scrbuf;
+      pszCurrentFrameData = (char *)front_vga[0] + 256000 * iCurrentFrame;// Calculate pointer to current animation frame data
       if (SVGA_ON)
-        v13 = 256000;
+        uiAnimBufferSize = 256000;
       else
-        v13 = 64000;
-      v14 = v13;
-      v15 = v13 >> 2;
-      qmemcpy((void *)scrbuf, v12, 4 * v15);
-      qmemcpy((void *)(v11 + 4 * v15), &v12[4 * v15], v14 & 3);
-      copypic((char *)scrbuf, (int)screen);
-      do {
-        if (++v6 == v17)
-          v6 ^= v17;
-        v10 += 2;
-      } while (v10 < 0);
+        uiAnimBufferSize = 64000;
+      byAnimRemainder = uiAnimBufferSize;
+      uiAnimDwordCount = uiAnimBufferSize >> 2;
+      memcpy(scrbuf, pszCurrentFrameData, 4 * uiAnimDwordCount);// Copy current frame to screen buffer and display
+      memcpy(&pbyAnimScreenBuf[4 * uiAnimDwordCount], &pszCurrentFrameData[4 * uiAnimDwordCount], byAnimRemainder & 3);
+      copypic(scrbuf, screen);
+      do {                                         // Advance to next frame, wrap around at end of animation
+        if (++iCurrentFrame == iNumAnimFrames)
+          iCurrentFrame ^= iNumAnimFrames;      // Reset to frame 0 when reaching end of animation cycle
+        iFrameTimer += 2;                       // Add 2 ticks to frame timer for next frame timing
+        UpdateSDL();
+      } while (iFrameTimer < 0);
     }
-  } while (ticks < v18);
-  return fre(front_vga);*/
+    UpdateSDL();
+  } while (ticks < iDuration);                  // Continue animation until timeout or user input
+  fre((void **)front_vga);                      // Clean up championship image resources
 }
 
 //-------------------------------------------------------------------------------------------------
