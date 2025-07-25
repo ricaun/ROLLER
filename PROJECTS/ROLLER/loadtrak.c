@@ -2,6 +2,7 @@
 #include "3d.h"
 #include "car.h"
 #include "moving.h"
+#include "graphics.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,6 +13,8 @@ uint8 TrackSelect = 0;      //000A5F9C
 char *delims = " ,\n\t\r";  //000A6088
 tTrakView TrakView[500];    //0016FF20
 int cur_laps[6];            //00176898
+uint8 fp_buf[512];          //001768B0
+uint8 *start_f;             //00176ABC
 int meof;                   //00176AC4
 tTrackInfo TrackInfo[500];  //00171E60
 float cur_TrackZ;           //00178048
@@ -908,83 +911,79 @@ int read_backs(int *a1, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 
-char *read_texturemap(int a1)
+void read_texturemap(uint8 **ppTrackData)
 {
-  return 0; /*
-  char *v2; // eax
-  char v3; // dh
-  char *result; // eax
-  int v5; // edx
-  char v6; // bl
+  char *pszBufPtr; // eax
+  char byCurrentChar; // dh
+  char *pszFilenamePtr; // eax
+  int iIndex; // edx
+  char byChar; // bl
 
   do
-    memgets(&fp_buf, a1);
-  while (fp_buf != 84);
-  v2 = &fp_buf;
+    memgets(fp_buf, ppTrackData);      // Read lines from track data until we find a line starting with 'T' (texture map entry)
+  while (fp_buf[0] != 84);
+  pszBufPtr = fp_buf;
   do
-    v3 = *++v2;
-  while (v3 != 58);
-  result = v2 + 1;
-  v5 = 0;
+    byCurrentChar = *++pszBufPtr;               // Scan forward in the line to find the ':' separator
+  while (byCurrentChar != 58);
+  pszFilenamePtr = pszBufPtr + 1;               // Start of filename is right after the ':'
+  iIndex = 0;
   do {
-    v6 = *result++;
-    texture_file[v5] = v6;
-    if ((unsigned __int8)v6 >= 0x61u && (unsigned __int8)v6 <= 0x7Au)
-      texture_file[v5] = v6 - 32;
-    ++v5;
-  } while (*result != 13 && *result != 10);
-  texture_file[v5] = 0;
-  return result;*/
+    byChar = *pszFilenamePtr++;                 // Copy filename character by character
+    texture_file[iIndex] = byChar;
+    if ((uint8)byChar >= 0x61u && (uint8)byChar <= 0x7Au)// Convert lowercase letters to uppercase (a-z -> A-Z)
+      texture_file[iIndex] = byChar - 32;
+    ++iIndex;
+  } while (*pszFilenamePtr != 13 && *pszFilenamePtr != 10);
+  texture_file[iIndex] = 0;                     // Null-terminate the texture filename string
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char *read_bldmap(char **a1)
+void read_bldmap(uint8 **ppTrackData)
 {
-  return 0; /*
-  char *v2; // ebp
-  int v3; // ecx
-  char *v4; // esi
-  char *result; // eax
-  char *v6; // eax
-  char v7; // dh
-  int v8; // edx
-  char v9; // cl
+  uint8 *pbyOriginalTrackData; // ebp
+  int iFoundBLD; // ecx
+  uint8 *pbyPrevPos; // esi
+  uint8 *pbyBufPtr; // eax
+  char byCurrentChar; // dh
+  char *pszFilenamePtr; // eax
+  int iIndex; // edx
+  char byChar; // cl
 
-  v2 = *a1;
-  v3 = 0;
-  *a1 = (char *)start_f;
+  pbyOriginalTrackData = *ppTrackData;          // Save original track data pointer to restore later
+  iFoundBLD = 0;
+  *ppTrackData = start_f;              // Reset track data pointer to start of file for searching
   do {
-    v4 = *a1;
-    memgets(&fp_buf, a1);
-    result = *a1;
-    if (v4 == *a1)
-      v3 = -1;
-    if (fp_buf == 66 && fp_buf_variable_1 == 76 && fp_buf_variable_2 == 68)
-      v3 = -1;
-  } while (!v3);
-  if (fp_buf == 66 && fp_buf_variable_1 == 76 && fp_buf_variable_2 == 68) {
-    v6 = &fp_buf;
-    if (fp_buf != 58) {
+    pbyPrevPos = *ppTrackData;
+    memgets(fp_buf, ppTrackData);               // Read next line from track data
+    if (pbyPrevPos == *ppTrackData)           // Check if we reached end of file (pointer didn't advance)
+      iFoundBLD = -1;
+    if (fp_buf[0] == 66 && fp_buf[1] == 76 && fp_buf[2] == 68)// Check if line starts with "BLD" (building map entry)
+      iFoundBLD = -1;
+  } while (!iFoundBLD);
+  if (fp_buf[0] == 66 && fp_buf[1] == 76 && fp_buf[2] == 68)// Process the BLD line if found
+  {
+    pbyBufPtr = fp_buf;
+    if (fp_buf[0] != 58) {
       do
-        v7 = *++v6;
-      while (v7 != 58);
+        byCurrentChar = *++pbyBufPtr;           // Scan forward to find ':' separator
+      while (byCurrentChar != 58);
     }
-    result = v6 + 1;
-    v8 = 0;
+    pszFilenamePtr = (char *)(pbyBufPtr + 1);   // Start of filename is right after the ':'
+    iIndex = 0;
     do {
-      v9 = *result++;
-      bldtex_file[v8] = v9;
-      if ((unsigned __int8)v9 >= 0x61u && (unsigned __int8)v9 <= 0x7Au)
-        bldtex_file[v8] = v9 - 32;
-      ++v8;
-    } while (*result != 13 && *result != 10);
-    bldtex_file[v8] = 0;
+      byChar = *pszFilenamePtr++;               // Copy building texture filename character by character
+      bldtex_file[iIndex] = byChar;
+      if ((unsigned __int8)byChar >= 0x61u && (unsigned __int8)byChar <= 0x7Au)// Convert lowercase letters to uppercase (a-z -> A-Z)
+        bldtex_file[iIndex] = byChar - 32;
+      ++iIndex;
+    } while (*pszFilenamePtr != 13 && *pszFilenamePtr != 10);
+    bldtex_file[iIndex] = 0;                    // Null-terminate the building texture filename
   } else {
-    strcpy(&fp_buf, "building.drh");
+    strcpy((char *)fp_buf, "building.drh");     // Use default building texture if no BLD entry found
   }
-  *a1 = v2;
-  return result;*/
+  *ppTrackData = pbyOriginalTrackData;          // Restore original track data pointer
 }
 
 //-------------------------------------------------------------------------------------------------
