@@ -975,7 +975,7 @@ void read_bldmap(uint8 **ppTrackData)
     do {
       byChar = *pszFilenamePtr++;               // Copy building texture filename character by character
       bldtex_file[iIndex] = byChar;
-      if ((unsigned __int8)byChar >= 0x61u && (unsigned __int8)byChar <= 0x7Au)// Convert lowercase letters to uppercase (a-z -> A-Z)
+      if ((uint8)byChar >= 0x61u && (uint8)byChar <= 0x7Au)// Convert lowercase letters to uppercase (a-z -> A-Z)
         bldtex_file[iIndex] = byChar - 32;
       ++iIndex;
     } while (*pszFilenamePtr != 13 && *pszFilenamePtr != 10);
