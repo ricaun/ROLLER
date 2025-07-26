@@ -234,7 +234,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
   }
   pFile_2 = 0;
   if ((unsigned int)iTrackIdx_1 <= 0x18) {
-    pFile = fopen(names[iTrackIdx_1], "r");     // Open and validate track file
+    pFile = ROLLERfopen(names[iTrackIdx_1], "r");     // Open and validate track file
     if (!pFile) {
       ErrorBoxExit("Track %d not found\n", iTrackIdx_1);
       //__asm { int     10h; -VIDEO - SET VIDEO MODE }
@@ -255,7 +255,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
         pTrackBuffer_1 = (uint8 *)getbuffer(iFileLength + 1);
       pData = pTrackBuffer_1;
       pCurrDataPtr = pTrackBuffer_1;
-      pFile_2 = fopen(names[iTrackIdx_1], "rb");
+      pFile_2 = ROLLERfopen(names[iTrackIdx_1], "rb");
       fread(pData, iFileLength, 1u, pFile_2);
       iCompactedFlag = 0;
       pData[iFileLength] = 26;
@@ -267,7 +267,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
       pData = pTrackBuffer;
       pCurrDataPtr = pTrackBuffer;
       loadcompactedfile(names[iTrackIdx_1], pTrackBuffer);
-      pFile_1 = fopen(names[iTrackIdx_1], "r");
+      pFile_1 = ROLLERfopen(names[iTrackIdx_1], "r");
       pData[iCompactedFileLength] = 26;
       pFile_2 = pFile_1;
       iCompactedFlag = -1;
@@ -358,9 +358,15 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
           &iSignRoll);                          // Read track surface and wall color data
         iTemp1 = iSubdivArrayBaseOffset;
         iTemp2 = 11 * iChunkIdx;
-        do
-          *((uint8 *)&meof + ++iTemp2 + 3) = 0;
-        while (iTemp2 != iTemp1);
+        // Clear the subdivides array for the current chunk
+        int iStartIdx = 11 * iChunkIdx;
+        int iEndIdx = iSubdivArrayBaseOffset;
+        for (int i = iStartIdx; i < iEndIdx; i++) {
+          Subdivide[0].subdivides[i] = 0;
+        }
+        //do
+        //  *((uint8 *)&meof + ++iTemp2 + 3) = 0;
+        //while (iTemp2 != iTemp1);
         iSubdivideIdx = iChunkIdx;
         readline2(
           &pCurrDataPtr,
