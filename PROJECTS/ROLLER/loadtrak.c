@@ -102,8 +102,8 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
   float *p_fBuildingAngles; // eax
   int v34; // edx
   double dAngleCalc1; // st7
-  long double dLeftAngle; // st6
-  long double dRightAngle; // st6
+  double dLeftAngle; // st6
+  double dRightAngle; // st6
   double dAILine1_1; // st7
   unsigned int uiLocalDataOffset1; // eax
   unsigned int uiLocalDataOffset2; // edx
@@ -114,7 +114,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
   int iRightSurfaceType; // ecx
   int iLeftSurfCheck; // ebx
   int iRightSurfCheck; // edx
-  long double dCos; // rt1
+  double dCos; // rt1
   int iDifficulty; // eax
   int iTrackLapOffset; // edx
   int iLapValue; // ebx
@@ -151,9 +151,9 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
   double dRightLaneWidth; // [esp+114h] [ebp-178h] BYREF
   double dLeftLaneWidth; // [esp+11Ch] [ebp-170h] BYREF
   double dLeftShoulderWidth; // [esp+124h] [ebp-168h] BYREF
-  long double dWallCalc1; // [esp+12Ch] [ebp-160h] BYREF
-  long double dWallCalc2; // [esp+134h] [ebp-158h] BYREF
-  long double dWallCalc3; // [esp+13Ch] [ebp-150h] BYREF
+  double dWallCalc1; // [esp+12Ch] [ebp-160h] BYREF
+  double dWallCalc2; // [esp+134h] [ebp-158h] BYREF
+  double dWallCalc3; // [esp+13Ch] [ebp-150h] BYREF
   double dTempPitch_3; // [esp+144h] [ebp-148h]
   double dTempYaw_1; // [esp+14Ch] [ebp-140h]
   double dLeftWallTotalHeight; // [esp+154h] [ebp-138h]
