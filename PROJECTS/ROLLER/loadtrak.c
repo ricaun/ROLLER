@@ -359,10 +359,8 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
         iTemp1 = iSubdivArrayBaseOffset;
         iTemp2 = 11 * iChunkIdx;
         // Clear the subdivides array for the current chunk
-        int iStartIdx = 11 * iChunkIdx;
-        int iEndIdx = iSubdivArrayBaseOffset;
-        for (int i = iStartIdx; i < iEndIdx; i++) {
-          Subdivide[0].subdivides[i] = 0;
+        for (int i = 0; i < 11; i++) {
+          Subdivide[iChunkIdx].subdivides[i] = 0;
         }
         //do
         //  *((uint8 *)&meof + ++iTemp2 + 3) = 0;
