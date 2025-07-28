@@ -3706,7 +3706,9 @@ void RollCredits()
           fatgetch();
         for ( i = iCreditOrderIdx; credit_order[i] != -2; ++i )
           ++iCreditOrderIdx;
+        UpdateSDL();
       }
+      UpdateSDL();
     }
     while ( ticks < 72 );
     if ( credit_order[iCreditOrderIdx] != -2 )
