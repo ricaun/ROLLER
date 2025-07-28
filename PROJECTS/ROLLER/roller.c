@@ -321,8 +321,8 @@ void playMusic()
 }
 
 //-------------------------------------------------------------------------------------------------
+#if _DEBUG
 bool debugEnable = false;
-
 void UpdateDebugLoop()
 {
   if (debugEnable) {
@@ -434,7 +434,7 @@ void UpdateDebugLoop()
     fre((void **)&front_vga_font1);
   }
 }
-
+#endif
 //-------------------------------------------------------------------------------------------------
 
 void UpdateSDL()
