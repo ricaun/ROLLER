@@ -17,6 +17,7 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern char save_slots[4][13];
+extern int credit_order[25];
 extern char round_pals[8][13];
 extern char round_pics[8][13];
 extern int send_message_to;

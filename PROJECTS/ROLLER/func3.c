@@ -44,6 +44,8 @@ char save_slots[4][13] =  //000A6234
   "champ3.sav",
   "champ4.sav"
 };
+int credit_order[25] =      //000A6268
+{ 3, 1, 0, 2, 4, 5, 6, 7, -1, 0, 1, 2, 3, 4, -2 };
 char round_pals[8][13] =  //000A62A4
 {
   "round1.pal",
@@ -3658,73 +3660,65 @@ void ResultRoundUp()
 
 void RollCredits()
 {
-  /*
-  __int64 picture; // rax
-  int v4; // edi
-  int v5; // esi
-  int v6; // ecx
-  int v7; // ebp
-  __int64 v8; // rax
-  int v9; // ecx
-  _UNKNOWN **v10; // edx
-  int v11; // ebx
+  int iCurrImageIdx; // edi
+  int iCreditOrderIdx; // esi
+  int iBlockIdx; // ecx
+  tBlockHeader *pCurrImage; // ebp
+  int64 llBlockHeight; // rax
   int i; // eax
-  int result; // eax
 
-  title_screens(0, a1, a2, a3);
+  title_screens();
   ticks = 0;
   frontend_on = -1;
   tick_on = -1;
-  front_vga[0] = load_picture(aCredit1Bm);
-  picture = load_picture(&aEcredit2Bm[1]);
-  front_vga_variable_1 = picture;
-  while (ticks < 108)
-    ;
-  fade_palette(0, SHIDWORD(picture), -1, (int)a2);
-  v4 = 0;
-  v5 = 0;
-  setpal((int)aCredit1Pal, SHIDWORD(picture), (_WORD *)0xFFFFFFFF, a2);
-  do {
-    v6 = credit_order[v5];
-    if (v6 < 0) {
-      if (v6 == -3)
-        --v4;
+  front_vga[0] = (tBlockHeader *)load_picture("credit1.bm");
+  front_vga[1] = (tBlockHeader *)load_picture("credit2.bm");
+  while ( ticks < 108 )
+    UpdateSDL();
+  fade_palette(0);
+  iCurrImageIdx = 0;
+  iCreditOrderIdx = 0;
+  setpal("credit1.pal");
+  do
+  {
+    iBlockIdx = credit_order[iCreditOrderIdx];
+    if ( iBlockIdx < 0 )
+    {
+      if ( iBlockIdx == -3 )
+        --iCurrImageIdx;
       else
-        ++v4;
-      v6 = credit_order_variable_1[v5++];
+        ++iCurrImageIdx;
+      iBlockIdx = credit_order[++iCreditOrderIdx];
     }
-    memset(scrbuf, 0, 256000);
-    v7 = front_vga[v4];
-    v8 = *(int *)(12 * v6 + v7 + 4);
-    v9 = XMAX / 2 - *(_DWORD *)(12 * v6 + v7) / 2;
-    display_block(YMAX / 2 - (((int)v8 - HIDWORD(v8)) >> 1), -1);
-    v10 = screen;
-    copypic((char *)scrbuf, (int)screen);
-    fade_palette(32, (int)v10, 0, v9);
+    memset(scrbuf, 0, 0x3E800u);
+    pCurrImage = front_vga[iCurrImageIdx];
+    llBlockHeight = pCurrImage[iBlockIdx].iHeight;
+    display_block(scrbuf, pCurrImage, iBlockIdx, XMAX / 2 - pCurrImage[iBlockIdx].iWidth / 2, YMAX / 2 - llBlockHeight / 2, -1);
+    copypic(scrbuf, screen);
+    fade_palette(32);
     ticks = 0;
-    v11 = 72;
-    do {
-      while (fatkbhit()) {
+    do
+    {
+      while ( fatkbhit() )
+      {
         ticks = 74;
-        if (!fatgetch())
+        if ( !fatgetch() )
           fatgetch();
-        for (i = v5; credit_order[i] != -2; ++i)
-          ++v5;
+        for ( i = iCreditOrderIdx; credit_order[i] != -2; ++i )
+          ++iCreditOrderIdx;
       }
-    } while (ticks < 72);
-    if (credit_order[v5] != -2)
-      ++v5;
-    if (credit_order[v5] == -2) {
-      v11 = 0;
-      holdmusic = 0;
     }
-    fade_palette(0, (int)v10, v11, -2);
-  } while (credit_order[v5] != -2);
-  fre(front_vga);
-  fre(&front_vga_variable_1);
-  result = 0;
+    while ( ticks < 72 );
+    if ( credit_order[iCreditOrderIdx] != -2 )
+      ++iCreditOrderIdx;
+    if ( credit_order[iCreditOrderIdx] == -2 )
+      holdmusic = 0;
+    fade_palette(0);
+  }
+  while ( credit_order[iCreditOrderIdx] != -2 );
+  fre((void **)&front_vga[0]);
+  fre((void **)&front_vga[1]);
   front_fade = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
