@@ -218,6 +218,7 @@ int winner_screen(eCarDesignIndex carDesign, char byFlags)
         fatgetch();
       iExit = -1;
       iRetVal = 0;
+      UpdateSDL();
     }
     if ( ticks > iDisplayDuration )
       iExit = -1;
@@ -225,6 +226,7 @@ int winner_screen(eCarDesignIndex carDesign, char byFlags)
     nNewYaw &= 0x3FFF;
     Car[0].nYaw = nNewYaw;
     frames = 0;
+    UpdateSDL();
   }
   while ( !iExit );
 
