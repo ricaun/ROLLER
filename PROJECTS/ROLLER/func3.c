@@ -92,155 +92,165 @@ int result_p1_pos;        //0018883C
 
 //-------------------------------------------------------------------------------------------------
 
-int winner_screen(int a1, char a2, void *a3)
+int winner_screen(eCarDesignIndex carDesign, char byFlags)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  _BYTE *v4; // ecx
-  __int64 picture; // rax
-  int v6; // ebp
-  int v7; // eax
-  int v8; // eax
-  int v9; // esi
-  int v10; // edx
-  int v11; // ecx
-  int v12; // edi
-  int v13; // esi
-  unsigned int v14; // ecx
-  char v15; // al
-  unsigned int v16; // ecx
-  _UNKNOWN **v17; // edx
-  int v18; // ebx
-  __int16 v19; // ax
-  int *v20; // edx
-  int *v21; // eax
-  char *v22; // edx
-  _DWORD *v23; // eax
-  int v25; // [esp+0h] [ebp-28h]
-  int v26; // [esp+4h] [ebp-24h]
-  int v27; // [esp+8h] [ebp-20h]
-  int v28; // [esp+Ch] [ebp-1Ch]
+  int iExit; // ebp
+  int iCartexLoopItr; // eax
+  eCarType carType; // eax
+  eCarType carType_1; // esi
+  int iTexturesLoaded; // edx
+  int iExistingTexIdx; // ecx
+  uint8 *pScrBuf; // edi
+  tBlockHeader *pWinnerImage; // esi
+  unsigned int uiBufSize; // ecx
+  char byBufSizeLow; // al
+  unsigned int uiDWordCount; // ecx
+  int16 nNewYaw; // ax
+  tBlockHeader **ppFrontVgaItr; // edx
+  void **ppFrePtr; // eax
+  uint8 **ppCartexItr; // edx
+  void **ppFrePtr_1; // eax
+  int iRetVal; // [esp+0h] [ebp-28h]
+  int iOldGfxSize; // [esp+4h] [ebp-24h]
+  char byAnimFrame; // [esp+8h] [ebp-20h]
+  int iDisplayDuration; // [esp+Ch] [ebp-1Ch]
 
   tick_on = -1;
   frontend_on = -1;
-  v25 = -1;
+  iRetVal = -1;
   SVGA_ON = -1;
-  v26 = gfx_size;
+  iOldGfxSize = gfx_size;
   front_fade = 0;
-  init_screen(gfx_size, -1, (int)a3);
-  v4 = (_BYTE *)MusicVolume;
+  init_screen();
   winx = 0;
   winy = 0;
   winw = XMAX;
   mirror = 0;
   winh = YMAX;
-  if (MusicVolume && MusicCard)
-    v28 = 720;
+
+  // longer display with music
+  if ( MusicVolume && MusicCard )
+    iDisplayDuration = 720;
   else
-    v28 = 180;
-  front_vga[0] = load_picture(aWinnerBm);
-  picture = load_picture(&aXfont3Bm[2]);
-  front_vga_variable_1 = picture;
-  v6 = 0;
-  setpal((int)&aIntwinnerPal[3], SHIDWORD(picture), a3, v4);
+    iDisplayDuration = 180;
+
+  // load graphics
+  front_vga[0] = (tBlockHeader *)load_picture("winner.bm");
+  front_vga[1] = (tBlockHeader *)load_picture("font3.bm");
+
+  iExit = 0;
+  setpal("winner.pal");
   FindShades();
+
+  // init car pos and orientation
   frames = 0;
-  Car[0] = 0.0;
-  Car_variable_1[0] = 0.0;
-  Car_variable_2[0] = 0.0;
+  Car[0].pos.fX = 0.0;
+  Car[0].pos.fY = 0.0;
+  Car[0].pos.fZ = 0.0;
   gfx_size = 0;
-  Car_variable_7[0] = 0;
-  Car_variable_5[0] = 0;
-  Car_variable_6[0] = 0;
+  Car[0].nYaw = 0;
+  Car[0].nRoll = 0;
+  Car[0].nPitch = 0;
   set_starts(0);
-  v7 = 2;
-  car_texs_loaded[0] = 0;
-  car_texs_loaded_variable_1 = -1;
-  do {
-    v7 += 7;
-    SmokePt_variable_16[v7] = -1;
-    SmokePt_variable_17[v7] = -1;
-    SmokePt_variable_18[v7] = -1;
-    SmokePt_variable_19[v7] = -1;
-    SmokePt_variable_20[v7] = -1;
-    SmokePt_variable_21[v7] = -1;
-    SmokePt_variable_22[v7] = -1;
-  } while (v7 != 16);
-  v8 = CarDesigns_variable_5[7 * a1];
-  v9 = v8;
-  v10 = 1;
-  v11 = car_texs_loaded[v8];
-  if (v11 == -1) {
-    LoadCarTexture(v8, 1, (char *)(4 * a1));
-    v10 = 2;
-    car_texmap[a1] = 1;
-    car_texs_loaded[v9] = 1;
-  } else {
-    car_texmap[a1] = v11;
+
+  for (int i = 0; i < 16; ++i) {
+    car_texs_loaded[i] = -1;
   }
-  LoadCarTextures = v10;
+
+  carType = CarDesigns[carDesign].carType;
+  carType_1 = carType;
+  iTexturesLoaded = 1;
+  iExistingTexIdx = car_texs_loaded[carType];
+
+  if ( iExistingTexIdx == -1 )
+  {
+    // load new car tex if not already loaded
+    LoadCarTexture(carType, 1u);
+    iTexturesLoaded = 2;
+    car_texmap[carDesign] = 1;
+    car_texs_loaded[carType_1] = 1;
+  }
+  else
+  {
+    // use existing texture
+    car_texmap[carDesign] = iExistingTexIdx;
+  }
+
+  LoadCarTextures = iTexturesLoaded;
   NoOfTextures = 255;
-  if (SVGA_ON)
+  if ( SVGA_ON )
     scr_size = 128;
   else
     scr_size = 64;
+
+  // Start winner screen sequence
   ticks = 0;
   frames = 0;
   startmusic(winsong);
-  v27 = a2 & 1;
-  do {
-    v12 = scrbuf;
-    v13 = front_vga[0];
-    if (SVGA_ON)
-      v14 = 256000;
+  byAnimFrame = byFlags & 1;
+  do
+  {
+    pScrBuf = scrbuf;
+    pWinnerImage = front_vga[0];
+    if ( SVGA_ON )
+      uiBufSize = 256000;
     else
-      v14 = 64000;
-    v15 = v14;
-    v16 = v14 >> 2;
-    qmemcpy((void *)scrbuf, (const void *)front_vga[0], 4 * v16);
-    qmemcpy((void *)(v12 + 4 * v16), (const void *)(v13 + 4 * v16), v15 & 3);
-    DrawCar(2200.0, 512, v27);
-    front_text(320, 120, 143, 1);
-    v17 = screen;
-    copypic((char *)scrbuf, (int)screen);
-    v18 = front_fade;
-    if (!front_fade) {
+      uiBufSize = 64000;
+
+    // dword copy
+    byBufSizeLow = uiBufSize;
+    uiDWordCount = uiBufSize >> 2;
+    memcpy(scrbuf, front_vga[0], 4 * uiDWordCount);
+    memcpy(&pScrBuf[4 * uiDWordCount], &pWinnerImage->iWidth + uiDWordCount, byBufSizeLow & 3);
+
+    DrawCar(scrbuf + 73600, carDesign, 2200.0, 512, byAnimFrame);
+    front_text(front_vga[1], driver_names[result_order[0]], font3_ascii, font3_offsets, 320, 120, 0x8Fu, 1u);
+    copypic(scrbuf, screen);
+    if ( !front_fade )
+    {
       front_fade = -1;
-      fade_palette(32, (int)v17, 0, -1);
+      fade_palette(32);
       frames = 0;
     }
-    while (fatkbhit()) {
-      if (!(unsigned __int8)fatgetch())
+    while ( fatkbhit() )
+    {
+      if ( !(uint8)fatgetch() )
         fatgetch();
-      v6 = -1;
-      v25 = 0;
+      iExit = -1;
+      iRetVal = 0;
     }
-    if (ticks > v28)
-      v6 = -1;
-    v19 = Car_variable_7[0] + 32 * frames;
-    HIBYTE(v19) &= 0x3Fu;
-    Car_variable_7[0] = v19;
+    if ( ticks > iDisplayDuration )
+      iExit = -1;
+    nNewYaw = Car[0].nYaw + 32 * frames;
+    nNewYaw &= 0x3FFF;
+    Car[0].nYaw = nNewYaw;
     frames = 0;
-  } while (!v6);
-  v20 = front_vga;
-  do {
-    v21 = v20++;
-    fre(v21);
-  } while (v20 != &front_vga[16]);
-  v22 = (char *)&cartex_vga;
-  do {
-    v23 = v22;
-    v22 += 4;
-    fre(v23);
-  } while (v22 != (char *)&cartex_vga + 64);
+  }
+  while ( !iExit );
+
+  // cleanup
+  ppFrontVgaItr = front_vga;
+  do
+  {
+    ppFrePtr = (void **)ppFrontVgaItr++;
+    fre(ppFrePtr);
+  }
+  while ( ppFrontVgaItr != &front_vga[16] );
+  ppCartexItr = cartex_vga;
+  do
+  {
+    ppFrePtr_1 = (void **)ppCartexItr++;
+    fre(ppFrePtr_1);
+  }
+  while ( ppCartexItr != &cartex_vga[16] );
   remove_mapsels();
-  gfx_size = v26;
-  if (!v25) {
-    fade_palette(0, (int)v22, v18, 0);
+  gfx_size = iOldGfxSize;
+  if ( !iRetVal )
+  {
+    fade_palette(0);
     front_fade = 0;
   }
-  return v25;*/
+  return iRetVal;
 }
 
 //-------------------------------------------------------------------------------------------------
