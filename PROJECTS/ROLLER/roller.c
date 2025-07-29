@@ -321,6 +321,121 @@ void playMusic()
 }
 
 //-------------------------------------------------------------------------------------------------
+#if _DEBUG
+bool debugEnable = false;
+void UpdateDebugLoop()
+{
+  if (debugEnable) {
+
+    void *front_vga_font1 = load_picture("font1.bm");
+    void *front_vga_font2 = load_picture("font2.bm");
+    void *front_vga_font3 = load_picture("font3.bm");
+    void *front_vga_font4 = load_picture("font4.bm");
+
+    void *front_vga_font = front_vga_font1;
+    void *font_ascii = &font1_ascii;
+    void *font_offsets = &font1_offsets;
+
+    char buffer[256] = { 0 };
+    char text[32] = { 0 };
+    int value = 0;
+    int font = 0;
+
+    strcpy(text, "Debug font ascii");
+
+    while (debugEnable) {
+
+      uint8 size = 24; // Font size
+
+      if (value < 0) value = 0;
+      if (font < 0) font = 0;
+      if (font > 3) font = 3;
+
+      // Set font
+      if (font == 0) {
+        front_vga_font = front_vga_font1;
+        font_ascii = &font1_ascii;
+        font_offsets = &font1_offsets;
+      } else if (font == 1) {
+        front_vga_font = front_vga_font2;
+        font_ascii = &font2_ascii;
+        font_offsets = &font2_offsets;
+      } else if (font == 2) {
+        front_vga_font = front_vga_font3;
+        font_ascii = &font3_ascii;
+        font_offsets = &font3_offsets;
+        size = 40;
+      } else {
+        front_vga_font = front_vga_font4;
+        font_ascii = &font4_ascii;
+        font_offsets = &font4_offsets;
+        size = 40;
+      }
+
+      // clear screen - set scrbuf to 0 - black
+      memset(scrbuf, 0, SVGA_ON ? 256000 : 64000);
+
+      uint8 color_white = 0x8Fu;
+      uint8 color_red = 0xE7u;
+
+      sprintf(buffer, "%s", text);
+      front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 0, size / 2, color_white, 0);
+
+      sprintf(buffer, "%i-%i", value, font);
+      front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - size / 2, size / 2, color_white, 2);
+
+      front_text((tBlockHeader *)front_vga_font, &config_buffer[value * 64], font_ascii, font_offsets, 0, 0 + size + size / 2, color_white, 0);
+
+      for (size_t j = 0; j < 8; j++) {
+        for (size_t i = 0; i < 32; i++) {
+          buffer[i] = (char)(i + 32 * j);
+        }
+        buffer[32] = '\0';
+        front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - size / 2, size / 2 + size * (j + 1), color_white, 2);
+      }
+
+      SDL_Event e;
+      while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_EVENT_QUIT) {
+          quit_game = 1;
+          doexit();
+        }
+        if (e.type == SDL_EVENT_KEY_DOWN) {
+          if (e.key.key == SDLK_UP) {
+            value++;
+          }
+          if (e.key.key == SDLK_DOWN) {
+            value--;
+          }
+
+          if (e.key.key == SDLK_LEFT) {
+            font--;
+          }
+          if (e.key.key == SDLK_RIGHT) {
+            font++;
+          }
+
+          if (e.key.key == SDLK_D) {
+            debugEnable = !debugEnable;
+            continue;
+          }
+          if (e.key.key == SDLK_ESCAPE) {
+            debugEnable = !debugEnable;
+            continue;
+          }
+        }
+      }
+      UpdateSDLWindow();
+    }
+
+    fre((void **)&front_vga_font4);
+    fre((void **)&front_vga_font3);
+    fre((void **)&front_vga_font2);
+    fre((void **)&front_vga_font1);
+  }
+}
+#endif
+//-------------------------------------------------------------------------------------------------
 
 void UpdateSDL()
 {
@@ -331,17 +446,20 @@ void UpdateSDL()
       doexit();
     }
     if (e.type == SDL_EVENT_KEY_DOWN) {
+
+#if _DEBUG
+      if (e.key.key == SDLK_D) { // Add by ROLLER
+        if (SDL_GetModState() & (SDL_KMOD_LCTRL | SDL_KMOD_RCTRL)) {
+          if (front_vga[2] != NULL) { // Check if front_vga is loaded, loaded in main menu.
+            debugEnable = !debugEnable;
+            continue;
+          }
+        }
+      }
+#endif // _DEBUG
+
       if (e.key.key == SDLK_ESCAPE) {
         quit_game = 1;
-      //} else if (e.key.key == SDLK_SPACE) {
-      //  //PlayAudioSampleWait(SOUND_SAMPLE_FATAL); // Test play FATAL.RAW sample, requires 'config.ini' to select correct language file.
-      //  PlayAudioSampleWait(SOUND_SAMPLE_DRIVERS);
-      //  PlayAudioSampleWait(SOUND_SAMPLE_ENGINES);
-      //  PlayAudioSampleWait(SOUND_SAMPLE_GO);
-      //  continue;
-      //} else if (e.key.key == SDLK_M) {
-      //  playMusic();
-      //  continue;
       //} else if (e.key.key == SDLK_F11) {
       //  ToggleFullscreen();
       //  continue;
@@ -382,6 +500,9 @@ void UpdateSDL()
     }
   }
   //UpdateSDLWindow();
+#if _DEBUG
+  UpdateDebugLoop(); // Add by ROLLER
+#endif // _DEBUG
 }
 
 //--------------------------------------------------------------------------------------------------
