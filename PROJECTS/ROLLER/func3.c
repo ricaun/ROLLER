@@ -939,179 +939,244 @@ void ChampionshipStandings(int a1, int a2, int a3, char *a4)
 
 //-------------------------------------------------------------------------------------------------
 
-void TeamStandings(int a1, int a2, int a3, char *a4)
+void TeamStandings()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  /*
-  int v4; // edi
-  int v5; // esi
-  unsigned int v6; // ecx
-  char v7; // al
-  unsigned int v8; // ecx
-  int v9; // edx
-  int v10; // ebx
-  int v11; // ebp
-  int v12; // esi
-  int v13; // eax
-  int v14; // ecx
-  int v15; // ebp
-  int v16; // eax
-  int v17; // edx
-  int v18; // edi
-  int v19; // ebp
-  int v20; // ecx
-  int v21; // eax
-  int v22; // esi
-  int v23; // edx
-  int v24; // edx
-  int v25; // edi
-  int v26; // ebp
-  int v27; // edi
-  int v28; // ecx
-  int v29; // ebp
-  int v30; // ebx
-  _UNKNOWN **v31; // edx
-  const char *v32; // [esp+8h] [ebp-28h]
-  int v33; // [esp+Ch] [ebp-24h]
+  uint8 *pScrBuf; // edi
+  tBlockHeader *pResultImage; // esi
+  unsigned int uiBufSize; // ecx
+  char uiBufSizeLow; // al
+  unsigned int uiDWordCount; // ecx
+  int iRacerIdx; // edx
+  int iResultIdx; // ebx
+  int iDriverIdx; // ebp
+  int iCarDesignIdx; // esi
+  int iTeamIdx; // eax
+  int iFastestLapDrvr; // ecx
+  int iTeamFastLaps; // ebp
+  int iTeamOrderIdx; // eax
+  int iInitIdx; // edx
+  int iCurrTeamIdx; // edi
+  int iSortIdx; // ebp
+  int iCompareIdx; // ecx
+  int iNextIdx; // eax
+  int iBestPoints; // esi
+  int iCompareTeamIdx; // edx
+  int iBestTeamIdx; // edx
+  int iDisplayY; // edi
+  int iTeamDisplayIdx; // ebp
+  int iDisplayTeamIdx; // edi
+  int iBestTeamIdx_1; // ebp
+  char *szPosition; // [esp+8h] [ebp-28h]
+  int iTeamIter; // [esp+Ch] [ebp-24h]
+  int iCarY; // [esp+10h] [ebp-20h]
 
+  // init screen
   tick_on = 0;
   SVGA_ON = -1;
-  init_screen(a1, 0, -1);
-  setpal((int)&aEresultPal[1], 0, (_WORD *)0xFFFFFFFF, a4);
+  init_screen();
+  setpal("result.pal");
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  front_vga_variable_3 = load_picture(&aIresultBm[1]);
-  front_vga_variable_2 = load_picture(&aAcfont2Bm[2]);
-  front_vga[0] = load_picture(&aSelsmallcarBm[3]);
-  front_vga_variable_1 = load_picture(aTabtextBm_0);
+
+  // load graphics
+  front_vga[3] = (tBlockHeader *)load_picture("result.bm");
+  front_vga[2] = (tBlockHeader *)load_picture("font2.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("smallcar.bm");
+  front_vga[1] = (tBlockHeader *)load_picture("tabtext.bm");
+
   frontend_on = -1;
   tick_on = -1;
-  v4 = scrbuf;
-  v5 = front_vga_variable_3;
-  if (SVGA_ON)
-    v6 = 256000;
+  pScrBuf = scrbuf;
+  pResultImage = front_vga[3];
+  if ( SVGA_ON )
+    uiBufSize = 256000;
   else
-    v6 = 64000;
-  v7 = v6;
-  v8 = v6 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)front_vga_variable_3, 4 * v8);
-  qmemcpy((void *)(v4 + 4 * v8), (const void *)(v5 + 4 * v8), v7 & 3);
-  if (game_type != 3) {
-    v9 = 0;
-    if (racers > 0) {
-      v10 = 0;
-      do {
-        v11 = result_order[v10];
-        v12 = result_design[v11];
-        if (v12 < 8) {
-          v13 = v12;
-          team_points[v13] += result_kills[v11] + points[v10];
-          v14 = FastestLap;
-          team_kills[v13] = result_kills[v11] + team_kills[v12];
-          if (v11 == v14) {
-            v15 = team_fasts[v12] + 1;
-            ++team_points[v12];
-            team_fasts[v12] = v15;
+    uiBufSize = 64000;
+  uiBufSizeLow = uiBufSize;
+  uiDWordCount = uiBufSize >> 2;
+  memcpy(scrbuf, front_vga[3], 4 * uiDWordCount);
+  memcpy(&pScrBuf[4 * uiDWordCount], &pResultImage->iWidth + uiDWordCount, uiBufSizeLow & 3);
+
+  // calculate team stats
+  if ( game_type != 3 )
+  {
+    iRacerIdx = 0;
+    if ( racers > 0 )
+    {
+      iResultIdx = 0;
+      do
+      {
+        iDriverIdx = result_order[iResultIdx];
+        iCarDesignIdx = result_design[iDriverIdx];
+        if ( iCarDesignIdx < 8 )
+        {
+          iTeamIdx = iCarDesignIdx;
+          team_points[iTeamIdx] += result_kills[iDriverIdx] + points[iResultIdx];
+          iFastestLapDrvr = FastestLap;
+          team_kills[iTeamIdx] = result_kills[iDriverIdx] + team_kills[iCarDesignIdx];
+          if ( iDriverIdx == iFastestLapDrvr )
+          {
+            iTeamFastLaps = team_fasts[iCarDesignIdx] + 1;
+            ++team_points[iCarDesignIdx];
+            team_fasts[iCarDesignIdx] = iTeamFastLaps;
           }
-          if (!v9)
-            ++team_wins[v12];
+          if ( !iRacerIdx )
+            ++team_wins[iCarDesignIdx];
         }
-        ++v9;
-        ++v10;
-      } while (v9 < racers);
+        ++iRacerIdx;
+        ++iResultIdx;
+      }
+      while ( iRacerIdx < racers );
     }
   }
-  v16 = 0;
-  v17 = 0;
+
+  // init team order ay
+  iTeamOrderIdx = 0;
+  iInitIdx = 0;
   do
-    teamorder[v17++] = v16++;
-  while (v16 < 8);
-  v18 = 0;
-  v19 = 0;
-  do {
-    v20 = v18;
-    v21 = v18 + 1;
-    v22 = team_points[teamorder[v19]];
-    if (v18 + 1 < 8) {
-      v23 = v21;
-      do {
-        if (team_points[teamorder[v23]] > v22) {
-          v20 = v21;
-          v22 = team_points[teamorder[v23]];
+    teamorder[iInitIdx++] = iTeamOrderIdx++;
+  while ( iTeamOrderIdx < 8 );
+
+  // Sort teams by points
+  iCurrTeamIdx = 0;
+  iSortIdx = 0;
+  do
+  {
+    iCompareIdx = iCurrTeamIdx;
+    iNextIdx = iCurrTeamIdx + 1;
+    iBestPoints = team_points[teamorder[iSortIdx]];
+    if ( iCurrTeamIdx + 1 < 8 )
+    {
+      iCompareTeamIdx = iNextIdx;
+      do
+      {
+        if ( team_points[teamorder[iCompareTeamIdx]] > iBestPoints )
+        {
+          iCompareIdx = iNextIdx;
+          iBestPoints = team_points[teamorder[iCompareTeamIdx]];
         }
-        ++v21;
-        ++v23;
-      } while (v21 < 8);
+        ++iNextIdx;
+        ++iCompareTeamIdx;
+      }
+      while ( iNextIdx < 8 );
     }
-    v24 = DeathView_variable_1[++v19];
-    DeathView_variable_1[v19] = teamorder[v20];
-    ++v18;
-    teamorder[v20] = v24;
-  } while (v18 < 8);
-  v25 = 49;
-  display_block(3, -1);
-  v33 = 0;
-  v32 = a1st;
-  do {
-    v26 = teamorder[v33];
-    if (result_control_variable_1[2 * v26] || result_control[2 * v26])
-      display_block(v25 - 5, 0);
-    sprintf(&buffer, "%s", v32);
-    front_text(33, v25, 143, 0);
-    sprintf(&buffer, "%s", &CompanyNames[20 * v26]);
-    front_text(190, v25, 143, 0);
-    display_block(v25 - 3, 0);
-    display_block(v25 - 3, 0);
-    display_block(v25 - 3, 0);
-    sprintf(&buffer, "%i", team_wins[v26]);
-    front_text(500, v25, 143, 0);
-    display_block(v25 - 3, 0);
-    sprintf(&buffer, "%i", team_fasts[v26]);
-    front_text(448, v25, 143, 0);
-    sprintf(&buffer, "%3i", team_points[v26]);
-    front_text(560, v25, 143, 0);
-    display_block(v25 + 18, 0);
-    sprintf(&buffer, "%i", team_kills[v26]);
-    v27 = v25 + 22;
-    front_text(448, v27, 143, 0);
-    sprintf(&buffer, "%s", &driver_names[18 * v26]);
-    front_text(110, v27, 143, 0);
-    sprintf(&buffer, "%s", &driver_names[18 * v26 + 9]);
-    v28 = (int)&font2_offsets;
-    v29 = 2 * v26;
-    front_text(310, v27, 143, 0);
-    if (result_control_variable_1[v29] || result_control[v29]) {
-      v28 = 13;
-      display_block(v27 - 5, 0);
-    }
-    v25 = v27 + 22;
-    v30 = (int)(v32 + 5);
-    ++v33;
-    v32 += 5;
-  } while (v33 != 8);
-  v31 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  holdmusic = -1;
-  fade_palette(32, (int)v31, v30, v28);
-  ticks = 0;
-  if (game_type == 3) {
-    while (!fatkbhit())
-      ;
-  } else {
-    while (!fatkbhit() && ticks < 2160)
-      ;
+
+    iBestTeamIdx = teamorder[iSortIdx];
+    teamorder[iSortIdx] = teamorder[iCompareIdx];
+    ++iSortIdx;
+    //iBestTeamIdx = DeathView_variable_1[++iSortIdx];// offset into teamorder
+    //DeathView_variable_1[iSortIdx] = teamorder[iCompareIdx];
+
+    ++iCurrTeamIdx;
+    teamorder[iCompareIdx] = iBestTeamIdx;
   }
-  fre(front_vga);
-  fre(&front_vga_variable_1);
-  fre(&front_vga_variable_3);
-  fre(&front_vga_variable_2);
-  scr_size = v22;
+  while ( iCurrTeamIdx < 8 );
+
+  // Display team standings table
+  iDisplayY = 49;
+  display_block(scrbuf, front_vga[1], 2, 157, 3, -1);// header
+  iTeamIter = 0;
+  szPosition = race_posn[0];
+  do
+  {
+    iTeamDisplayIdx = teamorder[iTeamIter];
+
+    // display human player indicator if this team has huma players
+    if ( result_control[2 * iTeamDisplayIdx + 1] || result_control[2 * iTeamDisplayIdx] )
+      display_block(scrbuf, front_vga[0], 0, 13, iDisplayY - 5, 0);
+
+    // Display team position
+    sprintf(buffer, (uint8 *)"%s", szPosition);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 33, iDisplayY, 0x8Fu, 0);
+
+    // Display team name
+    sprintf(buffer, (uint8 *)"%s", CompanyNames[iTeamDisplayIdx]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 190, iDisplayY, 0x8Fu, 0);
+
+    // display car sprites
+    iCarY = iDisplayY - 3;
+    if ( (textures_off & 0x10000) != 0 )
+    {
+      display_block(scrbuf, front_vga[0], smallcars[1][iTeamDisplayIdx], 340, iCarY, 0);
+      display_block(scrbuf, front_vga[0], smallcars[1][iTeamDisplayIdx], 100, iCarY, 0);
+    }
+    else
+    {
+      display_block(scrbuf, front_vga[0], smallcars[0][iTeamDisplayIdx], 340, iCarY, 0);
+      display_block(scrbuf, front_vga[0], smallcars[0][iTeamDisplayIdx], 100, iCarY, 0);
+    }
+
+    // display wins icon and count
+    display_block(scrbuf, front_vga[0], 11, 475, iDisplayY - 3, 0);
+    sprintf(buffer, (uint8 *)"%i", team_wins[iTeamDisplayIdx]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 500, iDisplayY, 0x8Fu, 0);
+
+    // display fast laps icon and count
+    display_block(scrbuf, front_vga[0], 10, 428, iDisplayY - 3, 0);
+    sprintf(buffer, (uint8 *)"%i", team_fasts[iTeamDisplayIdx]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 448, iDisplayY, 0x8Fu, 0);
+
+    // display total points
+    sprintf(buffer, (uint8 *)"%3i", team_points[iTeamDisplayIdx]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 560, iDisplayY, 0x8Fu, 0);
+
+    // display kills icon and count (line 2)
+    display_block(scrbuf, front_vga[0], 9, 428, iDisplayY + 18, 0);
+    sprintf(buffer, (uint8 *)"%i", team_kills[iTeamDisplayIdx]);
+    iDisplayTeamIdx = iDisplayY + 22;
+
+    // Display both team driver names
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 448, iDisplayTeamIdx, 0x8Fu, 0);
+    sprintf(buffer, (uint8 *)"%s", driver_names[2 * iTeamDisplayIdx]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 110, iDisplayTeamIdx, 0x8Fu, 0);
+
+    sprintf(buffer, (uint8 *)"%s", driver_names[2 * iTeamDisplayIdx + 1]);
+    iBestTeamIdx_1 = 2 * iTeamDisplayIdx;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 310, iDisplayTeamIdx, 0x8Fu, 0);
+
+    // display human player indicator for driver names if applicable
+    if ( result_control[iBestTeamIdx_1 + 1] || result_control[iBestTeamIdx_1] )
+      display_block(scrbuf, front_vga[0], 0, 13, iDisplayTeamIdx - 5, 0);
+
+    // move to next team display pos
+    iDisplayY = iDisplayTeamIdx + 22;
+    ++iTeamIter;
+    szPosition += 5;
+  }
+  while ( iTeamIter != 8 );
+
+  // display completed standings screen
+  copypic(scrbuf, screen);
   holdmusic = -1;
-  fade_palette(0, (int)v31, -1, v28);*/
+  fade_palette(32);
+  ticks = 0;
+
+  // wait for user input or timeout
+  if ( game_type == 3 )
+  {
+    while ( !fatkbhit() )
+      UpdateSDL();
+  }
+  else
+  {
+    while ( !fatkbhit() && ticks < 2160 )
+      UpdateSDL();
+  }
+
+  // cleanup
+  fre((void **)&front_vga[0]);
+  fre((void **)&front_vga[1]);
+  fre((void **)&front_vga[3]);
+  fre((void **)&front_vga[2]);
+  scr_size = iBestPoints;
+  holdmusic = -1;
+  fade_palette(0);
 }
+
+//-------------------------------------------------------------------------------------------------
 
 void ShowLapRecords(int a1, int a2, int a3, char *a4)
 {

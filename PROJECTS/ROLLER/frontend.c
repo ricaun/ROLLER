@@ -68,6 +68,7 @@ int smallcars[2][16] =    //000A4BB4
 };
 int infinite_laps = 0;    //000A4C34
 int Players_Cars[16] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; //000A4C38
+int points[16] = { 25, 18, 16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 }; //000A4C78
 int player_type = 0;      //000A4CB8
 int cup_won = 0;          //000A4CBC
 int game_type = 0;        //000A4CC0
@@ -117,6 +118,25 @@ int track_laps[25][6] = //000A4E84
   { 12, 10, 8, 6, 4, 2 },
   { 12, 10, 8, 6, 4, 2 },
   { 12, 10, 8, 6, 4, 2 }
+};
+char race_posn[16][5] =   //000A5200
+{
+  " 1st",
+  " 2nd",
+  " 3rd",
+  " 4th",
+  " 5th",
+  " 6th",
+  " 7th",
+  " 8th",
+  " 9th",
+  "10th",
+  "11th",
+  "12th",
+  "13th",
+  "14th",
+  "15th",
+  "last"
 };
 int AllowedViews[9] = { -1, -1, -1, -1, 0, 0, 0, -1, 0 }; //000A52BC
 int replay_record = 1;    //000A5304
