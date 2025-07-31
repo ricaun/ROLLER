@@ -1178,241 +1178,310 @@ void TeamStandings()
 
 //-------------------------------------------------------------------------------------------------
 
-void ShowLapRecords(int a1, int a2, int a3, char *a4)
+void ShowLapRecords()
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  /*
-  unsigned __int64 picture; // kr00_8
-  int v5; // edi
-  int v6; // esi
-  unsigned int v7; // ecx
-  char v8; // al
-  unsigned int v9; // ecx
-  int v10; // esi
-  int v11; // ebp
-  int v12; // edi
-  __int64 v13; // rax
-  double v14; // st7
-  int v15; // ebx
-  _UNKNOWN **v16; // edx
-  int v17; // edi
-  int v18; // esi
-  unsigned int v19; // ecx
-  char v20; // al
-  unsigned int v21; // ecx
-  int v22; // esi
-  int v23; // ebp
-  int v24; // edi
-  __int64 v25; // rax
-  double v26; // st7
-  int v27; // [esp+4h] [ebp-44h]
-  int v28; // [esp+8h] [ebp-40h]
-  int v29; // [esp+Ch] [ebp-3Ch]
-  int v30; // [esp+10h] [ebp-38h]
-  int v31; // [esp+14h] [ebp-34h]
-  int v32; // [esp+18h] [ebp-30h]
-  int v33; // [esp+1Ch] [ebp-2Ch]
-  const char *v34; // [esp+20h] [ebp-28h]
-  const char *v35; // [esp+24h] [ebp-24h]
-  int v36; // [esp+28h] [ebp-20h]
-  int v37; // [esp+28h] [ebp-20h]
-  int v38; // [esp+2Ch] [ebp-1Ch]
-  int v39; // [esp+2Ch] [ebp-1Ch]
+  uint8 *pScrBuf; // edi
+  tBlockHeader *pBlockHeader; // esi
+  unsigned int uiMemSize; // ecx
+  char byMemSize; // al
+  unsigned int uiDwordCount; // ecx
+  int iTextY; // esi
+  int iRecordIdx; // ebp
+  int iArrayIdx; // edi
+  double dLapTime; // st7
+  uint8 *pScrBuf_1; // edi
+  tBlockHeader *pBlockHeader_1; // esi
+  unsigned int uiMemSize_1; // ecx
+  char byMemSize_1; // al
+  unsigned int uiDwordCount_1; // ecx
+  int iTextY_1; // esi
+  int iRecordIdx_1; // ebp
+  int iArrayIdx_1; // edi
+  double dLapTime_1; // st7
+  int iCarY; // [esp+4h] [ebp-44h]
+  int iOldScrSize; // [esp+8h] [ebp-40h]
+  int iKillIconY_1; // [esp+Ch] [ebp-3Ch]
+  int iKillIconY; // [esp+10h] [ebp-38h]
+  int iCarY2; // [esp+14h] [ebp-34h]
+  int iCarType; // [esp+18h] [ebp-30h]
+  int iCarType_1; // [esp+1Ch] [ebp-2Ch]
+  const char *szRecordName; // [esp+20h] [ebp-28h]
+  const char *szRecordName_1; // [esp+24h] [ebp-24h]
+  int iTimeValue_1; // [esp+28h] [ebp-20h]
+  int iTimeTemp_1; // [esp+28h] [ebp-20h]
+  int iTimeValue; // [esp+2Ch] [ebp-1Ch]
+  int iTimeTemp; // [esp+2Ch] [ebp-1Ch]
 
+  // init display settings
   holdmusic = -1;
   tick_on = 0;
   SVGA_ON = -1;
-  v28 = scr_size;
-  init_screen(scr_size, -1, 0);
-  setpal((int)&aEresultPal[1], -1, 0, a4);
+  iOldScrSize = scr_size;
+  init_screen();
+  setpal("result.pal");
+
+  // set up window params
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  front_vga_variable_2 = load_picture(&aIresultBm[1]);
-  front_vga_variable_3 = load_picture(&aAcfont2Bm[2]);
-  front_vga[0] = load_picture(&aSelsmallcarBm[3]);
-  picture = load_picture(aTabtextBm_0);
-  frontend_on = HIDWORD(picture);
-  tick_on = HIDWORD(picture);
-  front_vga_variable_1 = picture;
-  v5 = scrbuf;
-  v6 = front_vga_variable_2;
-  if (SVGA_ON)
-    v7 = 256000;
+
+  // load graphics resources
+  front_vga[2] = (tBlockHeader *)load_picture("result.bm");
+  front_vga[3] = (tBlockHeader *)load_picture("font2.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("smallcar.bm");
+  front_vga[1] = (tBlockHeader *)load_picture("tabtext.bm");
+
+  frontend_on = -1;
+  tick_on = -1;
+
+  // copy background to screen buffer
+  pScrBuf = scrbuf;
+  pBlockHeader = front_vga[2];
+  if ( SVGA_ON )
+    uiMemSize = 256000;
   else
-    v7 = 64000;
-  v8 = v7;
-  v9 = v7 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)front_vga_variable_2, 4 * v9);
-  qmemcpy((void *)(v5 + 4 * v9), (const void *)(v6 + 4 * v9), v8 & 3);
-  v10 = 49;
-  v11 = 1;
-  display_block(2, -1);
-  v12 = 1;
-  v34 = &RecordNames[9];
-  v27 = 46;
-  v30 = 45;
-  do {
-    sprintf(&buffer, "%02i", v11);
-    front_text(33, v10, 143, 0);
-    v32 = RecordCars[v12];
-    if (v32 < 0) {
-      sprintf(&buffer, "%s", v34);
-      front_text(165, v10, 143, 0);
-      front_text(450, v10, 143, 0);
-    } else {
-      sprintf(&buffer, "%s", v34);
-      front_text(85, v10, 143, 0);
-      sprintf(&buffer, "%s", &CompanyNames[20 * (v32 & 0xF)]);
-      front_text(218, v10, 143, 0);
-      if ((v32 & 0xFu) >= 8)
-        front_text(165, v10, 143, 0);
-      else
-        display_block(v27, 0);
-      display_block(v30, 0);
-      sprintf(&buffer, "%i", RecordKills[v12]);
-      v13 = front_text(560, v10, 143, 0);
-      v14 = RecordLaps[v12] * func3_c_variable_22;
-      _CHP(v13, HIDWORD(v13));
-      v38 = (int)v14;
-      if ((int)v14 > 599999)
-        v38 = 599999;
-      buffer_variable_1[0] = v38 % 10 + 48;
-      v39 = v38 / 10;
-      buffer = v39 % 10 + 48;
-      buffer_variable_2 = 0;
-      front_text(492, v10, 143, 0);
-      front_text(467, v10, 143, 0);
-      v39 /= 10;
-      buffer_variable_1[0] = v39 % 10 + 48;
-      v39 /= 10;
-      buffer = v39 % 6 + 48;
-      buffer_variable_2 = 0;
-      front_text(471, v10, 143, 0);
-      front_text(488, v10, 143, 0);
-      v39 /= 6;
-      buffer_variable_1[0] = v39 % 10 + 48;
-      buffer = v39 / 10 % 10 + 48;
-      buffer_variable_2 = 0;
-      front_text(450, v10, 143, 0);
+    uiMemSize = 64000;
+  byMemSize = uiMemSize;
+  uiDwordCount = uiMemSize >> 2;
+  memcpy(scrbuf, front_vga[2], 4 * uiDwordCount);
+  memcpy(&pScrBuf[4 * uiDwordCount], &pBlockHeader->iWidth + uiDwordCount, byMemSize & 3);
+
+  // Display records
+  iTextY = 49;
+  iRecordIdx = 1;
+  display_block(scrbuf, front_vga[1], 3, 142, 2, -1);
+  iArrayIdx = 1;
+  szRecordName = RecordNames[1];
+  iCarY = 46;
+  iKillIconY = 45;
+
+  do
+  {
+    // display record number
+    sprintf(buffer, (uint8 *)"%02i", iRecordIdx);
+    front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 33, iTextY, 0x8Fu, 0);
+
+    iCarType = RecordCars[iArrayIdx];
+    if ( iCarType < 0 )
+    {
+      // no record set - display default name and time
+      sprintf(buffer, (uint8 *)"%s", szRecordName);
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 165, iTextY, 0x8Fu, 0);
+      front_text(front_vga[3], "00:00:00", font2_ascii, font2_offsets, 450, iTextY, 0x8Fu, 0);
     }
-    v10 += 22;
-    ++v12;
-    ++v11;
-    v15 = (int)(v34 + 9);
-    v27 += 22;
-    v30 += 22;
-    v34 += 9;
-  } while (v11 < 17);
-  v16 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  holdmusic = -1;
-  fade_palette(32, (int)v16, v15, -1);
-  ticks = 0;
-  if (game_type == 4) {
-    while (!fatkbhit())
-      ;
-  } else {
-    while (!fatkbhit() && ticks < 720)
-      ;
-  }
-  scr_size = v28;
-  if ((textures_off & 0x20000) != 0) {
-    holdmusic = -1;
-    fade_palette(0, -1, v15, -1);
-    v17 = scrbuf;
-    v18 = front_vga_variable_2;
-    if (SVGA_ON)
-      v19 = 256000;
     else
-      v19 = 64000;
-    v20 = v19;
-    v21 = v19 >> 2;
-    qmemcpy((void *)scrbuf, (const void *)front_vga_variable_2, 4 * v21);
-    qmemcpy((void *)(v17 + 4 * v21), (const void *)(v18 + 4 * v21), v20 & 3);
-    v22 = 49;
-    v23 = 17;
-    display_block(2, -1);
-    v24 = 17;
-    v35 = &RecordNames[153];
-    v31 = 46;
-    v29 = 45;
-    do {
-      sprintf(&buffer, "%02i", v23);
-      front_text(33, v22, 143, 0);
-      v33 = RecordCars[v24];
-      if (v33 < 0) {
-        sprintf(&buffer, "%s", v35);
-        front_text(165, v22, 143, 0);
-        front_text(450, v22, 143, 0);
-      } else {
-        sprintf(&buffer, "%s", v35);
-        front_text(85, v22, 143, 0);
-        sprintf(&buffer, "%s", &CompanyNames[20 * (v33 & 0xF)]);
-        front_text(218, v22, 143, 0);
-        if ((v33 & 0xFu) >= 8)
-          front_text(165, v22, 143, 0);
-        else
-          display_block(v31, 0);
-        display_block(v29, 0);
-        sprintf(&buffer, "%i", RecordKills[v24]);
-        v25 = front_text(560, v22, 143, 0);
-        v26 = RecordLaps[v24] * func3_c_variable_22;
-        _CHP(v25, HIDWORD(v25));
-        v36 = (int)v26;
-        if ((int)v26 > 599999)
-          v36 = 599999;
-        buffer_variable_1[0] = v36 % 10 + 48;
-        v37 = v36 / 10;
-        buffer = v37 % 10 + 48;
-        buffer_variable_2 = 0;
-        front_text(492, v22, 143, 0);
-        front_text(467, v22, 143, 0);
-        v37 /= 10;
-        buffer_variable_1[0] = v37 % 10 + 48;
-        v37 /= 10;
-        buffer = v37 % 6 + 48;
-        buffer_variable_2 = 0;
-        front_text(471, v22, 143, 0);
-        front_text(488, v22, 143, 0);
-        v37 /= 6;
-        buffer_variable_1[0] = v37 % 10 + 48;
-        buffer_variable_2 = 0;
-        buffer = v37 / 10 % 10 + 48;
-        front_text(450, v22, 143, 0);
-      }
-      v22 += 22;
-      ++v24;
-      ++v23;
-      v15 = (int)(v35 + 9);
-      v31 += 22;
-      v29 += 22;
-      v35 += 9;
-    } while (v23 < 25);
-    v16 = screen;
-    copypic((char *)scrbuf, (int)screen);
-    holdmusic = -1;
-    fade_palette(32, (int)v16, v15, -1);
-    ticks = 0;
-    if (game_type == 4) {
-      while (!fatkbhit())
-        ;
-    } else {
-      while (!fatkbhit() && ticks < 720)
-        ;
+    {
+      // display record holder name
+      sprintf(buffer, (uint8 *)"%s", szRecordName);
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 85, iTextY, 0x8Fu, 0);
+
+      // display car company name
+      sprintf(buffer, (uint8 *)"%s", CompanyNames[iCarType & 0xF]);
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 218, iTextY, 0x8Fu, 0);
+
+      // display car
+      if ( (iCarType & 0xFu) >= 8 )
+        front_text(front_vga[3], "CHEAT", font2_ascii, font2_offsets, 165, iTextY, 0x8Fu, 0);
+      else
+        display_block(scrbuf, front_vga[0], smallcars[0][iCarType], 165, iCarY, 0);
+
+      // display kill count icon and number
+      display_block(scrbuf, front_vga[0], 9, 540, iKillIconY, 0);
+      sprintf(buffer, (uint8 *)"%i", RecordKills[iArrayIdx]);
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 560, iTextY, 0x8Fu, 0);
+
+      // display lap time
+      dLapTime = RecordLaps[iArrayIdx] * 100.0;
+      //_CHP();
+      iTimeValue = (int)dLapTime;
+      if ( (int)dLapTime > 599999 )
+        iTimeValue = 599999;
+
+      // display centiseconds
+      buffer[1] = iTimeValue % 10 + 48;
+      iTimeTemp = iTimeValue / 10;
+      buffer[0] = iTimeTemp % 10 + 48;
+      buffer[2] = 0;
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 492, iTextY, 0x8Fu, 0);
+      front_text(front_vga[3], ":", font2_ascii, font2_offsets, 467, iTextY, 0x8Fu, 0);
+
+      // display seconds
+      iTimeTemp /= 10;
+      buffer[1] = iTimeTemp % 10 + 48;
+      iTimeTemp /= 10;
+      buffer[0] = iTimeTemp % 6 + 48;
+      buffer[2] = 0;
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 471, iTextY, 0x8Fu, 0);
+      front_text(front_vga[3], ":", font2_ascii, font2_offsets, 488, iTextY, 0x8Fu, 0);
+
+      // display minutes
+      iTimeTemp /= 6;
+      buffer[1] = iTimeTemp % 10 + 48;
+      buffer[0] = iTimeTemp / 10 % 10 + 48;
+      buffer[2] = 0;
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 450, iTextY, 0x8Fu, 0);
     }
-    scr_size = v28;
+
+    // move to next record pos
+    iTextY += 22;
+    ++iArrayIdx;
+    ++iRecordIdx;
+    iCarY += 22;
+    iKillIconY += 22;
+    szRecordName += 9;
   }
-  fre(front_vga);
-  fre(&front_vga_variable_1);
-  fre(&front_vga_variable_2);
-  fre(&front_vga_variable_3);
+  while ( iRecordIdx < 17 );
+
+  // display first page and wait for input
+  copypic(scrbuf, screen);
+  holdmusic = -1;
+  fade_palette(32);
+  ticks = 0;
+  if ( game_type == 4 )
+  {
+    while ( !fatkbhit() )
+      UpdateSDL();
+  }
+  else
+  {
+    while ( !fatkbhit() && ticks < 720 )
+      UpdateSDL();
+  }
+  scr_size = iOldScrSize;
+
+  // display second page
+  if ( (textures_off & 0x20000) != 0 )
+  {
+    holdmusic = -1;
+    fade_palette(0);
+
+    // copy background to screen buffer
+    pScrBuf_1 = scrbuf;
+    pBlockHeader_1 = front_vga[2];
+    if ( SVGA_ON )
+      uiMemSize_1 = 256000;
+    else
+      uiMemSize_1 = 64000;
+    byMemSize_1 = uiMemSize_1;
+    uiDwordCount_1 = uiMemSize_1 >> 2;
+    memcpy(scrbuf, front_vga[2], 4 * uiDwordCount_1);
+    memcpy(&pScrBuf_1[4 * uiDwordCount_1], &pBlockHeader_1->iWidth + uiDwordCount_1, byMemSize_1 & 3);
+
+    // display records 17-24
+    iTextY_1 = 49;
+    iRecordIdx_1 = 17;
+    display_block(scrbuf, front_vga[1], 3, 142, 2, -1);
+    iArrayIdx_1 = 17;
+    szRecordName_1 = RecordNames[17];
+    iCarY2 = 46;
+    iKillIconY_1 = 45;
+
+    do
+    {
+      // display record number
+      sprintf(buffer, (uint8 *)"%02i", iRecordIdx_1);
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 33, iTextY_1, 0x8Fu, 0);
+
+      iCarType_1 = RecordCars[iArrayIdx_1];
+      if ( iCarType_1 < 0 )
+      {
+        // no record set
+        sprintf(buffer, (uint8 *)"%s", szRecordName_1);
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 165, iTextY_1, 0x8Fu, 0);
+        front_text(front_vga[3], "00:00:00", font2_ascii, font2_offsets, 450, iTextY_1, 0x8Fu, 0);
+      }
+      else
+      {
+        // display record holder name
+        sprintf(buffer, (uint8 *)"%s", szRecordName_1);
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 85, iTextY_1, 0x8Fu, 0);
+
+        // display car company name
+        sprintf(buffer, (uint8 *)"%s", CompanyNames[iCarType_1 & 0xF]);
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 218, iTextY_1, 0x8Fu, 0);
+
+        // display car or cheat indicator
+        if ( (iCarType_1 & 0xFu) >= 8 )
+          front_text(front_vga[3], "CHEAT", font2_ascii, font2_offsets, 165, iTextY_1, 0x8Fu, 0);
+        else
+          display_block(scrbuf, front_vga[0], smallcars[0][iCarType_1], 165, iCarY2, 0);
+
+        // display kill count icon and number
+        display_block(scrbuf, front_vga[0], 9, 540, iKillIconY_1, 0);
+        sprintf(buffer, (uint8 *)"%i", RecordKills[iArrayIdx_1]);
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 560, iTextY_1, 0x8Fu, 0);
+
+        // display lap time
+        dLapTime_1 = RecordLaps[iArrayIdx_1] * 100.0;
+        //_CHP();
+        iTimeValue_1 = (int)dLapTime_1;
+        if ( (int)dLapTime_1 > 599999 )
+          iTimeValue_1 = 599999;
+
+        // display centiseconds
+        buffer[1] = iTimeValue_1 % 10 + 48;
+        iTimeTemp_1 = iTimeValue_1 / 10;
+        buffer[0] = iTimeTemp_1 % 10 + 48;
+        buffer[2] = 0;
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 492, iTextY_1, 0x8Fu, 0);
+        front_text(front_vga[3], ":", font2_ascii, font2_offsets, 467, iTextY_1, 0x8Fu, 0);
+
+        // display seconds
+        iTimeTemp_1 /= 10;
+        buffer[1] = iTimeTemp_1 % 10 + 48;
+        iTimeTemp_1 /= 10;
+        buffer[0] = iTimeTemp_1 % 6 + 48;
+        buffer[2] = 0;
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 471, iTextY_1, 0x8Fu, 0);
+        front_text(front_vga[3], ":", font2_ascii, font2_offsets, 488, iTextY_1, 0x8Fu, 0);
+
+        // display minutes
+        iTimeTemp_1 /= 6;
+        buffer[1] = iTimeTemp_1 % 10 + 48;
+        buffer[2] = 0;
+        buffer[0] = iTimeTemp_1 / 10 % 10 + 48;
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 450, iTextY_1, 0x8Fu, 0);
+      }
+
+      // move to next record pos
+      iTextY_1 += 22;
+      ++iArrayIdx_1;
+      ++iRecordIdx_1;
+      iCarY2 += 22;
+      iKillIconY_1 += 22;
+      szRecordName_1 += 9;
+    }
+    while ( iRecordIdx_1 < 25 );
+
+    // display second page and wait for input
+    copypic(scrbuf, screen);
+    holdmusic = -1;
+    fade_palette(32);
+    ticks = 0;
+    if ( game_type == 4 )
+    {
+      while ( !fatkbhit() )
+        UpdateSDL();
+    }
+    else
+    {
+      while ( !fatkbhit() && ticks < 720 )
+        UpdateSDL();
+    }
+    scr_size = iOldScrSize;
+  }
+
+  // cleanup
+  fre((void **)&front_vga[0]);
+  fre((void **)&front_vga[1]);
+  fre((void **)&front_vga[2]);
+  fre((void **)&front_vga[3]);
   holdmusic = (game_type != 4) - 1;
-  fade_palette(0, (int)v16, v15, -1);
-  if (game_type != 4)
-    holdmusic = 0;*/
+  fade_palette(0);
+  if ( game_type != 4 )
+    holdmusic = 0;
 }
 
 //-------------------------------------------------------------------------------------------------
