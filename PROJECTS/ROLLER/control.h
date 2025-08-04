@@ -10,6 +10,7 @@ extern float levels[7];
 extern int level;
 extern int carorder[16];
 extern int stops[10];
+extern float trial_times[96];
 extern float eng_chg_revs[168];
 extern int JBYmax;
 extern int JBYmin;

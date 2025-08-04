@@ -56,7 +56,7 @@ typedef struct
 int winner_screen(eCarDesignIndex carDesign, char byFlags);
 void StoreResult();
 void RaceResult();
-void TimeTrials(int a1, int a2, int a3, char *a4);
+void TimeTrials(int iDriverIdx);
 void ChampionshipStandings(int a1, int a2, int a3, char *a4);
 void TeamStandings();
 void ShowLapRecords();

@@ -542,247 +542,276 @@ void RaceResult()
 
 //-------------------------------------------------------------------------------------------------
 
-void TimeTrials(int a1, int a2, int a3, char *a4)
+void TimeTrials(int iDriverIdx)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  /*
-  int v5; // edi
-  int v6; // esi
-  unsigned int v7; // ecx
-  char v8; // al
-  unsigned int v9; // ecx
-  int v10; // edi
-  int v11; // ebp
-  __int64 v12; // rax
-  double v13; // st7
-  int v14; // esi
-  int v15; // ebp
-  int v16; // edi
-  __int16 v17; // fps
-  double v18; // st7
-  _BOOL1 v19; // c0
-  char v20; // c2
-  _BOOL1 v21; // c3
-  __int64 v22; // rax
-  double v23; // st7
-  int v24; // esi
-  int v25; // edi
-  __int64 v26; // rax
-  double v27; // st7
-  int v28; // edi
-  int v29; // esi
-  int v30; // edi
-  __int64 v31; // rax
-  double v32; // st7
-  _UNKNOWN **v33; // edx
-  int v34; // [esp-Ch] [ebp-40h]
-  int v35; // [esp+0h] [ebp-34h]
-  int v36; // [esp+4h] [ebp-30h]
-  int v37; // [esp+4h] [ebp-30h]
-  int v38; // [esp+8h] [ebp-2Ch]
-  int v39; // [esp+8h] [ebp-2Ch]
-  int v40; // [esp+Ch] [ebp-28h]
-  int v41; // [esp+Ch] [ebp-28h]
-  int v42; // [esp+10h] [ebp-24h]
-  int v43; // [esp+14h] [ebp-20h]
-  int v44; // [esp+18h] [ebp-1Ch]
-  int v45; // [esp+18h] [ebp-1Ch]
+  uint8 *pbyScreenBuffer; // edi
+  tBlockHeader *pResultBitmap; // esi
+  unsigned int uiScreenSize; // ecx
+  char byRemainder; // al
+  unsigned int uiDwordCount; // ecx
+  int iCarIdx; // edi
+  int iDesignIdx; // ebp
+  int iCarDesign; // ecx
+  double dBestTime; // st7
+  int iLapTextY; // esi
+  int iLapNumber; // ebp
+  int iTimeOffset; // edi
+  double dLapTime; // st7
+  int iRecordTextY; // esi
+  int iRecordCar; // edi
+  double dRecordTime; // st7
+  int iFastestDriver; // edi
+  int iFastestTextY; // esi
+  int iFastestDriverCopy; // edi
+  int iFastestCarDesign; // ebp
+  double dFastestTime; // st7
+  int iRecordHeaderY; // [esp-Ch] [ebp-40h]
+  int iSavedScreenSize; // [esp+0h] [ebp-34h]
+  int iRecordCentiseconds; // [esp+4h] [ebp-30h]
+  int iRecordTimeWork; // [esp+4h] [ebp-30h]
+  int iFastestCentiseconds; // [esp+8h] [ebp-2Ch]
+  int iFastestTimeWork; // [esp+8h] [ebp-2Ch]
+  int iBestCentiseconds; // [esp+Ch] [ebp-28h]
+  int iBestTimeWork; // [esp+Ch] [ebp-28h]
+  int iCarIndex; // [esp+10h] [ebp-24h]
+  int iY; // [esp+14h] [ebp-20h]
+  int iLapCentiseconds; // [esp+18h] [ebp-1Ch]
+  int iLapTimeWork; // [esp+18h] [ebp-1Ch]
 
+  // init
   tick_on = 0;
-  v35 = scr_size;
+  iSavedScreenSize = scr_size;
   SVGA_ON = -1;
-  init_screen(scr_size, 0, -1);
-  setpal((int)&aEresultPal[1], 0, (_WORD *)0xFFFFFFFF, a4);
+  init_screen();
+  setpal("result.pal");
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  front_vga_variable_3 = load_picture(&aIresultBm[1]);
-  front_vga_variable_2 = load_picture(&aAcfont2Bm[2]);
-  front_vga[0] = load_picture(&aSelsmallcarBm[3]);
-  front_vga_variable_1 = load_picture(aTabtextBm_0);
+
+  // load graphics
+  front_vga[3] = (tBlockHeader *)load_picture("result.bm");
+  front_vga[2] = (tBlockHeader *)load_picture("font2.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("smallcar.bm");
+  front_vga[1] = (tBlockHeader *)load_picture("tabtext.bm");
+
   frontend_on = -1;
   tick_on = -1;
-  v5 = scrbuf;
-  v6 = front_vga_variable_3;
+  pbyScreenBuffer = scrbuf;
+  pResultBitmap = front_vga[3];
+
+  // Copy result background bitmap to screen buffer (SVGA or VGA size)
   if (SVGA_ON)
-    v7 = 256000;
+    uiScreenSize = 256000;
   else
-    v7 = 64000;
-  v8 = v7;
-  v9 = v7 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)front_vga_variable_3, 4 * v9);
-  qmemcpy((void *)(v5 + 4 * v9), (const void *)(v6 + 4 * v9), v8 & 3);
-  display_block(5, -1);
-  sprintf(&buffer, "%s", &driver_names[9 * a1]);
-  v10 = a1;
-  v11 = a1;
-  front_text(85, 49, 143, 0);
-  sprintf(&buffer, "%s", &CompanyNames[20 * result_design[v11]]);
-  front_text(218, 49, 143, 0);
-  if (result_design[v11] >= 8)
-    v12 = front_text(165, 49, 143, 0);
-  else
-    v12 = display_block(46, 0);
-  v13 = *(float *)&Car_variable_53[77 * v10] * func3_c_variable_19;
-  _CHP(308 * v10, HIDWORD(v12));
-  v40 = (int)v13;
-  if ((int)v13 > (int)&loc_186A0)
-    v40 = 0;
-  buffer_variable_1[0] = v40 % 10 + 48;
-  v41 = v40 / 10;
-  buffer = v41 % 10 + 48;
-  buffer_variable_2 = 0;
-  front_text(492, 49, 143, 0);
-  front_text(467, 49, 143, 0);
-  v41 /= 10;
-  buffer_variable_1[0] = v41 % 10 + 48;
-  v41 /= 10;
-  buffer = v41 % 6 + 48;
-  buffer_variable_2 = 0;
-  front_text(471, 49, 143, 0);
-  front_text(488, 49, 143, 0);
-  v41 /= 6;
-  buffer_variable_1[0] = v41 % 10 + 48;
-  buffer = v41 / 10 % 10 + 48;
-  buffer_variable_2 = 0;
-  front_text(450, 49, 143, 0);
-  v14 = 93;
-  v15 = 1;
-  v42 = 308 * v10;
-  v43 = 90;
-  v16 = 24 * v10 + 4;
-  while (v15 < Car_variable_31[v42]) {
-    sprintf(&buffer, "%s %i", language_buffer_variable_4, v15);
-    v22 = front_text(220, v14, 143, 0);
-    v18 = *(float *)((char *)trial_times + v16);
-    WORD1(v22) = HIWORD(v42);
-    v19 = v18 < *(float *)((char *)Car_variable_53 + v42);
-    v20 = 0;
-    v21 = v18 == *(float *)((char *)Car_variable_53 + v42);
-    LOWORD(v22) = v17;
-    if (v18 == *(float *)((char *)Car_variable_53 + v42))
-      v22 = display_block(v43, 0);
-    v23 = *(float *)((char *)trial_times + v16) * func3_c_variable_19;
-    _CHP(v22, HIDWORD(v22));
-    v44 = (int)v23;
-    if ((int)v23 > (int)&loc_186A0)
-      v44 = 0;
-    buffer_variable_1[0] = v44 % 10 + 48;
-    v45 = v44 / 10;
-    buffer = v45 % 10 + 48;
-    buffer_variable_2 = 0;
-    front_text(492, v14, 143, 0);
-    front_text(467, v14, 143, 0);
-    v45 /= 10;
-    buffer_variable_1[0] = v45 % 10 + 48;
-    v45 /= 10;
-    buffer = v45 % 6 + 48;
-    buffer_variable_2 = 0;
-    front_text(471, v14, 143, 0);
-    front_text(488, v14, 143, 0);
-    v45 /= 6;
-    buffer_variable_1[0] = v45 % 10 + 48;
-    buffer = v45 / 10 % 10 + 48;
-    buffer_variable_2 = 0;
-    v16 += 4;
-    front_text(450, v14, 143, 0);
-    ++v15;
-    v14 += 22;
-    v43 += 22;
-  }
-  v34 = v14 + 44;
-  v24 = v14 + 66;
-  front_text(218, v34, 143, 0);
-  v25 = RecordCars[TrackLoad];
-  if (v25 < 0) {
-    sprintf(&buffer, "%s", &RecordNames[9 * TrackLoad]);
-    front_text(165, v24, 143, 0);
-    front_text(450, v24, 143, 0);
+    uiScreenSize = 64000;
+  byRemainder = uiScreenSize;
+  uiDwordCount = uiScreenSize >> 2;
+  memcpy(scrbuf, front_vga[3], 4 * uiDwordCount);
+  memcpy(&pbyScreenBuffer[4 * uiDwordCount], &pResultBitmap->iWidth + uiDwordCount, byRemainder & 3);
+
+  // Display "Time Trials" header text
+  display_block(scrbuf, front_vga[1], 4, 157, 5, -1);
+
+  // Display current driver info: name, company, car sprite
+  sprintf(buffer, "%s", driver_names[iDriverIdx]);
+  iCarIdx = iDriverIdx;
+  iDesignIdx = iDriverIdx;
+  front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 85, 49, 0x8Fu, 0);
+  sprintf(buffer, "%s", CompanyNames[result_design[iDesignIdx]]);
+  front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 218, 49, 0x8Fu, 0);
+
+  // Display car sprite or CHEAT text
+  iCarDesign = result_design[iDesignIdx];
+  if (iCarDesign >= 8) {
+    front_text(front_vga[2], "CHEAT", font2_ascii, font2_offsets, 165, 49, 0x8Fu, 0);
+  } else if ((textures_off & 0x10000) != 0) {
+    display_block(scrbuf, front_vga[0], smallcars[1][iCarDesign], 165, 46, 0);
   } else {
-    sprintf(&buffer, "%s", &RecordNames[9 * TrackLoad]);
-    front_text(85, v24, 143, 0);
-    sprintf(&buffer, "%s", &CompanyNames[20 * (v25 & 0xF)]);
-    front_text(218, v24, 143, 0);
-    if ((v25 & 0xFu) >= 8)
-      v26 = front_text(165, v24, 143, 0);
-    else
-      v26 = display_block(v24 - 3, 0);
-    v27 = RecordLaps[TrackLoad] * func3_c_variable_19;
-    _CHP(TrackLoad, HIDWORD(v26));
-    v36 = (int)v27;
-    if ((int)v27 > (int)&loc_186A0)
-      v36 = 0;
-    buffer_variable_1[0] = v36 % 10 + 48;
-    v37 = v36 / 10;
-    buffer = v37 % 10 + 48;
-    buffer_variable_2 = 0;
-    front_text(492, v24, 143, 0);
-    front_text(467, v24, 143, 0);
-    v37 /= 10;
-    buffer_variable_1[0] = v37 % 10 + 48;
-    v37 /= 10;
-    buffer = v37 % 6 + 48;
-    buffer_variable_2 = 0;
-    front_text(471, v24, 143, 0);
-    front_text(488, v24, 143, 0);
-    v37 /= 6;
-    buffer_variable_1[0] = v37 % 10 + 48;
-    buffer_variable_2 = 0;
-    buffer = v37 / 10 % 10 + 48;
-    front_text(450, v24, 143, 0);
+    display_block(scrbuf, front_vga[0], smallcars[0][iCarDesign], 165, 46, 0);
   }
-  front_text(218, v24 + 44, 143, 0);
-  v28 = FastestLap;
-  v29 = v24 + 66;
+
+  // Format and display driver's best time in MM:SS:CS format
+  dBestTime = Car[iCarIdx].fResultBestTime * 100.0;
+  //_CHP();
+  iBestCentiseconds = (int)dBestTime;
+  if ((int)dBestTime > 100000)
+    iBestCentiseconds = 0;
+  buffer[1] = iBestCentiseconds % 10 + 48;
+  iBestTimeWork = iBestCentiseconds / 10;
+  buffer[0] = iBestTimeWork % 10 + 48;
+  buffer[2] = 0;
+  front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 492, 49, 0x8Fu, 0);
+  front_text(front_vga[2], ":", font2_ascii, font2_offsets, 467, 49, 0x8Fu, 0);
+  iBestTimeWork /= 10;
+  buffer[1] = iBestTimeWork % 10 + 48;
+  iBestTimeWork /= 10;
+  buffer[0] = iBestTimeWork % 6 + 48;
+  buffer[2] = 0;
+  front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 471, 49, 0x8Fu, 0);
+  front_text(front_vga[2], ":", font2_ascii, font2_offsets, 488, 49, 0x8Fu, 0);
+  iBestTimeWork /= 6;
+  buffer[1] = iBestTimeWork % 10 + 48;
+  buffer[0] = iBestTimeWork / 10 % 10 + 48;
+  buffer[2] = 0;
+  front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 450, 49, 0x8Fu, 0);
+
+  // Initialize loop variables for displaying individual lap times
+  iLapTextY = 93;
+  iLapNumber = 1;
+  iCarIndex = iCarIdx;
+  iY = 90;
+  iTimeOffset = 24 * iCarIdx + 4;
+
+  // Loop through each completed lap and display lap number and time
+  while (iLapNumber < (char)Car[iCarIndex].byResultLap) {
+    sprintf(buffer, "%s %i", &language_buffer[256], iLapNumber);// Display lap number text
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 220, iLapTextY, 0x8Fu, 0);
+
+    // Calculate the array index instead of byte offset
+    int iTrialIndex = (iTimeOffset - 4) / 4;  // Convert byte offset back to array index
+    if (trial_times[iTrialIndex] == Car[iCarIndex].fResultBestTime)  // Show fastest lap icon if this lap matches best time
+      display_block(scrbuf, front_vga[0], 10, 428, iY, 0);
+    dLapTime = trial_times[iTrialIndex] * 100.0;  // Format and display lap time in MM:SS:CS format
+    //if (*(float *)((char *)trial_times + iTimeOffset) == Car[iCarIndex].fResultBestTime)// Show fastest lap icon if this lap matches best time
+    //  display_block(scrbuf, front_vga[0], 10, 428, iY, 0);
+    //dLapTime = *(float *)((char *)trial_times + iTimeOffset) * 100.0;// Format and display lap time in MM:SS:CS format
+    //_CHP();
+
+    iLapCentiseconds = (int)dLapTime;
+    if ((int)dLapTime > 100000)
+      iLapCentiseconds = 0;
+    buffer[1] = iLapCentiseconds % 10 + 48;
+    iLapTimeWork = iLapCentiseconds / 10;
+    buffer[0] = iLapTimeWork % 10 + 48;
+    buffer[2] = 0;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 492, iLapTextY, 0x8Fu, 0);
+    front_text(front_vga[2], ":", font2_ascii, font2_offsets, 467, iLapTextY, 0x8Fu, 0);
+    iLapTimeWork /= 10;
+    buffer[1] = iLapTimeWork % 10 + 48;
+    iLapTimeWork /= 10;
+    buffer[0] = iLapTimeWork % 6 + 48;
+    buffer[2] = 0;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 471, iLapTextY, 0x8Fu, 0);
+    front_text(front_vga[2], ":", font2_ascii, font2_offsets, 488, iLapTextY, 0x8Fu, 0);
+    iLapTimeWork /= 6;
+    buffer[1] = iLapTimeWork % 10 + 48;
+    buffer[0] = iLapTimeWork / 10 % 10 + 48;
+    buffer[2] = 0;
+    iTimeOffset += 4;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 450, iLapTextY, 0x8Fu, 0);
+    ++iLapNumber;
+    iLapTextY += 22;
+    iY += 22;
+  }
+
+  // Display track record section header
+  iRecordHeaderY = iLapTextY + 44;
+  iRecordTextY = iLapTextY + 66;
+  front_text(front_vga[2], &language_buffer[2752], font2_ascii, font2_offsets, 218, iRecordHeaderY, 0x8Fu, 0);
+
+  // Check if track record exists and display record holder info
+  iRecordCar = RecordCars[TrackLoad];
+  if (iRecordCar < 0) {
+    // Handle case where no track record exists
+    sprintf(buffer, "%s", RecordNames[TrackLoad]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 165, iRecordTextY, 0x8Fu, 0);
+    front_text(front_vga[2], "00:00:00", font2_ascii, font2_offsets, 450, iRecordTextY, 0x8Fu, 0);
+  } else {
+    // Display track record holder: name, company, car, and time
+    sprintf(buffer, "%s", RecordNames[TrackLoad]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 85, iRecordTextY, 0x8Fu, 0);
+    sprintf(buffer, "%s", CompanyNames[iRecordCar & 0xF]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 218, iRecordTextY, 0x8Fu, 0);
+    if ((iRecordCar & 0xFu) >= 8)
+      front_text(front_vga[2], "CHEAT", font2_ascii, font2_offsets, 165, iRecordTextY, 0x8Fu, 0);
+    else
+      display_block(scrbuf, front_vga[0], smallcars[0][iRecordCar], 165, iRecordTextY - 3, 0);
+    dRecordTime = RecordLaps[TrackLoad] * 100.0;
+    //_CHP();
+    iRecordCentiseconds = (int)dRecordTime;
+    if ((int)dRecordTime > 100000)
+      iRecordCentiseconds = 0;
+    buffer[1] = iRecordCentiseconds % 10 + 48;
+    iRecordTimeWork = iRecordCentiseconds / 10;
+    buffer[0] = iRecordTimeWork % 10 + 48;
+    buffer[2] = 0;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 492, iRecordTextY, 0x8Fu, 0);
+    front_text(front_vga[2], ":", font2_ascii, font2_offsets, 467, iRecordTextY, 0x8Fu, 0);
+    iRecordTimeWork /= 10;
+    buffer[1] = iRecordTimeWork % 10 + 48;
+    iRecordTimeWork /= 10;
+    buffer[0] = iRecordTimeWork % 6 + 48;
+    buffer[2] = 0;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 471, iRecordTextY, 0x8Fu, 0);
+    front_text(front_vga[2], ":", font2_ascii, font2_offsets, 488, iRecordTextY, 0x8Fu, 0);
+    iRecordTimeWork /= 6;
+    buffer[1] = iRecordTimeWork % 10 + 48;
+    buffer[2] = 0;
+    buffer[0] = iRecordTimeWork / 10 % 10 + 48;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 450, iRecordTextY, 0x8Fu, 0);
+  }
+  front_text(front_vga[2], &language_buffer[2880], font2_ascii, font2_offsets, 218, iRecordTextY + 44, 0x8Fu, 0);// Display session fastest lap section header
+  iFastestDriver = FastestLap;
+  iFastestTextY = iRecordTextY + 66;
+
+  // Check if fastest lap exists and display fastest lap holder info
   if (FastestLap >= 0) {
-    sprintf(&buffer, "%s", &driver_names[9 * FastestLap]);
-    v30 = v28;
-    front_text(85, v29, 143, 0);
-    sprintf(&buffer, "%s", &CompanyNames[20 * result_design[v30]]);
-    front_text(218, v29, 143, 0);
-    if (result_design[v30] >= 8)
-      v31 = front_text(165, v29, 143, 0);
-    else
-      v31 = display_block(v29 - 3, 0);
-    v32 = BestTime * func3_c_variable_19;
-    _CHP(v31, HIDWORD(v31));
-    v38 = (int)v32;
-    if ((int)v32 > (int)&loc_186A0)
-      v38 = 0;
-    buffer_variable_1[0] = v38 % 10 + 48;
-    v39 = v38 / 10;
-    buffer_variable_2 = 0;
-    buffer = v39 % 10 + 48;
-    front_text(492, v29, 143, 0);
-    front_text(467, v29, 143, 0);
-    v39 /= 10;
-    buffer_variable_1[0] = v39 % 10 + 48;
-    v39 /= 10;
-    buffer = v39 % 6 + 48;
-    buffer_variable_2 = 0;
-    front_text(471, v29, 143, 0);
-    front_text(488, v29, 143, 0);
-    v39 /= 6;
-    buffer_variable_1[0] = v39 % 10 + 48;
-    buffer = v39 / 10 % 10 + 48;
-    buffer_variable_2 = 0;
-    front_text(450, v29, 143, 0);
+    // Display fastest lap holder: name, company, car, and time
+    sprintf(buffer, "%s", driver_names[FastestLap]);
+    iFastestDriverCopy = iFastestDriver;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 85, iFastestTextY, 0x8Fu, 0);
+    sprintf(buffer, "%s", CompanyNames[result_design[iFastestDriverCopy]]);
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 218, iFastestTextY, 0x8Fu, 0);
+    iFastestCarDesign = result_design[iFastestDriverCopy];
+    if (iFastestCarDesign >= 8) {
+      front_text(front_vga[2], "CHEAT", font2_ascii, font2_offsets, 165, iFastestTextY, 0x8Fu, 0);
+    } else if ((textures_off & 0x10000) != 0) {
+      display_block(scrbuf, front_vga[0], smallcars[1][iFastestCarDesign], 165, iFastestTextY - 3, 0);
+    } else {
+      display_block(scrbuf, front_vga[0], smallcars[0][iFastestCarDesign], 165, iFastestTextY - 3, 0);
+    }
+    dFastestTime = BestTime * 100.0;
+    //_CHP();
+    iFastestCentiseconds = (int)dFastestTime;
+    if ((int)dFastestTime > 100000)
+      iFastestCentiseconds = 0;
+    buffer[1] = iFastestCentiseconds % 10 + 48;
+    iFastestTimeWork = iFastestCentiseconds / 10;
+    buffer[2] = 0;
+    buffer[0] = iFastestTimeWork % 10 + 48;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 492, iFastestTextY, 0x8Fu, 0);
+    front_text(front_vga[2], ":", font2_ascii, font2_offsets, 467, iFastestTextY, 0x8Fu, 0);
+    iFastestTimeWork /= 10;
+    buffer[1] = iFastestTimeWork % 10 + 48;
+    iFastestTimeWork /= 10;
+    buffer[0] = iFastestTimeWork % 6 + 48;
+    buffer[2] = 0;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 471, iFastestTextY, 0x8Fu, 0);
+    front_text(front_vga[2], ":", font2_ascii, font2_offsets, 488, iFastestTextY, 0x8Fu, 0);
+    iFastestTimeWork /= 6;
+    buffer[1] = iFastestTimeWork % 10 + 48;
+    buffer[0] = iFastestTimeWork / 10 % 10 + 48;
+    buffer[2] = 0;
+    front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 450, iFastestTextY, 0x8Fu, 0);
   }
-  v33 = screen;
-  copypic((char *)scrbuf, (int)screen);
+
+  // Display completed screen, start music, and wait for input
+  copypic(scrbuf, screen);
   startmusic(leaderboardsong);
-  fade_palette(32, (int)v33, (int)&font2_ascii, (int)&font2_offsets);
+  fade_palette(32);
   ticks = 0;
   while (!fatkbhit() && ticks < 2160)
-    ;
-  fre(front_vga);
-  fre(&front_vga_variable_1);
-  fre(&front_vga_variable_3);
-  fre(&front_vga_variable_2);
-  scr_size = v35;
-  fade_palette(0, (int)v33, (int)&font2_ascii, (int)&font2_offsets);*/
+    UpdateSDL();
+
+  // cleanup
+  fre((void **)&front_vga[0]);
+  fre((void **)&front_vga[1]);
+  fre((void **)&front_vga[3]);
+  fre((void **)&front_vga[2]);
+  scr_size = iSavedScreenSize;
+  fade_palette(0);
 }
 
 //-------------------------------------------------------------------------------------------------
