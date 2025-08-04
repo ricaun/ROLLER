@@ -95,7 +95,7 @@ int result_p1_pos;        //0018883C
 int winner_screen(eCarDesignIndex carDesign, char byFlags)
 {
   int iExit; // ebp
-  int iCartexLoopItr; // eax
+  //int iCartexLoopItr; // eax
   eCarType carType; // eax
   eCarType carType_1; // esi
   int iTexturesLoaded; // edx
@@ -338,179 +338,206 @@ void StoreResult()
 
 //-------------------------------------------------------------------------------------------------
 
-void RaceResult(int a1, int a2, int a3, char *a4)
+void RaceResult()
 {
-  /*
-  int v4; // edi
-  int v5; // esi
-  unsigned int v6; // ecx
-  char v7; // al
-  unsigned int v8; // ecx
-  int v9; // ecx
-  int v10; // ebx
-  unsigned int v11; // eax
-  int v12; // esi
-  int i; // edi
-  float v14; // eax
-  double v15; // st7
-  double v16; // st7
-  int v17; // eax
-  _UNKNOWN **v18; // edx
-  int v19; // [esp+0h] [ebp-4Ch]
-  int v20; // [esp+4h] [ebp-48h]
-  float v21; // [esp+8h] [ebp-44h]
-  const char *v22; // [esp+Ch] [ebp-40h]
-  int v23; // [esp+10h] [ebp-3Ch]
-  int v24; // [esp+14h] [ebp-38h]
-  int v25; // [esp+1Ch] [ebp-30h]
-  int v26; // [esp+20h] [ebp-2Ch]
-  int v27; // [esp+24h] [ebp-28h]
-  int v28; // [esp+28h] [ebp-24h]
-  int v29; // [esp+2Ch] [ebp-20h]
-  int v30; // [esp+2Ch] [ebp-20h]
+  uint8 *pbyScreenBuffer; // edi
+  tBlockHeader *pResultBitmap; // esi
+  unsigned int uiScreenSize; // ecx
+  char byRemainder; // al
+  unsigned int uiDwordCount; // ecx
+  int iBytesToCopy; // ebx
+  unsigned int uiLoopCounter; // eax
+  int iCarDesign; // ebp
+  int iKillIconX; // esi
+  int iKillIcon; // edi
+  int iTotalPoints; // eax
+  double dTimeDifference; // st7
+  int iTotalRacePoints; // eax
+  int iFinishedCount; // [esp+0h] [ebp-4Ch]
+  int iSavedScreenSize; // [esp+4h] [ebp-48h]
+  float fWinnerTime; // [esp+8h] [ebp-44h]
+  char *pszPositionText; // [esp+Ch] [ebp-40h]
+  int iY; // [esp+10h] [ebp-3Ch]
+  int iTextY; // [esp+14h] [ebp-38h]
+  int iCarY; // [esp+1Ch] [ebp-30h]
+  int iCurrentRacer; // [esp+20h] [ebp-2Ch]
+  int iDriverIndex; // [esp+24h] [ebp-28h]
+  int iTextBaseY; // [esp+28h] [ebp-24h]
+  int iTimeCentiseconds; // [esp+2Ch] [ebp-20h]
+  int iTimeWork; // [esp+2Ch] [ebp-20h]
 
+  // init
   tick_on = 0;
-  v20 = scr_size;
+  iSavedScreenSize = scr_size;
   SVGA_ON = -1;
-  init_screen(scr_size, 0, -1);
-  setpal((int)&aEresultPal[1], 0, (_WORD *)0xFFFFFFFF, a4);
+  init_screen();
+  setpal("result.pal");
   winx = 0;
   winw = XMAX;
   winy = 0;
   winh = YMAX;
   mirror = 0;
-  front_vga_variable_2 = load_picture(&aIresultBm[1]);
-  front_vga_variable_3 = load_picture(&aAcfont2Bm[2]);
-  front_vga[0] = load_picture(&aSelsmallcarBm[3]);
-  front_vga_variable_1 = load_picture(aTabtextBm_0);
+
+  // load resources
+  front_vga[2] = (tBlockHeader *)load_picture("result.bm");
+  front_vga[3] = (tBlockHeader *)load_picture("font2.bm");
+  front_vga[0] = (tBlockHeader *)load_picture("smallcar.bm");
+  front_vga[1] = (tBlockHeader *)load_picture("tabtext.bm");
+
+  // Enable frontend mode and timer
   frontend_on = -1;
   tick_on = -1;
-  v4 = scrbuf;
-  v5 = front_vga_variable_2;
+  pbyScreenBuffer = scrbuf;
+  pResultBitmap = front_vga[2];
+
+  // Copy result background bitmap to screen buffer (SVGA or VGA size)
   if (SVGA_ON)
-    v6 = 256000;
+    uiScreenSize = 256000;
   else
-    v6 = 64000;
-  v7 = v6;
-  v8 = v6 >> 2;
-  qmemcpy((void *)scrbuf, (const void *)front_vga_variable_2, 4 * v8);
-  qmemcpy((void *)(v4 + 4 * v8), (const void *)(v5 + 4 * v8), v7 & 3);
-  v28 = 49;
-  display_block(3, -1);
-  v9 = numcars;
+    uiScreenSize = 64000;
+  byRemainder = uiScreenSize;
+  uiDwordCount = uiScreenSize >> 2;
+  memcpy(scrbuf, front_vga[2], 4 * uiDwordCount);
+  memcpy(&pbyScreenBuffer[4 * uiDwordCount], &pResultBitmap->iWidth + uiDwordCount, byRemainder & 3);
+
+  // Display "Result" header text
+  iTextBaseY = 49;
+  display_block(scrbuf, front_vga[1], 0, 130, 3, -1);
+
   if (numcars > 0) {
-    v10 = 4 * numcars;
-    v11 = 0;
+    iBytesToCopy = 4 * numcars;
+    uiLoopCounter = 0;
     do {
-      v11 += 4;
-      TrackArrow_variable_1[v11 / 4] = result_best_variable_1[v11 / 4];
-    } while ((int)v11 < v10);
+      non_competitors[uiLoopCounter / 4] = result_competing[uiLoopCounter / 4];
+      uiLoopCounter += 4;
+      //TrackArrow_variable_1[uiLoopCounter / 4] = LODWORD(result_best[uiLoopCounter / 4 + 15]);// non_competitors[uiLoopCounter / 4] = result_competing[uiLoopCounter / 4];
+    } while ((int)uiLoopCounter < iBytesToCopy);
   }
-  v19 = 0;
+  iFinishedCount = 0;
+
+  // display each racer's results
   if (racers > 0) {
-    v23 = 44;
-    v24 = 45;
-    v26 = 0;
-    v22 = a1st;
-    v25 = 46;
+    iY = 44;                                    // Initialize Y positions and text pointer for racer display
+    iTextY = 45;
+    iCurrentRacer = 0;
+    pszPositionText = race_posn[0];
+    iCarY = 46;
     do {
-      v27 = result_order[v26];
-      if (result_control[v27])
-        display_block(v23, 0);
-      sprintf(&buffer, "%s", v22);
-      front_text(33, v28, 143, 0);
-      sprintf(&buffer, "%s", &driver_names[9 * v27]);
-      front_text(85, v28, 143, 0);
-      sprintf(&buffer, "%s", &CompanyNames[20 * result_design[v27]]);
-      front_text(218, v28, 143, 0);
-      if (result_design[v27] >= 8)
-        front_text(165, v28, 143, 0);
-      else
-        display_block(v25, 0);
-      if (result_kills[v27] > 3) {
-        display_block(v24, 0);
-        sprintf(&buffer, "%i", result_kills[v27]);
-        front_text(376, v28, 143, 0);
+      iDriverIndex = result_order[iCurrentRacer];
+      if (result_control[iDriverIndex])       // Show small human player icon if this racer is human controlled
+        display_block(scrbuf, front_vga[0], 0, 13, iY, 0);
+      sprintf(buffer, "%s", pszPositionText);   // Display position text (1st, 2nd, etc.)
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 33, iTextBaseY, 0x8Fu, 0);
+      sprintf(buffer, "%s", driver_names[iDriverIndex]);// Display driver name
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 85, iTextBaseY, 0x8Fu, 0);
+      sprintf(buffer, "%s", CompanyNames[result_design[iDriverIndex]]);// Display car manufacturer name
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 218, iTextBaseY, 0x8Fu, 0);
+      iCarDesign = result_design[iDriverIndex];
+
+      // Display car sprite or CHEAT text
+      if (iCarDesign >= 8) {
+        front_text(front_vga[3], "CHEAT", font2_ascii, font2_offsets, 165, iTextBaseY, 0x8Fu, 0);
+      } else if ((textures_off & 0x10000) != 0) {
+        display_block(scrbuf, front_vga[0], smallcars[1][iCarDesign], 165, iCarY, 0);
       } else {
-        v12 = 356;
-        for (i = 0; i < result_kills[v27]; v12 += 18) {
-          ++i;
-          display_block(v24, 0);
+        display_block(scrbuf, front_vga[0], smallcars[0][iCarDesign], 165, iCarY, 0);
+      }
+
+      // Display kill count: either as number (>3) or individual icons (<=3)
+      if (result_kills[iDriverIndex] > 3) {
+        display_block(scrbuf, front_vga[0], 9, 356, iTextY, 0);
+        sprintf(buffer, "%i", result_kills[iDriverIndex]);
+        front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 376, iTextBaseY, 0x8Fu, 0);
+      } else {
+        iKillIconX = 356;
+        for (iKillIcon = 0; iKillIcon < result_kills[iDriverIndex]; iKillIconX += 18) {
+          ++iKillIcon;
+          display_block(scrbuf, front_vga[0], 9, iKillIconX, iTextY, 0);
         }
       }
-      if (v27 == FastestLap && FastestLap >= 0)
-        display_block(v25, 0);
-      if (result_lives[v27] > 0) {
-        v14 = result_lap[v27];
-        if (SLODWORD(v14) > NoOfLaps) {
-          if (v19) {
-            v15 = result_time[v27] - v21;
+
+      // Show fastest lap icon if this driver achieved fastest lap
+      if (iDriverIndex == FastestLap && FastestLap >= 0)
+        display_block(scrbuf, front_vga[0], 10, 428, iCarY, 0);
+
+      // Display race time or lap status if racer is still alive
+      if (result_lives[iDriverIndex] > 0) {
+        iTotalPoints = result_lap[iDriverIndex];
+        if (iTotalPoints > NoOfLaps) {
+          // Format and display race time (MM:SS:CS format)
+          if (iFinishedCount) {
+            dTimeDifference = result_time[iDriverIndex] - fWinnerTime;
           } else {
-            v14 = result_time[v27];
-            v21 = v14;
-            v15 = v14;
+            fWinnerTime = result_time[iDriverIndex];
+            dTimeDifference = fWinnerTime;
           }
-          v16 = v15 * func3_c_variable_16;
-          _CHP(LODWORD(v14), 4 * v27);
-          v29 = (int)v16;
-          if ((int)v16 > 599999)
-            v29 = 599999;
-          buffer_variable_1[0] = v29 % 10 + 48;
-          v30 = v29 / 10;
-          buffer = v30 % 10 + 48;
-          buffer_variable_2 = 0;
-          front_text(492, v28, 143, 0);
-          front_text(467, v28, 143, 0);
-          v30 /= 10;
-          buffer_variable_1[0] = v30 % 10 + 48;
-          v30 /= 10;
-          buffer = v30 % 6 + 48;
-          buffer_variable_2 = 0;
-          front_text(471, v28, 143, 0);
-          front_text(488, v28, 143, 0);
-          v30 /= 6;
-          buffer_variable_1[0] = v30 % 10 + 48;
-          buffer = v30 / 10 % 10 + 48;
-          buffer_variable_2 = 0;
-          front_text(450, v28, 143, 0);
-          goto LABEL_34;
+          //_CHP();
+          iTimeCentiseconds = (int)(dTimeDifference * 100.0);
+          if (iTimeCentiseconds > 599999)
+            iTimeCentiseconds = 599999;
+          buffer[1] = iTimeCentiseconds % 10 + 48;
+          iTimeWork = iTimeCentiseconds / 10;
+          buffer[0] = iTimeWork % 10 + 48;
+          buffer[2] = 0;
+          front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 492, iTextBaseY, 0x8Fu, 0);
+          front_text(front_vga[3], ":", font2_ascii, font2_offsets, 467, iTextBaseY, 0x8Fu, 0);
+          iTimeWork /= 10;
+          buffer[1] = iTimeWork % 10 + 48;
+          iTimeWork /= 10;
+          buffer[0] = iTimeWork % 6 + 48;
+          buffer[2] = 0;
+          front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 471, iTextBaseY, 0x8Fu, 0);
+          front_text(front_vga[3], ":", font2_ascii, font2_offsets, 488, iTextBaseY, 0x8Fu, 0);
+          iTimeWork /= 6;
+          buffer[1] = iTimeWork % 10 + 48;
+          buffer[0] = iTimeWork / 10 % 10 + 48;
+          buffer[2] = 0;
+          front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 450, iTextBaseY, 0x8Fu, 0);
+        } else {
+          if (iTotalPoints == NoOfLaps)
+            sprintf(buffer, "1 %s", &language_buffer[256]);
+          else
+            sprintf(buffer, "%i %s", NoOfLaps - result_lap[iDriverIndex] + 1, &language_buffer[320]);
+          front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 450, iTextBaseY, 0x8Fu, 0);
         }
-        if (LODWORD(v14) == NoOfLaps)
-          sprintf(&buffer, "1 %s", language_buffer_variable_4);
-        else
-          sprintf(&buffer, "%i %s", NoOfLaps - LODWORD(result_lap[v27]) + 1, language_buffer_variable_5);
+      } else {
+        front_text(front_vga[3], &language_buffer[1920], font2_ascii, font2_offsets, 450, iTextBaseY, 0x8Fu, 0);
       }
-      front_text(450, v28, 143, 0);
-    LABEL_34:
-      if (v27 == FastestLap)
-        v17 = result_kills[v27] + points[v26] + 1;
+
+      // Calculate total points (position + kills + fastest lap bonus)
+      if (iDriverIndex == FastestLap)
+        iTotalRacePoints = result_kills[iDriverIndex] + points[iCurrentRacer] + 1;
       else
-        v17 = result_kills[v27] + points[v26];
-      sprintf(&buffer, "%2i", v17);
-      v22 += 5;
-      ++v26;
-      front_text(560, v28, 143, 0);
-      v9 = v28 + 22;
-      v28 += 22;
-      v23 += 22;
-      v24 += 22;
-      v25 += 22;
-      ++v19;
-    } while (v19 < racers);
+        iTotalRacePoints = result_kills[iDriverIndex] + points[iCurrentRacer];
+      sprintf(buffer, "%2i", iTotalRacePoints);
+      pszPositionText += 5;
+      ++iCurrentRacer;
+      front_text(front_vga[3], buffer, font2_ascii, font2_offsets, 560, iTextBaseY, 0x8Fu, 0);
+
+      // Move to next racer: increment Y positions and text pointer
+      iTextBaseY += 22;
+      iY += 22;
+      iTextY += 22;
+      iCarY += 22;
+      ++iFinishedCount;
+    } while (iFinishedCount < racers);
   }
-  v18 = screen;
-  copypic((char *)scrbuf, (int)screen);
-  fade_palette(32, (int)v18, 0, v9);
+
+  // Display completed result screen and wait for input
+  copypic(scrbuf, screen);
+  fade_palette(32);
   ticks = 0;
   while (!fatkbhit() && ticks < 2160)
-    ;
-  fre(front_vga);
-  fre(&front_vga_variable_1);
-  fre(&front_vga_variable_2);
-  fre(&front_vga_variable_3);
-  scr_size = v20;
+    UpdateSDL();
+
+  // cleanup
+  fre((void **)&front_vga[0]);
+  fre((void **)&front_vga[1]);
+  fre((void **)&front_vga[2]);
+  fre((void **)&front_vga[3]);
+  scr_size = iSavedScreenSize;
   holdmusic = -1;
-  fade_palette(0, (int)v18, 0, v9);*/
+  fade_palette(0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3839,7 +3866,7 @@ void RollCredits()
     memset(scrbuf, 0, 0x3E800u);
     pCurrImage = front_vga[iCurrImageIdx];
     llBlockHeight = pCurrImage[iBlockIdx].iHeight;
-    display_block(scrbuf, pCurrImage, iBlockIdx, XMAX / 2 - pCurrImage[iBlockIdx].iWidth / 2, YMAX / 2 - llBlockHeight / 2, -1);
+    display_block(scrbuf, pCurrImage, iBlockIdx, XMAX / 2 - pCurrImage[iBlockIdx].iWidth / 2, YMAX / 2 - (int)llBlockHeight / 2, -1);
     copypic(scrbuf, screen);
     fade_palette(32);
     ticks = 0;

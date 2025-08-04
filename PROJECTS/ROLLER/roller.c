@@ -391,7 +391,7 @@ void UpdateDebugLoop()
           buffer[i] = (char)(i + 32 * j);
         }
         buffer[32] = '\0';
-        front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - size / 2, size / 2 + size * (j + 1), color_white, 2);
+        front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 640 - size / 2, size / 2 + size * ((int)j + 1), color_white, 2);
       }
 
       SDL_Event e;
