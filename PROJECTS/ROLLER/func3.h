@@ -57,7 +57,7 @@ int winner_screen(eCarDesignIndex carDesign, char byFlags);
 void StoreResult();
 void RaceResult();
 void TimeTrials(int iDriverIdx);
-void ChampionshipStandings(int a1, int a2, int a3, char *a4);
+void ChampionshipStandings();
 void TeamStandings();
 void ShowLapRecords();
 void show_3dmap(float fZ, int iElevation, int iYaw);
