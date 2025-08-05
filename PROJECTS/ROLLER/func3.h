@@ -20,9 +20,11 @@ extern char save_slots[4][13];
 extern int credit_order[25];
 extern char round_pals[8][13];
 extern char round_pics[8][13];
+extern char send_buffer[32];
 extern int send_message_to;
 extern int rec_status;
 extern char rec_mes_buf[32];
+extern char send_mes_buf[32];
 extern tSaveStatus save_status[4];
 extern int result_lap[16];
 extern int result_order[16];
@@ -106,7 +108,7 @@ void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int 
 uint8 *load_picture(const char *szFile);
 void AllocateCars();
 void check_cars();
-char *select_messages();
+void select_messages();
 void show_received_mesage();
 int select_netslot();
 

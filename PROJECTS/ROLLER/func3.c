@@ -68,9 +68,11 @@ char round_pics[8][13] =  //000A630C
   "round7.bm",
   "round8.bm"
 };
+char send_buffer[32] = "HELLO. WHAT A LOVELY DAY"; //000A6374
 int send_message_to = -1; //000A6394
 int rec_status = 0;       //000A6398
 char rec_mes_buf[32];     //00188530
+char send_mes_buf[32];    //00188550
 tSaveStatus save_status[4]; //00188570
 int result_lap[16];       //001885D0
 int result_order[16];     //00188610
@@ -5070,526 +5072,368 @@ void check_cars()
 
 //-------------------------------------------------------------------------------------------------
 
-char *select_messages()
+void select_messages()
 {
-  return 0;
-  /*
-  char *result; // eax
-  int v2; // edi
-  int v3; // esi
-  unsigned int v4; // ecx
-  char v5; // al
-  unsigned int v6; // ecx
-  unsigned int v7; // edi
-  char *v8; // ebx
-  int v9; // ecx
-  char *v10; // edx
-  char *v11; // eax
-  char v12; // al
-  int v13; // esi
-  char *v14; // edi
-  char v15; // al
-  int v16; // eax
-  unsigned int v17; // eax
-  int v18; // ebx
-  unsigned int v19; // eax
+  uint8 *pScreenBuffer; // edi
+  tBlockHeader *pBlockHeader; // esi
+  unsigned int uiBufferSize; // ecx
+  char byBufferSizeByte; // al
+  unsigned int uiQwordCopySize; // ecx
+  unsigned int uiCurrentSelection; // edi
+  char byTextColor; // al
+  int iPlayerIndex; // esi
+  char *pPlayerName; // edi
+  char byPlayerTextColor; // al
+  int iCursorX; // eax
+  unsigned int uiKeyCode; // eax
+  int iCharCode; // ebx
+  unsigned int uiExtendedKey; // eax
   int j; // eax
   int i; // eax
-  int v23; // [esp+4h] [ebp-1Ch]
-  int v24; // [esp+8h] [ebp-18h]
-  unsigned int v25; // [esp+Ch] [ebp-14h]
-  unsigned int v26; // [esp+Ch] [ebp-14h]
-  int v27; // [esp+10h] [ebp-10h]
-  int v28; // [esp+14h] [ebp-Ch]
-  int v29; // [esp+18h] [ebp-8h]
-  int v30; // [esp+1Ch] [ebp-4h]
+  int iSendConfirmation; // [esp+4h] [ebp-1Ch]
+  int iMessageLength; // [esp+8h] [ebp-18h]
+  unsigned int uiCurrentMenu; // [esp+Ch] [ebp-14h]
+  unsigned int uiPreviousMenu; // [esp+Ch] [ebp-14h]
+  int iSelectedPlayer; // [esp+10h] [ebp-10h]
+  int iMenuSelection; // [esp+14h] [ebp-Ch]
+  int iExitFlag; // [esp+18h] [ebp-8h]
+  int iY; // [esp+1Ch] [ebp-4h]
 
-  v29 = 0;
-  v27 = 0;
-  v28 = 0;
-  v25 = 0;
+  // Initialize UI state variables
+  iExitFlag = 0;
+  iSelectedPlayer = 0;
+  iMenuSelection = 0;
+  uiCurrentMenu = 0;
   send_status = 0;
   send_message_to = -1;
-  v23 = 0;
-  v24 = 0;
+  iSendConfirmation = 0;
+  iMessageLength = 0;
+
+  // Calculate current message length in send buffer
   if (send_buffer[0]) {
-    while (send_buffer[++v24])
+    while (send_buffer[++iMessageLength])
       ;
   }
-  result = &player_names[9];
-LABEL_4:
-  if (!v29) {
-    if (v27 < 0 || v27 >= network_on)
-      v27 = 0;
-    v2 = scrbuf;
-    v3 = front_vga[0];
+MAIN_UI_LOOP:
+  if (!iExitFlag)                             // MAIN_UI_LOOP: Main display and input processing loop
+  {
+    if (iSelectedPlayer < 0 || iSelectedPlayer >= network_on)
+      iSelectedPlayer = 0;
+
+    // Setup screen buffer and copy VGA frame buffer
+    pScreenBuffer = scrbuf;
+    pBlockHeader = front_vga[0];
     if (SVGA_ON)
-      v4 = 256000;
+      uiBufferSize = 256000;
     else
-      v4 = 64000;
-    v5 = v4;
-    v6 = v4 >> 2;
-    qmemcpy((void *)scrbuf, (const void *)front_vga[0], 4 * v6);
-    qmemcpy((void *)(v2 + 4 * v6), (const void *)(v3 + 4 * v6), v5 & 3);
-    display_block(scrbuf, front_vga_variable_1, 3, head_x, head_y, 0);
-    display_block(scrbuf, front_vga_variable_6, 0, 0x24u, 2, 0);
-    display_block(scrbuf, front_vga_variable_5, 1, 0xFFFFFFFC, 247, 0);
-    display_block(scrbuf, front_vga_variable_5, game_type + 5, 0x87u, 247, 0);
-    v7 = v25;
-    display_block(scrbuf, front_vga_variable_4, 4, 0x4Cu, 257, -1);
-    if (v25) {
-      v26 = v25 - 1;
-      if ((int)(v7 - 1) >= 3) {
-        display_block(scrbuf, front_vga_variable_6, 4, 0x3Eu, 336, -1);
+      uiBufferSize = 64000;
+    byBufferSizeByte = uiBufferSize;
+    uiQwordCopySize = uiBufferSize >> 2;
+    memcpy(scrbuf, front_vga[0], 4 * uiQwordCopySize);
+    memcpy(&pScreenBuffer[4 * uiQwordCopySize], &pBlockHeader->iWidth + uiQwordCopySize, byBufferSizeByte & 3);
+
+    // Display UI elements: header, message panel, game type indicator
+    display_block(scrbuf, front_vga[1], 3, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+    display_block(scrbuf, front_vga[5], 1, -4, 247, 0);
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+    uiCurrentSelection = uiCurrentMenu;
+    display_block(scrbuf, front_vga[4], 4, 76, 257, -1);
+    if (uiCurrentMenu) {
+      uiPreviousMenu = uiCurrentMenu - 1;
+      if ((int)(uiCurrentSelection - 1) >= 3) {
+        display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
       } else {
-        display_block(scrbuf, front_vga_variable_6, 2, 0x3Eu, 336, -1);
-        front_text(
-          front_vga_variable_2,
-          (unsigned __int8 *)asc_A2400,
-          (int)&font2_ascii,
-          (int)&font2_offsets,
-          sel_posns[4 * v26],
-          sel_posns_variable_1[4 * v26],
-          143,
-          0);
+        display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+        front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[2 * uiPreviousMenu].x, sel_posns[2 * uiPreviousMenu].y, 0x8Fu, 0);
       }
-      v25 = v26 + 1;
-    } else if (v28 >= 3) {
-      display_block(scrbuf, front_vga_variable_6, 4, 0x3Eu, 336, -1);
+      uiCurrentMenu = uiPreviousMenu + 1;
+    } else if (iMenuSelection >= 3) {
+      display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
     } else {
-      display_block(scrbuf, front_vga_variable_6, 2, 0x3Eu, 336, -1);
-      front_text(
-        front_vga_variable_2,
-        (unsigned __int8 *)asc_A2400,
-        (int)&font2_ascii,
-        (int)&font2_offsets,
-        sel_posns[4 * v28],
-        sel_posns_variable_1[4 * v28],
-        143,
-        0);
+      display_block(scrbuf, front_vga[6], 2, 62, 336, -1);
+      front_text(front_vga[2], "~", font2_ascii, font2_offsets, sel_posns[2 * iMenuSelection].x, sel_posns[2 * iMenuSelection].y, 0x8Fu, 0);
     }
-    front_text(
-      front_vga_variable_2,
-      language_buffer_variable_110,
-      (int)&font2_ascii,
-      (int)&font2_offsets,
-      sel_posns[0] + 132,
-      sel_posns_variable_1[0] + 7,
-      143,
-      2u);
-    front_text(
-      front_vga_variable_2,
-      language_buffer_variable_111,
-      (int)&font2_ascii,
-      (int)&font2_offsets,
-      sel_posns_variable_4 + 132,
-      sel_posns_variable_5 + 7,
-      143,
-      2u);
-    v8 = (char *)&font2_ascii;
-    front_text(
-      front_vga_variable_2,
-      language_buffer_variable_112,
-      (int)&font2_ascii,
-      (int)&font2_offsets,
-      sel_posns_variable_8 + 132,
-      sel_posns_variable_9 + 7,
-      143,
-      2u);
-    v9 = v25;
-    v10 = (char *)v25;
-    v11 = &player_names[9 * v27];
-    switch (v25) {
+    front_text(front_vga[2], &language_buffer[7168], font2_ascii, font2_offsets, sel_posns[0].x + 132, sel_posns[0].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[7232], font2_ascii, font2_offsets, sel_posns[2].x + 132, sel_posns[2].y + 7, 0x8Fu, 2u);
+    front_text(front_vga[2], &language_buffer[7296], font2_ascii, font2_offsets, sel_posns[4].x + 132, sel_posns[4].y + 7, 0x8Fu, 2u);
+    switch (uiCurrentMenu) {
       case 0u:
-        if (v27)
-          sprintf(buffer, "%s", &player_names[9 * v27]);
+        // Menu 0: Send to player selection screen
+        if (iSelectedPlayer)
+          sprintf(buffer, "%s", player_names[iSelectedPlayer]);
         else
-          sprintf(buffer, "%s", language_buffer_variable_113);
-        scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 190, 66, 143, 0, 180, 640);
-        v10 = send_buffer;
-        v8 = font1_ascii;
-        v9 = (int)&font1_offsets;
-        LOBYTE(v11) = scale_text(
-                        front_vga_variable_10,
-                        send_buffer,
-                        (int)font1_ascii,
-                        (int)&font1_offsets,
-                        190,
-                        110,
-                        143,
-                        0,
-                        180,
-                        640);
+          sprintf(buffer, "%s", &language_buffer[7360]);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 190, 66, 143, 0, 180, 640);
+        scale_text(front_vga[15], send_buffer, font1_ascii, font1_offsets, 190, 110, 143, 0, 180, 640);
         if (send_status > 0)
-          goto LABEL_24;
+          goto SHOW_SENDING_STATUS;
         if (send_status)
-          goto LABEL_50;
-        if (v23) {
-          v9 = 2;
-          v25 = send_status;
-          v23 = send_status;
-          v28 = 2;
+          goto SHOW_SEND_FAILED;
+        if (iSendConfirmation) {
+          uiCurrentMenu = send_status;
+          iSendConfirmation = send_status;
+          iMenuSelection = 2;
         }
-        goto LABEL_52;
+        goto UPDATE_DISPLAY;
       case 1u:
-        scale_text(
-          front_vga_variable_10,
-          language_buffer_variable_114,
-          (int)&font2_ascii,
-          (int)&font2_offsets,
-          400,
-          60,
-          143,
-          1u,
-          200,
-          640);
-        if (v28)
-          v12 = -113;
+        // Menu 1: Player list selection screen
+        scale_text(front_vga[15], &language_buffer[7424], font2_ascii, font2_offsets, 400, 60, 143, 1u, 200, 640);
+        if (iMenuSelection)
+          byTextColor = -113;
         else
-          v12 = -85;
-        v10 = language_buffer_variable_113;
-        v8 = (char *)&font2_ascii;
-        v9 = (int)&font2_offsets;
-        v13 = 1;
-        LOBYTE(v11) = scale_text(
-                        front_vga_variable_10,
-                        language_buffer_variable_113,
-                        (int)&font2_ascii,
-                        (int)&font2_offsets,
-                        400,
-                        98,
-                        v12,
-                        1u,
-                        200,
-                        640);
+          byTextColor = -85;
+        iPlayerIndex = 1;
+        scale_text(front_vga[15], &language_buffer[7360], font2_ascii, font2_offsets, 400, 98, byTextColor, 1u, 200, 640);
         if (network_on > 1) {
-          v14 = &player_names[9];
-          v30 = 116;
+          pPlayerName = player_names[1];
+          iY = 116;
           do {
-            if (v13 == v28)
-              v15 = -85;
+            if (iPlayerIndex == iMenuSelection)
+              byPlayerTextColor = -85;
             else
-              v15 = -113;
-            v8 = (char *)&font2_ascii;
-            v9 = (int)&font2_offsets;
-            LOBYTE(v11) = scale_text(
-                            front_vga_variable_10,
-                            v14,
-                            (int)&font2_ascii,
-                            (int)&font2_offsets,
-                            400,
-                            v30,
-                            v15,
-                            1u,
-                            200,
-                            640);
-            ++v13;
-            v10 = (char *)(v30 + 18);
-            v14 += 9;
-            v30 += 18;
-          } while (v13 < network_on);
+              byPlayerTextColor = -113;
+            scale_text(front_vga[15], pPlayerName, font2_ascii, font2_offsets, 400, iY, byPlayerTextColor, 1u, 200, 640);
+            ++iPlayerIndex;
+            pPlayerName += 9;
+            iY += 18;
+          } while (iPlayerIndex < network_on);
         }
-        goto LABEL_52;
+        goto UPDATE_DISPLAY;
       case 2u:
-        scale_text(
-          front_vga_variable_10,
-          language_buffer_variable_115,
-          (int)&font2_ascii,
-          (int)&font2_offsets,
-          400,
-          60,
-          143,
-          1u,
-          200,
-          640);
+        // Menu 2: Message composition screen with cursor
+        scale_text(front_vga[15], &language_buffer[7488], font2_ascii, font2_offsets, 400, 60, 143, 1u, 200, 640);
         if ((frames & 0xFu) < 8) {
-          v16 = stringwidth(send_buffer) + 190;
-          if (v16 <= 620)
-            scale_text(
-              front_vga_variable_10,
-              &aI_5[2],
-              (int)font1_ascii,
-              (int)&font1_offsets,
-              v16,
-              110,
-              171,
-              0,
-              180,
-              640);
+          iCursorX = stringwidth(send_buffer) + 190;
+          if (iCursorX <= 620)
+            scale_text(front_vga[15], "_", font1_ascii, font1_offsets, iCursorX, 110, 171, 0, 180, 640);
           else
-            scale_text(
-              front_vga_variable_10,
-              &aI_5[2],
-              (int)font1_ascii,
-              (int)&font1_offsets,
-              621,
-              110,
-              171,
-              0,
-              180,
-              640);
+            scale_text(front_vga[15], "_", font1_ascii, font1_offsets, 621, 110, 171, 0, 180, 640);
         }
-        v10 = send_buffer;
-        v8 = font1_ascii;
-        v9 = (int)&font1_offsets;
-        LOBYTE(v11) = scale_text(
-                        front_vga_variable_10,
-                        send_buffer,
-                        (int)font1_ascii,
-                        (int)&font1_offsets,
-                        190,
-                        110,
-                        143,
-                        0,
-                        180,
-                        630);
-        goto LABEL_52;
+        scale_text(front_vga[15], send_buffer, font1_ascii, font1_offsets, 190, 110, 143, 0, 180, 630);
+        goto UPDATE_DISPLAY;
       case 3u:
-        if (v27)
-          sprintf(buffer, "%s", &player_names[9 * v27]);
+        // Menu 3: Send confirmation screen
+        if (iSelectedPlayer)
+          sprintf(buffer, "%s", player_names[iSelectedPlayer]);
         else
-          sprintf(buffer, "%s", language_buffer_variable_113);
-        scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 190, 66, 143, 0, 180, 640);
-        scale_text(
-          front_vga_variable_10,
-          send_buffer,
-          (int)font1_ascii,
-          (int)&font1_offsets,
-          190,
-          110,
-          143,
-          0,
-          180,
-          640);
-        v10 = language_buffer_variable_116;
-        v8 = (char *)&font2_ascii;
-        v9 = (int)&font2_offsets;
-        scale_text(
-          front_vga_variable_10,
-          language_buffer_variable_116,
-          (int)&font2_ascii,
-          (int)&font2_offsets,
-          400,
-          150,
-          143,
-          1u,
-          200,
-          640);
+          sprintf(buffer, "%s", &language_buffer[7360]);
+        scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 190, 66, 143, 0, 180, 640);
+        scale_text(front_vga[15], send_buffer, font1_ascii, font1_offsets, 190, 110, 143, 0, 180, 640);
+        scale_text(front_vga[15], &language_buffer[7552], font2_ascii, font2_offsets, 400, 150, 143, 1u, 200, 640);
         if (send_status > 0) {
-        LABEL_24:
-          v10 = (char *)&language_buffer_variable_117;
+        SHOW_SENDING_STATUS:
+          scale_text(front_vga[15], &language_buffer[7616], font2_ascii, font2_offsets, 400, 180, 231, 1u, 200, 640);// SHOW_SENDING_STATUS: Display "Sending..." message
         } else {
-          v11 = (char *)send_status;
           if (!send_status) {
-            if (v23) {
-              v25 = send_status;
-              v23 = send_status;
-              v28 = 2;
+            if (iSendConfirmation) {
+              uiCurrentMenu = send_status;
+              iSendConfirmation = send_status;
+              iMenuSelection = 2;
             }
-            goto LABEL_52;
+            goto UPDATE_DISPLAY;
           }
-        LABEL_50:
-          v10 = (char *)&language_buffer_variable_118;
+        SHOW_SEND_FAILED:
+          scale_text(front_vga[15], &language_buffer[7680], font2_ascii, font2_offsets, 400, 180, 231, 1u, 200, 640);// SHOW_SEND_FAILED: Display "Send failed" message
         }
-        v8 = (char *)&font2_ascii;
-        v9 = (int)&font2_offsets;
-        LOBYTE(v11) = scale_text(
-                        front_vga_variable_10,
-                        v10,
-                        (int)&font2_ascii,
-                        (int)&font2_offsets,
-                        400,
-                        180,
-                        231,
-                        1u,
-                        200,
-                        640);
         --send_status;
-      LABEL_52:
-        show_received_mesage(v11, v10, v8, v9);
-        copypic((char *)scrbuf, (int)screen);
+      UPDATE_DISPLAY:
+        show_received_mesage();                 // UPDATE_DISPLAY: Show received messages and copy screen buffer
+        copypic(scrbuf, screen);
         while (1) {
-          result = (char *)fatkbhit();
-          if (!result)
-            goto LABEL_4;
-          v17 = fatgetch();
-          v18 = v17;
-          if (v17 < 8) {
-            if (v17)
-              goto LABEL_95;
-            v19 = fatgetch();
-            if (v19 >= 0x48) {
-              if (v19 <= 0x48) {
-                if (v25 <= 1 && v28 > 0)
-                  --v28;
-              } else if (v19 == 80) {
-                if (v25) {
-                  if (v25 == 1 && network_on - 1 > v28)
-                    ++v28;
-                } else if (v28 < 3) {
-                  ++v28;
+          UpdateSDL();
+          // Main input processing loop
+          if (!fatkbhit())
+            goto MAIN_UI_LOOP;
+          uiKeyCode = fatgetch();
+          iCharCode = uiKeyCode;
+          if (uiKeyCode < 8) {
+            if (uiKeyCode)
+              goto PROCESS_CHARACTER_INPUT;
+            // Handle extended keys (arrows, function keys)
+            uiExtendedKey = fatgetch();
+            if (uiExtendedKey >= 0x48) {
+              if (uiExtendedKey <= 0x48) {                                 // Up arrow key - move selection up
+                if (uiCurrentMenu <= 1 && iMenuSelection > 0)
+                  --iMenuSelection;
+              } else if (uiExtendedKey == 80) {                                 // Down arrow key - move selection down
+                if (uiCurrentMenu) {
+                  if (uiCurrentMenu == 1 && network_on - 1 > iMenuSelection)
+                    ++iMenuSelection;
+                } else if (iMenuSelection < 3) {
+                  ++iMenuSelection;
                 }
               }
             }
-          } else if (v17 <= 8) {
-            if (v25 == 2 && v24 > 0) {
-              send_buffer[v24--] = 0;
-              send_buffer[v24] = 0;
+          } else if (uiKeyCode <= 8) {                                     // Backspace key - remove character from message
+            if (uiCurrentMenu == 2 && iMessageLength > 0) {
+              send_buffer[iMessageLength--] = 0;
+              send_buffer[iMessageLength] = 0;
             }
-            if (v25 == 3 && !v23) {
-              v25 = 0;
-              v28 = 2;
+            if (uiCurrentMenu == 3 && !iSendConfirmation) {
+              uiCurrentMenu = 0;
+              iMenuSelection = 2;
             }
-          } else if (v17 < 0xD) {
-          LABEL_95:
-            if (v25 == 3 && !v23) {
-              if (v17 == 121 || v17 == 89) {
-                v23 = -1;
-                send_message_to = v27;
-                for (i = 0; i < 32; rec_mes_buf_variable_8[i] = round_pics_variable_8[i]) {
-                  i += 8;
-                  rec_mes_buf_variable_1[i] = round_pics_variable_1[i];
-                  rec_mes_buf_variable_2[i] = round_pics_variable_2[i];
-                  rec_mes_buf_variable_3[i] = round_pics_variable_3[i];
-                  rec_mes_buf_variable_4[i] = round_pics_variable_4[i];
-                  rec_mes_buf_variable_5[i] = round_pics_variable_5[i];
-                  rec_mes_buf_variable_6[i] = round_pics_variable_6[i];
-                  rec_mes_buf_variable_7[i] = round_pics_variable_7[i];
+          } else if (uiKeyCode < 0xD) {                                     // PROCESS_CHARACTER_INPUT: Handle regular character input
+          PROCESS_CHARACTER_INPUT:
+            if (uiCurrentMenu == 3 && !iSendConfirmation) {
+              if (uiKeyCode == 121 || uiKeyCode == 89) {
+                iSendConfirmation = -1;
+                send_message_to = iSelectedPlayer;
+
+                for (i = 0; i < 32; ++i) {
+                  send_mes_buf[i] = send_buffer[i];
                 }
+                //for (i = 0; i < 32; rec_mes_buf[i + 31] = round_pics[7][i + 12])// Fixed loop: Copy send_buffer to send_mes_buf (32 bytes)
+                //{
+                //  i += 8;
+                //  rec_mes_buf[i + 24] = round_pics[7][i + 5];// offset into send_mes_buf and send_buffer
+                //  rec_mes_buf[i + 25] = round_pics[7][i + 6];
+                //  rec_mes_buf[i + 26] = round_pics[7][i + 7];
+                //  rec_mes_buf[i + 27] = round_pics[7][i + 8];
+                //  rec_mes_buf[i + 28] = round_pics[7][i + 9];
+                //  rec_mes_buf[i + 29] = round_pics[7][i + 10];
+                //  rec_mes_buf[i + 30] = round_pics[7][i + 11];
+                //}
               } else {
-                v25 = 0;
-                v28 = 2;
+                uiCurrentMenu = 0;
+                iMenuSelection = 2;
               }
             }
-            if (v25 == 2 && v24 < 30) {
-              if (keys_variable_3 || keys_variable_4) {
-                switch (v18) {
+            if (uiCurrentMenu == 2 && iMessageLength < 30) {                                   // Handle shift key combinations for special characters
+              if (keys[42] || keys[54]) {
+                switch (iCharCode) {
                   case '#':
-                    v18 = 126;
+                    iCharCode = 126;
                     break;
                   case '\'':
-                    v18 = 64;
+                    iCharCode = 64;
                     break;
                   case ',':
-                    v18 = 60;
+                    iCharCode = 60;
                     break;
                   case '-':
-                    v18 = 95;
+                    iCharCode = 95;
                     break;
                   case '.':
-                    v18 = 62;
+                    iCharCode = 62;
                     break;
                   case '/':
-                    v18 = 63;
+                    iCharCode = 63;
                     break;
                   case '0':
-                    v18 = 41;
+                    iCharCode = 41;
                     break;
                   case '1':
-                    v18 = 33;
+                    iCharCode = 33;
                     break;
                   case '2':
-                    v18 = 34;
+                    iCharCode = 34;
                     break;
                   case '3':
-                    v18 = 156;
+                    iCharCode = 156;
                     break;
                   case '4':
-                    v18 = 36;
+                    iCharCode = 36;
                     break;
                   case '5':
-                    v18 = 37;
+                    iCharCode = 37;
                     break;
                   case '6':
-                    v18 = 94;
+                    iCharCode = 94;
                     break;
                   case '7':
-                    v18 = 38;
+                    iCharCode = 38;
                     break;
                   case '8':
-                    v18 = 42;
+                    iCharCode = 42;
                     break;
                   case '9':
-                    v18 = 40;
+                    iCharCode = 40;
                     break;
                   case ';':
-                    v18 = 58;
+                    iCharCode = 58;
                     break;
                   case '=':
-                    v18 = 43;
+                    iCharCode = 43;
                     break;
                   default:
                     break;
                 }
               }
-              if (v18 >= 97 && v18 <= 122)
-                v18 -= 32;
-              if (v18 != 127) {
-                send_buffer[v24++] = v18;
-                send_buffer[v24] = 0;
+              if (iCharCode >= 97 && iCharCode <= 122)// Convert lowercase to uppercase for message input
+                iCharCode -= 32;
+              if (iCharCode != 127) {
+                send_buffer[iMessageLength++] = iCharCode;
+                send_buffer[iMessageLength] = 0;
               }
             }
-          } else if (v17 <= 0xD) {
-            if (v25 <= 3) {
-              switch (v25) {
+          } else if (uiKeyCode <= 0xD) {                                     // Enter key - handle menu navigation and confirmations
+            if (uiCurrentMenu <= 3) {
+              switch (uiCurrentMenu) {
                 case 0u:
-                  v25 = v28 + 1;
-                  switch (v28) {
+                  uiCurrentMenu = iMenuSelection + 1;
+                  switch (iMenuSelection) {
                     case 0:
-                      v28 = v27;
+                      iMenuSelection = iSelectedPlayer;
                       break;
                     case 1:
-                      v24 = 0;
+                      iMessageLength = 0;
                       if (send_buffer[0]) {
-                        while (send_buffer[++v24])
+                        while (send_buffer[++iMessageLength])
                           ;
                       }
                       break;
                     case 2:
-                      v23 = -1;
-                      send_message_to = v27;
-                      for (j = 0; j < 32; rec_mes_buf_variable_8[j] = round_pics_variable_8[j]) {
-                        j += 8;
-                        rec_mes_buf_variable_1[j] = round_pics_variable_1[j];
-                        rec_mes_buf_variable_2[j] = round_pics_variable_2[j];
-                        rec_mes_buf_variable_3[j] = round_pics_variable_3[j];
-                        rec_mes_buf_variable_4[j] = round_pics_variable_4[j];
-                        rec_mes_buf_variable_5[j] = round_pics_variable_5[j];
-                        rec_mes_buf_variable_6[j] = round_pics_variable_6[j];
-                        rec_mes_buf_variable_7[j] = round_pics_variable_7[j];
+                      iSendConfirmation = -1;
+                      send_message_to = iSelectedPlayer;
+
+
+                      for (j = 0; j < 32; ++j) {
+                        send_mes_buf[j] = send_buffer[j];
                       }
-                      v25 = 0;
+                      //for (j = 0; j < 32; rec_mes_buf[j + 31] = round_pics[7][j + 12])// Fixed loop: Copy send_buffer to send_mes_buf (32 bytes)
+                      //{
+                      //  j += 8;
+                      //  rec_mes_buf[j + 24] = round_pics[7][j + 5];
+                      //  rec_mes_buf[j + 25] = round_pics[7][j + 6];
+                      //  rec_mes_buf[j + 26] = round_pics[7][j + 7];
+                      //  rec_mes_buf[j + 27] = round_pics[7][j + 8];
+                      //  rec_mes_buf[j + 28] = round_pics[7][j + 9];
+                      //  rec_mes_buf[j + 29] = round_pics[7][j + 10];
+                      //  rec_mes_buf[j + 30] = round_pics[7][j + 11];
+                      //}
+                      uiCurrentMenu = 0;
                       break;
                     case 3:
-                      goto LABEL_77;
+                      goto EXIT_FUNCTION;
                     default:
                       continue;
                   }
                   break;
                 case 1u:
-                  v25 = 0;
-                  v27 = v28;
-                  v28 = 0;
+                  uiCurrentMenu = 0;
+                  iSelectedPlayer = iMenuSelection;
+                  iMenuSelection = 0;
                   break;
                 default:
                   continue;
               }
             }
           } else {
-            if (v17 != 27)
-              goto LABEL_95;
-            if (v25)
-              v25 = 0;
+            if (uiKeyCode != 27)
+              goto PROCESS_CHARACTER_INPUT;
+            if (uiCurrentMenu)                // Escape key - go back or exit
+              uiCurrentMenu = 0;
             else
-              LABEL_77:
-            v29 = -1;
+              EXIT_FUNCTION:
+            iExitFlag = -1;                   // EXIT_FUNCTION: Set exit flag and return from function
           }
         }
       default:
-        goto LABEL_52;
+        goto UPDATE_DISPLAY;                    // Main menu state machine - handle different UI screens
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
