@@ -2146,22 +2146,32 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
         RoadPoly.uiSurfaceType = uiSurfaceColor;
 
         //Render road segment with vert orders for both front and back faces
-        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;
-        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen2;
-        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen2;
-        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1;
+        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;    //0
+        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen2;    //1
+        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen2; //2
+        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1; //3
         POLYFLAT(scrbuf, &RoadPoly);
 
-        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen2;
-        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen1;
-        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen1;
-        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen2;
-        //pointTemp = RoadPoly.vertices[0];
-        //RoadPoly.vertices[0] = RoadPoly.vertices[1];
-        //RoadPoly.vertices[1] = RoadPoly.vertices[2];
-        //RoadPoly.vertices[2] = RoadPoly.vertices[3];
-        //RoadPoly.vertices[3] = pointTemp;
+        //fix backs
+        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen2;    //1
+        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen1;    //0
+        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen1; //3
+        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen2; //2
         POLYFLAT(scrbuf, &RoadPoly);
+        
+        //fix twisted bowties
+        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;    //0
+        RoadPoly.vertices[1] = pCurrentSegmentScreenXYZ->screen2; //2
+        RoadPoly.vertices[2] = pNextTrackScreenXYZ_1->screen2;    //1
+        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1; //3
+        POLYFLAT(scrbuf, &RoadPoly);
+
+        //pointTemp = RoadPoly.vertices[0];
+        //RoadPoly.vertices[0] = RoadPoly.vertices[1];            //1
+        //RoadPoly.vertices[1] = RoadPoly.vertices[2];            //2
+        //RoadPoly.vertices[2] = RoadPoly.vertices[3];            //3
+        //RoadPoly.vertices[3] = pointTemp;                       //0
+        //POLYFLAT(scrbuf, &RoadPoly);
       }
       ++iRenderLoopIndex;
       iColorGradient -= 15;
