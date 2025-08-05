@@ -1683,9 +1683,9 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   int iCurrentSegmentIdx; // ebx
   tTrackScreenXYZ *pCurrentSegmentScreenXYZ; // esi
   double dHeightColorCalc; // st7
-  tTrackScreenXYZ *pCurrTrackScreenXYZ; // edi
+  tTrackScreenXYZ *pNextTrackScreenXYZ_1; // edi
   uint32 uiSurfaceColor; // eax
-  tPoint pointTemp; // kr00_8
+  //tPoint pointTemp; // kr00_8
   float fBaseY; // [esp+34h] [ebp-B0h]
   float fBaseX; // [esp+38h] [ebp-ACh]
   float fTransformTemp; // [esp+3Ch] [ebp-A8h]
@@ -1742,7 +1742,7 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   float fTrackProjX2; // [esp+C0h] [ebp-24h]
   float fTrackProjZ1; // [esp+C4h] [ebp-20h]
   float fTrackProjZ2; // [esp+C4h] [ebp-20h]
-  int iColorValueFinal; // [esp+C8h] [ebp-1Ch]
+  int iNextSegmentIdx_1; // [esp+C8h] [ebp-1Ch]
   int iSurfaceColor; // [esp+C8h] [ebp-1Ch]
 
   // Initialize base screen coordinates
@@ -2127,15 +2127,15 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
         && ((TrakColour[iCurrentSegmentIdx].iLeftSurfType & 0x20000) == 0
             || (TrakColour[iCurrentSegmentIdx].iCenterSurfType & 0x20000) == 0
             || (TrakColour[iCurrentSegmentIdx].iRightSurfType & 0x20000) == 0)) {
-        iColorValueFinal = iCurrentSegmentIdx + 2;
+        iNextSegmentIdx_1 = iCurrentSegmentIdx + 2;
         pCurrentSegmentScreenXYZ = &TrackScreenXYZ[iCurrentSegmentIdx];
         if (iCurrentSegmentIdx + 2 >= TRAK_LEN)
-          iColorValueFinal = 0;
+          iNextSegmentIdx_1 = 0;
         RoadPoly.uiNumVerts = 4;
         // Calculate color based on height (elevation mapping)
         dHeightColorCalc = (fBoundingMaxZ - TrakPt[iCurrentSegmentIdx].pointAy[2].fZ) * 15.0 / fZRangeForColor + (double)(iColorGradient / iTrackSegmentCount);
         //_CHP();
-        pCurrTrackScreenXYZ = &TrackScreenXYZ[iColorValueFinal];
+        pNextTrackScreenXYZ_1 = &TrackScreenXYZ[iNextSegmentIdx_1];
         iSurfaceColor = 143 - (int)dHeightColorCalc;
         if (iSurfaceColor > 139)
           iSurfaceColor = 139;
@@ -2144,17 +2144,23 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
         uiSurfaceColor = iSurfaceColor;
         SET_BYTE1(uiSurfaceColor, GET_BYTE1(iSurfaceColor) | 0x60);
         RoadPoly.uiSurfaceType = uiSurfaceColor;
-        RoadPoly.vertices[0] = pCurrTrackScreenXYZ->screen1;
-        RoadPoly.vertices[1] = pCurrTrackScreenXYZ->screen2;
+
+        //Render road segment with vert orders for both front and back faces
+        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;
+        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen2;
         RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen2;
         RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1;
-        // Render road segment as two triangular polygons
         POLYFLAT(scrbuf, &RoadPoly);
-        pointTemp = RoadPoly.vertices[0];
-        RoadPoly.vertices[0] = RoadPoly.vertices[1];
-        RoadPoly.vertices[1] = RoadPoly.vertices[2];
-        RoadPoly.vertices[2] = RoadPoly.vertices[3];
-        RoadPoly.vertices[3] = pointTemp;
+
+        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen2;
+        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen1;
+        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen1;
+        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen2;
+        //pointTemp = RoadPoly.vertices[0];
+        //RoadPoly.vertices[0] = RoadPoly.vertices[1];
+        //RoadPoly.vertices[1] = RoadPoly.vertices[2];
+        //RoadPoly.vertices[2] = RoadPoly.vertices[3];
+        //RoadPoly.vertices[3] = pointTemp;
         POLYFLAT(scrbuf, &RoadPoly);
       }
       ++iRenderLoopIndex;
