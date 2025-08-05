@@ -12,38 +12,38 @@
 
 void twpoly(tPoint *vertices, int16 nColor)
 {
-  int16 nEdge1Dx; // ax
-  int16 nEdge2Dx; // di
-  int16 nEdge2Dy; // si
-  int16 nEdge3Dy; // bx
-  double dIntersectionX2; // st6
-  double dIntersectionY2; // st7
-  int iNumVerts; // edx
-  tPoint *vertices2; // eax
-  int16 nColor2; // bx
-  double dIntersectionX; // st6
-  double dIntersectionY; // st7
-  int iCrossProductResult2; // ebp
-  double dIntersectionY3; // st7
-  int16 nColor3; // bp
-  double dIntersectionY4; // st7
-  tPoint pTempPoint2; // [esp+0h] [ebp-68h]
-  tPoint pTempPoint5; // [esp+8h] [ebp-60h]
-  tPoint pTempPoint3; // [esp+8h] [ebp-60h]
-  tPoint pTempPoint4; // [esp+8h] [ebp-60h]
-  tPoint pTempPoint; // [esp+10h] [ebp-58h]
-  int iCrossProductResult2_2; // [esp+20h] [ebp-48h]
-  float fCrossProduct2; // [esp+24h] [ebp-44h]
-  float fCrossProduct1; // [esp+28h] [ebp-40h]
-  float fIntersectionParam2; // [esp+2Ch] [ebp-3Ch]
-  float fIntersectionParam; // [esp+30h] [ebp-38h]
-  int iCrossProductResult1; // [esp+34h] [ebp-34h]
-  int16 nEdge1Dy; // [esp+38h] [ebp-30h]
-  int16 nSumEdge23Dy; // [esp+3Ch] [ebp-2Ch]
-  int16 nSumEdge23Dx; // [esp+40h] [ebp-28h]
-  int16 SumEdge23Dy2; // [esp+44h] [ebp-24h]
-  int16 nSumEdge23Dx2; // [esp+48h] [ebp-20h]
-  int16 nEdge3Dx; // [esp+4Ch] [ebp-1Ch]
+  int16 nEdge1Dx;
+  int16 nEdge2Dx;
+  int16 nEdge2Dy;
+  int16 nEdge3Dy;
+  double dIntersectionX2;
+  double dIntersectionY2;
+  int iNumVerts;
+  tPoint *vertices2;
+  int16 nColor2;
+  double dIntersectionX;
+  double dIntersectionY;
+  int iCrossProductResult2;
+  double dIntersectionY3;
+  int16 nColor3;
+  double dIntersectionY4;
+  tPoint pTempPoint2;
+  tPoint pTempPoint5;
+  tPoint pTempPoint3;
+  tPoint pTempPoint4;
+  tPoint pTempPoint;
+  int iCrossProductResult2_2;
+  float fCrossProduct2;
+  float fCrossProduct1;
+  float fIntersectionParam2;
+  double dIntersectionParam;
+  int iCrossProductResult1;
+  int16 nEdge1Dy;
+  int16 nSumEdge23Dy;
+  int16 nSumEdge23Dx;
+  int16 SumEdge23Dy2;
+  int16 nSumEdge23Dx2;
+  int16 nEdge3Dx;
 
   nEdge1Dx = (int16)(vertices[1].x) - (int16)(vertices->x);
   nEdge2Dx = (int16)(vertices[2].x) - (int16)(vertices->x);
@@ -62,21 +62,21 @@ void twpoly(tPoint *vertices, int16 nColor)
   // Check if quadrilateral is concave by testing edge intersections
   if (fabsf(fCrossProduct1) > FLT_EPSILON) {
     iCrossProductResult1 = nEdge1Dy * nEdge2Dx - nEdge2Dy * nEdge1Dx;
-    fIntersectionParam = (float)((double)iCrossProductResult1 / (double)fCrossProduct1);
+    dIntersectionParam = (double)iCrossProductResult1 / (double)fCrossProduct1;
 
     // Valid intersection point found 0 < t < 1
-    if (fIntersectionParam > 0.0 && fIntersectionParam < 1.0) {
+    if (dIntersectionParam > 0.0 && dIntersectionParam < 1.0) {
       pTempPoint = *vertices;
       if (iCrossProductResult1 <= 0) {
-        // Case 1: Split into triangles P01-P1-P* and P0-P*-P3
+        // Case 1: Split into triangles P2-P3-P* and P0-P*-P3
         *vertices = vertices[2];                // move P2 to P0 position
 
         // Calculate intersection point P*
-        dIntersectionX = (double)nEdge3Dx * fIntersectionParam + (double)vertices[2].x;
-        dIntersectionX = round(dIntersectionX); //_CHP()
+        dIntersectionX = (double)nEdge3Dx * dIntersectionParam + (double)vertices[2].x;
+        dIntersectionX = round(dIntersectionX);
         vertices[2].x = (int)dIntersectionX;
-        dIntersectionY = fIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
-        dIntersectionY = round(dIntersectionY); //_CHP()
+        dIntersectionY = dIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
+        dIntersectionY = round(dIntersectionY);
         vertices[2].y = (int)dIntersectionY;
 
         // Render first triangle (P2, P3, P*)
@@ -88,16 +88,16 @@ void twpoly(tPoint *vertices, int16 nColor)
         poly(vertices, 3, nColor);
         return;
       }
-      // Case 2: Split into triangles P0-P1-P* and P1-P2-P*
+      // Case 2: Split into triangles P1-P2-P* and P0-P*-P3
       *vertices = vertices[1];                  // Move P1 to P0 position
       vertices[1] = vertices[2];                // Move P2 to P1 position
 
       // Calculate intersection point P*
-      dIntersectionX2 = (double)nEdge3Dx * fIntersectionParam + (double)vertices[2].x;
-      dIntersectionX2 = round(dIntersectionX2); //_CHP();
+      dIntersectionX2 = (double)nEdge3Dx * dIntersectionParam + (double)vertices[2].x;
+      dIntersectionX2 = round(dIntersectionX2);
       vertices[2].x = (int)dIntersectionX2;
-      dIntersectionY2 = fIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
-      dIntersectionY2 = round(dIntersectionY2); //_CHP();
+      dIntersectionY2 = dIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
+      dIntersectionY2 = round(dIntersectionY2);
       vertices[2].y = (int)dIntersectionY2;
 
       // Render first triangle (P1, P2, P*)
@@ -115,7 +115,8 @@ void twpoly(tPoint *vertices, int16 nColor)
 
   // Secondary concave test using different edge combination
   fCrossProduct2 = (float)(SumEdge23Dy2 * nSumEdge23Dx - nSumEdge23Dy * nSumEdge23Dx2);
-  if (fabsf(fCrossProduct2) > FLT_EPSILON
+
+  if (fabsf(fCrossProduct2) <= FLT_EPSILON
     || (iCrossProductResult2 = nEdge2Dx * nSumEdge23Dy - nEdge2Dy * nSumEdge23Dx,
         iCrossProductResult2_2 = iCrossProductResult2,
         fIntersectionParam2 = (float)((double)iCrossProductResult2 / (double)fCrossProduct2),
@@ -133,21 +134,22 @@ void twpoly(tPoint *vertices, int16 nColor)
     vertices2 = vertices;
     iNumVerts = 4;
   LABEL_18:
-      // Render as convex quadrilateral
+    // Render as convex quadrilateral
     poly(vertices2, iNumVerts, nColor2);
     return;
   }
+
   if (iCrossProductResult2 <= 0) {
     // Case 3: Swap vertices and split
     pTempPoint3 = *vertices;
     *vertices = vertices[1];                    // Swap P0 and P1
     vertices[1] = pTempPoint3;
     pTempPoint4 = vertices[2];
-    //_CHP();
+
     // Calculate intersection point P*
     vertices[2].x = (int)((double)nSumEdge23Dx2 * fIntersectionParam2 + (double)pTempPoint4.x);
-    dIntersectionY4 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)vertices[2].y;
-    dIntersectionY4 = round(dIntersectionY4); //_CHP();
+    dIntersectionY4 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)pTempPoint4.y;
+    dIntersectionY4 = round(dIntersectionY4);
     vertices[2].y = (int)dIntersectionY4;
     nColor3 = nColor;
 
@@ -160,11 +162,11 @@ void twpoly(tPoint *vertices, int16 nColor)
   } else {
     // Case 4: Standard split at intersection
     pTempPoint5 = vertices[2];
-    //_CHP();
+
     // Calculate intersection point P*
     vertices[2].x = (int)((double)nSumEdge23Dx2 * fIntersectionParam2 + (double)pTempPoint5.x);
     dIntersectionY3 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)vertices[2].y;
-    dIntersectionY3 = round(dIntersectionY3); //_CHP();
+    dIntersectionY3 = round(dIntersectionY3);
     vertices[2].y = (int)dIntersectionY3;
     nColor3 = nColor;
 

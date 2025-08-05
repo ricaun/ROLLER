@@ -89,8 +89,6 @@ typedef int32 fixed16_16;
 #define INC_LOWORD(x) (SET_LOWORD(x, GET_LOWORD(x) + 1))
 #define DEC_LOWORD(x) (SET_LOWORD(x, GET_LOWORD(x) - 1))
 
-#define GET_BYTE1(x) (((x) >> 8) & 0xFF)
-#define SET_BYTE1(lval, rval) (lval = (lval & 0xFFFF00FF) | ((rval) & 0x0000FF00))
 #define SET_LOBYTE(lval, rval) (lval = (lval & 0xFFFFFF00) | ((rval) & 0x000000FF))
 #define SET_BYTE1_64(lval, rval)  (lval = (lval & 0xFFFFFFFFFFFF00FF) | ((rval) & 0x000000000000FF00))
 #define SET_LOWORD_64(lval, rval) (lval = (lval & 0xFFFFFFFFFFFF0000) | ((rval) & 0x000000000000FFFF))

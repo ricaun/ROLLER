@@ -1684,8 +1684,8 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   tTrackScreenXYZ *pCurrentSegmentScreenXYZ; // esi
   double dHeightColorCalc; // st7
   tTrackScreenXYZ *pNextTrackScreenXYZ_1; // edi
-  uint32 uiSurfaceColor; // eax
-  //tPoint pointTemp; // kr00_8
+  //uint32 uiSurfaceColor; // eax
+  tPoint pointTemp; // kr00_8
   float fBaseY; // [esp+34h] [ebp-B0h]
   float fBaseX; // [esp+38h] [ebp-ACh]
   float fTransformTemp; // [esp+3Ch] [ebp-A8h]
@@ -2141,9 +2141,9 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
           iSurfaceColor = 139;
         if (!iCurrentSegmentIdx)
           iSurfaceColor = 143;
-        uiSurfaceColor = iSurfaceColor;
-        SET_BYTE1(uiSurfaceColor, GET_BYTE1(iSurfaceColor) | 0x60);
-        RoadPoly.uiSurfaceType = uiSurfaceColor;
+        //uiSurfaceColor = iSurfaceColor;
+        //SET_BYTE1(uiSurfaceColor, GET_BYTE1(iSurfaceColor) | 0x60);
+        RoadPoly.uiSurfaceType = iSurfaceColor | SURFACE_FLAG_CONCAVE | SURFACE_FLAG_FLIP_BACKFACE;
 
         //Render road segment with vert orders for both front and back faces
         RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;    //0
@@ -2152,26 +2152,12 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
         RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1; //3
         POLYFLAT(scrbuf, &RoadPoly);
 
-        //fix backs
-        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen2;    //1
-        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen1;    //0
-        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen1; //3
-        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen2; //2
+        pointTemp = RoadPoly.vertices[0];
+        RoadPoly.vertices[0] = RoadPoly.vertices[1];            //1
+        RoadPoly.vertices[1] = RoadPoly.vertices[2];            //2
+        RoadPoly.vertices[2] = RoadPoly.vertices[3];            //3
+        RoadPoly.vertices[3] = pointTemp;                       //0
         POLYFLAT(scrbuf, &RoadPoly);
-        
-        //fix twisted bowties
-        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;    //0
-        RoadPoly.vertices[1] = pCurrentSegmentScreenXYZ->screen2; //2
-        RoadPoly.vertices[2] = pNextTrackScreenXYZ_1->screen2;    //1
-        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1; //3
-        POLYFLAT(scrbuf, &RoadPoly);
-
-        //pointTemp = RoadPoly.vertices[0];
-        //RoadPoly.vertices[0] = RoadPoly.vertices[1];            //1
-        //RoadPoly.vertices[1] = RoadPoly.vertices[2];            //2
-        //RoadPoly.vertices[2] = RoadPoly.vertices[3];            //3
-        //RoadPoly.vertices[3] = pointTemp;                       //0
-        //POLYFLAT(scrbuf, &RoadPoly);
       }
       ++iRenderLoopIndex;
       iColorGradient -= 15;
