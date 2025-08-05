@@ -5490,417 +5490,302 @@ void show_received_mesage()
 
 int select_netslot()
 {
-  return 0;
-  /*
-  int v0; // ebx
-  int v1; // esi
-  int v2; // ebp
-  int v3; // edx
+  int iSlot1PlayerCount; // ebx
+  int iStringIndex; // esi
+  int iCurrentSlot; // ebp
+  int iDigitIndex; // edx
   int i; // eax
-  char v5; // bl
-  int v6; // edx
-  int v7; // eax
-  int v8; // edi
-  int v9; // esi
-  unsigned int v10; // ecx
-  char v11; // al
-  unsigned int v12; // ecx
-  _BYTE *v13; // esi
-  int v14; // edi
-  int v15; // edi
-  _BYTE *v16; // esi
-  _BYTE *v17; // esi
-  int v18; // edi
-  int v19; // edi
-  _BYTE *v20; // esi
-  unsigned int v21; // eax
-  int v22; // ebx
-  unsigned int v23; // eax
-  int v24; // edx
-  int v25; // eax
-  int v26; // edx
-  int v27; // eax
-  int v29; // [esp+0h] [ebp-4Ch]
-  int v30; // [esp+4h] [ebp-48h]
-  int v31; // [esp+8h] [ebp-44h]
-  _DWORD v32[3]; // [esp+Ch] [ebp-40h]
-  char v33; // [esp+18h] [ebp-34h]
-  int v34; // [esp+1Ch] [ebp-30h]
-  int v35; // [esp+20h] [ebp-2Ch]
-  int v36; // [esp+24h] [ebp-28h]
-  int v37; // [esp+28h] [ebp-24h]
-  int v38; // [esp+2Ch] [ebp-20h]
-  int v39; // [esp+30h] [ebp-1Ch]
+  //char byDigitChar; // bl
+  int iSlotCounter; // edx
+  int iSlotIndex; // eax
+  uint8 *pScreenBuffer; // edi
+  tBlockHeader *pBlockHeader; // esi
+  unsigned int uiBufferSize; // ecx
+  char byBufferSizeByte; // al
+  unsigned int uiQwordCopySize; // ecx
+  char *pSlot1Names; // esi
+  int iSlot1YPos; // edi
+  int iSlot2PlayerIndex; // edi
+  char *pSlot2Names; // esi
+  char *pSlot3Names; // esi
+  int iSlot3YPos; // edi
+  int iSlot4PlayerIndex; // edi
+  char *pSlot4Names; // esi
+  unsigned int uiKeyCode; // eax
+  int iNextSlot; // ebx
+  unsigned int uiExtendedKey; // eax
+  int iPrevSlot; // edx
+  int iLeftSearchSlot; // eax
+  int iRightSearchSlot; // edx
+  int iRightSearchIndex; // eax
+  int textColor[4]; // [esp+0h] [ebp-4Ch]
+  char szSlotNumberBuffer[12]; // [esp+10h] [ebp-3Ch]
+  int iY; // [esp+1Ch] [ebp-30h]
+  int iReturnValue; // [esp+20h] [ebp-2Ch]
+  int iExitFlag; // [esp+24h] [ebp-28h]
+  int iSlot4YPos; // [esp+28h] [ebp-24h]
+  int iSlot3PlayerIndex; // [esp+2Ch] [ebp-20h]
+  int iSlot1PlayerIndex; // [esp+30h] [ebp-1Ch]
 
-  v36 = 0;
+  iExitFlag = 0;                                // Initialize network slot selection variables
   network_slot = -1;
-  v35 = -1;
-  Initialise_Network(-1);
+  iReturnValue = -1;
+  Initialise_Network(-1);                       // Initialize network with slot -1 (discovery mode)
   if (network_on) {
-    v35 = 0;
-    v0 = 0;
-    v1 = 7;
-    v2 = 0;
-    v33 = 0;
-    v30 = 131;
-    v31 = 131;
-    v32[0] = 131;
-    v29 = 171;
+    iReturnValue = 0;
+    iSlot1PlayerCount = 0;
+    iStringIndex = 7;
+    iCurrentSlot = 0;
+    szSlotNumberBuffer[8] = 0;                  // Setup slot number string conversion and text colors
+    textColor[1] = 0x83;
+    textColor[2] = 0x83;
+    textColor[3] = 0x83;
+    textColor[0] = 0xAB;
     do {
-      *((_BYTE *)&v32[1] + v1--) = v0 % 10 + 48;
-      v0 /= 10;
-    } while (v0 > 0);
-    v3 = 0;
-    for (i = v1 + 1; i < 8; *((_BYTE *)v32 + v3 + 3) = v5) {
-      ++v3;
-      v5 = *((_BYTE *)&v32[1] + i++);
+      szSlotNumberBuffer[iStringIndex--] = iSlot1PlayerCount % 10 + '0';// Convert slot number to ASCII digits (reverse order)
+      iSlot1PlayerCount /= 10;
+    } while (iSlot1PlayerCount > 0);
+
+    // Copy digits from conversion area to display area of buffer
+    iDigitIndex = 0;
+    for (i = iStringIndex + 1; i < 8; ++i) {
+        szSlotNumberBuffer[iDigitIndex + 3] = szSlotNumberBuffer[i];
+        ++iDigitIndex;
     }
-    while (1) {
-      if (v36)
-        return v35;
-      v6 = 0;
-      v7 = 0;
+    //for (i = iStringIndex + 1; i < 8; *((_BYTE *)&textColor[3] + iDigitIndex + 3) = byDigitChar)// Copy converted digits to buffer in correct order
+    //{
+    //  ++iDigitIndex;
+    //  byDigitChar = szSlotNumberBuffer[i++];
+    //}                                           // 
+                                                // 
+    while (1)                                 // MAIN_DISPLAY_LOOP: Main UI display and input loop
+    {
+      if (iExitFlag)
+        return iReturnValue;
+
+      // Update slot selection colors (highlight current slot)
+      iSlotCounter = 0;
+      iSlotIndex = 0;
       do {
-        if (gamers_playing[v7] == 16) {
-          if (v6 == v2)
-            *(int *)((char *)&v29 + v7 * 4) = 168;
+        if (gamers_playing[iSlotIndex] == 16) {
+          if (iSlotCounter == iCurrentSlot)
+            textColor[iSlotIndex] = 0xA8;
           else
-            *(int *)((char *)&v29 + v7 * 4) = 127;
+            textColor[iSlotIndex] = 0x7F;
         }
-        ++v6;
-        ++v7;
-      } while (v6 < 4);
-      v8 = scrbuf;
-      v9 = front_vga[0];
+        ++iSlotCounter;
+        ++iSlotIndex;
+      } while (iSlotCounter < 4);
+
+      // Setup screen buffer and copy VGA frame
+      pScreenBuffer = scrbuf;
+      pBlockHeader = front_vga[0];
       if (SVGA_ON)
-        v10 = 256000;
+        uiBufferSize = 256000;
       else
-        v10 = 64000;
-      v11 = v10;
-      v12 = v10 >> 2;
-      qmemcpy((void *)scrbuf, (const void *)front_vga[0], 4 * v12);
-      qmemcpy((void *)(v8 + 4 * v12), (const void *)(v9 + 4 * v12), v11 & 3);
-      display_block(scrbuf, front_vga_variable_1, 3, head_x, head_y, 0);
-      display_block(scrbuf, front_vga_variable_6, 0, 0x24u, 2, 0);
-      display_block(scrbuf, front_vga_variable_5, 1, 0xFFFFFFFC, 247, 0);
-      display_block(scrbuf, front_vga_variable_5, game_type + 5, 0x87u, 247, 0);
-      display_block(scrbuf, front_vga_variable_4, 4, 0x4Cu, 257, -1);
-      display_block(scrbuf, front_vga_variable_6, 4, 0x3Eu, 336, -1);
-      scale_text(
-        front_vga_variable_10,
-        language_buffer_variable_103,
-        (int)font1_ascii,
-        (int)&font1_offsets,
-        400,
-        55,
-        143,
-        1u,
-        200,
-        640);
-      scale_text(
-        front_vga_variable_10,
-        language_buffer_variable_104,
-        (int)font1_ascii,
-        (int)&font1_offsets,
-        400,
-        73,
-        143,
-        1u,
-        200,
-        640);
-      sprintf(buffer, "%s1", language_buffer_variable_120);
-      scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 260, 92, v29, 1u, 200, 320);
+        uiBufferSize = 64000;
+      byBufferSizeByte = uiBufferSize;
+      uiQwordCopySize = uiBufferSize >> 2;
+      memcpy(scrbuf, front_vga[0], 4 * uiQwordCopySize);
+      memcpy(&pScreenBuffer[4 * uiQwordCopySize], &pBlockHeader->iWidth + uiQwordCopySize, byBufferSizeByte & 3);
+
+      // Display UI elements: header, panels, game type
+      display_block(scrbuf, front_vga[1], 3, head_x, head_y, 0);
+      display_block(scrbuf, front_vga[6], 0, 36, 2, 0);
+      display_block(scrbuf, front_vga[5], 1, -4, 247, 0);
+      display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);
+      display_block(scrbuf, front_vga[4], 4, 76, 257, -1);
+      display_block(scrbuf, front_vga[6], 4, 62, 336, -1);
+      scale_text(front_vga[15], &language_buffer[6528], font1_ascii, font1_offsets, 400, 55, 143, 1u, 200, 640);// Display slot selection instructions
+      scale_text(front_vga[15], &language_buffer[6592], font1_ascii, font1_offsets, 400, 73, 143, 1u, 200, 640);
+      sprintf(buffer, "%s1", &language_buffer[7808]);// Display Slot 1 header and status
+      scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 260, 92, textColor[0], 1u, 200, 320);
       if (gamers_playing[0] < 0) {
         if (gamers_playing[0] == -2) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_123,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            260,
-            200,
-            v29,
-            1u,
-            200,
-            319);
-          goto LABEL_27;
+          scale_text(front_vga[15], &language_buffer[8000], font1_ascii, font1_offsets, 260, 200, textColor[0], 1u, 200, 319);
+          goto SLOT2_DISPLAY;
         }
       } else {
         if (gamers_playing[0] <= 0) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_121,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            260,
-            200,
-            v29,
-            1u,
-            200,
-            319);
-          goto LABEL_27;
+          scale_text(front_vga[15], &language_buffer[7872], font1_ascii, font1_offsets, 260, 200, textColor[0], 1u, 200, 319);
+          goto SLOT2_DISPLAY;
         }
         if (gamers_playing[0] == 16) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_122,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            260,
-            200,
-            v29,
-            1u,
-            200,
-            319);
-          goto LABEL_27;
+          scale_text(front_vga[15], &language_buffer[7936], font1_ascii, font1_offsets, 260, 200, textColor[0], 1u, 200, 319);
+          goto SLOT2_DISPLAY;
         }
       }
-      v39 = 0;
+      iSlot1PlayerIndex = 0;
+
+      // Display Slot 1 player names if slot has players
       if (gamers_playing[0] > 0) {
-        v13 = &gamers_names;
-        v14 = 110;
+        pSlot1Names = gamers_names[0];
+        iSlot1YPos = 110;
         do {
-          scale_text(front_vga_variable_10, v13, (int)font1_ascii, (int)&font1_offsets, 260, v14, v29, 1u, 200, 319);
-          v13 += 9;
-          v14 += 18;
-          ++v39;
-        } while (v39 < gamers_playing[0]);
+          scale_text(front_vga[15], pSlot1Names, font1_ascii, font1_offsets, 260, iSlot1YPos, textColor[0], 1u, 200, 319);
+          pSlot1Names += 9;
+          iSlot1YPos += 18;
+          ++iSlot1PlayerIndex;
+        } while (iSlot1PlayerIndex < gamers_playing[0]);
       }
-    LABEL_27:
-      sprintf(buffer, "%s2", language_buffer_variable_120);
-      scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 370, 92, v30, 1u, 200, 640);
-      if (gamers_playing_variable_1 < 0) {
-        if (gamers_playing_variable_1 == -2) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_123,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            370,
-            200,
-            v30,
-            1u,
-            321,
-            419);
-          goto LABEL_38;
+    SLOT2_DISPLAY:
+          // SLOT2_DISPLAY: Display Slot 2 header and status
+      sprintf(buffer, "%s2", &language_buffer[7808]);
+      scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 370, 92, textColor[1], 1u, 200, 640);
+      if (gamers_playing[1] < 0) {
+        if (gamers_playing[1] == -2) {
+          scale_text(front_vga[15], &language_buffer[8000], font1_ascii, font1_offsets, 370, 200, textColor[1], 1u, 321, 419);
+          goto SLOT3_DISPLAY;
         }
       } else {
-        if (gamers_playing_variable_1 <= 0) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_121,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            370,
-            200,
-            v30,
-            1u,
-            321,
-            419);
-          goto LABEL_38;
+        if (gamers_playing[1] <= 0) {
+          scale_text(front_vga[15], &language_buffer[7872], font1_ascii, font1_offsets, 370, 200, textColor[1], 1u, 321, 419);
+          goto SLOT3_DISPLAY;
         }
-        if (gamers_playing_variable_1 == 16) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_122,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            370,
-            200,
-            v30,
-            1u,
-            321,
-            419);
-          goto LABEL_38;
+        if (gamers_playing[1] == 16) {
+          scale_text(front_vga[15], &language_buffer[7936], font1_ascii, font1_offsets, 370, 200, textColor[1], 1u, 321, 419);
+          goto SLOT3_DISPLAY;
         }
       }
-      v15 = 0;
-      if (gamers_playing_variable_1 > 0) {
-        v16 = &gamers_names_variable_1;
-        v34 = 110;
+      iSlot2PlayerIndex = 0;
+
+      // Display Slot 2 player names if slot has players
+      if (gamers_playing[1] > 0) {
+        pSlot2Names = gamers_names[1];
+        iY = 110;
         do {
-          scale_text(front_vga_variable_10, v16, (int)font1_ascii, (int)&font1_offsets, 370, v34, v30, 1u, 321, 419);
-          ++v15;
-          v16 += 9;
-          v34 += 18;
-        } while (v15 < gamers_playing_variable_1);
+          scale_text(front_vga[15], pSlot2Names, font1_ascii, font1_offsets, 370, iY, textColor[1], 1u, 321, 419);
+          ++iSlot2PlayerIndex;
+          pSlot2Names += 9;
+          iY += 18;
+        } while (iSlot2PlayerIndex < gamers_playing[1]);
       }
-    LABEL_38:
-      sprintf(buffer, "%s3", language_buffer_variable_120);
-      scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 474, 92, v31, 1u, 200, 640);
-      if (gamers_playing_variable_2 < 0) {
-        if (gamers_playing_variable_2 == -2) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_123,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            474,
-            200,
-            v31,
-            1u,
-            421,
-            519);
-          goto LABEL_49;
+    SLOT3_DISPLAY:
+          // SLOT3_DISPLAY: Display Slot 3 header and status
+      sprintf(buffer, "%s3", &language_buffer[7808]);
+      scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 474, 92, textColor[2], 1u, 200, 640);
+      if (gamers_playing[2] < 0) {
+        if (gamers_playing[2] == -2) {
+          scale_text(front_vga[15], &language_buffer[8000], font1_ascii, font1_offsets, 474, 200, textColor[2], 1u, 421, 519);
+          goto SLOT4_DISPLAY;
         }
       } else {
-        if (gamers_playing_variable_2 <= 0) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_121,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            474,
-            200,
-            v31,
-            1u,
-            421,
-            519);
-          goto LABEL_49;
+        if (gamers_playing[2] <= 0) {
+          scale_text(front_vga[15], &language_buffer[7872], font1_ascii, font1_offsets, 474, 200, textColor[2], 1u, 421, 519);
+          goto SLOT4_DISPLAY;
         }
-        if (gamers_playing_variable_2 == 16) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_122,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            474,
-            200,
-            v31,
-            1u,
-            421,
-            519);
-          goto LABEL_49;
+        if (gamers_playing[2] == 16) {
+          scale_text(front_vga[15], &language_buffer[7936], font1_ascii, font1_offsets, 474, 200, textColor[2], 1u, 421, 519);
+          goto SLOT4_DISPLAY;
         }
       }
-      v38 = 0;
-      if (gamers_playing_variable_2 > 0) {
-        v17 = &gamers_names_variable_2;
-        v18 = 110;
+      iSlot3PlayerIndex = 0;
+
+      // Display Slot 3 player names if slot has players
+      if (gamers_playing[2] > 0) {
+        pSlot3Names = gamers_names[2];
+        iSlot3YPos = 110;
         do {
-          scale_text(front_vga_variable_10, v17, (int)font1_ascii, (int)&font1_offsets, 474, v18, v31, 1u, 421, 519);
-          v17 += 9;
-          v18 += 18;
-          ++v38;
-        } while (v38 < gamers_playing_variable_2);
+          scale_text(front_vga[15], pSlot3Names, font1_ascii, font1_offsets, 474, iSlot3YPos, textColor[2], 1u, 421, 519);
+          pSlot3Names += 9;
+          iSlot3YPos += 18;
+          ++iSlot3PlayerIndex;
+        } while (iSlot3PlayerIndex < gamers_playing[2]);
       }
-    LABEL_49:
-      sprintf(buffer, "%s4", language_buffer_variable_120);
-      scale_text(front_vga_variable_10, buffer, (int)font1_ascii, (int)&font1_offsets, 580, 92, v32[0], 1u, 520, 640);
-      if (gamers_playing_variable_3 < 0) {
-        if (gamers_playing_variable_3 == -2) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_123,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            580,
-            200,
-            v32[0],
-            1u,
-            521,
-            639);
-          goto LABEL_60;
+    SLOT4_DISPLAY:
+          // SLOT4_DISPLAY: Display Slot 4 header and status
+      sprintf(buffer, "%s4", &language_buffer[7808]);
+      scale_text(front_vga[15], buffer, font1_ascii, font1_offsets, 580, 92, textColor[3], 1u, 520, 640);
+      if (gamers_playing[3] < 0) {
+        if (gamers_playing[3] == -2) {
+          scale_text(front_vga[15], &language_buffer[8000], font1_ascii, font1_offsets, 580, 200, textColor[3], 1u, 521, 639);
+          goto UPDATE_DISPLAY;
         }
       } else {
-        if (gamers_playing_variable_3 <= 0) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_121,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            580,
-            200,
-            v32[0],
-            1u,
-            521,
-            639);
-          goto LABEL_60;
+        if (gamers_playing[3] <= 0) {
+          scale_text(front_vga[15], &language_buffer[7872], font1_ascii, font1_offsets, 580, 200, textColor[3], 1u, 521, 639);
+          goto UPDATE_DISPLAY;
         }
-        if (gamers_playing_variable_3 == 16) {
-          scale_text(
-            front_vga_variable_10,
-            language_buffer_variable_122,
-            (int)font1_ascii,
-            (int)&font1_offsets,
-            580,
-            200,
-            v32[0],
-            1u,
-            521,
-            639);
-          goto LABEL_60;
+        if (gamers_playing[3] == 16) {
+          scale_text(front_vga[15], &language_buffer[7936], font1_ascii, font1_offsets, 580, 200, textColor[3], 1u, 521, 639);
+          goto UPDATE_DISPLAY;
         }
       }
-      v19 = 0;
-      if (gamers_playing_variable_3 > 0) {
-        v20 = &gamers_names_variable_3;
-        v37 = 110;
+      iSlot4PlayerIndex = 0;
+
+      // Display Slot 4 player names if slot has players
+      if (gamers_playing[3] > 0) {
+        pSlot4Names = gamers_names[3];
+        iSlot4YPos = 110;
         do {
-          scale_text(front_vga_variable_10, v20, (int)font1_ascii, (int)&font1_offsets, 580, v37, v32[0], 1u, 521, 639);
-          ++v19;
-          v20 += 9;
-          v37 += 18;
-        } while (v19 < gamers_playing_variable_3);
+          scale_text(front_vga[15], pSlot4Names, font1_ascii, font1_offsets, 580, iSlot4YPos, textColor[3], 1u, 521, 639);
+          ++iSlot4PlayerIndex;
+          pSlot4Names += 9;
+          iSlot4YPos += 18;
+        } while (iSlot4PlayerIndex < gamers_playing[3]);
       }
-    LABEL_60:
+    UPDATE_DISPLAY:
+          // UPDATE_DISPLAY: Show received messages and update screen
       show_received_mesage();
-      copypic((char *)scrbuf, (int)screen);
+      copypic(scrbuf, screen);
+
+      // Input processing loop - handle keyboard input
       while (fatkbhit()) {
-        v21 = fatgetch();
-        v22 = v2 + 1;
-        if (v21 < 0xD) {
-          if (!v21) {
-            v23 = fatgetch();
-            if (v23 >= 0x4B) {
-              if (v23 <= 0x4B) {
-                if (v2 > 0) {
-                  *(&v29 + v2) = 131;
-                  v24 = v2 - 1;
-                  if (v2 - 1 > 0) {
-                    v25 = v24;
+        uiKeyCode = fatgetch();
+        iNextSlot = iCurrentSlot + 1;
+        if (uiKeyCode < 0xD) {                                       // Handle extended keys (arrows)
+          if (!uiKeyCode) {
+            uiExtendedKey = fatgetch();
+            if (uiExtendedKey >= 0x4B) {
+              if (uiExtendedKey <= 0x4B) {                                 // Left arrow - move to previous available slot
+                if (iCurrentSlot > 0) {
+                  textColor[iCurrentSlot] = 131;
+                  iPrevSlot = iCurrentSlot - 1;
+                  if (iCurrentSlot - 1 > 0) {
+                    iLeftSearchSlot = iPrevSlot;
                     do {
-                      if (gamers_playing[v25] != 16)
-                        break;
-                      --v25;
-                      --v24;
-                    } while (v25 > 0);
+                      if (gamers_playing[iLeftSearchSlot] != 16)
+                        break;                  // Skip slots with status 16 (unavailable) when going left
+                      --iLeftSearchSlot;
+                      --iPrevSlot;
+                    } while (iLeftSearchSlot > 0);
                   }
-                  if (gamers_playing[v24] < 16)
-                    v2 = v24;
-                  *(&v29 + v2) = 171;
+                  if (gamers_playing[iPrevSlot] < 16)
+                    iCurrentSlot = iPrevSlot;
+                  textColor[iCurrentSlot] = 171;
                 }
-              } else if (v23 == 77 && v2 < 3) {
-                *(&v29 + v2) = 131;
-                v26 = v2 + 1;
-                if (v22 < 3) {
-                  v27 = v22;
+              } else if (uiExtendedKey == 77 && iCurrentSlot < 3)// Right arrow - move to next available slot
+              {
+                textColor[iCurrentSlot] = 131;
+                iRightSearchSlot = iCurrentSlot + 1;
+                if (iNextSlot < 3) {
+                  iRightSearchIndex = iNextSlot;
                   do {
-                    if (gamers_playing[v27] != 16)
-                      break;
-                    ++v27;
-                    ++v26;
-                  } while (v27 < 3);
+                    if (gamers_playing[iRightSearchIndex] != 16)
+                      break;                    // Skip slots with status 16 (unavailable) when going right
+                    ++iRightSearchIndex;
+                    ++iRightSearchSlot;
+                  } while (iRightSearchIndex < 3);
                 }
-                if (gamers_playing[v26] < 16)
-                  v2 = v26;
-                *(&v29 + v2) = 171;
+                if (gamers_playing[iRightSearchSlot] < 16)
+                  iCurrentSlot = iRightSearchSlot;
+                textColor[iCurrentSlot] = 171;
               }
             }
           }
-        } else if (v21 <= 0xD) {
-          if ((unsigned int)gamers_playing[v2] < 0x10) {
-            v36 = -1;
-            v35 = v2 + 1;
+        } else if (uiKeyCode <= 0xD) {                                       // Enter key - select current slot if available
+          if ((unsigned int)gamers_playing[iCurrentSlot] < 16) {
+            iExitFlag = -1;
+            iReturnValue = iCurrentSlot + 1;
           }
-        } else if (v21 == 27) {
-          v36 = -1;
-          v35 = -2;
+        } else if (uiKeyCode == 27) {
+          iExitFlag = -1;                       // Escape key - cancel slot selection
+          iReturnValue = -2;
         }
       }
     }
   }
-  return v35;*/
+  return iReturnValue;
 }
 
 //-------------------------------------------------------------------------------------------------

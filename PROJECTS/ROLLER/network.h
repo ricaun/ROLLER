@@ -117,6 +117,7 @@ extern int slave_pause;
 extern int net_started;
 extern int next_resync;
 extern int gamers_playing[4];
+extern char gamers_names[4][144];
 extern uint32 test_mini[2];
 extern int test_multiple[16];
 extern tRecordPacket p_record;

@@ -16,6 +16,7 @@ int slave_pause = 0;        //000A6108
 int net_started = 0;        //000A610C
 int next_resync = 0;        //000A6110
 int gamers_playing[4];      //00178470
+char gamers_names[4][144];  //00178480
 uint32 test_mini[2];        //001786C0
 int test_multiple[16];      //001786C8
 tRecordPacket p_record;     //00178708
