@@ -2199,7 +2199,7 @@ char prt_right(int a1, char *a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-void prt_string(tBlockHeader *pBlockHeader, char *szStr, int iX, int iY)
+void prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
   int iContinue; // ebp
   int piYPos; // [esp+0h] [ebp-14h] BYREF
@@ -4335,62 +4335,57 @@ uint8 *copy_int(uint8 *pDest, uint32 uiValue)
 
 //-------------------------------------------------------------------------------------------------
 
-int ShowATime(int a1, int a2, float a3, int a4, int a5)
+void ShowATime(float fTime, int iX, int iY)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0;
-  /*
-  double v7; // st7
-  int v9; // [esp+0h] [ebp-1Ch]
+  int iTime; // [esp+0h] [ebp-1Ch]
 
-  v7 = a3 * func2_c_variable_330;
-  _CHP(a1, a2);
-  v9 = (int)v7;
-  if ((int)v7 > 599999)
-    v9 = 599999;
-  buffer_variable_1 = 0;
-  if (v9 >= 0) {
-    buffer = v9 % 10 + 48;
-    v9 /= 10;
+  //_CHP();
+  iTime = (int)(fTime * 100.0);
+  if (iTime > 599999)
+    iTime = 599999;
+  buffer[1] = 0;
+  if (iTime >= 0) {
+    buffer[0] = iTime % 10 + 48;
+    iTime /= 10;
   } else {
-    buffer = 45;
+    buffer[0] = 45;
   }
-  prt_string(rev_vga_variable_1, &buffer);
-  if (v9 >= 0) {
-    buffer = v9 % 10 + 48;
-    v9 /= 10;
+  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 51, iY);
+  if (iTime >= 0) {
+    buffer[0] = iTime % 10 + 48;
+    iTime /= 10;
   } else {
-    buffer = 45;
+    buffer[0] = 45;
   }
-  prt_string(rev_vga_variable_1, &buffer);
-  prt_string(rev_vga_variable_1, func2_c_variable_329);
-  if (v9 >= 0) {
-    buffer = v9 % 10 + 48;
-    v9 /= 10;
+  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 42, iY);
+  prt_string((tBlockHeader *)rev_vga[1], ":", iX + 39, iY);
+  if (iTime >= 0) {
+    buffer[0] = iTime % 10 + 48;
+    iTime /= 10;
   } else {
-    buffer = 45;
+    buffer[0] = 45;
   }
-  prt_string(rev_vga_variable_1, &buffer);
-  if (v9 >= 0) {
-    buffer = v9 % 6 + 48;
-    v9 /= 6;
+  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 30, iY);
+  if (iTime >= 0) {
+    buffer[0] = iTime % 6 + 48;
+    iTime /= 6;
   } else {
-    buffer = 45;
+    buffer[0] = 45;
   }
-  prt_string(rev_vga_variable_1, &buffer);
-  prt_string(rev_vga_variable_1, func2_c_variable_329);
-  if (v9 >= 0) {
-    buffer = v9 % 10 + 48;
-    v9 /= 10;
+  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 21, iY);
+  prt_string((tBlockHeader *)rev_vga[1], ":", iX + 18, iY);
+  if (iTime >= 0) {
+    buffer[0] = iTime % 10 + 48;
+    iTime /= 10;
   } else {
-    buffer = 45;
+    buffer[0] = 45;
   }
-  prt_string(rev_vga_variable_1, &buffer);
-  if (v9 >= 0)
-    buffer = v9 % 10 + 48;
+  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 9, iY);
+  if (iTime >= 0)
+    buffer[0] = iTime % 10 + 48;
   else
-    buffer = 45;
-  return prt_string(rev_vga_variable_1, &buffer);*/
+    buffer[0] = 45;
+  prt_string((tBlockHeader *)rev_vga[1], buffer, iX, iY);
 }
 
 //-------------------------------------------------------------------------------------------------
