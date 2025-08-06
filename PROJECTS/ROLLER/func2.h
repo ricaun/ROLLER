@@ -102,7 +102,7 @@ void SaveRecords();
 uint8 *copy_int(uint8 *pDest, uint32 uiValue);
 int ShowATime(int a1, int a2, float a3, int a4, int a5);
 void setmodex();
-uint8 modexsethardware();
+void modexsethardware();
 void modexclearscreen();
 void copyscreenmodex(uint8 *pSrc, uint8 *pDest);
 char start_zoom(char *a1, int a2);

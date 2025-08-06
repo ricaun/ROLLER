@@ -4264,58 +4264,50 @@ int ShowATime(int a1, int a2, float a3, int a4, int a5)
 //-------------------------------------------------------------------------------------------------
 
 void setmodex()
-{
-  /*
-  __asm { int     10h; -VIDEO - SET VIDEO MODE }
-  modexsethardware(19, 964);
-  __outword(0x3C4u, 0xF02u);
-  return memset(screen, 0, cstart_branch_1);*/
+{                                               // INT 10h with AX=13h - Set VGA mode 13h (320x200x256) as base
+  //__asm { int     10h; INT 10h with AX = 13h - Set VGA mode 13h(320x200x256) as base }
+  //modexsethardware();                           // Configure VGA hardware registers for Mode X tweaks
+  //__outword(0x3C4u, 0xF02u);                    // Set Sequencer register 02h to 0Fh - enable all 4 bit planes
+  //memset(screen, 0, 0x10000u);                  // Clear video memory (64KB) - initialize screen buffer to black
 }
 
 //-------------------------------------------------------------------------------------------------
 
-uint8 modexsethardware()
+void modexsethardware()
 {
-  return 0;
-  /*
-  unsigned __int8 v0; // al
-  unsigned __int8 v1; // al
-  unsigned __int8 v2; // al
-  unsigned __int8 v3; // al
-  unsigned __int8 v4; // al
-  unsigned __int8 v5; // al
-  unsigned __int8 result; // al
-
-  __outbyte(0x3C4u, 4u);
-  v0 = __inbyte(0x3C5u);
-  __outbyte(0x3C5u, v0 & 3 | 4);
-  __outbyte(0x3CEu, 5u);
-  v1 = __inbyte(0x3CFu);
-  __outbyte(0x3CFu, v1 & 0xEF);
-  __outbyte(0x3CEu, 6u);
-  v2 = __inbyte(0x3CFu);
-  __outbyte(0x3CFu, v2 & 0xFD);
-  __outbyte(0x3D4u, 9u);
-  v3 = __inbyte(0x3D5u);
-  __outbyte(0x3D5u, v3 & 0xE0);
-  __outbyte(0x3D4u, 0x14u);
-  v4 = __inbyte(0x3D5u);
-  __outbyte(0x3D5u, v4 & 0xBF);
-  __outbyte(0x3D4u, 0x17u);
-  v5 = __inbyte(0x3D5u);
-  result = v5 | 0x40;
-  __outbyte(0x3D5u, result);
-  return result;*/
+  //uint8 bySequencerMemMode; // al
+  //uint8 byGraphicsMode; // al
+  //uint8 byMemoryMap; // al
+  //uint8 byMaxScanLine; // al
+  //uint8 byUnderlineLocation; // al
+  //uint8 byModeControl; // al
+  //
+  //__outbyte(0x3C4u, 4u);                        // Sequencer Register 04h (Memory Mode) - configure memory access mode
+  //bySequencerMemMode = __inbyte(0x3C5u);
+  //__outbyte(0x3C5u, bySequencerMemMode & 3 | 4);// Clear Chain-4 mode, enable planar memory organization for Mode X
+  //__outbyte(0x3CEu, 5u);                        // Graphics Controller Register 05h (Graphics Mode) - set read/write mode
+  //byGraphicsMode = __inbyte(0x3CFu);
+  //__outbyte(0x3CFu, byGraphicsMode & 0xEF);     // Clear bit 4 (Host Odd/Even) - disable odd/even addressing
+  //__outbyte(0x3CEu, 6u);                        // Graphics Controller Register 06h (Memory Map) - set memory mapping
+  //byMemoryMap = __inbyte(0x3CFu);
+  //__outbyte(0x3CFu, byMemoryMap & 0xFD);        // Clear bit 1 (Chain Odd/Even) - disable odd/even chaining
+  //__outbyte(0x3D4u, 9u);                        // CRTC Register 09h (Maximum Scan Line) - configure scan line behavior
+  //byMaxScanLine = __inbyte(0x3D5u);
+  //__outbyte(0x3D5u, byMaxScanLine & 0xE0);      // Clear bits 4-0 (Max Scan Line) - set to 0 for single-scan lines
+  //__outbyte(0x3D4u, 0x14u);                     // CRTC Register 14h (Underline Location) - configure memory addressing
+  //byUnderlineLocation = __inbyte(0x3D5u);
+  //__outbyte(0x3D5u, byUnderlineLocation & 0xBF);// Clear bit 6 (Double Word) - disable double word addressing mode
+  //__outbyte(0x3D4u, 0x17u);                     // CRTC Register 17h (Mode Control) - configure display timing mode
+  //byModeControl = __inbyte(0x3D5u);
+  //__outbyte(0x3D5u, byModeControl | 0x40);
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void modexclearscreen()
 {
-  /*
-  __outword(0x3C4u, 0xF02u);
-  return memset(screen, 0, cstart_branch_1);
-  */
+  //__outword(0x3C4u, 0xF02u);                    // Set Sequencer Map Mask to 0Fh - enable writing to all 4 bit planes
+  //memset(screen, 0, 0x10000u);                  // Clear all 64KB of video memory to black (color 0)
 }
 
 //-------------------------------------------------------------------------------------------------
