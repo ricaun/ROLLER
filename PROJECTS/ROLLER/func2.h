@@ -84,7 +84,7 @@ int mini_prt_string_rev(int a1, char *a2);
 char mini_prt_right(int a1, char *a2, int a3, int a4);
 char mini_prt_centre(int a1, char *a2, int a3, int a4);
 char prt_right(int a1, char *a2, int a3);
-int prt_string(int a1, char *a2);
+void prt_string(tBlockHeader *pBlockHeader, char *szStr, int iX, int iY);
 void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType);
 int prt_letter_rev(int a1, uint8 a2, void *a3, void *a4, int a5);
 int prt_stringcol(int a1, char *a2, int a3, int a4, char a5);

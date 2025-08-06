@@ -2199,25 +2199,24 @@ char prt_right(int a1, char *a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int prt_string(int a1, char *a2)
+void prt_string(tBlockHeader *pBlockHeader, char *szStr, int iX, int iY)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v3; // ebp
-  int result; // eax
+  int iContinue; // ebp
+  int piYPos; // [esp+0h] [ebp-14h] BYREF
+  int piXPos; // [esp+4h] [ebp-10h] BYREF
 
-  v3 = 0;
+  iContinue = 0;
+  piXPos = (scr_size * iX) >> 6;
+  piYPos = (scr_size * iY) >> 6;
   do {
-    if (*a2) {
-      if (*a2 != 10)
-        result = prt_letter(0);
+    if (*szStr) {
+      if (*szStr != 10)
+        prt_letter(pBlockHeader, *szStr, &piXPos, &piYPos, 0);
     } else {
-      v3 = -1;
+      iContinue = -1;
     }
-    ++a2;
-  } while (!v3);
-  return result;*/
+    ++szStr;
+  } while (!iContinue);
 }
 
 //-------------------------------------------------------------------------------------------------
