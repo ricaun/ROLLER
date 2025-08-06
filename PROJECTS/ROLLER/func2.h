@@ -108,7 +108,7 @@ void copyscreenmodex(uint8 *pSrc, uint8 *pDest);
 char start_zoom(char *a1, int a2);
 char small_zoom(char *a1);
 char subzoom(char *a1);
-void make_time(char *a1, int a2, float a3);
+void make_time(char *szTimeStr, float fTime);
 void check_machine_speed();
 void load_language_file(char *szFilename, int iUseConfigBuffer);
 int do_blip(int a1, int a2);

@@ -4476,38 +4476,27 @@ char subzoom(char *a1)
 
 //-------------------------------------------------------------------------------------------------
 
-void make_time(char *a1, int a2, float a3)
+void make_time(char *szTimeStr, float fTime)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  /*
-  double v6; // st7
-  int v7; // [esp+0h] [ebp-14h]
+  int iTime; // [esp+0h] [ebp-14h]
 
-  v6 = a3 * func2_c_variable_331;
-  _CHP(a1, a2);
-  v7 = (int)v6;
-  if ((int)v6 > 599999)
-    v7 = 599999;
-  a1[8] = 0;
-  if (v7 >= 0) {
-    a1[7] = v7 % 10 + 48;
-    a1[6] = v7 / 10 % 10 + 48;
-    a1[4] = v7 / 10 / 10 % 10 + 48;
-    a1[3] = v7 / 10 / 10 / 10 % 6 + 48;
-    a1[1] = v7 / 10 / 10 / 10 / 6 % 10 + 48;
-    a1[5] = 58;
-    a1[2] = 58;
-    *a1 = v7 / 10 / 10 / 10 / 6 / 10 % 10 + 48;
+  //_CHP();
+  iTime = (int)(fTime * 100.0);
+  if (iTime > 599999)
+    iTime = 599999;
+  szTimeStr[8] = 0;
+  if (iTime >= 0) {
+    szTimeStr[7] = iTime % 10 + 48;
+    szTimeStr[6] = iTime / 10 % 10 + 48;
+    szTimeStr[4] = iTime / 10 / 10 % 10 + 48;
+    szTimeStr[3] = iTime / 10 / 10 / 10 % 6 + 48;
+    szTimeStr[1] = iTime / 10 / 10 / 10 / 6 % 10 + 48;
+    szTimeStr[5] = 58;
+    szTimeStr[2] = 58;
+    *szTimeStr = iTime / 10 / 10 / 10 / 6 / 10 % 10 + 48;
   } else {
-    *a1 = 45;
-    a1[1] = 45;
-    a1[2] = 58;
-    a1[3] = 45;
-    a1[4] = 45;
-    a1[5] = 58;
-    a1[6] = 45;
-    a1[7] = 45;
-  }*/
+    memcpy(szTimeStr, "--:--:--", 8);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
