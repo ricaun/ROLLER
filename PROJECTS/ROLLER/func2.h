@@ -2,6 +2,7 @@
 #define _ROLLER_FUNC2_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include "func3.h"
 //-------------------------------------------------------------------------------------------------
 
 typedef enum
@@ -43,12 +44,16 @@ extern int write_key;
 extern int read_key;
 extern uint8 mapping[];
 extern int twoparter;
+extern int font6_offsets[88];
+extern char font6_ascii[256];
+extern char ascii_conv3[256];
 extern char *keyname[140];
 extern int userkey[14];
 extern uint8 key_buffer[];
 extern char config_buffer[8192];
 extern char language_buffer[8192];
 extern int no_mem;
+extern uint8 *screen_pointer;
 extern int lots_of_mem;
 
 //-------------------------------------------------------------------------------------------------
@@ -80,7 +85,7 @@ char mini_prt_right(int a1, char *a2, int a3, int a4);
 char mini_prt_centre(int a1, char *a2, int a3, int a4);
 char prt_right(int a1, char *a2, int a3);
 int prt_string(int a1, char *a2);
-int prt_letter(int a1, uint8 a2, void *a3, void *a4, int a5);
+void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType);
 int prt_letter_rev(int a1, uint8 a2, void *a3, void *a4, int a5);
 int prt_stringcol(int a1, char *a2, int a3, int a4, char a5);
 char prt_rightcol(int a1, char *a2, int a3, int a4, char a5);

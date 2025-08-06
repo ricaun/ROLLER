@@ -7,7 +7,6 @@
 #include "colision.h"
 #include "drawtrk3.h"
 #include "comms.h"
-#include "func3.h"
 #include "roller.h"
 #include "polytex.h"
 #include <stdio.h>
@@ -148,6 +147,78 @@ uint8 mapping[] =           //000A3AF8
   0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 int twoparter = 0;          //000A3B78
+int font6_offsets[88] =     //000A3B7C
+{
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, -3, -2, -3, -3,
+  -3, -3, -3, -3, -3, -3, -3, -3,
+  -3, -3, -3, -3, -3, 0, -3, -1,
+  -3, -3, -3, -3, -3, 0, 0, -3,
+  -3, -3, -3, 0, 0, 0, 0, 0
+};
+char font6_ascii[256] =     //000A3CDC
+{
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x31, 0xFF, 0x53, 0xFF, 0x30,
+  0xFF, 0xFF, 0x2B, 0x2D, 0x27, 0x2C, 0x26, 0x28, 0x1A, 0x1B,
+  0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x2F, 0xFF,
+  0xFF, 0x24, 0xFF, 0xFF, 0xFF, 0x00, 0x01, 0x02, 0x03, 0x04,
+  0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+  0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+  0x19, 0x29, 0x25, 0x2A, 0xFF, 0x32, 0x2E, 0x00, 0x01, 0x02,
+  0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
+  0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+  0x17, 0x18, 0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x4D, 0xFF,
+  0xFF, 0x37, 0x38, 0x36, 0x39, 0xFF, 0x3E, 0x3F, 0x3D, 0x43,
+  0x42, 0x40, 0x38, 0x3A, 0x3C, 0x3B, 0x3B, 0x50, 0x51, 0x4F,
+  0x49, 0x48, 0x34, 0x52, 0x4A, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x35, 0x41, 0x4E, 0x47, 0x45, 0x45, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0x33, 0xFF, 0x44, 0x4B, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x4C, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x46, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+char ascii_conv3[256] =
+{
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x26, 0xFF, 0xFF, 0x1A, 0x1B,
+  0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x01, 0x02, 0x03, 0x04,
+  0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+  0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+  0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0x27, 0xFF, 0x00, 0x01, 0x02,
+  0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
+  0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+  0x17, 0x18, 0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x25, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
 char *keyname[140] = {      //000A3EDC
   NULL,                    /* 0x00 */
   NULL,                    /* 0x01 */
@@ -295,6 +366,7 @@ uint8 key_buffer[64];       //0013FB90
 char config_buffer[8192];   //0013FBD8
 char language_buffer[8192]; //00141BD8
 int no_mem;                 //00143BE0
+uint8 *screen_pointer;      //00143BE4
 int lots_of_mem;            //00143BE8
 
 //-------------------------------------------------------------------------------------------------
@@ -2150,104 +2222,100 @@ int prt_string(int a1, char *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int prt_letter(int a1, uint8 a2, void *a3, void *a4, int a5)
+void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  int v5; // esi
-  int v7; // edi
-  int v8; // edx
-  int *v9; // eax
-  int result; // eax
-  int v11; // edi
-  char *v12; // ebx
-  _BYTE *v13; // eax
-  int k; // ebp
-  int m; // edx
-  char v16; // cl
-  _BYTE *j; // edx
-  int v18; // edi
-  _BYTE *v19; // ebp
-  int v20; // eax
-  int v21; // ebx
-  int v22; // [esp+0h] [ebp-28h]
-  int v24; // [esp+8h] [ebp-20h]
-  int v25; // [esp+Ch] [ebp-1Ch]
-  _BYTE *v26; // [esp+10h] [ebp-18h]
-  int i; // [esp+14h] [ebp-14h]
-  int v28; // [esp+18h] [ebp-10h]
+  int iSavedScrSize; // esi
+  int iCharIndex; // edi
+  int iYOffset; // edx
+  tBlockHeader *pCharData; // eax
+  int iCharWidth; // edi
+  uint8 *pCharBitmap; // ebx
+  uint8 *pScreenDest; // eax
+  int iRowIdx; // ebp
+  int i; // edx
+  uint8 byPixel; // cl
+  uint8 *pRowStart; // edx
+  int iScaleAccum; // edi
+  uint8 *pScaledDest; // ebp
+  int iTempScale; // eax
+  int iScaledColIdx; // ebx
+  uint8 *pScaledRowBase; // [esp+0h] [ebp-28h]
+  int iCharHeight; // [esp+8h] [ebp-20h]
+  int iCharWidth2; // [esp+Ch] [ebp-1Ch]
+  uint8 *pBitmapRowStart; // [esp+10h] [ebp-18h]
+  int iRowIdx2; // [esp+14h] [ebp-14h]
+  int iScaledCharWidth; // [esp+18h] [ebp-10h]
 
-  v5 = scr_size;
-  if (a5) {
-    v7 = (unsigned __int8)ascii_conv3[a2];
-    v8 = 0;
+  iSavedScrSize = scr_size;                     // Save current screen scaling factor
+  if (iFontType)                              // Check font type selection: a5 != 0 uses ascii_conv3, a5 == 0 uses font6
+  {
+    iCharIndex = (uint8)ascii_conv3[(int8)byChar];// Use alternate font (ascii_conv3) with no Y offset
+    iYOffset = 0;
   } else {
-    v7 = (unsigned __int8)font6_ascii[a2];
-    v8 = font6_offsets[v7];
+    iCharIndex = (int8)font6_ascii[(uint8)byChar];// Use default font6 with Y offset from font6_offsets table
+    iYOffset = font6_offsets[iCharIndex];
   }
-  v9 = (int *)(a1 + 12 * v7);
-  if (scr_size != 64) {
-    if (v7 == 255) {
-      result = (4 * scr_size) >> 6;
-      *a3 += result;
-      scr_size = v5;
-      return result;
+  pCharData = &pBlockHeader[iCharIndex];        // Get character data: width, height, bitmap offset (12 bytes per character)
+  if (scr_size != 64)                         // Branch: scr_size == 64 uses simple blitting, != 64 uses scaled rendering
+  {                                             // Scaled path: Check for space character (index 255)
+    if (iCharIndex == 255) {
+      *piXPos += (4 * scr_size) >> 6;           // Space character: advance X by scaled width (4 * scr_size / 64)
+      scr_size = iSavedScrSize;
+      return;
     }
-    v28 = *v9;
-    v25 = v9[1];
-    j = (_BYTE *)(a1 + v9[2]);
-    v18 = scr_size;
-    v22 = winw * *a4 + *a3 + screen_pointer;
-    for (i = 0; i < v25; v22 += winw) {
-      v19 = (_BYTE *)v22;
-      v26 = j;
-      v20 = v5;
-      v21 = 0;
-      while (v21 < v28) {
-        if (*j)
-          *v19 = *j;
-        v20 -= 64;
-        ++v19;
-        for (; v20 <= 0; ++v21) {
-          ++j;
-          v20 += v5;
+    iScaledCharWidth = pCharData->iWidth;
+    iCharWidth2 = pCharData->iHeight;
+    pRowStart = (uint8 *)pBlockHeader + pCharData->iDataOffset;
+    iScaleAccum = scr_size;
+    pScaledRowBase = &screen_pointer[*piXPos + winw * *piYPos];// Calculate destination screen pointer for scaled rendering
+    for (iRowIdx2 = 0; iRowIdx2 < iCharWidth2; pScaledRowBase += winw)// Scaled rendering: outer loop for each row of the character
+    {
+      pScaledDest = pScaledRowBase;
+      pBitmapRowStart = pRowStart;
+      iTempScale = iSavedScrSize;
+      iScaledColIdx = 0;
+      while (iScaledColIdx < iScaledCharWidth)// Inner loop: render each column with scaling algorithm
+      {                                         // Non-zero pixel: copy to screen buffer (transparent = 0)
+        if (*pRowStart)
+          *pScaledDest = *pRowStart;
+        iTempScale -= 64;
+        ++pScaledDest;
+        for (; iTempScale <= 0; ++iScaledColIdx) {
+          ++pRowStart;
+          iTempScale += iSavedScrSize;
         }
       }
-      v18 -= 64;
-      for (j = v26; v18 <= 0; ++i) {
-        j += v28;
-        v18 += v5;
+      iScaleAccum -= 64;
+      for (pRowStart = pBitmapRowStart; iScaleAccum <= 0; ++iRowIdx2) {
+        pRowStart += iScaledCharWidth;
+        iScaleAccum += iSavedScrSize;
       }
     }
-    result = (v5 * v28) >> 6;
-    *a3 += result;
-    goto LABEL_27;
+    *piXPos += (iSavedScrSize * iScaledCharWidth) >> 6;// Scaled path: advance X by scaled character width
+    goto CLEANUP_AND_RETURN;
   }
-  if (v7 == 255) {
-    result = (int)a3;
-    *a3 += 4;
-  LABEL_27:
-    scr_size = v5;
-    return result;
+  if (iCharIndex == 255) {
+    *piXPos += 4;                               // Unscaled path: Space character advances X by 4 pixels
+  CLEANUP_AND_RETURN:
+    scr_size = iSavedScrSize;
+    return;
   }
-  v24 = v9[1];
-  v11 = *v9;
-  v12 = (char *)(a1 + v9[2]);
-  v13 = (_BYTE *)(winw * (*a4 + v8) + *a3 + screen_pointer);
-  for (k = 0; k < v24; v13 += winw - v11) {
-    for (m = 0; m < v11; ++v13) {
-      v16 = *v12++;
-      if (v16)
-        *v13 = v16;
-      ++m;
+  iCharHeight = pCharData->iHeight;
+  iCharWidth = pCharData->iWidth;
+  pCharBitmap = (uint8 *)pBlockHeader + pCharData->iDataOffset;
+  pScreenDest = &screen_pointer[*piXPos + winw * (*piYPos + iYOffset)];// Calculate screen destination for unscaled 1:1 rendering
+  for (iRowIdx = 0; iRowIdx < iCharHeight; pScreenDest += winw - iCharWidth)// Unscaled rendering: simple row-by-row bitmap copy
+  {
+    for (i = 0; i < iCharWidth; ++pScreenDest) {
+      byPixel = *pCharBitmap++;                 // Copy non-zero pixels (0 = transparent)
+      if (byPixel)
+        *pScreenDest = byPixel;
+      ++i;
     }
-    ++k;
+    ++iRowIdx;
   }
-  result = (int)a3;
-  *a3 += v11;
-  scr_size = 64;
-  return result;*/
+  *piXPos += iCharWidth;                        // Advance X position by character width
+  scr_size = 64;                                // Reset scr_size to 64 (unscaled mode)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4694,3 +4762,4 @@ int do_blip(int a1, int a2)
 }
 
 //-------------------------------------------------------------------------------------------------
+ 
