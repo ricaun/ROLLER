@@ -13,11 +13,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <fcntl.h>
 #ifdef IS_WINDOWS
+#include <io.h>
 #include <direct.h>
 #define chdir _chdir
+#define read _read
+#define close _close
 #else
 #include <unistd.h>
+#define O_BINARY 0 //linux does not differentiate between text and binary
 #endif
 //-------------------------------------------------------------------------------------------------
 
@@ -4055,49 +4060,77 @@ void remove_uncalibrated()
 
 void LoadRecords()
 {
-  /*
   int iFileHandle; // edx
   int iFileHandle2; // ebp
-  int iRecordNamePos; // edx
-  int iRecordIdx3; // eax
-  int iRecordNamePos2; // edx
-  char *szRecordName2; // edi
-  char *szRecordName3; // edi
+  //int iRecordNamePos; // edx
+  //int iRecordIdx3; // eax
+  //int iRecordNamePos2; // edx
+  //char *szRecordName2; // edi
+  //char *szRecordName3; // edi
   int iFileLength; // eax
   int iFileLength2; // ecx
-  int iRecordNameIdx2; // edx
-  int iRecordIdx2; // eax
-  int iRecordNameIdx3; // edx
-  char *szRecordName4; // edi
+  //int iRecordNameIdx2; // edx
+  //int iRecordIdx2; // eax
+  //int iRecordNameIdx3; // edx
+  //char *szRecordName4; // edi
   int *pIntBuf; // ebx
   int iRecordNameIdx; // ebp
   int iRecordIdx; // ecx
   int iRecordCarVal; // eax
   int iRecordNamePos4; // esi
   int iRecordNameCharPos; // eax
-  char byNameChar; // dl
+  //char byNameChar; // dl
   uint8 *pBuf; // [esp+0h] [ebp-24h] BYREF
   int iMaxRecords; // [esp+4h] [ebp-20h]
   int iRecordNamePos3; // [esp+8h] [ebp-1Ch]
 
-  iFileHandle = open(szDgkfcRec, 512);          // 512 = O_BINARY in WATCOM/h/fcntl.h
+  iFileLength = ROLLERfilelength("dgkfc.rec");
+
+  iFileHandle = ROLLERopen("dgkfc.rec", O_BINARY);       // 0x200 = O_BINARY in WATCOM/h/fcntl.h
   iFileHandle2 = iFileHandle;
   if (iFileHandle == -1) {
 
+    //loop without optimizations
     for (int i = 0; i < 25; ++i) {
       int iRecordNamesPos = 9 * i;
-      strcpy(&RecordNames[iRecordNamesPos], "-----");
+      strcpy(RecordNames[iRecordNamesPos], "-----");
       RecordLaps[i] = 128.0f;
       RecordCars[i] = -1;
       RecordKills[i] = 0;
     }
+    //iRecordNamePos = 9;
+    //RecordCars[0] = -1;
+    //RecordLaps[0] = 128.0;
+    //RecordKills[0] = 0;
+    //iRecordIdx3 = 1;
+    //strcpy(RecordNames[0], "----");
+    //do {
+    //  RecordLaps[iRecordIdx3] = 128.0;
+    //  RecordCars[iRecordIdx3] = -1;
+    //  RecordKills[iRecordIdx3] = 0;
+    //  strcpy(&RecordNames[0][iRecordNamePos], "----");
+    //  iRecordNamePos2 = iRecordNamePos + 9;
+    //  RecordCars[iRecordIdx3 + 1] = -1;
+    //  RecordLaps[iRecordIdx3 + 1] = 128.0;
+    //  szRecordName2 = &RecordNames[0][iRecordNamePos2];
+    //  RecordKills[iRecordIdx3 + 1] = 0;
+    //  iRecordNamePos2 += 9;
+    //  strcpy(szRecordName2, "----");
+    //  iRecordIdx3 += 3;
+    //  szRecordName3 = &RecordNames[0][iRecordNamePos2];
+    //  RecordLaps[iRecordIdx3 + 24] = NAN;
+    //  *(int *)((char *)&updates + iRecordIdx3 * 4) = 0x43000000;
+    //  RecordCars[iRecordIdx3 + 24] = 0;
+    //  iRecordNamePos = iRecordNamePos2 + 9;
+    //  strcpy(szRecordName3, "----");
+    //} while (iRecordIdx3 != 25);
+    //// end loop
 
   } else {
     pBuf = (uint8 *)getbuffer(1024u);
-    iFileLength = filelength(iFileHandle);
+    //iFileLength = filelength(iFileHandle);
     iFileLength2 = iFileLength;
     if (iFileLength == 336 || iFileLength == 504) {
-      //TODO: read file
       read(iFileHandle, pBuf, iFileLength);
       close(iFileHandle);
       pIntBuf = (int *)pBuf;
@@ -4107,45 +4140,77 @@ void LoadRecords()
         iRecordIdx = 1;
         iRecordNamePos3 = 18;
         do {
-          RecordLaps[iRecordIdx] = (double)*pIntBuf * dRecordLapsMultiplier;
+          RecordLaps[iRecordIdx] = (float)((double)*pIntBuf * 0.01);
           iRecordCarVal = pIntBuf[1];
           pIntBuf += 3;
           RecordCars[iRecordIdx] = iRecordCarVal;
           iRecordNamePos4 = iRecordNamePos3;
           RecordKills[iRecordIdx] = *(pIntBuf - 1);
           iRecordNameCharPos = 9 * iRecordNameIdx;
-          do {
-            ++iRecordNameCharPos;
-            byNameChar = *(_BYTE *)pIntBuf;
-            pIntBuf = (int *)((char *)pIntBuf + 1);
-            *((_BYTE *)&fudge_wait + iRecordNameCharPos + 3) = byNameChar;// this is an offset into RecordNames
-          } while (iRecordNameCharPos != iRecordNamePos4);
-          if (RecordLaps[iRecordIdx] < dRecordLapsMinimum) {
+
+          // Copy 9-character record name
+          memcpy(RecordNames[iRecordNameIdx], (uint8*)pIntBuf, 9);
+          pIntBuf = (int*)((uint8*)pIntBuf + 9);
+          //do {
+          //  ++iRecordNameCharPos;
+          //  byNameChar = *(_BYTE *)pIntBuf;
+          //  pIntBuf = (int *)((char *)pIntBuf + 1);
+          //  *((_BYTE *)&fudge_wait + iRecordNameCharPos + 3) = byNameChar;// this is an offset into RecordNames
+          //} while (iRecordNameCharPos != iRecordNamePos4);
+
+          if (RecordLaps[iRecordIdx] < 0.4) {
             RecordLaps[iRecordIdx] = 128.0;
             RecordCars[iRecordIdx] = -1;
             RecordKills[iRecordIdx] = 0;
-            strcpy(&RecordNames[9 * iRecordNameIdx], "----");
+            strcpy(RecordNames[iRecordNameIdx], "----");
           }
           ++iRecordIdx;
           ++iRecordNameIdx;
           iRecordNamePos3 += 9;
         } while (iRecordNameIdx <= iMaxRecords);
       }
-      fre(&pBuf);
+      fre((void **)&pBuf);
     } else {
 
+      //loop without optimizations
       for (int i = 0; i < 25; ++i) {
         int iRecordNamesPos = 9 * i;
-        strcpy(&RecordNames[iRecordNamesPos], "-----");
+        strcpy(RecordNames[iRecordNamesPos], "-----");
         RecordLaps[i] = 128.0f;
         RecordCars[i] = -1;
         RecordKills[i] = 0;
       }
+      //iRecordNameIdx2 = 9;
+      //iRecordIdx2 = 1;
+      //RecordKills[0] = 0;
+      //RecordLaps[0] = 128.0;
+      //RecordCars[0] = -1;
+      //strcpy(RecordNames[0], "----");
+      //do {
+      //  RecordLaps[iRecordIdx2] = 128.0;
+      //  RecordKills[iRecordIdx2] = 0;
+      //  RecordCars[iRecordIdx2] = -1;
+      //  strcpy(&RecordNames[0][iRecordNameIdx2], "----");
+      //  iRecordNameIdx3 = iRecordNameIdx2 + 9;
+      //  RecordLaps[iRecordIdx2 + 1] = 128.0;
+      //  RecordKills[iRecordIdx2 + 1] = 0;
+      //  RecordCars[iRecordIdx2 + 1] = -1;
+      //  iRecordIdx2 += 3;
+      //  strcpy(&RecordNames[0][iRecordNameIdx3], "----");
+      //  iRecordNameIdx3 += 9;
+      //  *(int *)((char *)&updates + iRecordIdx2 * 4) = 0x43000000;
+      //  RecordCars[iRecordIdx2 + 24] = 0;
+      //  szRecordName4 = &RecordNames[0][iRecordNameIdx3];
+      //  RecordLaps[iRecordIdx2 + 24] = NAN;
+      //  iRecordNameIdx2 = iRecordNameIdx3 + 9;
+      //  strcpy(szRecordName4, "----");
+      //} while (iRecordIdx2 != 25);
+      //// end loop
 
       close(iFileHandle2);
-      fre(&pBuf);
+      fre((void **)&pBuf);
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
