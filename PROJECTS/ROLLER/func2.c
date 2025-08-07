@@ -2064,148 +2064,158 @@ int mini_prt_string(int a1, char *a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int mini_prt_string_rev(int a1, char *a2)
+void mini_prt_string_rev(tBlockHeader *pBlockHeader, const char *szText, int iX, int iY)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v3; // ebp
-  int result; // eax
+  int iDone; // ebp
+  int iSavedYPos; // [esp+0h] [ebp-18h]
+  int piYPos; // [esp+4h] [ebp-14h] BYREF
+  int piXPos; // [esp+8h] [ebp-10h] BYREF
 
-  v3 = 0;
+  iDone = 0;
+  piXPos = (scr_size * iX) >> 6;
+  piYPos = (scr_size * iY) >> 6;
   do {
-    if (*a2) {
-      if (*a2 != 10)
-        result = prt_letter_rev(-1);
-    } else {
-      v3 = -1;
-    }
-    ++a2;
-  } while (!v3);
-  return result;*/
-}
-
-//-------------------------------------------------------------------------------------------------
-
-char mini_prt_right(int a1, char *a2, int a3, int a4)
-{
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  _BYTE *i; // esi
-  int v6; // eax
-  char *v7; // esi
-  int v8; // ebp
-  char result; // al
-  int v10; // [esp+4h] [ebp-14h]
-
-  for (i = a2; *i; ++i) {
-    v6 = (unsigned __int8)ascii_conv3[(unsigned __int8)*i];
-    if (v6 == 255)
-      a3 -= 4;
-    else
-      a3 -= *(_DWORD *)(a1 + 12 * v6);
-  }
-  v7 = a2;
-  v8 = 0;
-  v10 = (scr_size * a4) >> 6;
-  do {
-    result = *v7;
-    if (*v7) {
-      if (result != 10) {
-        prt_letter(-1);
-        result = v10;
+    if (*szText) {
+      if (*szText != 10) {
+        iSavedYPos = piYPos;
+        if (*szText == -118)
+          piYPos -= 2;
+        prt_letter_rev(pBlockHeader, *szText, &piXPos, &piYPos, -1);
+        piYPos = iSavedYPos;
       }
     } else {
-      v8 = -1;
+      iDone = -1;
     }
-    ++v7;
-  } while (!v8);
-  return result;*/
+    ++szText;
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char mini_prt_centre(int a1, char *a2, int a3, int a4)
+void mini_prt_right(tBlockHeader *pBlockHeader, const char *szText, int iX, int iY)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  _BYTE *i; // esi
-  int v6; // eax
-  char *v7; // esi
-  int v8; // ebp
-  char result; // al
-  int v10; // [esp+4h] [ebp-14h]
+  const char *i; // esi
+  int iCharIdx; // eax
+  const char *pCurrChar; // esi
+  int iDone; // ebp
+  int iSavedYPos; // [esp+0h] [ebp-18h]
+  int iYPos; // [esp+4h] [ebp-14h] BYREF
+  int iXPos; // [esp+8h] [ebp-10h] BYREF
 
-  for (i = a2; *i; ++i) {
-    v6 = (unsigned __int8)ascii_conv3[(unsigned __int8)*i];
-    if (v6 == 255)
-      a3 -= 4;
+  iXPos = iX;
+  iYPos = iY;
+  for (i = szText; *i; ++i) {
+    iCharIdx = (uint8)ascii_conv3[*(uint8 *)i];
+    if (iCharIdx == 255)
+      iXPos -= 4;
     else
-      a3 -= *(_DWORD *)(a1 + 12 * v6) / 2;
+      iXPos -= pBlockHeader[iCharIdx].iWidth;
   }
-  v7 = a2;
-  v8 = 0;
-  v10 = (scr_size * a4) >> 6;
+  pCurrChar = szText;
+  iXPos = (scr_size * iXPos) >> 6;
+  iDone = 0;
+  iYPos = (scr_size * iYPos) >> 6;
   do {
-    result = *v7;
-    if (*v7) {
-      if (result != 10) {
-        prt_letter(-1);
-        result = v10;
+    if (*pCurrChar) {
+      if (*pCurrChar != '\n') {
+        iSavedYPos = iYPos;
+        if (*pCurrChar == -118)
+          iYPos -= 2;
+        prt_letter(pBlockHeader, *pCurrChar, &iXPos, &iYPos, -1);
+        iYPos = iSavedYPos;
       }
     } else {
-      v8 = -1;
+      iDone = -1;
     }
-    ++v7;
-  } while (!v8);
-  return result;*/
+    ++pCurrChar;
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-char prt_right(int a1, char *a2, int a3)
+void mini_prt_centre(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  char *v4; // esi
-  int v5; // eax
-  int v6; // ebp
-  char result; // al
+  const char *i; // esi
+  int iCharIdx; // eax
+  const char *pCharItr; // esi
+  int iDone; // ebp
+  int iSavedYPos; // [esp+0h] [ebp-18h]
+  int iYPos; // [esp+4h] [ebp-14h] BYREF
+  int iXPos; // [esp+8h] [ebp-10h] BYREF
 
-  v4 = a2;
-  while (*a2) {
-    v5 = (unsigned __int8)font6_ascii[(unsigned __int8)*a2++];
-    if (v5 == 255)
-      a3 -= 4;
+  iXPos = iX;                                   // Initialize position variables from parameters
+  iYPos = iY;
+  for (i = szStr; *i; ++i)                    // First pass: calculate total text width for centering
+  {
+    iCharIdx = (uint8)ascii_conv3[*(uint8 *)i];// Get character index from ascii_conv3 table (mini font)
+    if (iCharIdx == 255)                      // Space character: subtract 4 pixels from X position
+      iXPos -= 4;
     else
-      a3 -= *(_DWORD *)(a1 + 12 * v5);
+      iXPos -= pBlockHeader[iCharIdx].iWidth / 2;// Regular character: subtract half character width for centering calculation
   }
-  v6 = 0;
-  do {
-    result = *v4;
-    if (*v4) {
-      if (result != 10)
-        result = prt_letter(0);
+  iXPos = (scr_size * iXPos) >> 6;              // Apply scaling to calculated X offset and convert to screen coordinates
+  pCharItr = szStr;                             // Initialize string iterator for second pass (actual rendering)
+  iDone = 0;
+  iYPos = (scr_size * iYPos) >> 6;              // Apply scaling to Y position
+  do {                                             // Check for end of string (null terminator)
+    if (*pCharItr) {                                           // Skip newline characters (not rendered in mini font)
+      if (*pCharItr != '\n') {
+        iSavedYPos = iYPos;                     // Save Y position for restoration after character rendering
+        if (*pCharItr == -118)                // Special character 0x8A (138): render 2 pixels higher (superscript effect)
+          iYPos -= 2;
+        prt_letter(pBlockHeader, *pCharItr, &iXPos, &iYPos, -1);// Render character using prt_letter with ascii_conv3 font (fontType=-1)
+        iYPos = iSavedYPos;                     // Restore Y position after character rendering
+      }
     } else {
-      v6 = -1;
+      iDone = -1;                               // End of string reached: set done flag to exit loop
     }
-    ++v4;
-  } while (!v6);
-  return result;*/
+    ++pCharItr;                                 // Advance to next character in string
+  } while (!iDone);                             // Second pass: render each character at calculated centered position
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void prt_right(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
+{
+  char *pCurrChar; // esi
+  int iCharIdx; // eax
+  int iDone; // ebp
+  int iYPos; // [esp+0h] [ebp-14h] BYREF
+  int iXPos; // [esp+4h] [ebp-10h] BYREF
+
+  pCurrChar = (char *)szStr;
+  iXPos = iX;
+  iYPos = iY;
+  while (*szStr) {
+    iCharIdx = (uint8)font6_ascii[*(uint8 *)szStr++];
+    if (iCharIdx == 255)
+      iXPos -= 4;
+    else
+      iXPos -= pBlockHeader[iCharIdx].iWidth;
+  }
+  iXPos = (scr_size * iXPos) >> 6;
+  iDone = 0;
+  iYPos = (scr_size * iYPos) >> 6;
+  do {
+    if (*pCurrChar) {
+      if (*pCurrChar != 10)
+        prt_letter(pBlockHeader, *pCurrChar, &iXPos, &iYPos, 0);
+    } else {
+      iDone = -1;
+    }
+    ++pCurrChar;
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
-  int iContinue; // ebp
+  int iDone; // ebp
   int piYPos; // [esp+0h] [ebp-14h] BYREF
   int piXPos; // [esp+4h] [ebp-10h] BYREF
 
-  iContinue = 0;
+  iDone = 0;
   piXPos = (scr_size * iX) >> 6;
   piYPos = (scr_size * iY) >> 6;
   do {
@@ -2213,10 +2223,10 @@ void prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
       if (*szStr != 10)
         prt_letter(pBlockHeader, *szStr, &piXPos, &piYPos, 0);
     } else {
-      iContinue = -1;
+      iDone = -1;
     }
     ++szStr;
-  } while (!iContinue);
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2419,11 +2429,11 @@ void prt_letter_rev(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *p
 
 void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
-  int iContinue; // ebp
+  int iDone; // ebp
   int iYPos; // [esp+0h] [ebp-14h] BYREF
   int iXPos; // [esp+4h] [ebp-10h] BYREF
 
-  iContinue = 0;
+  iDone = 0;
   iXPos = (scr_size * iX) >> 6;
   iYPos = (scr_size * iY) >> 6;
   do {
@@ -2431,10 +2441,10 @@ void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
       if (*szStr != 10)
         prt_lettercol(pBlockHeader, *szStr, &iXPos, &iYPos, byColor);
     } else {
-      iContinue = -1;
+      iDone = -1;
     }
     ++szStr;
-  } while (!iContinue);
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2444,7 +2454,7 @@ void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY,
   const char *i; // esi
   int iCharIdx; // eax
   const char *pCharItr; // esi
-  int iContinue; // ebp
+  int iDone; // ebp
   int iYPos; // [esp+0h] [ebp-14h] BYREF
   int iXPos; // [esp+4h] [ebp-10h] BYREF
 
@@ -2459,17 +2469,17 @@ void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY,
   }
   pCharItr = szStr;
   iXPos = (scr_size * iXPos) >> 6;
-  iContinue = 0;
+  iDone = 0;
   iYPos = (scr_size * iYPos) >> 6;
   do {
     if (*pCharItr) {
       if (*pCharItr != '\n')
         prt_lettercol(pBlockHeader, *pCharItr, &iXPos, &iYPos, byColor);
     } else {
-      iContinue = -1;
+      iDone = -1;
     }
     ++pCharItr;
-  } while (!iContinue);
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2481,7 +2491,7 @@ void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
   char c; // bl
   int iWidth; // edx
   int iCharIdx; // ebx
-  int iContinue; // ebp
+  int iDone; // ebp
   int iYPos; // [esp+0h] [ebp-14h] BYREF
   int iXPos; // [esp+4h] [ebp-10h] BYREF
 
@@ -2501,17 +2511,17 @@ void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
     } while (*pCharItr);
   }
   iXPos = (scr_size * (iXPos - iWidth / 2)) >> 6;
-  iContinue = 0;
+  iDone = 0;
   iYPos = (scr_size * iYPos) >> 6;
   do {
     if (*pCurrChar) {
       if (*pCurrChar != '\n')
         prt_lettercol(pBlockHeader, *pCurrChar, &iXPos, &iYPos, byColor);
     } else {
-      iContinue = -1;
+      iDone = -1;
     }
     ++pCurrChar;
-  } while (!iContinue);
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------
