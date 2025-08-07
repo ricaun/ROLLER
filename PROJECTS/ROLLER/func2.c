@@ -2041,25 +2041,30 @@ int select_view(int a1)
 
 //-------------------------------------------------------------------------------------------------
 
-int mini_prt_string(int a1, char *a2)
+void mini_prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v3; // ebp
-  int result; // eax
+  int iDone; // ebp
+  int iSavedYPos; // [esp+0h] [ebp-18h]
+  int iYPos; // [esp+4h] [ebp-14h] BYREF
+  int iXPos; // [esp+8h] [ebp-10h] BYREF
 
-  v3 = 0;
+  iDone = 0;
+  iXPos = (scr_size * iX) >> 6;
+  iYPos = (scr_size * iY) >> 6;
   do {
-    if (*a2) {
-      if (*a2 != 10)
-        result = prt_letter(-1);
+    if (*szStr) {
+      if (*szStr != '\n') {
+        iSavedYPos = iYPos;
+        if (*szStr == -118)
+          iYPos -= 2;
+        prt_letter(pBlockHeader, *szStr, &iXPos, &iYPos, -1);
+        iYPos = iSavedYPos;
+      }
     } else {
-      v3 = -1;
+      iDone = -1;
     }
-    ++a2;
-  } while (!v3);
-  return result;*/
+    ++szStr;
+  } while (!iDone);
 }
 
 //-------------------------------------------------------------------------------------------------

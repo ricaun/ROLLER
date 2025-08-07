@@ -79,7 +79,7 @@ void setdirectory(const char *szAppPath);
 void FindShades();
 int nearest_colour(int iR, int iB, int iG);
 int select_view(int a1);
-int mini_prt_string(int a1, char *a2);
+void mini_prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY);
 void mini_prt_string_rev(tBlockHeader *pBlockHeader, const char *szText, int iX, int iY);
 void mini_prt_right(tBlockHeader *pBlockHeader, const char *szText, int iX, int iY);
 void mini_prt_centre(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY);
