@@ -2439,37 +2439,37 @@ void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
 
 //-------------------------------------------------------------------------------------------------
 
-char prt_rightcol(int a1, char *a2, int a3, int a4, char a5)
+void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0;
-  /*
-  _BYTE *i; // esi
-  int v7; // eax
-  char *v8; // esi
-  int v9; // ebp
-  char result; // al
+  const char *i; // esi
+  int iCharIdx; // eax
+  const char *pCharItr; // esi
+  int iContinue; // ebp
+  int iYPos; // [esp+0h] [ebp-14h] BYREF
+  int iXPos; // [esp+4h] [ebp-10h] BYREF
 
-  for (i = a2; *i; ++i) {
-    v7 = (unsigned __int8)font6_ascii[(unsigned __int8)*i];
-    if (v7 == 255)
-      a3 -= 4;
+  iXPos = iX;
+  iYPos = iY;
+  for (i = szStr; *i; ++i) {
+    iCharIdx = (uint8)font6_ascii[*(uint8 *)i];
+    if (iCharIdx == 255)
+      iXPos -= 4;
     else
-      a3 -= *(_DWORD *)(a1 + 12 * v7);
+      iXPos -= pBlockHeader[iCharIdx].iWidth;
   }
-  v8 = a2;
-  v9 = 0;
+  pCharItr = szStr;
+  iXPos = (scr_size * iXPos) >> 6;
+  iContinue = 0;
+  iYPos = (scr_size * iYPos) >> 6;
   do {
-    result = *v8;
-    if (*v8) {
-      if (result != 10)
-        result = prt_lettercol(a5);
+    if (*pCharItr) {
+      if (*pCharItr != '\n')
+        prt_lettercol(pBlockHeader, *pCharItr, &iXPos, &iYPos, byColor);
     } else {
-      v9 = -1;
+      iContinue = -1;
     }
-    ++v8;
-  } while (!v9);
-  return result;*/
+    ++pCharItr;
+  } while (!iContinue);
 }
 
 //-------------------------------------------------------------------------------------------------

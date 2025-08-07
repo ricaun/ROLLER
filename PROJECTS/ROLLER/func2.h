@@ -88,7 +88,7 @@ void prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY);
 void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType);
 void prt_letter_rev(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType);
 void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor);
-char prt_rightcol(int a1, char *a2, int a3, int a4, char a5);
+void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor);
 void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor);
 void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, char byColor);
 char display_paused();
