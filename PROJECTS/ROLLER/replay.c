@@ -1309,7 +1309,7 @@ void Rplay()
   if (replaytype == 2) {
     // Play sound effect sample 83 at 50% volume (0x8000)
     // Volume 0x8000 = 32768, which is 50 % of full 16-bit volume
-    sfxsample(83, 0x8000);
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
 
     // Init replay state
     replaydirection = 1;

@@ -15,6 +15,7 @@
 #include <string.h>
 #include <math.h>
 #include <fcntl.h>
+#include <float.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #include <direct.h>
@@ -4711,36 +4712,35 @@ void load_language_file(char *szFilename, int iUseConfigBuffer)
 
 //-------------------------------------------------------------------------------------------------
 
-int do_blip(int a1, int a2)
+void do_blip(int iCarIdx)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int v2; // eax
-  double v3; // st7
-  int v4; // eax
-  int result; // eax
-  int v6; // [esp+0h] [ebp-10h]
+  double dDamage; // st7
+  //int iCarOffset; // eax
+  int iDamage; // [esp+0h] [ebp-10h]
 
-  v2 = 77 * ViewType[a1];
-  v3 = (func2_c_variable_335 - Car_variable_9[v2]) * func2_c_variable_336 * func2_c_variable_337;
-  _CHP(v2 * 4, a1);
-  v6 = (int)v3;
-  if ((*(_DWORD *)((_BYTE *)Car_variable_9 + v4) & 0x7FFFFFFF) == 0)
-    v6 = 14;
-  result = 308 * ViewType[a1];
-  if ((*(_DWORD *)((_BYTE *)Car_variable_8 + result) & 0x7FFFFFFF) != 0) {
-    result = v6;
-    lastblip[a1] = v6;
-  }
-  if (v6 < 14 && v6 < lastblip[a1]) {
-    result = 308 * ViewType[a1];
-    if (Car_variable_40[result]) {
-      result = sfxsample(83, 0x8000, 4 * a1);
-      lastblip[a1] = v6;
+  // //Calculate car array offset
+  // iCarOffset = ViewType[iCarIndex] * sizeof(tCar);
+
+  dDamage = (100.0 - Car[ViewType[iCarIdx]].fDamage) * 0.0099999998 * 13.0;
+  //_CHP();
+  iDamage = (int)dDamage;
+
+  if (fabs(Car[ViewType[iCarIdx]].fDamage) > FLT_EPSILON)
+  //if ((*(_DWORD *)((_BYTE *)&Car[0].fDamage + iCarOffset) & 0x7FFFFFFF) == 0)
+    iDamage = 14;
+
+  // Only proceed if car has valid max speed
+  if (fabs(Car[ViewType[iCarIdx]].fMaxSpeed) > FLT_EPSILON)
+  //if ((LODWORD(Car[ViewType[iCarIdx]].fMaxSpeed) & 0x7FFFFFFF) != 0)
+    lastblip[iCarIdx] = iDamage;
+
+  // Play sound effect if conditions are met
+  if (iDamage < 14 && iDamage < lastblip[iCarIdx]) {
+    if (Car[ViewType[iCarIdx]].byPlayBlip) {
+      sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                    // SOUND_SAMPLE_BUTTON
+      lastblip[iCarIdx] = iDamage;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

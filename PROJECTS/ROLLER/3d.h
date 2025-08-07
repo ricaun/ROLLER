@@ -101,6 +101,7 @@ extern int exiting;
 extern int dontrestart;
 extern int champ_mode;
 extern int cd_error;
+extern int lastblip[2];
 extern int game_svga;
 extern int game_size;
 extern int game_view[2];

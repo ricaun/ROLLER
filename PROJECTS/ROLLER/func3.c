@@ -308,7 +308,7 @@ void StoreResult()
       dResultTime = Car[iCarIdx].fResultTime;
       result_kills[iCarIdx] = Car[iCarIdx].byResultKills;
       result_lap[iCarIdx] = (char)Car[iCarIdx].byResultLap;
-      result_lives[iCarIdx] = (char)Car[iCarIdx].byResultLives;
+      result_lives[iCarIdx] = (char)Car[iCarIdx].byLives;
       byCarDesignIdx = Car[iCarIdx].byCarDesignIdx;
       result_time[iCarIdx] = (float)dResultTime;
       iOffset += 4;

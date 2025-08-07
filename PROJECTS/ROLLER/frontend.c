@@ -1193,22 +1193,22 @@ void select_screen()
             fre((void **)&front_vga[14]);
             switch (iMenuSelection) {
               case 0:
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 select_car();
                 break;
               case 1:
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 if (game_type == 1)
                   select_disk();
                 else
                   select_track();
                 break;
               case 2:
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 select_configure();
                 break;
               case 3:
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 if (game_type == 1 && Race > 0) {
                   last_type = game_type;
                   game_type = 3;
@@ -1218,12 +1218,12 @@ void select_screen()
                 }
                 break;
               case 4:
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 select_type();
                 break;
               case 5:
                 iContinue = -1;
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 replaytype = 2;
                 break;
               case 6:
@@ -1233,12 +1233,12 @@ void select_screen()
                 break;
               case 7:
                 iQuitConfirmed = -1;
-                sfxsample(83, 0x8000);
+                sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 break;
               case 8:
                 if (iBlockIdx >= CAR_DESIGN_AUTO) {
                   iContinue = -1;
-                  sfxsample(87, 0x8000);
+                  sfxsample(SOUND_SAMPLE_START, 0x8000);
                   netCD = 0;
                   int iTargetTicks = ticks + 108;
                   if (soundon && iTargetTicks > ticks) {
@@ -2141,10 +2141,10 @@ void select_car()
             iSelectedCar = iPlayer1Car;
           }
           if (iPlayer1Car >= CAR_DESIGN_AUTO) {
-            sfxsample(84, 0x8000);
+            sfxsample(SOUND_SAMPLE_CARIN, 0x8000);
             if (iPlayer1Car < CAR_DESIGN_ZIZIN2)
               loadfrontendsample(descript[iPlayer1Car]);
-            if (!SamplePtr[84])
+            if (!SamplePtr[SOUND_SAMPLE_CARIN])
               frontendsample(0x8000);
           }
           broadcast_mode = -1;
@@ -2159,7 +2159,7 @@ void select_car()
         iDelayBeforeRotation = 0;
         iZoomSpeed = 2000;
         iSelectedCar = -car_request - 1;
-        sfxsample(85, 0x8000);
+        sfxsample(SOUND_SAMPLE_CAROUT, 0x8000);
         car_request = 0;
         if ((cheat_mode & 0x4000) != 0)
           switch_same = iSelectedCar + 666;
@@ -2170,7 +2170,7 @@ void select_car()
           iSelectedCar = switch_same - 666;
           iZoomSpeed = 2000;
           iDelayBeforeRotation = 0;
-          sfxsample(85, 0x8000);
+          sfxsample(SOUND_SAMPLE_CAROUT, 0x8000);
 
           if (players > 0) {
               for (iPlayerLoopCounter = 0; iPlayerLoopCounter < players; iPlayerLoopCounter++) {
@@ -2194,14 +2194,14 @@ void select_car()
         iDelayBeforeRotation = 0;
         iZoomSpeed = 2000;
         iSelectedCar = -1;
-        sfxsample(85, 0x8000);
+        sfxsample(SOUND_SAMPLE_CAROUT, 0x8000);
         cheat_mode &= ~CHEAT_MODE_CLONES;
       }
       if (switch_sets) {
         iSelectedCar = iPlayer1Car;
         iDelayBeforeRotation = 0;
         iZoomSpeed = 2000;
-        sfxsample(85, 0x8000);
+        sfxsample(SOUND_SAMPLE_CAROUT, 0x8000);
         switch_sets = 0;
       }
       if (!front_fade)                        // Screen fade-in: Load car voice sample and fade palette to visible
@@ -2236,7 +2236,7 @@ void select_car()
           {
             if (iCurrentCarSelectorPos != 8 && iCurrentCarSelectorPos != iPlayer1Car || iCurrentCarSelectorPos == 8) {
               remove_frontendspeech();
-              sfxsample(83, 0x8000);
+              sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
             }
             if (iCurrentCarSelectorPos == iPlayer1Car
               && SoundCard
@@ -2258,14 +2258,14 @@ void select_car()
                 iDelayBeforeRotation = 0;
                 iZoomSpeed = 2000;
                 iSelectedCar = iCurrentCarSelectorPos;
-                sfxsample(85, 0x8000);
+                sfxsample(SOUND_SAMPLE_CAROUT, 0x8000);
               }
             }
           } else if (byInputKey == 27)          // Escape key: Exit to main menu
           {
             byMenuExitFlag = -1;
             remove_frontendspeech();
-            sfxsample(83, 0x8000);
+            sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
           }
         } else if (byInputKey <= 0x20u) {                                       // Space key: Switch between Player 1 and Player 2 in two-player mode
           if (player_type == 2) {
@@ -3474,7 +3474,7 @@ void select_configure()
                       iEditingName = 0;
                       break;
                     case 7:                     // exit
-                      sfxsample(83, 0x8000);
+                      sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                       iExitFlag = -1;
                       break;
                     default:
@@ -3483,7 +3483,7 @@ void select_configure()
                 } else if (uiKeyCode == 27)     // ESC key
                 {
                   iExitFlag = -1;
-                  sfxsample(83, 0x8000);
+                  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
                 }
                 continue;
               case 1:                           // DRIVER/CAR CONFIG
@@ -5542,7 +5542,7 @@ void select_type()
       if (byInputKey < 0x1Bu) {
         if (byInputKey) {                                       // Enter key: Confirm selection or navigate into sub-options
           if (byInputKey == 13) {
-            sfxsample(83, 0x8000);
+            sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
             if (iMenuSelection) {
               if (game_type == 1) {
                 Race = 0;
@@ -6011,7 +6011,7 @@ void select_track()
     if (TrackLoad != iPrevTrackLoad)          // Track changed - play selection sound and reset animation
     {
       if (!iSoundFlag)
-        sfxsample(86, 0x8000);
+        sfxsample(SOUND_SAMPLE_TRACK, 0x8000);
       iSoundFlag = 0;
       iCurrentTrack = TrackLoad;
       iAnimationTimer = 0;
@@ -6038,7 +6038,7 @@ void select_track()
       } else if (byKey <= 0xDu) {                                         // Enter key pressed - confirm track selection
         if (iSelectedTrack != 8 && iCurrentTrack != iCalculatedTrack || iSelectedTrack == 8) {
           remove_frontendspeech();
-          sfxsample(83, 0x8000);
+          sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
         }
         //if (iCurrentTrack == iCalculatedTrack && SoundCard && frontendspeechhandle != -1 && sosDIGISampleDone(*(int *)&DIGIHandle, frontendspeechhandle)) {
         if (iCurrentTrack == iCalculatedTrack && SoundCard && frontendspeechhandle != -1 && DIGISampleDone(frontendspeechhandle)) {
@@ -6048,7 +6048,7 @@ void select_track()
         if (iSelectedTrack == 8) {
           iExitFlag = -1;
         } else if (game_type != 1 && iCurrentTrack != iCupOffset + iTrackInCup) {
-          sfxsample(86, 0x8000);
+          sfxsample(SOUND_SAMPLE_TRACK, 0x8000);
           iCurrentTrack = iCupOffset + iTrackInCup;
           if (iAnimationTimer) {
             iAnimationTimer = 0;
@@ -6059,12 +6059,12 @@ void select_track()
       } else if (byKey >= 0x1Bu) {
         if (byKey <= 0x1Bu) {
           remove_frontendspeech();              // Escape key pressed - exit track selection
-          sfxsample(83, 0x8000);
+          sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
           iExitFlag = -1;
         } else if (byKey == 32 && game_type != 1 && TrackLoad > 0)// Space key pressed - cycle through cup categories
         {
           iCurrentTrack += 8;
-          sfxsample(86, 0x8000);
+          sfxsample(SOUND_SAMPLE_TRACK, 0x8000);
           if (iCurrentTrack > 8 && iCurrentTrack < 17 && (cup_won & 1) == 0)// Skip locked cup categories based on championship progress
             iCurrentTrack += 8;
           if (iCurrentTrack > 16 && iCurrentTrack < 25 && (cup_won & 2) == 0)

@@ -116,7 +116,7 @@ char subzoom(char *a1);
 void make_time(char *szTimeStr, float fTime);
 void check_machine_speed();
 void load_language_file(char *szFilename, int iUseConfigBuffer);
-int do_blip(int a1, int a2);
+void do_blip(int iCarIdx);
 
 //-------------------------------------------------------------------------------------------------
 #endif

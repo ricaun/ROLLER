@@ -23,7 +23,7 @@ typedef struct
   int16 nYaw;
   int16 nPadding1;
   float fMaxSpeed;
-  float fUnk4;
+  float fDamage;
   int iUnk5;
   int iUnk6;
   int iUnk7;
@@ -41,7 +41,7 @@ typedef struct
   int iUnk20_2;
   int16 nUnk21;
   uint8 byCarDesignIdx;
-  uint8 byResultLives;
+  uint8 byLives;
   uint8 byUnk24;
   uint8 byPadding5;
   int16 nUnk25;
@@ -67,7 +67,7 @@ typedef struct
   int iUnk38_3;
   int iUnk38_4;
   float fUnk39;
-  uint8 byUnk40;
+  uint8 byPlayBlip;
   uint8 byUnk41;
   uint8 byResultKills;
   uint8 byUnk43;
