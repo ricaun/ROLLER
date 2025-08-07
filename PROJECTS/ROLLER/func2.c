@@ -1425,139 +1425,137 @@ int zoom_letter(int a1, uint8 a2, void *a3, void *a4, char *a5, float a6)
 
 //-------------------------------------------------------------------------------------------------
 
-int print_block(char *a1, int a2, int a3)
+void print_block(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // edi
-  int result; // eax
-  int v6; // ebp
-  char *n; // ebx
-  int v8; // ebp
-  int v9; // edx
+  int iScreenSize; // edi
+  int iRowScaleAccum; // ebp
+  uint8 *pszSourceData; // ebx
+  int iFullBytesPerRow; // ebp
+  int iRemainingPixels; // edx
   int j; // eax
-  char v11; // cl
-  char *v12; // ebx
-  char *v13; // esi
-  char v14; // cl
-  char *v15; // ebx
-  _BYTE *v16; // esi
-  char v17; // cl
-  char *v18; // ebx
-  _BYTE *v19; // esi
-  char v20; // cl
-  char *v21; // ebx
-  _BYTE *v22; // esi
-  char v23; // cl
-  char *v24; // ebx
-  _BYTE *v25; // esi
-  char v26; // cl
-  char *v27; // ebx
-  _BYTE *v28; // esi
-  char v29; // cl
-  char *v30; // ebx
-  _BYTE *v31; // esi
-  char v32; // cl
+  uint8 byPixel; // cl
+  uint8 *pszSrc1; // ebx
+  uint8 *pszDest1; // esi
+  uint8 byPixel1; // cl
+  uint8 *pszSrc2; // ebx
+  uint8 *pbyDest2; // esi
+  uint8 byPixel2; // cl
+  uint8 *pszSrc3; // ebx
+  uint8 *pbyDest3; // esi
+  uint8 byPixel3; // cl
+  char *pszSrc4; // ebx
+  uint8 *pbyDest4; // esi
+  uint8 byPixel4; // cl
+  char *pszSrc5; // ebx
+  uint8 *pbyDest5; // esi
+  uint8 byPixel5; // cl
+  char *pszSrc6; // ebx
+  uint8 *pbyDest6; // esi
+  uint8 byPixel6; // cl
+  uint8 *pszSrc7; // ebx
+  uint8 *pbyDest7; // esi
+  uint8 byPixel7; // cl
   int k; // eax
-  char v34; // cl
-  int v35; // eax
-  int v36; // edx
-  int v37; // [esp+0h] [ebp-28h]
-  char *v38; // [esp+4h] [ebp-24h]
-  char *v39; // [esp+8h] [ebp-20h]
-  int v40; // [esp+Ch] [ebp-1Ch]
+  uint8 byRemPixel; // cl
+  int iColScaleAccum; // eax
+  int iXPos; // edx
+  int iWidth; // [esp+0h] [ebp-28h]
+  uint8 *pszRowStart; // [esp+4h] [ebp-24h]
+  uint8 *pszDestRow; // [esp+8h] [ebp-20h]
+  int iHeight; // [esp+Ch] [ebp-1Ch]
   int i; // [esp+10h] [ebp-18h]
   int m; // [esp+14h] [ebp-14h]
 
-  v3 = scr_size;
-  v37 = *(_DWORD *)(a2 + 12 * a3);
-  result = 3 * a3;
-  v40 = *(_DWORD *)(a2 + 12 * a3 + 4);
-  v6 = scr_size;
-  n = (char *)(a2 + *(_DWORD *)(a2 + 12 * a3 + 8));
-  if (scr_size == 64) {
-    v8 = (v37 - (__CFSHL__(v37 >> 31, 3) + 8 * (v37 >> 31))) >> 3;
-    v9 = v37 % 8;
-    result = 0;
-    for (i = 0; result < v40; i = result) {
-      for (j = 0; j < v8; a1 = v31 + 1) {
-        v11 = *n;
-        v12 = n + 1;
-        if (v11)
-          *a1 = v11;
-        v13 = a1 + 1;
-        v14 = *v12;
-        v15 = v12 + 1;
-        if (v14)
-          *v13 = v14;
-        v16 = v13 + 1;
-        v17 = *v15;
-        v18 = v15 + 1;
-        if (v17)
-          *v16 = v17;
-        v19 = v16 + 1;
-        v20 = *v18;
-        v21 = v18 + 1;
-        if (v20)
-          *v19 = v20;
-        v22 = v19 + 1;
-        v23 = *v21;
-        v24 = v21 + 1;
-        if (v23)
-          *v22 = v23;
-        v25 = v22 + 1;
-        v26 = *v24;
-        v27 = v24 + 1;
-        if (v26)
-          *v25 = v26;
-        v28 = v25 + 1;
-        v29 = *v27;
-        v30 = v27 + 1;
-        if (v29)
-          *v28 = v29;
-        v31 = v28 + 1;
-        v32 = *v30;
-        n = v30 + 1;
-        if (v32)
-          *v31 = v32;
+  iScreenSize = scr_size;                       // Store current screen scaling size
+  iWidth = pBlockHeader[iBlockIdx].iWidth;      // Extract block dimensions from header
+  iHeight = pBlockHeader[iBlockIdx].iHeight;
+  iRowScaleAccum = scr_size;
+  pszSourceData = (uint8 *)pBlockHeader + pBlockHeader[iBlockIdx].iDataOffset;// Calculate pointer to block pixel data
+  if (scr_size == 64)                         // Branch: 64 = 1:1 pixel mode, else = scaled mode
+  {
+    iFullBytesPerRow = iWidth / 8;  // Number of complete 8-pixel chunks per row
+    //iFullBytesPerRow = (iWidth - (__CFSHL__(iWidth >> 31, 3) + 8 * (iWidth >> 31))) >> 3;// Calculate 8-pixel chunks per row (optimized copying)
+    iRemainingPixels = iWidth % 8;              // Calculate remaining pixels after 8-pixel chunks
+    for (i = 0; i < iHeight; ++i)             // Process each row of the block
+    {                                           // Process 8-pixel chunks for efficiency (unrolled loop)
+      for (j = 0; j < iFullBytesPerRow; pDest = pbyDest7 + 1) {
+        byPixel = *pszSourceData;               // Copy 8 pixels in sequence, skipping transparent (0) pixels
+        pszSrc1 = pszSourceData + 1;
+        if (byPixel)
+          *pDest = byPixel;
+        pszDest1 = pDest + 1;
+        byPixel1 = *pszSrc1;
+        pszSrc2 = pszSrc1 + 1;
+        if (byPixel1)
+          *pszDest1 = byPixel1;
+        pbyDest2 = pszDest1 + 1;
+        byPixel2 = *pszSrc2;
+        pszSrc3 = pszSrc2 + 1;
+        if (byPixel2)
+          *pbyDest2 = byPixel2;
+        pbyDest3 = pbyDest2 + 1;
+        byPixel3 = *pszSrc3;
+        pszSrc4 = (char *)(pszSrc3 + 1);
+        if (byPixel3)
+          *pbyDest3 = byPixel3;
+        pbyDest4 = pbyDest3 + 1;
+        byPixel4 = *pszSrc4;
+        pszSrc5 = pszSrc4 + 1;
+        if (byPixel4)
+          *pbyDest4 = byPixel4;
+        pbyDest5 = pbyDest4 + 1;
+        byPixel5 = *pszSrc5;
+        pszSrc6 = pszSrc5 + 1;
+        if (byPixel5)
+          *pbyDest5 = byPixel5;
+        pbyDest6 = pbyDest5 + 1;
+        byPixel6 = *pszSrc6;
+        pszSrc7 = (uint8 *)(pszSrc6 + 1);
+        if (byPixel6)
+          *pbyDest6 = byPixel6;
+        pbyDest7 = pbyDest6 + 1;
+        byPixel7 = *pszSrc7;
+        pszSourceData = pszSrc7 + 1;
+        if (byPixel7)
+          *pbyDest7 = byPixel7;
         ++j;
       }
-      for (k = 0; k < v9; ++a1) {
-        v34 = *n++;
-        if (v34)
-          *a1 = v34;
+      for (k = 0; k < iRemainingPixels; ++pDest)// Handle remaining pixels (width % 8)
+      {
+        byRemPixel = *pszSourceData++;
+        if (byRemPixel)
+          *pDest = byRemPixel;
         ++k;
       }
-      a1 += winw - v37;
-      result = i + 1;
+      pDest += winw - iWidth;                   // Advance to next row (skip to start of next line)
     }
-  } else {
-    for (m = 0; v40 > m; a1 = &v39[winw]) {
-      v35 = v3;
-      v39 = a1;
-      v38 = n;
-      v36 = 0;
-      while (v36 < v37) {
-        if (*n)
-          *a1 = *n;
-        v35 -= 64;
-        ++a1;
-        for (; v35 <= 0; ++v36) {
-          ++n;
-          v35 += v3;
+  } else {                                             // Scaled rendering mode - complex pixel interpolation
+    for (m = 0; iHeight > m; pDest = &pszDestRow[winw]) {
+      iColScaleAccum = iScreenSize;             // Process each row with scaling
+      pszDestRow = pDest;
+      pszRowStart = pszSourceData;
+      iXPos = 0;
+      while (iXPos < iWidth)                  // Process each column with horizontal scaling
+      {                                         // Copy non-transparent pixels only
+        if (*pszSourceData)
+          *pDest = *pszSourceData;
+        iColScaleAccum -= 64;                   // Update column scaling accumulator
+        ++pDest;
+        for (; iColScaleAccum <= 0; ++iXPos)  // When accumulator depleted, advance source pixel
+        {
+          ++pszSourceData;
+          iColScaleAccum += iScreenSize;
         }
       }
-      v6 -= 64;
-      for (n = v38; v6 <= 0; ++m) {
-        n += v37;
-        v6 += v3;
+      iRowScaleAccum -= 64;                     // Update row scaling accumulator
+      for (pszSourceData = pszRowStart; iRowScaleAccum <= 0; ++m)// When row accumulator depleted, advance to next source row
+      {
+        pszSourceData += iWidth;
+        iRowScaleAccum += iScreenSize;
       }
-      result = winw;
     }
   }
-  scr_size = v3;
-  return result;*/
+  scr_size = iScreenSize;
 }
 
 //-------------------------------------------------------------------------------------------------
