@@ -64,7 +64,7 @@ int draw_smoke(int a1, int a2);
 int test_panel(int a1, char *a2);
 void ZoomString(char *a1, int a2, int a3, int a4, int a5);
 void ZoomSub(char *a1, int a2, int a3, int a4, int a5);
-int zoom_letter(int a1, uint8 a2, void *a3, void *a4, char *a5, float a6);
+void zoom_letter(tBlockHeader *pBlockHeader, uint8 byCharCode, int *puiXPos, int *puiYPos, const char *mappingTable, float fZoomFactor);
 void print_block(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx);
 void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx);
 void print_pos(int iX, int iY, int iDriverIdx);

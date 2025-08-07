@@ -1344,83 +1344,81 @@ void ZoomSub(char *a1, int a2, int a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-int zoom_letter(int a1, uint8 a2, void *a3, void *a4, char *a5, float a6)
+void zoom_letter(tBlockHeader *pBlockHeader, uint8 byCharCode, int *puiXPos, int *puiYPos, const char *mappingTable, float fZoomFactor)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5); (void)(a6);
-  return 0;
-  /*
-  int v6; // esi
-  int result; // eax
-  int v8; // ebx
-  int v9; // edi
-  int v10; // edx
-  int v11; // esi
-  int v12; // eax
-  int v13; // ecx
-  int v14; // edx
-  _BYTE *j; // eax
-  int v16; // ebp
-  _BYTE *i; // esi
-  int v18; // edx
-  _DWORD *v19; // edx
-  int v21; // [esp+Ch] [ebp-20h]
-  _BYTE *v22; // [esp+10h] [ebp-1Ch]
-  _BYTE *v23; // [esp+14h] [ebp-18h]
-  int v24; // [esp+18h] [ebp-14h]
-  int v25; // [esp+1Ch] [ebp-10h]
+  int byCharIndex; // esi
+  int iScreenWidth; // ebx
+  int iCharWidth; // edi
+  uint8 *pbyScreenPos; // ecx
+  int iXOffset; // edx
+  uint8 *pbyCharData; // eax
+  int iRow; // ebp
+  uint8 *pbyPixel; // esi
+  int iCol; // edx
+  int iScaledWidth; // eax
+  int *puiXPos_1; // edx
+  int iCharHeight; // [esp+Ch] [ebp-20h]
+  uint8 *pbyRowStart; // [esp+10h] [ebp-1Ch]
+  uint8 *pbyCharRowStart; // [esp+14h] [ebp-18h]
+  int iVertZoom; // [esp+18h] [ebp-14h]
+  int iHorizZoom; // [esp+1Ch] [ebp-10h]
 
-  v6 = (unsigned __int8)a5[a2];
-  if (v6 == 255) {
-    result = (int)a3;
-    *a3 += 8;
-  } else {
-    if (a5 == &ascii_conv3)
-      v8 = 64;
+  byCharIndex = (uint8)mappingTable[byCharCode];// Get character index from font table
+  if (byCharIndex == 255)                     // Check if character is invalid (255 = no character)
+  {
+    *puiXPos += 8;                              // Advance X position by space width (8 pixels)
+  } else {                                             // Check if using special ASCII conversion font
+    if (mappingTable == ascii_conv3)
+      iScreenWidth = 64;                        // Use fixed 64-pixel width for ASCII conversion
     else
-      v8 = scr_size;
-    v9 = *(_DWORD *)(a1 + 12 * v6);
-    v10 = 3 * v6;
-    v11 = *(_DWORD *)(a1 + 12 * v6 + 4);
-    v12 = *(_DWORD *)(a1 + 4 * v10 + 8) + a1;
-    v21 = v11;
-    v13 = winw * ((scr_size * *a4) >> 6) + screen_pointer;
-    v14 = scr_size * *a3;
-    _CHP(v12, v14);
-    v24 = v8;
-    v16 = 0;
-    for (i = (_BYTE *)(v13 + (v14 >> 6)); v16 < v21; i = &v22[winw]) {
-      v25 = v8;
-      v22 = i;
-      v23 = j;
-      v18 = 0;
-      while (v18 < v9) {
-        if (*j)
-          *i = *j;
-        _CHP(j, v18);
-        v25 = (int)((double)v25 - a6);
-        ++i;
-        for (; v25 <= 0; v25 += v8) {
-          ++j;
-          ++v18;
+      iScreenWidth = scr_size;                  // Use normal screen size for scaling
+    iCharWidth = pBlockHeader[byCharIndex].iWidth;// Get character width from font data (12-byte struct per char)
+    iCharHeight = pBlockHeader[byCharIndex].iHeight;// Get character height from font data (+4 offset)
+
+    pbyCharData = (uint8 *)pBlockHeader + pBlockHeader[byCharIndex].iDataOffset; //MISSING decompiler artifact
+
+    pbyScreenPos = &screen_pointer[winw * ((scr_size * *puiYPos) >> 6)];// Calculate screen position: Y offset with scaling
+    iXOffset = scr_size * *puiXPos;             // Calculate X offset with scaling
+    //_CHP();
+    iVertZoom = iScreenWidth;                   // Initialize vertical zoom counter
+    iRow = 0;                                   // Initialize row counter
+    for (pbyPixel = &pbyScreenPos[iXOffset >> 6]; iRow < iCharHeight; pbyPixel = &pbyRowStart[winw])// Loop through each row of the character
+    {
+      iHorizZoom = iScreenWidth;                // Reset horizontal zoom counter for this row
+      pbyRowStart = pbyPixel;
+      pbyCharRowStart = pbyCharData;
+      iCol = 0;                                 // Initialize column counter
+      while (iCol < iCharWidth)               // Loop through each column of the character
+      {                                         // Check if pixel is set in character data
+        if (*pbyCharData)
+          *pbyPixel = *pbyCharData;             // Copy pixel to screen buffer
+        //_CHP();
+        iHorizZoom = (int)((double)iHorizZoom - fZoomFactor);// Apply horizontal zoom scaling
+        ++pbyPixel;                             // Move to next screen pixel
+        for (; iHorizZoom <= 0; iHorizZoom += iScreenWidth)// Check if zoom counter requires advancing char data
+        {
+          ++pbyCharData;                        // Advance to next character data pixel
+          ++iCol;
         }
       }
-      _CHP(j, v18);
-      v24 = (int)((double)v24 - a6);
-      for (j = v23; v24 <= 0; v24 += v8) {
-        ++v16;
-        j += v9;
+      //_CHP();
+      iVertZoom = (int)((double)iVertZoom - fZoomFactor);// Apply vertical zoom scaling
+      for (pbyCharData = pbyCharRowStart; iVertZoom <= 0; iVertZoom += iScreenWidth)// Check if zoom counter requires advancing to next row
+      {
+        ++iRow;                                 // Move to next character row
+        pbyCharData += iCharWidth;              // Skip to next row in character data
       }
     }
-    if (a5 == &ascii_conv3) {
-      result = ((int)((double)(v9 << 6) / a6) << 6) / scr_size;
-      v19 = a3;
+    if (mappingTable == ascii_conv3)          // Handle different width calculation for ASCII conversion
+    {
+      iScaledWidth = ((int)((double)(iCharWidth << 6) / fZoomFactor) << 6) / scr_size;// Calculate scaled width with screen size division
+      puiXPos_1 = puiXPos;
     } else {
-      v19 = a3;
-      result = (int)((double)(v9 << 6) / a6);
+      puiXPos_1 = puiXPos;
+      iScaledWidth = (int)((double)(iCharWidth << 6) / fZoomFactor);// Calculate scaled width without screen size division
     }
-    *v19 += result;
+    *puiXPos_1 += iScaledWidth;                 // Advance X position by calculated character width
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
