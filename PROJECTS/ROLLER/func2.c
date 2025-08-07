@@ -2417,25 +2417,24 @@ void prt_letter_rev(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *p
 
 //-------------------------------------------------------------------------------------------------
 
-int prt_stringcol(int a1, char *a2, int a3, int a4, char a5)
+void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0;
-  /*
-  int v6; // ebp
-  int result; // eax
+  int iContinue; // ebp
+  int iYPos; // [esp+0h] [ebp-14h] BYREF
+  int iXPos; // [esp+4h] [ebp-10h] BYREF
 
-  v6 = 0;
+  iContinue = 0;
+  iXPos = (scr_size * iX) >> 6;
+  iYPos = (scr_size * iY) >> 6;
   do {
-    if (*a2) {
-      if (*a2 != 10)
-        result = prt_lettercol(a5);
+    if (*szStr) {
+      if (*szStr != 10)
+        prt_lettercol(pBlockHeader, *szStr, &iXPos, &iYPos, byColor);
     } else {
-      v6 = -1;
+      iContinue = -1;
     }
-    ++a2;
-  } while (!v6);
-  return result;*/
+    ++szStr;
+  } while (!iContinue);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2475,109 +2474,107 @@ char prt_rightcol(int a1, char *a2, int a3, int a4, char a5)
 
 //-------------------------------------------------------------------------------------------------
 
-char prt_centrecol(int a1, char *a2, int a3, int a4, char a5)
+void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0;
-  /*
-  char *v6; // esi
-  char *v7; // eax
-  char v8; // bl
-  int v9; // edx
-  int v10; // ebx
-  int v11; // ebp
-  char result; // al
+  const char *pCurrChar; // esi
+  const char *pCharItr; // eax
+  char c; // bl
+  int iWidth; // edx
+  int iCharIdx; // ebx
+  int iContinue; // ebp
+  int iYPos; // [esp+0h] [ebp-14h] BYREF
+  int iXPos; // [esp+4h] [ebp-10h] BYREF
 
-  v6 = a2;
-  v7 = a2;
-  v8 = *a2;
-  v9 = 0;
-  if (v8) {
+  pCurrChar = szStr;
+  iXPos = iX;
+  iYPos = iY;
+  pCharItr = szStr;
+  c = *szStr;
+  iWidth = 0;
+  if (c) {
     do {
-      v10 = (unsigned __int8)font6_ascii[(unsigned __int8)*v7++];
-      if (v10 == 255)
-        v9 += 4;
+      iCharIdx = (uint8)font6_ascii[*(uint8 *)pCharItr++];
+      if (iCharIdx == 255)
+        iWidth += 4;
       else
-        v9 += *(_DWORD *)(a1 + 12 * v10);
-    } while (*v7);
+        iWidth += pBlockHeader[iCharIdx].iWidth;
+    } while (*pCharItr);
   }
-  v11 = 0;
+  iXPos = (scr_size * (iXPos - iWidth / 2)) >> 6;
+  iContinue = 0;
+  iYPos = (scr_size * iYPos) >> 6;
   do {
-    result = *v6;
-    if (*v6) {
-      if (result != 10)
-        result = prt_lettercol(a5);
+    if (*pCurrChar) {
+      if (*pCurrChar != '\n')
+        prt_lettercol(pBlockHeader, *pCurrChar, &iXPos, &iYPos, byColor);
     } else {
-      v11 = -1;
+      iContinue = -1;
     }
-    ++v6;
-  } while (!v11);
-  return result;*/
+    ++pCurrChar;
+  } while (!iContinue);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int prt_lettercol(int a1, uint8 a2, void *a3, void *a4, char a5)
+void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, char byColor)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0;
-  /*
-  int v5; // esi
-  int v6; // ebx
-  int result; // eax
-  char *j; // edx
-  int v9; // ebp
-  char *v10; // edi
-  int v11; // eax
-  int v12; // ebx
-  char v13; // cl
-  int v14; // [esp+0h] [ebp-24h]
-  int i; // [esp+4h] [ebp-20h]
-  char *v17; // [esp+Ch] [ebp-18h]
-  int v18; // [esp+10h] [ebp-14h]
-  int v19; // [esp+14h] [ebp-10h]
+  int iSavedScrSize; // esi
+  int byCharIndex; // ebx
+  uint8 *pCharBitmap; // edx
+  int iScaleAccum; // ebp
+  uint8 *pScreenDest; // edi
+  int iTempScale; // eax
+  int iColIdx; // ebx
+  uint8 byPixel; // cl
+  int iHeight; // [esp+0h] [ebp-24h]
+  int iRowIdx; // [esp+4h] [ebp-20h]
+  uint8 *pBitmapRowStart; // [esp+Ch] [ebp-18h]
+  uint8 *pRowBase; // [esp+10h] [ebp-14h]
+  int iWidth; // [esp+14h] [ebp-10h]
 
-  v5 = scr_size;
-  v6 = (unsigned __int8)font6_ascii[a2];
-  if (v6 == 255) {
-    result = (4 * scr_size) >> 6;
-    *a3 += result;
+  iSavedScrSize = scr_size;                     // Save current screen scaling factor
+  byCharIndex = (uint8)font6_ascii[(uint8)byChar];// Only uses font6_ascii (no alternate font support)
+  if (byCharIndex == 255)                     // Check for space character (index 255)
+  {
+    *piXPos += (4 * scr_size) >> 6;             // Space character: advance X by scaled width (4 * scr_size / 64)
   } else {
-    v19 = *(_DWORD *)(a1 + 12 * v6);
-    v14 = *(_DWORD *)(a1 + 12 * v6 + 4);
-    j = (char *)(a1 + *(_DWORD *)(a1 + 12 * v6 + 8));
-    v9 = scr_size;
-    v18 = winw * (font6_offsets[v6] + *a4) + *a3 + screen_pointer;
-    for (i = 0; i < v14; v18 += winw) {
-      v10 = (char *)v18;
-      v17 = j;
-      v11 = v5;
-      v12 = 0;
-      while (v12 < v19) {
-        v13 = *j;
-        if (*j) {
-          if (v13 == -113)
-            v13 = a5;
-          *v10 = v13;
+    iWidth = pBlockHeader[byCharIndex].iWidth;  // Get character dimensions from font data
+    iHeight = pBlockHeader[byCharIndex].iHeight;
+    pCharBitmap = (uint8 *)pBlockHeader + pBlockHeader[byCharIndex].iDataOffset;// Get pointer to character bitmap data
+    iScaleAccum = scr_size;
+    pRowBase = &screen_pointer[*piXPos + winw * (font6_offsets[byCharIndex] + *piYPos)];// Calculate screen destination with Y offset from font6_offsets
+    for (iRowIdx = 0; iRowIdx < iHeight; pRowBase += winw)// Scaled rendering: outer loop for each row of character
+    {
+      pScreenDest = pRowBase;
+      pBitmapRowStart = pCharBitmap;
+      iTempScale = iSavedScrSize;
+      iColIdx = 0;
+      while (iColIdx < iWidth)                // Inner loop: render each column with scaling and color substitution
+      {
+        byPixel = *pCharBitmap;                 // Read pixel from bitmap and check for non-zero (non-transparent)
+        if (*pCharBitmap) {                                       // Color substitution: replace 0x8F (143) with custom color (a5)
+          if (byPixel == 0x8F)
+            byPixel = byColor;
+          *pScreenDest = byPixel;               // Write pixel to screen buffer
         }
-        v11 -= 64;
-        ++v10;
-        for (; v11 <= 0; ++v12) {
-          ++j;
-          v11 += v5;
+        iTempScale -= 64;                       // Scaling algorithm: decrement scale accumulator
+        ++pScreenDest;
+        for (; iTempScale <= 0; ++iColIdx)    // Scale loop: advance bitmap pointer when scale threshold reached
+        {
+          ++pCharBitmap;
+          iTempScale += iSavedScrSize;
         }
       }
-      v9 -= 64;
-      for (j = v17; v9 <= 0; ++i) {
-        j += v19;
-        v9 += v5;
+      iScaleAccum -= 64;                        // Row scaling: decrement row scale accumulator
+      for (pCharBitmap = pBitmapRowStart; iScaleAccum <= 0; ++iRowIdx)// Row scale loop: advance to next bitmap row when threshold reached
+      {
+        pCharBitmap += iWidth;
+        iScaleAccum += iSavedScrSize;
       }
     }
-    result = (v5 * v19) >> 6;
-    *a3 += result;
+    *piXPos += (iSavedScrSize * iWidth) >> 6;   // Advance X position by scaled character width
   }
-  scr_size = v5;
-  return result;*/
+  scr_size = iSavedScrSize;                     // Restore original screen size
 }
 
 //-------------------------------------------------------------------------------------------------
