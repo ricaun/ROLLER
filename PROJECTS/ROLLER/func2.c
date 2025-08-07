@@ -3964,77 +3964,70 @@ void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pb
 
 //-------------------------------------------------------------------------------------------------
 
-int displaycalibrationbar(int a1, int a2, int a3)
+void displaycalibrationbar(int iX, int iY, int iValue)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // esi
-  int v4; // ebp
-  _BYTE *v5; // ecx
-  int result; // eax
-  int v7; // ebp
-  int i; // edi
-  int v9; // eax
-  int v10; // ebp
-  int j; // edi
-  int v12; // eax
-  int v13; // [esp+0h] [ebp-1Ch]
+  int iWinW; // esi
+  int iUseValue; // ebp
+  uint8 *pScrBuf; // ecx
+  int iSliderPos; // ebp
+  int iRowIdx; // edi
+  int iSliderXPos; // eax
+  int iSliderPos2; // ebp
+  int iRowIdx2; // edi
+  int iSliderXPos2; // eax
+  int iSavedWinw; // [esp+0h] [ebp-1Ch]
 
-  v3 = winw;
-  v4 = a3;
-  if (a3 < -100)
-    v4 = -100;
-  if (v4 > 100)
-    v4 = 100;
-  v5 = (_BYTE *)(winw * a1 / 320 + scrbuf + winw * ((a2 * scr_size) >> 6));
-  v13 = (10 * scr_size) >> 6;
-  result = v13 - 1;
-  if (current_mode) {
-    v7 = v4 + 103;
-    for (i = 0; i < v13; ++i) {
-      if (i && i != v13 - 1) {
-        *v5 = -113;
-        v5[206 * v3 / 640] = -113;
-        v9 = v3 * v7 / 640;
-        v5[v9] = -85;
-        v5[v9 - 1] = -85;
-        v5[v9 - 2] = -85;
-        v5[v9 + 1] = -85;
-        v5[v9 + 2] = -85;
-        v5[103 * v3 / 640] = -25;
-        v5[104 * v3 / 640] = -25;
-        result = 102 * v3 / 640;
-        v5[result] = -25;
+  iWinW = winw;                                 // Save window width for restoration
+  iUseValue = iValue;
+  if (iValue < -100)                          // Clamp calibration value to valid range [-100, +100]
+    iUseValue = -100;
+  if (iUseValue > 100)
+    iUseValue = 100;
+  pScrBuf = &scrbuf[winw * iX / 320 + winw * ((iY * scr_size) >> 6)];// Calculate screen buffer position: scaled X and Y coordinates
+  iSavedWinw = (10 * scr_size) >> 6;            // Calculate scaled bar height (10 * scr_size / 64)
+  if (current_mode)                           // Branch based on current_mode: different rendering styles
+  {
+    iSliderPos = iUseValue + 103;               // Mode 1: Calculate slider position (calibration value + 103)
+    for (iRowIdx = 0; iRowIdx < iSavedWinw; ++iRowIdx) {                                           // Skip top and bottom border rows
+      if (iRowIdx && iRowIdx != iSavedWinw - 1) {
+        *pScrBuf = 0x8F;                        // Draw left border (color 0x8F = white)
+        pScrBuf[206 * iWinW / 640] = 0x8F;      // Draw right border (color 0x8F = white)
+        iSliderXPos = iWinW * iSliderPos / 640; // Calculate slider position in pixels
+        pScrBuf[iSliderXPos] = 0xAB;            // Draw slider indicator (center pixel, color 0xAB = orange)
+        pScrBuf[iSliderXPos - 1] = -85;         // Draw slider sides (color 0xAB = orange)
+        pScrBuf[iSliderXPos - 2] = 0xAB;
+        pScrBuf[iSliderXPos + 1] = 0xAB;
+        pScrBuf[iSliderXPos + 2] = 0xAB;
+        pScrBuf[103 * iWinW / 640] = 0xE7;      // Draw slider scale marks (color 0xE7 = red)
+        pScrBuf[104 * iWinW / 640] = 0xE7;
+        pScrBuf[102 * iWinW / 640] = 0xE7;
       } else {
-        winw = v3;
-        result = memset(v5, 143, 104 * v3 / 320 - 1);
-        v3 = winw;
+        winw = iWinW;                           // Top/bottom border: fill entire bar width with border color
+        memset(pScrBuf, 143, 104 * iWinW / 320 - 1);
+        iWinW = winw;
       }
-      v5 += v3;
+      pScrBuf += iWinW;
     }
   } else {
-    v10 = v4 + 105;
-    for (j = 0; j < v13; ++j) {
-      if (j && j != v13 - 1) {
-        *v5 = -113;
-        v5[208 * v3 / 640] = -113;
-        v12 = v3 * v10 / 640;
-        v5[v12] = -85;
-        v5[v12 - 1] = -85;
-        v5[v12 + 1] = -85;
-        result = 105 * v3 / 640;
-        v5[result] = -25;
+    iSliderPos2 = iUseValue + 105;              // Mode 0: Calculate slider position (calibration value + 105)
+    for (iRowIdx2 = 0; iRowIdx2 < iSavedWinw; ++iRowIdx2) {
+      if (iRowIdx2 && iRowIdx2 != iSavedWinw - 1) {
+        *pScrBuf = 0x8F;                        // Mode 0: Draw borders with color 0x8F (white)
+        pScrBuf[208 * iWinW / 640] = 0x8F;
+        iSliderXPos2 = iWinW * iSliderPos2 / 640;// Mode 0: Draw slider indicator at calculated position
+        pScrBuf[iSliderXPos2] = 0xAB;           // 0xAB = orange
+        pScrBuf[iSliderXPos2 - 1] = 0xAB;
+        pScrBuf[iSliderXPos2 + 1] = 0xAB;
+        pScrBuf[105 * iWinW / 640] = 0xE7;      // Mode 0: Draw center scale mark (color 0xE7 = orange)
       } else {
-        winw = v3;
-        result = memset(v5, 143, 104 * v3 / 320 + 1);
-        v3 = winw;
+        winw = iWinW;
+        memset(pScrBuf, 143, 104 * iWinW / 320 + 1);
+        iWinW = winw;
       }
-      v5 += v3;
+      pScrBuf += iWinW;
     }
   }
-  winw = v3;
-  return result;*/
+  winw = iWinW;                                 // Restore original window width
 }
 
 //-------------------------------------------------------------------------------------------------
