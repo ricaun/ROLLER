@@ -4039,30 +4039,27 @@ int displaycalibrationbar(int a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int blankwindow(int a1, int a2, int a3, int a4)
+void blankwindow(int iX1, int iY1, int iX2, int iY2)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  _DWORD v5[13]; // [esp+0h] [ebp-34h] BYREF
+  tPolyParams poly; // [esp+0h] [ebp-34h] BYREF
 
   if (SVGA_ON) {
-    a3 *= 2;
-    a2 *= 2;
-    a1 *= 2;
-    a4 *= 2;
+    iX2 *= 2;
+    iY1 *= 2;
+    iX1 *= 2;
+    iY2 *= 2;
   }
-  v5[2] = a3;
-  v5[3] = a2;
-  v5[4] = a1;
-  v5[5] = a2;
-  v5[6] = a1;
-  v5[7] = a4;
-  v5[8] = a3;
-  v5[9] = a4;
-  v5[0] = 2097155;
-  v5[1] = 4;
-  return POLYFLAT(scrbuf, v5);*/
+  poly.vertices[0].x = iX2;
+  poly.vertices[0].y = iY1;
+  poly.vertices[1].x = iX1;
+  poly.vertices[1].y = iY1;
+  poly.vertices[2].x = iX1;
+  poly.vertices[2].y = iY2;
+  poly.vertices[3].x = iX2;
+  poly.vertices[3].y = iY2;
+  poly.uiSurfaceType = 0x200003;
+  poly.uiNumVerts = 4;
+  POLYFLAT(scrbuf, &poly);
 }
 
 //-------------------------------------------------------------------------------------------------

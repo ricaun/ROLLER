@@ -99,7 +99,7 @@ void load_fatal_config();
 void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutVal, int iMin, int iMax);
 void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pbyOutVal, int iMin, int iMax);
 int displaycalibrationbar(int a1, int a2, int a3);
-int blankwindow(int a1, int a2, int a3, int a4);
+void blankwindow(int iX1, int iY1, int iX2, int iY2);
 int volumebar(int a1, int a2);
 void remove_uncalibrated();
 void LoadRecords();
