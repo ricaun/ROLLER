@@ -4721,11 +4721,11 @@ void do_blip(int iCarIdx)
   // //Calculate car array offset
   // iCarOffset = ViewType[iCarIndex] * sizeof(tCar);
 
-  dDamage = (100.0 - Car[ViewType[iCarIdx]].fDamage) * 0.0099999998 * 13.0;
+  dDamage = (100.0 - Car[ViewType[iCarIdx]].fHealth) * 0.0099999998 * 13.0;
   //_CHP();
   iDamage = (int)dDamage;
 
-  if (fabs(Car[ViewType[iCarIdx]].fDamage) > FLT_EPSILON)
+  if (fabs(Car[ViewType[iCarIdx]].fHealth) > FLT_EPSILON)
   //if ((*(_DWORD *)((_BYTE *)&Car[0].fDamage + iCarOffset) & 0x7FFFFFFF) == 0)
     iDamage = 14;
 
@@ -4736,7 +4736,7 @@ void do_blip(int iCarIdx)
 
   // Play sound effect if conditions are met
   if (iDamage < 14 && iDamage < lastblip[iCarIdx]) {
-    if (Car[ViewType[iCarIdx]].byPlayBlip) {
+    if (Car[ViewType[iCarIdx]].byDebugDamage) {
       sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                    // SOUND_SAMPLE_BUTTON
       lastblip[iCarIdx] = iDamage;
     }
