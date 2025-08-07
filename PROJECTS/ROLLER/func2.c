@@ -467,7 +467,7 @@ void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx)
     pNextCarSpray = pCarSpray + 32;             // Set end pointer for 32 spray particles per car
     while (1) {                                           // Check if particle is alive (lifetime > 0)
       if (pCarSpray->iLifeTime > 0) {                                         // Particle type 1 = smoke trail
-        if (LOBYTE(pCarSpray->iType) == 1) {
+        if ((uint8)pCarSpray->iType == 1) {
           dPosX = pCarSpray->fPosX;             // Get particle X position
           //_CHP();
           iPosX = (int)dPosX;
