@@ -126,6 +126,7 @@ extern int cd_error;
 extern int game_count[2];
 extern int lastblip[2];
 extern float game_scale[2];
+extern int showversion;
 extern int game_svga;
 extern int game_size;
 extern int game_view[2];

@@ -11,6 +11,9 @@
 #include "polytex.h"
 #include "types.h"
 #include "view.h"
+#include "function.h"
+#include "date.h"
+#include "moving.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -125,6 +128,9 @@ char szKeyJoy2Up[] = "JOY 2 UP";
 char szKeyJoy2Down[] = "JOY 2 DOWN";
 char szKeyJoy2Left[] = "JOY 2 LEFT";
 char szKeyJoy2Right[] = "JOY 2 RIGHT";
+
+char szKmh[4] = "kmh";
+char szMph[4] = "mph";
 
 //-------------------------------------------------------------------------------------------------
 
@@ -546,627 +552,620 @@ int draw_smoke(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int test_panel(int a1, char *a2)
+void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v2; // ecx
-  char v3; // dl
-  int v4; // ebp
-  int v5; // esi
-  int v6; // edi
-  _BYTE *v7; // esi
-  int v8; // eax
-  char *v9; // edx
-  char v10; // dh
-  int v11; // edx
-  _BYTE *v12; // ecx
-  double v13; // st7
+  int iCarIndex; // ecx
+  uint8 byCarDesignIdx; // dl
+  int iAmmoBarIdx; // ebp
+  uint8 *byAmmoBarPtr; // esi
+  int iAmmoBarRowIdx; // edi
+  uint8 *byAmmoBarRowPtr; // esi
+  int iWinWidth; // eax
+  char *szSpeedUnit; // edx
+  int8 byGearAyMax; // dh
+  uint8 *byRPMBarPtr; // ecx
+  double dCameraDist; // st7
   int i; // esi
-  int v15; // edx
-  _BYTE *v16; // eax
-  int v17; // ebx
-  _BYTE *v18; // ecx
-  double v19; // st7
+  int iRPMBarIdx; // edx
+  uint8 *byRPMBarFillPtr; // eax
+  unsigned int uiRPMBarWidth; // ebx
+  uint8 *byDamageBarPtr; // ecx
+  double dDamage; // st7
   int j; // esi
-  int v21; // edx
-  _BYTE *v22; // eax
-  int v23; // ebx
-  int v24; // eax
-  int v25; // edi
-  int v26; // esi
-  int v27; // ebp
-  int v28; // eax
-  double v29; // st7
-  __int64 v30; // rtt
-  double v31; // st7
-  __int64 v32; // rtt
-  int v33; // ecx
-  int v34; // ebp
-  int v35; // esi
-  _BYTE *v36; // esi
-  int k; // edi
-  int v38; // eax
-  long double v39; // st7
-  int v40; // ebx
-  int v41; // esi
-  int v42; // ecx
-  int v43; // esi
-  int *v44; // eax
-  int v45; // esi
-  int v46; // ebp
-  _BYTE *v47; // edi
-  _BYTE *m; // edx
-  int v49; // eax
-  int v50; // ebx
-  int v51; // ebx
-  int v52; // esi
-  int v53; // edi
-  int v54; // ebp
-  int v55; // ecx
-  int v56; // edx
-  int v57; // ebx
-  int v58; // edi
-  int v59; // ecx
-  int v60; // esi
-  int v61; // ebp
-  int v62; // eax
-  int v63; // ecx
-  int v64; // ebp
-  int v65; // edi
-  int v66; // edi
-  int v67; // ebp
-  int v68; // esi
-  int v69; // ecx
-  int v70; // ebp
-  int v71; // edx
-  int v72; // eax
-  int v73; // edi
-  int v74; // ebx
-  int v75; // esi
-  int v76; // ebp
-  int v77; // esi
-  int v78; // ecx
-  int v79; // edx
-  int v80; // eax
-  int v81; // edi
-  int v82; // ebx
-  int v83; // ecx
-  int v84; // edi
-  int v85; // esi
-  int v86; // ebp
-  int v87; // eax
-  double v88; // st7
-  __int64 v89; // rtt
-  double v90; // st7
-  __int64 v91; // rtt
-  int v92; // ebp
-  int v93; // esi
-  int v94; // edi
-  int v95; // edi
-  __int16 v96; // fps
-  _BOOL1 v97; // c0
-  char v98; // c2
-  _BOOL1 v99; // c3
-  int v100; // eax
-  double v101; // st7
-  __int16 v102; // fps
-  _BOOL1 v103; // c0
-  char v104; // c2
-  _BOOL1 v105; // c3
-  int v106; // eax
-  double v107; // st7
-  double v109; // [esp+0h] [ebp-A8h]
-  _DWORD v110[3]; // [esp+8h] [ebp-A0h]
-  int v111; // [esp+14h] [ebp-94h]
-  char *v112; // [esp+18h] [ebp-90h]
-  _BYTE *v113; // [esp+1Ch] [ebp-8Ch]
-  _BYTE *v114; // [esp+20h] [ebp-88h]
-  bool v115; // [esp+24h] [ebp-84h]
-  float v116; // [esp+28h] [ebp-80h] BYREF
-  float v117; // [esp+2Ch] [ebp-7Ch] BYREF
-  float v118; // [esp+30h] [ebp-78h]
-  int v119; // [esp+34h] [ebp-74h]
-  int v120; // [esp+38h] [ebp-70h]
-  int v121; // [esp+3Ch] [ebp-6Ch]
-  int v122; // [esp+40h] [ebp-68h]
-  int v123; // [esp+44h] [ebp-64h]
-  int v124; // [esp+48h] [ebp-60h]
-  int v125; // [esp+4Ch] [ebp-5Ch]
-  int v126; // [esp+50h] [ebp-58h]
-  int v127; // [esp+54h] [ebp-54h]
-  int v128; // [esp+58h] [ebp-50h]
-  int v129; // [esp+5Ch] [ebp-4Ch]
-  int v130; // [esp+60h] [ebp-48h]
-  unsigned int v131; // [esp+64h] [ebp-44h]
-  unsigned int v132; // [esp+68h] [ebp-40h]
-  int v133; // [esp+6Ch] [ebp-3Ch]
-  int v134; // [esp+70h] [ebp-38h]
-  unsigned int v135; // [esp+74h] [ebp-34h]
-  int v136; // [esp+78h] [ebp-30h]
-  int v137; // [esp+7Ch] [ebp-2Ch]
-  int v138; // [esp+80h] [ebp-28h]
-  int v139; // [esp+84h] [ebp-24h]
-  int v140; // [esp+88h] [ebp-20h]
-  int v141; // [esp+8Ch] [ebp-1Ch]
-  int v142; // [esp+90h] [ebp-18h]
+  int iDamageBarIdx; // edx
+  uint8 *byDamageBarFillPtr; // eax
+  unsigned int uiDamageBarWidth; // ebx
+  int byLap; // eax
+  int iLapNumber; // edi
+  int iLapTimeYPos; // esi
+  int iTrialTimeIdx; // ebp
+  double dLapTime; // st7
+  //int64 llLapTimeInt; // rtt
+  double dRunningLapTime; // st7
+  //int64 llRunningLapTimeInt; // rtt
+  int iMainCarIdx; // ecx
+  int iAmmoBarIdx2; // ebp
+  uint8 *byAmmoBarPtr2; // esi
+  uint8 *byAmmoBarRowPtr2; // esi
+  int iAmmoBarRowIdx2; // edi
+  int iWinWidth2; // eax
+  long double dSpeedometer; // st7
+  int iSpeedDisplayValue; // ebx
+  int iSpeedDigitIdx; // esi
+  int iDigitArrayIdx; // ecx
+  int iLastDigitIdx; // esi
+  tBlockHeader *pBlockHdr; // eax
+  int iScaledSize; // esi
+  int iWidth; // ebp
+  uint8 *byDigitPixelPtr; // edi
+  uint8 *bySpriteDataPtr; // edx
+  int iPixelXOffset; // eax
+  int iPixelXIdx; // ebx
+  int iSpeedUnitBlkIdx; // ebx
+  tBlockHeader *pLifeIconBlockHdr; // esi
+  int iLifeIconIdx; // edi
+  int iLifeIconYPos; // ebp
+  int iKillsDisplayValue; // ecx
+  tBlockHeader *pKillBlockHdr; // edx
+  int iKillIconIdx; // ebx
+  tBlockHeader *pPositionBlockHdr; // edi
+  int iRacePosition; // ecx
+  int iKillIconLoopIdx; // esi
+  int iCarIdxForKills; // ebp
+  uint8 *byKillIconPtr; // eax
+  int byKills; // ecx
+  uint8 *byKillsScreenPtr; // ebp
+  tBlockHeader *pKillsDigitBlockHdr; // edi
+  int iGearCarIdx; // edi
+  uint8 *byGearScreenPtr; // ebp
+  tBlockHeader *pLapBlockHdr; // esi
+  int iCurrentLap; // ecx
+  tBlockHeader *pLapDigitBlockHdr; // ebp
+  int iLapDigitWidth; // edx
+  int iLapXOffset; // eax
+  uint8 *byLapDisplayPtr; // edi
+  int iLapDigitIdx; // ebx
+  uint8 *byRaceScreenPtr; // esi
+  int iTimingCarIdx; // ebp
+  tBlockHeader *pPositionDigitBlockHdr; // esi
+  int iPositionValue; // ecx
+  int iPositionDigitWidth; // edx
+  int iPositionXOffset; // eax
+  uint8 *byPositionDisplayPtr; // edi
+  int iPositionDigitIdx; // ebx
+  int iPositionCarIdx; // ecx
+  int iLapNum2; // edi
+  int iLapTimeYPos2; // esi
+  int iTrialTimeIdx2; // ebp
+  double dLapTime2; // st7
+  //int64 llLapTimeInt2; // rtt
+  double dRunningLapTime2; // st7
+  //int64 llRunningLapTimeInt2; // rtt
+  int iSelectedView; // ebp
+  int iTimingXPos; // esi
+  int iLapTimeCarIdx; // edi
+  int iTimingBaseXPos; // edi
+  double dAheadTimeLaps; // st7
+  double dBehindTimeLaps; // st7
+  char *szMessageSender; // [esp+4h] [ebp-A4h]
+  int iDigitArray[3]; // [esp+8h] [ebp-A0h]
+  uint8 *byScreenPtr; // [esp+14h] [ebp-94h]
+  int iCarIndex_1; // [esp+18h] [ebp-90h]
+  uint8 *bySpriteRowPtr; // [esp+1Ch] [ebp-8Ch]
+  uint8 *byPixelRowPtr; // [esp+20h] [ebp-88h]
+  int iCarIdx; // [esp+24h] [ebp-84h]
+  float fAheadTime; // [esp+28h] [ebp-80h] BYREF
+  float fBehindTime; // [esp+2Ch] [ebp-7Ch] BYREF
+  float fBestLapTime; // [esp+30h] [ebp-78h]
+  int iBaseXPos; // [esp+34h] [ebp-74h]
+  int iLapsAheadCnt; // [esp+38h] [ebp-70h]
+  tBlockHeader *pSpeedDigitBlockHdr; // [esp+3Ch] [ebp-6Ch]
+  int iHeight; // [esp+40h] [ebp-68h]
+  int iSavedScrSize; // [esp+44h] [ebp-64h]
+  int iSpeedometerValue; // [esp+48h] [ebp-60h]
+  int iTotalDigitWidth; // [esp+4Ch] [ebp-5Ch]
+  uint8 *bySpeedometerPtr; // [esp+50h] [ebp-58h]
+  tBlockHeader *pDigitBlockHdr; // [esp+54h] [ebp-54h]
+  unsigned int uiCarDataOffset; // [esp+58h] [ebp-50h]
+  uint8 *byAmmoBarPtr3; // [esp+5Ch] [ebp-4Ch]
+  unsigned int uiCarDataOffset2; // [esp+60h] [ebp-48h]
+  unsigned int uiCarDataOffset3; // [esp+64h] [ebp-44h]
+  unsigned int uiCarDataOffset4; // [esp+68h] [ebp-40h]
+  unsigned int uiCarDataOffset5; // [esp+6Ch] [ebp-3Ch]
+  uint8 *byAmmoBarPtr4; // [esp+70h] [ebp-38h]
+  unsigned int uiDigitArrayOffset; // [esp+74h] [ebp-34h]
+  int iBehindLapCnt; // [esp+78h] [ebp-30h]
+  tBlockHeader *pLapDigitBlockHdr2; // [esp+7Ch] [ebp-2Ch]
+  int iLastDigitIdx2; // [esp+80h] [ebp-28h]
+  int iDamage; // [esp+84h] [ebp-24h]
+  int v126; // [esp+88h] [ebp-20h]
+  int iTimeMinutes; // [esp+8Ch] [ebp-1Ch]
+  int iSpriteRowIdx; // [esp+90h] [ebp-18h]
 
-  v111 = a1;
-  v112 = a2;
-  v115 = ViewType[0] != (_DWORD)a2;
-  if (winh < 200 || (((unsigned int)&loc_3FFFC + 4) & textures_off) != 0) {
-    v123 = scr_size;
-    v2 = 308 * (_DWORD)v112;
-    v3 = Car_variable_22[308 * (_DWORD)v112];
+  byScreenPtr = pScrBuf;
+  iCarIndex_1 = iPlayerCarIdx;
+  iCarIdx = ViewType[0] != iPlayerCarIdx;
+  if (winh < 200 || (textures_off & TEX_OFF_PANEL_RESTRICTED) != 0)// TEX_OFF_PANEL_RESTRICTED
+  {
+    iSavedScrSize = scr_size;
+    iCarIndex = iCarIndex_1;
+    byCarDesignIdx = Car[iCarIndex_1].byCarDesignIdx;// Get car design index for ammo display
     scr_size = 64;
-    if ((unsigned __int8)v3 >= 8u) {
-      v4 = 0;
-      v134 = v111 + 1;
+    if (byCarDesignIdx >= 8u)                 // Check if car has cheat weapons (design index 8+)
+    {
+      iAmmoBarIdx = 0;
+      byAmmoBarPtr4 = byScreenPtr + 1;
       do {
-        v5 = winw * (winh - 8) + v134;
-        memset(v5, 112, 7);
-        v6 = 0;
-        v7 = (_BYTE *)(winw + v5);
+        byAmmoBarPtr = &byAmmoBarPtr4[winw * (winh - 8)];// Draw ammo bar border (top)
+        memset(byAmmoBarPtr, 112, 7u);
+        iAmmoBarRowIdx = 0;
+        byAmmoBarRowPtr = &byAmmoBarPtr[winw];
         do {
-          *v7 = 112;
-          if ((unsigned __int8)Car_variable_66[v2] > v4)
-            memset(v7 + 1, 171, 5);
-          v8 = winw;
-          ++v6;
-          v7[6] = 112;
-          v7 += v8;
-        } while (v6 < 5);
-        memset(v7, 112, 7);
-        ++v4;
-        v134 += 8;
-      } while (v4 < 8);
+          *byAmmoBarRowPtr = 112;               // Draw ammo bar fill based on remaining ammunition
+          if (Car[iCarIndex].byCheatAmmo > iAmmoBarIdx)
+            memset(byAmmoBarRowPtr + 1, 171, 5u);
+          iWinWidth = winw;
+          ++iAmmoBarRowIdx;
+          byAmmoBarRowPtr[6] = 112;
+          byAmmoBarRowPtr += iWinWidth;
+        } while (iAmmoBarRowIdx < 5);
+        memset(byAmmoBarRowPtr, 112, 7u);
+        ++iAmmoBarIdx;
+        byAmmoBarPtr4 += 8;
+      } while (iAmmoBarIdx < 8);
     }
-    if ((textures_off & 0x400) != 0) {
-      sprintf(
-        &buffer,
-        "%3.0f",
-        (double)fabs(Car_variable_8[77 * (_DWORD)v112] * func2_c_variable_17 * func2_c_variable_18));
-      mini_prt_string(rev_vga, &buffer, winw - 34, winh - 8);
-      v9 = &aIkmh[2];
+    if ((textures_off & TEX_OFF_KMH) != 0)          // TEX_OFF_KMH
+    {
+      sprintf(buffer, "%3.0f", (double)fabs(Car[iCarIndex_1].fMaxSpeed * 15.0 * 0.041666668));// Display speed in km/h (convert from internal units)
+      mini_prt_string(rev_vga[0], buffer, winw - 34, winh - 8);
+      szSpeedUnit = szKmh;
     } else {
-      sprintf(&buffer, "%3.0f", (double)fabs(Car_variable_8[77 * (_DWORD)v112] * func2_c_variable_16));
-      mini_prt_string(rev_vga, &buffer, winw - 34, winh - 8);
-      v9 = aMph;
+      sprintf(buffer, "%3.0f", (double)fabs(Car[iCarIndex_1].fMaxSpeed * 0.3333333333333333));// Display speed in mph (convert from internal units)
+      mini_prt_string(rev_vga[0], buffer, winw - 34, winh - 8);
+      szSpeedUnit = szMph;
     }
-    mini_prt_string(rev_vga, v9, winw - 18, winh - 8);
-    mini_prt_right(rev_vga, &language_buffer_variable_24, winw - 10, winh - 16);
-    v10 = Car_variable_30[308 * (_DWORD)v112];
-    if (v10 < 0) {
-      if (v10 == -1)
-        sprintf(&buffer, aN);
+    mini_prt_string(rev_vga[0], szSpeedUnit, winw - 18, winh - 8);
+    mini_prt_right(rev_vga[0], &language_buffer[1536], winw - 10, winh - 16);
+    byGearAyMax = Car[iCarIndex_1].byGearAyMax; // Display current gear (N, R, or 1-max)
+    if (byGearAyMax < 0) {
+      if (byGearAyMax == -1)
+        sprintf(buffer, "N");
       else
-        sprintf(&buffer, &aNtr[2]);
+        sprintf(buffer, "R");
     } else {
-      sprintf(&buffer, "%1i", v10 + 1);
+      sprintf(buffer, "%1i", byGearAyMax + 1);
     }
-    mini_prt_string(rev_vga, &buffer, winw - 8, winh - 16);
-    mini_prt_string(rev_vga, &aNtr[2], winw - 30, winh - 24);
-    v11 = winw + v111 - 24;
-    v12 = (_BYTE *)(v11 + winw * (winh - 24));
-    v13 = Car_variable_28[77 * (_DWORD)v112] * func2_c_variable_19;
-    _CHP(308 * (_DWORD)v112, v11);
-    v140 = (int)v13;
-    if ((int)v13 > 20)
-      v140 = 20;
+    mini_prt_string(rev_vga[0], buffer, winw - 8, winh - 16);
+    mini_prt_string(rev_vga[0], "R", winw - 30, winh - 24);
+    byRPMBarPtr = &byScreenPtr[winw - 24 + winw * (winh - 24)];
+    dCameraDist = Car[iCarIndex_1].fCameraDistance * 21.0;// Calculate RPM bar length from camera distance
+    //_CHP();
+    v126 = (int)dCameraDist;
+    if ((int)dCameraDist > 20)
+      v126 = 20;
     for (i = 0; i < 7; ++i) {
       if (i && i != 6) {
-        v17 = v140;
-        v16 = v12 + 1;
-        *v12 = 112;
-        v15 = 255;
-        v12[21] = 112;
+        uiRPMBarWidth = v126;
+        byRPMBarFillPtr = byRPMBarPtr + 1;
+        *byRPMBarPtr = 112;
+        iRPMBarIdx = 255;
+        byRPMBarPtr[21] = 112;
       } else {
-        v15 = 112;
-        v16 = v12;
-        v17 = 22;
+        iRPMBarIdx = 112;
+        byRPMBarFillPtr = byRPMBarPtr;
+        uiRPMBarWidth = 22;
       }
-      memset(v16, v15, v17);
-      v12 += winw;
+      memset(byRPMBarFillPtr, iRPMBarIdx, uiRPMBarWidth);
+      byRPMBarPtr += winw;
     }
-    do_blip(v115, &aOld[2]);
-    mini_prt_string(rev_vga, &aOld[2], winw - 30, winh - 32);
-    v18 = (_BYTE *)(winw + v111 - 24 + winw * (winh - 32));
-    v19 = (func2_c_variable_20 - Car_variable_9[77 * (_DWORD)v112]) * func2_c_variable_19 * func2_c_variable_21;
-    _CHP(308 * (_DWORD)v112, winw);
-    v139 = (int)v19;
-    if ((int)v19 > 20)
-      v139 = 20;
+    do_blip(iCarIdx);
+    mini_prt_string(rev_vga[0], "D", winw - 30, winh - 32);
+    byDamageBarPtr = &byScreenPtr[winw - 24 + winw * (winh - 32)];
+    dDamage = (100.0 - Car[iCarIndex_1].fHealth) * 21.0 * 0.0099999998;// Calculate damage bar length from car health (100 - health)
+    //_CHP();
+    iDamage = (int)dDamage;
+    if ((int)dDamage > 20)
+      iDamage = 20;
     for (j = 0; j < 7; ++j) {
       if (j && j != 6) {
-        v23 = v139;
-        v22 = v18 + 1;
-        *v18 = 112;
-        v21 = 231;
-        v18[21] = 112;
+        uiDamageBarWidth = iDamage;
+        byDamageBarFillPtr = byDamageBarPtr + 1;
+        *byDamageBarPtr = 112;
+        iDamageBarIdx = 231;
+        byDamageBarPtr[21] = 112;
       } else {
-        v21 = 112;
-        v22 = v18;
-        v23 = 22;
+        iDamageBarIdx = 112;
+        byDamageBarFillPtr = byDamageBarPtr;
+        uiDamageBarWidth = 22;
       }
-      memset(v22, v21, v23);
-      v18 += winw;
+      memset(byDamageBarFillPtr, iDamageBarIdx, uiDamageBarWidth);
+      byDamageBarPtr += winw;
     }
-    mini_prt_right(rev_vga, language_buffer_variable_4, winw - 14, 4);
-    v24 = Car_variable_31[308 * (_DWORD)v112];
-    if (v24 <= 0)
-      v24 = 1;
-    if (v24 > 99)
-      v24 = 99;
-    sprintf(&buffer, "%2i", v24);
-    mini_prt_string(rev_vga, &buffer, winw - 12, 4);
+    mini_prt_right(rev_vga[0], &language_buffer[256], winw - 14, 4);
+    byLap = (char)Car[iCarIndex_1].byLap;
+    if (byLap <= 0)
+      byLap = 1;
+    if (byLap > 99)
+      byLap = 99;
+    sprintf(buffer, "%2i", byLap);
+    mini_prt_string(rev_vga[0], buffer, winw - 12, 4);
     if (game_type >= 2) {
-      v25 = 1;
-      v131 = 308 * (_DWORD)v112;
-      v128 = 308 * (_DWORD)v112;
-      v26 = 8;
-      v27 = 24 * (_DWORD)v112 + 4;
+      iLapNumber = 1;
+      uiCarDataOffset3 = sizeof(tCar) * iCarIndex_1;
+      uiCarDataOffset = sizeof(tCar) * iCarIndex_1;
+      iLapTimeYPos = 8;
+      iTrialTimeIdx = 24 * iCarIndex_1 + 4;
       do {
-        sprintf(&buffer, "%s %i", language_buffer_variable_4, v25);
-        mini_prt_string(rev_vga, &buffer, 2, v26);
-        v28 = Car_variable_31[v128];
-        if (v25 < v28) {
-          v29 = *(float *)((char *)&trial_times + v27) * func2_c_variable_20;
-          _CHP(v28, &buffer);
-          buffer_variable_8 = 0;
-          LODWORD(v30) = (int)v29;
-          HIDWORD(v30) = (int)v29 >> 31;
-          buffer_variable_7 = v30 % 10 + 48;
-          LODWORD(v30) = (int)v29;
-          buffer_variable_6 = (int)(v30 / 10) % 10 + 48;
-          buffer_variable_5 = 58;
-          buffer_variable_4 = (int)(v30 / 10) / 10 % 10 + 48;
-          buffer_variable_3 = (int)(v30 / 10) / 10 / 10 % 6 + 48;
-          v141 = (int)(v30 / 10) / 10 / 10 / 6;
-          buffer_variable_1 = v141 % 10 + 48;
-          buffer_variable_2 = 58;
-          buffer = v141 / 10 % 10 + 48;
-          mini_prt_string(rev_vga, &buffer, 30, v26);
+        sprintf(buffer, "%s %i", &language_buffer[256], iLapNumber);
+        mini_prt_string(rev_vga[0], buffer, 2, iLapTimeYPos);
+        if (iLapNumber < (char)Car[uiCarDataOffset / 0x134].byLap) {
+          dLapTime = trial_times[iTrialTimeIdx / sizeof(float)] * 100.0;
+          //dLapTime = *(float *)((char *)trial_times + iTrialTimeIdx) * 100.0;
+          //_CHP();
+
+          int iLapTimeCentiseconds = (int)dLapTime;
+          int iMinutes = iLapTimeCentiseconds / 6000;  // 60 seconds * 100 centiseconds
+          int iSeconds = (iLapTimeCentiseconds / 100) % 60;
+          int iCentiseconds = iLapTimeCentiseconds % 100;
+          sprintf(buffer, "%02d:%02d:%02d", iMinutes, iSeconds, iCentiseconds);
+          mini_prt_string(rev_vga[0], buffer, 30, iLapTimeYPos);
+          //buffer[8] = 0;
+          //LODWORD(llLapTimeInt) = (int)dLapTime;
+          //HIDWORD(llLapTimeInt) = (int)dLapTime >> 31;
+          //buffer[7] = llLapTimeInt % 10 + 48;
+          //LODWORD(llLapTimeInt) = (int)dLapTime;
+          //buffer[6] = (int)(llLapTimeInt / 10) % 10 + 48;
+          //buffer[5] = 58;
+          //buffer[4] = (int)(llLapTimeInt / 10) / 10 % 10 + 48;
+          //buffer[3] = (int)(llLapTimeInt / 10) / 10 / 10 % 6 + 48;
+          //iTimeMinutes = (int)(llLapTimeInt / 10) / 10 / 10 / 6;
+          //buffer[1] = iTimeMinutes % 10 + 48;
+          //buffer[2] = 58;
+          //buffer[0] = iTimeMinutes / 10 % 10 + 48;
+          //mini_prt_string(rev_vga[0], buffer, 30, iLapTimeYPos);
         }
-        if (v25 == Car_variable_31[v131]) {
-          v31 = Car_variable_52[v131 / 4] * func2_c_variable_20;
-          _CHP(v131, &buffer);
-          LODWORD(v32) = (int)v31;
-          HIDWORD(v32) = (int)v31 >> 31;
-          buffer_variable_7 = v32 % 10 + 48;
-          LODWORD(v32) = (int)v31;
-          buffer_variable_5 = 58;
-          buffer_variable_6 = (int)(v32 / 10) % 10 + 48;
-          buffer_variable_4 = (int)(v32 / 10) / 10 % 10 + 48;
-          buffer_variable_2 = 58;
-          buffer_variable_3 = (int)(v32 / 10) / 10 / 10 % 6 + 48;
-          v141 = (int)(v32 / 10) / 10 / 10 / 6;
-          buffer_variable_1 = v141 % 10 + 48;
-          buffer_variable_8 = 0;
-          buffer = v141 / 10 % 10 + 48;
-          mini_prt_string(rev_vga, &buffer, 30, v26);
+        if (iLapNumber == (char)Car[uiCarDataOffset3 / 0x134].byLap) {
+          dRunningLapTime = Car[uiCarDataOffset3 / 0x134].fRunningLapTime * 100.0;
+          //_CHP();
+
+          int iLapTimeCentiseconds = (int)dRunningLapTime;
+          int iMinutes = iLapTimeCentiseconds / 6000;  // 60 seconds * 100 centiseconds
+          int iSeconds = (iLapTimeCentiseconds / 100) % 60;
+          int iCentiseconds = iLapTimeCentiseconds % 100;
+          sprintf(buffer, "%02d:%02d:%02d", iMinutes, iSeconds, iCentiseconds);
+          mini_prt_string(rev_vga[0], buffer, 30, iLapTimeYPos);
+          //LODWORD(llRunningLapTimeInt) = (int)dRunningLapTime;
+          //HIDWORD(llRunningLapTimeInt) = (int)dRunningLapTime >> 31;
+          //buffer[7] = llRunningLapTimeInt % 10 + 48;
+          //LODWORD(llRunningLapTimeInt) = (int)dRunningLapTime;
+          //buffer[5] = 58;
+          //buffer[6] = (int)(llRunningLapTimeInt / 10) % 10 + 48;
+          //buffer[4] = (int)(llRunningLapTimeInt / 10) / 10 % 10 + 48;
+          //buffer[2] = 58;
+          //buffer[3] = (int)(llRunningLapTimeInt / 10) / 10 / 10 % 6 + 48;
+          //iTimeMinutes = (int)(llRunningLapTimeInt / 10) / 10 / 10 / 6;
+          //buffer[1] = iTimeMinutes % 10 + 48;
+          //buffer[8] = 0;
+          //buffer[0] = iTimeMinutes / 10 % 10 + 48;
+          //mini_prt_string(rev_vga[0], buffer, 30, iLapTimeYPos);
         }
-        v27 += 4;
-        ++v25;
-        v26 += 8;
-      } while (v25 < 6);
-      scr_size = v123;
+        iTrialTimeIdx += 4;
+        ++iLapNumber;
+        iLapTimeYPos += 8;
+      } while (iLapNumber < 6);
+      scr_size = iSavedScrSize;
     } else {
-      mini_prt_right(rev_vga, language_buffer_variable_22, winw - 14, 12);
-      sprintf(&buffer, "%2i", (unsigned __int8)Car_variable_32[308 * (_DWORD)v112] + 1);
-      mini_prt_string(rev_vga, &buffer, winw - 12, 12);
-      mini_prt_right(rev_vga, &language_buffer_variable_23, winw - 14, 20);
-      sprintf(&buffer, "%2i", Car_variable_23[308 * (_DWORD)v112]);
-      mini_prt_string(rev_vga, &buffer, winw - 12, 20);
-      scr_size = v123;
+      mini_prt_right(rev_vga[0], &language_buffer[1408], winw - 14, 12);
+      sprintf(buffer, "%2i", Car[iCarIndex_1].byRacePosition + 1);
+      mini_prt_string(rev_vga[0], buffer, winw - 12, 12);
+      mini_prt_right(rev_vga[0], &language_buffer[1472], winw - 14, 20);
+      sprintf(buffer, "%2i", (char)Car[iCarIndex_1].byLives);
+      mini_prt_string(rev_vga[0], buffer, winw - 12, 20);
+      scr_size = iSavedScrSize;
     }
   } else {
-    if (showversion) {
-      a2 = VersionString;
-      prt_string(rev_vga_variable_1, VersionString, 150, 190);
-    }
-    v33 = 308 * (_DWORD)v112;
-    if ((unsigned __int8)Car_variable_22[308 * (_DWORD)v112] >= 8u) {
-      v34 = 0;
-      v129 = v111 + 1;
+    if (showversion)
+      prt_string(rev_vga[1], VersionString, 150, 190);
+    iMainCarIdx = iCarIndex_1;                  // Full resolution panel mode - render detailed HUD elements
+    if (Car[iCarIndex_1].byCarDesignIdx >= 8u) {
+      iAmmoBarIdx2 = 0;
+      byAmmoBarPtr3 = byScreenPtr + 1;
       do {
-        v35 = v129 + winw * (winh - 8);
-        memset(v35, 112, 7);
-        v36 = (_BYTE *)(winw + v35);
-        for (k = 0; k < 5; ++k) {
-          *v36 = 112;
-          if ((unsigned __int8)Car_variable_66[v33] > v34)
-            memset(v36 + 1, 171, 5);
-          v38 = winw;
-          v36[6] = 112;
-          v36 += v38;
+        byAmmoBarPtr2 = &byAmmoBarPtr3[winw * (winh - 8)];
+        memset(byAmmoBarPtr2, 112, 7u);
+        byAmmoBarRowPtr2 = &byAmmoBarPtr2[winw];
+        for (iAmmoBarRowIdx2 = 0; iAmmoBarRowIdx2 < 5; ++iAmmoBarRowIdx2) {
+          *byAmmoBarRowPtr2 = 112;
+          if (Car[iMainCarIdx].byCheatAmmo > iAmmoBarIdx2)
+            memset(byAmmoBarRowPtr2 + 1, 171, 5u);
+          iWinWidth2 = winw;
+          byAmmoBarRowPtr2[6] = 112;
+          byAmmoBarRowPtr2 += iWinWidth2;
         }
-        memset(v36, 112, 7);
-        a2 = (char *)(v129 + 8);
-        ++v34;
-        v129 += 8;
-      } while (v34 < 8);
+        memset(byAmmoBarRowPtr2, 112, 7u);
+        ++iAmmoBarIdx2;
+        byAmmoBarPtr3 += 8;
+      } while (iAmmoBarIdx2 < 8);
     }
-    if (player_type == 2 || (cheat_mode & 0x40) != 0) {
-      a2 = (char *)(4 * (winw >> 31));
-      v119 = ((winw - (int)&a2[__CFSHL__(winw >> 31, 2)]) >> 2) + 157;
-    } else {
-      v119 = 157;
-    }
-    v127 = rev_vga_variable_2;
-    v121 = rev_vga_variable_2;
-    if ((textures_off & 0x400) != 0)
-      v39 = fabs(Car_variable_8[77 * (_DWORD)v112] * func2_c_variable_13) * func2_c_variable_14 * func2_c_variable_15;
+    if (player_type == 2 || (cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)// CHEAT_MODE_WIDESCREEN
+      iBaseXPos = (winw / 4) + 157;  // Calculate base X position for speedometer (adjusted for widescreen)
+      //iBaseXPos = ((winw - (__CFSHL__(winw >> 31, 2) + 4 * (winw >> 31))) >> 2) + 157;// Calculate base X position for speedometer (adjusted for widescreen)
     else
-      v39 = fabs(Car_variable_8[77 * (_DWORD)v112] * func2_c_variable_13);
-    _CHP(308 * (_DWORD)v112, a2);
-    v124 = (int)v39;
-    v40 = (int)v39;
-    v41 = 0;
-    v42 = 0;
-    v125 = 0;
+      iBaseXPos = 157;
+    pDigitBlockHdr = rev_vga[2];
+    pSpeedDigitBlockHdr = rev_vga[2];
+    if ((textures_off & TEX_OFF_KMH) != 0)          // TEX_OFF_KMH
+      dSpeedometer = fabs(Car[iCarIndex_1].fMaxSpeed * 0.33333334) * 15.0 * 0.125;// Calculate speedometer value (km/h with additional scaling factor)
+    else
+      dSpeedometer = fabs(Car[iCarIndex_1].fMaxSpeed * 0.33333334);// Calculate speedometer value (mph)
+    //_CHP();
+    iSpeedometerValue = (int)dSpeedometer;
+    iSpeedDisplayValue = (int)dSpeedometer;
+    iSpeedDigitIdx = 0;
+    iDigitArrayIdx = 0;
+    iTotalDigitWidth = 0;
     do {
-      v110[v42] = v40 % 10;
-      v125 += *(_DWORD *)(v121 + 12 * (v40 % 10 + 9)) - 1;
-      ++v42;
-      ++v41;
-      v40 /= 10;
-    } while (v40 > 0);
-    v43 = v41 - 1;
-    v138 = v43;
-    v126 = winw + v111 + winw * ((155 * scr_size) >> 6) - ((44 * scr_size) >> 6);
-    if (v125 > 0) {
-      v135 = 4 * v43;
+      iDigitArray[iDigitArrayIdx] = iSpeedDisplayValue % 10;// Extract individual digits and calculate total width for centering
+      iTotalDigitWidth += pSpeedDigitBlockHdr[iSpeedDisplayValue % 10 + 9].iWidth - 1;
+      ++iDigitArrayIdx;
+      ++iSpeedDigitIdx;
+      iSpeedDisplayValue /= 10;
+    } while (iSpeedDisplayValue > 0);
+    iLastDigitIdx = iSpeedDigitIdx - 1;
+    iLastDigitIdx2 = iLastDigitIdx;
+    bySpeedometerPtr = &byScreenPtr[winw * ((155 * scr_size) >> 6) + winw - ((44 * scr_size) >> 6)];
+    if (iTotalDigitWidth > 0) {
+      uiDigitArrayOffset = 4 * iLastDigitIdx;
       do {
-        v142 = 0;
-        v44 = (int *)(v121 + 12 * (v110[v135 / 4] + 9));
-        v45 = scr_size;
-        v46 = *v44;
-        v122 = v44[1];
-        v47 = (_BYTE *)v126;
-        m = (_BYTE *)(v127 + v44[2]);
-        v126 += (scr_size * (v46 - 1)) >> 6;
-        if (v122 > 0) {
+        iSpriteRowIdx = 0;                      // Render each digit sprite with scaling
+        pBlockHdr = &pSpeedDigitBlockHdr[iDigitArray[uiDigitArrayOffset / 4] + 9];// Render speedometer digits using sprite blocks
+        iScaledSize = scr_size;
+        iWidth = pBlockHdr->iWidth;
+        iHeight = pBlockHdr->iHeight;
+        byDigitPixelPtr = bySpeedometerPtr;
+        bySpriteDataPtr = (uint8 *)pDigitBlockHdr + pBlockHdr->iDataOffset;
+        bySpeedometerPtr += (scr_size * (iWidth - 1)) >> 6;
+        if (iHeight > 0) {
           do {
-            v49 = scr_size;
-            v114 = v47;
-            v113 = m;
-            v50 = 0;
-            while (v50 < v46) {
-              if (*m)
-                *v47 = *m;
-              v49 -= 64;
-              ++v47;
-              for (; v49 <= 0; ++v50) {
-                ++m;
-                v49 += scr_size;
+            iPixelXOffset = scr_size;
+            byPixelRowPtr = byDigitPixelPtr;
+            bySpriteRowPtr = bySpriteDataPtr;
+            iPixelXIdx = 0;
+            while (iPixelXIdx < iWidth) {
+              if (*bySpriteDataPtr)
+                *byDigitPixelPtr = *bySpriteDataPtr;
+              iPixelXOffset -= 64;
+              ++byDigitPixelPtr;
+              for (; iPixelXOffset <= 0; ++iPixelXIdx) {
+                ++bySpriteDataPtr;
+                iPixelXOffset += scr_size;
               }
             }
-            v45 -= 64;
-            for (m = v113; v45 <= 0; ++v142) {
-              m += v46;
-              v45 += scr_size;
+            iScaledSize -= 64;
+            for (bySpriteDataPtr = bySpriteRowPtr; iScaledSize <= 0; ++iSpriteRowIdx) {
+              bySpriteDataPtr += iWidth;
+              iScaledSize += scr_size;
             }
-            v47 = &v114[winw];
-          } while (v142 < v122);
+            byDigitPixelPtr = &byPixelRowPtr[winw];
+          } while (iSpriteRowIdx < iHeight);
         }
-        v125 -= v46;
-        v135 -= 4;
-        --v138;
-      } while (v125 > 0);
+        iTotalDigitWidth -= iWidth;
+        uiDigitArrayOffset -= 4;
+        --iLastDigitIdx2;
+      } while (iTotalDigitWidth > 0);
     }
-    if ((textures_off & 0x400) != 0)
-      v51 = 32;
+    if ((textures_off & TEX_OFF_KMH) != 0)          // TEX_OFF_KMH
+      iSpeedUnitBlkIdx = 32;
     else
-      v51 = 33;
-    print_block(winw + winw * ((172 * scr_size) >> 6) + v111 - ((25 * scr_size) >> 6), rev_vga_variable_2, v51);
-    v52 = rev_vga_variable_4;
-    v53 = 0;
-    v54 = 54;
-    v133 = 308 * (_DWORD)v112;
-    v55 = (unsigned __int8)Car_variable_22[308 * (_DWORD)v112];
-    while (v53 < Car_variable_23[v133]) {
-      if (v55 >= 8) {
-        v57 = 8;
-        v56 = v52;
+      iSpeedUnitBlkIdx = 33;
+    print_block(&byScreenPtr[winw * ((172 * scr_size) >> 6) + winw - ((25 * scr_size) >> 6)], rev_vga[2], iSpeedUnitBlkIdx);// Display speed unit icon (km/h or mph)
+    pLifeIconBlockHdr = rev_vga[4];
+    iLifeIconIdx = 0;
+    iLifeIconYPos = 54;
+    uiCarDataOffset5 = 308 * iCarIndex_1;
+    iKillsDisplayValue = Car[iCarIndex_1].byCarDesignIdx;
+    while (iLifeIconIdx < (char)Car[uiCarDataOffset5 / 0x134].byLives) {                                           // Draw life icons for current car
+      if (iKillsDisplayValue >= 8) {
+        iKillIconIdx = 8;
+        pKillBlockHdr = pLifeIconBlockHdr;
       } else {
-        v56 = v52;
-        v57 = v55;
+        pKillBlockHdr = pLifeIconBlockHdr;
+        iKillIconIdx = iKillsDisplayValue;
       }
-      print_block(winw * ((v54 * scr_size) >> 6) + v111 + ((8 * scr_size) >> 6), v56, v57);
-      v54 += 20;
-      ++v53;
+      print_block(&byScreenPtr[winw * ((iLifeIconYPos * scr_size) >> 6) + ((8 * scr_size) >> 6)], pKillBlockHdr, iKillIconIdx);
+      iLifeIconYPos += 20;
+      ++iLifeIconIdx;
     }
-    v58 = rev_vga_variable_4;
-    if ((unsigned __int8)Car_variable_42[v133] >= 9u) {
-      print_block(v111 + winw * ((178 * scr_size) >> 6) + winw - ((144 * scr_size) >> 6), rev_vga_variable_4, 8);
-      v63 = (unsigned __int8)Car_variable_42[v133];
-      v64 = v111;
-      v65 = rev_vga_variable_2;
-      print_block(
-        winw + v111 + winw * ((178 * scr_size) >> 6) - ((122 * scr_size) >> 6),
-        rev_vga_variable_2,
-        v63 / 10 + 9);
-      print_block(winw + v64 + winw * ((178 * scr_size) >> 6) - ((110 * scr_size) >> 6), v65, v63 % 10 + 9);
+    pPositionBlockHdr = rev_vga[4];
+    if (Car[uiCarDataOffset5 / 0x134].byKills >= 9u)// Display kills - either as individual icons or as two-digit number
+    {
+      print_block(&byScreenPtr[winw * ((178 * scr_size) >> 6) + winw - ((144 * scr_size) >> 6)], rev_vga[4], 8);
+      byKills = Car[uiCarDataOffset5 / 0x134].byKills;
+      byKillsScreenPtr = byScreenPtr;
+      pKillsDigitBlockHdr = rev_vga[2];
+      print_block(&byScreenPtr[winw * ((178 * scr_size) >> 6) + winw - ((122 * scr_size) >> 6)], rev_vga[2], byKills / 10 + 9);
+      print_block(&byKillsScreenPtr[winw * ((178 * scr_size) >> 6) + winw - ((110 * scr_size) >> 6)], pKillsDigitBlockHdr, byKills % 10 + 9);
     } else {
-      v59 = 100;
-      v60 = 0;
-      v61 = 308 * (_DWORD)v112;
-      while (v60 < (unsigned __int8)Car_variable_42[v61]) {
-        ++v60;
-        v62 = v111 + winw * ((178 * scr_size) >> 6) + winw - ((v59 * scr_size) >> 6);
-        v59 += 22;
-        print_block(v62, v58, 8);
+      iRacePosition = 100;
+      iKillIconLoopIdx = 0;
+      iCarIdxForKills = iCarIndex_1;
+      while (iKillIconLoopIdx < Car[iCarIdxForKills].byKills) {
+        ++iKillIconLoopIdx;
+        byKillIconPtr = &byScreenPtr[winw * ((178 * scr_size) >> 6) + winw - ((iRacePosition * scr_size) >> 6)];
+        iRacePosition += 22;
+        print_block(byKillIconPtr, pPositionBlockHdr, 8);
       }
     }
-    v66 = 308 * (_DWORD)v112;
-    print_damage(winw + v111 + winw * (scr_size << 7 >> 6) - ((80 * scr_size) >> 6), rev_vga_variable_2, v115);
-    v67 = v111;
-    print_block(
-      v111 + winw * ((181 * scr_size) >> 6) + winw - ((14 * scr_size) >> 6),
-      rev_vga_variable_2,
-      Car_variable_30[v66] + 3);
-    print_block(winw + v67 + winw * ((21 * scr_size) >> 6) - ((67 * scr_size) >> 6), rev_vga_variable_2, 19);
-    v68 = rev_vga_variable_2;
-    v69 = Car_variable_31[v66];
-    v70 = rev_vga_variable_2;
-    if (v69 <= 0)
-      v69 = 1;
-    if (v69 > 99)
-      v69 = 99;
-    if (v69 >= 10)
-      v71 = *(_DWORD *)(12 * (v69 / 10) + rev_vga_variable_2 + 264)
-      + *(_DWORD *)(12 * (v69 % 10) + rev_vga_variable_2 + 264)
-      - 1;
+    iGearCarIdx = iCarIndex_1;
+    print_damage(&byScreenPtr[winw * (scr_size << 7 >> 6) + winw - ((80 * scr_size) >> 6)], rev_vga[2], iCarIdx);// Display damage indicator and gear display
+    byGearScreenPtr = byScreenPtr;
+    print_block(&byScreenPtr[winw * ((181 * scr_size) >> 6) + winw - ((14 * scr_size) >> 6)], rev_vga[2], (char)Car[iGearCarIdx].byGearAyMax + 3);
+    print_block(&byGearScreenPtr[winw * ((21 * scr_size) >> 6) + winw - ((67 * scr_size) >> 6)], rev_vga[2], 19);
+    pLapBlockHdr = rev_vga[2];
+    iCurrentLap = (char)Car[iGearCarIdx].byLap;
+    pLapDigitBlockHdr = rev_vga[2];
+    if (iCurrentLap <= 0)
+      iCurrentLap = 1;
+    if (iCurrentLap > 99)
+      iCurrentLap = 99;
+    if (iCurrentLap >= 10)
+      iLapDigitWidth = rev_vga[2][iCurrentLap / 10 + 22].iWidth + rev_vga[2][iCurrentLap % 10 + 22].iWidth - 1;
     else
-      v71 = *(_DWORD *)(rev_vga_variable_2 + 12 * v69 + 264);
-    v72 = (scr_size * (v71 / 2 + 36)) >> 6;
-    v73 = winw + v111 + winw * ((25 * scr_size) >> 6) - v72;
-    if (v69 >= 10) {
-      v141 = v69 / 10 + 22;
-      print_block(winw + v111 + winw * ((25 * scr_size) >> 6) - v72, rev_vga_variable_2, v141);
-      v73 += winw * (*(_DWORD *)(v70 + 12 * v141) - 1) / 320;
-      v74 = v69 % 10 + 22;
+      iLapDigitWidth = rev_vga[2][iCurrentLap + 22].iWidth;
+    iLapXOffset = (scr_size * (iLapDigitWidth / 2 + 36)) >> 6;
+    byLapDisplayPtr = &byScreenPtr[winw * ((25 * scr_size) >> 6) + winw - iLapXOffset];
+    if (iCurrentLap >= 10) {
+      iTimeMinutes = iCurrentLap / 10 + 22;
+      print_block(&byScreenPtr[winw * ((25 * scr_size) >> 6) + winw - iLapXOffset], rev_vga[2], iTimeMinutes);
+      byLapDisplayPtr += winw * (pLapDigitBlockHdr[iTimeMinutes].iWidth - 1) / 320;
+      iLapDigitIdx = iCurrentLap % 10 + 22;
     } else {
-      v74 = v69 + 22;
+      iLapDigitIdx = iCurrentLap + 22;
     }
-    print_block(v73, v68, v74);
-    v75 = v111;
-    print_block(winw + v111 + winw * ((5 * scr_size) >> 6) - ((52 * scr_size) >> 6), rev_vga_variable_2, 20);
-    v76 = 308 * (_DWORD)v112;
-    if (game_type >= 2) {
-      v84 = 1;
-      v132 = 308 * (_DWORD)v112;
-      v130 = 308 * (_DWORD)v112;
-      v85 = 8;
-      v86 = 24 * (_DWORD)v112 + 4;
+    print_block(byLapDisplayPtr, pLapBlockHdr, iLapDigitIdx);
+    byRaceScreenPtr = byScreenPtr;
+    print_block(&byScreenPtr[winw * ((5 * scr_size) >> 6) + winw - ((52 * scr_size) >> 6)], rev_vga[2], 20);
+    iTimingCarIdx = iCarIndex_1;
+    if (game_type >= 2)                       // Time trial mode - display lap times for multiple laps
+    {
+      iLapNum2 = 1;
+      uiCarDataOffset4 = 308 * iCarIndex_1;
+      uiCarDataOffset2 = 308 * iCarIndex_1;
+      iLapTimeYPos2 = 8;
+      iTrialTimeIdx2 = 24 * iCarIndex_1 + 4;
       do {
-        sprintf(&buffer, "%s %i", language_buffer_variable_4, v84);
-        mini_prt_string(rev_vga, &buffer, 8, v85);
-        v87 = Car_variable_31[v130];
-        if (v84 < v87) {
-          v88 = *(float *)((char *)&trial_times + v86) * func2_c_variable_20;
-          _CHP(v87, &buffer);
-          buffer_variable_8 = 0;
-          LODWORD(v89) = (int)v88;
-          HIDWORD(v89) = (int)v88 >> 31;
-          buffer_variable_7 = v89 % 10 + 48;
-          LODWORD(v89) = (int)v88;
-          buffer_variable_6 = (int)(v89 / 10) % 10 + 48;
-          buffer_variable_5 = 58;
-          buffer_variable_4 = (int)(v89 / 10) / 10 % 10 + 48;
-          buffer_variable_3 = (int)(v89 / 10) / 10 / 10 % 6 + 48;
-          buffer_variable_2 = 58;
-          v141 = (int)(v89 / 10) / 10 / 10 / 6;
-          buffer_variable_1 = v141 % 10 + 48;
-          buffer = v141 / 10 % 10 + 48;
-          mini_prt_string(rev_vga, &buffer, 40, v85);
+        sprintf(buffer, "%s %i", &language_buffer[256], iLapNum2);
+        mini_prt_string(rev_vga[0], buffer, 8, iLapTimeYPos2);
+        if (iLapNum2 < (char)Car[uiCarDataOffset2 / 0x134].byLap) {
+          dLapTime2 = trial_times[iTrialTimeIdx2 / sizeof(float)] * 100.0;
+          //dLapTime2 = *(float *)((char *)trial_times + iTrialTimeIdx2) * 100.0;
+          //_CHP();
+          int iLapTimeCentiseconds = (int)dLapTime2;
+          int iMinutes = iLapTimeCentiseconds / 6000;  // 60 seconds * 100 centiseconds
+          int iSeconds = (iLapTimeCentiseconds / 100) % 60;
+          int iCentiseconds = iLapTimeCentiseconds % 100;
+          sprintf(buffer, "%02d:%02d:%02d", iMinutes, iSeconds, iCentiseconds);
+          mini_prt_string(rev_vga[0], buffer, 40, iLapTimeYPos2);
+          //buffer[8] = 0;
+          //LODWORD(llLapTimeInt2) = (int)dLapTime2;
+          //HIDWORD(llLapTimeInt2) = (int)dLapTime2 >> 31;
+          //buffer[7] = llLapTimeInt2 % 10 + 48;
+          //LODWORD(llLapTimeInt2) = (int)dLapTime2;
+          //buffer[6] = (int)(llLapTimeInt2 / 10) % 10 + 48;
+          //buffer[5] = 58;
+          //buffer[4] = (int)(llLapTimeInt2 / 10) / 10 % 10 + 48;
+          //buffer[3] = (int)(llLapTimeInt2 / 10) / 10 / 10 % 6 + 48;
+          //buffer[2] = 58;
+          //iTimeMinutes = (int)(llLapTimeInt2 / 10) / 10 / 10 / 6;
+          //buffer[1] = iTimeMinutes % 10 + 48;
+          //buffer[0] = iTimeMinutes / 10 % 10 + 48;
+          //mini_prt_string(rev_vga[0], buffer, 40, iLapTimeYPos2);
         }
-        if (v84 == Car_variable_31[v132]) {
-          v90 = Car_variable_52[v132 / 4] * func2_c_variable_20;
-          _CHP(v132, &buffer);
-          LODWORD(v91) = (int)v90;
-          HIDWORD(v91) = (int)v90 >> 31;
-          buffer_variable_7 = v91 % 10 + 48;
-          LODWORD(v91) = (int)v90;
-          buffer_variable_6 = (int)(v91 / 10) % 10 + 48;
-          buffer_variable_4 = (int)(v91 / 10) / 10 % 10 + 48;
-          buffer_variable_3 = (int)(v91 / 10) / 10 / 10 % 6 + 48;
-          v141 = (int)(v91 / 10) / 10 / 10 / 6;
-          buffer_variable_1 = v141 % 10 + 48;
-          buffer_variable_8 = 0;
-          buffer_variable_5 = 58;
-          buffer_variable_2 = 58;
-          buffer = v141 / 10 % 10 + 48;
-          mini_prt_string(rev_vga, &buffer, 40, v85);
+        if (iLapNum2 == (char)Car[uiCarDataOffset4 / 0x134].byLap) {
+          dRunningLapTime2 = Car[uiCarDataOffset4 / 0x134].fRunningLapTime * 100.0;// Display current running lap time
+          //_CHP();
+          int iLapTimeCentiseconds = (int)dRunningLapTime2;
+          int iMinutes = iLapTimeCentiseconds / 6000;  // 60 seconds * 100 centiseconds
+          int iSeconds = (iLapTimeCentiseconds / 100) % 60;
+          int iCentiseconds = iLapTimeCentiseconds % 100;
+          sprintf(buffer, "%02d:%02d:%02d", iMinutes, iSeconds, iCentiseconds);
+          mini_prt_string(rev_vga[0], buffer, 40, iLapTimeYPos2);
+          //LODWORD(llRunningLapTimeInt2) = (int)dRunningLapTime2;
+          //HIDWORD(llRunningLapTimeInt2) = (int)dRunningLapTime2 >> 31;
+          //buffer[7] = llRunningLapTimeInt2 % 10 + 48;
+          //LODWORD(llRunningLapTimeInt2) = (int)dRunningLapTime2;
+          //buffer[6] = (int)(llRunningLapTimeInt2 / 10) % 10 + 48;
+          //buffer[4] = (int)(llRunningLapTimeInt2 / 10) / 10 % 10 + 48;
+          //buffer[3] = (int)(llRunningLapTimeInt2 / 10) / 10 / 10 % 6 + 48;
+          //iTimeMinutes = (int)(llRunningLapTimeInt2 / 10) / 10 / 10 / 6;
+          //buffer[1] = iTimeMinutes % 10 + 48;
+          //buffer[8] = 0;
+          //buffer[5] = 58;
+          //buffer[2] = 58;
+          //buffer[0] = iTimeMinutes / 10 % 10 + 48;
+          //mini_prt_string(rev_vga[0], buffer, 40, iLapTimeYPos2);
         }
-        v86 += 4;
-        ++v84;
-        v85 += 8;
-      } while (v84 < 6);
+        iTrialTimeIdx2 += 4;
+        ++iLapNum2;
+        iLapTimeYPos2 += 8;
+      } while (iLapNum2 < 6);
     } else {
-      print_block(v75 + winw * ((8 * scr_size) >> 6), rev_vga_variable_2, 21);
-      v77 = rev_vga_variable_2;
-      v78 = (unsigned __int8)Car_variable_32[v76] + 1;
-      v137 = rev_vga_variable_2;
-      if (v78 >= 10)
-        v79 = *(_DWORD *)(rev_vga_variable_2 + 276) + *(_DWORD *)(rev_vga_variable_2 + 12 * (v78 % 10) + 264) - 1;
+      print_block(&byRaceScreenPtr[winw * ((8 * scr_size) >> 6)], rev_vga[2], 21);// Race mode - display position and lap information
+      pPositionDigitBlockHdr = rev_vga[2];
+      iPositionValue = Car[iTimingCarIdx].byRacePosition + 1;
+      pLapDigitBlockHdr2 = rev_vga[2];
+      if (iPositionValue >= 10)
+        iPositionDigitWidth = rev_vga[2][23].iWidth + rev_vga[2][iPositionValue % 10 + 22].iWidth - 1;
       else
-        v79 = *(_DWORD *)(rev_vga_variable_2 + 12 * v78 + 264);
-      v80 = (scr_size * (59 - v79 / 2)) >> 6;
-      v81 = v80 + winw * ((12 * scr_size) >> 6) + v111;
-      if (v78 >= 10) {
-        print_block(v80 + winw * ((12 * scr_size) >> 6) + v111, rev_vga_variable_2, 23);
-        v81 += (scr_size * (*(_DWORD *)(v137 + 276) - 1)) >> 6;
-        v82 = v78 % 10 + 22;
+        iPositionDigitWidth = rev_vga[2][iPositionValue + 22].iWidth;
+      iPositionXOffset = (scr_size * (59 - iPositionDigitWidth / 2)) >> 6;
+      byPositionDisplayPtr = &byScreenPtr[winw * ((12 * scr_size) >> 6) + iPositionXOffset];
+      if (iPositionValue >= 10) {
+        print_block(&byScreenPtr[winw * ((12 * scr_size) >> 6) + iPositionXOffset], rev_vga[2], 23);
+        byPositionDisplayPtr += (scr_size * (pLapDigitBlockHdr2[23].iWidth - 1)) >> 6;
+        iPositionDigitIdx = iPositionValue % 10 + 22;
       } else {
-        v82 = v78 + 22;
+        iPositionDigitIdx = iPositionValue + 22;
       }
-      print_block(v81, v77, v82);
-      v83 = 308 * (_DWORD)v112;
-      print_pos(4, 9, (unsigned __int8)Car_variable_32[308 * (_DWORD)v112] - 1);
-      print_pos(4, 42, (unsigned __int8)Car_variable_32[v83] + 1);
+      print_block(byPositionDisplayPtr, pPositionDigitBlockHdr, iPositionDigitIdx);
+      iPositionCarIdx = iCarIndex_1;
+      print_pos(4, 9, Car[iCarIndex_1].byRacePosition - 1);
+      print_pos(4, 42, Car[iPositionCarIdx].byRacePosition + 1);
     }
     if (replaytype != 2) {
-      v92 = SelectedView[v115];
-      if (v92 != 2 && v92 != 7) {
-        v93 = v119 - 2;
-        prt_right(rev_vga_variable_1, &language_buffer, v119 - 2, 4);
-        v94 = 77 * (_DWORD)v112;
-        ShowATime(*(float *)&Car_variable_54[77 * (_DWORD)v112], v119, 4);
-        prt_right(rev_vga_variable_1, language_buffer_variable_1, v93, 14);
-        v118 = *(float *)&Car_variable_53[v94];
-        if (v118 > (double)func2_c_variable_22)
-          v118 = -1.0;
-        v95 = v119;
-        ShowATime(v118, v119, 14);
-        calculate_aheadbehindtime(v112, &v116, &v117, 24);
-        v100 = prt_right(rev_vga_variable_1, &language_buffer_variable_2, v95 - 2, 24);
-        v97 = v116 < (double)func2_c_variable_23;
-        v98 = 0;
-        v99 = v116 == func2_c_variable_23;
-        LOWORD(v100) = v96;
-        if (v116 >= (double)func2_c_variable_23) {
-          v101 = v116 * func2_c_variable_24;
-          _CHP(v100, &language_buffer_variable_2);
-          v120 = (int)v101;
-          if ((int)v101 == 1)
-            sprintf(&buffer, "1 %s", language_buffer_variable_4);
+      iSelectedView = SelectedView[iCarIdx];
+      if (iSelectedView != 2 && iSelectedView != 7) {
+        iTimingXPos = iBaseXPos - 2;
+        prt_right(rev_vga[1], language_buffer, iBaseXPos - 2, 4);
+        iLapTimeCarIdx = iCarIndex_1;
+        ShowATime(Car[iCarIndex_1].fPreviousLapTime, iBaseXPos, 4);
+        prt_right(rev_vga[1], &language_buffer[64], iTimingXPos, 14);
+        fBestLapTime = Car[iLapTimeCarIdx].fBestLapTime;
+        if (fBestLapTime > 5000.0)
+          fBestLapTime = -1.0;
+        iTimingBaseXPos = iBaseXPos;
+        ShowATime(fBestLapTime, iBaseXPos, 14);
+        calculate_aheadbehindtime(iCarIndex_1, &fAheadTime, &fBehindTime);// Calculate time ahead/behind other players
+        prt_right(rev_vga[1], &language_buffer[128], iTimingBaseXPos - 2, 24);
+        if (fAheadTime >= 10000000.0)         // Display large time differences as lap counts instead of time
+        {
+          dAheadTimeLaps = fAheadTime * 0.0000001;
+          //_CHP();
+          iLapsAheadCnt = (int)dAheadTimeLaps;
+          if ((int)dAheadTimeLaps == 1)
+            sprintf(buffer, "1 %s", &language_buffer[256]);
           else
-            sprintf(&buffer, "%2i %s", (int)v101, language_buffer_variable_5);
-          prt_string(rev_vga_variable_1, &buffer, v119, 24);
+            sprintf(buffer, "%2i %s", (int)dAheadTimeLaps, &language_buffer[320]);
+          prt_string(rev_vga[1], buffer, iBaseXPos, 24);
         } else {
-          ShowATime(v116, v95, 24);
+          ShowATime(fAheadTime, iTimingBaseXPos, 24);
         }
-        v106 = prt_right(rev_vga_variable_1, &language_buffer_variable_3, v119 - 2, 34);
-        v103 = v117 < (double)func2_c_variable_23;
-        v104 = 0;
-        v105 = v117 == func2_c_variable_23;
-        LOWORD(v106) = v102;
-        if (v117 >= (double)func2_c_variable_23) {
-          v107 = v117 * func2_c_variable_24;
-          _CHP(v106, &language_buffer_variable_3);
-          v136 = (int)v107;
-          if ((int)v107 == 1)
-            sprintf(&buffer, "1 %s", language_buffer_variable_4);
+        prt_right(rev_vga[1], &language_buffer[192], iBaseXPos - 2, 34);
+        if (fBehindTime >= 10000000.0) {
+          dBehindTimeLaps = fBehindTime * 0.0000001;
+          //_CHP();
+          iBehindLapCnt = (int)dBehindTimeLaps;
+          if ((int)dBehindTimeLaps == 1)
+            sprintf(buffer, "1 %s", &language_buffer[256]);
           else
-            sprintf(&buffer, "%2i %s", (int)v107, language_buffer_variable_5);
-          prt_string(rev_vga_variable_1, &buffer, v119, 34);
+            sprintf(buffer, "%2i %s", (int)dBehindTimeLaps, &language_buffer[320]);
+          prt_string(rev_vga[1], buffer, iBaseXPos, 34);
         } else {
-          ShowATime(v117, v119, 34);
+          ShowATime(fBehindTime, iBaseXPos, 34);
         }
       }
     }
-    if (network_on && players > 1) {
+    if (network_on && players > 1)            // Display network chat message sender name if in multiplayer
+    {
       if (network_mes_mode >= 0)
-        HIDWORD(v109) = &driver_names[9 * network_mes_mode];
+        szMessageSender = driver_names[network_mes_mode];
       else
-        HIDWORD(v109) = &language_buffer_variable_61;
-      sprintf(&buffer, "%s %s", language_buffer_variable_60, (const char *)HIDWORD(v109));
-      prt_string(rev_vga_variable_1, &buffer, 2, winh - 12);
+        szMessageSender = &language_buffer[3904];
+      sprintf(buffer, "%s %s", &language_buffer[3840], szMessageSender);
+      prt_string(rev_vga[1], buffer, 2, winh - 12);
     }
   }
-  return showmap(v111, v112);*/
+  showmap(byScreenPtr, iCarIndex_1);            // Finally render the minimap overlay
 }
 
 //-------------------------------------------------------------------------------------------------

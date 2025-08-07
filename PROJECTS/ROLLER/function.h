@@ -21,7 +21,7 @@ void doviewtend(int a1, int a2, int a3);
 int changemateto(int result, int a2);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
 void analysefalloff(int a1);
-int showmap(int a1, int a2);
+int showmap(uint8 *a1, int a2);
 int firework_display();
 
 //-------------------------------------------------------------------------------------------------
