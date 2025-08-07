@@ -404,6 +404,8 @@ uint8 key_buffer[64];       //0013FB90
 int new_zoom[2];            //0013FBD0
 char config_buffer[8192];   //0013FBD8
 char language_buffer[8192]; //00141BD8
+int zoom_x;                 //00143BD8
+int zoom_y;                 //00143BDC
 int no_mem;                 //00143BE0
 uint8 *screen_pointer;      //00143BE4
 int lots_of_mem;            //00143BE8
@@ -1263,83 +1265,83 @@ void ZoomString(char *a1, int a2, int a3, int a4, int a5)
 
 //-------------------------------------------------------------------------------------------------
 
-void ZoomSub(char *a1, int a2, int a3, int a4, int a5)
-{/*
-  double v6; // st7
-  double v7; // st7
-  _BYTE *v8; // eax
-  int v9; // edx
-  _BYTE *v10; // eax
-  int v11; // edx
-  double v12; // st7
-  double v13; // st7
-  double v14; // st7
-  _BYTE *v15; // esi
-  int v16; // edx
-  unsigned __int8 v17; // bl
-  double v18; // st7
-  int v19; // [esp+4h] [ebp-24h]
-  float v21; // [esp+10h] [ebp-18h]
-  int v22; // [esp+14h] [ebp-14h]
-  int i; // [esp+18h] [ebp-10h]
+void ZoomSub(const char *szText, const char *mappingTable, tBlockHeader *pBlockHeader, int iPlayerIdx, int *pCharVOffsets)
+{
+  double dZoomDivisor; // st7
+  double dNewZoomY; // st7
+  const char *pbyTextPtr; // eax
+  int iCharIndex; // edx
+  double dCharWidth; // st7
+  double dNewTextWidth; // st7
+  double dScaledWidth; // st7
+  const char *pbyCurrentChar; // esi
+  int iCharCode; // edx
+  uint8 byFontIndex; // bl
+  double dSpaceWidth; // st7
+  int iSavedZoomY; // [esp+4h] [ebp-24h]
+  float fZoomFactor; // [esp+10h] [ebp-18h]
+  int iStringDone; // [esp+14h] [ebp-14h]
+  int iTotalWidth; // [esp+18h] [ebp-10h]
 
-  if (*(float *)&game_scale[a4] < (double)func2_c_variable_28) {
-    if (player_type == 2 || (cheat_mode & 0x40) != 0)
-      zoom_x = 320;
+  if (game_scale[iPlayerIdx] < 1024.0) {                                             // Check for 2-player mode or cheat flag 0x40
+    if (player_type == 2 || (cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)// CHEAT_MODE_WIDESCREEN
+      zoom_x = 320;                             // Set zoom center X to 320 for 2-player/cheat mode
     else
-      zoom_x = 160;
-    if (zoom_size[a4])
-      v6 = func2_c_variable_29;
+      zoom_x = 160;                             // Set zoom center X to 160 for single player
+    if (zoom_size[iPlayerIdx])                // Check zoom size setting for this player
+      dZoomDivisor = 2048.0;                    // Use 2048.0 divisor for large zoom
     else
-      v6 = func2_c_variable_28;
-    v7 = v6 / *(float *)&game_scale[a4] + (double)zoom_y;
-    _CHP(a1, 4 * a4);
-    zoom_y = (int)v7;
-    for (i = 0; *v8; i = (int)v13) {
-      v9 = (unsigned __int8)*v8;
-      v10 = v8 + 1;
-      v11 = *(unsigned __int8 *)(v9 + a2);
-      if (v11 == 255) {
-        v12 = func2_c_variable_30;
-      } else {
-        v11 = (*(_DWORD *)(12 * v11 + a3) + 1) << 6;
-        v12 = (double)v11;
-      }
-      v13 = v12 / *(float *)&game_scale[a4] + (double)i;
-      _CHP(v10, v11);
+      dZoomDivisor = 1024.0;                    // Use 1024.0 divisor for normal zoom
+    dNewZoomY = dZoomDivisor / game_scale[iPlayerIdx] + (double)zoom_y;// Calculate new zoom Y position with scaling
+    //_CHP();
+    zoom_y = (int)dNewZoomY;                    // Update global zoom Y position
+
+    pbyTextPtr = szText;  // MISSING compiler artifact
+
+    for (iTotalWidth = 0; *pbyTextPtr; iTotalWidth = (int)dNewTextWidth)// Calculate total text width for centering
+    {
+      iCharIndex = (uint8)mappingTable[*(uint8 *)pbyTextPtr];// Get font index for current character
+      if (iCharIndex == 255)                  // Check if character is invalid (255 = space)
+        dCharWidth = 512.0;                     // Use fixed 512.0 width for space character
+      else
+        dCharWidth = (double)((pBlockHeader[iCharIndex].iWidth + 1) << 6);// Get character width from font data, add 1 pixel spacing
+      dNewTextWidth = dCharWidth / game_scale[iPlayerIdx] + (double)iTotalWidth;// Scale character width and accumulate total
+      //_CHP();
     }
-    if (i <= 310) {
-      v21 = *(float *)&game_scale[a4];
+    if (iTotalWidth <= 310)                   // Check if total width fits within 310 pixels
+    {
+      fZoomFactor = game_scale[iPlayerIdx];     // Use normal game scale factor
     } else {
-      v14 = (double)((i << 6) / 310);
-      i = 310;
-      v21 = v14;
+      dScaledWidth = (double)((iTotalWidth << 6) / 310);// Calculate compressed scale to fit in 310 pixels
+      iTotalWidth = 310;                        // Clamp total width to 310 pixels
+      fZoomFactor = (float)dScaledWidth;               // Store compressed zoom factor
     }
-    v15 = a1;
-    zoom_x -= i / 2;
-    v22 = 0;
-    do {
-      if (*v15) {
-        if (*v15 != 10) {
-          v16 = (unsigned __int8)*v15;
-          v17 = *(_BYTE *)(a2 + v16);
-          if (v17 == 0xFF) {
-            v18 = func2_c_variable_30 / *(float *)&game_scale[a4] + (double)zoom_x;
-            _CHP(4 * a4, v16);
-            zoom_x = (int)v18;
+    pbyCurrentChar = szText;                    // Initialize text pointer for rendering
+    zoom_x -= iTotalWidth / 2;                  // Center text horizontally by subtracting half width
+    iStringDone = 0;                            // Initialize string completion flag
+    do {                                           // Check if current character is not null terminator
+      if (*pbyCurrentChar) {                                         // Check if character is not newline (10)
+        if (*pbyCurrentChar != '\n') {
+          iCharCode = *(uint8 *)pbyCurrentChar;// Get character code as unsigned byte
+          byFontIndex = mappingTable[iCharCode];// Look up font index in mapping table
+          if (byFontIndex == 0xFF)            // Check if font index is invalid (0xFF)
+          {
+            dSpaceWidth = 512.0 / game_scale[iPlayerIdx] + (double)zoom_x;// Calculate space width and advance zoom X
+            //_CHP();
+            zoom_x = (int)dSpaceWidth;          // Update global zoom X position
           } else {
-            v19 = zoom_y;
-            zoom_y += *(_DWORD *)(a5 + 4 * v17);
-            zoom_letter(a2, v21);
-            zoom_y = v19;
+            iSavedZoomY = zoom_y;               // Save current zoom Y position
+            zoom_y += pCharVOffsets[byFontIndex];// Adjust zoom Y by character vertical offset
+            zoom_letter(pBlockHeader, iCharCode, &zoom_x, &zoom_y, mappingTable, fZoomFactor);// Render the character with zoom scaling
+            zoom_y = iSavedZoomY;               // Restore original zoom Y position
           }
         }
       } else {
-        v22 = -1;
+        iStringDone = -1;                       // Set string done flag (null terminator found)
       }
-      ++v15;
-    } while (!v22);
-  }*/
+      ++pbyCurrentChar;                         // Move to next character in string
+    } while (!iStringDone);                     // Continue until string is complete
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
