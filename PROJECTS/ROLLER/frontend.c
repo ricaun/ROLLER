@@ -138,10 +138,13 @@ char race_posn[16][5] =   //000A5200
   "15th",
   "last"
 };
+int Selected_Drives[9] = { 0, 2, 0, 5, 3, 4, 1, 0, 6 }; //000A5250
+int Selected_Play[9] = { 0, 0, 2, 0, 0, 0, 0, 1, 0 }; //000A5274
 int AllowedViews[9] = { -1, -1, -1, -1, 0, 0, 0, -1, 0 }; //000A52BC
 int replay_record = 1;    //000A5304
 int last_replay = -1;     //000A5308
 int last_type = 0;        //000A530C
+int SelectedView[2] = { 0, 0 }; //000A5310
 int network_champ_on = 0; //000A5318
 void *font_vga = NULL;    //000A531C
 void *title_vga = NULL;   //000A5320

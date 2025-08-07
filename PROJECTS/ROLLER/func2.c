@@ -9,6 +9,8 @@
 #include "comms.h"
 #include "roller.h"
 #include "polytex.h"
+#include "types.h"
+#include "view.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -1644,17 +1646,12 @@ int print_damage(uint8 *a1, int *a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int print_pos(int result, int a2, int a3)
+void print_pos(int iX, int iY, int iDriverIdx)
 {
-  return 0;/*
-  int v3; // ebp
-
-  v3 = result;
-  if (a3 >= 0 && a3 < racers) {
-    mini_prt_string(rev_vga, (char *)&language_buffer + 64 * a3 + 384, result, a2);
-    return mini_prt_right(rev_vga, &driver_names[9 * carorder[a3]], v3 + 70, a2);
+  if (iDriverIdx >= 0 && iDriverIdx < racers) {
+    mini_prt_string(rev_vga[0], &language_buffer[64 * iDriverIdx + 384], iX, iY);
+    mini_prt_right(rev_vga[0], driver_names[carorder[iDriverIdx]], iX + 70, iY);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2005,38 +2002,37 @@ int nearest_colour(int iR, int iB, int iG)
 
 //-------------------------------------------------------------------------------------------------
 
-int select_view(int a1)
+void select_view(int iPlayer)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int v1; // ebx
-  int result; // eax
-  int v3; // edx
-  int v4; // ebx
+  int iCurrentViewIndex; // ebx
+  int iPlayerIndex; // eax
+  int iViewIndexForDrive; // edx
+  int iDriveType; // ebx
 
-  v1 = SelectedView[a1];
-  if (v1 == 2 || v1 == 7) {
+  iCurrentViewIndex = SelectedView[iPlayer];    // Get the selected view index for this player
+  if (iCurrentViewIndex == 2 || iCurrentViewIndex == 7)// Check if view is cockpit (2) or external (7) - these require screen size adjustment
+  {                                             // Set screen size based on graphics mode - SVGA gets larger screen
     if (SVGA_ON)
       scr_size = 128;
     else
       scr_size = 64;
   }
-  result = a1;
-  v3 = SelectedView[result];
-  v4 = Selected_Drives[v3];
-  LOBYTE(v3) = Selected_Play[4 * v3];
-  DriveView[result] = v4;
-  Play_View = v3;
-  if (v4 == 5) {
-    chaseview[result] = 1;
-    DriveView[result] = 2;
-  } else if (v4 == 2) {
-    chaseview[result] = 0;
+  iPlayerIndex = iPlayer;                       // Look up drive configuration for selected view
+  iViewIndexForDrive = SelectedView[iPlayerIndex];
+  iDriveType = Selected_Drives[iViewIndexForDrive];
+  SET_LOBYTE(iViewIndexForDrive, Selected_Play[iViewIndexForDrive]);
+  DriveView[iPlayerIndex] = iDriveType;
+  Play_View = iViewIndexForDrive;
+  if (iDriveType == 5)                        // Drive type 5: Chase camera - enable chase view and switch to drive type 2
+  {
+    chaseview[iPlayerIndex] = 1;
+    DriveView[iPlayerIndex] = 2;
+  } else if (iDriveType == 2)                   // Drive type 2: Standard view - disable chase camera
+  {
+    chaseview[iPlayerIndex] = 0;
   }
-  if ((cheat_mode & 0x40) != 0)
+  if ((cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)               // CHEAT_MODE_WIDESCREEN: clear screen borders for full display
     clear_borders = -1;
-  return result * 4;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4342,42 +4338,42 @@ void ShowATime(float fTime, int iX, int iY)
   } else {
     buffer[0] = 45;
   }
-  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 51, iY);
+  prt_string(rev_vga[1], buffer, iX + 51, iY);
   if (iTime >= 0) {
     buffer[0] = iTime % 10 + 48;
     iTime /= 10;
   } else {
     buffer[0] = 45;
   }
-  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 42, iY);
-  prt_string((tBlockHeader *)rev_vga[1], ":", iX + 39, iY);
+  prt_string(rev_vga[1], buffer, iX + 42, iY);
+  prt_string(rev_vga[1], ":", iX + 39, iY);
   if (iTime >= 0) {
     buffer[0] = iTime % 10 + 48;
     iTime /= 10;
   } else {
     buffer[0] = 45;
   }
-  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 30, iY);
+  prt_string(rev_vga[1], buffer, iX + 30, iY);
   if (iTime >= 0) {
     buffer[0] = iTime % 6 + 48;
     iTime /= 6;
   } else {
     buffer[0] = 45;
   }
-  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 21, iY);
-  prt_string((tBlockHeader *)rev_vga[1], ":", iX + 18, iY);
+  prt_string(rev_vga[1], buffer, iX + 21, iY);
+  prt_string(rev_vga[1], ":", iX + 18, iY);
   if (iTime >= 0) {
     buffer[0] = iTime % 10 + 48;
     iTime /= 10;
   } else {
     buffer[0] = 45;
   }
-  prt_string((tBlockHeader *)rev_vga[1], buffer, iX + 9, iY);
+  prt_string(rev_vga[1], buffer, iX + 9, iY);
   if (iTime >= 0)
     buffer[0] = iTime % 10 + 48;
   else
     buffer[0] = 45;
-  prt_string((tBlockHeader *)rev_vga[1], buffer, iX, iY);
+  prt_string(rev_vga[1], buffer, iX, iY);
 }
 
 //-------------------------------------------------------------------------------------------------

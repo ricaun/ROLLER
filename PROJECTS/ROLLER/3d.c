@@ -57,6 +57,7 @@ int mclick = 0;             //000A3500
 int mouse = 0;              //000A3504
 int network_on = 0;         //000A3510
 int Play_View = 0;          //000A3518
+int DriveView[2] = { 0, 0 }; //000A351C
 int mirror = 0;             //000A3524
 int mpressed = 0;           //000A352C
 int jpressed = 0;           //000A352D
@@ -68,7 +69,7 @@ uint8 *building_vga = NULL;  //000A3548
 uint8 *horizon_vga = NULL;   //000A354C
 uint8 *cartex_vga[16] = { NULL }; //000A3550
 uint8 *cargen_vga = NULL;    //000A3590
-uint8 *rev_vga[16] = { NULL }; //000A3594
+tBlockHeader *rev_vga[16] = { NULL }; //000A3594
 int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
 tGroundColour GroundColour[500];  //000B8C50

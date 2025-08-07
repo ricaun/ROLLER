@@ -493,7 +493,7 @@ void LoadPanel()
       // Load the compressed file
       uiFileLength = getcompactedfilelength(szRevPtr);
       pBuf = getbuffer(uiFileLength);
-      rev_vga[iRevIdx] = pBuf;  // Store buffer pointer in array
+      rev_vga[iRevIdx] = (tBlockHeader*)pBuf;  // Store buffer pointer in array
       loadcompactedfile(szRevPtr, (uint8 *)pBuf);
 
       ++iRevIdx;
@@ -516,7 +516,7 @@ void LoadPanel()
       // Load the compressed file
       uiFileLength = getcompactedfilelength(szRevPtr);
       pBuf = getbuffer(uiFileLength);
-      rev_vga[iRevIdx] = pBuf;  // Store buffer pointer in array
+      rev_vga[iRevIdx] = (tBlockHeader *)pBuf;  // Store buffer pointer in array
       loadcompactedfile(szRevPtr, (uint8 *)pBuf);
 
       ++iRevIdx;
