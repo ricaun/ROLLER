@@ -476,7 +476,7 @@ void LoadPanel()
 
   iRevIdx = 0;
 
-  if ((textures_off & 0x10000) != 0) {
+  if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
     szRevPtr = revs_files2[0];
     while (revs_files2[iRevIdx][0]) {
       szRevFile = revs_files2[iRevIdx];
@@ -673,7 +673,7 @@ void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
   }
 
   // Advanced cars
-  if ((textures_off & 0x10000) != 0 && iCartexIdx >= 1 && iCartexIdx <= 8)
+  if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0 && iCartexIdx >= 1 && iCartexIdx <= 8)
     *szTexFile = 'y';                           // load Y tex files
 
   // Check if file exists
@@ -832,7 +832,7 @@ void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
   }
 
   // Restore original filename if modified
-  if ((textures_off & 0x10000) != 0 && iCartexIdx >= 1 && iCartexIdx <= 8)
+  if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0 && iCartexIdx >= 1 && iCartexIdx <= 8)
     *szTexFile = 'x';
 }
 

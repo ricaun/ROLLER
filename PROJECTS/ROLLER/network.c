@@ -1139,7 +1139,7 @@ int TransmitInit()
       time_to_start = 0;
     initPacket.iTimeToStart = time_to_start;
     initPacket.iFalseStart = false_starts;
-    initPacket.iTextureMode = (textures_off & 0x10000) != 0;
+    initPacket.iTextureMode = (textures_off & TEX_OFF_ADVANCED_CARS) != 0;
     initPacket.iNetworkChampOn = network_champ_on;
     szDefaultNamesDst = initPacket.default_names[0];
     szDefaultNameItr = default_names[0];

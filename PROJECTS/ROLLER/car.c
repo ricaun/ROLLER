@@ -231,7 +231,7 @@ void InitCars()
   for (i = 0; i < 14; ++i) {
     nNumGears = CarEngines.engines[i].iNumGears;
     for (j = 0; j < nNumGears; ++j) {
-      if ((textures_off & 0x10000) != 0)
+      if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
         CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j] * 1.03f;
       else
         CarEngines.engines[i].pSpds[j] = StoreEngines[i].speeds[j];

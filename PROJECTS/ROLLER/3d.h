@@ -6,6 +6,28 @@
 #include "frontend.h"
 //-------------------------------------------------------------------------------------------------
 
+#define TEX_OFF_GROUND_TEXTURES         0x00000001
+#define TEX_OFF_ROAD_TEXTURES           0x00000002
+#define TEX_OFF_WALL_TEXTURES           0x00000004
+#define TEX_OFF_CLOUDS                  0x00000008
+#define TEX_OFF_HORIZON                 0x00000010
+#define TEX_OFF_PANEL_OFF               0x00000020
+#define TEX_OFF_CAR_TEXTURES            0x00000040
+#define TEX_OFF_BUILDING_TEXTURES       0x00000080
+#define TEX_OFF_SHADOWS                 0x00000100
+#define TEX_OFF_BUILDINGS               0x00000200
+#define TEX_OFF_KMH                     0x00000400
+#define TEX_OFF_GLASS_WALLS             0x00000800
+#define TEX_OFF_PREMIER_CUP_AVAILABLE   0x00001000
+#define TEX_OFF_WIDESCREEN              0x00002000
+#define TEX_OFF_CAR_SET_AVAILABLE       0x00008000
+#define TEX_OFF_ADVANCED_CARS           0x00010000
+#define TEX_OFF_BONUS_CUP_AVAILABLE     0x00020000
+#define TEX_OFF_PANEL_RESTRICTED        0x00040000
+#define TEX_OFF_PERSPECTIVE_CORRECTION  0x00080000
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   void *pBuf;

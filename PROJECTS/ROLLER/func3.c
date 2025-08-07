@@ -439,7 +439,7 @@ void RaceResult()
       // Display car sprite or CHEAT text
       if (iCarDesign >= 8) {
         front_text(front_vga[3], "CHEAT", font2_ascii, font2_offsets, 165, iTextBaseY, 0x8Fu, 0);
-      } else if ((textures_off & 0x10000) != 0) {
+      } else if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
         display_block(scrbuf, front_vga[0], smallcars[1][iCarDesign], 165, iCarY, 0);
       } else {
         display_block(scrbuf, front_vga[0], smallcars[0][iCarDesign], 165, iCarY, 0);
@@ -628,7 +628,7 @@ void TimeTrials(int iDriverIdx)
   iCarDesign = result_design[iDesignIdx];
   if (iCarDesign >= 8) {
     front_text(front_vga[2], "CHEAT", font2_ascii, font2_offsets, 165, 49, 0x8Fu, 0);
-  } else if ((textures_off & 0x10000) != 0) {
+  } else if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
     display_block(scrbuf, front_vga[0], smallcars[1][iCarDesign], 165, 46, 0);
   } else {
     display_block(scrbuf, front_vga[0], smallcars[0][iCarDesign], 165, 46, 0);
@@ -769,7 +769,7 @@ void TimeTrials(int iDriverIdx)
     iFastestCarDesign = result_design[iFastestDriverCopy];
     if (iFastestCarDesign >= 8) {
       front_text(front_vga[2], "CHEAT", font2_ascii, font2_offsets, 165, iFastestTextY, 0x8Fu, 0);
-    } else if ((textures_off & 0x10000) != 0) {
+    } else if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
       display_block(scrbuf, front_vga[0], smallcars[1][iFastestCarDesign], 165, iFastestTextY - 3, 0);
     } else {
       display_block(scrbuf, front_vga[0], smallcars[0][iFastestCarDesign], 165, iFastestTextY - 3, 0);
@@ -967,7 +967,7 @@ void ChampionshipStandings()
       // Display car sprite or CHEAT text
       if (iCarDesign >= 8) {
         front_text(front_vga[2], "CHEAT", font2_ascii, font2_offsets, 165, iTextBaseY, 0x8Fu, 0);
-      } else if ((textures_off & 0x10000) != 0) {
+      } else if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
         display_block(scrbuf, front_vga[0], smallcars[1][iCarDesign], 165, iCarY, 0);
       } else {
         display_block(scrbuf, front_vga[0], smallcars[0][iCarDesign], 165, iCarY, 0);
@@ -1181,7 +1181,7 @@ void TeamStandings()
 
     // display car sprites
     iCarY = iDisplayY - 3;
-    if ( (textures_off & 0x10000) != 0 )
+    if ( (textures_off & TEX_OFF_ADVANCED_CARS) != 0 )
     {
       display_block(scrbuf, front_vga[0], smallcars[1][iTeamDisplayIdx], 340, iCarY, 0);
       display_block(scrbuf, front_vga[0], smallcars[1][iTeamDisplayIdx], 100, iCarY, 0);
@@ -1435,7 +1435,7 @@ void ShowLapRecords()
   scr_size = iOldScrSize;
 
   // display second page
-  if ( (textures_off & 0x20000) != 0 )
+  if ( (textures_off & TEX_OFF_BONUS_CUP_AVAILABLE) != 0 )
   {
     holdmusic = -1;
     fade_palette(0);
@@ -2748,7 +2748,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
       }
 
       // Apply color remapping if textures are disabled
-      if ((textures_off & 0x10000) != 0 && (uiTex & SURFACE_FLAG_APPLY_TEXTURE) == 0 && (uint8)uiTex == uiColorFrom)
+      if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0 && (uiTex & SURFACE_FLAG_APPLY_TEXTURE) == 0 && (uint8)uiTex == uiColorFrom)
         uiTex = uiColorTo_1;
 
       CarPol.uiSurfaceType = uiTex;
@@ -2965,11 +2965,11 @@ void save_champ(int iSlot)
   *pbySaveBuffer = TrackLoad;
   pBufPlus1 = pbySaveBuffer + 1;
   byCompetitorsFlags = competitors;
-  if ((textures_off & 0x10000) != 0)
+  if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
     byCompetitorsFlags = competitors | 0x20;
-  if ((cheat_mode & 2) != 0)                  // CHEAT_MODE_DEATH_MODE
+  if ((cheat_mode & CHEAT_MODE_DEATH_MODE) != 0)                  // CHEAT_MODE_DEATH_MODE
     byCompetitorsFlags |= 0x40u;
-  if ((cheat_mode & 0x200) != 0)              // CHEAT_MODE_KILLER_OPPONENTS
+  if ((cheat_mode & CHEAT_MODE_KILLER_OPPONENTS) != 0)              // CHEAT_MODE_KILLER_OPPONENTS
     byCompetitorsFlags |= 0x80u;
   pbyCurrentPos = pBufPlus1 + 1;
   *(pbyCurrentPos++ - 1) = byCompetitorsFlags;
@@ -3211,9 +3211,9 @@ int load_champ(int iSlot)
       byGameSettings = pFileBuf[1];
       competitors = byGameSettings & 0x1F;      // Parse game settings byte: bits 0-4=competitors, bit 5=textures, bit 6=cheat, bit 7=network cheat
       if ((byGameSettings & 0x20) != 0)
-        textures_off |= 0x10000u;
+        textures_off |= TEX_OFF_ADVANCED_CARS;
       else
-        textures_off &= ~0x10000u;
+        textures_off &= ~TEX_OFF_ADVANCED_CARS;
       if ((byGameSettings & 0x40) != 0) {
         cheat_mode |= CHEAT_MODE_DEATH_MODE;
       } else {
@@ -4054,9 +4054,9 @@ void ChampionshipOver()
   if (Race == 8)                              // Handle completion rewards and progression
   {                                             // Unlock texture quality improvements for winning championship
     if (level < 4)
-      textures_off |= 0x1000u;
+      textures_off |= TEX_OFF_PREMIER_CUP_AVAILABLE;
     if (level < 2) {
-      textures_off |= 0x00008000;
+      textures_off |= TEX_OFF_CAR_SET_AVAILABLE;
       //uiTextureSettings = textures_off;
       //BYTE1(uiTextureSettings) = BYTE1(textures_off) | 0x80;
       //textures_off = uiTextureSettings;

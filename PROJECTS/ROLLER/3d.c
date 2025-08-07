@@ -509,13 +509,13 @@ void doexit()
     cdxdone();
   remove("../REPLAYS/REPLAY.TMP");
   if ((cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)
-    textures_off |= 0x2000u;
+    textures_off |= TEX_OFF_WIDESCREEN;
   else
-    textures_off &= ~0x2000u;
+    textures_off &= ~TEX_OFF_WIDESCREEN;
   if (false_starts)
-    textures_off |= 0x40;
+    textures_off |= TEX_OFF_CAR_TEXTURES;
   else
-    textures_off &= 0xBF;
+    textures_off &= ~TEX_OFF_CAR_TEXTURES;
   if (!intro)
     save_fatal_config();
 
@@ -948,17 +948,17 @@ int main(int argc, const char **argv, const char **envp)
   cheat_mode = 0;
   load_language_map();
   load_fatal_config();
-  if ((textures_off & 0x2000) != 0)           // Check for debug cheat flags in textures_off
+  if ((textures_off & TEX_OFF_WIDESCREEN) != 0)           // Check for debug cheat flags in textures_off
   {
     cheat_mode |= CHEAT_MODE_WIDESCREEN;
-    textures_off ^= 0x2000u;
+    textures_off ^= TEX_OFF_WIDESCREEN;
   }
-  if ((textures_off & 0x4000) != 0)           // Check for false starts cheat flag
+  if ((textures_off & TEX_OFF_PANEL_RESTRICTED) != 0)           // Check for false starts cheat flag
   {
     false_starts = -1;
 
     // BYTE1 is the second byte
-    textures_off ^= 0x00004000;
+    textures_off ^= TEX_OFF_PANEL_RESTRICTED;
     //uiTexturesOff = textures_off;
     //BYTE1(uiTexturesOff) = BYTE1(textures_off) ^ 0x40;
     //textures_off = uiTexturesOff;
@@ -994,31 +994,24 @@ int main(int argc, const char **argv, const char **envp)
     }
   } else {                                             // Auto-configure graphics settings for slower machines
     if (machine_speed < 9000)
-      textures_off |= 0x80000u;
+      textures_off |= TEX_OFF_PERSPECTIVE_CORRECTION;
     if (machine_speed < 5000)
-      textures_off |= 0x40000u;
+      textures_off |= TEX_OFF_PANEL_RESTRICTED;
     if (machine_speed < 4600) {
-      //// textures_off |= 0x00000800
-      //uiTextureFlagsTemp = textures_off;
-      //BYTE1(uiTextureFlagsTemp) = BYTE1(textures_off) | 8;
-      textures_off |= 0x00000800;
+      textures_off |= TEX_OFF_GLASS_WALLS;
     }
     if (machine_speed < 4300)
-      textures_off |= 8u;
+      textures_off |= TEX_OFF_CLOUDS;
     if (machine_speed < 4000)
       view_limit = 32;
     if (machine_speed < 3750) {
-      //uiTextureFlagsTemp2 = textures_off;
-      //LOBYTE(uiTextureFlagsTemp2) = textures_off | 0x20;
-      textures_off |= 0x00000020;
+      textures_off |= TEX_OFF_PANEL_OFF;
     }
     if (machine_speed < 3500) {
-      //uiTextureFlagsTemp3 = textures_off;
-      //LOBYTE(uiTextureFlagsTemp3) = textures_off | 0x10;
-      textures_off |= 0x00000010;
+      textures_off |= TEX_OFF_HORIZON;
     }
     if (machine_speed < 3250)
-      textures_off |= 0x200u;
+      textures_off |= TEX_OFF_BUILDINGS;
     if (machine_speed < 3000)
       game_size = 48;
     if (machine_speed < 3800)

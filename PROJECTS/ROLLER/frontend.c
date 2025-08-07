@@ -681,8 +681,8 @@ void select_screen()
   restart_net = 0;
   if (!time_to_start) {
     while (1) {
-      cup_won = (textures_off & 0x1000) != 0;
-      if ((textures_off & 0x20000) != 0) {
+      cup_won = (textures_off & TEX_OFF_PREMIER_CUP_AVAILABLE) != 0;
+      if ((textures_off & TEX_OFF_BONUS_CUP_AVAILABLE) != 0) {
         cup_won |= 2;
         //LOBYTE(cup_won) = cup_won | 2;
       }
@@ -4022,72 +4022,72 @@ void select_configure()
                         view_limit = 24;
                       }
                       break;
-                    case 4:
-                      if ((textures_off & 0x20) != 0) {
+                    case 4: //PANEL ON
+                      if ((textures_off & TEX_OFF_PANEL_OFF) != 0) {
                         uiTexOffTemp_7 = textures_off;
-                        uiTexOffTemp_7 = textures_off ^ 0x20;
+                        uiTexOffTemp_7 = textures_off ^ TEX_OFF_PANEL_OFF;
                         //LOBYTE(uiTexOffTemp_7) = textures_off ^ 0x20;
-                        textures_off = uiTexOffTemp_7 | 0x40000;
-                      } else if ((textures_off & 0x40000) != 0) {
-                        textures_off ^= 0x40000u;
+                        textures_off = uiTexOffTemp_7 | TEX_OFF_PANEL_RESTRICTED;
+                      } else if ((textures_off & TEX_OFF_PANEL_RESTRICTED) != 0) {
+                        textures_off ^= TEX_OFF_PANEL_RESTRICTED;
                       } else {
-                        textures_off |= 0x20u;
+                        textures_off |= TEX_OFF_PANEL_OFF;
                       }
                       break;
                     case 5:
                       uiTexOffTemp = textures_off;
-                      uiTexOffTemp = textures_off ^ 8;
+                      uiTexOffTemp = textures_off ^ TEX_OFF_CLOUDS;
                       //LOBYTE(uiTexOffTemp) = textures_off ^ 8;
                       textures_off = uiTexOffTemp;
                       break;
                     case 6:
                       uiTexOffTemp_1 = textures_off;
-                      uiTexOffTemp_1 = textures_off ^ 0x100;
+                      uiTexOffTemp_1 = textures_off ^ TEX_OFF_SHADOWS;
                       //BYTE1(uiTexOffTemp_1) = BYTE1(textures_off) ^ 1;
                       textures_off = uiTexOffTemp_1;
                       break;
                     case 7:
-                      textures_off ^= 2u;
+                      textures_off ^= TEX_OFF_ROAD_TEXTURES;
                       break;
                     case 8:
-                      textures_off ^= 0x80u;
+                      textures_off ^= TEX_OFF_BUILDING_TEXTURES;
                       break;
                     case 9:
                       uiTexOffTemp_2 = textures_off;
-                      uiTexOffTemp_2 = textures_off ^ 1;
+                      uiTexOffTemp_2 = textures_off ^ TEX_OFF_GROUND_TEXTURES;
                       //LOBYTE(uiTexOffTemp_2) = textures_off ^ 1;
                       textures_off = uiTexOffTemp_2;
                       break;
                     case 10:
                       uiTexOffTemp_3 = textures_off;
-                      uiTexOffTemp_3 = textures_off ^ 4;
+                      uiTexOffTemp_3 = textures_off ^ TEX_OFF_WALL_TEXTURES;
                       //LOBYTE(uiTexOffTemp_3) = textures_off ^ 4;
                       textures_off = uiTexOffTemp_3;
                       break;
                     case 11:
                       uiTexOffTemp_4 = textures_off;
-                      uiTexOffTemp_4 = textures_off ^ 0x40;
+                      uiTexOffTemp_4 = textures_off ^ TEX_OFF_CAR_TEXTURES;
                       //LOBYTE(uiTexOffTemp_4) = textures_off ^ 0x40;
                       textures_off = uiTexOffTemp_4;
                       break;
                     case 12:
                       uiTexOffTemp_5 = textures_off;
-                      uiTexOffTemp_5 = textures_off ^ 0x10;
+                      uiTexOffTemp_5 = textures_off ^ TEX_OFF_HORIZON;
                       //LOBYTE(uiTexOffTemp_5) = textures_off ^ 0x10;
                       textures_off = uiTexOffTemp_5;
                       break;
                     case 13:
-                      textures_off ^= 0x800u;
+                      textures_off ^= TEX_OFF_GLASS_WALLS;
                       break;
                     case 14:
-                      textures_off ^= 0x200u;
+                      textures_off ^= TEX_OFF_BUILDINGS;
                       break;
                     case 15:
                       if (++names_on > 2)
                         names_on = 0;
                       break;
                     case 16:
-                      textures_off ^= 0x80000u;
+                      textures_off ^= TEX_OFF_PERSPECTIVE_CORRECTION;
                       break;
                     default:
                       continue;
@@ -4138,7 +4138,7 @@ void select_configure()
                       break;
                     case 4:
                       uiTexOffTemp_6 = textures_off;
-                      uiTexOffTemp_6 = textures_off ^ 0x400;
+                      uiTexOffTemp_6 = textures_off ^ TEX_OFF_KMH;
                       //BYTE1(uiTexOffTemp_6) = BYTE1(textures_off) ^ 4;
                       textures_off = uiTexOffTemp_6;
                       break;
@@ -4255,7 +4255,7 @@ void select_configure()
         else
           byColor_31 = 0x8F;
         scale_text(front_vga[15], &config_buffer[6912], font1_ascii, font1_offsets, 435, 60, byColor_31, 2u, 200, 640);
-        if ((textures_off & 0x80000) != 0) {
+        if ((textures_off & TEX_OFF_PERSPECTIVE_CORRECTION) != 0) {
           if (iVideoState == 16)
             byColor_32 = 0xAB;
           else
@@ -4303,7 +4303,7 @@ void select_configure()
         else
           byColor_37 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3008], font1_ascii, font1_offsets, 435, 100, byColor_37, 2u, 200, 640);
-        if ((textures_off & 0x200) != 0) {
+        if ((textures_off & TEX_OFF_BUILDINGS) != 0) {
           if (iVideoState == 14)
             byColor_38 = 0xAB;
           else
@@ -4321,7 +4321,7 @@ void select_configure()
         else
           byColor_40 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3072], font1_ascii, font1_offsets, 435, 120, byColor_40, 2u, 200, 640);
-        if ((textures_off & 0x800) != 0) {
+        if ((textures_off & TEX_OFF_GLASS_WALLS) != 0) {
           if (iVideoState == 13)
             byColor_41 = 0xAB;
           else
@@ -4339,7 +4339,7 @@ void select_configure()
         else
           byColor_43 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3200], font1_ascii, font1_offsets, 435, 140, byColor_43, 2u, 200, 640);
-        if ((textures_off & 0x10) != 0) {
+        if ((textures_off & TEX_OFF_HORIZON) != 0) {
           if (iVideoState == 12)
             byColor_44 = 0xAB;
           else
@@ -4357,7 +4357,7 @@ void select_configure()
         else
           byColor_46 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3136], font1_ascii, font1_offsets, 435, 160, byColor_46, 2u, 200, 640);
-        if ((textures_off & 0x40) != 0) {
+        if ((textures_off & TEX_OFF_CAR_TEXTURES) != 0) {
           if (iVideoState == 11)
             byColor_47 = 0xAB;
           else
@@ -4375,7 +4375,7 @@ void select_configure()
         else
           byColor_49 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3264], font1_ascii, font1_offsets, 435, 180, byColor_49, 2u, 200, 640);
-        if ((textures_off & 4) != 0) {
+        if ((textures_off & TEX_OFF_WALL_TEXTURES) != 0) {
           if (iVideoState == 10)
             byColor_50 = 0xAB;
           else
@@ -4393,7 +4393,7 @@ void select_configure()
         else
           byColor_52 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3328], font1_ascii, font1_offsets, 435, 200, byColor_52, 2u, 200, 640);
-        if ((textures_off & 1) != 0) {
+        if ((textures_off & TEX_OFF_GROUND_TEXTURES) != 0) {
           if (iVideoState == 9)
             byColor_53 = 0xAB;
           else
@@ -4411,7 +4411,7 @@ void select_configure()
         else
           byColor_55 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3392], font1_ascii, font1_offsets, 435, 220, byColor_55, 2u, 200, 640);
-        if ((textures_off & 0x80u) == 0) {
+        if ((textures_off & TEX_OFF_BUILDING_TEXTURES) == 0) {
           if (iVideoState == 8)
             byColor_56 = 0xAB;
           else
@@ -4429,7 +4429,7 @@ void select_configure()
         else
           byColor_58 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3456], font1_ascii, font1_offsets, 435, 240, byColor_58, 2u, 200, 640);
-        if ((textures_off & 2) != 0) {
+        if ((textures_off & TEX_OFF_ROAD_TEXTURES) != 0) {
           if (iVideoState == 7)
             byColor_59 = 0xAB;
           else
@@ -4447,7 +4447,7 @@ void select_configure()
         else
           byColor_61 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3520], font1_ascii, font1_offsets, 435, 260, byColor_61, 2u, 200, 640);
-        if ((textures_off & 0x100) != 0) {
+        if ((textures_off & TEX_OFF_SHADOWS) != 0) {
           if (iVideoState == 6)
             byColor_62 = 0xAB;
           else
@@ -4465,7 +4465,7 @@ void select_configure()
         else
           byColor_64 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3584], font1_ascii, font1_offsets, 435, 280, byColor_64, 2u, 200, 640);
-        if ((textures_off & 8) != 0) {
+        if ((textures_off & TEX_OFF_CLOUDS) != 0) {
           if (iVideoState == 5)
             byColor_65 = 0xAB;
           else
@@ -4483,13 +4483,13 @@ void select_configure()
         else
           byColor_67 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3648], font1_ascii, font1_offsets, 435, 300, byColor_67, 2u, 200, 640);
-        if ((textures_off & 0x20) != 0) {
+        if ((textures_off & TEX_OFF_PANEL_OFF) != 0) {
           if (iVideoState == 4)
             byColor_68 = 0xAB;
           else
             byColor_68 = 0x8F;
           scale_text(front_vga[15], &config_buffer[2688], font1_ascii, font1_offsets, 440, 300, byColor_68, 0, 200, 640);
-        } else if ((textures_off & 0x40000) != 0) {
+        } else if ((textures_off & TEX_OFF_PANEL_RESTRICTED) != 0) {
           if (iVideoState == 4)
             byColor_69 = 0xAB;
           else
@@ -4588,7 +4588,7 @@ void select_configure()
         else
           byColor_83 = 0x8F;
         scale_text(front_vga[15], &config_buffer[5440], font1_ascii, font1_offsets, 435, 114, byColor_83, 2u, 200, 640);
-        if ((textures_off & 0x400) != 0) {
+        if ((textures_off & TEX_OFF_KMH) != 0) {
           if (iGraphicsState == 4)
             byColor_84 = 0xAB;
           else
@@ -5227,7 +5227,7 @@ void select_type()
     iSkipColor = -1;
   else
     iSkipColor = 0;
-  if ((cheat_mode & 0x100) != 0 || (textures_off & 0x8000) != 0)
+  if ((cheat_mode & TEX_OFF_SHADOWS) != 0 || (textures_off & TEX_OFF_CAR_SET_AVAILABLE) != 0)
     iCheatModesAvailable = -1;
   else
     iCheatModesAvailable = 0;
@@ -5471,12 +5471,12 @@ void select_type()
         } else {
           byCompetitorMenuColor = -87;
         }
-        if ((textures_off & 0x10000) != 0)
+        if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
           byTextureColor1 = -113;
         else
           byTextureColor1 = byCompetitorMenuColor;
         scale_text(front_vga[15], &language_buffer[4352], font1_ascii, font1_offsets, 400, 135, byTextureColor1, 1u, 200, 640);
-        if ((textures_off & 0x10000) != 0)
+        if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
           byTextureColor2 = byCompetitorMenuColor;
         else
           byTextureColor2 = -113;
@@ -5672,9 +5672,9 @@ void select_type()
             case 5:
               if (byExtendedKey >= 0x48u) {
                 if (byExtendedKey <= 0x48u) {
-                  textures_off &= ~0x10000u;
+                  textures_off &= ~TEX_OFF_ADVANCED_CARS;
                 } else if (byExtendedKey == 80) {
-                  textures_off |= 0x10000u;
+                  textures_off |= TEX_OFF_ADVANCED_CARS;
                 }
               }
               break;
@@ -6243,7 +6243,7 @@ void NetworkWait()
             front_text(front_vga[1], buffer, font2_ascii, font2_offsets, 218, iTextYPos, 0x8Fu, 0);
             iCarTypeForSprite = Players_Cars[iPlayerIndex];
             if (iCarTypeForSprite < 8) {
-              if ((textures_off & 0x10000) != 0)
+              if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
                 display_block(scrbuf, front_vga[2], smallcars[1][iCarTypeForSprite], 165, iCarSpriteYOffset + 46, 0);
               else
                 display_block(scrbuf, front_vga[2], smallcars[0][iCarTypeForSprite], 165, iCarSpriteYOffset + 46, 0);
@@ -6513,7 +6513,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
           case 9: //GOLDBOY (unlock premier cup)
             name_copy(szPlayerName, "PHIL");
             cup_won |= 1;
-            textures_off |= 0x1000;
+            textures_off |= TEX_OFF_PREMIER_CUP_AVAILABLE;
             break;
           case 10: //CUP WON (view end sequence)
             name_copy(szPlayerName, "LAZY");
@@ -6537,7 +6537,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
             break;
           case 15: //MREPRISE (bonus cup unlocked)
             name_copy(szPlayerName, "MRBONUS");
-            textures_off |= 0x20000;
+            textures_off |= TEX_OFF_BONUS_CUP_AVAILABLE;
             cup_won |= 2;
             break;
           case 16: //DUEL (killer opponents)
