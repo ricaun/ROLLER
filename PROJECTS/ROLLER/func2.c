@@ -888,7 +888,7 @@ void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
       } while (iAmmoBarIdx2 < 8);
     }
     if (player_type == 2 || (cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)// CHEAT_MODE_WIDESCREEN
-      iBaseXPos = (winw / 4) + 157;  // Calculate base X position for speedometer (adjusted for widescreen)
+      iBaseXPos = (3 * winw / 16) + 157;  // Calculate speedometer X position (adjusted for widescreen)
       //iBaseXPos = ((winw - (__CFSHL__(winw >> 31, 2) + 4 * (winw >> 31))) >> 2) + 157;// Calculate base X position for speedometer (adjusted for widescreen)
     else
       iBaseXPos = 157;
