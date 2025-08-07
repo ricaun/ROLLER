@@ -40,6 +40,7 @@ struct DPMI_MemInfo
 
 //-------------------------------------------------------------------------------------------------
 
+extern int dam_remap[256];
 extern int write_key;
 extern int read_key;
 extern uint8 mapping[];
@@ -65,7 +66,7 @@ void ZoomString(char *a1, int a2, int a3, int a4, int a5);
 void ZoomSub(char *a1, int a2, int a3, int a4, int a5);
 int zoom_letter(int a1, uint8 a2, void *a3, void *a4, char *a5, float a6);
 int print_block(char *a1, int a2, int a3);
-int print_damage(uint8 *a1, int *a2, int a3);
+void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx);
 void print_pos(int iX, int iY, int iDriverIdx);
 void free_game_memory();
 int readmode();

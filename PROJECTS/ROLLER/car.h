@@ -48,7 +48,7 @@ typedef struct
   int iUnk25_2;
   float fMaxSpeed2;
   int iUnk27;
-  float fUnk28;
+  float fCameraDistance;
   float fPower;
   uint8 byGearAyMax;
   uint8 byResultLap;

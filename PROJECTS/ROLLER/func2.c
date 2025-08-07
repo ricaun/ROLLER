@@ -128,6 +128,41 @@ char szKeyJoy2Right[] = "JOY 2 RIGHT";
 
 //-------------------------------------------------------------------------------------------------
 
+int dam_remap[256] = //000A35E4
+{
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, 8, 7, 6, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, 5, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, 13, 12, 11, 10, 9,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, 4, 3, 2, 1
+};
 int write_key = 0;          //000A39E4
 int read_key = 0;           //000A39E8
 int zoom_ascii_variable_1 = 0; //000A3AEC no symbols for these?
@@ -1527,123 +1562,112 @@ int print_block(char *a1, int a2, int a3)
 
 //-------------------------------------------------------------------------------------------------
 
-int print_damage(uint8 *a1, int *a2, int a3)
+void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // esi
-  unsigned __int8 *v4; // edi
-  int v5; // ecx
-  double v6; // st7
-  __int16 v7; // fps
-  unsigned __int8 *v8; // edx
-  _BOOL1 v9; // c0
-  char v10; // c2
-  _BOOL1 v11; // c3
-  int v12; // eax
-  double v13; // st7
-  int result; // eax
-  int v15; // esi
+  int iScreenSize; // esi
+  int iViewType; // ecx
+  double dZoomThreshold; // st7
+  uint8 *pbySourceData; // edx
+  double dDamage; // st7
+  int iScreenSizeTemp; // esi
   int j; // eax
-  unsigned __int8 v17; // cl
-  int v18; // eax
-  int v19; // ebx
-  unsigned __int8 *v20; // [esp+0h] [ebp-38h]
+  uint8 byPixel; // cl
+  int iScaleAccum; // eax
+  int iXPos; // ebx
+  uint8 *pbyRowStart; // [esp+0h] [ebp-38h]
   int k; // [esp+4h] [ebp-34h]
-  int v22; // [esp+8h] [ebp-30h]
-  int v23; // [esp+Ch] [ebp-2Ch]
-  int v24; // [esp+10h] [ebp-28h]
+  int iWidth; // [esp+8h] [ebp-30h]
+  int iRowScaleAccum; // [esp+Ch] [ebp-2Ch]
+  int iHeight; // [esp+10h] [ebp-28h]
   int i; // [esp+14h] [ebp-24h]
-  int v26; // [esp+18h] [ebp-20h]
-  int v27; // [esp+1Ch] [ebp-1Ch]
-  unsigned __int8 *v28; // [esp+20h] [ebp-18h]
-  unsigned __int8 v29; // [esp+24h] [ebp-14h]
+  int iZoomThreshold; // [esp+18h] [ebp-20h]
+  int iDamage; // [esp+1Ch] [ebp-1Ch]
+  uint8 *pbyDestPixel; // [esp+20h] [ebp-18h]
+  uint8 byCurrentPixel; // [esp+24h] [ebp-14h]
 
-  v3 = scr_size;
-  v4 = a1;
-  v5 = 77 * ViewType[a3];
-  v6 = Car_variable_28[v5] * func2_c_variable_31;
-  _CHP(a1, a2);
-  v26 = (int)v6;
-  v22 = *a2;
-  v24 = a2[1];
-  v12 = a2[2];
-  v23 = v3;
-  v8 = (unsigned __int8 *)a2 + v12;
-  v9 = Car_variable_9[v5] > 0.0;
-  v10 = 0;
-  v11 = 0.0 == Car_variable_9[v5];
-  LOWORD(v12) = v7;
-  if (Car_variable_9[v5] <= 0.0) {
-    v27 = 13;
+  iScreenSize = scr_size;                       // Get current screen/sprite scaling size
+  iViewType = ViewType[iCarIdx];                // Get view type for the specified car
+  dZoomThreshold = Car[iViewType].fCameraDistance * 48.0;// Calculate zoom threshold based on camera distance * 48.0
+  //_CHP();
+  iZoomThreshold = (int)dZoomThreshold;
+  iWidth = pBlockHeader->iWidth;                // Extract sprite dimensions from sprite data header
+  iHeight = pBlockHeader->iHeight;
+  iRowScaleAccum = iScreenSize;
+  pbySourceData = (uint8 *)pBlockHeader + pBlockHeader->iDataOffset;// Get pointer to sprite pixel data (header + offset)
+  if (Car[iViewType].fHealth <= 0.0)          // Check if car is destroyed (health <= 0)
+  {
+    iDamage = 13;                               // Car is destroyed - use maximum damage level (13)
   } else {
-    v13 = (func2_c_variable_32 - Car_variable_9[v5]) * func2_c_variable_33 * func2_c_variable_34;
-    _CHP(v12, v8);
-    v27 = (int)v13;
+    dDamage = (100.0 - Car[iViewType].fHealth) * 0.01 * 13.0;// Calculate damage level: (100-health)% * 13 damage levels
+    //_CHP();
+    iDamage = (int)dDamage;
   }
-  result = do_blip(a3, v8);
-  if (v3 == 64) {
-    v15 = scr_size;
-    for (i = 0; i < v24; v4 += winw - v22) {
-      for (j = 0; j < v22; ++v4) {
-        v17 = *v8++;
-        if (v17) {
-          if (v17 >= 0x31u) {
-            if (v27 >= dam_remap[v17])
-              *v4 = v17;
+  do_blip(iCarIdx);
+  if (iScreenSize == 64)                      // Check if using 64-pixel scaling (1:1 pixel copy mode)
+  {
+    iScreenSizeTemp = scr_size;
+    for (i = 0; i < iHeight; pDest += winw - iWidth)// 1:1 scaling - simple row-by-row pixel copy loop
+    {                                           // Copy each pixel in the current row
+      for (j = 0; j < iWidth; ++pDest) {
+        byPixel = *pbySourceData++;             // Read source pixel and advance pointer
+        if (byPixel)                          // Skip transparent pixels (value 0)
+        {                                       // Check if pixel is damage-mappable (>= 0x31 = 49)
+          if (byPixel >= 0x31u) {                                     // Apply damage mapping if damage level allows it
+            if (iDamage >= dam_remap[byPixel])
+              *pDest = byPixel;
             else
-              *v4 = 123;
-          } else if (v17 > v26) {
-            *v4 = -19;
+              *pDest = 0x7B;                    // Use default damaged color if damage too low (0x7B is grey)
+          } else if (byPixel > iZoomThreshold)  // For non-damage pixels, check zoom threshold
+          {
+            *pDest = 0xED;                      // 0xED = dark blue in PALETTE.PAL
           } else {
-            *v4 = -13;
+            *pDest = 0xF3;                      // 0xF3 = blue in PALETTE.PAL
           }
         }
         ++j;
       }
-      result = winw - v22;
       ++i;
     }
   } else {
-    result = 0;
-    v15 = scr_size;
-    for (k = 0; k < v24; v4 = &v28[winw]) {
-      v18 = v15;
-      v28 = v4;
-      v20 = v8;
-      v19 = 0;
-      while (v19 < v22) {
-        v29 = *v8;
-        if (*v8) {
-          if (*v8 >= 0x31u) {
-            if (v27 >= dam_remap[v29])
-              *v4 = v29;
+    iScreenSizeTemp = scr_size;                 // Scaled rendering mode - more complex pixel interpolation
+    for (k = 0; k < iHeight; pDest = &pbyDestPixel[winw])// Process each row of the scaled sprite
+    {
+      iScaleAccum = iScreenSizeTemp;
+      pbyDestPixel = pDest;
+      pbyRowStart = pbySourceData;
+      iXPos = 0;
+      while (iXPos < iWidth)                  // Process each column in the current row
+      {
+        byCurrentPixel = *pbySourceData;
+        if (*pbySourceData) {                                       // Same damage mapping logic as 1:1 mode
+          if (*pbySourceData >= 0x31u) {
+            if (iDamage >= dam_remap[byCurrentPixel])
+              *pDest = byCurrentPixel;
             else
-              *v4 = 123;
-          } else if (v29 > v26) {
-            *v4 = -19;
+              *pDest = 0x7B;                    // 0x7B = grey
+          } else if (byCurrentPixel > iZoomThreshold) {
+            *pDest = 0xED;                      // 0xED = dark blue
           } else {
-            *v4 = -13;
+            *pDest = 0xF3;                      // 0xF3 = blue
           }
         }
-        v18 -= 64;
-        ++v4;
-        for (; v18 <= 0; ++v19) {
-          ++v8;
-          v18 += v15;
+        iScaleAccum -= 64;                      // Advance scaling accumulator and destination pixel
+        ++pDest;
+        for (; iScaleAccum <= 0; ++iXPos)     // When scale accumulator depleted, advance source pixel
+        {
+          ++pbySourceData;
+          iScaleAccum += iScreenSizeTemp;
         }
       }
-      v8 = v20;
-      for (v23 -= 64; v23 <= 0; ++k) {
-        v8 += v22;
-        v23 += v15;
+      pbySourceData = pbyRowStart;              // Reset source pointer to start of current row
+      for (iRowScaleAccum -= 64; iRowScaleAccum <= 0; ++k)// When row scale accumulator depleted, advance to next source row
+      {
+        pbySourceData += iWidth;
+        iRowScaleAccum += iScreenSizeTemp;
       }
-      result = k;
     }
   }
-  scr_size = v15;
-  return result;*/
+  scr_size = iScreenSizeTemp;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4740,4 +4764,3 @@ void do_blip(int iCarIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
- 
