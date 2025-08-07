@@ -4064,37 +4064,31 @@ void blankwindow(int iX1, int iY1, int iX2, int iY2)
 
 //-------------------------------------------------------------------------------------------------
 
-int volumebar(int a1, int a2)
+void volumebar(int iX, int iVolume)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  _BYTE *v2; // ecx
-  int result; // eax
-  int v4; // esi
-  int v5; // ebp
-  int v6; // edi
+  uint8 *pScreenRow; // ecx
+  int iRowIdx; // esi
+  int iBarHeight; // ebp
+  unsigned int uiVolumeWidth; // edi
 
-  v2 = (_BYTE *)(scrbuf + 175 * winw / 320 + ((scr_size * a1) >> 6) * winw);
-  result = 100 * a2 / 127 * winw / 320;
-  v4 = 0;
-  v5 = (10 * scr_size) >> 6;
-  v6 = result;
-  if (v5 > 0) {
-    do {
-      if (v4 && v4 != v5 - 1) {
-        *v2 = 112;
-        memset(v2 + 1, 171, v6);
-        result = 101 * winw / 320;
-        v2[result] = 112;
+  pScreenRow = &scrbuf[175 * winw / 320 + ((scr_size * iX) >> 6) * winw];// Calculate screen position: Y=175*winw/320, X=scaled position
+  iRowIdx = 0;
+  iBarHeight = (10 * scr_size) >> 6;            // Calculate scaled bar height (10 * scr_size / 64)
+  uiVolumeWidth = 100 * iVolume / 127 * winw / 320;// Calculate volume fill width: volume level (0-127) mapped to 0-100 pixels scaled
+  if (iBarHeight > 0)                         // Main rendering loop for each row of the volume bar
+  {
+    do {                                           // Skip top and bottom rows (draw border only on middle rows)
+      if (iRowIdx && iRowIdx != iBarHeight - 1) {
+        *pScreenRow = 0x70;                     // Draw left border (0x70 is black in PALETTE.PAL)
+        memset(pScreenRow + 1, 0xAB, uiVolumeWidth);// Fill volume level area (0xAB is orange in PALETTE.PAL)
+        pScreenRow[101 * winw / 320] = 0x70;    // Draw right border (0x70 is black in PALETTE.PAL)
       } else {
-        result = memset(v2, 112, 102 * winw / 320);
+        memset(pScreenRow, 0x70, 102 * winw / 320);// Top/bottom rows: fill entire width with border color (0x70 is black in PALETTE.PAL)
       }
-      v2 += winw;
-      ++v4;
-    } while (v4 < v5);
+      pScreenRow += winw;                       // Move to next screen row
+      ++iRowIdx;
+    } while (iRowIdx < iBarHeight);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
