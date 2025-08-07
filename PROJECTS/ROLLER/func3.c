@@ -300,14 +300,14 @@ void StoreResult()
     iOffset = 0;
     do {
       iCarIdx = result_order[iOffset / 4];
-      if (fabs(Car[iCarIdx].fResultBestTime) > FLT_EPSILON && Car[iCarIdx].fResultBestTime < (double)BestTime) {
+      if (fabs(Car[iCarIdx].fBestLapTime) > FLT_EPSILON && Car[iCarIdx].fBestLapTime < (double)BestTime) {
         iFastestLap = result_order[iOffset / 4];
-        BestTime = Car[iCarIdx].fResultBestTime;
+        BestTime = Car[iCarIdx].fBestLapTime;
       }
-      result_best[iCarIdx] = Car[iCarIdx].fResultBestTime;
-      dResultTime = Car[iCarIdx].fResultTime;
-      result_kills[iCarIdx] = Car[iCarIdx].byResultKills;
-      result_lap[iCarIdx] = (char)Car[iCarIdx].byResultLap;
+      result_best[iCarIdx] = Car[iCarIdx].fBestLapTime;
+      dResultTime = Car[iCarIdx].fTotalRaceTime;
+      result_kills[iCarIdx] = Car[iCarIdx].byKills;
+      result_lap[iCarIdx] = (char)Car[iCarIdx].byLap;
       result_lives[iCarIdx] = (char)Car[iCarIdx].byLives;
       byCarDesignIdx = Car[iCarIdx].byCarDesignIdx;
       result_time[iCarIdx] = (float)dResultTime;
@@ -635,7 +635,7 @@ void TimeTrials(int iDriverIdx)
   }
 
   // Format and display driver's best time in MM:SS:CS format
-  dBestTime = Car[iCarIdx].fResultBestTime * 100.0;
+  dBestTime = Car[iCarIdx].fBestLapTime * 100.0;
   //_CHP();
   iBestCentiseconds = (int)dBestTime;
   if ((int)dBestTime > 100000)
@@ -667,13 +667,13 @@ void TimeTrials(int iDriverIdx)
   iTimeOffset = 24 * iCarIdx + 4;
 
   // Loop through each completed lap and display lap number and time
-  while (iLapNumber < (char)Car[iCarIndex].byResultLap) {
+  while (iLapNumber < (char)Car[iCarIndex].byLap) {
     sprintf(buffer, "%s %i", &language_buffer[256], iLapNumber);// Display lap number text
     front_text(front_vga[2], buffer, font2_ascii, font2_offsets, 220, iLapTextY, 0x8Fu, 0);
 
     // Calculate the array index instead of byte offset
     int iTrialIndex = (iTimeOffset - 4) / 4;  // Convert byte offset back to array index
-    if (trial_times[iTrialIndex] == Car[iCarIndex].fResultBestTime)  // Show fastest lap icon if this lap matches best time
+    if (trial_times[iTrialIndex] == Car[iCarIndex].fBestLapTime)  // Show fastest lap icon if this lap matches best time
       display_block(scrbuf, front_vga[0], 10, 428, iY, 0);
     dLapTime = trial_times[iTrialIndex] * 100.0;  // Format and display lap time in MM:SS:CS format
     //if (*(float *)((char *)trial_times + iTimeOffset) == Car[iCarIndex].fResultBestTime)// Show fastest lap icon if this lap matches best time

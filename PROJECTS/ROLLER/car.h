@@ -51,8 +51,8 @@ typedef struct
   float fCameraDistance;
   float fPower;
   uint8 byGearAyMax;
-  uint8 byResultLap;
-  uint8 byUnk32;
+  uint8 byLap;
+  uint8 byRacePosition;
   uint8 byUnk33;
   int iUnk34;
   int iUnk35;
@@ -69,7 +69,7 @@ typedef struct
   float fUnk39;
   uint8 byDebugDamage;
   uint8 byUnk41;
-  uint8 byResultKills;
+  uint8 byKills;
   uint8 byUnk43;
   int iUnk44;
   int iUnk45;
@@ -79,10 +79,10 @@ typedef struct
   int iUnk49;
   int iUnk50;
   int iLastValidChunk;
-  float iUnk52;
-  float fResultBestTime;
-  int iUnk54;
-  float fResultTime;
+  float fRunningLapTime;
+  float fBestLapTime;
+  float fPreviousLapTime;
+  float fTotalRaceTime;
   int16 nUnk56;
   int16 nUnk57;
   uint8 byUnk58;
@@ -94,7 +94,7 @@ typedef struct
   uint8 byUnk64;
   uint8 byUnk65;
   uint8 byPadding14;
-  uint8 byUnk66;
+  uint8 byCheatAmmo;
   uint8 byUnk67;
   uint8 byUnk68;
   uint8 byPadding15;

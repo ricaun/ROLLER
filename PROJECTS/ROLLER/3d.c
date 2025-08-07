@@ -1092,7 +1092,7 @@ int main(int argc, const char **argv, const char **envp)
                 if (game_type == 2) {
                   StoreResult();
                   for (nCarIdx = 0; nCarIdx < numcars; ++nCarIdx) {
-                    if (human_control[nCarIdx] && (char)Car[nCarIdx].byResultLap > 1)
+                    if (human_control[nCarIdx] && (char)Car[nCarIdx].byLap > 1)
                       TimeTrials(nCarIdx);
                   }
                   ShowLapRecords();
