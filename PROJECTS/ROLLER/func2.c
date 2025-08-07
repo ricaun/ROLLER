@@ -366,6 +366,7 @@ char *keyname[140] = {      //000A3EDC
 };
 int userkey[14] = {44u, 45u, 20u, 33u, 19u, 32u, 79u, 80u, 73u, 77u, 72u, 76u, 21u, 79u}; //000A410C
 uint8 key_buffer[64];       //0013FB90
+int new_zoom[2];            //0013FBD0
 char config_buffer[8192];   //0013FBD8
 char language_buffer[8192]; //00141BD8
 int no_mem;                 //00143BE0
@@ -4459,53 +4460,53 @@ void copyscreenmodex(uint8 *pSrc, uint8 *pDest)
 
 //-------------------------------------------------------------------------------------------------
 
-char start_zoom(char *a1, int a2)
+void start_zoom(const char *szStr, int iPlayerIdx)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v4; // edx
-  int v5; // ebp
-  _BYTE *v6; // edi
-  char result; // al
+  int iPlayerIdx_1; // edx
+  int iGameCount; // ebp
+  char *pszDest; // edi
+  char c0; // al
+  char c1; // al
+  char c0_1; // al
+  char c1_1; // al
 
-  v4 = a2;
-  v5 = game_count[v4];
-  sub_on[v4] = 0;
-  zoom_size[v4] = -1;
-  new_zoom[v4] = -1;
-  v6 = &zoom_mes[24 * a2];
-  if (v5 == -2) {
+  iPlayerIdx_1 = iPlayerIdx;
+  iGameCount = game_count[iPlayerIdx_1];
+  sub_on[iPlayerIdx_1] = 0;
+  zoom_size[iPlayerIdx_1] = -1;
+  new_zoom[iPlayerIdx_1] = -1;
+  pszDest = zoom_mes[iPlayerIdx];
+  if (iGameCount == -2) {
     do {
-      result = *a1;
-      *v6 = *a1;
-      if (!result)
+      c0 = *szStr;
+      *pszDest = *szStr;
+      if (!c0)
         break;
-      result = a1[1];
-      a1 += 2;
-      v6[1] = result;
-      v6 += 2;
-    } while (result);
-    game_count[v4] = 0;
-    game_scale[v4] = 1191182336;
+      c1 = szStr[1];
+      szStr += 2;
+      pszDest[1] = c1;
+      pszDest += 2;
+    } while (c1);
+    game_count[iPlayerIdx_1] = 0;
+    game_scale[iPlayerIdx_1] = 32768.0;
   } else {
     do {
-      result = *a1;
-      *v6 = *a1;
-      if (!result)
+      c0_1 = *szStr;
+      *pszDest = *szStr;
+      if (!c0_1)
         break;
-      result = a1[1];
-      a1 += 2;
-      v6[1] = result;
-      v6 += 2;
-    } while (result);
-    if (game_count[v4] == -1) {
-      game_count[v4] = 0;
-    } else if (game_scale[v4] == 1115684864) {
-      game_count[v4] = 72;
+      c1_1 = szStr[1];
+      szStr += 2;
+      pszDest[1] = c1_1;
+      pszDest += 2;
+    } while (c1_1);
+    if (game_count[iPlayerIdx_1] == -1) {
+      game_count[iPlayerIdx_1] = 0;
+    } else if (game_scale[iPlayerIdx_1] == 64.0f) //if (LODWORD(game_scale[iPlayerIdx_1]) == 0x42800000)// 64.0f
+    {
+      game_count[iPlayerIdx_1] = 72;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

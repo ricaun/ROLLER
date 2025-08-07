@@ -29,7 +29,9 @@ int exiting = 0;            //000A3170
 int dontrestart = 0;        //000A3174
 int champ_mode = 0;         //000A3178
 int cd_error = 0;           //000A317C
+int game_count[2] = { -2, -2 }; //000A3180
 int lastblip[2] = { 0, 0 }; //000A3188
+float game_scale[2] = { 32768.0f, 32768.0f }; //000A3190
 int game_svga = 0;          //000A31B0
 int game_size = 64;         //000A31B4
 int game_view[2] = { 0, 0 }; //000A31B8
@@ -90,6 +92,10 @@ uint8 blank_line[640];      //001312A8
 int p_joyk1[2];             //0013E048
 int p_joyk2[2];             //0013E050
 tMemBlock mem_blocks[128];  //0013E058
+int zoom_size[2];           //0013E858
+char zoom_mes[2][24];       //0013E860
+int sub_on[2];              //0013E890
+char zoom_sub[2][24];       //0013E898
 volatile int ticks;         //0013E92C
 float k1;                   //0013E938
 float k2;                   //0013E93C
