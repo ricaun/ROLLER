@@ -32,6 +32,11 @@ int cd_error = 0;           //000A317C
 int game_count[2] = { -2, -2 }; //000A3180
 int lastblip[2] = { 0, 0 }; //000A3188
 float game_scale[2] = { 32768.0f, 32768.0f }; //000A3190
+int define_mode = 0;        //000A3198
+int calibrate_mode = 0;     //000A319C
+int graphic_mode = 0;       //000A31A0
+int calibrate_select = 0;   //000A31A4
+int sound_edit = 0;         //000A31A8
 int showversion = 0;        //000A31AC
 int game_svga = 0;          //000A31B0
 int game_size = 64;         //000A31B4
@@ -150,7 +155,10 @@ int NoOfLaps;               //0013FA84
 int human_finishers;        //0013FA88
 int countdown;              //0013FA90
 int max_mem;                //0013FAA4
+int pausewindow;            //0013FAB0
 int scrmode;                //0013FAB4
+int control_select;         //0013FAB8
+int req_size;               //0013FABC
 int intro;                  //0013FAC0
 int control_edit;           //0013FACC
 int req_edit;               //0013FAD0

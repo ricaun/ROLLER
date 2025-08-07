@@ -2605,195 +2605,192 @@ void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *pi
 
 //-------------------------------------------------------------------------------------------------
 
-char display_paused()
+void display_paused()
 {
-  return 0;
-  /*
+  char byMenuColor; // al
+  char byMenuItemColor; // al
+  const char *pszMenuText; // edx
+  char byOption2Color; // al
+  char byOption3Color; // al
+  char byOption4Color; // al
+  char byOption5Color; // al
+  char byOption6Color; // al
+  int iKeyReleaseCheck; // ebx
+  int iKeyIndex; // eax
+  int iNameIndex; // edx
+  char byControlColor1; // al
+  char byControlColor2; // al
+  char byControlColor3; // al
+  int iYPosition; // edi
+  int iControlIndex; // esi
+  char byKeyDisplayColor1; // al
+  char byKeyDisplayColor2; // al
+  int iControlIndex2; // esi
+  int iYPosition2; // edi
+  char byKeyColor1; // al
+  char byKeyColor2; // al
+  int iKeyPressed; // ebx
+  int iKeyLoop; // eax
+  int iNameLoop; // edx
+  int iJoy2YCalc; // eax
+  int iJoy2XCalc; // eax
+  int iJoy1YCalc; // eax
+  int iJoy1XCalc; // eax
+  int iDuplicateCheck; // esi
   int i; // eax
-  char v1; // al
-  char v2; // al
-  char *v3; // edx
-  char v4; // al
-  char v5; // al
-  char v6; // al
-  char v7; // al
-  char v8; // al
-  int v9; // ebx
-  int v10; // eax
-  int v11; // edx
-  char v12; // al
-  char v13; // al
-  char v14; // al
-  int v15; // edi
-  int v16; // esi
-  char v17; // al
-  char v18; // al
-  int v19; // edx
-  int v20; // esi
-  int v21; // edi
-  char v22; // al
-  char v23; // al
-  int v24; // ebx
-  int v25; // esi
-  int v26; // edi
-  char v27; // al
-  char v28; // al
-  char v29; // al
-  int v30; // ebx
-  _BYTE *v31; // edx
-  char v32; // al
-  int v33; // ebx
-  _BYTE *v34; // edx
-  char v35; // al
-  int v36; // ebx
-  _BYTE *v37; // edx
-  char v38; // al
-  int v39; // ebx
-  _BYTE *v40; // edx
-  char v41; // al
-  char v42; // al
-  char v43; // al
-  char v44; // al
-  char v45; // al
-  char v46; // al
-  _BYTE *v47; // edx
-  char v48; // al
-  char v49; // al
-  _BYTE *v50; // edx
-  char v51; // al
-  char v52; // al
-  _BYTE *v53; // edx
-  char v54; // al
-  char v55; // al
-  char v56; // al
-  _BYTE *v57; // edx
-  char v58; // al
-  char v59; // al
-  _BYTE *v60; // edx
-  char v61; // al
-  char v62; // al
-  _BYTE *v63; // edx
-  char v64; // al
-  char v65; // al
-  _BYTE *v66; // edx
-  char v67; // al
-  char v68; // al
-  _BYTE *v69; // edx
-  char v70; // al
-  char v71; // al
-  _BYTE *v72; // edx
-  char v73; // al
-  char v74; // al
-  _BYTE *v75; // edx
-  char v76; // al
-  char v77; // al
-  _BYTE *v78; // edx
-  char v79; // al
-  char v80; // al
-  _BYTE *v81; // edx
-  char v82; // al
-  char v83; // al
-  _BYTE *v84; // edx
-  char v85; // al
-  char v86; // al
-  _BYTE *v87; // edx
-  char v88; // al
-  char v89; // al
-  _BYTE *v90; // edx
-  char v91; // al
-  char v92; // al
-  _BYTE *v93; // edx
-  char v94; // al
-  char v95; // al
-  _BYTE *v96; // edx
-  char v97; // al
-  int v98; // eax
-  char v99; // al
-  char v100; // al
-  char *v101; // edx
-  char v102; // al
-  _DWORD v104[2]; // [esp+0h] [ebp-28h] BYREF
-  int v105; // [esp+8h] [ebp-20h]
-  int v106; // [esp+Ch] [ebp-1Ch]
-  int v107; // [esp+10h] [ebp-18h]
-  int v108; // [esp+14h] [ebp-14h]
-  int v109; // [esp+18h] [ebp-10h]
-  int v110; // [esp+1Ch] [ebp-Ch]
-  char *v111; // [esp+20h] [ebp-8h]
-  char *v112; // [esp+24h] [ebp-4h]
+  int iControlNext; // eax
+  int iControlSelect; // edi
+  char byCalibColor1; // al
+  char byCalibColor2; // al
+  char byCalibColor3; // al
+  int iJoy1XBar; // ebx
+  const char *pszJoy1XStatus; // edx
+  char byJoy1XColor; // al
+  int iJoy1YBar; // ebx
+  const char *pszJoy1YStatus; // edx
+  char byJoy1YColor; // al
+  int iJoy2XBar; // ebx
+  const char *pszJoy2XStatus; // edx
+  char byJoy2XColor; // al
+  int iJoy2YBar; // ebx
+  const char *pszJoy2YStatus; // edx
+  char bySoundColor1; // al
+  char bySoundColor2; // al
+  char bySoundColor3; // al
+  char bySoundColor4; // al
+  char bySoundColor5; // al
+  char byEngineColor; // al
+  const char *pszEngineText; // edx
+  char bySoundOnColor; // al
+  char bySoundStatus1; // al
+  const char *pszSoundStatus1; // edx
+  char byMusicColor; // al
+  char byMusicStatus; // al
+  const char *pszMusicStatus; // edx
+  char byBackColor; // al
+  char byPerspectiveColor; // al
+  char byPerspectiveOnOff; // al
+  const char *pszPerspectiveText; // edx
+  char byNamesColor; // al
+  char byNamesOnOff; // al
+  const char *pszNamesText; // edx
+  char byBuildingsColor; // al
+  char byBuildingStatus; // al
+  const char *pszBuildingText; // edx
+  char byGlassColor; // al
+  char byGlassStatus; // al
+  const char *pszGlassText; // edx
+  char byHorizonColor; // al
+  char byHorizonStatus; // al
+  const char *pszHorizonText; // edx
+  char byCarTexColor; // al
+  char byCarTexStatus; // al
+  const char *pszCarTexText; // edx
+  char byWallTexColor; // al
+  char byWallTexStatus; // al
+  const char *pszWallTexText; // edx
+  char byGroundTexColor; // al
+  char byGroundTexStatus; // al
+  const char *pszGroundTexText; // edx
+  char byBuildingTexColor; // al
+  char byBuildingTexStatus; // al
+  const char *pszBuildingTexText; // edx
+  char byRoadTexColor; // al
+  char byRoadTexStatus; // al
+  const char *pszRoadTexText; // edx
+  char byShadowsColor; // al
+  char byShadowsStatus; // al
+  const char *pszShadowsText; // edx
+  char byCloudsColor; // al
+  char byCloudsStatus; // al
+  const char *pszCloudsText; // edx
+  char byPanelColor; // al
+  char byPanelStatus; // al
+  const char *pszPanelText; // edx
+  char byViewLimitColor; // al
+  char byViewLimitStatus; // al
+  const char *pszViewLimitText; // edx
+  char bySizeColor; // al
+  int iSizePercent; // eax
+  char bySizeDisplayColor; // al
+  char bySVGAColor; // al
+  const char *pszSVGAText; // edx
+  char byExitColor; // al
+  tJoyPos pJoyPos; // [esp+0h] [ebp-28h] BYREF
+  const char *pszConfigText1; // [esp+20h] [ebp-8h]
+  const char *pszConfigText2; // [esp+24h] [ebp-4h]
 
-  LOBYTE(i) = pausewindow;
   switch (pausewindow) {
     case 0:
       blankwindow(0, 0, 320, 200);
-      prt_centrecol(rev_vga_variable_1, config_buffer, 160, 16, 171);
+      prt_centrecol(rev_vga[1], config_buffer, 160, 16, 171);
       if (req_edit)
-        v1 = -125;
+        byMenuColor = 0x83;                     // Grey color (0x83) for non-selected menu items
       else
-        v1 = -113;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_1, 160, 36, v1);
+        byMenuColor = 0x8F;                     // White color (0x8F) for selected menu items
+      prt_centrecol(rev_vga[1], &config_buffer[64], 160, 36, byMenuColor);
       if (replaytype == 2) {
         if (req_edit == 1)
-          v2 = -113;
+          byMenuItemColor = 0x8F;
         else
-          v2 = -125;
-        v3 = (char *)&config_buffer_variable_3;
+          byMenuItemColor = 0x83;
+        pszMenuText = &config_buffer[192];
       } else {
         if (req_edit == 1)
-          v2 = -113;
+          byMenuItemColor = 0x8F;
         else
-          v2 = -125;
-        v3 = (char *)&config_buffer_variable_2;
+          byMenuItemColor = 0x83;
+        pszMenuText = &config_buffer[128];
       }
-      prt_centrecol(rev_vga_variable_1, v3, 160, 48, v2);
+      prt_centrecol(rev_vga[1], pszMenuText, 160, 48, byMenuItemColor);
       if (req_edit == 2)
-        v4 = -113;
+        byOption2Color = 0x8F;
       else
-        v4 = -125;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_4, 160, 60, v4);
+        byOption2Color = 0x83;
+      prt_centrecol(rev_vga[1], &config_buffer[256], 160, 60, byOption2Color);
       if (req_edit == 3)
-        v5 = -113;
+        byOption3Color = 0x8F;
       else
-        v5 = -125;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_5, 160, 72, v5);
+        byOption3Color = 0x83;
+      prt_centrecol(rev_vga[1], &config_buffer[320], 160, 72, byOption3Color);
       if (req_edit == 4)
-        v6 = -113;
+        byOption4Color = 0x8F;
       else
-        v6 = -125;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_6, 160, 84, v6);
+        byOption4Color = 0x83;
+      prt_centrecol(rev_vga[1], &config_buffer[384], 160, 84, byOption4Color);
       if (req_edit == 5)
-        v7 = -113;
+        byOption5Color = 0x8F;
       else
-        v7 = -125;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_9, 160, 96, v7);
+        byOption5Color = 0x83;
+      prt_centrecol(rev_vga[1], &config_buffer[576], 160, 96, byOption5Color);
       if (req_edit == 6)
-        v8 = -113;
+        byOption6Color = 0x8F;
       else
-        v8 = -125;
-      LOBYTE(i) = prt_centrecol(rev_vga_variable_1, config_buffer_variable_10, 160, 108, v8);
+        byOption6Color = 0x83;
+      prt_centrecol(rev_vga[1], &config_buffer[640], 160, 108, byOption6Color);
       break;
     case 1:
-      blankwindow(0, 0, 320, 200);
+      blankwindow(0, 0, 320, 200);              // Case 1: Joystick calibration window
       if (calibrate_mode) {
-        ReadJoys(v104);
-        _disable();
-        if (v105 < JAXmin)
-          JAXmin = v105;
-        if (v105 > JAXmax)
-          JAXmax = v105;
-        if (v106 < JAYmin)
-          JAYmin = v106;
-        if (v106 > JAYmax)
-          JAYmax = v106;
-        if (v109 < JBXmin)
-          JBXmin = v109;
-        if (v109 > JBXmax)
-          JBXmax = v109;
-        if (v110 < JBYmin)
-          JBYmin = v110;
-        if (v110 > JBYmax)
-          JBYmax = v110;
-        if (JAXmin == JAXmax)
+        ReadJoys(&pJoyPos);                     // Read joystick positions for calibration
+        //_disable();
+        if (pJoyPos.iX1Count < JAXmin)        // Update joystick 1 X-axis min/max calibration values
+          JAXmin = pJoyPos.iX1Count;
+        if (pJoyPos.iX1Count > JAXmax)
+          JAXmax = pJoyPos.iX1Count;
+        if (pJoyPos.iY1Count < JAYmin)        // Update joystick 1 Y-axis min/max calibration values
+          JAYmin = pJoyPos.iY1Count;
+        if (pJoyPos.iY1Count > JAYmax)
+          JAYmax = pJoyPos.iY1Count;
+        if (pJoyPos.iX2Count < JBXmin)        // Update joystick 2 X-axis min/max calibration values
+          JBXmin = pJoyPos.iX2Count;
+        if (pJoyPos.iX2Count > JBXmax)
+          JBXmax = pJoyPos.iX2Count;
+        if (pJoyPos.iY2Count < JBYmin)        // Update joystick 2 Y-axis min/max calibration values
+          JBYmin = pJoyPos.iY2Count;
+        if (pJoyPos.iY2Count > JBYmax)
+          JBYmax = pJoyPos.iY2Count;
+        if (JAXmin == JAXmax)                 // Ensure min != max to avoid division by zero
           JAXmax = JAXmin + 1;
         if (JAYmin == JAYmax)
           JAYmax = JAYmin + 1;
@@ -2801,709 +2798,704 @@ char display_paused()
           JBXmax = JBXmin + 1;
         if (JBYmin == JBYmax)
           JBYmax = JBYmin + 1;
-        _enable();
+        //_enable();
       }
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_5, 160, 16, 171);
+      prt_centrecol(rev_vga[1], &config_buffer[320], 160, 16, 171);
       if (calibrate_select != 1 || calibrate_mode)
-        v27 = -125;
+        byCalibColor1 = 0x83;
       else
-        v27 = -113;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_14, 160, 36, v27);
+        byCalibColor1 = 0x8F;
+      prt_centrecol(rev_vga[1], &config_buffer[1664], 160, 36, byCalibColor1);
       if (calibrate_select || calibrate_mode)
-        v28 = -125;
+        byCalibColor2 = 0x83;
       else
-        v28 = -113;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_13, 160, 48, v28);
+        byCalibColor2 = 0x8F;
+      prt_centrecol(rev_vga[1], &config_buffer[832], 160, 48, byCalibColor2);
       if (calibrate_mode)
-        v29 = -113;
+        byCalibColor3 = 0x8F;
       else
-        v29 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_15, 176, 68, v29);
+        byCalibColor3 = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[1728], 176, 68, byCalibColor3);
       if (calibrate_mode) {
         if (x1ok && JAXmax - JAXmin >= 100)
-          v30 = 140 * (2 * v105 - JAXmax - JAXmin) / (JAXmax - JAXmin);
+          iJoy1XBar = 140 * (2 * pJoyPos.iX1Count - JAXmax - JAXmin) / (JAXmax - JAXmin);
         else
-          v30 = 0;
-        displaycalibrationbar(180, 68, v30);
+          iJoy1XBar = 0;
+        displaycalibrationbar(180, 68, iJoy1XBar);
       } else {
         if (x1ok)
-          v31 = &config_buffer_variable_20;
+          pszJoy1XStatus = &config_buffer[2048];
         else
-          v31 = &config_buffer_variable_19;
-        prt_stringcol(rev_vga_variable_1, v31, 180, 68, 131);
+          pszJoy1XStatus = &config_buffer[1984];
+        prt_stringcol(rev_vga[1], pszJoy1XStatus, 180, 68, 131);
       }
       if (calibrate_mode)
-        v32 = -113;
+        byJoy1XColor = 0x8F;
       else
-        v32 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_16, 176, 80, v32);
+        byJoy1XColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[1792], 176, 80, byJoy1XColor);
       if (calibrate_mode) {
         if (y1ok && JAYmax - JAYmin >= 100)
-          v33 = 140 * (2 * v106 - JAYmax - JAYmin) / (JAYmax - JAYmin);
+          iJoy1YBar = 140 * (2 * pJoyPos.iY1Count - JAYmax - JAYmin) / (JAYmax - JAYmin);
         else
-          v33 = 0;
-        displaycalibrationbar(180, 80, v33);
+          iJoy1YBar = 0;
+        displaycalibrationbar(180, 80, iJoy1YBar);
       } else {
         if (y1ok)
-          v34 = &config_buffer_variable_20;
+          pszJoy1YStatus = &config_buffer[2048];
         else
-          v34 = &config_buffer_variable_19;
-        prt_stringcol(rev_vga_variable_1, v34, 180, 80, 131);
+          pszJoy1YStatus = &config_buffer[1984];
+        prt_stringcol(rev_vga[1], pszJoy1YStatus, 180, 80, 131);
       }
       if (calibrate_mode)
-        v35 = -113;
+        byJoy1YColor = 0x8F;
       else
-        v35 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_17, 176, 92, v35);
+        byJoy1YColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[1856], 176, 92, byJoy1YColor);
       if (calibrate_mode) {
         if (x2ok && JBXmax - JBXmin >= 100)
-          v36 = 140 * (2 * v109 - JBXmax - JBXmin) / (JBXmax - JBXmin);
+          iJoy2XBar = 140 * (2 * pJoyPos.iX2Count - JBXmax - JBXmin) / (JBXmax - JBXmin);
         else
-          v36 = 0;
-        displaycalibrationbar(180, 92, v36);
+          iJoy2XBar = 0;
+        displaycalibrationbar(180, 92, iJoy2XBar);
       } else {
         if (x2ok)
-          v37 = &config_buffer_variable_20;
+          pszJoy2XStatus = &config_buffer[2048];
         else
-          v37 = &config_buffer_variable_19;
-        prt_stringcol(rev_vga_variable_1, v37, 180, 92, 131);
+          pszJoy2XStatus = &config_buffer[1984];
+        prt_stringcol(rev_vga[1], pszJoy2XStatus, 180, 92, 131);
       }
       if (calibrate_mode)
-        v38 = -113;
+        byJoy2XColor = 0x8F;
       else
-        v38 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_18, 176, 104, v38);
+        byJoy2XColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[1920], 176, 104, byJoy2XColor);
       if (calibrate_mode) {
         if (y2ok && JBYmax - JBYmin >= 100)
-          v39 = 140 * (2 * v110 - JBYmax - JBYmin) / (JBYmax - JBYmin);
+          iJoy2YBar = 140 * (2 * pJoyPos.iY2Count - JBYmax - JBYmin) / (JBYmax - JBYmin);
         else
-          v39 = 0;
-        LOBYTE(i) = displaycalibrationbar(180, 104, v39);
+          iJoy2YBar = 0;
+        displaycalibrationbar(180, 104, iJoy2YBar);
       } else {
         if (y2ok)
-          v40 = &config_buffer_variable_20;
+          pszJoy2YStatus = &config_buffer[2048];
         else
-          v40 = &config_buffer_variable_19;
-        LOBYTE(i) = prt_stringcol(rev_vga_variable_1, v40, 180, 104, 131);
+          pszJoy2YStatus = &config_buffer[1984];
+        prt_stringcol(rev_vga[1], pszJoy2YStatus, 180, 104, 131);
       }
       if (calibrate_mode) {
-        prt_centrecol(rev_vga_variable_1, config_buffer_variable_21, 160, 124, 143);
-        LOBYTE(i) = prt_centrecol(rev_vga_variable_1, config_buffer_variable_22, 160, 136, 143);
+        prt_centrecol(rev_vga[1], &config_buffer[2112], 160, 124, 143);
+        prt_centrecol(rev_vga[1], &config_buffer[2176], 160, 136, 143);
       }
       break;
     case 2:
-      if (controlrelease) {
-        v9 = -1;
-        v10 = 0;
-        v11 = 0;
+      if (controlrelease)                     // Case 2: Controls configuration window
+      {
+        iKeyReleaseCheck = -1;
+        iKeyIndex = 0;                          // Check if all controls are released
+        iNameIndex = 0;
         do {
-          if (keyname[v11] && keys[v10])
-            v9 = 0;
-          ++v10;
-          ++v11;
-        } while (v10 < 128);
-        if (v9)
+          if (keyname[iNameIndex] && keys[iKeyIndex])
+            iKeyReleaseCheck = 0;
+          ++iKeyIndex;
+          ++iNameIndex;
+        } while (iKeyIndex < 128);
+        if (iKeyReleaseCheck)
           controlrelease = 0;
       }
       blankwindow(0, 0, 320, 200);
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_6, 160, 16, 171);
+      prt_centrecol(rev_vga[1], &config_buffer[384], 160, 16, 171);
       if (control_select != 2 || define_mode)
-        v12 = -125;
+        byControlColor1 = 0x83;
       else
-        v12 = -113;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_11, 160, 36, v12);
+        byControlColor1 = 0x8F;
+      prt_centrecol(rev_vga[1], &config_buffer[704], 160, 36, byControlColor1);
       if (control_select != 1 || define_mode)
-        v13 = -125;
+        byControlColor2 = 0x83;
       else
-        v13 = -113;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_12, 160, 48, v13);
+        byControlColor2 = 0x8F;
+      prt_centrecol(rev_vga[1], &config_buffer[768], 160, 48, byControlColor2);
       if (control_select || define_mode)
-        v14 = -125;
+        byControlColor3 = 0x83;
       else
-        v14 = -113;
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_13, 160, 60, v14);
+        byControlColor3 = 0x8F;
+      prt_centrecol(rev_vga[1], &config_buffer[832], 160, 60, byControlColor3);
       if (control_select > 1) {
-        v20 = 6;
-        v21 = 80;
-        v111 = &config_buffer[1280];
+        iControlIndex2 = 6;
+        iYPosition2 = 80;
+        pszConfigText1 = &config_buffer[1280];
         do {
-          if (v20 == control_edit)
-            v22 = -113;
+          if (iControlIndex2 == control_edit)
+            byKeyColor1 = 0x8F;
           else
-            v22 = 123;
-          prt_rightcol(rev_vga_variable_1, v111, 198, v21, v22);
-          if (v20 == control_edit)
-            v23 = -113;
+            byKeyColor1 = 0x7B;                 // Dark grey color (0x7B) for non-selected control items
+          prt_rightcol(rev_vga[1], pszConfigText1, 198, iYPosition2, byKeyColor1);
+          if (iControlIndex2 == control_edit)
+            byKeyColor2 = 0x8F;
           else
-            v23 = 123;
-          v19 = keyname[(unsigned __int8)userkey[v20]];
-          LOBYTE(i) = prt_stringcol(rev_vga_variable_1, (_BYTE *)v19, 200, v21, v23);
-          ++v20;
-          v21 += 12;
-          v111 += 64;
-        } while (v20 < 12);
+            byKeyColor2 = 0x7B;
+          prt_stringcol(rev_vga[1], keyname[userkey[iControlIndex2++]], 200, iYPosition2, byKeyColor2);
+          iYPosition2 += 12;
+          pszConfigText1 += 64;
+        } while (iControlIndex2 < 12);
       } else {
-        v15 = 80;
-        v16 = 0;
-        v112 = &config_buffer[896];
+        iYPosition = 80;
+        iControlIndex = 0;
+        pszConfigText2 = &config_buffer[896];
         do {
-          if (v16 == control_edit)
-            v17 = -113;
+          if (iControlIndex == control_edit)
+            byKeyDisplayColor1 = 0x8F;
           else
-            v17 = 123;
-          prt_rightcol(rev_vga_variable_1, v112, 198, v15, v17);
-          if (v16 == control_edit)
-            v18 = -113;
+            byKeyDisplayColor1 = 0x7B;
+          prt_rightcol(rev_vga[1], pszConfigText2, 198, iYPosition, byKeyDisplayColor1);
+          if (iControlIndex == control_edit)
+            byKeyDisplayColor2 = 0x8F;
           else
-            v18 = 123;
-          LOBYTE(i) = prt_stringcol(
-                        rev_vga_variable_1,
-                        (_BYTE *)keyname[(unsigned __int8)userkey[v16++]],
-                        200,
-                        v15,
-                        v18);
-          v19 = (int)(v112 + 64);
-          v15 += 12;
-          v112 += 64;
-        } while (v16 < 6);
+            byKeyDisplayColor2 = 0x7B;
+          prt_stringcol(rev_vga[1], keyname[userkey[iControlIndex++]], 200, iYPosition, byKeyDisplayColor2);
+          iYPosition += 12;
+          pszConfigText2 += 64;
+        } while (iControlIndex < 6);
       }
       if (define_mode) {
         if (!controlrelease) {
-          v24 = -1;
-          i = 0;
-          v19 = 0;
+          iKeyPressed = -1;                     // Scan for pressed keys when in define mode
+          iKeyLoop = 0;
+          iNameLoop = 0;
           do {
-            if (*(int *)((char *)keyname + v19) && keys[i])
-              v24 = i;
-            ++i;
-            v19 += 4;
-          } while (i < 128);
-          if (v24 == -1) {
-            LOBYTE(i) = ReadJoys(v104);
-            if (v104[0])
-              v24 = 128;
-            if (v104[1])
-              v24 = 129;
-            if (v107)
-              v24 = 130;
-            if (v108)
-              v24 = 131;
+            if (keyname[iNameLoop] && keys[iKeyLoop])
+              iKeyPressed = iKeyLoop;
+            ++iKeyLoop;
+            ++iNameLoop;
+          } while (iKeyLoop < 128);
+          if (iKeyPressed == -1) {
+            ReadJoys(&pJoyPos);                 // Check joystick buttons if no keyboard input detected
+            if (pJoyPos.iX1Status)            // Joystick button mappings: 128=J1X, 129=J1Y, 130=J2X, 131=J2Y
+              iKeyPressed = 128;
+            if (pJoyPos.iY1Status)
+              iKeyPressed = 129;
+            if (pJoyPos.iX2Status)
+              iKeyPressed = 130;
+            if (pJoyPos.iY2Status)
+              iKeyPressed = 131;
           }
-          if (v24 == -1) {
+          if (iKeyPressed == -1) {
             if (y2ok) {
-              i = 100 * (2 * v110 - JBYmax - JBYmin) / (JBYmax - JBYmin);
-              v19 = 100 * (2 * v110 - JBYmax - JBYmin) % (JBYmax - JBYmin);
-              if (i < -50)
-                v24 = 138;
-              if (i > 50)
-                v24 = 139;
+              iJoy2YCalc = 100 * (2 * pJoyPos.iY2Count - JBYmax - JBYmin) / (JBYmax - JBYmin);
+              if (iJoy2YCalc < -50)
+                iKeyPressed = 138;
+              if (iJoy2YCalc > 50)
+                iKeyPressed = 139;
             }
             if (x2ok) {
-              i = 100 * (2 * v109 - JBXmax - JBXmin) / (JBXmax - JBXmin);
-              v19 = 100 * (2 * v109 - JBXmax - JBXmin) % (JBXmax - JBXmin);
-              if (i < -50)
-                v24 = 136;
-              if (i > 50)
-                v24 = 137;
+              iJoy2XCalc = 100 * (2 * pJoyPos.iX2Count - JBXmax - JBXmin) / (JBXmax - JBXmin);
+              if (iJoy2XCalc < -50)
+                iKeyPressed = 136;
+              if (iJoy2XCalc > 50)
+                iKeyPressed = 137;
             }
             if (y1ok) {
-              i = 100 * (2 * v106 - JAYmax - JAYmin) / (JAYmax - JAYmin);
-              v19 = 100 * (2 * v106 - JAYmax - JAYmin) % (JAYmax - JAYmin);
-              if (i < -50)
-                v24 = 134;
-              if (i > 50)
-                v24 = 135;
+              iJoy1YCalc = 100 * (2 * pJoyPos.iY1Count - JAYmax - JAYmin) / (JAYmax - JAYmin);
+              if (iJoy1YCalc < -50)
+                iKeyPressed = 134;
+              if (iJoy1YCalc > 50)
+                iKeyPressed = 135;
             }
             if (x1ok) {
-              i = 100 * (2 * v105 - JAXmax - JAXmin) / (JAXmax - JAXmin);
-              v19 = 100 * (2 * v105 - JAXmax - JAXmin) % (JAXmax - JAXmin);
-              if (i < -50)
-                v24 = 132;
-              if (i > 50)
-                v24 = 133;
+              iJoy1XCalc = 100 * (2 * pJoyPos.iX1Count - JAXmax - JAXmin) / (JAXmax - JAXmin);// Calculate joystick axis positions: 132-139 are axis directions
+              if (iJoy1XCalc < -50)
+                iKeyPressed = 132;
+              if (iJoy1XCalc > 50)
+                iKeyPressed = 133;
             }
           }
-          if (v24 != -1 && (control_edit == 1 || control_edit == 7)) {
-            if ((LOBYTE(i) = control_edit, *((_BYTE *)&off_A4108 + control_edit + 3) <= 0x83u) && v24 > 131
-              || (LOBYTE(i) = control_edit, *((_BYTE *)&off_A4108 + control_edit + 3) > 0x83u) && v24 <= 131) {
-              v24 = -1;
-            }
+          if (iKeyPressed != -1 && (control_edit == 1 || control_edit == 7) && (userkey[control_edit] <= 0x83u) != (iKeyPressed <= 131)) {
+            iKeyPressed = -1;  // Reject mixed keyboard/joystick input types
           }
-          if (v24 != -1) {
-            v19 = control_edit;
-            v25 = 0;
+          //if (iKeyPressed != -1
+          //  && (control_edit == 1 || control_edit == 7)
+          //  && (*((char *)&keyname[139] + control_edit + 3) <= 0x83u && iKeyPressed > 131 || *((char *)&keyname[139] + control_edit + 3) > 0x83u && iKeyPressed <= 131)) {
+          //  iKeyPressed = -1;
+          //}
+          if (iKeyPressed != -1) {
+            iDuplicateCheck = 0;
             for (i = 0; i < control_edit; ++i) {
-              v19 = (unsigned __int8)userkey[i];
-              if (v19 == v24)
-                v25 = -1;
+              if (userkey[i] == iKeyPressed)
+                iDuplicateCheck = -1;
             }
-            if (!v25) {
-              i = control_edit + 1;
-              v26 = control_select;
+            if (!iDuplicateCheck) {
+              iControlNext = control_edit + 1;
+              iControlSelect = control_select;
               controlrelease = -1;
-              *((_BYTE *)&off_A4108 + i + 3) = v24;
-              control_edit = i;
-              if (v26 == 1) {
-                if (i == 6) {
+              userkey[iControlNext] = iKeyPressed;
+              //*((char *)&keyname[139] + iControlNext + 3) = iKeyPressed;
+              control_edit = iControlNext;
+              if (iControlSelect == 1) {
+                if (iControlNext == 6) {
                   define_mode = 0;
                   control_edit = -1;
-                  while (1) {
-                    i = fatkbhit();
-                    if (!i)
-                      break;
+                  while (fatkbhit())
                     fatgetch();
-                  }
                 }
-              } else if (i == 12) {
-                v19 = 0;
+              } else if (iControlNext == 12) {
                 control_edit = -1;
                 define_mode = 0;
-                while (1) {
-                  i = fatkbhit();
-                  if (!i)
-                    break;
+                while (fatkbhit())
                   fatgetch();
-                }
               }
             }
           }
         }
-        if (keys_variable_1) {
+        if (keys[1]) {
           define_mode = 0;
-          qmemcpy(userkey, &oldkeys, 0xCu);
-          qmemcpy(&userkey[12], (char *)&oldkeys + 12, 2u);
+          memcpy(userkey, oldkeys, 0xCu);
+          memcpy(&userkey[12], &oldkeys[12], 2u);
           while (fatkbhit())
             fatgetch();
           pausewindow = 0;
-          LOBYTE(i) = check_joystick_usage(0, v19);
+          check_joystick_usage();
         }
       }
       break;
     case 3:
-      blankwindow(0, 0, 320, 200);
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_9, 160, 12, 171);
+      blankwindow(0, 0, 320, 200);              // Case 3: Graphics settings window
+      prt_centrecol(rev_vga[1], &config_buffer[576], 160, 12, 171);
       if (graphic_mode == 16)
-        v55 = -113;
+        byPerspectiveColor = 0x8F;
       else
-        v55 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_87, 187, 26, v55);
-      if ((((unsigned int)&loc_7FFFE + 2) & textures_off) != 0) {
+        byPerspectiveColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[6912], 187, 26, byPerspectiveColor);
+      if ((textures_off & 0x80000) != 0)      // TEX_OFF_PERSPECTIVE_CORRECTION texture flag check
+      {
         if (graphic_mode == 16)
-          v56 = -113;
+          byPerspectiveOnOff = 0x8F;
         else
-          v56 = -125;
-        v57 = &config_buffer_variable_30;
+          byPerspectiveOnOff = 0x83;
+        pszPerspectiveText = &config_buffer[2688];
       } else {
         if (graphic_mode == 16)
-          v56 = -113;
+          byPerspectiveOnOff = 0x8F;
         else
-          v56 = -125;
-        v57 = &config_buffer_variable_29;
+          byPerspectiveOnOff = 0x83;
+        pszPerspectiveText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v57, 190, 26, v56);
-      sprintf(&buffer, "%s:", config_buffer_variable_50);
+      prt_stringcol(rev_vga[1], pszPerspectiveText, 190, 26, byPerspectiveOnOff);
+      sprintf(buffer, "%s:", &config_buffer[3968]);
       if (graphic_mode == 15)
-        v58 = -113;
+        byNamesColor = 0x8F;
       else
-        v58 = -125;
-      prt_rightcol(rev_vga_variable_1, &buffer, 187, 36, v58);
+        byNamesColor = 0x83;
+      prt_rightcol(rev_vga[1], buffer, 187, 36, byNamesColor);
       if (names_on) {
         if (names_on == 2) {
           if (graphic_mode == 15)
-            v59 = -113;
+            byNamesOnOff = 0x8F;
           else
-            v59 = -125;
-          v60 = &config_buffer_variable_32;
+            byNamesOnOff = 0x83;
+          pszNamesText = &config_buffer[2816];
         } else {
           if (graphic_mode == 15)
-            v59 = -113;
+            byNamesOnOff = 0x8F;
           else
-            v59 = -125;
-          v60 = &config_buffer_variable_29;
+            byNamesOnOff = 0x83;
+          pszNamesText = &config_buffer[2624];
         }
       } else {
         if (graphic_mode == 15)
-          v59 = -113;
+          byNamesOnOff = 0x8F;
         else
-          v59 = -125;
-        v60 = &config_buffer_variable_30;
+          byNamesOnOff = 0x83;
+        pszNamesText = &config_buffer[2688];
       }
-      prt_stringcol(rev_vga_variable_1, v60, 190, 36, v59);
+      prt_stringcol(rev_vga[1], pszNamesText, 190, 36, byNamesOnOff);
       if (graphic_mode == 14)
-        v61 = -113;
+        byBuildingsColor = 0x8F;
       else
-        v61 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_35, 187, 46, v61);
-      if ((textures_off & 0x200) != 0) {
+        byBuildingsColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3008], 187, 46, byBuildingsColor);
+      if ((textures_off & 0x200) != 0)        // TEX_OFF_BUILDINGS texture flag check
+      {
         if (graphic_mode == 14)
-          v62 = -113;
+          byBuildingStatus = 0x8F;
         else
-          v62 = -125;
-        v63 = &config_buffer_variable_30;
+          byBuildingStatus = 0x83;
+        pszBuildingText = &config_buffer[2688];
       } else {
         if (graphic_mode == 14)
-          v62 = -113;
+          byBuildingStatus = 0x8F;
         else
-          v62 = -125;
-        v63 = &config_buffer_variable_29;
+          byBuildingStatus = 0x83;
+        pszBuildingText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v63, 190, 46, v62);
+      prt_stringcol(rev_vga[1], pszBuildingText, 190, 46, byBuildingStatus);
       if (graphic_mode == 13)
-        v64 = -113;
+        byGlassColor = 0x8F;
       else
-        v64 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_36, 187, 56, v64);
-      if ((textures_off & 0x800) != 0) {
+        byGlassColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3072], 187, 56, byGlassColor);
+      if ((textures_off & 0x800) != 0)        // TEX_OFF_GLASS_WALLS texture flag check
+      {
         if (graphic_mode == 13)
-          v65 = -113;
+          byGlassStatus = 0x8F;
         else
-          v65 = -125;
-        v66 = &config_buffer_variable_30;
+          byGlassStatus = 0x83;
+        pszGlassText = &config_buffer[2688];
       } else {
         if (graphic_mode == 13)
-          v65 = -113;
+          byGlassStatus = 0x8F;
         else
-          v65 = -125;
-        v66 = &config_buffer_variable_29;
+          byGlassStatus = 0x83;
+        pszGlassText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v66, 190, 56, v65);
+      prt_stringcol(rev_vga[1], pszGlassText, 190, 56, byGlassStatus);
       if (graphic_mode == 12)
-        v67 = -113;
+        byHorizonColor = 0x8F;
       else
-        v67 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_38, 187, 66, v67);
-      if ((textures_off & 0x10) != 0) {
+        byHorizonColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3200], 187, 66, byHorizonColor);
+      if ((textures_off & 0x10) != 0)         // TEX_OFF_HORIZON texture flag check
+      {
         if (graphic_mode == 12)
-          v68 = -113;
+          byHorizonStatus = 0x8F;
         else
-          v68 = -125;
-        v69 = &config_buffer_variable_30;
+          byHorizonStatus = 0x83;
+        pszHorizonText = &config_buffer[2688];
       } else {
         if (graphic_mode == 12)
-          v68 = -113;
+          byHorizonStatus = 0x8F;
         else
-          v68 = -125;
-        v69 = &config_buffer_variable_29;
+          byHorizonStatus = 0x83;
+        pszHorizonText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v69, 190, 66, v68);
+      prt_stringcol(rev_vga[1], pszHorizonText, 190, 66, byHorizonStatus);
       if (graphic_mode == 11)
-        v70 = -113;
+        byCarTexColor = 0x8F;
       else
-        v70 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_37, 187, 76, v70);
-      if ((textures_off & 0x40) != 0) {
+        byCarTexColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3136], 187, 76, byCarTexColor);
+      if ((textures_off & 0x40) != 0)         // TEX_OFF_CAR_TEXTURES texture flag check
+      {
         if (graphic_mode == 11)
-          v71 = -113;
+          byCarTexStatus = 0x8F;
         else
-          v71 = -125;
-        v72 = &config_buffer_variable_30;
+          byCarTexStatus = 0x83;
+        pszCarTexText = &config_buffer[2688];
       } else {
         if (graphic_mode == 11)
-          v71 = -113;
+          byCarTexStatus = 0x8F;
         else
-          v71 = -125;
-        v72 = &config_buffer_variable_29;
+          byCarTexStatus = 0x83;
+        pszCarTexText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v72, 190, 76, v71);
+      prt_stringcol(rev_vga[1], pszCarTexText, 190, 76, byCarTexStatus);
       if (graphic_mode == 10)
-        v73 = -113;
+        byWallTexColor = 0x8F;
       else
-        v73 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_39, 187, 86, v73);
-      if ((textures_off & 4) != 0) {
+        byWallTexColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3264], 187, 86, byWallTexColor);
+      if ((textures_off & 4) != 0)            // TEX_OFF_WALL_TEXTURES texture flag check
+      {
         if (graphic_mode == 10)
-          v74 = -113;
+          byWallTexStatus = 0x8F;
         else
-          v74 = -125;
-        v75 = &config_buffer_variable_30;
+          byWallTexStatus = 0x83;
+        pszWallTexText = &config_buffer[2688];
       } else {
         if (graphic_mode == 10)
-          v74 = -113;
+          byWallTexStatus = 0x8F;
         else
-          v74 = -125;
-        v75 = &config_buffer_variable_29;
+          byWallTexStatus = 0x83;
+        pszWallTexText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v75, 190, 86, v74);
+      prt_stringcol(rev_vga[1], pszWallTexText, 190, 86, byWallTexStatus);
       if (graphic_mode == 9)
-        v76 = -113;
+        byGroundTexColor = 0x8F;
       else
-        v76 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_40, 187, 96, v76);
-      if ((textures_off & 1) != 0) {
+        byGroundTexColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3328], 187, 96, byGroundTexColor);
+      if ((textures_off & 1) != 0)            // TEX_OFF_GROUND_TEXTURES texture flag check
+      {
         if (graphic_mode == 9)
-          v77 = -113;
+          byGroundTexStatus = 0x8F;
         else
-          v77 = -125;
-        v78 = &config_buffer_variable_30;
+          byGroundTexStatus = 0x83;
+        pszGroundTexText = &config_buffer[2688];
       } else {
         if (graphic_mode == 9)
-          v77 = -113;
+          byGroundTexStatus = 0x8F;
         else
-          v77 = -125;
-        v78 = &config_buffer_variable_29;
+          byGroundTexStatus = 0x83;
+        pszGroundTexText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v78, 190, 96, v77);
+      prt_stringcol(rev_vga[1], pszGroundTexText, 190, 96, byGroundTexStatus);
       if (graphic_mode == 8)
-        v79 = -113;
+        byBuildingTexColor = 0x8F;
       else
-        v79 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_41, 187, 106, v79);
-      if ((textures_off & 0x80u) == 0) {
+        byBuildingTexColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3392], 187, 106, byBuildingTexColor);
+      if ((textures_off & 0x80u) == 0)        // TEX_OFF_BUILDING_TEXTURES texture flag check
+      {
         if (graphic_mode == 8)
-          v80 = -113;
+          byBuildingTexStatus = 0x8F;
         else
-          v80 = -125;
-        v81 = &config_buffer_variable_29;
+          byBuildingTexStatus = 0x83;
+        pszBuildingTexText = &config_buffer[2624];
       } else {
         if (graphic_mode == 8)
-          v80 = -113;
+          byBuildingTexStatus = 0x8F;
         else
-          v80 = -125;
-        v81 = &config_buffer_variable_30;
+          byBuildingTexStatus = 0x83;
+        pszBuildingTexText = &config_buffer[2688];
       }
-      prt_stringcol(rev_vga_variable_1, v81, 190, 106, v80);
+      prt_stringcol(rev_vga[1], pszBuildingTexText, 190, 106, byBuildingTexStatus);
       if (graphic_mode == 7)
-        v82 = -113;
+        byRoadTexColor = 0x8F;
       else
-        v82 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_42, 187, 116, v82);
-      if ((textures_off & 2) != 0) {
+        byRoadTexColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3456], 187, 116, byRoadTexColor);
+      if ((textures_off & 2) != 0)            // TEX_OFF_ROAD_TEXTURES texture flag check
+      {
         if (graphic_mode == 7)
-          v83 = -113;
+          byRoadTexStatus = 0x8F;
         else
-          v83 = -125;
-        v84 = &config_buffer_variable_30;
+          byRoadTexStatus = 0x83;
+        pszRoadTexText = &config_buffer[2688];
       } else {
         if (graphic_mode == 7)
-          v83 = -113;
+          byRoadTexStatus = 0x8F;
         else
-          v83 = -125;
-        v84 = &config_buffer_variable_29;
+          byRoadTexStatus = 0x83;
+        pszRoadTexText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v84, 190, 116, v83);
+      prt_stringcol(rev_vga[1], pszRoadTexText, 190, 116, byRoadTexStatus);
       if (graphic_mode == 6)
-        v85 = -113;
+        byShadowsColor = 0x8F;
       else
-        v85 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_43, 187, 126, v85);
-      if ((textures_off & 0x100) != 0) {
+        byShadowsColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3520], 187, 126, byShadowsColor);
+      if ((textures_off & 0x100) != 0)        // TEX_OFF_SHADOWS texture flag check
+      {
         if (graphic_mode == 6)
-          v86 = -113;
+          byShadowsStatus = 0x8F;
         else
-          v86 = -125;
-        v87 = &config_buffer_variable_30;
+          byShadowsStatus = 0x83;
+        pszShadowsText = &config_buffer[2688];
       } else {
         if (graphic_mode == 6)
-          v86 = -113;
+          byShadowsStatus = 0x8F;
         else
-          v86 = -125;
-        v87 = &config_buffer_variable_29;
+          byShadowsStatus = 0x83;
+        pszShadowsText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v87, 190, 126, v86);
+      prt_stringcol(rev_vga[1], pszShadowsText, 190, 126, byShadowsStatus);
       if (graphic_mode == 5)
-        v88 = -113;
+        byCloudsColor = 0x8F;
       else
-        v88 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_44, 187, 136, v88);
-      if ((textures_off & 8) != 0) {
+        byCloudsColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3584], 187, 136, byCloudsColor);
+      if ((textures_off & 8) != 0)            // TEX_OFF_CLOUDS texture flag check
+      {
         if (graphic_mode == 5)
-          v89 = -113;
+          byCloudsStatus = 0x8F;
         else
-          v89 = -125;
-        v90 = &config_buffer_variable_30;
+          byCloudsStatus = 0x83;
+        pszCloudsText = &config_buffer[2688];
       } else {
         if (graphic_mode == 5)
-          v89 = -113;
+          byCloudsStatus = 0x8F;
         else
-          v89 = -125;
-        v90 = &config_buffer_variable_29;
+          byCloudsStatus = 0x83;
+        pszCloudsText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v90, 190, 136, v89);
+      prt_stringcol(rev_vga[1], pszCloudsText, 190, 136, byCloudsStatus);
       if (graphic_mode == 4)
-        v91 = -113;
+        byPanelColor = 0x8F;
       else
-        v91 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_45, 187, 146, v91);
-      if ((textures_off & 0x20) != 0) {
+        byPanelColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3648], 187, 146, byPanelColor);
+      if ((textures_off & 0x20) != 0)         // TEX_OFF_PANEL_OFF and TEX_OFF_PANEL_RESTRICTED flags check
+      {
         if (graphic_mode == 4)
-          v92 = -113;
+          byPanelStatus = 0x8F;
         else
-          v92 = -125;
-        v93 = &config_buffer_variable_30;
-      } else if ((((unsigned int)&loc_3FFFC + 4) & textures_off) != 0) {
+          byPanelStatus = 0x83;
+        pszPanelText = &config_buffer[2688];
+      } else if ((textures_off & 0x40000) != 0) // TEX_OFF_PANEL_RESTRICTED
+      {
         if (graphic_mode == 4)
-          v92 = -113;
+          byPanelStatus = 0x8F;
         else
-          v92 = -125;
-        v93 = &config_buffer_variable_47;
+          byPanelStatus = 0x83;
+        pszPanelText = &config_buffer[3776];
       } else {
         if (graphic_mode == 4)
-          v92 = -113;
+          byPanelStatus = 0x8F;
         else
-          v92 = -125;
-        v93 = &config_buffer_variable_29;
+          byPanelStatus = 0x83;
+        pszPanelText = &config_buffer[2624];
       }
-      prt_stringcol(rev_vga_variable_1, v93, 190, 146, v92);
+      prt_stringcol(rev_vga[1], pszPanelText, 190, 146, byPanelStatus);
       if (graphic_mode == 3)
-        v94 = -113;
+        byViewLimitColor = 0x8F;
       else
-        v94 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_46, 187, 156, v94);
+        byViewLimitColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3712], 187, 156, byViewLimitColor);
       if (view_limit) {
         if (graphic_mode == 3)
-          v95 = -113;
+          byViewLimitStatus = 0x8F;
         else
-          v95 = -125;
-        v96 = &config_buffer_variable_47;
+          byViewLimitStatus = 0x83;
+        pszViewLimitText = &config_buffer[3776];
       } else {
         if (graphic_mode == 3)
-          v95 = -113;
+          byViewLimitStatus = 0x8F;
         else
-          v95 = -125;
-        v96 = &config_buffer_variable_48;
+          byViewLimitStatus = 0x83;
+        pszViewLimitText = &config_buffer[3840];
       }
-      prt_stringcol(rev_vga_variable_1, v96, 190, 156, v95);
+      prt_stringcol(rev_vga[1], pszViewLimitText, 190, 156, byViewLimitStatus);
       if (graphic_mode == 2)
-        v97 = -113;
+        bySizeColor = 0x8F;
       else
-        v97 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_49, 187, 166, v97);
+        bySizeColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[3904], 187, 166, bySizeColor);
       if (SVGA_ON)
-        v98 = (100 * req_size - (__CFSHL__((100 * req_size) >> 31, 7) + ((100 * req_size) >> 31 << 7))) >> 7;
+        iSizePercent = (100 * req_size) / 128;
+        //iSizePercent = (100 * req_size - (__CFSHL__((100 * req_size) >> 31, 7) + ((100 * req_size) >> 31 << 7))) >> 7;// Calculate display percentage for SVGA mode (divide by 128) vs VGA (divide by 64)
       else
-        v98 = (100 * req_size - (__CFSHL__((100 * req_size) >> 31, 6) + ((100 * req_size) >> 31 << 6))) >> 6;
-      sprintf(&buffer, "%3i %%", v98);
+        iSizePercent = (100 * req_size) / 64;
+        //iSizePercent = (100 * req_size - (__CFSHL__((100 * req_size) >> 31, 6) + ((100 * req_size) >> 31 << 6))) >> 6;
+      sprintf(buffer, "%3i %%", iSizePercent);
       if (graphic_mode == 2)
-        v99 = -113;
+        bySizeDisplayColor = 0x8F;
       else
-        v99 = -125;
-      prt_stringcol(rev_vga_variable_1, &buffer, 190, 166, v99);
+        bySizeDisplayColor = 0x83;
+      prt_stringcol(rev_vga[1], buffer, 190, 166, bySizeDisplayColor);
       if (SVGA_ON) {
         if (graphic_mode == 1)
-          v100 = -113;
+          bySVGAColor = 0x8F;
         else
-          v100 = -125;
-        v101 = (char *)&config_buffer_variable_8;
+          bySVGAColor = 0x83;
+        pszSVGAText = &config_buffer[512];
       } else {
         if (graphic_mode == 1)
-          v100 = -113;
+          bySVGAColor = 0x8F;
         else
-          v100 = -125;
-        v101 = (char *)&config_buffer_variable_7;
+          bySVGAColor = 0x83;
+        pszSVGAText = &config_buffer[448];
       }
-      prt_centrecol(rev_vga_variable_1, v101, 160, 176, v100);
+      prt_centrecol(rev_vga[1], pszSVGAText, 160, 176, bySVGAColor);
       if (graphic_mode)
-        v102 = -125;
+        byExitColor = 0x83;
       else
-        v102 = -113;
-      LOBYTE(i) = prt_rightcol(rev_vga_variable_1, config_buffer_variable_13, 187, 186, v102);
+        byExitColor = 0x8F;
+      prt_rightcol(rev_vga[1], &config_buffer[832], 187, 186, byExitColor);
       break;
     case 4:
-      blankwindow(0, 0, 320, 200);
-      prt_centrecol(rev_vga_variable_1, config_buffer_variable_23, 160, 16, 171);
+      blankwindow(0, 0, 320, 200);              // Case 4: Sound settings window
+      prt_centrecol(rev_vga[1], &config_buffer[2240], 160, 16, 171);
       if (sound_edit == 1)
-        v41 = -113;
+        bySoundColor1 = 0x8F;
       else
-        v41 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_24, 172, 48, v41);
-      volumebar(48, EngineVolume);
+        bySoundColor1 = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2304], 172, 48, bySoundColor1);
+      volumebar(48, EngineVolume);              // Display engine volume bar at Y position 48
       if (sound_edit == 2)
-        v42 = -113;
+        bySoundColor2 = 0x8F;
       else
-        v42 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_25, 172, 60, v42);
-      volumebar(60, SFXVolume);
+        bySoundColor2 = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2368], 172, 60, bySoundColor2);
+      volumebar(60, SFXVolume);                 // Display SFX volume bar at Y position 60
       if (sound_edit == 3)
-        v43 = -113;
+        bySoundColor3 = 0x8F;
       else
-        v43 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_26, 172, 72, v43);
-      volumebar(72, SpeechVolume);
+        bySoundColor3 = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2432], 172, 72, bySoundColor3);
+      volumebar(72, SpeechVolume);              // Display speech volume bar at Y position 72
       if (sound_edit == 4)
-        v44 = -113;
+        bySoundColor4 = 0x8F;
       else
-        v44 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_27, 172, 84, v44);
-      volumebar(84, MusicVolume);
+        bySoundColor4 = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2496], 172, 84, bySoundColor4);
+      volumebar(84, MusicVolume);               // Display music volume bar at Y position 84
       if (sound_edit == 5)
-        v45 = -113;
+        bySoundColor5 = 0x8F;
       else
-        v45 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_28, 172, 96, v45);
+        bySoundColor5 = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2560], 172, 96, bySoundColor5);
       if (allengines) {
         if (sound_edit == 5)
-          v46 = -113;
+          byEngineColor = 0x8F;
         else
-          v46 = -125;
-        v47 = &config_buffer_variable_31;
+          byEngineColor = 0x83;
+        pszEngineText = &config_buffer[2752];
       } else {
         if (sound_edit == 5)
-          v46 = -113;
+          byEngineColor = 0x8F;
         else
-          v46 = -125;
-        v47 = &config_buffer_variable_32;
+          byEngineColor = 0x83;
+        pszEngineText = &config_buffer[2816];
       }
-      prt_stringcol(rev_vga_variable_1, v47, 175, 96, v46);
+      prt_stringcol(rev_vga[1], pszEngineText, 175, 96, byEngineColor);
       if (sound_edit == 6)
-        v48 = -113;
+        bySoundOnColor = 0x8F;
       else
-        v48 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_33, 172, 108, v48);
+        bySoundOnColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2880], 172, 108, bySoundOnColor);
       if (soundon) {
         if (sound_edit == 6)
-          v49 = -113;
+          bySoundStatus1 = 0x8F;
         else
-          v49 = -125;
-        v50 = &config_buffer_variable_29;
+          bySoundStatus1 = 0x83;
+        pszSoundStatus1 = &config_buffer[2624];
       } else if (SoundCard) {
         if (sound_edit == 6)
-          v49 = -113;
+          bySoundStatus1 = 0x8F;
         else
-          v49 = -125;
-        v50 = &config_buffer_variable_30;
+          bySoundStatus1 = 0x83;
+        pszSoundStatus1 = &config_buffer[2688];
       } else {
         if (sound_edit == 6)
-          v49 = -113;
+          bySoundStatus1 = 0x8F;
         else
-          v49 = -125;
-        v50 = &config_buffer_variable_86;
+          bySoundStatus1 = 0x83;
+        pszSoundStatus1 = &config_buffer[6848];
       }
-      prt_stringcol(rev_vga_variable_1, v50, 175, 108, v49);
+      prt_stringcol(rev_vga[1], pszSoundStatus1, 175, 108, bySoundStatus1);
       if (sound_edit == 7)
-        v51 = -113;
+        byMusicColor = 0x8F;
       else
-        v51 = -125;
-      prt_rightcol(rev_vga_variable_1, config_buffer_variable_34, 172, 120, v51);
+        byMusicColor = 0x83;
+      prt_rightcol(rev_vga[1], &config_buffer[2944], 172, 120, byMusicColor);
       if (musicon) {
         if (sound_edit == 7)
-          v52 = -113;
+          byMusicStatus = 0x8F;
         else
-          v52 = -125;
-        v53 = &config_buffer_variable_29;
+          byMusicStatus = 0x83;
+        pszMusicStatus = &config_buffer[2624];
       } else if (MusicCard || MusicCD) {
         if (sound_edit == 7)
-          v52 = -113;
+          byMusicStatus = 0x8F;
         else
-          v52 = -125;
-        v53 = &config_buffer_variable_30;
+          byMusicStatus = 0x83;
+        pszMusicStatus = &config_buffer[2688];
       } else {
         if (sound_edit == 7)
-          v52 = -113;
+          byMusicStatus = 0x8F;
         else
-          v52 = -125;
-        v53 = &config_buffer_variable_86;
+          byMusicStatus = 0x83;
+        pszMusicStatus = &config_buffer[6848];
       }
-      prt_stringcol(rev_vga_variable_1, v53, 175, 120, v52);
+      prt_stringcol(rev_vga[1], pszMusicStatus, 175, 120, byMusicStatus);
       if (sound_edit)
-        v54 = -125;
+        byBackColor = 0x83;
       else
-        v54 = -113;
-      LOBYTE(i) = prt_rightcol(rev_vga_variable_1, config_buffer_variable_13, 172, 132, v54);
+        byBackColor = 0x8F;
+      prt_rightcol(rev_vga[1], &config_buffer[832], 172, 132, byBackColor);
       break;
     default:
-      return i;
+      return;                                   // Switch on pause window mode: 0=main menu, 1=joystick calibration, 2=controls, 3=graphics, 4=sound
   }
-  return i;*/
 }
 
 //-------------------------------------------------------------------------------------------------

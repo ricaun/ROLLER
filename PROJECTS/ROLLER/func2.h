@@ -95,7 +95,7 @@ void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
 void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor);
 void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor);
 void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, char byColor);
-char display_paused();
+void display_paused();
 void enable_keyboard();
 void disable_keyboard();
 void save_fatal_config();
