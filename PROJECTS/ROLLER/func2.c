@@ -4564,30 +4564,26 @@ void small_zoom(const char *szStr)
 
 //-------------------------------------------------------------------------------------------------
 
-char subzoom(char *a1)
+void subzoom(const char *szStr)
 {
-  (void)(a1);
-  return 0;
-  /*
-  _BYTE *v1; // edi
-  _BYTE *v2; // esi
+  char *pszDest; // edi
+  char c0; // al
+  char c1; // al
 
   if (new_zoom[0]) {
-    v1 = &zoom_sub;
-    v2 = a1;
+    pszDest = zoom_sub[0];
     sub_on[0] = -1;
     do {
-      LOBYTE(a1) = *v2;
-      *v1 = *v2;
-      if (!(_BYTE)a1)
+      c0 = *szStr;
+      *pszDest = *szStr;
+      if (!c0)
         break;
-      LOBYTE(a1) = v2[1];
-      v2 += 2;
-      v1[1] = (_BYTE)a1;
-      v1 += 2;
-    } while ((_BYTE)a1);
+      c1 = szStr[1];
+      szStr += 2;
+      pszDest[1] = c1;
+      pszDest += 2;
+    } while (c1);
   }
-  return (char)a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
