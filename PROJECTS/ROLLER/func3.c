@@ -1989,7 +1989,7 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   RoadPoly.uiNumVerts = 4;
   RoadPoly.vertices[3].x = iScreenXFinal;
   RoadPoly.vertices[3].y = TrackScreenXYZ[0].screen4.y;
-  RoadPoly.uiSurfaceType = 2105346;
+  RoadPoly.iSurfaceType = SURFACE_FLAG_TRANSPARENT | SURFACE_FLAG_FLIP_BACKFACE | 0x2;
 
   // Render background polygon for track area
   POLYFLAT(scrbuf, &RoadPoly);
@@ -2145,7 +2145,7 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
           iSurfaceColor = 143;
         //uiSurfaceColor = iSurfaceColor;
         //SET_BYTE1(uiSurfaceColor, GET_BYTE1(iSurfaceColor) | 0x60);
-        RoadPoly.uiSurfaceType = iSurfaceColor | SURFACE_FLAG_CONCAVE | SURFACE_FLAG_FLIP_BACKFACE;
+        RoadPoly.iSurfaceType = iSurfaceColor | SURFACE_FLAG_CONCAVE | SURFACE_FLAG_FLIP_BACKFACE;
 
         //Render road segment with vert orders for both front and back faces
         RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;    //0
@@ -2423,7 +2423,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
   CarPol.vertices[1] = CarPt[1].screen;
   CarPol.vertices[2] = CarPt[2].screen;
   CarPol.vertices[3] = CarPt[3].screen;
-  CarPol.uiSurfaceType = SURFACE_FLAG_FLIP_BACKFACE | SURFACE_FLAG_TRANSPARENT | 2;
+  CarPol.iSurfaceType = SURFACE_FLAG_FLIP_BACKFACE | SURFACE_FLAG_TRANSPARENT | 2; //0x202002
   CarPol.uiNumVerts = 4;
   POLYFLAT(pScreenBuffer, &CarPol);
 
@@ -2751,7 +2751,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
       if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0 && (uiTex & SURFACE_FLAG_APPLY_TEXTURE) == 0 && (uint8)uiTex == uiColorFrom)
         uiTex = uiColorTo_1;
 
-      CarPol.uiSurfaceType = uiTex;
+      CarPol.iSurfaceType = uiTex;
 
       // Render pol
       if (fMinViewZ >= 1.0) {

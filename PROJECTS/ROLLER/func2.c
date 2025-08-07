@@ -14,6 +14,7 @@
 #include "function.h"
 #include "date.h"
 #include "moving.h"
+#include "graphics.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -418,136 +419,130 @@ int lots_of_mem;            //00143BE8
 
 //-------------------------------------------------------------------------------------------------
 
-int draw_smoke(int a1, int a2)
+void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  bool v3; // ebx
-  int result; // eax
-  int v5; // ecx
-  float *v6; // ebx
-  __int64 v7; // rax
-  int v8; // ebp
-  float *v9; // esi
-  double v10; // st7
-  double v11; // st7
-  double v12; // st7
-  double v13; // st7
-  double v14; // st7
-  int v15; // ecx
-  int v16; // eax
-  double v17; // st7
-  double v18; // st7
-  double v19; // st7
-  int v20; // ebx
-  int v21; // [esp+0h] [ebp-34h]
-  int v22; // [esp+0h] [ebp-34h]
-  int v23; // [esp+4h] [ebp-30h]
-  int v24; // [esp+4h] [ebp-30h]
-  float *v25; // [esp+8h] [ebp-2Ch]
-  int v26; // [esp+10h] [ebp-24h]
-  int v27; // [esp+14h] [ebp-20h]
-  int v28; // [esp+14h] [ebp-20h]
-  int v29; // [esp+1Ch] [ebp-18h]
+  bool bIsPlayer2; // ebx
+  int iSelectedView; // ecx
+  int iScreenOffsetY; // ebp
+  tCarSpray *pCarSpray; // esi
+  double dPosX; // st7
+  double dPosY; // st7
+  double dCalcX; // st7
+  double dCalcY; // st7
+  double dSize; // st7
+  int iSize; // ecx
+  int iColor; // eax
+  double dPosX2; // st7
+  double dPosY2; // st7
+  double dSize2; // st7
+  int iSize2; // ebx
+  int iScreenY; // edx
+  int uiColor2; // eax
+  int iScreenY1; // [esp+0h] [ebp-34h]
+  int iScreenX2; // [esp+0h] [ebp-34h]
+  int iScreenX1; // [esp+4h] [ebp-30h]
+  int iScreenY2; // [esp+4h] [ebp-30h]
+  tCarSpray *pNextCarSpray; // [esp+8h] [ebp-2Ch]
+  int iPosX; // [esp+10h] [ebp-24h]
+  int iPosY; // [esp+14h] [ebp-20h]
+  int iAdjustedScreenY; // [esp+14h] [ebp-20h]
+  int iSize3; // [esp+1Ch] [ebp-18h]
 
-  v3 = a2 != ViewType[0];
-  result = 4 * v3;
-  v5 = SelectedView[v3];
-  if (!v5 || v5 == 2 || v5 == 7) {
-    set_starts(0, a2);
-    if (player_type == 2)
-      a2 = v3 + 16;
-    LODWORD(v7) = 1408 * a2;
-    v6 = (float *)&CarSpray[1408 * a2];
-    HIDWORD(v7) = 0;
-    if (player_type == 2 || (cheat_mode & 0x40) != 0) {
-      v7 = -winh;
-      LODWORD(v7) = (int)v7 / 2;
-      v8 = v7;
-    } else {
-      v8 = 0;
+  bIsPlayer2 = iPlayerCarIdx != ViewType[0];    // Check if this is player 2 (not player 1)
+  iSelectedView = SelectedView[bIsPlayer2];     // Get the selected view mode for this player
+  if (!iSelectedView || iSelectedView == 2 || iSelectedView == 7)// Only render smoke in cockpit (0), in-car (2), or behind-car (7) views
+  {
+    set_starts(0);
+    if (player_type == 2)                     // Two player mode - adjust car index for player 2
+    {
+      iPlayerCarIdx = bIsPlayer2 + 16;
+    } else if ((cheat_mode & 0x40) == 0)        // CHEAT_MODE_WIDESCREEN
+    {
+      iScreenOffsetY = 0;
+      goto RENDER_PARTICLES;
     }
-    v9 = v6;
-    v25 = v6 + 352;
-    while (1) {
-      if (*((int *)v9 + 7) > 0) {
-        if (*((_BYTE *)v9 + 40) == 1) {
-          v10 = *v9;
-          _CHP(v7, HIDWORD(v7));
-          v26 = (int)v10;
-          v11 = v9[1];
-          _CHP(v7, HIDWORD(v7));
-          v27 = (int)v11;
-          v12 = (double)v26 + v9[3];
-          _CHP(v7, HIDWORD(v7));
-          v23 = (int)v12;
-          v13 = (double)v27 - v9[4];
-          _CHP(v7, HIDWORD(v7));
-          v21 = (int)v13;
-          v14 = v9[6];
-          _CHP(v7, HIDWORD(v7));
-          LODWORD(v7) = v23;
-          v28 = v8 + v27;
-          v15 = (int)v14;
-          if ((int)v14 <= 0 || v15 >= 100)
-            goto LABEL_21;
-          CarPol_variable_5 = v23 - v15;
-          CarPol_variable_7 = v26 - v15;
-          CarPol_variable_8 = v28;
-          CarPol_variable_9 = v15 + v26;
-          CarPol_variable_4 = v8 + v21;
-          CarPol_variable_10 = v28;
-          v16 = *((_DWORD *)v9 + 9);
-          CarPol_variable_6 = v8 + v21;
-          BYTE1(v16) |= 0x20u;
-          CarPol_variable_3 = v15 + v23;
-          CarPol = v16;
-          CarPol_variable_2 = 4;
-          if ((v16 & 0x100) == 0) {
-          LABEL_20:
-            LODWORD(v7) = POLYFLAT(a1, &CarPol);
-            goto LABEL_21;
+    iScreenOffsetY = -winh / 2;                 // Widescreen mode - offset Y by half screen height
+  RENDER_PARTICLES:
+    pCarSpray = CarSpray[iPlayerCarIdx];        // Get pointer to this car's spray particle array
+    pNextCarSpray = pCarSpray + 32;             // Set end pointer for 32 spray particles per car
+    while (1) {                                           // Check if particle is alive (lifetime > 0)
+      if (pCarSpray->iLifeTime > 0) {                                         // Particle type 1 = smoke trail
+        if (LOBYTE(pCarSpray->iType) == 1) {
+          dPosX = pCarSpray->fPosX;             // Get particle X position
+          //_CHP();
+          iPosX = (int)dPosX;
+          dPosY = pCarSpray->fPosY;             // Get particle Y position
+          //_CHP();
+          iPosY = (int)dPosY;
+          dCalcX = (double)iPosX + pCarSpray->fVelX;// Calculate screen X with velocity offset
+          //_CHP();
+          iScreenX1 = (int)dCalcX;
+          dCalcY = (double)iPosY - pCarSpray->fVelY;// Calculate screen Y with velocity offset (subtract for screen coords)
+          //_CHP();
+          iScreenY1 = (int)dCalcY;
+          dSize = pCarSpray->fSize;             // Get particle size for polygon rendering
+          //_CHP();
+          iAdjustedScreenY = iScreenOffsetY + iPosY;
+          iSize = (int)dSize;
+          if ((int)dSize <= 0 || iSize >= 100)
+            goto NEXT_PARTICLE;                 // Skip if size invalid (too small or too large)
+          CarPol.vertices[1].x = iScreenX1 - iSize;// Set up polygon vertices for square smoke particle
+          CarPol.vertices[2].x = iPosX - iSize;
+          CarPol.vertices[2].y = iAdjustedScreenY;
+          CarPol.vertices[3].x = iSize + iPosX;
+          CarPol.vertices[0].y = iScreenOffsetY + iScreenY1;
+          CarPol.vertices[3].y = iAdjustedScreenY;
+          iColor = pCarSpray->iColor;           // Get particle color/surface type
+          CarPol.vertices[1].y = iScreenOffsetY + iScreenY1;
+          iColor |= SURFACE_FLAG_FLIP_BACKFACE;
+          //BYTE1(iColor) |= 0x20u;               // SURFACE_FLAG_FLIP_BACKFACE
+          CarPol.vertices[0].x = iSize + iScreenX1;
+          CarPol.iSurfaceType = iColor;
+          CarPol.uiNumVerts = 4;
+          if ((iColor & 0x100) == 0)          // SURFACE_FLAG_APPLY_TEXTURE
+          {
+          RENDER_POLYFLAT:
+            POLYFLAT(pScrBuf, &CarPol);         // Render flat (untextured) polygon
+            goto NEXT_PARTICLE;
           }
         } else {
-          v17 = *v9;
-          _CHP(v7, HIDWORD(v7));
-          v22 = (int)v17;
-          v18 = v9[1];
-          _CHP(v7, HIDWORD(v7));
-          v24 = (int)v18;
-          v19 = v9[6];
-          _CHP(v7, HIDWORD(v7));
-          v29 = (int)v19;
-          LODWORD(v7) = v22;
-          v20 = (int)v19;
-          HIDWORD(v7) = v8 + v24;
-          if ((int)v19 <= 0 || v20 >= 100)
-            goto LABEL_21;
-          CarPol_variable_3 = v22 + v20;
-          CarPol_variable_5 = v22 - v29;
-          CarPol_variable_7 = v22 - v29;
-          CarPol_variable_8 = v29 + HIDWORD(v7);
-          CarPol_variable_9 = v22 + v20;
-          CarPol_variable_10 = v29 + HIDWORD(v7);
-          *(float *)&v7 = v9[9];
-          CarPol_variable_4 = HIDWORD(v7) - v29;
-          CarPol = v7;
-          CarPol_variable_6 = HIDWORD(v7) - v29;
-          CarPol_variable_2 = 4;
-          if ((v7 & 0x100) == 0)
-            goto LABEL_20;
+          dPosX2 = pCarSpray->fPosX;            // Particle type 2 = firework particle
+          //_CHP();
+          iScreenX2 = (int)dPosX2;
+          dPosY2 = pCarSpray->fPosY;
+          //_CHP();
+          iScreenY2 = (int)dPosY2;
+          dSize2 = pCarSpray->fSize;
+          //_CHP();
+          iSize3 = (int)dSize2;
+          iSize2 = (int)dSize2;
+          iScreenY = iScreenOffsetY + iScreenY2;
+          if ((int)dSize2 <= 0 || iSize2 >= 100)
+            goto NEXT_PARTICLE;
+          CarPol.vertices[0].x = iScreenX2 + iSize2;// Set up square polygon vertices for firework particle
+          CarPol.vertices[1].x = iScreenX2 - iSize3;
+          CarPol.vertices[2].x = iScreenX2 - iSize3;
+          CarPol.vertices[2].y = iSize3 + iScreenY;
+          CarPol.vertices[3].x = iScreenX2 + iSize2;
+          CarPol.vertices[3].y = iSize3 + iScreenY;
+          uiColor2 = pCarSpray->iColor;
+          CarPol.vertices[0].y = iScreenY - iSize3;
+          CarPol.iSurfaceType = uiColor2;
+          CarPol.vertices[1].y = iScreenY - iSize3;
+          CarPol.uiNumVerts = 4;
+          if ((uiColor2 & 0x100) == 0)        // SURFACE_FLAG_APPLY_TEXTURE
+            goto RENDER_POLYFLAT;               // Check texture flag - 0x100 bit indicates textured polygon
         }
-        LODWORD(v7) = POLYTEX(gfx_size);
+        POLYTEX(cargen_vga, pScrBuf, &CarPol, 18, gfx_size);// Render textured polygon using car texture
       }
-    LABEL_21:
-      HIDWORD(v7) = v25;
-      v9 += 11;
-      if (v9 == v25)
-        return set_starts(0, v25);
+    NEXT_PARTICLE:
+      if (++pCarSpray == pNextCarSpray)       // Move to next spray particle
+      {
+        set_starts(0);                          // Processed all 32 particles for this car
+        return;
+      }
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4074,7 +4069,7 @@ void blankwindow(int iX1, int iY1, int iX2, int iY2)
   poly.vertices[2].y = iY2;
   poly.vertices[3].x = iX2;
   poly.vertices[3].y = iY2;
-  poly.uiSurfaceType = 0x200003;
+  poly.iSurfaceType = SURFACE_FLAG_TRANSPARENT | 0x000003; //0x200003
   poly.uiNumVerts = 4;
   POLYFLAT(scrbuf, &poly);
 }

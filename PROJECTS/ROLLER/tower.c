@@ -131,7 +131,7 @@ void DrawTower(int iTowerIdx, uint8 *pScrBuf)
       TowerPol.vertices[2].y = iPixelY + 3;
       TowerPol.vertices[3].y = iPixelY + 3;
       TowerPol.vertices[3].x = iPixelX + 3;
-      TowerPol.uiSurfaceType = 0x20E7;          // Set tower polygon properties and draw to screen buffer
+      TowerPol.iSurfaceType = SURFACE_FLAG_FLIP_BACKFACE | 0xE7; //0x20E7;          // Set tower polygon properties and draw to screen buffer
       TowerPol.uiNumVerts = 4;
       POLYFLAT(pScrBuf, &TowerPol);
     }

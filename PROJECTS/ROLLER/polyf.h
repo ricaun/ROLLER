@@ -7,7 +7,7 @@
 
 typedef struct
 {
-  uint32 uiSurfaceType;
+  int iSurfaceType;
   uint32 uiNumVerts;
   tPoint vertices[4];
 } tPolyParams;

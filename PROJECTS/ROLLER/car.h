@@ -139,6 +139,23 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  float fPosX;
+  float fPosY;
+  float fState;
+  float fVelX;
+  float fVelY;
+  float fUnk5;
+  float fSize;
+  int iLifeTime;
+  float fTimer;
+  int iColor;
+  int iType;
+} tCarSpray;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int numcars;
 extern char default_names[16][9];
 extern int16 ViewType[2];
@@ -154,6 +171,7 @@ extern tCarBox CarBox;
 extern tCar Car[16];
 extern int car_persps[128];
 extern int car_texs_loaded[16];
+extern tCarSpray CarSpray[18][32];
 extern char driver_names[16][9];
 extern tStoreEngine StoreEngines[14];
 extern int finished_car[16];

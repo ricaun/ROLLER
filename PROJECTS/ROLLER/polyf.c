@@ -196,8 +196,8 @@ void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams)
   int iY1_1; // ecx
   int iX1; // [esp+0h] [ebp-18h]
 
-  uiSurfaceType = polyParams->uiSurfaceType;
-  if ((polyParams->uiSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0) {
+  uiSurfaceType = polyParams->iSurfaceType;
+  if ((polyParams->iSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0) {
     if ((uiSurfaceType & SURFACE_FLAG_FLIP_BACKFACE) != 0) {
       iX0 = polyParams->vertices[0].x;
       iY0 = polyParams->vertices[0].y;

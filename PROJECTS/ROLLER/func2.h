@@ -62,7 +62,7 @@ extern int lots_of_mem;
 
 //-------------------------------------------------------------------------------------------------
 
-int draw_smoke(int a1, int a2);
+void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx);
 void test_panel(uint8 *pScrBuf, int iPlayerCarIdx);
 void ZoomString(const char *szStr, const char *mappingTable, tBlockHeader *pBlockHeader, int iPlayerIdx, int *pCharVOffsets);
 void ZoomSub(const char *szText, const char *mappingTable, tBlockHeader *pBlockHeader, int iPlayerIdx, int *pCharVOffsets);

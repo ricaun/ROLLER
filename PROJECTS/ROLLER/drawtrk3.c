@@ -4752,7 +4752,7 @@ void subdivide(uint8 *pDest, tPolyParams *polyParams,
   int iY2; // [esp+Ch] [ebp-1Ch]
   int iX2; // [esp+10h] [ebp-18h]
 
-  if ((polyParams->uiSurfaceType & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
+  if ((polyParams->iSurfaceType & SURFACE_FLAG_SKIP_RENDER) != 0)// SURFACE_FLAG_SKIP_RENDER
     return;
 
   // setup globals for dodivide
@@ -4771,13 +4771,13 @@ void subdivide(uint8 *pDest, tPolyParams *polyParams,
   iX3 = polyParams->vertices[3].x;
 
   // determine tex flipping mode
-  fliptype = (polyParams->uiSurfaceType & 0x1000) != 0;// SURFACE_FLAG_FLIP_HORIZ
-  if ((polyParams->uiSurfaceType & 0x40000) != 0)// SURFACE_FLAG_FLIP_VERT
+  fliptype = (polyParams->iSurfaceType & SURFACE_FLAG_FLIP_HORIZ) != 0;// SURFACE_FLAG_FLIP_HORIZ
+  if ((polyParams->iSurfaceType & SURFACE_FLAG_FLIP_VERT) != 0)// SURFACE_FLAG_FLIP_VERT
     fliptype += 2;                              // 0=none, 1=horiz, 2=vert, 3=both
 
   // set flat pol flag if SURFACE_FLAG_APPLY_TEXTURE is not set
   // This disables screen-size based subdivision for untextured pol
-  flatpol = ((subpoly->uiSurfaceType & 0x100) != 0) - 1;// SURFACE_FLAG_APPLY_TEXTURE
+  flatpol = ((subpoly->iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0) - 1;// SURFACE_FLAG_APPLY_TEXTURE
 
   // Determine tex dimensions based on pol type
   if (subpolytype >= 0) {
@@ -5195,7 +5195,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             if (iPolyType < -2) {
               // Check if tex should be applied
             LABEL_111:
-              if ((subpoly->uiSurfaceType & 0x100) != 0)// SURFACE_FLAG_APPLY_TEXTURE
+              if ((subpoly->iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)// SURFACE_FLAG_APPLY_TEXTURE
               {
                 // Render textured pol with car texture
                 // TODO
@@ -5245,7 +5245,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
               }
               return;
             }
-            if ((pPolyParams->uiSurfaceType & 0x100) == 0)// SURFACE_FLAG_APPLY_TEXTURE
+            if ((pPolyParams->iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) == 0)// SURFACE_FLAG_APPLY_TEXTURE
               goto LABEL_106;
           } else if (iPolyType > 1) {
             if (iPolyType <= 2) {
@@ -5255,7 +5255,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             }
             if (iPolyType != 666)
               goto LABEL_111;
-            if ((pPolyParams->uiSurfaceType & 0x100) != 0)// SURFACE_FLAG_APPLY_TEXTURE
+            if ((pPolyParams->iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)// SURFACE_FLAG_APPLY_TEXTURE
             {
               //TODO
               //POLYTEX(building_vga, subptr, pPolyParamsLocal, 17, gfx_size);
