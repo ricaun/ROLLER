@@ -112,7 +112,7 @@ void modexsethardware();
 void modexclearscreen();
 void copyscreenmodex(uint8 *pSrc, uint8 *pDest);
 void start_zoom(const char *szStr, int iPlayerIdx);
-char small_zoom(char *a1);
+void small_zoom(const char *szStr);
 char subzoom(char *a1);
 void make_time(char *szTimeStr, float fTime);
 void check_machine_speed();

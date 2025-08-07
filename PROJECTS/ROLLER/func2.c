@@ -4488,7 +4488,7 @@ void start_zoom(const char *szStr, int iPlayerIdx)
       pszDest += 2;
     } while (c1);
     game_count[iPlayerIdx_1] = 0;
-    game_scale[iPlayerIdx_1] = 32768.0;
+    game_scale[iPlayerIdx_1] = 32768.0f;
   } else {
     do {
       c0_1 = *szStr;
@@ -4511,56 +4511,55 @@ void start_zoom(const char *szStr, int iPlayerIdx)
 
 //-------------------------------------------------------------------------------------------------
 
-char small_zoom(char *a1)
+void small_zoom(const char *szStr)
 {
-  (void)(a1);
-  return 0;
-  /*
-  _BYTE *v1; // esi
-  _BYTE *v2; // edi
-  _BYTE *v3; // edi
+  char *pszDest; // edi
+  char c0; // al
+  char c1; // al
+  char *pszDest_1; // edi
+  char c0_1; // al
+  char c1_1; // al
 
-  v1 = a1;
   new_zoom[0] = 0;
   if (game_count[0] == -2) {
-    v2 = zoom_mes;
+    pszDest = zoom_mes[0];
     sub_on[0] = 0;
     zoom_size[0] = 0;
     new_zoom[0] = -1;
     do {
-      LOBYTE(a1) = *v1;
-      *v2 = *v1;
-      if (!(_BYTE)a1)
+      c0 = *szStr;
+      *pszDest = *szStr;
+      if (!c0)
         break;
-      LOBYTE(a1) = v1[1];
-      v1 += 2;
-      v2[1] = (_BYTE)a1;
-      v2 += 2;
-    } while ((_BYTE)a1);
+      c1 = szStr[1];
+      szStr += 2;
+      pszDest[1] = c1;
+      pszDest += 2;
+    } while (c1);
     game_count[0] = 0;
-    game_scale[0] = 1191182336;
+    game_scale[0] = 32768.0f;
   } else if (!zoom_size[0]) {
-    v3 = zoom_mes;
+    pszDest_1 = zoom_mes[0];
     sub_on[0] = 0;
     zoom_size[0] = 0;
     new_zoom[0] = -1;
     do {
-      LOBYTE(a1) = *v1;
-      *v3 = *v1;
-      if (!(_BYTE)a1)
+      c0_1 = *szStr;
+      *pszDest_1 = *szStr;
+      if (!c0_1)
         break;
-      LOBYTE(a1) = v1[1];
-      v1 += 2;
-      v3[1] = (_BYTE)a1;
-      v3 += 2;
-    } while ((_BYTE)a1);
+      c1_1 = szStr[1];
+      szStr += 2;
+      pszDest_1[1] = c1_1;
+      pszDest_1 += 2;
+    } while (c1_1);
     if (game_count[0] == -1) {
       game_count[0] = 0;
-    } else if (game_scale[0] == 1115684864) {
+    } else if (game_scale[0] == 64.0f) //else if (LODWORD(game_scale[0]) == 0x42800000)// 64.0f
+    {
       game_count[0] = 72;
     }
   }
-  return (char)a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
