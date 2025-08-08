@@ -24,6 +24,11 @@
 #include <unistd.h>
 #endif
 //-------------------------------------------------------------------------------------------------
+//symbols defined by ROLLER
+char szF10ToQuitChamp[25] = "F10 TO QUIT CHAMPIONSHIP"; //000A029C
+char szF10ToQuitGame[17] = "F10 TO QUIT GAME";          //000A02B8
+
+//-------------------------------------------------------------------------------------------------
 
 int exiting = 0;            //000A3170
 int dontrestart = 0;        //000A3174
@@ -70,6 +75,7 @@ int DriveView[2] = { 0, 0 }; //000A351C
 int mirror = 0;             //000A3524
 int mpressed = 0;           //000A352C
 int jpressed = 0;           //000A352D
+int start_time = 0;         //000A3534
 uint8 *screen = NULL; //= 0xA0000; //000A3538
 uint8 *scrbuf = NULL;        //000A353C
 void *mirbuf = NULL;        //000A3540
@@ -102,7 +108,10 @@ int zoom_size[2];           //0013E858
 char zoom_mes[2][24];       //0013E860
 int sub_on[2];              //0013E890
 char zoom_sub[2][24];       //0013E898
+int curr_time;              //0013E924
 volatile int ticks;         //0013E92C
+int frame_rate;             //0013E930
+int frame_count;            //0013E934
 float k1;                   //0013E938
 float k2;                   //0013E93C
 float k3;                   //0013E940
@@ -154,12 +163,15 @@ int start_race;             //0013FA80
 int NoOfLaps;               //0013FA84
 int human_finishers;        //0013FA88
 int countdown;              //0013FA90
+int shown_panel;            //0013FA98
 int max_mem;                //0013FAA4
+int game_req;               //0013FAA8
 int pausewindow;            //0013FAB0
 int scrmode;                //0013FAB4
 int control_select;         //0013FAB8
 int req_size;               //0013FABC
 int intro;                  //0013FAC0
+int fadedin;                //0013FAC8
 int control_edit;           //0013FACC
 int req_edit;               //0013FAD0
 int controlrelease;         //0013FAD4
@@ -168,14 +180,21 @@ int machine_speed;          //0013FAE0
 int netCD;                  //0013FAE4
 int localCD;                //0013FAE8
 int I_Want_Out;             //0013FAF0
+int champ_car;              //0013FAF4
+int champ_zoom;             //0013FAF8
+int winner_done;            //0013FB04
 int winner_mode;            //0013FB08
 int network_mes_mode;       //0013FB0C
 int network_slot;           //0013FB14
+int trying_to_exit;         //0013FB18
+int draw_type;              //0013FB20
 int network_buggered;       //0013FB24
 int w95;                    //0013FB30
 int gave_up;                //0013FB34
 int send_finished;          //0013FB40
+int game_track;             //0013FB50
 int prev_track;             //0013FB54
+int I_Would_Like_To_Quit;   //0013FB60
 int winh;                   //0013FB68
 int winw;                   //0013FB6C
 int VIEWDIST;               //0013FB70
@@ -3031,175 +3050,186 @@ LABEL_12:
 
 //-------------------------------------------------------------------------------------------------
 
-void game_copypic(uint8 *a1, uint8 *a2, char *a3)
+void game_copypic(uint8 *pSrc, uint8 *pDest, int iCarIdx)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  /*
-  int v6; // eax
-  char v7; // dh
+  int iBufferIndex; // eax
+  char byChar; // dh
   int j; // edx
-  char v9; // bl
+  char byNameChar; // bl
   int k; // eax
   int i; // eax
-  int v12; // eax
-  int v13; // ecx
-  char *v14; // eax
-  int v15; // ecx
-  int v16; // ecx
-  int v17; // eax
-  int v18; // eax
-  int v19; // edx
-  int v20; // ecx
-  int v21; // eax
-  char *v22; // edx
-  int v23; // ebx
-  char *v24; // edx
-  int v25; // ebx
-  int v26; // edi
-  int v27; // edi
-  int v28; // edi
-  char *v29; // edx
-  int v30; // ebx
-  int *v31; // [esp-4h] [ebp-14h]
+  int iSoundSample; // eax
+  int iPlayerCar; // ecx
+  const char *pMessageStr; // eax
+  int iKillCount; // ecx
+  int iPlayerCarForSound; // ecx
+  int iKillSample; // eax
+  int iSoundSampleForWinner; // eax
+  int iWinnerKillCount; // edx
+  int iWinnerPlayerCar; // ecx
+  int iWinnerSoundSample; // eax
+  int iSavedScrSize; // edi
+  int iSavedScrSize2; // edi
+  int iSavedScrSize3; // edi
+  char *pQuitMessage; // edx
+  int iFrameCount; // ebx
 
-  screen_pointer = (int)a1;
-  if (network_on) {
-    if (message_received < 0) {
-      if (message_sent >= 0) {
+  screen_pointer = pSrc;                        // Set global screen pointer to source image buffer
+  if (network_on)                             // Handle network messaging if multiplayer is enabled
+  {                                             // Check if we have received a network message
+    if (message_received < 0) {                                           // Handle outgoing network messages
+      if (message_sent >= 0) {                                         // Special case for message type 4
         if (message_sent == 4) {
-          small_zoom(&language_buffer_variable_103);
+          small_zoom(&language_buffer[6528]);
         } else {
-          small_zoom(&language_buffer_variable_102);
-          for (i = 0; i < 24; currentdir_variable_8[i] = *((_BYTE *)&head_y + 14 * message_sent + i + 3))
-            ++i;
-          subzoom(&buffer);
+          small_zoom(&language_buffer[6464]);
+          for (i = 0; i < 14; ++i) { //24 is too long for network_messages
+              buffer[i] = network_messages[message_sent][i];
+          }
+          //for (i = 0; i < 24; currentdir[i + 255] = *((_BYTE *)&head_y + 14 * message_sent + i + 3))
+          //  ++i;
+          subzoom(buffer);
         }
         message_sent = -1;
       }
     } else {
-      v6 = 0;
-      if (language_buffer_variable_101[0]) {
+      iBufferIndex = 0;                         // Process incoming network message - start building display buffer
+      if (language_buffer[6400])              // Copy language buffer text if present
+      {
         do {
-          v7 = language_buffer_variable_101[++v6];
-          currentdir_variable_8[v6] = language_buffer_variable_100[v6];
-        } while (v7);
+          byChar = language_buffer[++iBufferIndex + 6400];
+          buffer[iBufferIndex] = language_buffer[iBufferIndex + 6399];
+          //currentdir[iBufferIndex + 255] = language_buffer[iBufferIndex + 6399];
+        } while (byChar);
       }
-      for (j = 0; j < 9; ++j) {
-        ++v6;
-        v9 = player_names[9 * message_received + j];
-        currentdir_variable_8[v6] = v9;
+      for (j = 0; j < 9; ++j)                 // Append player name to message buffer (9 chars max)
+      {
+        ++iBufferIndex;
+        byNameChar = player_names[message_received][j];
+        buffer[iBufferIndex] = byNameChar;
+        //currentdir[iBufferIndex + 255] = byNameChar;
       }
-      small_zoom(&buffer);
-      for (k = 0; k < 24; currentdir_variable_8[k] = p_data_variable_8[k]) {
-        k += 8;
-        currentdir_variable_1[k] = p_data_variable_1[k];
-        currentdir_variable_2[k] = p_data_variable_2[k];
-        currentdir_variable_3[k] = p_data_variable_3[k];
-        currentdir_variable_4[k] = p_data_variable_4[k];
-        currentdir_variable_5[k] = p_data_variable_5[k];
-        currentdir_variable_6[k] = p_data_variable_6[k];
-        currentdir_variable_7[k] = p_data_variable_7[k];
+      small_zoom(buffer);
+
+      for (k = 0; k < 24; ++k) {
+        buffer[k] = received_message[k];
       }
-      subzoom(&buffer);
+      //for (k = 0; k < 24; currentdir[k + 255] = p_data[k + 13])// Copy received message data (24 bytes) with unrolled loop
+      //{
+      //  k += 8;
+      //  currentdir[k + 248] = p_data[k + 6];
+      //  currentdir[k + 249] = p_data[k + 7];
+      //  currentdir[k + 250] = p_data[k + 8];
+      //  currentdir[k + 251] = p_data[k + 9];
+      //  currentdir[k + 252] = p_data[k + 10];
+      //  currentdir[k + 253] = p_data[k + 11];
+      //  currentdir[k + 254] = p_data[k + 12];
+      //}
+      subzoom(buffer);
       message_received = -1;
     }
   }
-  if (Car_variable_40[308 * ViewType[0]]) {
+  if (Car[ViewType[0]].byDebugDamage)         // Handle damage indicator for player 1
+  {
     if (game_count[0] == -2)
-      start_zoom(language_buffer_variable_25, 0);
-    if (game_count[0] > 0 && Car_variable_9[77 * ViewType[0]] < (double)threed_c_variable_40)
+      start_zoom(&language_buffer[1600], 0);
+    if (game_count[0] > 0 && Car[ViewType[0]].fHealth < 90.0)
       game_count[0] = 72;
   }
-  if (player_type == 2 && Car_variable_40[308 * ViewType_variable_1]) {
-    if (game_count_variable_1 == -2)
-      start_zoom(language_buffer_variable_25, 1);
-    if (game_count_variable_1 > 0 && Car_variable_9[77 * ViewType_variable_1] < (double)threed_c_variable_40)
-      game_count_variable_1 = 72;
+  if (player_type == 2 && Car[ViewType[1]].byDebugDamage)// Handle damage indicator for player 2 (split screen mode)
+  {
+    if (game_count[1] == -2)
+      start_zoom(&language_buffer[1600], 1);
+    if (game_count[1] > 0 && Car[ViewType[1]].fHealth < 90.0)
+      game_count[1] = 72;
   }
-  if (!time_shown) {
-    if (shown_panel || winner_mode) {
-    LABEL_58:
-      if (winner_mode) {
+  if (!time_shown)                            // Main UI rendering branch - check if time display is shown
+  {
+    if (shown_panel || winner_mode) {                                           // Handle winner mode display and announcements
+    RENDER_UI_ELEMENTS:
+      if (winner_mode) {                                         // Championship mode winner announcements
         if (champ_mode) {
           if (game_count[0] == -2 && !winner_done) {
             switch (champ_zoom) {
               case 0:
-                if (racers - 1 == champ_car)
-                  v14 = language_buffer_variable_21;
+                if (racers - 1 == champ_car)  // Show winner car image
+                  pMessageStr = &language_buffer[1344];
                 else
-                  v14 = (char *)&language_buffer + 64 * champ_car + 384;
-                start_zoom(v14, 0);
-                goto LABEL_97;
+                  pMessageStr = &language_buffer[64 * champ_car + 384];
+                start_zoom(pMessageStr, 0);
+                goto ADVANCE_WINNER_SEQUENCE;
               case 1:
-                start_zoom(&driver_names[9 * champorder[champ_car]], winner_done);
-                goto LABEL_97;
+                start_zoom(driver_names[champorder[champ_car]], winner_done);// Show driver name
+                goto ADVANCE_WINNER_SEQUENCE;
               case 3:
-                speechsample(118, 0x8000, 18, (__int16)player1_car);
-                start_zoom(config_buffer_variable_77, 0);
-                goto LABEL_97;
+                speechsample(SOUND_SAMPLE_CONGRAT, 0x8000, 18, player1_car);// Play congratulations sound and show message
+                start_zoom(&config_buffer[6272], 0);
+                goto ADVANCE_WINNER_SEQUENCE;
               case 4:
-                start_zoom(config_buffer_variable_78, 0);
-                goto LABEL_97;
+                start_zoom(&config_buffer[6336], 0);
+                goto ADVANCE_WINNER_SEQUENCE;
               case 5:
-                start_zoom(config_buffer_variable_79, 0);
-                goto LABEL_97;
+                start_zoom(&config_buffer[6400], 0);
+                goto ADVANCE_WINNER_SEQUENCE;
               case 6:
-                if (total_wins[champorder[0]] > 0)
-                  speechsample(total_wins[champorder[0]] + 88, 0x8000, 18, (__int16)player1_car);
-                goto LABEL_97;
+                if (total_wins[champorder[0]] > 0)// Announce race wins if any
+                  speechsample(total_wins[champorder[0]] + SOUND_SAMPLE_FATAL, 0x8000, 18, player1_car);// 1 win starts at SOUND_SAMPLE_1RACE
+                goto ADVANCE_WINNER_SEQUENCE;
               case 7:
-                v15 = total_kills[champorder[0]];
-                if (v15 > 0) {
-                  if (v15 >= 17) {
-                    v17 = 113;
-                    v16 = (__int16)player1_car;
+                iKillCount = total_kills[champorder[0]];// Announce kill statistics
+                if (iKillCount > 0) {                               // Lots of kills (17+) gets special sound
+                  if (iKillCount >= 17) {
+                    iKillSample = SOUND_SAMPLE_FATLOTS;          // SOUND_SAMPLE_FATLOTS
+                    iPlayerCarForSound = player1_car;
                   } else {
-                    v16 = (__int16)player1_car;
-                    v17 = total_kills[champorder[0]] + 96;
+                    iPlayerCarForSound = player1_car;
+                    iKillSample = total_kills[champorder[0]] + SOUND_SAMPLE_8RACE;// 1 kill starts at SOUND_SAMPLE_ONE
                   }
-                  speechsample(v17, 0x8000, 18, v16);
+                  speechsample(iKillSample, 0x8000, 18, iPlayerCarForSound);
                 }
                 ++champ_zoom;
                 break;
               default:
-                break;
+                break;                          // Championship zoom sequence state machine
             }
           }
-        } else if (game_count[0] == -2 && !winner_done) {
+        } else if (game_count[0] == -2 && !winner_done)// Single race winner announcements (non-championship)
+        {
           switch (champ_zoom) {
             case 0:
-              speechsample(114, 0x8000, 18, (__int16)player1_car);
-              start_zoom(config_buffer_variable_72, 0);
-              goto LABEL_97;
+              speechsample(SOUND_SAMPLE_WON, 0x8000, 18, player1_car);// SOUND_SAMPLE_WON
+              start_zoom(&config_buffer[5952], 0);
+              goto ADVANCE_WINNER_SEQUENCE;
             case 1:
-              start_zoom(config_buffer_variable_73, 0);
-              goto LABEL_97;
+              start_zoom(&config_buffer[6016], 0);
+              goto ADVANCE_WINNER_SEQUENCE;
             case 2:
-              if (result_kills[result_order[0]] > 0 || result_order[0] == FastestLap)
-                speechsample(115, 0x8000, 18, (__int16)player1_car);
-              goto LABEL_97;
+              if (result_kills[result_order[0]] > 0 || result_order[0] == FastestLap)// Check for kills or fastest lap achievements
+                speechsample(SOUND_SAMPLE_STAT, 0x8000, 18, player1_car);// SOUND_SAMPLE_STAT
+              goto ADVANCE_WINNER_SEQUENCE;
             case 3:
-              if (result_order[0] == FastestLap) {
+              if (result_order[0] == FastestLap)// Fastest lap announcement
+              {                                 // Check if it's a new lap record
                 if (BestTime == RecordLaps[game_track])
-                  v18 = 116;
+                  iSoundSampleForWinner = SOUND_SAMPLE_NEWLAP;  // SOUND_SAMPLE_NEWLAP
                 else
-                  v18 = 117;
-                speechsample(v18, 0x8000, 18, (__int16)player1_car);
+                  iSoundSampleForWinner = SOUND_SAMPLE_NEWFAST;  // SOUND_SAMPLE_NEWFAST
+                speechsample(iSoundSampleForWinner, 0x8000, 18, player1_car);
               }
-              goto LABEL_97;
+              goto ADVANCE_WINNER_SEQUENCE;
             case 4:
-              v19 = result_kills[result_order[0]];
-              if (v19 > 0) {
-                if (v19 >= 17) {
-                  v21 = 113;
-                  v20 = (__int16)player1_car;
+              iWinnerKillCount = result_kills[result_order[0]];
+              if (iWinnerKillCount > 0) {
+                if (iWinnerKillCount >= 17) {
+                  iWinnerSoundSample = SOUND_SAMPLE_FATLOTS;     // SOUND_SAMPLE_FATLOTS
+                  iWinnerPlayerCar = player1_car;
                 } else {
-                  v20 = (__int16)player1_car;
-                  v21 = result_kills[result_order[0]] + 96;
+                  iWinnerPlayerCar = player1_car;
+                  iWinnerSoundSample = result_kills[result_order[0]] + SOUND_SAMPLE_8RACE;// 1 kill starts at SOUND_SAMPLE_ONE
                 }
-                speechsample(v21, 0x8000, 18, v20);
+                speechsample(iWinnerSoundSample, 0x8000, 18, iWinnerPlayerCar);
               }
-            LABEL_97:
+            ADVANCE_WINNER_SEQUENCE:
               ++champ_zoom;
               break;
             default:
@@ -3207,162 +3237,158 @@ void game_copypic(uint8 *a1, uint8 *a2, char *a3)
           }
         }
       }
-      if (intro && game_count[0] == -2) {
-        start_zoom(language_buffer_variable_28, 0);
-        subzoom(language_buffer_variable_29);
+      if (intro && game_count[0] == -2)       // Handle intro sequence display
+      {
+        start_zoom(&language_buffer[1792], 0);
+        subzoom(&language_buffer[1856]);
       }
-      if (network_on && paused) {
-        sprintf(&buffer, "%s", language_buffer_variable_98);
-        start_zoom(&buffer, 0);
-        sprintf(&buffer, "%s", &player_names[9 * pauser]);
-        subzoom(&buffer);
-        game_scale[0] = 1115684864;
+      if (network_on && paused)               // Show pause message in network games
+      {
+        sprintf(buffer, "%s", &language_buffer[6272]);
+        start_zoom(buffer, 0);
+        sprintf(buffer, "%s", player_names[pauser]);
+        subzoom(buffer);
+        game_scale[0] = 64.0;
         game_count[0] = 2;
       }
-      if (a3 == (char *)(__int16)player1_car || winner_mode || intro) {
+      if (iCarIdx == player1_car || winner_mode || intro)// Render zoom messages for player 1 or in special modes
+      {                                         // Choose font based on zoom and screen resolution
         if (zoom_size[0]) {
-          v31 = (int *)&font3_offsets;
-          v22 = (char *)&font3_ascii;
-          v23 = rev_vga_variable_3;
-        } else {
-          v31 = &font6_offsets;
-          if (winh < 200) {
-            v22 = &ascii_conv3;
-            v23 = rev_vga;
-          } else {
-            v22 = font6_ascii;
-            v23 = rev_vga_variable_1;
-          }
-        }
-        ZoomString(zoom_mes, (int)v22, v23, 0, (int)v31);
-        if (sub_on[0]) {
-          if (winh < 200) {
-            v24 = &ascii_conv3;
-            v25 = rev_vga;
-          } else {
-            v24 = font6_ascii;
-            v25 = rev_vga_variable_1;
-          }
-          ZoomSub((int)&zoom_sub, (int)v24, v25, 0, (int)&font6_offsets);
-        }
-      }
-      if (a3 == (char *)player2_car) {
-        if (zoom_size_variable_1) {
-          ZoomString(zoom_mes_variable_1, (int)&font3_ascii, rev_vga_variable_3, 1, (int)&font3_offsets);
+          ZoomString(zoom_mes[0], font3_ascii, rev_vga[3], 0, font3_offsets);
         } else if (winh < 200) {
-          ZoomString(zoom_mes_variable_1, (int)&ascii_conv3, rev_vga, 1, (int)&font6_offsets);
+          ZoomString(zoom_mes[0], ascii_conv3, rev_vga[0], 0, font6_offsets);
         } else {
-          ZoomString(zoom_mes_variable_1, (int)font6_ascii, rev_vga_variable_1, 1, (int)&font6_offsets);
+          ZoomString(zoom_mes[0], font6_ascii, rev_vga[1], 0, font6_offsets);
         }
-        if (sub_on_variable_1) {
+        if (sub_on[0]) {
           if (winh < 200)
-            ZoomSub((int)&zoom_sub_variable_1, (int)&ascii_conv3, rev_vga, 1, (int)&font6_offsets);
+            ZoomSub(zoom_sub[0], ascii_conv3, rev_vga[0], 0, font6_offsets);
           else
-            ZoomSub((int)&zoom_sub_variable_1, (int)font6_ascii, rev_vga_variable_1, 1, (int)&font6_offsets);
+            ZoomSub(zoom_sub[0], font6_ascii, rev_vga[1], 0, font6_offsets);
         }
       }
-      goto LABEL_127;
+      if (iCarIdx == player2_car)             // Render zoom messages for player 2 (split screen)
+      {
+        if (zoom_size[1]) {
+          ZoomString(zoom_mes[1], font3_ascii, rev_vga[3], 1, font3_offsets);
+        } else if (winh < 200) {
+          ZoomString(zoom_mes[1], ascii_conv3, rev_vga[0], 1, font6_offsets);
+        } else {
+          ZoomString(zoom_mes[1], font6_ascii, rev_vga[1], 1, font6_offsets);
+        }
+        if (sub_on[1]) {
+          if (winh < 200)
+            ZoomSub(zoom_sub[1], ascii_conv3, rev_vga[0], 1, font6_offsets);
+          else
+            ZoomSub(zoom_sub[1], font6_ascii, rev_vga[1], 1, font6_offsets);
+        }
+      }
+      goto HANDLE_SPECIAL_MODES;
     }
-    shown_panel = -1;
+    shown_panel = -1;                           // Hide panel and handle race countdown logic
     if (replaytype != 2) {
       if (game_type != 2) {
         if (countdown <= -72)
-          goto LABEL_55;
-        if (countdown < 0 && gosound >= 1) {
+          goto DRAW_EFFECTS_AND_PANEL;                        // Race has started (countdown <= -72)
+        if (countdown < 0 && gosound >= 1)    // Play GO sound when countdown reaches 0
+        {
           gosound = 0;
-          speechsample(4, 0x8000, 0, (__int16)player1_car);
+          speechsample(SOUND_SAMPLE_GO, 0x8000, 0, player1_car);// SOUND_SAMPLE_GO
         }
-        if ((unsigned int)countdown < 0x48) {
+        if ((unsigned int)countdown < 0x48)   // Pre-race countdown phase (0-72 frames)
+        {                                       // Play engine sound during countdown
           if (gosound >= 2) {
             gosound = 1;
-            speechsample(49, 0x8000, 0, (__int16)player1_car);
+            speechsample(SOUND_SAMPLE_ENGINES, 0x8000, 0, player1_car);// SOUND_SAMPLE_ENGINES
           }
-          if (countdown < 18) {
-            if (strcmp(language_buffer_variable_26, zoom_mes)) {
-              start_zoom(language_buffer_variable_26, 0);
+          if (countdown < 18)                 // Show ready message in final countdown (18 frames)
+          {
+            if (strcmp(&language_buffer[1664], zoom_mes[0])) {
+              start_zoom(&language_buffer[1664], 0);
               if (player_type == 2)
-                start_zoom(language_buffer_variable_26, 1);
+                start_zoom(&language_buffer[1664], 1);
             }
           }
         }
         if (countdown < 72 || countdown >= 144 || !fadedin || gosound < 3)
-          goto LABEL_55;
-        v12 = 50;
+          goto DRAW_EFFECTS_AND_PANEL;
+        iSoundSample = SOUND_SAMPLE_DRIVERS;                      // SOUND_SAMPLE_DRIVERS
         gosound = 2;
-        v13 = (__int16)player1_car;
-        goto LABEL_54;
+        iPlayerCar = player1_car;
+        goto PLAY_COUNTDOWN_SOUND;
       }
       if (gosound >= 1 && active_nodes == network_on) {
-        v12 = 4;
-        v13 = (__int16)player1_car;
+        iSoundSample = SOUND_SAMPLE_GO;                       // SOUND_SAMPLE_GO
+        iPlayerCar = player1_car;
         gosound = 0;
-      LABEL_54:
-        speechsample(v12, 0x8000, 0, v13);
+      PLAY_COUNTDOWN_SOUND:
+        speechsample(iSoundSample, 0x8000, 0, iPlayerCar);
       }
     }
-  LABEL_55:
-    draw_smoke((int)a1, (int)a3);
+  DRAW_EFFECTS_AND_PANEL:
+    draw_smoke(pSrc, iCarIdx);
     if (replaytype != 2 && (textures_off & 0x20) == 0)
-      test_panel((int)a1, a3);
-    goto LABEL_58;
+      test_panel(pSrc, iCarIdx);
+    goto RENDER_UI_ELEMENTS;
   }
-LABEL_127:
-  if (replaytype == 2 && !intro)
+HANDLE_SPECIAL_MODES:
+  if (replaytype == 2 && !intro)              // Handle replay mode display
     displayreplay();
-  if (game_req) {
+  if (game_req)                               // Handle game menu requests and exit confirmation
+  {
     if (draw_type != 2) {
       display_paused();
       if (trying_to_exit) {
         if ((frames & 0xFu) < 8)
-          prt_centrecol(171);
+          prt_centrecol(rev_vga[1], &language_buffer[6592], 160, 100, 171);
       }
     }
   }
-  if (!winner_mode && replaytype != 2) {
+  if (!winner_mode && replaytype != 2)        // Network status and waiting messages
+  {                                             // Waiting for players message (blinking)
     if (network_on && active_nodes < network_on && (frames & 0xFu) < 8) {
       if (winh >= 200) {
-        prt_centrecol(207);
+        prt_centrecol(rev_vga[1], "WAITING FOR PLAYERS", 160, 100, 207);
       } else {
-        v26 = scr_size;
+        iSavedScrSize = scr_size;
         scr_size = 64;
-        mini_prt_centre(rev_vga, aWaitingForPlay, winw / 2, winh / 2);
-        scr_size = v26;
+        mini_prt_centre(rev_vga[0], "WAITING FOR PLAYERS", winw / 2, winh / 2);
+        scr_size = iSavedScrSize;
       }
     }
-    if (network_on
-      && finished_car[(__int16)player1_car]
-      && (frames & 0xFu) < 8
-      && !I_Would_Like_To_Quit
-      && lastsample < -180) {
-      v27 = scr_size;
+    if (network_on && finished_car[player1_car] && (frames & 0xFu) < 8 && !I_Would_Like_To_Quit && lastsample < -180)// Please wait for race to end message
+    {
+      iSavedScrSize2 = scr_size;
       scr_size = 64;
-      mini_prt_centre(rev_vga, aPleaseWait, winw / 2, winh / 2);
-      mini_prt_centre(rev_vga, aForRaceToEnd, winw / 2, winh / 2 + 16);
-      scr_size = v27;
+      mini_prt_centre(rev_vga[0], "PLEASE WAIT", winw / 2, winh / 2);
+      mini_prt_centre(rev_vga[0], "FOR RACE TO END", winw / 2, winh / 2 + 16);
+      scr_size = iSavedScrSize2;
     }
-    if (I_Would_Like_To_Quit && (frames & 0xFu) < 8) {
-      v28 = scr_size;
+    if (I_Would_Like_To_Quit && (frames & 0xFu) < 8)// F10 to quit confirmation message
+    {
+      iSavedScrSize3 = scr_size;
       scr_size = 64;
       if (game_type == 1)
-        v29 = aF10ToQuitChamp;
+        pQuitMessage = szF10ToQuitChamp;
       else
-        v29 = &aIngf10ToQuitGa[3];
-      mini_prt_centre(rev_vga, v29, winw / 2, winh / 2);
-      mini_prt_centre(rev_vga, aEscToCancel, winw / 2, winh / 2 + 14);
-      scr_size = v28;
+        pQuitMessage = szF10ToQuitGame;
+      mini_prt_centre(rev_vga[0], pQuitMessage, winw / 2, winh / 2);
+      mini_prt_centre(rev_vga[0], "ESC TO CANCEL", winw / 2, winh / 2 + 14);
+      scr_size = iSavedScrSize3;
     }
   }
-  if (draw_type != 2) {
+  if (draw_type != 2)                         // Frame rate calculation and timing
+  {
     curr_time = ticks;
-    v30 = ++frame_count;
+    iFrameCount = ++frame_count;
     if (ticks - start_time >= 36) {
-      frame_rate = v30;
+      frame_rate = iFrameCount;
       frame_count = 0;
       start_time = curr_time;
     }
   }
-  if (draw_type != 2)
-    copypic(a1, a2);*/
+  if (draw_type != 2)                         // Final screen buffer copy to destination
+    copypic(pSrc, pDest);
 }
 
 //-------------------------------------------------------------------------------------------------
