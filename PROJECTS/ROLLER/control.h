@@ -43,7 +43,7 @@ void updatecar2(int a1, int a2, int a3);
 int16 check_crossed_line(int a1);
 char checkplacement(int a1);
 void testteaminit(tCar *pCar);
-int doteaminit();
+void doteaminit();
 int16 hitleft(int a1, int a2, int a3);
 int16 hitright(int a1, int a2, int a3);
 int scansection(tCar *pCar);

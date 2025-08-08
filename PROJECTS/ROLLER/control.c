@@ -1,4 +1,5 @@
 #include "control.h"
+#include "view.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
@@ -3862,17 +3863,15 @@ void testteaminit(tCar *pCar)
 
 //-------------------------------------------------------------------------------------------------
 //00030230
-int doteaminit()
+void doteaminit()
 {
-  return 0;
-  /*
-  int v0; // eax
+  int iViewType; // eax
 
   if ((ViewType[0] & 1) != 0)
-    v0 = ViewType[0] - 1;
+    iViewType = ViewType[0] - 1;
   else
-    v0 = ViewType[0] + 1;
-  return initcarview(-v0 - 1, 0);*/
+    iViewType = ViewType[0] + 1;
+  initcarview(-iViewType - 1, 0);
 }
 
 //-------------------------------------------------------------------------------------------------
