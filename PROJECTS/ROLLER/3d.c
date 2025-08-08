@@ -2863,42 +2863,32 @@ void mesplus()
 
 //-------------------------------------------------------------------------------------------------
 //00014C60
-int carminus(int a1, int a2, int a3)
+void carminus()
 {
-  /*
-  __int64 v4; // [esp-4h] [ebp-8h]
-
-  LODWORD(v4) = a2;
-  do
-  {
-    if ( --ViewType[0] < 0 )
-      ViewType[0] = numcars - 1;
-  }
-  while ( (Car[ViewType[0]].byUnk23 & 0x80u) != 0 );
-  if ( Play_View == 1 )
-    doteaminit();
-  else
-    initcarview(ViewType[0], 0);
-  return sfxsample(v4);
-  */
-  return 0;
-}
-
-//-------------------------------------------------------------------------------------------------
-//00014CD0
-int carplus(int a1, unsigned int a2, int a3, unsigned int a4)
-{
-  return 0;
-  /*
   do {
-    if (++ViewType[0] >= numcars)
-      ViewType[0] = 0;
-  } while ((Car[ViewType[0]].byUnk23 & 0x80u) != 0);
+    if (--ViewType[0] < 0)
+      ViewType[0] = numcars - 1;
+  } while ((Car[ViewType[0]].byLives & 0x80u) != 0);
   if (Play_View == 1)
     doteaminit();
   else
     initcarview(ViewType[0], 0);
-  return sfxsample(__SPAIR64__(a4, a2));*/
+  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                        // SOUND_SAMPLE_BUTTON
+}
+
+//-------------------------------------------------------------------------------------------------
+//00014CD0
+void carplus()
+{
+  do {
+    if (++ViewType[0] >= numcars)
+      ViewType[0] = 0;
+  } while ((Car[ViewType[0]].byLives & 0x80u) != 0);
+  if (Play_View == 1)
+    doteaminit();
+  else
+    initcarview(ViewType[0], 0);
+  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                        // SOUND_SAMPLE_BUTTON
 }
 
 //-------------------------------------------------------------------------------------------------
