@@ -412,6 +412,7 @@ void startmusic(int iSong);
 void stopmusic();
 void load_language_map();
 void initmusic();
+void SOSTimerCallbackS7();
 void fade_palette(int iPaletteBrightness);
 void set_palette(int iBrightness);
 int check_joystick_usage();

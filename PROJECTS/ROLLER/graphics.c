@@ -52,7 +52,7 @@ int BldTextures;        //00149744
 int NoOfTextures;       //00149748
 
 //-------------------------------------------------------------------------------------------------
-
+//00027BA0
 void plotxyz(float fWorldX, float fWorldY, float fWorldZ, char byColor)
 {
   double dPerspectiveScale; // st6
@@ -99,7 +99,7 @@ void plotxyz(float fWorldX, float fWorldY, float fWorldZ, char byColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00027D40
 void linexyz(uint8 *pScrBuf, float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, uint8 byColor)
 {
   double dViewDist; // st7
@@ -217,7 +217,7 @@ void linexyz(uint8 *pScrBuf, float fX1, float fY1, float fZ1, float fX2, float f
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000280E0
 void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 {
   int iNewX; // edi
@@ -362,7 +362,7 @@ void compout(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000282F0
 void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 {
   int iOldWinw; // ebp
@@ -464,7 +464,7 @@ void line(uint8 *pScrBuf, int iX0, int iY0, int iX1, int iY1, uint8 byColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00028400
 void LoadPanel()
 {
   int iRevIdx;
@@ -526,7 +526,7 @@ void LoadPanel()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00028500
 void InitRemaps()
 {
   int iCarIdx; // edi
@@ -554,7 +554,7 @@ void InitRemaps()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000285B0
 void LoadGenericCarTextures()
 {
   int iFileHandle; // edx
@@ -627,7 +627,7 @@ void LoadGenericCarTextures()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000286C0
 void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
 {
   int iFileHandle; // edx
@@ -837,7 +837,7 @@ void LoadCarTexture(int iCartexIdx, uint8 byTexSlotIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000289E0
 void LoadBldTextures()
 {
   int iFileHandle; // edx
@@ -892,7 +892,7 @@ void LoadBldTextures()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00028B00
 void LoadTextures()
 {
   int iCompressedFileLength; // ecx
@@ -1075,7 +1075,7 @@ void LoadTextures()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00028DA0
 void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIsLowRes)
 {
   int iBlockSize; // edi
@@ -1230,7 +1230,7 @@ void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIs
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00029120
 void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 {
   //ROLLER: we do not need interleaved texture data for this implementation
@@ -1318,7 +1318,7 @@ void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00029200
 void sort_texture(uint8 *pTexData, int iNumTextures)
 {
   //ROLLER: we do not need interleaved texture data for this implementation
@@ -1409,7 +1409,7 @@ void sort_texture(uint8 *pTexData, int iNumTextures)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00029340
 void sort_mini_texture(uint8 *pTexData, int iNumTextures)
 {
   //ROLLER: we do not need interleaved texture data for this implementation
@@ -1509,7 +1509,7 @@ void sort_mini_texture(uint8 *pTexData, int iNumTextures)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000294A0
 void drbox(int iX, int iY, int iWidth, int iHeight, uint8 byColor)
 {
   uint8 *pRowStart; // edi
@@ -1534,7 +1534,7 @@ void drbox(int iX, int iY, int iWidth, int iHeight, uint8 byColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00029500
 void box(int iX, int iY, int iWidth, int iHeight, uint8 byBorderColor)
 {
   int iWinW; // esi
@@ -1573,7 +1573,7 @@ void box(int iX, int iY, int iWidth, int iHeight, uint8 byBorderColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000295F0
 void SetVideoMode(uint8 byVideoMode)
 {
   //union REGS regs; // [esp+0h] [ebp-24h] BYREF

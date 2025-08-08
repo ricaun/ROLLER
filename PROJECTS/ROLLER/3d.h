@@ -300,8 +300,6 @@ void *getbuffer(uint32 uiSize);
 void *trybuffer(uint32 uiSize);
 void fre(void **ppData);
 void doexit();
-void *malloc2(int iSize, void *pPtr, int *pRegsDi);
-void free2(void *ptr);
 void firework_screen();
 void updatescreen();
 void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5);

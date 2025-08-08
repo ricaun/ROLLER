@@ -16,7 +16,7 @@ tPolyParams TowerPol;     //001A2B70
 int NumTowers;            //001A2B9C
 
 //-------------------------------------------------------------------------------------------------
-
+//00075700
 void InitTowers()
 {
   int iTowerIndex; // esi
@@ -78,7 +78,7 @@ void InitTowers()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075850
 void DrawTower(int iTowerIdx, uint8 *pScrBuf)
 {                                               
   double TowerMinusViewX; // st7

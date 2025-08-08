@@ -60,7 +60,7 @@ char received_message[14];  //0017C9CC
 int16 wConsoleNode;         //0017C9DA
 
 //-------------------------------------------------------------------------------------------------
-
+//0004EB30
 void Initialise_Network(int iSelectNetSlot)
 {
   int iResetNetwork; // [esp+0h] [ebp-1Ch]
@@ -132,7 +132,7 @@ void Initialise_Network(int iSelectNetSlot)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004ED70
 void close_network()
 {
   int iNode; // edx
@@ -200,7 +200,7 @@ void close_network()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004EF60
 void send_net_error()
 {
   int i; // esi
@@ -220,7 +220,7 @@ void send_net_error()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004EFD0
 void send_game_error()
 {
   int iDataSent; // eax
@@ -246,7 +246,7 @@ void send_game_error()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F070
 void send_network_sync_error()
 {
   int i; // esi
@@ -269,7 +269,7 @@ void send_network_sync_error()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F100
 void send_resync(int iFrameNumber)
 {
   if (network_on) {
@@ -282,7 +282,7 @@ void send_resync(int iFrameNumber)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F150
 void send_nocd_error()
 {
   int i; // esi
@@ -305,7 +305,7 @@ void send_nocd_error()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F1E0
 void send_quit()
 {
   int i; // esi
@@ -331,7 +331,7 @@ void send_quit()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F290
 void send_ready()
 {
   int iDataSent; // eax
@@ -358,7 +358,7 @@ void send_ready()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F350
 void send_record_to_master(int iRecordIdx)
 {
   if (network_on) {
@@ -375,7 +375,7 @@ void send_record_to_master(int iRecordIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F400
 void send_record_to_slaves(int iRecordIdx)
 {
   if (network_on) {
@@ -398,7 +398,7 @@ void send_record_to_slaves(int iRecordIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F4E0
 void send_mes(int iNetworkMessageIdx, int iNode)
 {
   char *szNetworkMessage; // eax
@@ -441,7 +441,7 @@ void send_mes(int iNetworkMessageIdx, int iNode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F5E0
 void send_seed(int iRandomSeed)
 {
   if (network_on) {
@@ -462,7 +462,7 @@ void send_seed(int iRandomSeed)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F660
 void send_single(uint32 uiData)
 {
   if (!network_on) return;
@@ -505,7 +505,7 @@ void send_single(uint32 uiData)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F750
 void send_pause()
 {
   tSyncHeader syncHeader; // [esp+0h] [ebp-1Ch] BYREF
@@ -522,7 +522,7 @@ void send_pause()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F7B0
 void send_slot()
 {
   tSyncHeader syncHeader;
@@ -538,7 +538,7 @@ void send_slot()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F800
 void transmitpausetoslaves()
 {
   int iNode; // esi
@@ -567,7 +567,7 @@ void transmitpausetoslaves()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004F880
 void send_multiple()
 {/*
   int v0; // eax
@@ -681,7 +681,7 @@ void send_multiple()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004FBA0
 void receive_multiple()
 {
   tPlayerInfoPacket playerInfoPacket; // [esp+0h] [ebp-60h] BYREF
@@ -879,7 +879,7 @@ void receive_multiple()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000501B0
 void receive_all_singles()
 {
   int byConsoleNode; // eax
@@ -1023,7 +1023,7 @@ void receive_all_singles()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00050600
 void do_sync_stuff(void)
 {
   uint32 *pCopy;
@@ -1075,7 +1075,7 @@ void do_sync_stuff(void)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00050790
 int TransmitInit()
 {
   int iSuccess; // eax
@@ -1162,7 +1162,7 @@ int TransmitInit()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000509B0
 void StartNode(int iNode)
 {
   my_age = 0;
@@ -1178,7 +1178,7 @@ void StartNode(int iNode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00050A60
 int CheckNewNodes()
 {
   return 0; /*
@@ -1747,7 +1747,7 @@ int CheckNewNodes()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000516F0
 void FoundNodes()
 {
   if (!master) return;  // Only process if we're the master
@@ -1782,7 +1782,7 @@ void FoundNodes()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000517D0
 void SendPlayerInfo()
 {
   tPlayerInfoPacket playerInfo; // [esp+0h] [ebp-44h] BYREF
@@ -1816,7 +1816,7 @@ void SendPlayerInfo()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000518F0
 void prepare_net_message(int iMessageMode, int iMessageNumber)
 {
   message_node = iMessageMode;
@@ -1824,7 +1824,7 @@ void prepare_net_message(int iMessageMode, int iMessageNumber)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00051900
 void SendAMessage()
 {
   int iNode; // [esp+4h] [ebp-4Ch]
@@ -1857,7 +1857,7 @@ void SendAMessage()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00051A30
 void BroadcastNews()
 {
   int iInitSuccess8; // eax
@@ -2025,7 +2025,7 @@ void BroadcastNews()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00051E20
 void remove_messages(int iClear)
 {
   //uint8 buffer[4]; // [esp-Ch] [ebp-10h] BYREF
@@ -2045,7 +2045,7 @@ void remove_messages(int iClear)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00051E60
 void reset_network(int iResetBroadcastMode)
 {
   int iNode; // edx
@@ -2121,7 +2121,7 @@ void reset_network(int iResetBroadcastMode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00052060
 void clear_network_game()
 {
   // for (int iPlayer = 0; iPlayer < 16; ++iPlayer) {
@@ -2136,7 +2136,7 @@ void clear_network_game()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000520D0
 void reset_net_wait()
 {
   for (int i = 0; i < 16; ++i) {
@@ -2148,7 +2148,7 @@ void reset_net_wait()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00052130
 unsigned int send_broadcast(unsigned int uiBroadcastMode)
 {
   uint32 uiOldTimeToStart;
@@ -2184,7 +2184,7 @@ unsigned int send_broadcast(unsigned int uiBroadcastMode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000521D0
 void send_here(int iNode, int iFrame)
 {
   int i; // esi

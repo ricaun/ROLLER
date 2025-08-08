@@ -418,7 +418,7 @@ uint8 *screen_pointer;      //00143BE4
 int lots_of_mem;            //00143BE8
 
 //-------------------------------------------------------------------------------------------------
-
+//00015E60
 void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx)
 {
   bool bIsPlayer2; // ebx
@@ -546,7 +546,7 @@ void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00016120
 void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
 {
   int iCarIndex; // ecx
@@ -1164,7 +1164,7 @@ void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00017770
 void ZoomString(const char *szStr, const char *mappingTable, tBlockHeader *pBlockHeader, int iPlayerIdx, int *pCharVOffsets)
 {
   int iSelectedView1; // esi
@@ -1255,7 +1255,7 @@ void ZoomString(const char *szStr, const char *mappingTable, tBlockHeader *pBloc
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00017A10
 void ZoomSub(const char *szText, const char *mappingTable, tBlockHeader *pBlockHeader, int iPlayerIdx, int *pCharVOffsets)
 {
   double dZoomDivisor; // st7
@@ -1336,7 +1336,7 @@ void ZoomSub(const char *szText, const char *mappingTable, tBlockHeader *pBlockH
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00017C10
 void zoom_letter(tBlockHeader *pBlockHeader, uint8 byCharCode, int *puiXPos, int *puiYPos, const char *mappingTable, float fZoomFactor)
 {
   int byCharIndex; // esi
@@ -1415,7 +1415,7 @@ void zoom_letter(tBlockHeader *pBlockHeader, uint8 byCharCode, int *puiXPos, int
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00017DA0
 void print_block(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx)
 {
   int iScreenSize; // edi
@@ -1550,7 +1550,7 @@ void print_block(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00017F30
 void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
 {
   int iScreenSize; // esi
@@ -1660,7 +1660,7 @@ void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018130
 void print_pos(int iX, int iY, int iDriverIdx)
 {
   if (iDriverIdx >= 0 && iDriverIdx < racers) {
@@ -1670,7 +1670,7 @@ void print_pos(int iX, int iY, int iDriverIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018190
 void free_game_memory()
 {
   fre((void**)&building_vga);
@@ -1685,7 +1685,7 @@ void free_game_memory()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018200
 int readmode()
 {
   return 0;
@@ -1701,7 +1701,7 @@ int readmode()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018250
 void key_handler(uint8 byScancode)
 {
   // Handle key press/release
@@ -1745,7 +1745,7 @@ void key_handler(uint8 byScancode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018370
 void claim_key_int()
 {
   //_prev_int_9 = dos_getvect(9);        // Save current INT 9 handler
@@ -1753,7 +1753,7 @@ void claim_key_int()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000183A0
 int fatkbhit()
 {
   if (write_key == read_key && !twoparter)
@@ -1763,7 +1763,7 @@ int fatkbhit()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000183D0
 int fatgetch()
 {
   int iTwoParter; // edx
@@ -1795,14 +1795,14 @@ int fatgetch()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018430
 void release_key_int()
 {
   //dos_setvect(9, _prev_int_9);
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018450
 void clear_border(int x, int y, int iWidth, int iLines)
 {
   int iOldWinX; // edi
@@ -1836,7 +1836,7 @@ void clear_border(int x, int y, int iWidth, int iLines)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000184E0
 void DisplayFree()
 {
   //DPMI_MemInfo memInfo; // [esp+0h] [ebp-88h] BYREF
@@ -1865,7 +1865,7 @@ void DisplayFree()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000185C0
 void setdirectory(const char *szAppPath)
 {
   char szLocalDir[256];
@@ -1911,7 +1911,7 @@ void setdirectory(const char *szAppPath)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018640
 void FindShades()
 {
   int iR; // ecx
@@ -1991,7 +1991,7 @@ void FindShades()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000187C0
 int nearest_colour(int iR, int iB, int iG)
 {
   int iBestIndex = 0;
@@ -2016,7 +2016,7 @@ int nearest_colour(int iR, int iB, int iG)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018860
 void select_view(int iPlayer)
 {
   int iCurrentViewIndex; // ebx
@@ -2051,7 +2051,7 @@ void select_view(int iPlayer)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018910
 void mini_prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
   int iDone; // ebp
@@ -2079,7 +2079,7 @@ void mini_prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int 
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018990
 void mini_prt_string_rev(tBlockHeader *pBlockHeader, const char *szText, int iX, int iY)
 {
   int iDone; // ebp
@@ -2107,7 +2107,7 @@ void mini_prt_string_rev(tBlockHeader *pBlockHeader, const char *szText, int iX,
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018A10
 void mini_prt_right(tBlockHeader *pBlockHeader, const char *szText, int iX, int iY)
 {
   const char *i; // esi
@@ -2148,7 +2148,7 @@ void mini_prt_right(tBlockHeader *pBlockHeader, const char *szText, int iX, int 
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018AE0
 void mini_prt_centre(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
   const char *i; // esi
@@ -2190,7 +2190,7 @@ void mini_prt_centre(tBlockHeader *pBlockHeader, const char *szStr, int iX, int 
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018BB0
 void prt_right(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
   char *pCurrChar; // esi
@@ -2224,7 +2224,7 @@ void prt_right(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018C50
 void prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 {
   int iDone; // ebp
@@ -2246,7 +2246,7 @@ void prt_string(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018CB0
 void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType)
 {
   int iSavedScrSize; // esi
@@ -2344,7 +2344,7 @@ void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPo
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00018E80
 void prt_letter_rev(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, int iFontType)
 {
   int iSavedScrSize; // esi
@@ -2442,7 +2442,7 @@ void prt_letter_rev(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *p
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00019050
 void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
   int iDone; // ebp
@@ -2464,7 +2464,7 @@ void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000190B0
 void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
   const char *i; // esi
@@ -2499,7 +2499,7 @@ void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY,
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00019160
 void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
 {
   const char *pCurrChar; // esi
@@ -2541,7 +2541,7 @@ void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00019210
 void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, char byColor)
 {
   int iSavedScrSize; // esi
@@ -2604,7 +2604,7 @@ void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *pi
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00019360
 void display_paused()
 {
   char byMenuColor; // al
@@ -3499,7 +3499,7 @@ void display_paused()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001ABF0
 void enable_keyboard()
 {
   // Process all pending events first to ensure buffer is current
@@ -3512,7 +3512,7 @@ void enable_keyboard()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001AC30
 void disable_keyboard()
 {
   // Process all pending events first to ensure buffer is current
@@ -3525,7 +3525,7 @@ void disable_keyboard()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001AC70
 void save_fatal_config()
 {
   FILE *fp = ROLLERfopen("FATAL.INI", "w");
@@ -3660,7 +3660,7 @@ void save_fatal_config()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001B4A0
 void load_fatal_config()
 {
   // Initialize global variables with default values
@@ -3937,7 +3937,7 @@ void load_fatal_config()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001C5A0
 void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutVal, int iMin, int iMax)
 {
   int iTempVal;
@@ -3956,7 +3956,7 @@ void getconfigvalue(const char *szConfigText, const char *szVarName, int *piOutV
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001C5E0
 void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pbyOutVal, int iMin, int iMax)
 {
   short nTempVal;
@@ -3974,7 +3974,7 @@ void getconfigvalueuc(const char *szConfigText, const char *szVarName, uint8 *pb
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001C650
 void displaycalibrationbar(int iX, int iY, int iValue)
 {
   int iWinW; // esi
@@ -4042,7 +4042,7 @@ void displaycalibrationbar(int iX, int iY, int iValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001C830
 void blankwindow(int iX1, int iY1, int iX2, int iY2)
 {
   tPolyParams poly; // [esp+0h] [ebp-34h] BYREF
@@ -4067,7 +4067,7 @@ void blankwindow(int iX1, int iY1, int iX2, int iY2)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001C890
 void volumebar(int iX, int iVolume)
 {
   uint8 *pScreenRow; // ecx
@@ -4096,7 +4096,7 @@ void volumebar(int iX, int iVolume)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001C980
 void remove_uncalibrated()
 {
   if (JAXmax - JAXmin < 100)
@@ -4119,7 +4119,7 @@ void remove_uncalibrated()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001CA60
 void LoadRecords()
 {
   int iFileHandle; // edx
@@ -4276,7 +4276,7 @@ void LoadRecords()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001CD30
 void SaveRecords()
 {
   uint8 *pBuffer = getbuffer(0x400);  // Get a 1KB buffer
@@ -4318,7 +4318,7 @@ void SaveRecords()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001CE40
 uint8 *copy_int(uint8 *pDest, uint32 uiValue)
 {
   pDest += 3;
@@ -4329,7 +4329,7 @@ uint8 *copy_int(uint8 *pDest, uint32 uiValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001CE80
 void ShowATime(float fTime, int iX, int iY)
 {
   int iTime; // [esp+0h] [ebp-1Ch]
@@ -4384,7 +4384,7 @@ void ShowATime(float fTime, int iX, int iY)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D090
 void setmodex()
 {                                               // INT 10h with AX=13h - Set VGA mode 13h (320x200x256) as base
   //__asm { int     10h; INT 10h with AX = 13h - Set VGA mode 13h(320x200x256) as base }
@@ -4394,7 +4394,7 @@ void setmodex()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D0C0
 void modexsethardware()
 {
   //uint8 bySequencerMemMode; // al
@@ -4425,7 +4425,7 @@ void modexsethardware()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D140
 void modexclearscreen()
 {
   //__outword(0x3C4u, 0xF02u);                    // Set Sequencer Map Mask to 0Fh - enable writing to all 4 bit planes
@@ -4433,7 +4433,7 @@ void modexclearscreen()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D170
 void copyscreenmodex(uint8 *pSrc, uint8 *pDest)
 {
   int x, iBlock;
@@ -4464,7 +4464,7 @@ void copyscreenmodex(uint8 *pSrc, uint8 *pDest)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D220
 void start_zoom(const char *szStr, int iPlayerIdx)
 {
   int iPlayerIdx_1; // edx
@@ -4515,7 +4515,7 @@ void start_zoom(const char *szStr, int iPlayerIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D2F0
 void small_zoom(const char *szStr)
 {
   char *pszDest; // edi
@@ -4568,7 +4568,7 @@ void small_zoom(const char *szStr)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D3D0
 void subzoom(const char *szStr)
 {
   char *pszDest; // edi
@@ -4592,7 +4592,7 @@ void subzoom(const char *szStr)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D410
 void make_time(char *szTimeStr, float fTime)
 {
   int iTime; // [esp+0h] [ebp-14h]
@@ -4617,7 +4617,7 @@ void make_time(char *szTimeStr, float fTime)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D520
 void check_machine_speed()
 {
   int iCounter = 0;
@@ -4638,7 +4638,7 @@ void check_machine_speed()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D570
 void load_language_file(char *szFilename, int iUseConfigBuffer)
 {
   FILE *pFile;
@@ -4712,7 +4712,7 @@ void load_language_file(char *szFilename, int iUseConfigBuffer)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D660
 void do_blip(int iCarIdx)
 {
   double dDamage; // st7

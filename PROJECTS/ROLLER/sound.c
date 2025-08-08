@@ -141,7 +141,7 @@ int already_quit;           //0016F8E0
 int network_error;          //0017C97C
 
 //-------------------------------------------------------------------------------------------------
-
+//000394C0
 void realmode(uint8 byRealModeInterrupt)
 {
   /*union REGS regs; // [esp+0h] [ebp-34h] BYREF
@@ -167,7 +167,7 @@ void realmode(uint8 byRealModeInterrupt)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00039520
 bool loadDOS(const char *szFilename, void **out_buffer)
 {
   FILE *file = ROLLERfopen(szFilename, "rb");
@@ -249,7 +249,7 @@ bool loadDOS(const char *szFilename, void **out_buffer)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000395D0
 int claimDOS(int iSizeParagraphs, uint32 *uiSelectorOut)
 {
   //int iRequestedParagraphs; // ecx
@@ -277,7 +277,7 @@ int claimDOS(int iSizeParagraphs, uint32 *uiSelectorOut)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00039650
 void releaseDOS(uint16 nSegment)
 {
   //union REGS regs; // [esp+0h] [ebp-34h] BYREF
@@ -290,7 +290,7 @@ void releaseDOS(uint16 nSegment)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00039690
 bool setpal(const char *szFilename)
 {
   void *pFileData = NULL;
@@ -347,7 +347,7 @@ bool setpal(const char *szFilename)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000397B0
 void blankpal()
 {
   if (!pal_addr)
@@ -399,7 +399,7 @@ void blankpal()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00039890
 void resetpal()
 {
   /*
@@ -419,7 +419,7 @@ void resetpal()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000398F0
 void Initialise_SOS()
 {
   //sosTIMERInitSystem(0xFF00, 0);                // 0xFF00 maybe a special case for a slow rate timer?
@@ -468,7 +468,7 @@ void Initialise_SOS()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00039A40
 void updatejoy()
 {
   int iX1Scaled; // eax
@@ -550,7 +550,7 @@ void updatejoy()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00039C20
 void readuserdata(int iPlayer)
 {
   // Skip processing during countdown phase
@@ -755,7 +755,7 @@ void readuserdata(int iPlayer)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003A270
 void tickhandler()
 {
   if (network_on && syncleft) {
@@ -1149,7 +1149,7 @@ void tickhandler()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B0E0
 void claim_ticktimer(unsigned int uiRateHz)
 {
   /***
@@ -1174,7 +1174,7 @@ void claim_ticktimer(unsigned int uiRateHz)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B120
 void release_ticktimer()
 {
   /***
@@ -1189,7 +1189,7 @@ void release_ticktimer()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B130
 void Uninitialise_SOS()
 {
   /***
@@ -1215,7 +1215,7 @@ void Uninitialise_SOS()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B1A0
 void loadsamples()
 {
   int iWinnerSample = winner_mode;
@@ -1314,7 +1314,7 @@ void loadsamples()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B3A0
 void loadfatalsample()
 {
   if (!SamplePtr[SOUND_SAMPLE_FATAL]) // 88 - Fatal sample
@@ -1336,7 +1336,7 @@ void loadfatalsample()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B440
 void freefatalsample()
 {
   fre((void**)&SamplePtr[SOUND_SAMPLE_FATAL]); // 88 - Fatal sample
@@ -1348,7 +1348,7 @@ void freefatalsample()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B480
 void releasesamples()
 {
   if (SoundCard) {
@@ -1360,7 +1360,7 @@ void releasesamples()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B4D0
 void play()
 {
   if (musicon) {
@@ -1377,7 +1377,7 @@ void play()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B520
 void stop()
 {
   if (MusicCard) {
@@ -1390,7 +1390,7 @@ void stop()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B580
 void devicespecificinit()
 {
   int i; // esi
@@ -1453,7 +1453,7 @@ void devicespecificinit()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B7B0
 int initgus()
 {
   printf("DownLoading  GRAVIS patches...");
@@ -1463,7 +1463,7 @@ int initgus()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003B810
 void devicespecificuninit()
 {
   switch (MusicCard) {
@@ -1483,38 +1483,7 @@ void devicespecificuninit()
 }
 
 //-------------------------------------------------------------------------------------------------
-
-void autoselectsoundlanguage() // Add by ROLLER to auto-select languagename when config.ini is not found
-{
-  SDL_Log("autoselectsoundlanguage: config.ini not found");
-
-  // Set default language as English
-  sscanf(lang[0], "%s", languagename);
-  language = 0;
-  SoundCard = 1; // Set SoundCard to 1 to indicate sound is available
-
-  for (int i = 0; i < languages; i++) {
-    char audioFileName[32];
-    char textFileName[32];
-
-    const char *szTextExt = (char *)TextExt + i * 4;
-    const char *szLangExt = (const char *)SampleExt + i * 4;
-
-    snprintf(textFileName, sizeof(textFileName), "./CONFIG.%s", szTextExt); // e.g., CONFIG.ENG, CONFIG.FRA, CONFIG.GER, CONFIG.BPO, CONFIG.SAS.
-    snprintf(audioFileName, sizeof(audioFileName), "./GO.%s", szLangExt); // e.g., GO.RAW, GO.RFR, GO.RGE, GO.RBP, GO.RSS.
-
-    //SDL_Log("lang[%i]: %s", i, lang[i]);
-    //SDL_Log("textFileName[%i]: %s", i, textFileName);
-    //SDL_Log("audioFileName[%i]: %s", i, audioFileName);
-    if (ROLLERfexists(textFileName) && ROLLERfexists(audioFileName)) {
-      sscanf(lang[i], "%s", languagename);
-      language = i;
-      SDL_Log("autoselectsoundlanguage: select language[%i]: %s - %s %s", language, languagename, szTextExt, szLangExt);
-      break;
-    }
-  }
-}
-
+//0003B880
 void readsoundconfig(void)
 {
   FILE *fp = ROLLERfopen("../config.ini", "rb");
@@ -1620,7 +1589,7 @@ void readsoundconfig(void)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003BAF0
 char *FindConfigVar(const char *szConfigText, const char *szVarName)
 {
   char *szMatch = strstr(szConfigText, szVarName);
@@ -1651,7 +1620,7 @@ char *FindConfigVar(const char *szConfigText, const char *szVarName)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003BB50
 void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSound)
 {
   int iFile; // eax
@@ -1681,7 +1650,7 @@ void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSoun
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003BBD0
 void ReadJoys(tJoyPos *pJoy)
 {
   // Process events to update controller state
@@ -1823,7 +1792,7 @@ void ReadJoys(tJoyPos *pJoy)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003BDD0
 int check_joystickpresence()
 {
   return 0; /*
@@ -1881,7 +1850,7 @@ int check_joystickpresence()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003BF20
 int initsounds()
 {
   return 0; /*
@@ -1932,7 +1901,7 @@ int initsounds()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003BFF0
 int stopallsamples()
 {
   return 0; /*
@@ -2000,7 +1969,7 @@ int stopallsamples()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003C110
 int pannedsample(int result, int a2, int a3)
 {
   return 0; /*
@@ -2060,7 +2029,7 @@ int pannedsample(int result, int a2, int a3)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003C2B0
 int speechonly(int result, int a2, int a3, int a4)
 {
   return 0; /*
@@ -2070,7 +2039,7 @@ int speechonly(int result, int a2, int a3, int a4)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003C2E0
 int speechsample(int result, int a2, int a3, int a4)
 {
   return 0; /*
@@ -2101,7 +2070,7 @@ int speechsample(int result, int a2, int a3, int a4)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003C530
 int analysespeechsamples()
 {
   return 0; /*
@@ -2350,7 +2319,7 @@ int analysespeechsamples()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CAD0
 void dospeechsample(int iSampleIdx, int iVolume)
 {
   int iUseVolume;
@@ -2410,7 +2379,7 @@ void dospeechsample(int iSampleIdx, int iVolume)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CC00
 int frontendspeechhandle;
 uint8 *frontendspeechptr;
 uint32 frontendlen;
@@ -2486,7 +2455,7 @@ void loadfrontendsample(char *fileName)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CD90
 int frontendsample(int iVol)
 {
   if (iVol > 0x7FFF)
@@ -2506,7 +2475,7 @@ int frontendsample(int iVol)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CE20
 void remove_frontendspeech()
 {
   // Clear any existing frontend speech sample
@@ -2521,7 +2490,7 @@ void remove_frontendspeech()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CE70
 int sfxplaying(int a1)
 {
   return 0; /*
@@ -2542,7 +2511,7 @@ int sfxplaying(int a1)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CEC0
 int cheatsampleok(int a1)
 {
   if (a1 == player1_car || a1 == player2_car)
@@ -2552,7 +2521,7 @@ int cheatsampleok(int a1)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003CEF0
 void sfxsample(int iSample, int iVol)
 {
   if (SamplePtr[iSample] == 0) {
@@ -2613,7 +2582,7 @@ void sfxsample(int iSample, int iVol)
 
 
 //-------------------------------------------------------------------------------------------------
-
+//0003D020
 void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan, int iByteOffset)
 {
   if (!soundon || paused || !SamplePtr[iSampleIndex]) {
@@ -2653,7 +2622,7 @@ void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan,
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003D110
 int sfxpend(int a1, int a2, int a3)
 {
   return 0; /*
@@ -2696,7 +2665,7 @@ int sfxpend(int a1, int a2, int a3)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003D200
 int enginesounds2(int result, int a2)
 {
   return 0; /*
@@ -2721,7 +2690,7 @@ int enginesounds2(int result, int a2)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003D310
 int enginesounds(int result)
 {
   return 0; /*
@@ -2947,7 +2916,7 @@ int enginesounds(int result)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003D990
 void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
 {
   if (!soundon || !SamplePtr[iSampleIdx]) {
@@ -3001,7 +2970,7 @@ void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003DB40
 void enginesound(int a1, float a2, float a3, float a4, int a5)
 {/*
   int v8; // ebp
@@ -3218,7 +3187,7 @@ void enginesound(int a1, float a2, float a3, float a4, int a5)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003E1C0
 void startmusic(int iSong)
 {
   //temporary hack to force midi audio until CD audio is supported
@@ -3288,7 +3257,7 @@ void startmusic(int iSong)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003E370
 void stopmusic()
 {
   if (MusicCD && track_playing) {
@@ -3307,7 +3276,7 @@ void stopmusic()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003E3E0
 void load_language_map()
 {
   FILE *pFile;
@@ -3346,7 +3315,7 @@ void load_language_map()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003E460
 void initmusic()
 {
   FILE *pFile = ROLLERfopen("SOUND.INI", "r");
@@ -3399,7 +3368,14 @@ void initmusic()
 }
 
 //-------------------------------------------------------------------------------------------------
+//0003E670
+void SOSTimerCallbackS7()
+{
+  ++s7;
+}
 
+//-------------------------------------------------------------------------------------------------
+//0003E680
 void fade_palette(int iTargetBrightness)
 {
   int iOriginalTickOn = tick_on;
@@ -3522,7 +3498,7 @@ void fade_palette(int iTargetBrightness)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EA00
 void set_palette(int iBrightness)
 {
   if (iBrightness == palette_brightness)
@@ -3552,7 +3528,7 @@ void set_palette(int iBrightness)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EAB0
 int check_joystick_usage()
 {
   return 0; /*
@@ -3574,7 +3550,7 @@ int check_joystick_usage()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EB20
 void convertname(char *szFilename)
 {
   char szTemp[32];
@@ -3635,7 +3611,7 @@ void convertname(char *szFilename)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EC40
 void decode(uint8 *pData, int iLength, uint32 uiStep, uint32 uiOffset)
 {
   int i; // edx
@@ -3655,7 +3631,7 @@ void decode(uint8 *pData, int iLength, uint32 uiStep, uint32 uiOffset)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EC70
 void loadasample(int iIndex)
 {
   char szFilenameBuf[32];
@@ -3729,7 +3705,7 @@ void loadasample(int iIndex)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EE40
 void select8bitdriver()
 {
   /*
@@ -3777,7 +3753,7 @@ void select8bitdriver()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003EF50
 int resetsamplearray()
 {
   return 0; /*
@@ -3836,7 +3812,7 @@ int resetsamplearray()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F050
 void reinitmusic()
 {
   int iSong; // eax
@@ -3862,7 +3838,7 @@ void reinitmusic()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F0D0
 void waitsampledone(int iSampleIdx)
 {
   if (!soundon)
@@ -3883,7 +3859,7 @@ void waitsampledone(int iSampleIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F110
 int getcompactedfilelength(const char *szFile)
 {
   FILE *pFile; // esi
@@ -3897,7 +3873,7 @@ int getcompactedfilelength(const char *szFile)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F150
 int initmangle(const char *szFile)
 {
   unmangleinpoff = 4;
@@ -3910,14 +3886,14 @@ int initmangle(const char *szFile)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F1B0
 int uninitmangle()
 {
   return fclose(unmanglefile);
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F1C0
 int loadcompactedfile(const char *szFile, uint8 *pBuf)
 {
   initmangle(szFile);
@@ -3927,7 +3903,7 @@ int loadcompactedfile(const char *szFile, uint8 *pBuf)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F1E0
 void readmangled(uint8 *pBufRet, int iLength)
 {
   int iLengthToRead; // ebp
@@ -3956,7 +3932,7 @@ void readmangled(uint8 *pBufRet, int iLength)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F290
 void loadcompactedfilepart(uint8 *pDest, uint32 uiDestLength)
 {
   uint32 uiOutputPos = 0;
@@ -4056,7 +4032,7 @@ void loadcompactedfilepart(uint8 *pDest, uint32 uiDestLength)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F550
 uint8 *unmangleGet(unsigned int uiPos, unsigned int uiLookahead)
 {
   // if what we want to read is not currently in the

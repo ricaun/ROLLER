@@ -8,7 +8,7 @@ int Vbytesperline;  //00178068
 int winrange;       //0017806C
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E4B0
 int vesastart(int iX, int iY)
 {
   //RMI.ecx = iX;
@@ -30,7 +30,7 @@ int vesastart(int iX, int iY)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E530
 int tryvesa(int iModeNumber)
 {
   //RMI.ecx = iModeNumber;                        // VESA mode number to query
@@ -52,7 +52,7 @@ int tryvesa(int iModeNumber)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E5A0
 void *VESASource(int iX, int iY, int iOffset)
 {
   //// Get bytes per pixel from VESA mode info
@@ -84,7 +84,7 @@ void *VESASource(int iX, int iY, int iOffset)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E630
 void *VESADest(int iX, int iY, int iOffset)
 {
   //// Get bytes per pixel from VESA mode info
@@ -116,7 +116,7 @@ void *VESADest(int iX, int iY, int iOffset)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E6C0
 int VESAmode(int *vesaModeAy)
 {
   //int iRetVal; // ebx
@@ -222,7 +222,7 @@ int VESAmode(int *vesaModeAy)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E940
 void svgacopy(uint8 *pSrc, int16 iX, int16 iY, int iWidth, int iHeight)
 {
   return; //added by ROLLER

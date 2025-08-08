@@ -1,7 +1,7 @@
 #include "mouse.h"
 #include "3d.h"
 //-------------------------------------------------------------------------------------------------
-
+//00075AA0
 void initmouse()
 {
   //REGS registers; // [esp+0h] [ebp-24h] BYREF
@@ -11,7 +11,7 @@ void initmouse()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075AD0
 void mousexy()
 {
   //int iMouseX; // ecx
@@ -45,7 +45,7 @@ void mousexy()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075B60
 int mousebut(uint16 unMask)
 {
   //REGS regs; // [esp+0h] [ebp-28h] BYREF
@@ -59,7 +59,7 @@ int mousebut(uint16 unMask)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075BB0
 void checkmouse()
 {
   //char byCurrPressed; // cl
@@ -87,7 +87,7 @@ void checkmouse()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075C30
 void drmouse(int iX0, int iY0, uint8 *pData, uint8 *pScreenBase)
 {
   int iScreenWidth; // edi
@@ -139,7 +139,7 @@ void drmouse(int iX0, int iY0, uint8 *pData, uint8 *pScreenBase)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075CC0
 void plotmouse()
 {
   int iScreenWidth; // ecx

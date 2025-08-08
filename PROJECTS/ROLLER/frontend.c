@@ -526,7 +526,7 @@ uint8 oldkeys[14];        //0016FF04
 char my_name[14];         //0016FF12
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F5B0
 void title_screens()
 {
   winx = 0;
@@ -576,7 +576,7 @@ void title_screens()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F6B0
 void copy_screens()
 {
   SVGA_ON = -1;
@@ -605,7 +605,7 @@ void copy_screens()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0003F7B0
 void select_screen()
 {
   int iMenuSelection; // esi
@@ -1485,7 +1485,7 @@ LABEL_232:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000411D0
 void select_disk()
 {
   int iSelectedSlot; // esi
@@ -1812,8 +1812,7 @@ void select_disk()
 }
 
 //-------------------------------------------------------------------------------------------------
-
-// Car selection screen - main function handling player car selection UI, 3D car display, and input processing
+//00041CA0
 void select_car()
 {
   eCarType currentCarType; // ebx
@@ -2334,7 +2333,7 @@ void select_car()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00042D40
 void select_configure()
 {
   char *szString; // eax
@@ -4748,7 +4747,7 @@ void select_configure()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00046EA0
 void front_displaycalibrationbar(int iY, int iX, int iValue)
 {
   int iClampedValue; // edi
@@ -4788,7 +4787,7 @@ void front_displaycalibrationbar(int iY, int iX, int iValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00046F40
 void front_volumebar(int iY, int iVolumeLevel, int iFillColor)
 {
   uint8 *pbyScreenPos; // ecx
@@ -4812,7 +4811,7 @@ void front_volumebar(int iY, int iVolumeLevel, int iFillColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00047000
 void select_players()
 {
   unsigned int uiSelectedPlayerType; // esi
@@ -5176,7 +5175,7 @@ void select_players()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00047AE0
 void select_type()
 {
   int iMenuSelection; // edi
@@ -5769,7 +5768,7 @@ void select_type()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00049070
 void select_track()
 {
   int iAnimationTimer; // edi
@@ -6103,21 +6102,21 @@ void select_track()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00049C50
 void save_params()
 {
   p_tex_size = gfx_size;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00049C60
 void reset_params()
 {
   gfx_size = p_tex_size;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00049C70
 void NetworkWait()
 {
   int iPlayerLoop1; // esi
@@ -6370,7 +6369,7 @@ LABEL_83:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004A440
 void loadcheatnames()
 {
   char buffer[0x400]; // Temporary buffer for file contents
@@ -6420,7 +6419,7 @@ void loadcheatnames()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004A5C0
 int CheckNames(char *szPlayerName, int iPlayerIdx)
 {
   int iCheatIdx = 0;
@@ -6613,7 +6612,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004AB30
 void restart_net_game()
 {
   int iActualCompetitors; // edi

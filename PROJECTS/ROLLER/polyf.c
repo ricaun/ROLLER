@@ -9,7 +9,7 @@
 #include <float.h>
 #include <stdbool.h>
 //-------------------------------------------------------------------------------------------------
-
+//000706B0
 void twpoly(tPoint *vertices, int16 nColor)
 {
   int16 nEdge1Dx;
@@ -181,7 +181,7 @@ void twpoly(tPoint *vertices, int16 nColor)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00070A40
 void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams)
 {
   uint32 uiSurfaceType; // ebx
@@ -248,7 +248,7 @@ void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00070B40
 void poly(tPoint *vertices, int iVertexCount, int16 nColor)
 {
   int iOldWinW; // ebp
@@ -1311,7 +1311,7 @@ CLEANUP_AND_RETURN:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00071D70
 void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
 {
   int iOldWinW; // ebp

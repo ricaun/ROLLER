@@ -37,7 +37,7 @@ int num_pols;       //001446A8
 int small_poly;     //001446AC
 
 //-------------------------------------------------------------------------------------------------
-
+//0001D740
 int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode)
 {
   int iCurrChunk; // esi
@@ -334,7 +334,7 @@ int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0001DE40
 int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5)
 {
   (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
@@ -4733,7 +4733,7 @@ LABEL_393:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00025550
 void subdivide(uint8 *pDest, tPolyParams *polyParams,
                float fX0_3D, float fY0_3D, float fZ0_3D,
                float fX1_3D, float fY1_3D, float fZ1_3D,
@@ -4851,7 +4851,7 @@ LABEL_10:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000257E0
 void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
               float fX1_3D, float fY1_3D, float fZ1_3D,
               float fX2_3D, float fY2_3D, float fZ2_3D,
@@ -6092,7 +6092,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00027980
 int facing_ok(float fX0, float fY0, float fZ0,
               float fX1, float fY1, float fZ1,
               float fX2, float fY2, float fZ2,
@@ -6121,7 +6121,7 @@ int facing_ok(float fX0, float fY0, float fZ0,
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00027A10
 int Zcmp(float *a1, float *a2)
 {
   (void)(a1); (void)(a2);
@@ -6148,7 +6148,7 @@ int Zcmp(float *a1, float *a2)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00027A60
 void set_starts(unsigned int uiType)
 {
   startsx[1] = 0;

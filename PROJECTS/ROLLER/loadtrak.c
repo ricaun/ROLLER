@@ -65,7 +65,7 @@ int meof;                   //00176AC4
 tSubdivide Subdivide[500];  //00176AC8
 
 //-------------------------------------------------------------------------------------------------
-
+//0004AF80
 void loadtrack(int iTrackIdx, int iPreviewMode)
 {
   int iCarIdx; // ecx
@@ -934,7 +934,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004D6C0
 void read_backs(uint8 **ppTrackData)
 {
   int iBacksEnd; // ecx
@@ -964,7 +964,7 @@ void read_backs(uint8 **ppTrackData)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004D780
 void read_texturemap(uint8 **ppTrackData)
 {
   char *pszBufPtr; // eax
@@ -993,7 +993,7 @@ void read_texturemap(uint8 **ppTrackData)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004D7F0
 void read_bldmap(uint8 **ppTrackData)
 {
   uint8 *pbyOriginalTrackData; // ebp
@@ -1041,7 +1041,7 @@ void read_bldmap(uint8 **ppTrackData)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004D8D0
 void readstuntdata(uint8 **pTrackData)
 {
   int *pStuntData; // edx
@@ -1100,7 +1100,7 @@ void readstuntdata(uint8 **pTrackData)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004D9B0
 void activatestunts()
 {/*
   int *v0; // esi
@@ -1152,7 +1152,7 @@ void activatestunts()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004DA90
 void ReadAnimData(FILE *pFile, uint8 **ppFileData)
 {
   int iSignType; // [esp+0h] [ebp-14h] BYREF
@@ -1174,7 +1174,7 @@ void ReadAnimData(FILE *pFile, uint8 **ppFileData)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004DB00
 void readline(FILE *pFile, const char *szFmt, ...)
 {
   char szBuffer[0x200];
@@ -1284,7 +1284,7 @@ void readline(FILE *pFile, const char *szFmt, ...)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004DDF0
 uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 {
   int iEof; // esi
@@ -1310,7 +1310,7 @@ uint8 *memgets(uint8 *pDst, uint8 **ppSrc)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004DE30
 void readline2(uint8 **ppFileData, const char *pszFormat, ...)
 {
   char szLineBuffer[512];
@@ -1447,7 +1447,7 @@ void readline2(uint8 **ppFileData, const char *pszFormat, ...)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E190
 void rotatepoint(double dX, double dY, double dZ, double dYaw, double dPitch, double dRoll, double *pdOutX, double *pdOutY, double *pdOutZ)
 {
   long double dblCosX; // st7
@@ -1475,7 +1475,7 @@ void rotatepoint(double dX, double dY, double dZ, double dYaw, double dPitch, do
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E2D0
 void setpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 {
   TrakPt[iChunkIdx].pointAy[iPointIdx].fX = (float)dX;
@@ -1484,7 +1484,7 @@ void setpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E320
 void setgpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 {
   GroundPt[iChunkIdx].pointAy[iPointIdx].fX = (float)dX;
@@ -1493,7 +1493,7 @@ void setgpoint(int iChunkIdx, int iPointIdx, double dX, double dY, double dZ)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E370
 void resetcars()
 {
   int iCarIdx; // esi
@@ -1511,7 +1511,7 @@ void resetcars()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0004E3B0
 void min_skip_stuff(uint8 **ppFileData)
 {
   char szBuf[256]; // [esp-100h] [ebp-130h] BYREF

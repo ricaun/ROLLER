@@ -19,7 +19,7 @@ float vk9;  //00189974
 int yp;     //00189978
 
 //-------------------------------------------------------------------------------------------------
-
+//00060A40
 void calculatetransform(int iTrackChunkIdx, int iDirection, int iElevation, int iTilt,
                         float fViewX, float fViewY, float fViewZ,
                         float fPosX, float fPosY, float fPosZ)
@@ -96,7 +96,7 @@ void calculatetransform(int iTrackChunkIdx, int iDirection, int iElevation, int 
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00060DE0
 void initlocaltrack()
 {                                               // Initialize each track segment's local data
   int i; // edx
@@ -108,7 +108,7 @@ void initlocaltrack()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00060E20
 void initlocalsection(int iChunkIdx)
 {
   int iNextChunk; // ecx
@@ -467,7 +467,7 @@ void initlocalsection(int iChunkIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00061C90
 void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
 {
   int iTrackIndex; // esi
@@ -940,7 +940,7 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00062F10
 int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
 {
   int iNextTrackIndex; // ecx
@@ -1241,6 +1241,7 @@ int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
+//00063990
 //outputs represent angles relative to the chunk's geometry, not absolute world orientation
 void getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimuth, int *piElevation, int *piBank)
 {
@@ -1297,6 +1298,7 @@ void getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimu
 }
 
 //-------------------------------------------------------------------------------------------------
+//00063B90
 //outputs represent local orientation relative to chunk's basis
 void getlocalangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimuth, int *piElevation, int *piBank)
 {

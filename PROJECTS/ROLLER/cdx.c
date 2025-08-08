@@ -37,7 +37,7 @@ char volscale[129];       //001A1F1E
 int drive;                //001A1F9F
 
 //-------------------------------------------------------------------------------------------------
-
+//00074C80
 int FinishedAudio()
 {
   tAudioFinished audioFinished; // [esp+0h] [ebp-14h] BYREF
@@ -54,7 +54,7 @@ int FinishedAudio()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00074CC0
 void OpenDoor()
 {
   uint8 byCommand = 0;  // Open door command
@@ -62,7 +62,7 @@ void OpenDoor()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00074CF0
 void CloseDoor()
 {
   uint8 byCommand = 5;  // Close door command
@@ -71,14 +71,14 @@ void CloseDoor()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00074D10
 void ResetDrive()
 {
   ;
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00074D20
 void GetCDStatus()
 {
   uint8 szBuf[16]; // [esp+0h] [ebp-10h] BYREF
@@ -127,7 +127,7 @@ void GetCDStatus()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00074E60
 void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 {
   io.bySubCommand = bySubCommand;
@@ -164,7 +164,7 @@ void WriteIOCTL(uint8 bySubCommand, unsigned int uiSize, void *pBuffer)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00074FA0
 void *AllocDOSMemory(int iSizeBytes, int16 *pOutSegment)
 {
   pOutSegment = NULL;
@@ -187,7 +187,7 @@ void *AllocDOSMemory(int iSizeBytes, int16 *pOutSegment)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075020
 void GetAudioInfo()
 {
   uint8 buffer[7];
@@ -246,7 +246,7 @@ void GetAudioInfo()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000751A0
 void PlayTrack(int iTrack)
 {
   // Prepare audio control structure
@@ -264,7 +264,7 @@ void PlayTrack(int iTrack)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000751F0
 void PlayTrack4(int iStartTrack)
 {
   // Calculate total duration of four tracks
@@ -286,7 +286,7 @@ void PlayTrack4(int iStartTrack)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075260
 void RepeatTrack()
 {
   playControl.byPlayFlag = 1;
@@ -297,7 +297,7 @@ void RepeatTrack()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000752A0
 void StopTrack()
 {
   AudioIOCTL(0x85); //stop track
@@ -305,7 +305,7 @@ void StopTrack()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000752E0
 void SetAudioVolume(int iVolume)
 {
   int iUseVolume; // eax
@@ -336,7 +336,7 @@ void SetAudioVolume(int iVolume)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075340
 void AudioIOCTL(uint8 bySubcommand)
 {
   // Prepare audio control structure
@@ -367,7 +367,7 @@ void AudioIOCTL(uint8 bySubcommand)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075400
 void FreeDOSMemory(uint16 unSegment)
 {
   //memset(&sregs, 0, sizeof(sregs));
@@ -377,7 +377,7 @@ void FreeDOSMemory(uint16 unSegment)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075450
 void intRM(uint8 byInterruptNumber)
 {
   /*
@@ -390,7 +390,7 @@ void intRM(uint8 byInterruptNumber)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000754B0
 void GetFirstCDDrive()
 {
   firstCDdrive = -1;
@@ -447,7 +447,7 @@ void GetFirstCDDrive()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075520
 void cdxinit()
 {
   iobuffer = AllocDOSMemory(256, &ioselector);
@@ -466,7 +466,7 @@ void cdxinit()
   }
 }
 //-------------------------------------------------------------------------------------------------
-
+//000755D0
 void cdxdone()
 {
   free(cdbuffer);
@@ -485,7 +485,7 @@ void cdxdone()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075660
 int cdpresent()
 {
   int iSuccess = 0;
@@ -498,7 +498,7 @@ int cdpresent()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00075690
 int checkCD(uint8 byDriveIdx)
 {
   char szFilename[128];
@@ -524,7 +524,7 @@ int checkCD(uint8 byDriveIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000756F0
 int criticalhandler()
 {
   return 3;

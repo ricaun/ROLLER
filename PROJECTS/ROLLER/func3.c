@@ -93,7 +93,7 @@ int result_p2_pos;        //00188838
 int result_p1_pos;        //0018883C
 
 //-------------------------------------------------------------------------------------------------
-
+//00056070
 int winner_screen(eCarDesignIndex carDesign, char byFlags)
 {
   int iExit; // ebp
@@ -258,7 +258,7 @@ int winner_screen(eCarDesignIndex carDesign, char byFlags)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//000563E0
 void StoreResult()
 {
   int iResultP2Pos; // edi
@@ -339,7 +339,7 @@ void StoreResult()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00056570
 void RaceResult()
 {
   uint8 *pbyScreenBuffer; // edi
@@ -543,7 +543,7 @@ void RaceResult()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00056D60
 void TimeTrials(int iDriverIdx)
 {
   uint8 *pbyScreenBuffer; // edi
@@ -817,7 +817,7 @@ void TimeTrials(int iDriverIdx)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00057AD0
 void ChampionshipStandings()
 {
   int iSavedScreenSize; // ebp
@@ -1021,7 +1021,7 @@ void ChampionshipStandings()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00058100
 void TeamStandings()
 {
   uint8 *pScrBuf; // edi
@@ -1260,7 +1260,7 @@ void TeamStandings()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00058780
 void ShowLapRecords()
 {
   uint8 *pScrBuf; // edi
@@ -1568,7 +1568,7 @@ void ShowLapRecords()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//00059220
 void show_3dmap(float fZ, int iElevation, int iYaw)
 {
   int iChunkIdx; // edx
@@ -2174,7 +2174,7 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005A400
 void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, int iAngle, char byAnimFrame)
 {
   int iNumCoords; // ecx
@@ -2791,7 +2791,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005B490
 void championship_winner()
 {
   uint8 *pbyScreenBuffer; // edi
@@ -2878,7 +2878,7 @@ void championship_winner()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005B660
 void print_mem_used(const char *szMsg)
 {
   printf("%s\n", szMsg);
@@ -2887,7 +2887,7 @@ void print_mem_used(const char *szMsg)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005B6A0
 uint8 *try_load_picture(const char *szFile)
 {
   uint8 *pBuf2; // ebx
@@ -2909,7 +2909,7 @@ uint8 *try_load_picture(const char *szFile)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005B6F0
 void save_champ(int iSlot)
 {
   char *pbySaveBuffer; // eax
@@ -3080,7 +3080,7 @@ void save_champ(int iSlot)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005B9A0
 int load_champ(int iSlot)
 {
   int iFileHandle; // edx
@@ -3591,7 +3591,7 @@ int load_champ(int iSlot)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005C000
 uint8 *lod_champ_char(uint8 *pSrc, int *piValue)
 {
   int iValue; // ebx
@@ -3604,7 +3604,7 @@ uint8 *lod_champ_char(uint8 *pSrc, int *piValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005C020
 // MISLEADING NAME: Actually LOADS a 4-byte integer from buffer (should be named load_champ_int)
 uint8 *sav_champ_char(uint8 *pSrc, int *piValue)
 {
@@ -3618,7 +3618,7 @@ uint8 *sav_champ_char(uint8 *pSrc, int *piValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005C030
 uint8 *sav_champ_int(uint8 *pDest, int iValue)
 {
   pDest[0] = (uint8)(iValue);         // Byte 0: bits 0-7
@@ -3629,7 +3629,7 @@ uint8 *sav_champ_int(uint8 *pDest, int iValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005C070
 void check_saves()
 {
   char *pszSaveSlotName; // esi
@@ -3680,7 +3680,7 @@ void check_saves()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005C180
 void ResultRoundUp()
 {
   uint8 *pbyScreenBuffer; // edi
@@ -3888,7 +3888,7 @@ void ResultRoundUp()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005CB20
 void RollCredits()
 {
   int iCurrImageIdx; // edi
@@ -3955,7 +3955,7 @@ void RollCredits()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005CCE0
 void ChampionshipOver()
 {
   signed int iPlayer1Position; // edx
@@ -4099,7 +4099,7 @@ LABEL_36:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D180
 void EndChampSequence()
 {
   int iImageIndex; // esi
@@ -4143,7 +4143,7 @@ void EndChampSequence()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D2B0
 void network_fucked()
 {                                               // Check if network is in error state and close if needed
   int iOriginalScreenSize; // ebp
@@ -4238,7 +4238,7 @@ void network_fucked()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D560
 void no_cd()
 {
   int iScrSize; // ebp
@@ -4314,7 +4314,7 @@ void no_cd()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D6D0
 int name_cmp(char *szName1, char *szName2)
 {
   int iResult; // edx
@@ -4339,7 +4339,7 @@ int name_cmp(char *szName1, char *szName2)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D710
 void name_copy(char *szDest, char *szSrc)
 {
   char *pSrcPos; // eax
@@ -4356,7 +4356,7 @@ void name_copy(char *szDest, char *szSrc)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D730
 void loadtracksample(int track_number)
 {
   if (track_number <= 0) track_number = 1;
@@ -4365,7 +4365,7 @@ void loadtracksample(int track_number)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D790
 void front_letter(tBlockHeader *pFont, uint8 byCharIdx, int *iX, int *iY, const char *szStr, uint8 byColorReplace)
 {
   // Get character from string
@@ -4407,7 +4407,7 @@ void front_letter(tBlockHeader *pFont, uint8 byCharIdx, int *iX, int *iY, const 
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D840
 void scale_letter(tBlockHeader *pFont, uint8 byChar, int *iCursorX, int *iCursorY, char *mappingTable, char byColorReplace, int iScaleSize)
 {
   int byCharIndex; // edx
@@ -4461,7 +4461,7 @@ void scale_letter(tBlockHeader *pFont, uint8 byChar, int *iCursorX, int *iCursor
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005D930
 void front_text(
     tBlockHeader *pFont,
     const char *szText,
@@ -4545,7 +4545,7 @@ void front_text(
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005DA40
 void scale_text(tBlockHeader *pFont,
                 char *szText,
                 const char *mappingTable,
@@ -4662,14 +4662,14 @@ LABEL_14:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005DC50
 void clear_screen(void *pDest, int iVal)
 {
   memset(pDest, iVal, 256000u);
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005DC60
 void display_picture(void *pDest, const void *pSrc)
 {
   unsigned int uiSize; // ecx
@@ -4682,7 +4682,7 @@ void display_picture(void *pDest, const void *pSrc)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005DC90
 void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int iY, int iTransparentColor)
 {
   int iBlockWidth; // ebp
@@ -4721,7 +4721,7 @@ void display_block(uint8 *pDest, tBlockHeader *pSrc, int iBlockIdx, int iX, int 
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005DD40
 uint8 *load_picture(const char *szFile)
 {
   int iFileHandle; // ebx
@@ -4743,7 +4743,7 @@ uint8 *load_picture(const char *szFile)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005DDA0
 void AllocateCars()
 {
   int iCarIdx; // esi
@@ -5030,7 +5030,7 @@ void AllocateCars()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005E1C0
 void check_cars()
 {
   memset(allocated_cars, 0, sizeof(allocated_cars));
@@ -5071,7 +5071,7 @@ void check_cars()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005E300
 void select_messages()
 {
   uint8 *pScreenBuffer; // edi
@@ -5437,7 +5437,7 @@ MAIN_UI_LOOP:
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005EDE0
 void show_received_mesage()
 {                                               // Check if there's a message to display and screen is not fading
   int iRecMesWidth; // ebx
@@ -5487,7 +5487,7 @@ void show_received_mesage()
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0005EFB0
 int select_netslot()
 {
   int iSlot1PlayerCount; // ebx

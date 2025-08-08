@@ -26,7 +26,7 @@ uint8 *scrptr1;           //0019EC24
 uint8 *mapsel[4884];      //0019EC28 changed to uint8* by ROLLER, original code these are 16-bit DOS selectors, [19][257]
 
 //-------------------------------------------------------------------------------------------------
-
+//0006BBF0
 void remove_mapsels()
 {
   // Clear all mapsel arrays
@@ -153,6 +153,8 @@ void remove_mapsels()
   //num_textures[18] = 0;
 }
 
+//-------------------------------------------------------------------------------------------------
+//0006BDB0
 void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount)
 {
   //int iBaseAdjusted; // ebp
@@ -243,7 +245,7 @@ void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0006BF50
 void twpolym(tPoint *vertices, uint8 *pTex)
 {
   int16 nEdge01X; // bx
@@ -527,7 +529,7 @@ void twpolym(tPoint *vertices, uint8 *pTex)
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0006C620
 void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTexIdx, int iGfxSize)
 {
   uint32 uiSurfaceType; // eax
@@ -711,14 +713,14 @@ static int iTestPol = 0;
 //++iTestPol;
 
 //-------------------------------------------------------------------------------------------------
-
+//0006C8D0
 void polym(tPoint *vertices, int iNumVerts, uint8 *pTex)
 {
   polyt(vertices, iNumVerts, pTex);
 }
 
 //-------------------------------------------------------------------------------------------------
-
+//0006F240
 void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 {
     // Find polygon bounds and top vertex
