@@ -13,10 +13,27 @@
 #include <fnmatch.h>
 #endif
 //-------------------------------------------------------------------------------------------------
+//symbol names added by ROLLER
+char szNewEdit[10] = "NEW EDIT:"; //000A274C
+char szEdit[6] = "EDIT:";         //000A2758
+
+//-------------------------------------------------------------------------------------------------
 
 int disciconpressed = 0;  //000A63AC
 int rotpoint = 0;         //000A63B0
+int controlicon = 9;      //000A63B8
 int replayspeeds[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 }; //000A63BC
+char *replayname[9] = {   //000A63E0
+    "1/16",
+    "1/8",
+    "1/4",
+    "1/2",
+    "1",
+    "2",
+    "4",
+    "8",
+    "16"
+};
 int filingmenu = 0;       //000A6408
 int replaysetspeed = 0;   //000A6414
 int replaydirection = 0;  //000A6418
@@ -24,6 +41,85 @@ int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
 int pend_view_init = -1;  //000A6424
 int replayedit = 0;       //000A6428
+char *views[8] = {        //000A644C
+  "IN CAR",
+  "CHASE",
+  "MIRROR",
+  "BEHIND",
+  "CAMERA",
+  "ABOVE",
+  "BACK",
+  "TEAM"
+};
+tRIcon ricon[26] =
+{
+  { 0, 0, NULL },
+  { 7, 5, &Rframeminus },
+  { 29, 5, &Rframeplus },
+  { 51, 5, &Rreverseplay },
+  { 73, 5, &Rplay },
+  { 95, 5, &Rspeedminus },
+  { 117, 5, &Rspeedplus },
+  { 7, 21, &Rstart },
+  { 29, 21, NULL },
+  { 51, 21, &DoRstop },
+  { 95, 21, NULL },
+  { 117, 21, &Rend },
+  { 7, 37, &carminus },
+  { 29, 37, &carplus },
+  { 51, 37, &viewminus },
+  { 73, 37, &viewplus },
+  { 95, 37, &discmenu },
+  { 117, 37, &rtoggleedit },
+  { 140, 37, &rstartblock },
+  { 162, 37, &rselectblock },
+  { 184, 37, &rdeleteblock },
+  { 206, 37, &rstoreview },
+  { 228, 37, &rremoveview },
+  { 250, 37, &rpreviouscut },
+  { 272, 37, &rnextcut },
+  { 294, 37, &rstartassemble }
+};
+char *replayhelp[26] = {  //000A6544
+  "",
+  "FRAME|REVERSE",
+  "FRAME|FORWARD",
+  "REVERSE PLAY",
+  "PLAY",
+  "DECREASE|PLAY SPEED",
+  "INCREASE|PLAY SPEED",
+  "GO TO START",
+  "REWIND",
+  "STOP",
+  "FAST FORWARD",
+  "GO TO END",
+  "SELECT|PREVIOUS CAR",
+  "SELECT|NEXT CAR",
+  "SELECT|PREVIOUS VIEW",
+  "SELECT|NEXT VIEW",
+  "FILE|OPERATIONS",
+  "SELECT|EDIT MODE",
+  "START|BLOCK",
+  "SELECT|BLOCK",
+  "DESELECT|BLOCK",
+  "STORE|NEW CUT",
+  "REMOVE|CUT",
+  "GO TO|PREVIOUS CUT",
+  "GO TO|NEXT CUT",
+  "ASSEMBLE|REPLAY"
+};
+int lsdsel = 0;           //000A646C
+tPoint rrotate[8] =       //000A65AC
+{
+  { 194, 11 },
+  { 199, 11 },
+  { 203, 15 },
+  { 203, 20 },
+  { 199, 24 },
+  { 194, 24 },
+  { 190, 20 },
+  { 190, 15 }
+};
 tReplayCamera camera[100];//00189980
 int disabled[4096];       //00189BD8
 int replayspeed;          //0018EE40
@@ -2284,110 +2380,106 @@ void warning(int iX1, int iY1, int iX2, int iY2, char *szWarning)
 
 //-------------------------------------------------------------------------------------------------
 //00067020
-char lsd(int a1, int a2, int a3, int a4)
+void lsd(int iX1, int iY1, int iX2, int iY2)
 {
-  return 0; /*
-  int v4; // esi
-  unsigned __int8 v5; // al
-  unsigned __int8 v6; // al
-  int v7; // ebp
-  char *v8; // edi
-  char *v9; // esi
-  char v10; // al
-  char v11; // al
-  char result; // al
-  char v13; // [esp-4h] [ebp-40h]
-  __int64 v14; // [esp+0h] [ebp-3Ch] BYREF
-  int v15; // [esp+8h] [ebp-34h]
-  int v16; // [esp+Ch] [ebp-30h]
-  int v17; // [esp+10h] [ebp-2Ch]
-  int v18; // [esp+14h] [ebp-28h]
-  int v19; // [esp+18h] [ebp-24h]
-  int v20; // [esp+1Ch] [ebp-20h]
-  int v21; // [esp+20h] [ebp-1Ch]
-  int v22; // [esp+24h] [ebp-18h]
-  int v23; // [esp+2Ch] [ebp-10h]
+  int iOriginalY1; // esi
+  uint8 byKey; // al
+  uint8 byExtendedKey; // al
+  int iMenuOption; // ebp
+  char *pDestBuffer; // edi
+  char *pSourceText; // esi
+  char byChar1; // al
+  char byChar2; // al
+  char byTextColor; // [esp-4h] [ebp-40h]
+  tPolyParams poly; // [esp+0h] [ebp-3Ch] BYREF
+  int iTextY; // [esp+2Ch] [ebp-10h]
 
-  v4 = a2;
-  if (SVGA_ON) {
-    a3 *= 2;
-    a2 *= 2;
-    a1 *= 2;
-    a4 *= 2;
+  iOriginalY1 = iY1;                            // Save original Y1 coordinate before SVGA scaling
+  if (SVGA_ON)                                // Scale coordinates by 2x for SVGA mode
+  {
+    iX2 *= 2;
+    iY1 *= 2;
+    iX1 *= 2;
+    iY2 *= 2;
   }
-  v15 = a3;
-  v16 = a2;
-  v17 = a1;
-  v18 = a2;
-  v19 = a1;
-  v20 = a4;
-  v21 = a3;
-  v22 = a4;
-  v14 = 0x400200003LL;
-  POLYFLAT(scrbuf, &v14);
-  prt_centrecol(rev_vga_variable_1, language_buffer_variable_48, 160, v4 + 10, 231);
-  while (fatkbhit()) {
-    v5 = fatgetch();
-    if (v5) {
-      if (v5 >= 0xDu) {
-        if (v5 <= 0xDu) {
-          sfxsample(v14);
+  poly.vertices[0].x = iX2;                     // Set up polygon vertices for background rectangle
+  poly.vertices[0].y = iY1;
+  poly.vertices[1].x = iX1;
+  poly.vertices[1].y = iY1;
+  poly.vertices[2].x = iX1;
+  poly.vertices[2].y = iY2;
+  poly.vertices[3].x = iX2;
+  poly.vertices[3].y = iY2;
+  poly.iSurfaceType = 0x200003;                 // = SURFACE_FLAG_TRANSPARENT | 0x3;
+  poly.uiNumVerts = 4;
+  POLYFLAT(scrbuf, &poly);
+  prt_centrecol(rev_vga[1], &language_buffer[3072], 160, iOriginalY1 + 10, 231);// Display menu title text centered
+  while (fatkbhit())                          // Main input loop - process keyboard input
+  {
+    byKey = fatgetch();                         // Get key press
+    if (byKey)                                // Check if regular ASCII key or extended key (0 = extended)
+    {                                           // Check for ENTER key (0x0D)
+      if (byKey >= 0xDu) {
+        if (byKey <= 0xDu) {
+          sfxsample(83, 0x8000);                // SOUND_SAMPLE_BUTTON
           filingmenu = lsdsel + 1;
-        } else if (v5 == 27) {
-          filingmenu = 0;
+        } else if (byKey == 0x1B)               // Check for ESCAPE key (0x1B)
+        {
+          filingmenu = 0;                       // ESCAPE: cancel menu and reset state
           disciconpressed = 0;
           rotpoint = currentreplayframe;
         }
       }
     } else {
-      v6 = fatgetch();
-      if (v6 >= 0x48u) {
-        if (v6 <= 0x48u) {
+      byExtendedKey = fatgetch();               // Extended key: get second byte of scancode
+      if (byExtendedKey >= 0x48u)             // Check for UP arrow key (0x48)
+      {
+        if (byExtendedKey <= 0x48u) {                                       // UP arrow: move selection up if not at top
           if (lsdsel)
             --lsdsel;
-        } else if (v6 == 80 && lsdsel < 2) {
-          ++lsdsel;
+        } else if (byExtendedKey == 0x50 && lsdsel < 2)// Check for DOWN arrow key (0x50)
+        {
+          ++lsdsel;                             // DOWN arrow: move selection down if not at bottom
         }
       }
     }
   }
-  v7 = 0;
-  v23 = v4 + 30;
-  do {
-    if (v7) {
-      if ((unsigned int)v7 <= 1) {
-        v8 = buffer;
-        v9 = (char *)&language_buffer_variable_50;
+  iMenuOption = 0;                              // Begin menu text rendering loop
+  iTextY = iOriginalY1 + 30;                    // Calculate starting Y position for menu text
+  do {                                             // Select appropriate menu text based on option index
+    if (iMenuOption) {
+      if ((unsigned int)iMenuOption <= 1) {
+        pDestBuffer = buffer;
+        pSourceText = &language_buffer[3200];
       } else {
-        if (v7 != 2)
-          goto LABEL_30;
-        v8 = buffer;
-        v9 = (char *)&language_buffer_variable_51;
+        if (iMenuOption != 2)
+          goto RENDER_MENU_OPTION;
+        pDestBuffer = buffer;
+        pSourceText = &language_buffer[3264];
       }
     } else {
-      v8 = buffer;
-      v9 = (char *)&language_buffer_variable_49;
+      pDestBuffer = buffer;
+      pSourceText = &language_buffer[3136];
     }
     do {
-      v10 = *v9;
-      *v8 = *v9;
-      if (!v10)
+      byChar1 = *pSourceText;                   // String copy loop: copy 2 bytes at a time until null terminator
+      *pDestBuffer = *pSourceText;
+      if (!byChar1)
         break;
-      v11 = v9[1];
-      v9 += 2;
-      v8[1] = v11;
-      v8 += 2;
-    } while (v11);
-  LABEL_30:
-    if (v7 == lsdsel)
-      v13 = -113;
+      byChar2 = pSourceText[1];
+      pSourceText += 2;
+      pDestBuffer[1] = byChar2;
+      pDestBuffer += 2;
+    } while (byChar2);
+  RENDER_MENU_OPTION:
+    if (iMenuOption == lsdsel)                // Set text color based on selection: highlighted vs normal
+      byTextColor = 0x8F;                       // Selected item color (0x8F = white)
     else
-      v13 = -125;
-    result = prt_centrecol(rev_vga_variable_1, buffer, 160, v23, v13);
-    ++v7;
-    v23 += 10;
-  } while (v7 < 3);
-  return result;*/
+      byTextColor = 0x83;                       // Normal item color (0x83 = grey)
+    prt_centrecol(rev_vga[1], buffer, 160, iTextY, byTextColor);// Draw menu option text centered
+    ++iMenuOption;                              // Advance to next menu option and Y position
+    iTextY += 10;
+  } while (iMenuOption < 3);                    // Continue until all 3 menu options are drawn
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3219,134 +3311,160 @@ void findintrofiles()
 
 //-------------------------------------------------------------------------------------------------
 //00068130
-int displaycontrolpanel()
+void displaycontrolpanel()
 {
-  return 0; /*
-  int v0; // ebp
-  int v1; // eax
-  int v2; // edi
-  int j; // eax
-  int i; // eax
-  int result; // eax
-  int v6; // esi
-  int v7; // ebx
-  int v8; // eax
-  int v9; // edx
-  char *v10; // eax
-  int v11; // [esp-Ch] [ebp-48h]
-  int v12; // [esp+4h] [ebp-38h]
-  int v13; // [esp+8h] [ebp-34h]
-  int v14; // [esp+18h] [ebp-24h]
+  int iScreenWidth; // ebp
+  int iIconOffset; // eax
+  int iCalculatedFrame; // edi
+  int iFrameLoop; // eax
+  int iFrameLoop2; // eax
+  int iRotateIndex; // eax
+  int iRotateLoop; // esi
+  int iRotateX; // ecx
+  int iCurrentCut; // ebx
+  int iCutLoop; // eax
+  int iCutIndex; // edx
+  const char *pEditString; // eax
+  int iRotateY; // [esp-Ch] [ebp-48h]
+  int iEndFrame; // [esp+4h] [ebp-38h]
+  int iStartFrame; // [esp+8h] [ebp-34h]
+  int iRotateLimit; // [esp+18h] [ebp-24h]
 
   if (SVGA_ON) {
-    v0 = 640;
-    replayicon(150, 640, -1);
+    iScreenWidth = 640;
+    replayicon(scrbuf, rev_vga[15], 0, 0, 150, 640, -1);
   } else {
-    v0 = 320;
-    replayicon(150, 320, -1);
+    iScreenWidth = 320;
+    replayicon(scrbuf, rev_vga[15], 0, 0, 150, 320, -1);
   }
-  if (!replayedit)
-    replayicon(187, v0, -1);
-  if (!keys_variable_2 || paused || (v1 = -1, controlicon == 18) && !replayselect)
-    v1 = 0;
-  replayicon(ricon_variable_1[4 * controlicon] + 150 + v1, v0, -1);
-  if (replayspeed > 0 && !forwarding && !rewinding)
-    replayicon(ricon_variable_6 + 149, v0, -1);
-  if (replayspeed < 0 && !forwarding && !rewinding)
-    replayicon(ricon_variable_4 + 149, v0, -1);
-  if (replayedit)
-    replayicon(ricon_variable_9 + 149, v0, -1);
-  if (replayselect)
-    replayicon(ricon_variable_11 + 149, v0, -1);
-  if (disciconpressed)
-    replayicon(ricon_variable_9 + 149, v0, -1);
-  replaypanelstring(*(&replayhelp + controlicon), 255, 165, v0);
-  if (replayedit) {
-    replaypanelstring(&aIewcurrent[3], 164, 165, v0);
-    sprintf(buffer, "CAR %d", ViewType[0] + 1);
-    replaypanelstring(buffer, 199, 165, v0);
-    replaypanelstring(*(&views + SelectedView[0]), 225, 165, v0);
-    if (cuts) {
-      v7 = -1;
-      v8 = 0;
+  if (!replayedit)                            // Draw control panel overlay if not in replay edit mode
+    replayicon(scrbuf, rev_vga[15], 77, 117, 187, iScreenWidth, -1);
+  if (!keys[28] || paused || (iIconOffset = -1, controlicon == 18) && !replayselect)// Calculate icon offset: -1 if ENTER pressed and conditions met, 0 otherwise
+    iIconOffset = 0;
+  replayicon(scrbuf, rev_vga[15], controlicon, ricon[controlicon].nX, ricon[controlicon].nY + 150 + iIconOffset, iScreenWidth, -1);// Draw current control icon with calculated offset
+  if (replayspeed > 0 && !forwarding && !rewinding)// Draw fast forward indicators when replay speed is positive
+  {
+    if (controlicon == 4)
+      replayicon(scrbuf, rev_vga[15], 4, ricon[4].nX, ricon[4].nY + 149, iScreenWidth, -1);
+    else
+      replayicon(scrbuf, rev_vga[15], 27, ricon[4].nX, ricon[4].nY + 149, iScreenWidth, -1);
+  }
+  if (replayspeed < 0 && !forwarding && !rewinding)// Draw rewind indicators when replay speed is negative
+  {
+    if (controlicon == 3)
+      replayicon(scrbuf, rev_vga[15], 3, ricon[3].nX, ricon[3].nY + 149, iScreenWidth, -1);
+    else
+      replayicon(scrbuf, rev_vga[15], 26, ricon[3].nX, ricon[3].nY + 149, iScreenWidth, -1);
+  }
+  if (replayedit)                             // Draw edit mode indicator icon
+  {
+    if (controlicon == 17)
+      replayicon(scrbuf, rev_vga[15], 17, ricon[17].nX, ricon[17].nY + 149, iScreenWidth, -1);
+    else
+      replayicon(scrbuf, rev_vga[15], 28, ricon[17].nX, ricon[17].nY + 149, iScreenWidth, -1);
+  }
+  if (replayselect)                           // Draw replay selection mode indicator icon
+  {
+    if (controlicon == 18)
+      replayicon(scrbuf, rev_vga[15], 18, ricon[18].nX, ricon[18].nY + 149, iScreenWidth, -1);
+    else
+      replayicon(scrbuf, rev_vga[15], 29, ricon[18].nX, ricon[18].nY + 149, iScreenWidth, -1);
+  }
+  if (disciconpressed)                        // Draw disc icon when pressed
+    replayicon(scrbuf, rev_vga[15], 16, ricon[16].nX, ricon[17].nY + 149, iScreenWidth, -1);
+  replaypanelstring(replayhelp[controlicon], 255, 165, iScreenWidth);// Display help text for current control icon
+  if (replayedit)                             // EDIT MODE: Display edit mode information panel
+  {
+    replaypanelstring("CURRENT:", 164, 165, iScreenWidth);// Show current edit info text
+    sprintf(buffer, "CAR %d", ViewType[0] + 1); // Display current car number being viewed
+    replaypanelstring(buffer, 199, 165, iScreenWidth);
+    replaypanelstring(views[SelectedView[0]], 225, 165, iScreenWidth);// Display current camera view type
+    if (cuts)                                 // Process camera cuts if they exist
+    {
+      iCurrentCut = -1;
+      iCutLoop = 0;
       if (cuts > 0) {
-        v9 = 0;
+        iCutIndex = 0;                          // Find the current active camera cut based on replay frame
         do {
-          if (currentreplayframe >= *(int *)((char *)&camera_variable_2 + v9))
-            v7 = v8;
-          ++v8;
-          v9 += 6;
-        } while (v8 < cuts);
+          if (currentreplayframe >= camera[iCutIndex].iFrame)
+            iCurrentCut = iCutLoop;
+          ++iCutLoop;
+          ++iCutIndex;
+        } while (iCutLoop < cuts);
       }
-      if (v7 != -1) {
-        if (*(int *)((char *)&camera_variable_2 + 6 * v7) == currentreplayframe)
-          v10 = aNewEdit;
+      if (iCurrentCut != -1)                  // Display camera cut information if one is active
+      {                                         // Show different text for exact frame match vs approximate
+        if (camera[iCurrentCut].iFrame == currentreplayframe)
+          pEditString = szNewEdit;
         else
-          v10 = &aTEdit[2];
-        replaypanelstring(v10, 164, 171, v0);
-        sprintf(buffer, "CAR %d", (unsigned __int8)camera_variable_1[6 * v7] + 1);
-        replaypanelstring(buffer, 199, 171, v0);
-        replaypanelstring(*(&views + (unsigned __int8)camera[6 * v7]), 225, 171, v0);
+          pEditString = szEdit;
+        replaypanelstring(pEditString, 164, 171, iScreenWidth);
+        sprintf(buffer, "CAR %d", camera[iCurrentCut].byCarIdx + 1);
+        replaypanelstring(buffer, 199, 171, iScreenWidth);
+        replaypanelstring(views[camera[iCurrentCut].byView], 225, 171, iScreenWidth);
       }
     }
-    if (replayselect) {
+    if (replayselect)                         // Display selection range if in replay select mode
+    {                                           // Order start and end frames correctly for display
       if (replaystart >= currentreplayframe) {
-        v13 = currentreplayframe;
-        v12 = replaystart;
+        iStartFrame = currentreplayframe;
+        iEndFrame = replaystart;
       } else {
-        v13 = replaystart;
-        v12 = currentreplayframe;
+        iStartFrame = replaystart;
+        iEndFrame = currentreplayframe;
       }
-      replaypanelstring(&aSpblock[2], 164, 159, v0);
-      displaypaneltime(v13, 189, 159, v0);
-      displaypaneltime(v12, 223, 159, v0);
-      return replaypanelstring(&asc_A2767[1], 218, 159, v0);
+      replaypanelstring("BLOCK:", 164, 159, iScreenWidth);// Display selection block text and time range
+      displaypaneltime(iStartFrame, 189, 159, iScreenWidth);
+      displaypaneltime(iEndFrame, 223, 159, iScreenWidth);
+      replaypanelstring("-", 218, 159, iScreenWidth);
     } else {
-      return displaypaneltime(currentreplayframe, 223, 159, v0);
+      displaypaneltime(currentreplayframe, 223, 159, iScreenWidth);// Just show current time when not selecting
     }
   } else {
-    sprintf(buffer, "X %s", (&replayname)[replaysetspeed]);
-    replaypanelstring(buffer, 229, 165, v0);
-    displaypaneltime(currentreplayframe, 223, 159, v0);
-    if (replayspeed > 0 && !forwarding && !rewinding)
-      replayicon(161, v0, 255);
-    if (replayspeed < 0 && !forwarding && !rewinding)
-      replayicon(161, v0, 255);
-    if (forwarding && replayspeed > 0)
-      replayicon(161, v0, 255);
-    if (rewinding && replayspeed < 0)
-      replayicon(161, v0, 255);
-    if (!replayspeed)
-      replayicon(161, v0, 255);
-    replayicon(161, v0, 255);
-    if (currentreplayframe <= rotpoint) {
+    sprintf(buffer, "X %s", replayname[replaysetspeed]);// NORMAL MODE: Display speed multiplier and status icons
+    replaypanelstring(buffer, 229, 165, iScreenWidth);
+    displaypaneltime(currentreplayframe, 223, 159, iScreenWidth);// Display current replay time
+    if (replayspeed > 0 && !forwarding && !rewinding)// Show fast forward icon when playing forward
+      replayicon(scrbuf, rev_vga[15], 73, 164, 161, iScreenWidth, 255);
+    if (replayspeed < 0 && !forwarding && !rewinding)// Show rewind icon when playing backward
+      replayicon(scrbuf, rev_vga[15], 72, 164, 161, iScreenWidth, 255);
+    if (forwarding && replayspeed > 0)        // Show fast forward icon when actively fast forwarding
+      replayicon(scrbuf, rev_vga[15], 71, 164, 161, iScreenWidth, 255);
+    if (rewinding && replayspeed < 0)         // Show rewind icon when actively rewinding
+      replayicon(scrbuf, rev_vga[15], 70, 164, 161, iScreenWidth, 255);
+    if (!replayspeed)                         // Show pause icon when replay speed is zero
+      replayicon(scrbuf, rev_vga[15], 74, 164, 161, iScreenWidth, 255);
+    replayicon(scrbuf, rev_vga[15], 75, 190, 161, iScreenWidth, 255);// Draw progress bar background
+    if (currentreplayframe <= rotpoint)       // Calculate position for progress bar indicators
+    {                                           // Current frame is before rotation point
       if (rotpoint - currentreplayframe > 24) {
-        v2 = rotpoint - 24;
-        for (i = rotpoint - 152; i >= currentreplayframe; v2 -= 64)
-          i -= 64;
+        iCalculatedFrame = rotpoint - 24;
+        for (iFrameLoop2 = rotpoint - 152; iFrameLoop2 >= currentreplayframe; iCalculatedFrame -= 64)
+          iFrameLoop2 -= 64;
       } else {
-        v2 = currentreplayframe;
+        iCalculatedFrame = currentreplayframe;
       }
-    } else if (currentreplayframe - rotpoint > 24) {
-      v2 = rotpoint + 24;
-      for (j = rotpoint + 152; j <= currentreplayframe; v2 += 64)
-        j += 64;
+    } else if (currentreplayframe - rotpoint > 24)// Current frame is after rotation point
+    {
+      iCalculatedFrame = rotpoint + 24;
+      for (iFrameLoop = rotpoint + 152; iFrameLoop <= currentreplayframe; iCalculatedFrame += 64)
+        iFrameLoop += 64;
     } else {
-      v2 = currentreplayframe;
+      iCalculatedFrame = currentreplayframe;
     }
-    result = (v2 - (__CFSHL__(v2 >> 31, 3) + 8 * (v2 >> 31))) >> 3;
-    rotpoint = v2;
-    v6 = result;
-    v14 = result + 3;
-    if (!__OFSUB__(result, result + 3)) {
-      do {
-        v11 = rrotate_variable_1[2 * (v6 % 8)] + 150;
-        ++v6;
-        result = replayicon(v11, v0, 255);
-      } while (v6 < v14);
-    }
+    iRotateIndex = iCalculatedFrame / 8;  // Calculate rotation index for progress bar markers
+    //iRotateIndex = (iCalculatedFrame - (__CFSHL__(iCalculatedFrame >> 31, 3) + 8 * (iCalculatedFrame >> 31))) >> 3;// Calculate rotation index for progress bar markers
+    rotpoint = iCalculatedFrame;
+    iRotateLoop = iRotateIndex;
+    iRotateLimit = iRotateIndex + 3;
+
+    do {
+      iRotateY = rrotate[iRotateLoop % 8].y + 150;
+      iRotateX = rrotate[iRotateLoop % 8].x;
+      ++iRotateLoop;
+      replayicon(scrbuf, rev_vga[15], 76, iRotateX, iRotateY, iScreenWidth, 255);
+    } while (iRotateLoop < iRotateLimit);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3752,25 +3870,20 @@ void replaypanelstring(const char *szStr, int iX, int iY, int iScreenWidth)
 
 //-------------------------------------------------------------------------------------------------
 //00069000
-int displaypaneltime(int a1, int a2, int a3, int a4)
+void displaypaneltime(int iTime, int iX, int iY, int iScreenWidth)
 {
-  return 0; /*
-  sprintf(buffer, "%02d:%02d:%02d", a1 / 36 / 60, a1 / 36 % 60, a1 % 36);
-  return replaypanelstring(buffer, a2, a3, a4);*/
+  sprintf(buffer, "%02d:%02d:%02d", iTime / 36 / 60, iTime / 36 % 60, iTime % 36);
+  replaypanelstring(buffer, iX, iY, iScreenWidth);
 }
 
 //-------------------------------------------------------------------------------------------------
 //00069080
-int discmenu(int a1, unsigned int a2, int a3, unsigned int a4)
+void discmenu()
 {
-  return 0; /*
-  int result; // eax
-
-  result = sfxsample(__SPAIR64__(a4, a2));
+  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                        // SOUND_SAMPLE_BUTTON
   lsdsel = 0;
   disciconpressed = -1;
   filingmenu = 5;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

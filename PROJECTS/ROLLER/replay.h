@@ -3,6 +3,7 @@
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
 #include "func3.h"
+#include "frontend.h"
 //-------------------------------------------------------------------------------------------------
 
 #define REPLAY_SPEED_MIN      -8192
@@ -22,9 +23,20 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int16 nX;
+  int16 nY;
+  void *pFunc;
+} tRIcon;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int disciconpressed;
 extern int rotpoint;
+extern int controlicon;
 extern int replayspeeds[9];
+extern char *replayname[9];
 extern int filingmenu;
 extern int replaysetspeed;
 extern int replaydirection;
@@ -32,6 +44,11 @@ extern int lastfile;
 extern int lastautocut;
 extern int pend_view_init;
 extern int replayedit;
+extern char *views[8];
+extern tRIcon ricon[26];
+extern char *replayhelp[26];
+extern int lsdsel;
+extern tPoint rrotate[8];
 extern tReplayCamera camera[100];
 extern int disabled[4096];
 extern int replayspeed;
@@ -81,7 +98,7 @@ int readcut();
 int displayreplay();
 int compare(const char *szStr1, const char *szStr2);
 void warning(int iX1, int iY1, int iX2, int iY2, char *szWarning);
-char lsd(int a1, int a2, int a3, int a4);
+void lsd(int iX1, int iY1, int iX2, int iY2);
 int scandirectory(int a1);
 char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9);
 void previouscut();
@@ -91,7 +108,7 @@ int savereplay();
 int deletereplay(int a1, int a2, int a3, int a4);
 char updatedirectory();
 void findintrofiles();
-int displaycontrolpanel();
+void displaycontrolpanel();
 void rtoggleedit();
 void rstartblock();
 void rselectblock();
@@ -104,8 +121,8 @@ void rstartassemble();
 void replayicon(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx, int iX, int iY, int iScreenWidth, int byTransparentColor);
 void replaypanelletter(char c, int *piX, int *piY, int iScreenWidth);
 void replaypanelstring(const char *szStr, int iX, int iY, int iScreenWidth);
-int displaypaneltime(int a1, int a2, int a3, int a4);
-int discmenu(int a1, unsigned int a2, int a3, unsigned int a4);
+void displaypaneltime(int iTime, int iX, int iY, int iScreenWidth);
+void discmenu();
 void initsoundlag(uint32 uiTicks);
 void resetsmoke();
 
