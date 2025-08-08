@@ -564,86 +564,85 @@ void doexit()
 //00010C80
 void firework_screen()
 {
-  /*
-     int v0; // esi
-  tCarSpray *v1; // ebx
-  unsigned __int8 v2; // al
-  int v3; // ecx
-  double v4; // st7
-  double v5; // st7
+  int iCarIndex; // esi
+  tCarSpray *pCarSpray; // ebx
+  uint8 byType; // al
+  int iSprayIndex; // ecx
+  double fPosX; // st7
+  double fPosY; // st7
   int i; // ecx
-  double v7; // st7
-  double v8; // st7
-  int v9; // eax
-  int v10; // eax
-  int v11; // eax
-  char v12; // dl
-  int v13; // [esp+0h] [ebp-30h]
-  int v14; // [esp+4h] [ebp-2Ch]
-  int v15; // [esp+8h] [ebp-28h]
-  int v16; // [esp+Ch] [ebp-24h]
-  char v17; // [esp+10h] [ebp-20h]
+  double fRandomOffset; // st7
+  double fTempY; // st7
+  int iRandValue; // eax
+  int iColorOffset; // eax
+  char byFinalOffset; // dl
+  int iScreenY; // [esp+0h] [ebp-30h]
+  int iScreenY2; // [esp+4h] [ebp-2Ch]
+  int iScreenX; // [esp+8h] [ebp-28h]
+  int iScreenX2; // [esp+Ch] [ebp-24h]
+  char byColorFade; // [esp+10h] [ebp-20h]
 
-  v0 = 0;
+  iCarIndex = 0;
+
+  // Clear screen buffer with background color (112)
   memset(scrbuf, 112, winh * winw);
-  do
-  {
-    v1 = &CarSpray[v0];
-    v2 = LOBYTE(CarSpray[v0].array[10]);
-    if ( v2 )
-    {
-      if ( v2 <= 1u )
-      {
-        v3 = 0;
-        v17 = 0;
-        do
-        {
-          if ( LOBYTE(v1->array[10]) )
-          {
-            v4 = v1->array[0];
-            _CHP();
-            v15 = (int)v4;
-            v5 = v1->array[1];
-            _CHP();
-            v14 = (int)v5;
-            if ( v15 >= 0 && v15 < winw && v14 >= 0 && v14 < winh )
-              scrbuf[winw * v14 + v15] = LOBYTE(v1->array[9]) - v17;
+
+  do {
+    pCarSpray = CarSpray[iCarIndex];
+    byType = CarSpray[iCarIndex][0].iType;
+
+    // Check if car has active spray effects
+    if (byType) {                                           // Type 1: Trail spray effects (up to 5 particles)
+      if (byType <= 1u) {
+        iSprayIndex = 0;
+        byColorFade = 0;                        // Initialize color fade counter for trail effect
+        do {
+          if ((uint8)pCarSpray->iType) {
+            // Convert floating point positions to screen coordinates
+            fPosX = pCarSpray->fPosX;
+            //_CHP();
+            iScreenX = (int)fPosX;
+            fPosY = pCarSpray->fPosY;
+            //_CHP();
+            iScreenY2 = (int)fPosY;
+
+            // Bounds check: ensure particle is within screen area
+            if (iScreenX >= 0 && iScreenX < winw && iScreenY2 >= 0 && iScreenY2 < winh)
+              scrbuf[winw * iScreenY2 + iScreenX] = (uint8)(pCarSpray->iColor) - byColorFade;// Draw particle with fading color (darker for older trail segments)
           }
-          v1 = (tCarSpray *)((char *)v1 + 44);
-          ++v3;
-          v17 += 3;
-        }
-        while ( v3 < 5 );
-      }
-      else if ( v2 == 2 )
+          ++pCarSpray;
+          ++iSprayIndex;
+          byColorFade += 3;                     // Increase fade amount for next trail segment (3 units darker)
+        } while (iSprayIndex < 5);
+      } else if (byType == 2)                   // Type 2: Firework explosion effects (32 particles)
       {
-        for ( i = 0; i < 32; ++i )
-        {
-          if ( SLODWORD(v1->array[7]) > 0 )
-          {
-            v7 = v1->array[0];
-            _CHP();
-            v16 = (int)v7;
-            v8 = v1->array[1];
-            _CHP();
-            v13 = (int)v8;
-            v10 = rand(v9);
-            v11 = (16 * v10 - (__CFSHL__((16 * v10) >> 31, 15) + ((16 * v10) >> 31 << 15))) >> 15;
-            v12 = v11 - 4;
-            if ( v11 - 4 < 0 )
-              v12 = 0;
-            if ( v16 >= 0 && v16 < winw && v13 >= 0 && v13 < winh )
-              scrbuf[v16 + winw * v13] = LOBYTE(v1->array[9]) - v12;
+        for (i = 0; i < 32; ++i) {
+          // Only draw particles that are still alive (lifetime > 0)
+          if (pCarSpray->iLifeTime > 0) {
+            fRandomOffset = pCarSpray->fPosX;
+            //_CHP();
+            iScreenX2 = (int)fRandomOffset;
+            fTempY = pCarSpray->fPosY;
+            //_CHP();
+            iScreenY = (int)fTempY;
+            iRandValue = rand();                // Generate random color variation for firework sparkle effect
+            iColorOffset = (16 * iRandValue) % 32768 / 15;
+            //iColorOffset = (16 * iRandValue - (__CFSHL__((16 * iRandValue) >> 31, 15) + ((16 * iRandValue) >> 31 << 15))) >> 15;
+            byFinalOffset = iColorOffset - 4;   // Calculate color offset (-4 to +11 range) with minimum of 0
+            if (iColorOffset - 4 < 0)
+              byFinalOffset = 0;
+            if (iScreenX2 >= 0 && iScreenX2 < winw && iScreenY >= 0 && iScreenY < winh)// Bounds check for firework particle position
+              scrbuf[iScreenX2 + winw * iScreenY] = (uint8)(pCarSpray->iColor) - byFinalOffset;// Draw firework particle with random color variation
           }
-          v1 = (tCarSpray *)((char *)v1 + 44);
+          ++pCarSpray;
         }
       }
     }
-    ++v0;
-  }
-  while ( v0 != 18 );
-  game_copypic(scrbuf, (int)screen, (char *)ViewType[0]);
-  */
+    ++iCarIndex;
+  } while (iCarIndex != 18);                    // Loop through all 18 cars' spray effects
+
+  // Copy finished frame buffer to display screen
+  game_copypic(scrbuf, screen, ViewType[0]);
 }
 
 //-------------------------------------------------------------------------------------------------
