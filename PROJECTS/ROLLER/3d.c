@@ -183,6 +183,7 @@ int localCD;                //0013FAE8
 int I_Want_Out;             //0013FAF0
 int champ_car;              //0013FAF4
 int champ_zoom;             //0013FAF8
+int team_mate;              //0013FB00
 int winner_done;            //0013FB04
 int winner_mode;            //0013FB08
 int network_mes_mode;       //0013FB0C
@@ -2818,27 +2819,24 @@ void game_keys(int64 a1)
 
 //-------------------------------------------------------------------------------------------------
 //00014B80
-int mesminus()
+void mesminus()
 {
-  /*
-  int v0; // ecx
-  int result; // eax
-  int v2; // edx
+  int iNewMesMode; // ecx
+  int iMesModeMinus; // eax
+  int iMesModeComp; // edx
 
-  v0 = network_mes_mode;
-  result = network_mes_mode;
-  v2 = network_mes_mode;
+  iNewMesMode = network_mes_mode;
+  iMesModeMinus = network_mes_mode;
+  iMesModeComp = network_mes_mode;
   do {
-    if (result < 0)
-      result = numcars;
-    if (--result == team_mate || result < 0 && players > 2 || human_control[result] && result != (__int16)player1_car) {
-      v2 = -666;
-      v0 = result;
+    if (iMesModeMinus < 0)
+      iMesModeMinus = numcars;
+    if (--iMesModeMinus == team_mate || iMesModeMinus < 0 && players > 2 || human_control[iMesModeMinus] && iMesModeMinus != player1_car) {
+      iMesModeComp = -666;
+      iNewMesMode = iMesModeMinus;
     }
-  } while (v2 == v0);
-  network_mes_mode = v0;
-  return result;*/
-  return 0;
+  } while (iMesModeComp == iNewMesMode);
+  network_mes_mode = iNewMesMode;
 }
 
 //-------------------------------------------------------------------------------------------------
