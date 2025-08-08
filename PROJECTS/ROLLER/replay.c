@@ -13,12 +13,14 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
+int rotpoint = 0;         //000A63B0
 int replayspeeds[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 }; //000A63BC
 int replaysetspeed = 0;   //000A6414
 int replaydirection = 0;  //000A6418
 int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
 int pend_view_init = -1;  //000A6424
+int replayedit = 0;       //000A6428
 int replayspeed;          //0018EE40
 int replayframes;         //0018EE48
 int currentreplayframe;   //0018EE54
@@ -26,6 +28,7 @@ int lastreplayframe;      //0018EE58
 int introfiles;           //0018EE70
 char newrepsample[16];    //0018DC68
 char repsample[16];       //0018DC78
+int replayselect;         //0018EE60
 int slowing;              //0018EE64
 int rewinding;            //0018EE68
 int forwarding;           //0018EE6C
@@ -1541,25 +1544,19 @@ void Rstart()
 
 //-------------------------------------------------------------------------------------------------
 //00066040
-int Rend(int a1, unsigned int a2, int a3, unsigned int a4)
+void Rend()
 {
-  return 0; /*
-  int result; // eax
-  int v5; // eax
-
-  result = replayframes - 1;
   if (replayframes - 1 != ticks && replaytype == 2) {
-    _disable();
+    //_disable();
     replayspeed = 0;
     replaydirection = 0;
     fraction = 0;
     ticks = replayframes - 1;
-    _enable();
+    //_enable();
     pend_view_init = ViewType[0];
-    v5 = sfxsample(__SPAIR64__(a4, a2));
-    return resetsmoke(v5, 0x8000);
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
+    resetsmoke();
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3368,21 +3365,20 @@ int displaycontrolpanel()
 
 //-------------------------------------------------------------------------------------------------
 //00068910
-int rtoggleedit(int a1, unsigned int a2, int a3, unsigned int a4)
+void rtoggleedit()
 {
-  return 0; /*
   replayedit = replayedit == 0;
   replayselect = 0;
   if (replaytype == 2) {
-    _disable();
+    //_disable();
     replayspeed = 0;
     fraction = 0;
     replaydirection = 0;
     ticks = currentreplayframe;
-    _enable();
+    //_enable();
   }
   rotpoint = currentreplayframe;
-  return sfxsample(__SPAIR64__(a4, a2));*/
+  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                        // SOUND_SAMPLE_BUTTON
 }
 
 //-------------------------------------------------------------------------------------------------
