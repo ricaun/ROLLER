@@ -1,8 +1,26 @@
 #include "view.h"
+#include "3d.h"
+#include "car.h"
+#include "moving.h"
+#include "replay.h"
 //-------------------------------------------------------------------------------------------------
 
-int chaseview[2] = { 0, 0 }; //000A74D8
-int NearTow; //001A1A68
+tViewData viewdata[2] =       //000A74A8
+{
+  { 4500.0, 500.0, 640.0, -240.0, 200.0, 160.0 },
+  { 2000.0, 500.0, 450.0, 350.0, 200.0, 100.0 }
+};
+int chaseview[2] = { 0, 0 };  //000A74D8
+float CHASE_DIST[2] = { 4500.0, 4500.0 }; //000A74E0
+float CHASE_MIN[2] = { 500.0, 500.0 };  //000A74E8
+float PULLZ[2] = { 640.0, 640.0 }; //000A74F0
+float LOOKZ[2] = { 160.0, 160.0 }; //000A74F8
+int nextpoint[2] = { 0, 0 };  //000A7500
+float lastpos[2][256];        //001A1250
+int NearTow;                  //001A1A68
+float chase_x;                //001A1A6C
+float chase_y;                //001A1A70
+float chase_z;                //001A1A74
 
 //-------------------------------------------------------------------------------------------------
 
@@ -375,113 +393,122 @@ LABEL_9:
 
 //-------------------------------------------------------------------------------------------------
 
-int initcarview(int result, int a2)
+void initcarview(int iCarIdx, int iPlayer)
 {
-  return 0; /*
-  int v2; // ecx
-  int v3; // esi
-  unsigned int v4; // ebx
-  float v5; // esi
-  int v6; // esi
-  int v7; // edi
-  int v8; // ecx
-  double v9; // st7
-  double v10; // st7
-  int v11; // eax
-  float *v12; // eax
-  double v13; // st7
-  double v14; // st7
-  float v15; // [esp+0h] [ebp-3Ch]
-  float v16; // [esp+4h] [ebp-38h]
-  float v17; // [esp+8h] [ebp-34h]
-  float v18; // [esp+Ch] [ebp-30h]
-  float v19; // [esp+10h] [ebp-2Ch]
-  float v20; // [esp+14h] [ebp-28h]
-  float v21; // [esp+18h] [ebp-24h]
-  float v22; // [esp+1Ch] [ebp-20h]
-  float v23; // [esp+20h] [ebp-1Ch]
+  int iSelectedView; // ecx
+  int iChaseViewIdx; // esi
+  unsigned int iControlType; // ebx
+  float fChasePullDefault; // esi
+  int iYaw; // esi
+  int iPitch; // edi
+  int iRoll; // ecx
+  double dChaseDist; // st7
+  double dChaseDistMul; // st7
+  int iCurrChunk; // eax
+  tData *pData; // eax
+  double dTransformZ; // st7
+  //int iPlayerShift; // eax
+  double dLastPosW; // st7
+  float fDirX; // [esp+0h] [ebp-3Ch]
+  float fDirY; // [esp+4h] [ebp-38h]
+  float fDirZ; // [esp+8h] [ebp-34h]
+  float fRightX; // [esp+Ch] [ebp-30h]
+  float fUpZ; // [esp+10h] [ebp-2Ch]
+  float fSinPitch; // [esp+14h] [ebp-28h]
+  float fCameraX; // [esp+18h] [ebp-24h]
+  float fCameraZ; // [esp+1Ch] [ebp-20h]
+  float fCameraY; // [esp+20h] [ebp-1Ch]
 
-  v2 = SelectedView[a2];
-  if (v2 != 1 && v2 != 3 && result >= 0)
-    return result;
-  if (result >= 0) {
-    v3 = chaseview[a2];
-    CHASE_DIST[a2] = viewdata[6 * v3];
-    CHASE_MIN[a2] = viewdata_variable_1[6 * v3];
-    LODWORD(LOOKZ[a2]) = viewdata_variable_5[6 * v3];
+  iSelectedView = SelectedView[iPlayer];        // Get the selected view type for the current player
+  if (iSelectedView != 1 && iSelectedView != 3 && iCarIdx >= 0)
+    return;                                     // Only process if view is cockpit (1) or chase (3) and car index is valid
+  if (iCarIdx >= 0) {
+    iChaseViewIdx = chaseview[iPlayer];         // Initialize chase camera parameters from viewdata for valid car
+    CHASE_DIST[iPlayer] = viewdata[iChaseViewIdx].fChaseDistance;
+    CHASE_MIN[iPlayer] = viewdata[iChaseViewIdx].fChaseMinDistance;
+    LOOKZ[iPlayer] = viewdata[iChaseViewIdx].fChaseLookAhead;
   } else {
-    CHASE_DIST[0] = viewdata_variable_6;
-    CHASE_MIN[0] = viewdata_variable_7;
-    a2 = 0;
-    result = -result - 1;
-    LOOKZ[0] = viewdata_variable_8;
+    CHASE_DIST[0] = viewdata[1].fChaseDistance; // Special case: use default chase view for invalid car index
+    CHASE_MIN[0] = viewdata[1].fChaseMinDistance;
+    iPlayer = 0;
+    iCarIdx = -iCarIdx - 1;
+    LOOKZ[0] = viewdata[1].fChaseLookAhead;
   }
-  v4 = Car_variable_17[77 * result];
-  if (!v4) {
-    v5 = viewdata_variable_4[6 * chaseview[a2]];
-  LABEL_14:
-    PULLZ[a2] = v5;
-    goto LABEL_15;
+  iControlType = Car[iCarIdx].iControlType;     // Get car control type (human player, AI, etc)
+  if (!iControlType) {
+    fChasePullDefault = viewdata[chaseview[iPlayer]].fChasePullDefault;// Human player: use default chase pull factor
+  SET_PULL_FACTOR:
+    PULLZ[iPlayer] = fChasePullDefault;
+    goto CALCULATE_CAMERA_POSITION;
   }
-  if (v4 >= 2 && v4 <= 3) {
-    if (Car_variable_48[77 * result])
-      v5 = viewdata_variable_3[6 * chaseview[a2]];
+  if (iControlType >= 2 && iControlType <= 3) {                                             // AI cars: choose pull factor based on crash state
+    if (Car[iCarIdx].iStunned)
+      fChasePullDefault = viewdata[chaseview[iPlayer]].fChasePullCrash;
     else
-      v5 = viewdata_variable_2[6 * chaseview[a2]];
-    goto LABEL_14;
+      fChasePullDefault = viewdata[chaseview[iPlayer]].fChasePullNormal;
+    goto SET_PULL_FACTOR;
   }
-LABEL_15:
-  if (Car_variable_3[154 * result] == -1) {
-    v6 = Car_variable_7[154 * result];
-    v7 = Car_variable_6[154 * result];
-    v8 = Car_variable_5[154 * result];
+CALCULATE_CAMERA_POSITION:
+  if (Car[iCarIdx].nCurrChunk == -1)          // Get car orientation: use actual angles if not in a chunk
+  {
+    iYaw = Car[iCarIdx].nYaw;
+    iPitch = Car[iCarIdx].nPitch;
+    iRoll = Car[iCarIdx].nRoll;
   } else {
-    v6 = 0;
-    v7 = 0;
-    v8 = 0;
+    iYaw = 0;                                   // Car is in a chunk: use neutral orientation
+    iPitch = 0;
+    iRoll = 0;
   }
-  v20 = tsin[v7];
-  if (replaytype == 2 && replaydirection == -1)
-    v9 = -*(float *)&CHASE_DIST[a2];
+  fSinPitch = tsin[iPitch];                     // Calculate sine of pitch angle for camera matrix
+  if (replaytype == 2 && replaydirection == -1)// Reverse chase distance if in replay mode with reverse direction
+    dChaseDist = -CHASE_DIST[iPlayer];
   else
-    v9 = *(float *)&CHASE_DIST[a2];
-  v10 = -(v9 * view_c_variable_8);
-  v15 = -tcos[v6] * v20 * tcos[v8] - tsin[v6] * tsin[v8];
-  v16 = tcos[v6] * tcos[v7];
-  v21 = v10 * v16 + PULLZ[a2] * v15 + Car[77 * result];
-  v17 = tsin[v6] * tcos[v7];
-  v18 = -tsin[v6] * v20 * tcos[v8] + tcos[v6] * tsin[v8];
-  v23 = v10 * v17 + PULLZ[a2] * v18 + Car_variable_1[77 * result];
-  v19 = tcos[v7] * tcos[v8];
-  v22 = v10 * v20 + PULLZ[a2] * v19 + Car_variable_2[77 * result];
-  v11 = Car_variable_3[154 * result];
-  if (v11 == -1) {
-    chase_x = v21;
-    chase_y = v23;
-    lastpos_variable_3[256 * a2] = 0;
-    chase_z = v22;
-    *(float *)&lastpos[256 * a2] = v21;
-    lastpos_variable_1[256 * a2] = v23;
-    lastpos_variable_2[256 * a2] = v22;
+    dChaseDist = CHASE_DIST[iPlayer];
+  dChaseDistMul = -(dChaseDist * 2.0);
+  fDirX = -tcos[iYaw] * fSinPitch * tcos[iRoll] - tsin[iYaw] * tsin[iRoll];// Calculate camera direction vector X component using rotation matrix
+  fDirY = tcos[iYaw] * tcos[iPitch];            // Calculate camera direction vector Y component
+  fCameraX = (float)(dChaseDistMul * fDirY + PULLZ[iPlayer] * fDirX + Car[iCarIdx].pos.fX);// Calculate final camera X position with distance and pull factors
+  fDirZ = tsin[iYaw] * tcos[iPitch];
+  fRightX = -tsin[iYaw] * fSinPitch * tcos[iRoll] + tcos[iYaw] * tsin[iRoll];
+  fCameraY = (float)(dChaseDistMul * fDirZ + PULLZ[iPlayer] * fRightX + Car[iCarIdx].pos.fY);// Calculate final camera Y position
+  fUpZ = tcos[iPitch] * tcos[iRoll];
+  fCameraZ = (float)(dChaseDistMul * fSinPitch + PULLZ[iPlayer] * fUpZ + Car[iCarIdx].pos.fZ);// Calculate final camera Z position
+  iCurrChunk = Car[iCarIdx].nCurrChunk;
+  if (iCurrChunk == -1)                       // Branch: handle camera position based on chunk state
+  {
+    chase_x = fCameraX;                         // No chunk: directly set global chase position and lastpos array
+    chase_y = fCameraY;
+    lastpos[iPlayer][3] = 0.0;
+    chase_z = fCameraZ;
+    lastpos[iPlayer][0] = fCameraX;
+    lastpos[iPlayer][1] = fCameraY;
+    lastpos[iPlayer][2] = fCameraZ;
   } else {
-    v12 = (float *)((char *)&localdata + 128 * v11);
-    chase_x = v12[1] * v23 + *v12 * v21 + v12[2] * v22 - v12[9];
-    chase_y = v12[3] * v21 + v12[4] * v23 + v12[5] * v22 - v12[10];
-    chase_z = v12[6] * v21 + v12[7] * v23 + v12[8] * v22 - v12[11];
-    lastpos[256 * a2] = LODWORD(chase_x);
-    lastpos_variable_1[256 * a2] = v12[3] * v21 + v12[4] * v23 + v12[5] * v22 - v12[10];
-    v13 = v23 * v12[7] + v21 * v12[6] + v22 * v12[8] - v12[11];
-    lastpos_variable_3[256 * a2] = 0;
-    lastpos_variable_2[256 * a2] = v13;
+    pData = &localdata[iCurrChunk];             // In chunk: transform camera position using chunk transformation matrix
+    chase_x = pData->pointAy[0].fY * fCameraY + pData->pointAy[0].fX * fCameraX + pData->pointAy[0].fZ * fCameraZ - pData->pointAy[3].fX;
+    chase_y = pData->pointAy[1].fX * fCameraX + pData->pointAy[1].fY * fCameraY + pData->pointAy[1].fZ * fCameraZ - pData->pointAy[3].fY;
+    chase_z = pData->pointAy[2].fX * fCameraX + pData->pointAy[2].fY * fCameraY + pData->pointAy[2].fZ * fCameraZ - pData->pointAy[3].fZ;
+    lastpos[iPlayer][0] = chase_x;
+    lastpos[iPlayer][1] = pData->pointAy[1].fX * fCameraX + pData->pointAy[1].fY * fCameraY + pData->pointAy[1].fZ * fCameraZ - pData->pointAy[3].fY;
+    dTransformZ = fCameraY * pData->pointAy[2].fY + fCameraX * pData->pointAy[2].fX + fCameraZ * pData->pointAy[2].fZ - pData->pointAy[3].fZ;
+    lastpos[iPlayer][3] = 0.0;
+    lastpos[iPlayer][2] = (float)dTransformZ;
   }
-  result = a2 << 10;
-  *(int *)((char *)&lastpos_variable_4 + result) = lastpos[256 * a2];
-  *(int *)((char *)&lastpos_variable_5 + result) = LODWORD(lastpos_variable_1[256 * a2]);
-  *(int *)((char *)&lastpos_variable_6 + result) = LODWORD(lastpos_variable_2[256 * a2]);
-  v14 = *(float *)&lastpos_variable_3[256 * a2];
-  nextpoint[a2] = 1;
-  *(float *)((char *)&lastpos_variable_7 + result) = v14;
-  return result;*/
+
+  // Copy current position to backup slots (lastpos[4-7]) for interpolation
+  lastpos[iPlayer][4] = lastpos[iPlayer][0];
+  lastpos[iPlayer][5] = lastpos[iPlayer][1];
+  lastpos[iPlayer][6] = lastpos[iPlayer][2];
+  //iPlayerShift = iPlayer << 10;                 // Copy current position to backup slots (lastpos[4-7]) for interpolation
+  //*(float *)((char *)&lastpos[0][4] + iPlayerShift) = lastpos[iPlayer][0];
+  //*(float *)((char *)&lastpos[0][5] + iPlayerShift) = lastpos[iPlayer][1];
+  //*(float *)((char *)&lastpos[0][6] + iPlayerShift) = lastpos[iPlayer][2];
+
+  dLastPosW = lastpos[iPlayer][3];
+  nextpoint[iPlayer] = 1;                       // Set nextpoint flag to indicate new camera position is ready
+
+  lastpos[iPlayer][7] = (float)dLastPosW;
+  //*(float *)((char *)&lastpos[0][7] + iPlayerShift) = dLastPosW;
 }
 
 //-------------------------------------------------------------------------------------------------

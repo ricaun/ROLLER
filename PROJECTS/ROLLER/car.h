@@ -6,6 +6,12 @@
 #include "polyf.h"
 //-------------------------------------------------------------------------------------------------
 
+#define CAR_STATUS_DEATH  0x02
+#define CAR_STATUS_ACTIVE 0x04
+#define CAR_STATUS_PIT    0x08
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   tVec3 hitboxAy[14][8];
@@ -32,7 +38,7 @@ typedef struct
   tVec3 pos2;
   int nYaw3;
   int iUnk10;
-  int iUnk17;
+  int iControlType;
   int iUnk18;
   int iUnk18_2;
   float fUnk19;
@@ -53,7 +59,7 @@ typedef struct
   uint8 byGearAyMax;
   uint8 byLap;
   uint8 byRacePosition;
-  uint8 byUnk33;
+  uint8 byStatusFlags;
   int iUnk34;
   int iUnk35;
   int iUnk35_2;
@@ -75,7 +81,7 @@ typedef struct
   int iUnk45;
   int iUnk46;
   int iUnk47;
-  int iUnk48;
+  int iStunned;
   int iUnk49;
   int iUnk50;
   int iLastValidChunk;
