@@ -1902,70 +1902,40 @@ int initsounds()
 
 //-------------------------------------------------------------------------------------------------
 //0003BFF0
-int stopallsamples()
+void stopallsamples()
 {
-  return 0; /*
-  int i; // edx
-  int v1; // ebx
-  int v2; // ebp
-  int v3; // eax
-  int result; // eax
-  int j; // esi
-  int v6; // ecx
-  int v7; // ebx
-  int v8; // ecx
+  //_disable();
 
-  _disable();
-  for (i = 0; i != 896; i += 28) {
-    v1 = 0;
-    if (numcars > 0) {
-      v2 = numcars;
-      v3 = i;
-      do {
-        *(int *)((char *)&enginedelay_variable_1 + v3) = -1;
-        *(int *)((char *)&enginedelay_variable_3 + v3) = -1;
-        *(int *)((char *)&enginedelay_variable_5 + v3) = -1;
-        ++v1;
-        v3 += 896;
-      } while (v1 < v2);
+  // Clear/initialize engine sound volume data for all cars
+  for (int iEngineDataIndex = 0; iEngineDataIndex < sizeof(tCarSoundData) / sizeof(tEngineSoundData); iEngineDataIndex++)
+  {
+    for (int iCarIndex = 0; iCarIndex < numcars; iCarIndex++)
+    {
+      tEngineSoundData* pEngineData = &enginedelay[iCarIndex].engineSoundData[iEngineDataIndex];
+
+      pEngineData->iEngineVol = -1;
+      pEngineData->iEngine2Vol = -1; 
+      pEngineData->iSkid1Vol = -1;
     }
   }
-  result = numcars;
-  for (j = 0; j < numcars; ++j) {
-    v6 = 0;
-    if (numsamples > 0) {
-      v7 = j;
-      do {
-        if (SampleHandleCar[v7] != -1)
-          sosDIGIStopSample(DIGIHandle);
-        v7 += 16;
-        result = numsamples;
-        ++v6;
-        SamplePtr_variable_14[v7] = -1;
-      } while (v6 < result);
+
+  for (int iSample = 0; iSample < numsamples; ++iSample) {
+    for (int iCar = 0; iCar < numcars; ++iCar) {
+      int iCurrHandle = SampleHandleCar[iSample].handles[iCar];
+      if ( iCurrHandle != -1 )
+        DIGIStopSample(iCurrHandle);
+        //sosDIGIStopSample(*(int *)&DIGIHandle, iCurrHandle);
+      SampleHandleCar[iSample].handles[iCar] = -1;
     }
   }
-  v8 = 2;
-  HandleSample = -1;
-  HandleCar = -1;
-  HandleSample_variable_1 = -1;
-  HandleCar_variable_1 = -1;
-  do {
-    v8 += 5;
-    HandleCar_variable_2[v8] = -1;
-    SamplePending_variable_3[v8] = -1;
-    HandleCar_variable_3[v8] = -1;
-    SamplePending_variable_4[v8] = -1;
-    HandleCar_variable_4[v8] = -1;
-    SamplePending_variable_5[v8] = -1;
-    HandleCar_variable_5[v8] = -1;
-    SamplePending_variable_6[v8] = -1;
-    HandleCar_variable_6[v8] = -1;
-    SamplePending_variable_7[v8] = -1;
-  } while (v8 != 32);
+
+  for (int iSampleIdx = 0; iSampleIdx < 32; ++iSampleIdx) {
+    HandleSample[iSampleIdx] = -1;
+    HandleCar[iSampleIdx] = -1;
+  }
+
   lastsample = -1000;
-  _enable();
-  return result;*/
+  //_enable();
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -390,7 +390,7 @@ void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSoun
 void ReadJoys(tJoyPos *pJoy);
 int check_joystickpresence();
 int initsounds();
-int stopallsamples();
+void stopallsamples();
 int pannedsample(int result, int a2, int a3);
 int speechonly(int result, int a2, int a3, int a4);
 int speechsample(int result, int a2, int a3, int a4);
