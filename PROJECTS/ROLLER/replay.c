@@ -3518,24 +3518,20 @@ void rstoreview()
 
 //-------------------------------------------------------------------------------------------------
 //00068BE0
-int rremoveview(int a1, unsigned int a2, int a3, unsigned int a4)
+void rremoveview()
 {
-  return 0; /*
-  int result; // eax
-
   if (replayedit) {
     if (replaytype == 2) {
-      _disable();
+      //_disable();
       replayspeed = 0;
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
     removecut();
-    return sfxsample(__SPAIR64__(a4, a2));
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

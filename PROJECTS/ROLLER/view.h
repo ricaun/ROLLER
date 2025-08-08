@@ -14,7 +14,7 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-tViewData viewdata[2];
+extern tViewData viewdata[2];
 extern int chaseview[2];
 extern float CHASE_DIST[2];
 extern float CHASE_MIN[2];

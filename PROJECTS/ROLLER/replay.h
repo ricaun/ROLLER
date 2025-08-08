@@ -80,7 +80,7 @@ void rstartblock();
 void rselectblock();
 void rdeleteblock();
 void rstoreview();
-int rremoveview(int a1, unsigned int a2, int a3, unsigned int a4);
+void rremoveview();
 int rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4);
 int rnextcut(int result, unsigned int a2, int a3, unsigned int a4);
 void rstartassemble(int64 a1);
