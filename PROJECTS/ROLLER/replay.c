@@ -2138,25 +2138,26 @@ void removecut()
 //00066C50
 int readcut()
 {
-  return 0; /*
-  int v0; // ecx
-  int v1; // eax
-  int v2; // edx
+  int iLastValidCut; // ecx
+  int iCutIndex; // eax
+  int iArrayIndex; // edx
 
-  v0 = -1;
-  if (cuts) {
-    v1 = 0;
-    if (cuts > 0) {
-      v2 = 0;
-      do {
-        if (*(int *)((char *)&camera_variable_2 + v2) <= currentreplayframe)
-          v0 = v1;
-        ++v1;
-        v2 += 6;
-      } while (v1 < cuts);
+  iLastValidCut = -1;                           // Initialize to -1 (no valid cut found)
+  if (cuts)                                   // Check if any camera cuts exist
+  {
+    iCutIndex = 0;
+    if (cuts > 0)                             // Iterate through all camera cuts to find the active one
+    {
+      iArrayIndex = 0;
+      do {                                         // Check if this cut's frame is at or before current replay frame
+        if (camera[iArrayIndex].iFrame <= currentreplayframe)
+          iLastValidCut = iCutIndex;            // Update to this cut index (keeps the latest valid cut)
+        ++iCutIndex;
+        ++iArrayIndex;
+      } while (iCutIndex < cuts);
     }
   }
-  return v0;*/
+  return iLastValidCut;                         // Return index of most recent valid cut, or -1 if none found
 }
 
 //-------------------------------------------------------------------------------------------------
