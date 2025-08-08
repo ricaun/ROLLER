@@ -2903,73 +2903,76 @@ int carplus(int a1, unsigned int a2, int a3, unsigned int a4)
 
 //-------------------------------------------------------------------------------------------------
 //00014D50
-int viewminus(int a1)
+void viewminus(int iPlayer)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int result; // eax
-  int v3; // edx
-  int v4; // ebx
-  int v5; // ebx
-  int v6; // ebx
-  int v7; // eax
-  int v8; // edi
-  int v9; // ebx
-  int v10; // esi
+  int iPlayerIndex; // eax
+  int iViewIndex; // edx
+  int iPrevView; // ebx
+  int iOtherPlayer; // ebx
+  int iPrevViewSingle; // edi
+  int iOtherPlayerSingle; // ebx
+  int iPrevViewDuo; // esi
 
-  result = a1;
-  v3 = a1;
+  iPlayerIndex = iPlayer;
+  iViewIndex = iPlayer;                         // Check if we're in replay mode (replaytype == 2)
   if (replaytype != 2) {
-    if ((Car_variable_33[308 * ViewType[result]] & 4) != 0)
-      return result * 2;
+    if ((Car[ViewType[iPlayerIndex]].byStatusFlags & 4) != 0)
+      return;                                   // Don't change view if current car is active (bit 2 set in status flags)
     if (player_type == 2) {
-      v6 = v3 * 4;
       do {
-        v10 = SelectedView[v3] - 1;
-        SelectedView[v3] = v10;
-        if (v10 < 0)
-          SelectedView[v3] = 8;
-      } while (!DuoViews[SelectedView[v3]]);
+        iPrevViewDuo = SelectedView[iViewIndex] - 1;
+        SelectedView[iViewIndex] = iPrevViewDuo;
+
+        // Wrap around to view 8 if we've gone below view 0
+        if (iPrevViewDuo < 0)
+          SelectedView[iViewIndex] = 8;
+      } while (!DuoViews[SelectedView[iViewIndex]]);// Two-player mode: cycle backwards through views allowed for duo play
     } else {
       do {
-        v8 = SelectedView[v3] - 1;
-        SelectedView[v3] = v8;
-        if (v8 == 7) {
-          v9 = (ViewType[result] & 1) != 0 ? ViewType[result] - 1 : ViewType[result] + 1;
-          if (Car_variable_23[308 * v9] < 0)
-            --SelectedView[v3];
+        // Single player mode: cycle backwards through allowed views
+        iPrevViewSingle = SelectedView[iViewIndex] - 1;
+        SelectedView[iViewIndex] = iPrevViewSingle;
+        if (iPrevViewSingle == 7) {
+          iOtherPlayerSingle = (ViewType[iPlayerIndex] & 1) != 0 ? ViewType[iPlayerIndex] - 1 : ViewType[iPlayerIndex] + 1;
+          // View 7 special case: check if other player's car is dead (bit 7 set)
+          if ((Car[iOtherPlayerSingle].byLives & 0x80u) != 0)
+            --SelectedView[iViewIndex];
         }
-        if (SelectedView[v3] < 0)
-          SelectedView[v3] = 8;
-        v6 = SelectedView[v3];
-      } while (!AllowedViews[v6]);
+        if (SelectedView[iViewIndex] < 0)
+          SelectedView[iViewIndex] = 8;
+      } while (!AllowedViews[SelectedView[iViewIndex]]);
     }
-    v7 = select_view(a1);
+    select_view(iPlayer);
     if (Play_View != 1)
-      goto LABEL_12;
-  LABEL_31:
-    doteaminit(v7);
-    return sfxsample(83, 0x8000, v6);
+      goto INIT_CAR_VIEW;
+  INIT_TEAM_VIEW:
+      // If team view (Play_View == 1), initialize team display
+    doteaminit();
+    goto PLAY_BUTTON_SOUND;
   }
   do {
-    v4 = SelectedView[v3] - 1;
-    SelectedView[v3] = v4;
-    if (v4 == 7) {
-      v5 = (ViewType[result] & 1) != 0 ? ViewType[result] - 1 : ViewType[result] + 1;
-      if (Car_variable_23[308 * v5] < 0)
-        --SelectedView[v3];
+    // Replay mode: cycle backwards through replay-allowed views
+    iPrevView = SelectedView[iViewIndex] - 1;
+    SelectedView[iViewIndex] = iPrevView;
+    if (iPrevView == 7) {
+      iOtherPlayer = (ViewType[iPlayerIndex] & 1) != 0 ? ViewType[iPlayerIndex] - 1 : ViewType[iPlayerIndex] + 1;
+
+      // Replay mode view 7: skip if other player is dead
+      if ((Car[iOtherPlayer].byLives & 0x80u) != 0)
+        --SelectedView[iViewIndex];
     }
-    if (SelectedView[v3] < 0)
-      SelectedView[v3] = 8;
-    v6 = SelectedView[v3];
-  } while (!ReplayViews[v6]);
-  v7 = select_view(a1);
+    if (SelectedView[iViewIndex] < 0)
+      SelectedView[iViewIndex] = 8;
+  } while (!ReplayViews[SelectedView[iViewIndex]]);
+
+  // Apply the selected view
+  select_view(iPlayer);
   if (Play_View == 1)
-    goto LABEL_31;
-LABEL_12:
-  initcarview(ViewType[a1], a1);
-  return sfxsample(83, 0x8000, v6);*/
+    goto INIT_TEAM_VIEW;
+INIT_CAR_VIEW:
+  initcarview(ViewType[iPlayer], iPlayer);      // Initialize car view for non-team modes
+PLAY_BUTTON_SOUND:
+  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                        // SOUND_SAMPLE_BUTTON
 }
 
 //-------------------------------------------------------------------------------------------------

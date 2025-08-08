@@ -315,7 +315,7 @@ void mesminus();
 void mesplus();
 int carminus(int a1, int a2, int a3);
 int carplus(int a1, unsigned int a2, int a3, unsigned int a4);
-int viewminus(int a1);
+void viewminus(int iPlayer);
 void viewplus(int iPlayer);
 void game_copypic(uint8 *pSrc, uint8 *pDest, int iCarIdx);
 void test_w95();
