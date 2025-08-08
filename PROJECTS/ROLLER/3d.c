@@ -2841,27 +2841,24 @@ void mesminus()
 
 //-------------------------------------------------------------------------------------------------
 //00014BF0
-int mesplus()
+void mesplus()
 {
-/*
-  int v0; // ecx
-  int result; // eax
-  int v2; // edx
+  int iNewMesMode; // ecx
+  int iMesModePlus; // eax
+  int iMesModeComp; // edx
 
-  v0 = network_mes_mode;
-  result = network_mes_mode;
-  v2 = network_mes_mode;
+  iNewMesMode = network_mes_mode;
+  iMesModePlus = network_mes_mode;
+  iMesModeComp = network_mes_mode;
   do {
-    if (++result >= numcars)
-      result = -1;
-    if (result == team_mate || result < 0 && players > 2 || human_control[result] && result != (__int16)player1_car) {
-      v2 = -666;
-      v0 = result;
+    if (++iMesModePlus >= numcars)
+      iMesModePlus = -1;
+    if (iMesModePlus == team_mate || iMesModePlus < 0 && players > 2 || human_control[iMesModePlus] && iMesModePlus != player1_car) {
+      iMesModeComp = -666;
+      iNewMesMode = iMesModePlus;
     }
-  } while (v2 == v0);
-  network_mes_mode = v0;
-  return result;*/
-  return 0;
+  } while (iMesModeComp == iNewMesMode);
+  network_mes_mode = iNewMesMode;
 }
 
 //-------------------------------------------------------------------------------------------------

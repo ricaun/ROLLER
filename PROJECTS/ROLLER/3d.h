@@ -312,7 +312,7 @@ int champion_race();
 void play_game(int a1, int a2, int a3);
 void game_keys(int64 a1);
 void mesminus();
-int mesplus();
+void mesplus();
 int carminus(int a1, int a2, int a3);
 int carplus(int a1, unsigned int a2, int a3, unsigned int a4);
 int viewminus(int a1);
