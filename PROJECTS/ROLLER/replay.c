@@ -32,6 +32,7 @@ int replayselect;         //0018EE60
 int slowing;              //0018EE64
 int rewinding;            //0018EE68
 int forwarding;           //0018EE6C
+int replaystart;          //0018EE74
 
 //-------------------------------------------------------------------------------------------------
 //00063DB0
@@ -3383,35 +3384,32 @@ void rtoggleedit()
 
 //-------------------------------------------------------------------------------------------------
 //00068980
-int rstartblock(int a1, unsigned int a2, int a3, unsigned int a4)
+void rstartblock()
 {
-  return 0; /*
-  _BOOL1 v4; // zf
-  int result; // eax
+  bool bReplaySelected; // zf
 
   if (replayedit) {
     if (replaytype == 2) {
-      _disable();
+      //_disable();
       replayspeed = 0;
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
-    v4 = replayselect != 0;
+    bReplaySelected = replayselect != 0;
     replayselect = replayselect == 0;
-    if (!v4 && replaytype == 2) {
-      _disable();
+    if (!bReplaySelected && replaytype == 2) {
+      //_disable();
       replayspeed = 0;
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
     replaystart = currentreplayframe;
-    return sfxsample(__SPAIR64__(a4, a2));
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

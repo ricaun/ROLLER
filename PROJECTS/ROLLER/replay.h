@@ -28,6 +28,7 @@ extern int replayselect;
 extern int slowing;
 extern int rewinding;
 extern int forwarding;
+extern int replaystart;
 
 //-------------------------------------------------------------------------------------------------;
 
@@ -74,7 +75,7 @@ char updatedirectory();
 void findintrofiles();
 int displaycontrolpanel();
 void rtoggleedit();
-int rstartblock(int a1, unsigned int a2, int a3, unsigned int a4);
+void rstartblock();
 void rselectblock();
 int rdeleteblock(int64 a1);
 int rstoreview(int a1, unsigned int a2, int a3, unsigned int a4);
