@@ -21,6 +21,7 @@ int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
 int pend_view_init = -1;  //000A6424
 int replayedit = 0;       //000A6428
+tReplayCamera camera[100];//00189980
 int disabled[4096];       //00189BD8
 int replayspeed;          //0018EE40
 int replayframes;         //0018EE48
@@ -34,6 +35,7 @@ int slowing;              //0018EE64
 int rewinding;            //0018EE68
 int forwarding;           //0018EE6C
 int replaystart;          //0018EE74
+int cuts;                 //0018EE78
 
 //-------------------------------------------------------------------------------------------------
 //00063DB0
@@ -1563,48 +1565,48 @@ void Rend()
 
 //-------------------------------------------------------------------------------------------------
 //000660A0
-unsigned int readdisable(int a1)
-{
-  return 0; /*
-  char v1; // bl
-  int v3; // eax
-
-  v1 = a1;
-  if (!replayedit || a1 > 0x1FFFF)
-    return 0;
-  v3 = (a1 - (__CFSHL__(a1 >> 31, 5) + 32 * (a1 >> 31))) >> 5;
-  return ((unsigned int)disabled[v3] >> (v1 - 32 * v3)) & 1;*/
-}
-
-//-------------------------------------------------------------------------------------------------
-//000660F0
-void cleardisable(int iReplayIndex)
+unsigned int readdisable(int iFrame)
 {
   char byBitPosition; // bl
   int iArrayIndex; // eax
 
-  byBitPosition = iReplayIndex;                 // Store lower 8 bits of replay index for bit position calculation
-  if (iReplayIndex < 0x20000)                 // Check if replay index is within valid range (0-131071)
+  byBitPosition = iFrame;
+  if (!replayedit || iFrame > 0x1FFFF)
+    return 0;
+  iArrayIndex = iFrame / 32;  // Calculate array index: divide by 32 to get DWORD index
+  //iArrayIndex = (iFrame - (__CFSHL__(iFrame >> 31, 5) + 32 * (iFrame >> 31))) >> 5;
+  return ((unsigned int)disabled[iArrayIndex] >> (byBitPosition - 32 * iArrayIndex)) & 1;
+}
+
+//-------------------------------------------------------------------------------------------------
+//000660F0
+void cleardisable(int iFrame)
+{
+  char byBitPosition; // bl
+  int iArrayIndex; // eax
+
+  byBitPosition = iFrame;                 // Store lower 8 bits of replay index for bit position calculation
+  if (iFrame < 0x20000)                 // Check if replay index is within valid range (0-131071)
   {
-    iArrayIndex = iReplayIndex / 32;  // Calculate array index: divide by 32 to get DWORD index
-    //iArrayIndex = (iReplayIndex - (__CFSHL__(iReplayIndex >> 31, 5) + 32 * (iReplayIndex >> 31))) >> 5;// Calculate array index: divide by 32 to get DWORD index
+    iArrayIndex = iFrame / 32;  // Calculate array index: divide by 32 to get DWORD index
+    //iArrayIndex = (iFrame - (__CFSHL__(iFrame >> 31, 5) + 32 * (iFrame >> 31))) >> 5;// Calculate array index: divide by 32 to get DWORD index
     disabled[iArrayIndex] &= ~(1 << (byBitPosition - 32 * iArrayIndex));// Clear the specific bit using AND with inverted bit mask
   }
 }
 
 //-------------------------------------------------------------------------------------------------
 //00066130
-int setdisable(int result)
+void setdisable(int iFrame)
 {
-  return 0; /*
-  char v1; // bl
+  char byBitPosition; // bl
+  int iArrayIndex; // eax
 
-  v1 = result;
-  if (result < 0x20000) {
-    result = (result - (__CFSHL__(result >> 31, 5) + 32 * (result >> 31))) >> 5;
-    disabled[result] |= 1 << (v1 - 32 * result);
+  byBitPosition = iFrame;
+  if (iFrame < 0x20000) {
+    iArrayIndex = iFrame / 32;  // Calculate array index: divide by 32 to get DWORD index
+    //iArrayIndex = (iFrame - (__CFSHL__(iFrame >> 31, 5) + 32 * (iFrame >> 31))) >> 5;
+    disabled[iArrayIndex] |= 1 << (byBitPosition - 32 * iArrayIndex);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2754,79 +2756,78 @@ char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8
 
 //-------------------------------------------------------------------------------------------------
 //000679E0
-int previouscut(int a1, int a2)
+void previouscut()
 {
-  return 0; /*
-  int v2; // ebx
-  int v3; // esi
-  int v4; // edx
-  int v5; // eax
-  int v6; // edi
-  int v7; // ebx
-  unsigned int v8; // edx
-  unsigned int v9; // eax
-  unsigned int v10; // eax
-  unsigned int v11; // ecx
-  unsigned int v12; // eax
-  int result; // eax
+  int iSearchFrame; // ebx
+  int iCutIndex; // esi
+  int iCutCounter; // edx
+  int iCameraIndex; // eax
+  int iFrame; // edi
+  int iTargetFrame; // ebx
+  unsigned int uiPrevDisabled; // edx
+  unsigned int uiTempDisabled; // eax
+  unsigned int uiCurrDisabled; // eax
+  unsigned int uiCurrentDisabled; // ecx
+  unsigned int uiTempPrevDisabled; // eax
 
-  resetsmoke(a1, a2);
-  v2 = currentreplayframe;
+  resetsmoke();                                 // Clear smoke effects for clean transition
+  iSearchFrame = currentreplayframe;            // Start search from current frame or previous frame if possible
   if (currentreplayframe > 0)
-    v2 = currentreplayframe - 1;
-  v3 = -1;
-  if (cuts) {
-    v4 = 0;
+    iSearchFrame = currentreplayframe - 1;
+  iCutIndex = -1;                               // Initialize cut index to -1 (no cut found)
+  if (cuts)                                   // Search through camera cuts if any exist
+  {
+    iCutCounter = 0;
     if (cuts > 0) {
-      v5 = 0;
-      do {
-        if (*(int *)((char *)&camera_variable_2 + v5) <= v2)
-          v3 = v4;
-        ++v4;
-        v5 += 6;
-      } while (v4 < cuts);
+      iCameraIndex = 0;                         // Find the last cut that occurs before or at search frame
+      do {                                         // Check if this cut frame is <= search frame
+        if (camera[iCameraIndex].iFrame <= iSearchFrame)
+          iCutIndex = iCutCounter;
+        ++iCutCounter;
+        ++iCameraIndex;
+      } while (iCutCounter < cuts);
     }
   }
-  v6 = v3;
-  if (v3 != -1)
-    v6 = *(int *)((char *)&camera_variable_2 + 6 * v3);
-  if (v2 >= v6) {
-    if (v2) {
-      currentreplayframe = v2;
-      v9 = readdisable(v2 - 1);
-      v2 = currentreplayframe;
-      v8 = v9;
+  iFrame = iCutIndex;                           // Set target frame based on found cut
+  if (iCutIndex != -1)                        // If cut found, use the cut frame as target
+    iFrame = camera[iCutIndex].iFrame;
+  if (iSearchFrame >= iFrame)                 // Search backwards from current position to find previous cut boundary
+  {                                             // Get disable status of previous and current frames
+    if (iSearchFrame) {
+      currentreplayframe = iSearchFrame;
+      uiTempDisabled = readdisable(iSearchFrame - 1);
+      iSearchFrame = currentreplayframe;
+      uiPrevDisabled = uiTempDisabled;
     } else {
-      v8 = 0;
+      uiPrevDisabled = 0;
     }
-    currentreplayframe = v2;
-    v10 = readdisable(v2);
-    v7 = currentreplayframe;
-    v11 = v10;
-    while (v7 > 0) {
-      if (!v11 && v8)
-        break;
-      if (v7 <= v6)
-        break;
-      --v7;
-      v11 = v8;
-      if (v7 < 1) {
-        v8 = 0;
+    currentreplayframe = iSearchFrame;
+    uiCurrDisabled = readdisable(iSearchFrame);
+    iTargetFrame = currentreplayframe;
+    uiCurrentDisabled = uiCurrDisabled;
+    while (iTargetFrame > 0)                  // Search backwards until boundary found or target frame reached
+    {
+      if (!uiCurrentDisabled && uiPrevDisabled)
+        break;                                  // Stop if found transition from disabled to enabled frame
+      if (iTargetFrame <= iFrame)
+        break;                                  // Stop if reached target frame boundary
+      --iTargetFrame;
+      uiCurrentDisabled = uiPrevDisabled;
+      if (iTargetFrame < 1) {
+        uiPrevDisabled = 0;
       } else {
-        currentreplayframe = v7;
-        v12 = readdisable(v7 - 1);
-        v7 = currentreplayframe;
-        v8 = v12;
+        currentreplayframe = iTargetFrame;
+        uiTempPrevDisabled = readdisable(iTargetFrame - 1);
+        iTargetFrame = currentreplayframe;
+        uiPrevDisabled = uiTempPrevDisabled;
       }
     }
   } else {
-    v7 = v6;
+    iTargetFrame = iFrame;
   }
-  ticks = v7;
-  result = ViewType[0];
-  pend_view_init = ViewType[0];
-  currentreplayframe = v7;
-  return result;*/
+  ticks = iTargetFrame;                         // Set game timer to target frame
+  pend_view_init = ViewType[0];                 // Initialize view system for frame transition
+  currentreplayframe = iTargetFrame;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3536,23 +3537,20 @@ void rremoveview()
 
 //-------------------------------------------------------------------------------------------------
 //00068C30
-int rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4)
+void rpreviouscut()
 {
-  return 0; /*
   if (replayedit) {
     if (replaytype == 2) {
-      _disable();
+      //_disable();
       replayspeed = 0;
       fraction = 0;
-      result = currentreplayframe;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
-    previouscut(result, a2);
-    return sfxsample(__SPAIR64__(a4, a2));
+    previouscut();
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

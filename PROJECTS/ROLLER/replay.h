@@ -10,6 +10,17 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#pragma pack(push, 1)
+typedef struct
+{
+  uint8 byView;
+  uint8 byCarIdx;
+  int iFrame;
+} tReplayCamera;
+#pragma pack(pop)
+
+//-------------------------------------------------------------------------------------------------
+
 extern int replayspeeds[9];
 extern int replaysetspeed;
 extern int replaydirection;
@@ -17,6 +28,7 @@ extern int lastfile;
 extern int lastautocut;
 extern int pend_view_init;
 extern int replayedit;
+extern tReplayCamera camera[100];
 extern int disabled[4096];
 extern int replayspeed;
 extern int replayframes;
@@ -30,6 +42,7 @@ extern int slowing;
 extern int rewinding;
 extern int forwarding;
 extern int replaystart;
+extern int cuts;
 
 //-------------------------------------------------------------------------------------------------;
 
@@ -50,9 +63,9 @@ int Rforwardstart(int a1, int a2);
 void ROldStatus();
 void Rstart();
 void Rend();
-unsigned int readdisable(int a1);
-void cleardisable(int iReplayIndex);
-int setdisable(int result);
+unsigned int readdisable(int iFrame);
+void cleardisable(int iFrame);
+void setdisable(int iFrame);
 int deleteframes(int result, int a2);
 int undeleteframes(int result, int a2);
 void findnextvalid();
@@ -67,7 +80,7 @@ int warning(int a1, int a2, int a3, int a4, char *a5);
 char lsd(int a1, int a2, int a3, int a4);
 int scandirectory(int a1);
 char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9);
-int previouscut(int a1, int a2);
+void previouscut();
 int nextcut(int a1, int a2);
 int loadreplay();
 int savereplay();
@@ -81,7 +94,7 @@ void rselectblock();
 void rdeleteblock();
 void rstoreview();
 void rremoveview();
-int rpreviouscut(int result, unsigned int a2, int a3, unsigned int a4);
+void rpreviouscut();
 int rnextcut(int result, unsigned int a2, int a3, unsigned int a4);
 void rstartassemble(int64 a1);
 uint8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
