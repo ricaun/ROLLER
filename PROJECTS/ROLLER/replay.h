@@ -21,7 +21,9 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int rotpoint;
 extern int replayspeeds[9];
+extern int filingmenu;
 extern int replaysetspeed;
 extern int replaydirection;
 extern int lastfile;
@@ -72,7 +74,7 @@ void findnextvalid();
 unsigned int findlastvalid();
 void Rassemble();
 void storecut();
-int removecut();
+void removecut();
 int readcut();
 int displayreplay();
 int compare(int a1, int a2);
@@ -81,7 +83,7 @@ char lsd(int a1, int a2, int a3, int a4);
 int scandirectory(int a1);
 char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9);
 void previouscut();
-int nextcut(int a1, int a2);
+void nextcut();
 int loadreplay();
 int savereplay();
 int deletereplay(int a1, int a2, int a3, int a4);
@@ -95,8 +97,8 @@ void rdeleteblock();
 void rstoreview();
 void rremoveview();
 void rpreviouscut();
-int rnextcut(int result, unsigned int a2, int a3, unsigned int a4);
-void rstartassemble(int64 a1);
+void rnextcut();
+void rstartassemble();
 uint8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
 int replaypanelletter(int result, int *a2, int *a3, int a4);
 int replaypanelstring(const char *a1, int a2, int a3, int a4);

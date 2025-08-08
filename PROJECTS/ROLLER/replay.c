@@ -15,6 +15,7 @@
 
 int rotpoint = 0;         //000A63B0
 int replayspeeds[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 }; //000A63BC
+int filingmenu = 0;       //000A6408
 int replaysetspeed = 0;   //000A6414
 int replaydirection = 0;  //000A6418
 int lastfile = -1;        //000A641C
@@ -2066,82 +2067,83 @@ void Rassemble()
 //-------------------------------------------------------------------------------------------------
 //00066AF0
 void storecut()
-{/*
-  int v0; // esi
-  int v1; // edi
-  int v2; // ecx
-  int v3; // eax
-  int v4; // edx
-  int v5; // eax
+{
+  int iNumCuts; // esi
+  int iTargetFrame; // edi
+  int iInsertIndex; // ecx
+  int iCutCounter; // eax
+  int iCameraIndex; // edx
+  int iStoreIndex; // eax
 
-  v0 = cuts;
-  v1 = currentreplayframe;
-  if (replaytype == 2 && cuts < 100) {
-    v2 = -1;
-    if (cuts) {
-      v3 = 0;
+  iNumCuts = cuts;                              // Initialize working variables
+  iTargetFrame = currentreplayframe;
+  if (replaytype == 2 && cuts < 100)          // Only allow cut creation in edit mode and under limit (100 cuts max)
+  {
+    iInsertIndex = -1;                          // Initialize insertion index to -1 (no position found yet)
+    if (cuts)                                 // Search for correct insertion position if cuts exist
+    {
+      iCutCounter = 0;
       if (cuts > 0) {
-        v4 = 0;
-        do {
-          if (*(int *)((char *)&camera_variable_2 + v4) <= currentreplayframe)
-            v2 = v3;
-          ++v3;
-          v4 += 6;
-        } while (v3 < cuts);
+        iCameraIndex = 0;                       // Find the last cut that occurs before or at current frame
+        do {                                       // Check if this cut frame is <= current frame
+          if (camera[iCameraIndex].iFrame <= currentreplayframe)
+            iInsertIndex = iCutCounter;
+          ++iCutCounter;
+          ++iCameraIndex;
+        } while (iCutCounter < cuts);
       }
-      if (*(int *)((char *)&camera_variable_2 + 6 * v2) != currentreplayframe || v2 == -1) {
-        if (++v2 != cuts) {
-          memmove(&camera[6 * v2 + 6], &camera[6 * v2], 6 * (cuts - v2));
-          v0 = cuts;
+      if (camera[iInsertIndex].iFrame != currentreplayframe || iInsertIndex == -1)// Check if cut already exists at this frame
+      {                                         // Calculate insertion position (after last matching cut)
+        if (++iInsertIndex != cuts) {
+          memmove(&camera[iInsertIndex + 1], &camera[iInsertIndex], 6 * (cuts - iInsertIndex));// Shift existing cuts up to make room for new cut
+          iNumCuts = cuts;
         }
-        v1 = currentreplayframe;
-        ++v0;
+        iTargetFrame = currentreplayframe;      // Increment cut count for new cut
+        ++iNumCuts;
       }
     } else {
-      v0 = 1;
-      v2 = 0;
+      iNumCuts = 1;                             // First cut - set count to 1 and insert at position 0
+      iInsertIndex = 0;
     }
-    v5 = 3 * v2;
-    camera[2 * v5] = SelectedView[0];
-    *(int *)((char *)&camera_variable_2 + 2 * v5) = v1;
-    camera_variable_1[2 * v5] = ViewType[0];
+    iStoreIndex = iInsertIndex;                 // Store cut data at calculated index
+    camera[iStoreIndex].byView = SelectedView[0];// Store current view settings
+    camera[iStoreIndex].iFrame = iTargetFrame;  // Store current frame number
+    camera[iStoreIndex].byCarIdx = (uint8)ViewType[0]; // Store current car index for view
   }
-  currentreplayframe = v1;
-  cuts = v0;*/
+  currentreplayframe = iTargetFrame;            // Update global state
+  cuts = iNumCuts;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00066BE0
-int removecut()
+void removecut()
 {
-  return 0; /*
-  int v0; // esi
-  int v1; // ecx
-  int v2; // edi
-  int result; // eax
+  int iNumCuts; // esi
+  int iCutIndex; // ecx
+  int iCameraIndex; // edi
 
-  v0 = cuts;
-  if (replaytype == 2) {
-    v1 = 0;
-    if (cuts > 0) {
-      v2 = 0;
-      do {
-        if (currentreplayframe == *(int *)((char *)&camera_variable_2 + v2)) {
-          result = v0 - 1;
-          if (v1 != v0 - 1) {
-            cuts = v0;
-            result = memmove(&camera[v2], &camera[v2 + 6], 6 * (v0 - v1 - 1));
-            v0 = cuts;
+  iNumCuts = cuts;                              // Get current number of cuts
+  if (replaytype == 2)                        // Only allow cut removal in edit mode (replaytype == 2)
+  {
+    iCutIndex = 0;
+    if (cuts > 0)                             // Search through existing cuts to find match
+    {
+      iCameraIndex = 0;
+      do {                                         // Check if current replay frame matches this cut frame
+        if (currentreplayframe == camera[iCameraIndex].iFrame) {                                       // If not the last cut, shift remaining cuts down to fill gap
+          if (iCutIndex != iNumCuts - 1) {
+            cuts = iNumCuts;
+            memmove(&camera[iCameraIndex], &camera[iCameraIndex + 1], 6 * (iNumCuts - iCutIndex - 1));// Move remaining cuts down by 6 bytes each (camera struct size)
+            iNumCuts = cuts;
           }
-          --v0;
+          --iNumCuts;                           // Decrement total cut count
         }
-        ++v1;
-        v2 += 6;
-      } while (v1 < v0);
+        ++iCutIndex;
+        ++iCameraIndex;
+      } while (iCutIndex < iNumCuts);
     }
   }
-  cuts = v0;
-  return result;*/
+  cuts = iNumCuts;                              // Update global cuts count
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2832,67 +2834,66 @@ void previouscut()
 
 //-------------------------------------------------------------------------------------------------
 //00067AF0
-int nextcut(int a1, int a2)
+void nextcut()
 {
-  return 0; /*
-  int v2; // esi
-  int v3; // eax
-  int v4; // edx
-  int v5; // ebx
-  int v6; // esi
-  int v7; // ebx
-  unsigned int i; // edx
-  unsigned int v9; // eax
-  int result; // eax
+  int iCutIndex; // esi
+  int iCutCounter; // eax
+  int iCameraIndex; // edx
+  int iSearchFrame; // ebx
+  int iNextCutFrame; // esi
+  int iTargetFrame; // ebx
+  unsigned int uiPrevDisabled; // edx
+  unsigned int uiCurrDisabled; // eax
 
-  resetsmoke(a1, a2);
-  v2 = -1;
-  if (cuts) {
-    v3 = 0;
+  resetsmoke();                                 // Clear smoke effects for clean transition
+  iCutIndex = -1;                               // Initialize cut index to -1 (no cut found)
+  if (cuts)                                   // Search through camera cuts if any exist
+  {
+    iCutCounter = 0;
     if (cuts > 0) {
-      v4 = 0;
-      do {
-        if (*(int *)((char *)&camera_variable_2 + v4) <= currentreplayframe)
-          v2 = v3;
-        v4 += 6;
-        ++v3;
-      } while (v3 < cuts);
+      iCameraIndex = 0;                         // Find the last cut that occurs before or at current frame
+      do {                                         // Check if this cut frame is <= current frame
+        if (camera[iCameraIndex].iFrame <= currentreplayframe)
+          iCutIndex = iCutCounter;
+        ++iCameraIndex;
+        ++iCutCounter;
+      } while (iCutCounter < cuts);
     }
   }
-  v5 = currentreplayframe;
-  if (v2 >= cuts - 1)
-    v6 = replayframes + 1;
+  iSearchFrame = currentreplayframe;            // Start search from current frame
+  if (iCutIndex >= cuts - 1)                  // Determine next cut boundary or end of replay
+    iNextCutFrame = replayframes + 1;           // If at last cut, target is end of replay
   else
-    v6 = *(int *)((char *)&camera_variable_2 + 6 * v2 + 6);
-  if (currentreplayframe < replayframes - 1)
-    v5 = currentreplayframe + 1;
-  if (v5 <= v6) {
-    if (v5) {
-      currentreplayframe = v5;
-      v9 = readdisable(v5 - 1);
-      v5 = currentreplayframe;
-      goto LABEL_17;
+    iNextCutFrame = camera[iCutIndex + 1].iFrame;// Otherwise target is next cut frame
+  if (currentreplayframe < replayframes - 1)  // Advance to next frame if not at end of replay
+    iSearchFrame = currentreplayframe + 1;
+  if (iSearchFrame <= iNextCutFrame)          // Search forward from current position to find next cut boundary
+  {                                             // Get disable status of previous frame for boundary detection
+    if (iSearchFrame) {
+      currentreplayframe = iSearchFrame;
+      uiCurrDisabled = readdisable(iSearchFrame - 1);
+      iSearchFrame = currentreplayframe;
+      goto SEARCH_LOOP_ENTRY;
     }
-    for (i = 0; ; i = v9) {
-      currentreplayframe = v5;
-      v9 = readdisable(v5);
-      v7 = currentreplayframe;
-      if (currentreplayframe >= replayframes - 1 || !v9 && i)
-        break;
-      if (currentreplayframe >= v6)
-        break;
-      v5 = currentreplayframe + 1;
-    LABEL_17:
+    for (uiPrevDisabled = 0; ; uiPrevDisabled = uiCurrDisabled)// Search forward until boundary found or target reached
+    {
+      currentreplayframe = iSearchFrame;
+      uiCurrDisabled = readdisable(iSearchFrame);
+      iTargetFrame = currentreplayframe;
+      if (currentreplayframe >= replayframes - 1 || !uiCurrDisabled && uiPrevDisabled)
+        break;                                  // Stop at end of replay or transition from disabled to enabled
+      if (currentreplayframe >= iNextCutFrame)
+        break;                                  // Stop if reached next cut frame boundary
+      iSearchFrame = currentreplayframe + 1;
+    SEARCH_LOOP_ENTRY:
       ;
     }
   } else {
-    v7 = v6;
+    iTargetFrame = iNextCutFrame;
   }
-  ticks = v7;
-  result = ViewType[0];
-  pend_view_init = ViewType[0];
-  currentreplayframe = v7;
-  return result;*/
+  ticks = iTargetFrame;                         // Set game timer to target frame
+  pend_view_init = ViewType[0];                 // Initialize view system for frame transition
+  currentreplayframe = iTargetFrame;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3555,50 +3556,48 @@ void rpreviouscut()
 
 //-------------------------------------------------------------------------------------------------
 //00068C80
-int rnextcut(int result, unsigned int a2, int a3, unsigned int a4)
+void rnextcut()
 {
-  return 0; /*
   if (replayedit) {
     if (replaytype == 2) {
-      _disable();
+      //_disable();
       replayspeed = 0;
       fraction = 0;
-      result = currentreplayframe;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
-    nextcut(result, a2);
-    return sfxsample(__SPAIR64__(a4, a2));
+    nextcut();
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00068CD0
-void rstartassemble(int64 a1)
+void rstartassemble()
 {
-  /*
-  int v1; // ebx
-  int v2; // edx
+  int iEnabledFramesFound; // ebx
+  int iFrameIndex; // edx
 
-  v1 = 0;
-  if (replaytype == 2 && replayedit) {
-    sfxsample(a1);
-    v2 = 0;
-    if (replayframes > 0) {
-      while (readdisable(v2)) {
-        if (++v2 >= replayframes)
-          goto LABEL_7;
+  iEnabledFramesFound = 0;                      // Initialize flag - assume no enabled frames found
+  if (replaytype == 2 && replayedit)          // Only allow assembly in edit mode with replay editing enabled
+  {
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
+    iFrameIndex = 0;                            // Start searching from first frame
+    if (replayframes > 0)                     // Search through all replay frames
+    {                                           // Skip disabled frames - look for first enabled frame
+      while (readdisable(iFrameIndex)) {
+        if (++iFrameIndex >= replayframes)
+          goto CHECK_RESULTS;
       }
-      v1 = -1;
+      iEnabledFramesFound = -1;                 // Found at least one enabled frame
     }
-  LABEL_7:
-    if (v1)
-      filingmenu = 4;
+  CHECK_RESULTS:
+    if (iEnabledFramesFound)                  // Set appropriate menu state based on search results
+      filingmenu = 4;                           // No enabled frames - set menu to error/warning state
     else
-      filingmenu = 8;
-  }*/
+      filingmenu = 8;                           // Enabled frames found - proceed with assembly menu
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
