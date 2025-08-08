@@ -1395,50 +1395,50 @@ int Rframeminus(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 //00065D70
-int Rspeedplus(int result, unsigned int a2, unsigned int a3)
+void Rspeedplus()
 {
-  return 0; /*
+  int iNewSpeed; // eax
+
   if (replaytype == 2) {
-    result = sfxsample(__SPAIR64__(a2, a3));
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
     if (++replaysetspeed == 9)
       replaysetspeed = 8;
     if (replayspeed) {
       if (replayspeed >= 0) {
-        result = replayspeeds[replaysetspeed];
+        iNewSpeed = replayspeeds[replaysetspeed];
       } else {
         replayspeed = replayspeeds[replaysetspeed];
-        result = -replayspeed;
+        iNewSpeed = -replayspeed;
       }
-      replayspeed = result;
+      replayspeed = iNewSpeed;
     }
     if (replayspeed == 256)
-      return initsoundlag(currentreplayframe);
+      initsoundlag(currentreplayframe);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00065E00
-void Rspeedminus(int64 a1)
-{/*
-  int v1; // eax
+void Rspeedminus()
+{
+  int iNewSpeed; // eax
 
   if (replaytype == 2) {
-    sfxsample(a1);
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
     if (--replaysetspeed < 0)
       replaysetspeed = 0;
     if (replayspeed) {
       if (replayspeed >= 0) {
-        v1 = replayspeeds[replaysetspeed];
+        iNewSpeed = replayspeeds[replaysetspeed];
       } else {
         replayspeed = replayspeeds[replaysetspeed];
-        v1 = -replayspeed;
+        iNewSpeed = -replayspeed;
       }
-      replayspeed = v1;
+      replayspeed = iNewSpeed;
     }
     if (replayspeed == 256)
       initsoundlag(currentreplayframe);
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
