@@ -3417,109 +3417,103 @@ void rstartblock()
 //-------------------------------------------------------------------------------------------------
 //00068A20
 void rselectblock()
-{/*
-  int v0; // eax
-  int v1; // ebx
-  int i; // edx
-  int v3; // eax
-  __int64 v4; // [esp+0h] [ebp-18h]
+{                                               // Check if replay editing mode is active
+  int iStartFrame; // eax
+  int iEndFrame; // ebx
+  int iFrameIndex; // edx
+  int iCurrentFrame; // eax
 
-  if (replayedit) {
+  if (replayedit) {                                             // Check if replay type is 2 (selection mode)
     if (replaytype == 2) {
-      _disable();
-      replayspeed = 0;
+      //_disable();                               // Pause replay playback - disable interrupts
+      replayspeed = 0;                          // Stop replay playback
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
-    if (!replayselect)
+    if (!replayselect)                        // If no selection active, start new selection at current frame
       replaystart = currentreplayframe;
-    v0 = replaystart;
-    v1 = currentreplayframe;
-    if (replaytype == 2) {
+    iStartFrame = replaystart;                  // Get frame range for selection block operation
+    iEndFrame = currentreplayframe;
+    if (replaytype == 2) {                                           // Ensure start frame <= end frame for proper range
       if (currentreplayframe < replaystart) {
-        v0 = currentreplayframe;
-        v1 = replaystart;
+        iStartFrame = currentreplayframe;
+        iEndFrame = replaystart;
       }
-      for (i = v0; i <= v1; ++i) {
-        v3 = i;
-        cleardisable(v3);
+      for (iFrameIndex = iStartFrame; iFrameIndex <= iEndFrame; ++iFrameIndex)// Clear disabled status for all frames in selected range
+      {
+        iCurrentFrame = iFrameIndex;
+        cleardisable(iCurrentFrame);
       }
     }
-    replayselect = 0;
+    replayselect = 0;                           // Clear selection flag
     if (replaytype == 2) {
-      _disable();
+      //_disable();                               // Reset replay state after selection operation
       replayspeed = 0;
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
-    sfxsample(v4);
-  }*/
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //00068AF0
-int rdeleteblock(int64 a1)
-{
-  return 0; /*
-  int v1; // ecx
-  int v2; // ebx
-  int i; // edx
-  int v4; // eax
-  int result; // eax
+void rdeleteblock()
+{                                               // Check if replay editing mode is active
+  int iStartFrame; // ecx
+  int iEndFrame; // ebx
+  int iFrameIndex; // edx
+  int iCurrentFrame; // eax
 
-  if (replayedit) {
+  if (replayedit) {                                             // Check if replay type is 2 (deletion mode)
     if (replaytype == 2) {
-      _disable();
-      replayspeed = 0;
+      //_disable();                               // Pause replay playback - disable interrupts
+      replayspeed = 0;                          // Stop replay playback
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
-    if (!replayselect)
+    if (!replayselect)                        // If no selection active, start new selection at current frame
       replaystart = currentreplayframe;
-    v1 = replaystart;
-    v2 = currentreplayframe;
-    if (replaytype == 2) {
+    iStartFrame = replaystart;                  // Get frame range for deletion block operation
+    iEndFrame = currentreplayframe;
+    if (replaytype == 2) {                                           // Ensure start frame <= end frame for proper range
       if (currentreplayframe < replaystart) {
-        v1 = currentreplayframe;
-        v2 = replaystart;
+        iStartFrame = currentreplayframe;
+        iEndFrame = replaystart;
       }
-      for (i = v1; i <= v2; ++i) {
-        v4 = i;
-        setdisable(v4);
+      for (iFrameIndex = iStartFrame; iFrameIndex <= iEndFrame; ++iFrameIndex)// Mark all frames in selected range as disabled/deleted
+      {
+        iCurrentFrame = iFrameIndex;
+        setdisable(iCurrentFrame);
       }
     }
-    replayselect = 0;
-    return sfxsample(a1);
+    replayselect = 0;                           // Clear selection flag
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00068B90
-int rstoreview(int a1, unsigned int a2, int a3, unsigned int a4)
+void rstoreview()
 {
-  return 0; /*
-  int result; // eax
-
   if (replayedit) {
     if (replaytype == 2) {
-      _disable();
+      //_disable();
       replayspeed = 0;
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
+      //_enable();
     }
     storecut();
-    return sfxsample(__SPAIR64__(a4, a2));
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
