@@ -1907,14 +1907,12 @@ void stopallsamples()
   //_disable();
 
   // Clear/initialize engine sound volume data for all cars
-  for (int iEngineDataIndex = 0; iEngineDataIndex < sizeof(tCarSoundData) / sizeof(tEngineSoundData); iEngineDataIndex++)
-  {
-    for (int iCarIndex = 0; iCarIndex < numcars; iCarIndex++)
-    {
-      tEngineSoundData* pEngineData = &enginedelay[iCarIndex].engineSoundData[iEngineDataIndex];
+  for (int iCarIndex = 0; iCarIndex < numcars; ++iCarIndex) {
+    for (int iEngineDataIdx = 0; iEngineDataIdx < 32; ++iEngineDataIdx) {
+      tEngineSoundData *pEngineData = &enginedelay[iCarIndex].engineSoundData[iEngineDataIdx];
 
       pEngineData->iEngineVol = -1;
-      pEngineData->iEngine2Vol = -1; 
+      pEngineData->iEngine2Vol = -1;
       pEngineData->iSkid1Vol = -1;
     }
   }
