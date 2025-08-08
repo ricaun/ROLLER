@@ -1433,76 +1433,55 @@ void Rspeedminus()
 
 //-------------------------------------------------------------------------------------------------
 //00065E90
-int DoRstop(int a1, int a2)
+void DoRstop()
 {
-  return 0; /*
-  __int64 v3; // [esp-4h] [ebp-8h]
-
-  LODWORD(v3) = a2;
   if (replaytype == 2) {
-    _disable();
+    //_disable();
     replayspeed = 0;
     fraction = 0;
     replaydirection = 0;
     ticks = currentreplayframe;
-    _enable();
+    //_enable();
   }
-  return sfxsample(v3);*/
+  sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                        // SOUND_SAMPLE_BUTTON
 }
 
 //-------------------------------------------------------------------------------------------------
 //00065ED0
-int Rstop()
+void Rstop()
 {
-  return 0; /*
-  int result; // eax
-
   if (replaytype == 2) {
-    _disable();
+    //_disable();
     replayspeed = 0;
     fraction = 0;
-    result = currentreplayframe;
     replaydirection = 0;
     ticks = currentreplayframe;
-    _enable();
+    //_enable();
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00065F00
-int Rrewindstart(int a1, int a2)
+void Rrewindstart()
 {
-  return 0; /*
-  int result; // eax
-  __int64 v3; // [esp-4h] [ebp-8h]
-
-  LODWORD(v3) = a2;
   if (replaytype == 2) {
-    result = sfxsample(v3);
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
     if (replayspeed >= 0)
       replayspeed = -64;
     rewinding = -1;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00065F40
-int Rforwardstart(int a1, int a2)
+void Rforwardstart()
 {
-  return 0; /*
-  int result; // eax
-  __int64 v3; // [esp-4h] [ebp-8h]
-
-  LODWORD(v3) = a2;
   if (replaytype == 2) {
-    result = sfxsample(v3);
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
     if (replayspeed <= 0)
       replayspeed = 64;
     forwarding = -1;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3819,27 +3798,36 @@ void initsoundlag(uint32 uiTicks)
 //-------------------------------------------------------------------------------------------------
 //00069160
 void resetsmoke()
-{/*
-  int v0; // esi
-  int v1; // ebx
-  int v2; // ecx
-  unsigned int v3; // eax
+{
+  int iNumCars; // esi
+  int iCarIndex; // ebx
+  //int iCarSprayEnd; // ecx
+  //unsigned int uiOffset; // eax
 
-  v0 = numcars;
-  v1 = 0;
-  if (numcars > 0) {
-    v2 = 1408;
-    do {
-      v3 = 1408 * v1;
-      do {
-        v3 += 44;
-        car_texs_loaded_variable_2[v3 / 4] = 0;
-      } while (v3 != v2);
-      ++v1;
-      v2 += 1408;
-    } while (v1 < v0);
+  iNumCars = numcars;
+  iCarIndex = 0;
+
+  for (iCarIndex = 0; iCarIndex < iNumCars; iCarIndex++)
+  {
+    for (int iSprayIndex = 0; iSprayIndex < 32; iSprayIndex++)
+    {
+      CarSpray[iCarIndex][iSprayIndex].iLifeTime = 0;
+    }
   }
-  numcars = v0;*/
+  //if (numcars > 0) {
+  //  iCarSprayEnd = 1408;
+  //  do {
+  //    uiOffset = 1408 * iCarIndex;
+  //    do {
+  //      uiOffset += sizeof(tCarSpray);
+  //      car_texs_loaded[uiOffset / 4 + 12] = 0; // offset into CarSpray
+  //    } while (uiOffset != iCarSprayEnd);
+  //    ++iCarIndex;
+  //    iCarSprayEnd += 1408;
+  //  } while (iCarIndex < iNumCars);
+  //}
+
+  numcars = iNumCars;
 }
 
 //-------------------------------------------------------------------------------------------------
