@@ -18,6 +18,7 @@ int replaysetspeed = 0;   //000A6414
 int replaydirection = 0;  //000A6418
 int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
+int pend_view_init = -1;  //000A6424
 int replayspeed;          //0018EE40
 int replayframes;         //0018EE48
 int currentreplayframe;   //0018EE54
@@ -1344,51 +1345,34 @@ void Rreverseplay()
 
 //-------------------------------------------------------------------------------------------------
 //00065CC0
-int Rframeplus(int a1, int a2)
+void Rframeplus()
 {
-  return 0; /*
-  int result; // eax
-  __int64 v3; // [esp-4h] [ebp-8h]
-
-  LODWORD(v3) = a2;
   if (replaytype == 2) {
-    sfxsample(v3);
-    _disable();
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
+    //_disable();
     replayspeed = 0;
     fraction = 0;
     replaydirection = 0;
-    ++ticks;
-    result = replayframes - 1;
-    if (replayframes - 1 < ticks) {
-      result = replayframes - 1;
+    if (replayframes - 1 < ++ticks)
       ticks = replayframes - 1;
-    }
-    _enable();
+    //_enable();
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00065D20
-int Rframeminus(int a1, int a2)
+void Rframeminus()
 {
-  return 0; /*
-  int result; // eax
-  __int64 v3; // [esp-4h] [ebp-8h]
-
-  LODWORD(v3) = a2;
   if (replaytype == 2) {
-    sfxsample(v3);
-    _disable();
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
+    //_disable();
     replayspeed = 0;
     fraction = 0;
     replaydirection = 0;
-    result = ticks--;
-    if (ticks < 0)
+    if (--ticks < 0)
       ticks = 0;
-    _enable();
+    //_enable();
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1538,26 +1522,21 @@ void ROldStatus()
 
 //-------------------------------------------------------------------------------------------------
 //00065FE0
-int Rstart(int a1, unsigned int a2, int a3, unsigned int a4)
+void Rstart()
 {
-  return 0; /*
-  int v4; // eax
-  int result; // eax
-
   if (ticks) {
     if (replaytype == 2) {
-      _disable();
+      //_disable();
       replayspeed = 0;
       replaydirection = 0;
       fraction = 0;
       ticks = 0;
-      _enable();
+      //_enable();
       pend_view_init = ViewType[0];
-      v4 = sfxsample(__SPAIR64__(a4, a2));
-      return resetsmoke(v4, 0x8000);
+      sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);
+      resetsmoke();
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
