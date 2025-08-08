@@ -1591,164 +1591,173 @@ void setdisable(int iFrame)
 
 //-------------------------------------------------------------------------------------------------
 //00066170
-int deleteframes(int result, int a2)
+void deleteframes(int iStartFrame, int iEndFrame)
 {
-  return 0; /*
-  int v2; // esi
-  int v3; // ebx
-  int i; // ebx
+  int iEndFrameFixed; // esi
+  int iTemp; // ebx
+  int iCurrentFrame; // ebx
+  int iArrayIndex; // eax
 
-  v2 = a2;
-  if (replaytype == 2) {
-    if (a2 < result) {
-      v3 = result;
-      result = a2;
-      v2 = v3;
+  iEndFrameFixed = iEndFrame;
+  if (replaytype == 2)                        // Check if we're in replay mode (type 2)
+  {                                             // Ensure start frame <= end frame by swapping if necessary
+    if (iEndFrame < iStartFrame) {
+      iTemp = iStartFrame;
+      iStartFrame = iEndFrame;
+      iEndFrameFixed = iTemp;
     }
-    for (i = result; i <= v2; ++i) {
-      if (i < 0x20000) {
-        result = (i - (__CFSHL__(i >> 31, 5) + 32 * (i >> 31))) >> 5;
-        disabled[result] |= 1 << (i - 32 * result);
+    for (iCurrentFrame = iStartFrame; iCurrentFrame <= iEndFrameFixed; ++iCurrentFrame)// Loop through all frames in the range to mark as disabled
+    {                                           // Check frame is within valid range (< 128K frames max)
+      if (iCurrentFrame < 0x20000) {
+        iArrayIndex = iCurrentFrame / 32;  // Calculate array index: divide by 32 to get DWORD index
+        //iArrayIndex = (iCurrentFrame - (__CFSHL__(iCurrentFrame >> 31, 5) + 32 * (iCurrentFrame >> 31))) >> 5;// Calculate array index: iCurrentFrame / 32
+        disabled[iArrayIndex] |= 1 << (iCurrentFrame - 32 * iArrayIndex);// Set bit in disabled[] bitfield to mark frame as disabled
       }
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //000661E0
-int undeleteframes(int result, int a2)
+void undeleteframes(int iStartFrame, int iEndFrame)
 {
-  return 0; /*
-  int v2; // ebx
-  int v3; // edx
-  int i; // edx
-  int v5; // eax
+  int iEndFrameFixed; // ebx
+  int iTemp; // edx
+  int iCurrentFrame; // edx
+  int iFrameToUndelete; // eax
 
-  v2 = a2;
-  if (replaytype == 2) {
-    if (a2 < result) {
-      v3 = result;
-      result = v2;
-      v2 = v3;
+  iEndFrameFixed = iEndFrame;
+  if (replaytype == 2)                        // Check if we're in replay mode (type 2)
+  {                                             // Ensure start frame <= end frame by swapping if necessary
+    if (iEndFrame < iStartFrame) {
+      iTemp = iStartFrame;
+      iStartFrame = iEndFrameFixed;
+      iEndFrameFixed = iTemp;
     }
-    for (i = result; i <= v2; result = cleardisable(v5))
-      v5 = i++;
+    for (iCurrentFrame = iStartFrame; iCurrentFrame <= iEndFrameFixed; ++iCurrentFrame)// Loop through all frames in the range to undelete them
+    {
+      iFrameToUndelete = iCurrentFrame;
+      cleardisable(iFrameToUndelete);           // Clear the disabled bit for this frame
+    }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00066210
 void findnextvalid()
-{/*
-  int v0; // ebx
-  int i; // edx
-  unsigned int v2; // eax
-  int v3; // edx
-  unsigned int v4; // eax
+{
+  int iOriginalFrame; // ebx
+  int iTestFrame; // edx
+  unsigned int uiDisabledStatus; // eax
+  int iBackwardFrame; // edx
+  unsigned int uiBackwardDisabled; // eax
 
-  v0 = currentreplayframe;
-  for (i = currentreplayframe + 1; currentreplayframe + 1 < replayframes; i = currentreplayframe + 1) {
-    currentreplayframe = i;
-    v2 = readdisable(i);
-    i = currentreplayframe;
-    if (!v2)
-      break;
+  iOriginalFrame = currentreplayframe;          // Store original frame position for potential fallback
+  for (iTestFrame = currentreplayframe + 1; currentreplayframe + 1 < replayframes; iTestFrame = currentreplayframe + 1)// Search forward for next valid (non-disabled) frame
+  {
+    currentreplayframe = iTestFrame;
+    uiDisabledStatus = readdisable(iTestFrame); // Check if current frame is disabled
+    iTestFrame = currentreplayframe;
+    if (!uiDisabledStatus)
+      break;                                    // If frame is enabled (not disabled), we found our target
   }
-  if (i == replayframes) {
-    v3 = v0 - 1;
-    if (v0 - 1 >= 0) {
+  if (iTestFrame == replayframes)             // If reached end without finding valid frame, search backward
+  {
+    iBackwardFrame = iOriginalFrame - 1;
+    if (iOriginalFrame - 1 >= 0)              // Search backward from original position for valid frame
+    {
       do {
-        currentreplayframe = v3;
-        v4 = readdisable(v3);
-        v3 = currentreplayframe;
-        if (!v4)
+        currentreplayframe = iBackwardFrame;
+        uiBackwardDisabled = readdisable(iBackwardFrame);// Check if backward frame is disabled
+        iBackwardFrame = currentreplayframe;
+        if (!uiBackwardDisabled)
           break;
-        v3 = currentreplayframe - 1;
+        iBackwardFrame = currentreplayframe - 1;
       } while (currentreplayframe - 1 >= 0);
     }
-    if (v3 < 0)
-      v3 = v0;
-    if (replaytype == 2) {
-      currentreplayframe = v3;
-      _disable();
-      replayspeed = 0;
+    if (iBackwardFrame < 0)                   // If no valid frame found, fallback to original position
+      iBackwardFrame = iOriginalFrame;
+    if (replaytype == 2)                      // If in replay mode, stop playback and reset state
+    {
+      currentreplayframe = iBackwardFrame;      // Disable interrupts for atomic update
+      //_disable();
+      replayspeed = 0;                          // Stop replay playback
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
-      v3 = currentreplayframe;
+      //_enable();
+      iBackwardFrame = currentreplayframe;
     }
   } else {
-    currentreplayframe = i;
-    _disable();
+    currentreplayframe = iTestFrame;
+    //_disable();                                 // Found valid frame forward - update timing atomically
     ticks = currentreplayframe;
     fraction = 0;
-    _enable();
-    v3 = currentreplayframe;
-    if (v0 != currentreplayframe)
+    //_enable();
+    iBackwardFrame = currentreplayframe;
+    if (iOriginalFrame != currentreplayframe) // If frame changed, trigger view refresh
       pend_view_init = ViewType[0];
   }
-  currentreplayframe = v3;*/
+  currentreplayframe = iBackwardFrame;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00066300
-unsigned int findlastvalid()
+void findlastvalid()
 {
-  return 0; /*
-  int v0; // ebx
-  int i; // edx
-  unsigned int result; // eax
-  int v3; // edx
+  int iOriginalFrame; // ebx
+  int iTestFrame; // edx
+  unsigned int uiDisabledStatus; // eax
+  int iForwardFrame; // edx
+  unsigned int uiForwardDisabled; // eax
 
-  v0 = currentreplayframe;
-  for (i = currentreplayframe - 1; currentreplayframe - 1 >= 0; i = currentreplayframe - 1) {
-    currentreplayframe = i;
-    result = readdisable(i);
-    i = currentreplayframe;
-    if (!result)
-      break;
+  iOriginalFrame = currentreplayframe;          // Store original frame position for potential fallback
+  for (iTestFrame = currentreplayframe - 1; currentreplayframe - 1 >= 0; iTestFrame = currentreplayframe - 1)// Search backward for previous valid (non-disabled) frame
+  {
+    currentreplayframe = iTestFrame;
+    uiDisabledStatus = readdisable(iTestFrame); // Check if current frame is disabled
+    iTestFrame = currentreplayframe;
+    if (!uiDisabledStatus)
+      break;                                    // If frame is enabled (not disabled), we found our target
   }
-  if (i >= 0) {
-    currentreplayframe = i;
-    _disable();
+  if (iTestFrame >= 0)                        // If found valid frame backward, use it
+  {
+    currentreplayframe = iTestFrame;
+    //_disable();                                 // Found valid frame backward - update timing atomically
     ticks = currentreplayframe;
     fraction = 0;
-    _enable();
-    v3 = currentreplayframe;
-    if (v0 != currentreplayframe) {
-      result = ViewType[0];
+    //_enable();
+    iForwardFrame = currentreplayframe;
+    if (iOriginalFrame != currentreplayframe) // If frame changed, trigger view refresh
       pend_view_init = ViewType[0];
-    }
   } else {
-    v3 = v0 + 1;
-    if (v0 + 1 < replayframes) {
+    iForwardFrame = iOriginalFrame + 1;         // No valid frame backward, search forward from original position
+    if (iOriginalFrame + 1 < replayframes)    // Search forward from original position for valid frame
+    {
       do {
-        currentreplayframe = v3;
-        result = readdisable(v3);
-        v3 = currentreplayframe;
-        if (!result)
+        currentreplayframe = iForwardFrame;
+        uiForwardDisabled = readdisable(iForwardFrame);// Check if forward frame is disabled
+        iForwardFrame = currentreplayframe;
+        if (!uiForwardDisabled)
           break;
-        v3 = currentreplayframe + 1;
+        iForwardFrame = currentreplayframe + 1;
       } while (currentreplayframe + 1 < replayframes);
     }
-    if (v3 == replayframes)
-      v3 = v0;
-    if (replaytype == 2) {
-      currentreplayframe = v3;
-      _disable();
-      replayspeed = 0;
+    if (iForwardFrame == replayframes)        // If no valid frame found, fallback to original position
+      iForwardFrame = iOriginalFrame;
+    if (replaytype == 2)                      // If in replay mode, stop playback and reset state
+    {
+      currentreplayframe = iForwardFrame;
+      //_disable();                               // Disable interrupts for atomic update
+      replayspeed = 0;                          // Stop replay playback
       fraction = 0;
       replaydirection = 0;
       ticks = currentreplayframe;
-      _enable();
-      v3 = currentreplayframe;
+      //_enable();
+      iForwardFrame = currentreplayframe;
     }
   }
-  currentreplayframe = v3;
-  return result;*/
+  currentreplayframe = iForwardFrame;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2229,11 +2238,9 @@ int displayreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00066F60
-// attributes: thunk
-int compare(int a1, int a2)
+int compare(const char *szStr1, const char *szStr2)
 {
-  return 0; /*
-  return strcmp(a1, a2);*/
+  return strcmp(szStr1, szStr2);
 }
 
 //-------------------------------------------------------------------------------------------------
