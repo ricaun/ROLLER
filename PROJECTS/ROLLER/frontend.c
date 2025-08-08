@@ -140,7 +140,9 @@ char race_posn[16][5] =   //000A5200
 };
 int Selected_Drives[9] = { 0, 2, 0, 5, 3, 4, 1, 0, 6 }; //000A5250
 int Selected_Play[9] = { 0, 0, 2, 0, 0, 0, 0, 1, 0 }; //000A5274
-int AllowedViews[9] = { -1, -1, -1, -1, 0, 0, 0, -1, 0 }; //000A52BC
+int DuoViews[9]     = { -1, -1,  0, -1,  0, 0,  0,  0, 0 }; //000A5298
+int AllowedViews[9] = { -1, -1, -1, -1,  0, 0,  0, -1, 0 }; //000A52BC
+int ReplayViews[9]  = { -1, -1, -1, -1, -1, 0, -1, -1, 0 }; //000A52E0
 int replay_record = 1;    //000A5304
 int last_replay = -1;     //000A5308
 int last_type = 0;        //000A530C
