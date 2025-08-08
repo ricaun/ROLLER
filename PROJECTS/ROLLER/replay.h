@@ -2,6 +2,7 @@
 #define _ROLLER_REPLAY_H
 //-------------------------------------------------------------------------------------------------
 #include "types.h"
+#include "func3.h"
 //-------------------------------------------------------------------------------------------------
 
 #define REPLAY_SPEED_MIN      -8192
@@ -21,6 +22,7 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+extern int disciconpressed;
 extern int rotpoint;
 extern int replayspeeds[9];
 extern int filingmenu;
@@ -78,7 +80,7 @@ void removecut();
 int readcut();
 int displayreplay();
 int compare(const char *szStr1, const char *szStr2);
-int warning(int a1, int a2, int a3, int a4, char *a5);
+void warning(int iX1, int iY1, int iX2, int iY2, char *szWarning);
 char lsd(int a1, int a2, int a3, int a4);
 int scandirectory(int a1);
 char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9);
@@ -99,9 +101,9 @@ void rremoveview();
 void rpreviouscut();
 void rnextcut();
 void rstartassemble();
-uint8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
-int replaypanelletter(int result, int *a2, int *a3, int a4);
-int replaypanelstring(const char *a1, int a2, int a3, int a4);
+void replayicon(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx, int iX, int iY, int iScreenWidth, int byTransparentColor);
+void replaypanelletter(char c, int *piX, int *piY, int iScreenWidth);
+void replaypanelstring(const char *szStr, int iX, int iY, int iScreenWidth);
 int displaypaneltime(int a1, int a2, int a3, int a4);
 int discmenu(int a1, unsigned int a2, int a3, unsigned int a4);
 void initsoundlag(uint32 uiTicks);

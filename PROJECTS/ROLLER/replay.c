@@ -3,6 +3,7 @@
 #include "car.h"
 #include "3d.h"
 #include "moving.h"
+#include "func2.h"
 #include <string.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -13,6 +14,7 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 
+int disciconpressed = 0;  //000A63AC
 int rotpoint = 0;         //000A63B0
 int replayspeeds[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 }; //000A63BC
 int filingmenu = 0;       //000A6408
@@ -2246,46 +2248,38 @@ int compare(const char *szStr1, const char *szStr2)
 
 //-------------------------------------------------------------------------------------------------
 //00066F70
-int warning(int a1, int a2, int a3, int a4, char *a5)
+void warning(int iX1, int iY1, int iX2, int iY2, char *szWarning)
 {
-  return 0; /*
-  int v5; // esi
-  int v6; // edi
-  int result; // eax
-  _DWORD v8[14]; // [esp+0h] [ebp-38h] BYREF
+  int iX1Scaled; // esi
+  int iY1_1; // edi
+  tPolyParams poly; // [esp+0h] [ebp-38h] BYREF
 
-  v5 = a1;
-  v6 = a2;
+  iX1Scaled = iX1;
+  iY1_1 = iY1;
   if (SVGA_ON) {
-    a3 *= 2;
-    a2 *= 2;
-    v5 = 2 * a1;
-    a4 *= 2;
+    iX2 *= 2;
+    iY1 *= 2;
+    iX1Scaled = 2 * iX1;
+    iY2 *= 2;
   }
-  v8[2] = a3;
-  v8[3] = a2;
-  v8[4] = v5;
-  v8[5] = a2;
-  v8[6] = v5;
-  v8[7] = a4;
-  v8[8] = a3;
-  v8[9] = a4;
-  v8[0] = 2097155;
-  v8[1] = 4;
-  POLYFLAT(scrbuf, v8);
-  prt_centrecol(rev_vga_variable_1, a5, (v5 + a3) / 2, v6 + 10, 231);
-  result = fatkbhit();
-  if (result) {
-    while (1) {
-      result = fatkbhit();
-      if (!result)
-        break;
+  poly.vertices[0].x = iX2;
+  poly.vertices[0].y = iY1;
+  poly.vertices[1].x = iX1Scaled;
+  poly.vertices[1].y = iY1;
+  poly.vertices[2].x = iX1Scaled;
+  poly.vertices[2].y = iY2;
+  poly.vertices[3].x = iX2;
+  poly.vertices[3].y = iY2;
+  poly.iSurfaceType = SURFACE_FLAG_TRANSPARENT | 0x3;// 0x200003;
+  poly.uiNumVerts = 4;
+  POLYFLAT(scrbuf, &poly);
+  prt_centrecol(rev_vga[1], szWarning, (iX1Scaled + iX2) / 2, iY1_1 + 10, 231);
+  if (fatkbhit()) {
+    while (fatkbhit())
       fatgetch();
-    }
     filingmenu = 0;
     disciconpressed = 0;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3589,164 +3583,171 @@ void rstartassemble()
 
 //-------------------------------------------------------------------------------------------------
 //00068D50
-uint8 *replayicon(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+void replayicon(uint8 *pDest, tBlockHeader *pBlockHeader, int iBlockIdx, int iX, int iY, int iScreenWidth, int byTransparentColor)
 {
-  return 0; /*
-  int v8; // edx
-  unsigned __int8 *result; // eax
-  int v10; // edx
-  unsigned __int8 *v11; // edx
-  int v12; // esi
-  int j; // ebp
-  unsigned __int8 v14; // cl
-  int v15; // esi
-  unsigned __int8 v16; // cl
-  unsigned __int8 *v17; // ebp
-  unsigned __int8 *v18; // eax
-  unsigned __int8 *v19; // ebp
-  unsigned __int8 *v20; // eax
-  unsigned __int8 *v21; // ebp
-  int v22; // [esp+Ch] [ebp-2Ch]
-  int v23; // [esp+10h] [ebp-28h]
-  int v24; // [esp+14h] [ebp-24h]
-  int i; // [esp+18h] [ebp-20h]
-  int v26; // [esp+1Ch] [ebp-1Ch]
-  unsigned __int8 *v27; // [esp+20h] [ebp-18h]
-  int v28; // [esp+24h] [ebp-14h]
+  int iScaledDestY; // edx
+  uint8 *pDestPixel; // eax
+  tBlockHeader *pSpriteHeader; // edx
+  uint8 *pSpritePixels; // edx
+  int iCurrentX; // esi
+  int iPixelX; // ebp
+  uint8 byPixelColor; // cl
+  int iSvgaCurrentX; // esi
+  uint8 bySvgaPixelColor; // cl
+  uint8 *pNextLineStart; // ebp
+  uint8 *pTempPixel1; // eax
+  uint8 *pTempPixel2; // ebp
+  uint8 *pTempPixel3; // eax
+  uint8 *pTempPixel4; // ebp
+  int iHeight; // [esp+Ch] [ebp-2Ch]
+  int iScaledDestX; // [esp+10h] [ebp-28h]
+  int iCurrentRow; // [esp+14h] [ebp-24h]
+  int iRowLoop; // [esp+18h] [ebp-20h]
+  int iWidth; // [esp+1Ch] [ebp-1Ch]
+  uint8 *pSvgaNextLine; // [esp+20h] [ebp-18h]
+  int iSvgaPixelX; // [esp+24h] [ebp-14h]
 
-  v23 = a4;
-  v8 = a5;
-  if (SVGA_ON) {
-    v8 = 2 * a5;
-    v23 = 2 * a4;
+  iScaledDestX = iX;
+  iScaledDestY = iY;
+  if (SVGA_ON)                                // If SVGA mode is enabled, scale coordinates by 2x
+  {
+    iScaledDestY = 2 * iY;
+    iScaledDestX = 2 * iX;
   }
-  result = (unsigned __int8 *)(a6 * v8 + v23 + a1);
-  v26 = *(_DWORD *)(a2 + 12 * a3);
-  v10 = a2 + 12 * a3;
-  v22 = *(_DWORD *)(v10 + 4);
-  v11 = (unsigned __int8 *)(a2 + *(_DWORD *)(v10 + 8));
+  pDestPixel = &pDest[iScaledDestX + iScreenWidth * iScaledDestY];// Calculate destination pixel pointer: buffer + (y * width) + x
+  iWidth = pBlockHeader[iBlockIdx].iWidth;      // Get sprite width from sprite data header (offset 0)
+  pSpriteHeader = &pBlockHeader[iBlockIdx];
+  iHeight = pSpriteHeader->iHeight;             // Get sprite height from sprite data header (offset 4)
+  pSpritePixels = (uint8 *)pBlockHeader + pSpriteHeader->iDataOffset;// Get pointer to sprite pixel data (offset 8)
+
+  // Branch to SVGA rendering path (2x2 pixel scaling)
   if (SVGA_ON) {
-    v24 = 0;
-    if (v22 <= 0)
-      return result;
+    iCurrentRow = 0;                            // SVGA mode: outer loop for sprite rows with 2x scaling
+    if (iHeight <= 0)
+      return;
     while (1) {
-      v15 = v23;
-      v28 = 0;
-      if (v26 > 0)
+      iSvgaCurrentX = iScaledDestX;
+      iSvgaPixelX = 0;
+      if (iWidth > 0)
         break;
-    LABEL_24:
-      result += 2 * (a6 - v26);
-      if (++v24 >= v22)
-        return result;
+    SVGA_NEXT_ROW:
+          // SVGA: Move to next row, skip unused portion of screen line
+      pDestPixel += 2 * (iScreenWidth - iWidth);// SVGA_NEXT_ROW: Advance to next sprite row and check completion
+      if (++iCurrentRow >= iHeight)
+        return;
     }
-    while (1) {
-      v16 = *v11++;
-      if (v15 < 0 || v15 >= a6)
-        break;
-      v17 = &result[a6];
-      v27 = &result[a6];
-      if (a7 >= 0) {
-        if (a7 == v16)
+    while (1)                                 // SVGA mode: inner loop for sprite pixels with 2x2 scaling
+    {
+      bySvgaPixelColor = *pSpritePixels++;
+      if (iSvgaCurrentX < 0 || iSvgaCurrentX >= iScreenWidth)
+        break;                                  // SVGA bounds check
+      pNextLineStart = &pDestPixel[iScreenWidth];
+      pSvgaNextLine = &pDestPixel[iScreenWidth];
+
+      // Transparency check branch for SVGA mode
+      if (byTransparentColor >= 0) {
+        if (byTransparentColor == bySvgaPixelColor)
           break;
-        *result = v16;
-        v20 = result + 1;
-        *v27 = v16;
-        v21 = &v20[a6];
-        *v20 = v16;
-        result = v20 + 1;
-        *v21 = v16;
+
+        // SVGA: Draw 2x2 pixel block (with transparency check)
+        *pDestPixel = bySvgaPixelColor;
+        pTempPixel3 = pDestPixel + 1;
+        *pSvgaNextLine = bySvgaPixelColor;
+        pTempPixel4 = &pTempPixel3[iScreenWidth];
+        *pTempPixel3 = bySvgaPixelColor;
+        pDestPixel = pTempPixel3 + 1;
+        *pTempPixel4 = bySvgaPixelColor;
       } else {
-        *result = v16;
-        v18 = result + 1;
-        *v17 = v16;
-        v19 = &v18[a6];
-        *v18 = v16;
-        result = v18 + 1;
-        *v19 = v16;
+
+        // SVGA: Draw 2x2 pixel block (no transparency check)
+        *pDestPixel = bySvgaPixelColor;
+        pTempPixel1 = pDestPixel + 1;
+        *pNextLineStart = bySvgaPixelColor;
+        pTempPixel2 = &pTempPixel1[iScreenWidth];
+        *pTempPixel1 = bySvgaPixelColor;
+        pDestPixel = pTempPixel1 + 1;
+        *pTempPixel2 = bySvgaPixelColor;
       }
-    LABEL_23:
-      v15 += 2;
-      if (++v28 >= v26)
-        goto LABEL_24;
+    SVGA_NEXT_PIXEL:
+      iSvgaCurrentX += 2;                       // SVGA_NEXT_PIXEL: Advance to next pixel in current row (2x scaling)
+      if (++iSvgaPixelX >= iWidth)
+        goto SVGA_NEXT_ROW;
     }
-    result += 2;
-    goto LABEL_23;
+    pDestPixel += 2;
+    goto SVGA_NEXT_PIXEL;
   }
-  for (i = 0; i < v22; ++i) {
-    v12 = v23;
-    for (j = 0; j < v26; ++result) {
-      v14 = *v11++;
-      if (v12 >= 0 && v12 < a6 && (a7 < 0 || a7 != v14))
-        *result = v14;
-      ++v12;
-      ++j;
+
+  // Standard VGA rendering loop - iterate through sprite rows
+  for (iRowLoop = 0; iRowLoop < iHeight; ++iRowLoop) {
+    iCurrentX = iScaledDestX;
+    // Inner loop - iterate through sprite pixels in current row
+    for (iPixelX = 0; iPixelX < iWidth; ++pDestPixel) {
+      byPixelColor = *pSpritePixels++;
+
+      // Check bounds and transparency: skip if out of bounds or matches transparent color
+      if (iCurrentX >= 0 && iCurrentX < iScreenWidth && (byTransparentColor < 0 || byTransparentColor != byPixelColor))
+        *pDestPixel = byPixelColor;
+      ++iCurrentX;
+      ++iPixelX;
     }
-    result += a6 - v26;
+
+    // Move to next row: advance pointer by (screen_width - sprite_width)
+    pDestPixel += iScreenWidth - iWidth;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00068EF0
-int replaypanelletter(int result, int *a2, int *a3, int a4)
+void replaypanelletter(char c, int *piX, int *piY, int iScreenWidth)
 {
-  return 0; /*
-  int v4; // esi
+  int iCharBlockIdx; // esi
 
-  v4 = -1;
-  if ((unsigned __int8)result >= 0x30u && (unsigned __int8)result <= 0x39u)
-    v4 = (unsigned __int8)result - 18;
-  if ((unsigned __int8)result >= 0x41u && (unsigned __int8)result <= 0x5Au)
-    v4 = (unsigned __int8)result - 25;
-  if ((_BYTE)result == 45)
-    v4 = 66;
-  if ((_BYTE)result == 58)
-    v4 = 67;
-  if ((_BYTE)result == 47)
-    v4 = 68;
-  if ((_BYTE)result == 63)
-    v4 = 69;
-  if (v4 != -1) {
-    replayicon(scrbuf, rev_vga_variable_5, v4, *a2, *a3, a4, 255);
-    result = *(_DWORD *)(rev_vga_variable_5 + 12 * v4) + 1;
-    *a2 += result;
+  iCharBlockIdx = -1;
+  if (c >= '0' && c <= '9')
+    iCharBlockIdx = c - 18;
+  if (c >= 'A' && c <= 'Z')
+    iCharBlockIdx = c - 25;
+  if (c == '-')
+    iCharBlockIdx = 66;
+  if (c == ':')
+    iCharBlockIdx = 67;
+  if (c == '/')
+    iCharBlockIdx = 68;
+  if (c == '?')
+    iCharBlockIdx = 69;
+  if (iCharBlockIdx != -1) {
+    replayicon(scrbuf, rev_vga[15], iCharBlockIdx, *piX, *piY, iScreenWidth, 255);
+    *piX += rev_vga[15][iCharBlockIdx].iWidth + 1;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00068F80
-int replaypanelstring(const char *a1, int a2, int a3, int a4)
+void replaypanelstring(const char *szStr, int iX, int iY, int iScreenWidth)
 {
-  return 0; /*
-  const char *v4; // esi
+  const char *szStrItr; // esi
   unsigned int i; // ebp
-  int result; // eax
-  int v7; // [esp+4h] [ebp-1Ch] BYREF
-  int v8; // [esp+8h] [ebp-18h] BYREF
-  int v9; // [esp+Ch] [ebp-14h]
-  const char *v10; // [esp+10h] [ebp-10h]
+  int iXPos; // [esp+4h] [ebp-1Ch] BYREF
+  int iYPos; // [esp+8h] [ebp-18h] BYREF
+  int iScreenWidth_1; // [esp+Ch] [ebp-14h]
+  const char *szGetStrLen; // [esp+10h] [ebp-10h]
 
-  v10 = a1;
-  v7 = a2;
-  v8 = a3;
-  v9 = a4;
-  v4 = a1;
-  for (i = 0; ; ++i) {
-    result = 0;
-    if (i >= strlen(v10))
-      break;
-    if (*v4 == 124) {
-      v7 = a2;
-      v8 += 6;
-    } else if (*v4 == 32) {
-      v7 += 2;
+  szGetStrLen = szStr;
+  iXPos = iX;
+  iYPos = iY;
+  iScreenWidth_1 = iScreenWidth;
+  szStrItr = szStr;
+  for (i = 0; i < strlen(szGetStrLen); ++i) {
+    if (*szStrItr == '|') {
+      iXPos = iX;
+      iYPos += 6;
+    } else if (*szStrItr == ' ') {
+      iXPos += 2;
     } else {
-      replaypanelletter(*(unsigned __int8 *)v4, &v7, &v8, v9);
+      replaypanelletter(*szStrItr, &iXPos, &iYPos, iScreenWidth_1);
     }
-    ++v4;
+    ++szStrItr;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
