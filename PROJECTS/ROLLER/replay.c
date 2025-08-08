@@ -1329,19 +1329,17 @@ void Rplay()
 
 //-------------------------------------------------------------------------------------------------
 //00065C70
-int Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4)
+void Rreverseplay()
 {
-  return 0; /*
-  int result; // eax
+  int iCurrSpeed; // eax
 
   if (replaytype == 2) {
-    sfxsample(__SPAIR64__(a4, a2));
-    result = replayspeeds[replaysetspeed];
+    sfxsample(SOUND_SAMPLE_BUTTON, 0x8000);                      // SOUND_SAMPLE_BUTTON
+    iCurrSpeed = replayspeeds[replaysetspeed];
     replaydirection = -1;
     lastautocut = -1;
-    replayspeed = -result;
+    replayspeed = -iCurrSpeed;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

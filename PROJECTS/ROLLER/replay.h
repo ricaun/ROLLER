@@ -33,7 +33,7 @@ int startreplay();
 void stopreplay(int a1, int a2, int a3, int a4);
 int DoReplayData(int a1, int a2, int a3, int a4);
 void Rplay();
-int Rreverseplay(int a1, unsigned int a2, int a3, unsigned int a4);
+void Rreverseplay();
 int Rframeplus(int a1, int a2);
 int Rframeminus(int a1, int a2);
 void Rspeedplus();
