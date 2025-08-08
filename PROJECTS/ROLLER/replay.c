@@ -21,6 +21,7 @@ int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
 int pend_view_init = -1;  //000A6424
 int replayedit = 0;       //000A6428
+int disabled[4096];       //00189BD8
 int replayspeed;          //0018EE40
 int replayframes;         //0018EE48
 int currentreplayframe;   //0018EE54
@@ -1577,17 +1578,18 @@ unsigned int readdisable(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //000660F0
-int cleardisable(int result)
+void cleardisable(int iReplayIndex)
 {
-  return 0; /*
-  char v1; // bl
+  char byBitPosition; // bl
+  int iArrayIndex; // eax
 
-  v1 = result;
-  if (result < 0x20000) {
-    result = (result - (__CFSHL__(result >> 31, 5) + 32 * (result >> 31))) >> 5;
-    disabled[result] &= ~(1 << (v1 - 32 * result));
+  byBitPosition = iReplayIndex;                 // Store lower 8 bits of replay index for bit position calculation
+  if (iReplayIndex < 0x20000)                 // Check if replay index is within valid range (0-131071)
+  {
+    iArrayIndex = iReplayIndex / 32;  // Calculate array index: divide by 32 to get DWORD index
+    //iArrayIndex = (iReplayIndex - (__CFSHL__(iReplayIndex >> 31, 5) + 32 * (iReplayIndex >> 31))) >> 5;// Calculate array index: divide by 32 to get DWORD index
+    disabled[iArrayIndex] &= ~(1 << (byBitPosition - 32 * iArrayIndex));// Clear the specific bit using AND with inverted bit mask
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
