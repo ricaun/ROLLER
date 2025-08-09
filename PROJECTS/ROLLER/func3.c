@@ -3568,12 +3568,10 @@ int load_champ(int iSlot)
       //  gssCommsUnInitSystem();
       //  network_on = 0;
       //  net_started = 0;
-      //}
-      //TODO
-      //if (player_type == 1 && net_type == 1)
-      //  select_comport(3, iOrderSearchStart, (unsigned int)pszTempPointer, iHighestPoints);
-      //if (player_type == 1 && net_type == 2)
-      //  select_modemstuff(4);
+      if (player_type == 1 && net_type == 1)
+        select_comport(3);
+      if (player_type == 1 && net_type == 2)
+        select_modemstuff(4);
       if (network_on) {
         if (player_type == 1) {
           reset_network(0);

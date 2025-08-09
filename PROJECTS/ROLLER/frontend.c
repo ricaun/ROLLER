@@ -5083,18 +5083,16 @@ void select_players()
               if (net_type)                   // NETWORK SETUP: Initialize communication for selected network type
               {
                 if ((unsigned int)net_type <= 1) {
-                  //TODO
-                  //if (select_comport(uiSelectedPlayerType, (char *)3, uiSelectedPlayerType, 1))
-                  //  goto LABEL_153;
+                  if (select_comport(uiSelectedPlayerType))
+                    goto LABEL_153;
                 } else {
                   if (net_type != 2)
                     goto LABEL_156;
-                  //TODO
-                  //if (select_modemstuff(uiSelectedPlayerType)) {
-                  //LABEL_153:
-                  //  network_slot = 0;
-                  //  goto LABEL_156;
-                  //}
+                  if (select_modemstuff(uiSelectedPlayerType)) {
+                  LABEL_153:
+                    network_slot = 0;
+                    goto LABEL_156;
+                  }
                 }
                 network_on = 0;
                 network_slot = -1;

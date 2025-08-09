@@ -13,17 +13,18 @@ extern char modem_initstring[51];
 extern char modem_phone[53];
 extern int modem_tone;
 extern int modem_call;
+extern char *modembuffer;
 
 //-------------------------------------------------------------------------------------------------
 
-int select_comport(uint16 a1, char *a2, unsigned int a3);
-int stringwidth(char *a1);
+int select_comport(int iIconIdx);
+int stringwidth(char *szString);
 int select_modemstuff(int a1);
 int loadmodemnames();
 void select_modem();
 char *getprintstring(char *a1, int a2);
-int64 display_essentials(int a1, int a2, int a3);
-void check16550(int iPort, int a2);
+void display_essentials(int iSelectedItem, int iHighlightedItem, int iEditMode);
+void check16550(int iPort);
 
 //-------------------------------------------------------------------------------------------------
 #endif

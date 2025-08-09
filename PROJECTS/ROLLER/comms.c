@@ -1,5 +1,8 @@
 #include "comms.h"
 #include "sound.h"
+#include "frontend.h"
+#include "func2.h"
+#include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
 int serial_port = 2;    //000AFD98
@@ -11,118 +14,124 @@ char modem_initstring[51] = "ATX"; //000AFDAC
 char modem_phone[53] = { 0 }; //000AFDDF
 int modem_tone = -1;    //000AFE14
 int modem_call = -1;    //000AFE18
+char *modembuffer;      //001A2BA4
 
 //-------------------------------------------------------------------------------------------------
 //00075DC0
-int select_comport(uint16 a1, char *a2, unsigned int a3)
-{
-  return 0; /*
-  int v3; // edi
-  int v4; // eax
-  int v5; // eax
-  int v6; // eax
-  int v7; // eax
-  unsigned int v8; // eax
-  unsigned int v9; // eax
-  int v11; // [esp+4h] [ebp-4h]
+int select_comport(int iIconIdx)
+{                                               // BIOS interrupt 11h - Equipment determination (detect available COM ports)
+  unsigned int uiKey; // esi
+  int iAvailableComPorts; // edi
+  char byCom1Color; // al
+  char byCom2Color; // al
+  char byCom3Color; // al
+  char byCom4Color; // al
+  unsigned int uiTempKey; // eax
+  unsigned int uiExtendedKey; // eax
+  int iExitFlag; // [esp+4h] [ebp-4h]
 
-  __asm { int     11h; EQUIPMENT DETERMINATION }
-  v11 = 0;
-  v3 = ((int)a1 >> 9) & 7;
-  if ((unsigned int)v3 < 2)
-    v3 = 2;
-  if (v3 < serial_port)
+  //__asm { int     11h; BIOS interrupt 11h - Equipment determination(detect available COM ports) }
+  iExitFlag = 0;                                // Initialize exit flag (0 = continue loop, -1 = exit)
+
+  //Set this to 4 for modern systems to always show 4 comm ports
+  iAvailableComPorts = 4;// ((int)(unsigned __int16)iIconIdx >> 9) & 7;// Extract COM port count from BIOS equipment word (AX bits 9-11) - DECOMPILER ERROR: uses AX from INT 11h, not parameter a1
+
+  if ((unsigned int)iAvailableComPorts < 2)   // Ensure minimum of 2 COM ports are available
+    iAvailableComPorts = 2;
+  if (iAvailableComPorts < serial_port)       // Validate current serial port selection against available ports
     serial_port = 2;
-  check16550(serial_port);
-  gssCommsSetComBaudRate(9600);
+  check16550(serial_port);                      // Test 16550 UART availability on selected serial port
+  //gssCommsSetComBaudRate(9600);                 // Set communication baud rate to 9600 bps
   do {
-    display_picture(scrbuf, front_vga[0], a2);
-    display_block(head_y, 0);
-    display_block(2, 0);
-    display_block(247, 0);
-    display_block(247, 0);
-    display_block(257, -1);
-    display_block(336, -1);
-    scale_text(400, 75, 143, 1, 200, 640);
-    scale_text(400, 93, 143, 1, 200, 640);
-    if (serial_port == 1)
-      v4 = 171;
+    display_picture(scrbuf, front_vga[0]);      // Display main background picture
+    display_block(scrbuf, front_vga[1], 3, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);// Display UI element at position (36, 2)
+    display_block(scrbuf, front_vga[5], iIconIdx, -4, 247, 0);// Display gear selection indicator at bottom left
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);// Display game type indicator (5 + game_type offset)
+    display_block(scrbuf, front_vga[4], 4, 76, 257, -1);// Display UI element at position (76, 257) with special color
+    display_block(scrbuf, front_vga[6], 4, 62, 336, -1);// Display UI element at position (62, 336) with special color
+    scale_text(front_vga[15], &language_buffer[5312], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// Display main menu title text
+    scale_text(front_vga[15], &language_buffer[3008], font1_ascii, font1_offsets, 400, 93, 143, 1u, 200, 640);// Display COM port selection instructions
+    if (serial_port == 1)                     // Set color for COM 1 text (highlighted if selected)
+      byCom1Color = 0xAB;
     else
-      v4 = 143;
-    scale_text(400, 135, v4, 1, 200, 640);
-    if (serial_port == 2)
-      v5 = 171;
+      byCom1Color = 0x8F;
+    scale_text(front_vga[15], "COM 1", font1_ascii, font1_offsets, 400, 135, byCom1Color, 1u, 200, 640);// Display 'COM 1' option text
+    if (serial_port == 2)                     // Set color for COM 2 text (highlighted if selected)
+      byCom2Color = 0xAB;
     else
-      v5 = 143;
-    a2 = font1_ascii;
-    scale_text(400, 153, v5, 1, 200, 640);
-    if (v3 >= 3) {
+      byCom2Color = 0x8F;
+    scale_text(front_vga[15], "COM 2", font1_ascii, font1_offsets, 400, 153, byCom2Color, 1u, 200, 640);// Display 'COM 2' option text
+    if (iAvailableComPorts >= 3)              // Check if 3 or more COM ports are available
+    {                                           // Set color for COM 3 text (highlighted if selected)
       if (serial_port == 3)
-        v6 = 171;
+        byCom3Color = 0xAB;
       else
-        v6 = 143;
-      a2 = font1_ascii;
-      scale_text(400, 171, v6, 1, 200, 640);
+        byCom3Color = 0x8F;
+      scale_text(front_vga[15], "COM 3", font1_ascii, font1_offsets, 400, 171, byCom3Color, 1u, 200, 640);// Display 'COM 3' option text (if available)
     }
-    if (v3 >= 4) {
+    if (iAvailableComPorts >= 4)              // Check if 4 or more COM ports are available
+    {                                           // Set color for COM 4 text (highlighted if selected)
       if (serial_port == 4)
-        v7 = 171;
+        byCom4Color = 0xAB;
       else
-        v7 = 143;
-      a2 = font1_ascii;
-      scale_text(400, 189, v7, 1, 200, 640);
+        byCom4Color = 0x8F;
+      scale_text(front_vga[15], "COM 4", font1_ascii, font1_offsets, 400, 189, byCom4Color, 1u, 200, 640);// Display 'COM 4' option text (if available)
     }
-    if (no_16550) {
-      a2 = font1_ascii;
-      scale_text(400, 351, 231, 1, 200, 640);
-    }
-    copypic((char *)scrbuf, (int)screen);
-    while (fatkbhit()) {
-      v8 = fatgetch();
-      a3 = v8;
-      if (v8 < 0xD) {
-        if (!v8) {
-          v9 = fatgetch();
-          a3 = v9;
-          if (v9 >= 0x48) {
-            if (v9 <= 0x48) {
+    if (no_16550)                             // Check if 16550 UART error occurred
+      scale_text(front_vga[15], &language_buffer[6976], font1_ascii, font1_offsets, 400, 351, 231, 1u, 200, 640);// Display 16550 error message at bottom of screen
+    copypic(scrbuf, screen);                    // Copy completed frame buffer to screen
+    while (fatkbhit())                        // Process all pending keyboard input
+    {
+      uiTempKey = fatgetch();                   // Get next character from keyboard buffer
+      uiKey = uiTempKey;
+      if (uiTempKey < 0xD)                    // Check if key code is less than 13 (Enter key)
+      {                                         // Check for extended key code (0 = function/arrow keys)
+        if (!uiTempKey) {
+          uiExtendedKey = fatgetch();           // Get extended key code (second byte)
+          uiKey = uiExtendedKey;
+          if (uiExtendedKey >= 0x48)          // Check if key code is 0x48 or higher (Up arrow = 0x48)
+          {                                     // Check for Up arrow key (0x48)
+            if (uiExtendedKey <= 0x48) {                                   // Move to previous COM port (minimum COM 1)
               if (serial_port != 1)
                 --serial_port;
             LABEL_38:
-              check16550(serial_port);
-            } else if (v9 == 80) {
-              if (v3 != serial_port)
+              check16550(serial_port);          // Test 16550 UART on newly selected COM port
+            } else if (uiExtendedKey == 0x50)   // Check for Down arrow key (0x50)
+            {                                   // Move to next COM port (maximum available ports)
+              if (iAvailableComPorts != serial_port)
                 ++serial_port;
               goto LABEL_38;
             }
           }
         }
-      } else if (v8 <= 0xD || v8 == 27) {
-        v11 = -1;
+      } else if (uiTempKey <= 0xD || uiTempKey == 0x1B)// Check for Enter (13) or Escape (27) keys
+      {
+        iExitFlag = -1;                         // Set exit flag to exit menu loop
       }
     }
-  } while (!v11);
-  gssCommsSetComPort(serial_port);
-  return (a3 != 13) - 1;*/
+  } while (!iExitFlag);                         // Continue loop until user presses Enter or Escape
+  //TODO
+  //gssCommsSetComPort(serial_port);              // Configure communications system with selected COM port
+  return (uiKey != 13) - 1;                     // Return 0 if Enter pressed, -1 if Escape pressed
 }
 
 //-------------------------------------------------------------------------------------------------
 //00076180
-int stringwidth(char *a1)
+int stringwidth(char *szString)
 {
-  return 0; /*
-  int result; // eax
-  int v3; // ebx
+  int iStringWidth; // eax
+  int iCharBlockIdx; // ebx
 
-  result = 0;
-  while (*a1) {
-    v3 = (unsigned __int8)font1_ascii[(unsigned __int8)*a1++];
-    if (v3 == 255)
-      result += 8;
+  iStringWidth = 0;
+  while (*szString) {
+    iCharBlockIdx = (uint8)font1_ascii[(uint8)*szString++];
+    if (iCharBlockIdx == 255)
+      iStringWidth += 8;
     else
-      result += *(_DWORD *)(12 * v3 + front_vga_variable_10) + 1;
+      iStringWidth += front_vga[15][iCharBlockIdx].iWidth + 1;
   }
-  return result;*/
+  return iStringWidth;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -775,139 +784,146 @@ char *getprintstring(char *a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 //00077060
-int64 display_essentials(int a1, int a2, int a3)
+void display_essentials(int iSelectedItem, int iHighlightedItem, int iEditMode)
 {
-  return 0; /*
-  int v4; // eax
-  int v5; // eax
-  int v6; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  bool v11; // edx
-  int v12; // eax
-  int v13; // eax
-  bool v14; // edx
-  int v15; // eax
-  int v16; // eax
-  __int64 result; // rax
-  int v18; // [esp-10h] [ebp-78h]
-  int v19; // [esp-10h] [ebp-78h]
-  _BYTE v20[100]; // [esp+0h] [ebp-68h] BYREF
-  int v21; // [esp+64h] [ebp-4h]
+  char byTextColor1; // al
+  char byTextColor2; // al
+  char byTextColor3; // al
+  char byTextColor4; // al
+  char byTextColor5; // al
+  char byTextColor6; // al
+  char byTextColor7; // al
+  char byTextColor8; // al
+  char byTextColor9; // al
+  bool bIsInitEditMode; // edx
+  char *pszInitString; // eax
+  char byTextColor10; // al
+  char byTextColor11; // al
+  bool bIsPhoneEditMode; // edx
+  char *pszPhoneString; // eax
+  char byTextColor12; // al
+  char byTextColor13; // al
+  char byInitTextColor; // [esp-10h] [ebp-78h]
+  char byPhoneTextColor; // [esp-10h] [ebp-78h]
+  char szText[100]; // [esp+0h] [ebp-68h] BYREF
+  int iBlockIdx; // [esp+64h] [ebp-4h]
 
-  v21 = a1;
-  display_picture(scrbuf, front_vga[0], 3);
-  display_block(head_y, 0);
-  display_block(2, 0);
-  display_block(247, 0);
-  display_block(247, 0);
-  display_block(257, -1);
-  display_block(336, -1);
-  scale_text(400, 75, 143, 1, 200, 640);
-  if (modembuffer) {
-    if (current_modem < 0) {
-      if (a2)
-        v4 = 143;
+  iBlockIdx = iSelectedItem;                    // Store selected block index for gear selection display
+  display_picture(scrbuf, front_vga[0]);        // Display main background picture (modem config screen)
+  display_block(scrbuf, front_vga[1], 3, head_x, head_y, 0);// Display driver head icon at current position
+  display_block(scrbuf, front_vga[6], 0, 36, 2, 0);// Display UI element at position (36, 2)
+  display_block(scrbuf, front_vga[5], iBlockIdx, -4, 247, 0);// Display selected gear indicator at bottom left
+  display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);// Display game type indicator (5 + game_type offset)
+  display_block(scrbuf, front_vga[4], 4, 76, 257, -1);// Display UI element at position (76, 257) with special color (-1)
+  display_block(scrbuf, front_vga[6], 4, 62, 336, -1);// Display UI element at position (62, 336) with special color (-1)
+  scale_text(front_vga[15], &language_buffer[5376], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// Display main menu title text
+  if (modembuffer)                            // Check if modem data is available
+  {                                             // Check if no modem is currently selected (negative index)
+    if (current_modem < 0) {                                           // Set color for 'no modem' text based on highlight state
+      if (iHighlightedItem)
+        byTextColor2 = 0x8F;
       else
-        v4 = 171;
-    } else if (a2) {
-      v4 = 143;
-    } else {
-      v4 = 171;
+        byTextColor2 = 0xAB;
+      scale_text(front_vga[15], &language_buffer[6848], font1_ascii, font1_offsets, 400, 117, byTextColor2, 1u, 200, 640);// Display 'no modem selected' message
+    } else {                                           // Set color for modem name based on highlight state
+      if (iHighlightedItem)
+        byTextColor1 = 0x8F;
+      else
+        byTextColor1 = 0xAB;
+      scale_text(front_vga[15], &modembuffer[56 * current_modem], font1_ascii, font1_offsets, 400, 117, byTextColor1, 1u, 200, 640);// Display selected modem name (56 bytes per modem entry)
     }
-    scale_text(400, 117, v4, 1, 200, 640);
   }
-  sprintf(v20, "COM %d", modem_port);
-  if (a2 == 1)
-    v5 = 171;
+  sprintf(szText, "COM %d", modem_port);        // Format COM port number into text buffer
+  if (iHighlightedItem == 1)                  // Set colors for COM port label (item 1)
+    byTextColor3 = 0xAB;
   else
-    v5 = 143;
-  scale_text(400, 135, v5, 2, 200, 640);
-  if (a2 == 1)
-    v6 = 171;
+    byTextColor3 = 0x8F;
+  scale_text(front_vga[15], &language_buffer[5440], font1_ascii, font1_offsets, 400, 135, byTextColor3, 2u, 200, 640);// Display COM port label text
+  if (iHighlightedItem == 1)                  // Set colors for COM port value (item 1)
+    byTextColor4 = 0xAB;
   else
-    v6 = 143;
-  scale_text(400, 135, v6, 0, 200, 640);
-  if (a2 == 2)
-    v7 = 171;
+    byTextColor4 = 0x8F;
+  scale_text(front_vga[15], szText, font1_ascii, font1_offsets, 400, 135, byTextColor4, 0, 200, 640);// Display COM port number (e.g. 'COM 1')
+  if (iHighlightedItem == 2)                  // Set colors for dial mode label (item 2)
+    byTextColor5 = 0xAB;
   else
-    v7 = 143;
-  scale_text(400, 153, v7, 2, 200, 640);
-  if (modem_tone) {
-    if (a2 == 2)
-      v8 = 171;
+    byTextColor5 = 0x8F;
+  scale_text(front_vga[15], &language_buffer[5504], font1_ascii, font1_offsets, 400, 153, byTextColor5, 2u, 200, 640);// Display dial mode label text
+  if (modem_tone)                             // Check if tone dialing is enabled
+  {                                             // Set colors for 'TONE' mode display
+    if (iHighlightedItem == 2)
+      byTextColor6 = 0xAB;
     else
-      v8 = 143;
-  } else if (a2 == 2) {
-    v8 = 171;
-  } else {
-    v8 = 143;
+      byTextColor6 = 0x8F;
+    scale_text(front_vga[15], &language_buffer[5568], font1_ascii, font1_offsets, 400, 153, byTextColor6, 0, 200, 640);// Display 'TONE' dialing mode text
+  } else {                                             // Set colors for 'PULSE' mode display
+    if (iHighlightedItem == 2)
+      byTextColor7 = 0xAB;
+    else
+      byTextColor7 = 0x8F;
+    scale_text(front_vga[15], &language_buffer[5632], font1_ascii, font1_offsets, 400, 153, byTextColor7, 0, 200, 640);// Display 'PULSE' dialing mode text
   }
-  scale_text(400, 153, v8, 0, 200, 640);
-  if (a2 == 3)
-    v9 = 171;
+  if (iHighlightedItem == 3)                  // Set colors for modem init string label (item 3)
+    byTextColor8 = 0xAB;
   else
-    v9 = 143;
-  scale_text(400, 171, v9, 2, 200, 640);
-  if (a2 == 3)
-    v10 = 171;
+    byTextColor8 = 0x8F;
+  scale_text(front_vga[15], &language_buffer[5696], font1_ascii, font1_offsets, 400, 171, byTextColor8, 2u, 200, 640);// Display modem initialization string label
+  if (iHighlightedItem == 3)                  // Set colors for init string value (item 3)
+    byTextColor9 = 0xAB;
   else
-    v10 = 143;
-  v18 = v10;
-  v11 = a2 == 3 && a3 == 1;
-  getprintstring("ATX", v11);
-  scale_text(400, 171, v18, 0, 200, 640);
-  if (a2 == 4)
-    v12 = 171;
+    byTextColor9 = 0x8F;
+  byInitTextColor = byTextColor9;
+  bIsInitEditMode = iHighlightedItem == 3 && iEditMode == 1;// Check if init string is in edit mode (item 3 + edit flag)
+  pszInitString = (char *)getprintstring(modem_initstring, bIsInitEditMode);// Get printable version of init string (handles edit cursor)
+  scale_text(front_vga[15], pszInitString, font1_ascii, font1_offsets, 400, 171, byInitTextColor, 0, 200, 640);// Display modem initialization string
+  if (iHighlightedItem == 4)                  // Set colors for phone number label (item 4)
+    byTextColor10 = 0xAB;
   else
-    v12 = 143;
-  scale_text(400, 189, v12, 2, 200, 640);
-  if (a2 == 4)
-    v13 = 171;
+    byTextColor10 = 0x8F;
+  scale_text(front_vga[15], &language_buffer[5760], font1_ascii, font1_offsets, 400, 189, byTextColor10, 2u, 200, 640);// Display phone number label text
+  if (iHighlightedItem == 4)                  // Set colors for phone number value (item 4)
+    byTextColor11 = 0xAB;
   else
-    v13 = 143;
-  v19 = v13;
-  v14 = a2 == 4 && a3 == 1;
-  getprintstring(&modem_phone, v14);
-  scale_text(400, 189, v19, 0, 200, 640);
-  if (a2 == 5)
-    v15 = 171;
+    byTextColor11 = 0x8F;
+  byPhoneTextColor = byTextColor11;
+  bIsPhoneEditMode = iHighlightedItem == 4 && iEditMode == 1;// Check if phone number is in edit mode (item 4 + edit flag)
+  pszPhoneString = (char *)getprintstring(modem_phone, bIsPhoneEditMode);// Get printable version of phone number (handles edit cursor)
+  scale_text(front_vga[15], pszPhoneString, font1_ascii, font1_offsets, 400, 189, byPhoneTextColor, 0, 200, 640);// Display phone number string
+  if (iHighlightedItem == 5)                  // Set colors for 'Accept' button (item 5)
+    byTextColor12 = 0xAB;
   else
-    v15 = 143;
-  scale_text(400, 225, v15, 1, 200, 640);
-  if (a2 == 6)
-    v16 = 171;
+    byTextColor12 = 0x8F;
+  scale_text(front_vga[15], &language_buffer[5824], font1_ascii, font1_offsets, 400, 225, byTextColor12, 1u, 200, 640);// Display 'Accept' button text
+  if (iHighlightedItem == 6)                  // Set colors for 'Cancel' button (item 6)
+    byTextColor13 = 0xAB;
   else
-    v16 = 143;
-  result = scale_text(400, 243, v16, 1, 200, 640);
-  if (no_16550)
-    return scale_text(400, 351, 231, 1, 200, 640);
-  return result;*/
+    byTextColor13 = 0x8F;
+  scale_text(front_vga[15], &language_buffer[5888], font1_ascii, font1_offsets, 400, 243, byTextColor13, 1u, 200, 640);// Display 'Cancel' button text
+  if (no_16550)                               // Check if 16550 UART error occurred
+    scale_text(front_vga[15], &language_buffer[64 * no_16550], font1_ascii, font1_offsets, 400, 351, 231, 1u, 200, 640);// Display 16550 error message (64 bytes per error code)
 }
 
 //-------------------------------------------------------------------------------------------------
 //00077560
-void check16550(int iPort, int a2)
-{
-  int v2; // eax
-
-  v2 = 0;// gss16550(iPort);
-  if (v2) {
-    a2 = 0;
-    no_16550 = 0;
-  } else if (MusicCD) {
-    no_16550 = 110;
+void check16550(int iPort)
+{                                               // Test if 16550 UART is available at the specified port
+  //TODO
+  //if (gss16550(iPort)) {
+  if (true) {
+    no_16550 = 0;                               // 16550 UART detected - clear error flag (0 = success)
+  } else if (MusicCD)                           // 16550 not found - check if CD music is enabled
+  {
+    no_16550 = 110;                             // CD music available - set error code 110 (CD audio fallback)
   } else {
-    no_16550 = 109;
+    no_16550 = 109;                             // No 16550 and no CD music - set error code 109 (no audio support)
   }
-  if (no_16550 == 109) {
-    musicon = 0;
-    reinitmusic(v2, a2);
+  if (no_16550 == 109)                        // Check if complete audio failure occurred (code 109)
+  {
+    musicon = 0;                                // Disable music playback due to hardware failure
+    reinitmusic();                              // Reinitialize music system with new settings
   }
-  if (no_16550)
-    soundon = 0;
+  if (no_16550)                               // Check if any 16550 error occurred
+    soundon = 0;                                // Disable all sound effects if 16550 hardware issues detected
 }
 
 //-------------------------------------------------------------------------------------------------
