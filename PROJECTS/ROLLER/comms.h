@@ -12,7 +12,7 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-typedef struct tKeycodePair
+typedef struct
 {
   int iKeycode;
   int iCharacter;
