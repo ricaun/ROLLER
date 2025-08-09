@@ -3,6 +3,9 @@
 #include "frontend.h"
 #include "func2.h"
 #include "3d.h"
+#include "network.h"
+#include <math.h>
+#include <float.h>
 //-------------------------------------------------------------------------------------------------
 
 int serial_port = 2;    //000AFD98
@@ -14,7 +17,10 @@ char modem_initstring[51] = "ATX"; //000AFDAC
 char modem_phone[53] = { 0 }; //000AFDDF
 int modem_tone = -1;    //000AFE14
 int modem_call = -1;    //000AFE18
+int modemstrs;          //001A2BA0
 char *modembuffer;      //001A2BA4
+int modems;             //001A2BA8
+tModemBuffer2 modembuffer2; //001A2BAC
 
 //-------------------------------------------------------------------------------------------------
 //00075DC0
@@ -136,304 +142,302 @@ int stringwidth(char *szString)
 
 //-------------------------------------------------------------------------------------------------
 //00076270
-int select_modemstuff(int a1)
+int select_modemstuff(int iIconIdx)
 {
-  return 0; /*
-  bool v1; // ebp
-  int v2; // eax
-  int v3; // ebp
-  char *v4; // edi
-  char *v5; // esi
-  int v6; // ebx
-  __int64 v7; // rax
-  int v8; // eax
-  unsigned int v9; // kr08_4
-  int v10; // ecx
-  int v11; // eax
-  __int16 v12; // fps
-  double v13; // st7
-  _BOOL1 v14; // c0
-  char v15; // c2
-  _BOOL1 v16; // c3
-  __int16 v17; // fps
-  double v18; // st7
-  _BOOL1 v19; // c0
-  char v20; // c2
-  _BOOL1 v21; // c3
-  _DWORD *v22; // eax
-  __int64 v24; // rax
-  int v25; // [esp+Ch] [ebp-3Ch]
-  int v26; // [esp+10h] [ebp-38h]
-  int v27; // [esp+14h] [ebp-34h]
-  float v28; // [esp+18h] [ebp-30h]
-  int v30; // [esp+20h] [ebp-28h]
-  float v31; // [esp+24h] [ebp-24h]
-  int v32; // [esp+28h] [ebp-20h]
-  unsigned int v33; // [esp+2Ch] [ebp-1Ch]
+  /*bool bIsAnswer; // ebp
+  int iResult; // eax
+  int iMenuPos; // ebp
+  char *szDestPtr; // edi
+  char *szSrcPtr; // esi
+  int iTemp; // ecx
+  char *szTemp2; // ebx
+  tKeycodePair keypair; // rax
+  unsigned int uiStringLen; // kr08_4
+  int iModemResponse; // eax
+  int iModemRespCopy; // edx
+  int iMaxCOMPorts; // [esp+Ch] [ebp-3Ch]
+  int bExitRequested; // [esp+10h] [ebp-38h]
+  int iWaitingForAnswer; // [esp+14h] [ebp-34h]
+  float fInitTime; // [esp+18h] [ebp-30h]
+  int iMessageTimeout; // [esp+20h] [ebp-28h]
+  float fDialTime; // [esp+24h] [ebp-24h]
+  int iDisplayMessage; // [esp+28h] [ebp-20h]
+  unsigned int unInputMode; // [esp+2Ch] [ebp-1Ch]
 
-  v30 = 0;
-  v33 = 0;
-  v26 = 0;
-  v28 = 0.0;
-  v31 = 0.0;
-  v27 = 0;
-  v32 = -1;
-  v1 = modem_call == 0;
-  LOWORD(v2) = loadmodemnames();
-  v3 = v1 + 5;
-  if (current_modem >= 0) {
-    v2 = 51 * *(_DWORD *)(modembuffer + 56 * current_modem + 52);
-    v4 = "ATX";
-    v5 = (char *)(v2 + modembuffer2);
+  iMessageTimeout = 0;                          // Initialize variables
+  unInputMode = 0;
+  bExitRequested = 0;
+  fInitTime = 0.0;
+  fDialTime = 0.0;
+  iWaitingForAnswer = 0;
+  iDisplayMessage = -1;
+  bIsAnswer = modem_call == 0;                  // Check if this is answer mode (incoming call)
+  loadmodemnames();                             // Load available modem configurations
+  iMenuPos = bIsAnswer + 5;                     // Calculate menu position (answer mode offset by 5)
+  if (current_modem >= 0)                     // Copy modem init string if modem is selected
+  {
+    iResult = 51 * *(_DWORD *)&modembuffer[56 * current_modem + 52];
+    szDestPtr = modem_initstring;
+    szSrcPtr = &modembuffer2.bufPtr[iResult];
     do {
-      LOBYTE(v2) = *v5;
-      *v4 = *v5;
-      if (!(_BYTE)v2)
+      LOBYTE(iResult) = *szSrcPtr;
+      *szDestPtr = *szSrcPtr;
+      if (!(_BYTE)iResult)
         break;
-      LOBYTE(v2) = v5[1];
-      v5 += 2;
-      v4[1] = v2;
-      v4 += 2;
-    } while ((_BYTE)v2);
+      LOBYTE(iResult) = szSrcPtr[1];
+      szSrcPtr += 2;
+      szDestPtr[1] = iResult;
+      szDestPtr += 2;
+    } while ((_BYTE)iResult);
   }
-  __asm { int     11h; EQUIPMENT DETERMINATION }
-  v25 = ((int)(unsigned __int16)v2 >> 9) & 7;
-  if (modem_port < 2)
-    v25 = 2;
-  if (v25 < modem_port)
+  __asm { int     11h; BIOS equipment determination to detect COM ports }// BIOS equipment determination to detect COM ports
+  iTemp = modem_port;
+  iMaxCOMPorts = ((int)(unsigned __int16)iResult >> 9) & 7;// Extract number of COM ports from BIOS data
+  if (modem_port < 2)                         // Ensure minimum 2 COM ports available
+    iMaxCOMPorts = 2;
+  if (iMaxCOMPorts < modem_port)
     modem_port = 2;
-  check16550(modem_port);
-  modem_baud = 19200;
+  check16550(modem_port);                       // Check if COM port has 16550 UART
+  modem_baud = 19200;                           // Set default baud rate to 19200
   gssCommsSetComBaudRate(19200);
   do {
-    v6 = v33;
-    display_essentials(a1, v3, v33);
-    if (v32 == 93 || v32 == 94 || v32 == 95 || v32 == 96 || v32 == 104) {
+    szTemp2 = (char *)unInputMode;              // Main UI loop - display menu and handle input
+    display_essentials(iIconIdx, iMenuPos, unInputMode);
+    if (iDisplayMessage == 93 || iDisplayMessage == 94 || iDisplayMessage == 95 || iDisplayMessage == 96 || iDisplayMessage == 104)// Display flashing status messages
+    {
       if ((frames & 0xFu) < 8) {
-        v6 = (int)font1_ascii;
-        scale_text(400, 279, 143, 1, 200, 640);
+        szTemp2 = font1_ascii;
+        iTemp = (int)font1_offsets;
+        scale_text(front_vga[15], &language_buffer[64 * iDisplayMessage], font1_ascii, font1_offsets, 400, 279, 143, 1u, 200, 640);
       }
-    } else if (v32 >= 0) {
-      v6 = (int)font1_ascii;
-      scale_text(400, 279, 231, 1, 200, 640);
+    } else if (iDisplayMessage >= 0) {
+      szTemp2 = font1_ascii;
+      iTemp = (int)font1_offsets;
+      scale_text(front_vga[15], &language_buffer[64 * iDisplayMessage], font1_ascii, font1_offsets, 400, 279, 231, 1u, 200, 640);
     }
-    HIDWORD(v7) = screen;
-    copypic((char *)scrbuf, (int)screen);
-    if (v30 && v30 + 72 < frames)
-      v26 = -1;
-    while (1) {
-      LODWORD(v7) = fatkbhit();
-      if (!(_DWORD)v7)
-        break;
-      LODWORD(v7) = fatgetch();
-      v6 = v7;
-      HIDWORD(v7) = v7;
-      if (v33) {
-        if (v33 <= 1) {
-          if (v3 == 3)
-            v6 = (int)"ATX";
+    keypair.iCharacter = (int)screen;
+    copypic(scrbuf, screen);
+    if (iMessageTimeout && iMessageTimeout + 72 < frames)
+      bExitRequested = -1;
+    while (fatkbhit()) {
+      keypair.iKeycode = fatgetch();
+      iTemp = unInputMode;
+      szTemp2 = (char *)keypair.iKeycode;
+      keypair.iCharacter = keypair.iKeycode;
+      if (unInputMode) {
+        if (unInputMode <= 1) {                                       // String input mode - edit init string or phone number
+          if (iMenuPos == 3)
+            szTemp2 = modem_initstring;
           else
-            v6 = (int)&modem_phone;
-          v9 = strlen((const char *)v6) + 1;
-          v10 = v9 - 1;
-          if ((unsigned int)v7 < 8) {
-            if (!(_DWORD)v7)
+            szTemp2 = modem_phone;
+          uiStringLen = strlen(szTemp2) + 1;
+          iTemp = uiStringLen - 1;
+          if (keypair.iKeycode < 8u) {
+            if (!keypair.iKeycode)
               goto LABEL_57;
           LABEL_63:
-            if (keys_variable_3 || keys_variable_4) {
-              switch ((int)v7) {
+            if (keys[42] || keys[54])         // Handle shifted characters for special symbols
+            {
+              switch (keypair.iKeycode) {
                 case '#':
-                  HIDWORD(v7) = 126;
+                  keypair.iCharacter = '~';
                   break;
                 case '\'':
-                  HIDWORD(v7) = 64;
+                  keypair.iCharacter = '@';
                   break;
                 case ',':
-                  HIDWORD(v7) = 60;
+                  keypair.iCharacter = '<';
                   break;
                 case '-':
-                  HIDWORD(v7) = 95;
+                  keypair.iCharacter = '_';
                   break;
                 case '.':
-                  HIDWORD(v7) = 62;
+                  keypair.iCharacter = '>';
                   break;
                 case '/':
-                  HIDWORD(v7) = 63;
+                  keypair.iCharacter = '?';
                   break;
                 case '0':
-                  HIDWORD(v7) = 41;
+                  keypair.iCharacter = ')';
                   break;
                 case '1':
-                  HIDWORD(v7) = 33;
+                  keypair.iCharacter = '!';
                   break;
                 case '2':
-                  HIDWORD(v7) = 34;
+                  keypair.iCharacter = '"';
                   break;
                 case '3':
-                  HIDWORD(v7) = 156;
+                  keypair.iCharacter = 0x9C;
                   break;
                 case '4':
-                  HIDWORD(v7) = 36;
+                  keypair.iCharacter = '$';
                   break;
                 case '5':
-                  HIDWORD(v7) = 37;
+                  keypair.iCharacter = '%';
                   break;
                 case '6':
-                  HIDWORD(v7) = 94;
+                  keypair.iCharacter = '^';
                   break;
                 case '7':
-                  HIDWORD(v7) = 38;
+                  keypair.iCharacter = '&';
                   break;
                 case '8':
-                  HIDWORD(v7) = 42;
+                  keypair.iCharacter = '*';
                   break;
                 case '9':
-                  HIDWORD(v7) = 40;
+                  keypair.iCharacter = '(';
                   break;
                 case ';':
-                  HIDWORD(v7) = 58;
+                  keypair.iCharacter = ':';
                   break;
                 case '=':
-                  HIDWORD(v7) = 43;
+                  keypair.iCharacter = '+';
                   break;
                 default:
                   break;
               }
             }
-            if (strlen((const char *)v6) < 0x32 && HIDWORD(v7) != 127) {
-              *(_BYTE *)(v9 + v6) = 0;
-              *(_BYTE *)(v9 - 1 + v6) = BYTE4(v7);
-              if (v3 == 3 && current_modem >= 0)
+            iTemp = strlen(szTemp2);
+            if ((unsigned int)iTemp < 50 && keypair.iCharacter != '\x7F') {
+              szTemp2[uiStringLen] = '\0';
+              szTemp2[uiStringLen - 1] = keypair.iCharacter;
+              if (iMenuPos == 3 && current_modem >= 0)
                 current_modem = -current_modem - 1;
             }
-          } else if ((unsigned int)v7 <= 8) {
-            if (v10 > 0) {
-              *(_BYTE *)(v6 + v10 - 1) = 0;
-              if (v3 == 3 && current_modem >= 0)
-                current_modem = -current_modem - 1;
+          } else if (keypair.iKeycode <= 8u) {
+            if (iTemp > 0) {
+              szTemp2[iTemp - 1] = '\0';
+              if (iMenuPos == 3) {
+                iTemp = current_modem;
+                if (current_modem >= 0)
+                  current_modem = -current_modem - 1;
+              }
             }
           } else {
-            if ((unsigned int)v7 < 0xD || (unsigned int)v7 > 0xD && (_DWORD)v7 != 27)
+            if (keypair.iKeycode < 0xDu || keypair.iKeycode > 0xDu && keypair.iKeycode != 27)
               goto LABEL_63;
-            v6 = -1;
-            v33 = 0;
-            v30 = 0;
-            v32 = -1;
+            szTemp2 = (char *)-1;
+            unInputMode = 0;
+            iMessageTimeout = 0;
+            iDisplayMessage = -1;
           }
-        } else if ((_DWORD)v7) {
-          if ((_DWORD)v7 == 27) {
-            v33 = 0;
-            v32 = -1;
-            v30 = 0;
-            v28 = 0.0;
-            v31 = 0.0;
-            v27 = 0;
-            display_essentials(a1, v3, 0);
-            v6 = (int)font1_ascii;
-            scale_text(400, 279, 143, 1, 200, 640);
-            HIDWORD(v7) = screen;
-            LODWORD(v7) = copypic((char *)scrbuf, (int)screen);
-            close_network(v7, SHIDWORD(v7), (int)font1_ascii);
+        } else if (keypair.iKeycode) {
+          if (keypair.iKeycode == 27) {
+            unInputMode = 0;
+            iDisplayMessage = -1;
+            iMessageTimeout = 0;
+            fInitTime = 0.0;
+            fDialTime = 0.0;
+            iWaitingForAnswer = 0;
+            display_essentials(iIconIdx, iMenuPos, 0);
+            iTemp = (int)font1_offsets;
+            szTemp2 = font1_ascii;
+            scale_text(front_vga[15], &language_buffer[6912], font1_ascii, font1_offsets, 400, 279, 143, 1u, 200, 640);
+            keypair.iCharacter = (int)screen;
+            copypic(scrbuf, screen);
+            close_network();
           }
         } else {
         LABEL_57:
           fatgetch();
         }
       } else {
-        v32 = -1;
-        if ((unsigned int)v7 < 0xD) {
-          if (!(_DWORD)v7) {
-            LODWORD(v7) = fatgetch();
-            HIDWORD(v7) = v7;
-            if ((unsigned int)v7 >= 0x48) {
-              if ((unsigned int)v7 <= 0x48) {
-                if (v3)
-                  --v3;
-              } else if ((_DWORD)v7 == 80 && v3 < 6) {
-                ++v3;
+        iDisplayMessage = -1;                   // Menu navigation mode
+        if (keypair.iKeycode < 0xDu) {
+          if (!keypair.iKeycode) {
+            keypair.iKeycode = fatgetch();
+            keypair.iCharacter = keypair.iKeycode;
+            if (keypair.iKeycode >= 0x48u) {
+              if (keypair.iKeycode <= 0x48u) {
+                if (iMenuPos)
+                  --iMenuPos;
+              } else if (keypair.iKeycode == 80 && iMenuPos < 6) {
+                ++iMenuPos;
               }
             }
           }
-        } else if ((unsigned int)v7 <= 0xD) {
-          HIDWORD(v7) = v3;
-          v6 = 0;
-          display_essentials(a1, v3, 0);
-          switch (v3) {
+        } else if (keypair.iKeycode <= 0xDu) {
+          keypair.iCharacter = iMenuPos;
+          szTemp2 = 0;
+          display_essentials(iIconIdx, iMenuPos, 0);
+          switch (iMenuPos) {
             case 0:
-              select_modem(a1);
+              select_modem(iIconIdx);           // Menu 0: Select modem type
               break;
             case 1:
-              v6 = modem_port + 1;
-              modem_port = v6;
-              if (v6 > v25)
+              szTemp2 = (char *)(modem_port + 1);// Menu 1: Cycle through COM ports
+              iTemp = iMaxCOMPorts;
+              modem_port = (int)szTemp2;
+              if ((int)szTemp2 > iMaxCOMPorts)
                 modem_port = 1;
               check16550(modem_port);
               break;
             case 2:
-              modem_tone = modem_tone == 0;
+              modem_tone = modem_tone == 0;     // Menu 2: Toggle tone/pulse dialing
               break;
             case 3:
             case 4:
-              v33 = 1;
+              unInputMode = 1;                  // Menu 3/4: Edit init string or phone number
               break;
             case 5:
             case 6:
-              v33 = 2;
-              v32 = 104;
-              v6 = (int)font1_ascii;
-              modem_call = (v3 != 5) - 1;
-              scale_text(400, 279, 143, 1, 200, 640);
-              copypic((char *)scrbuf, (int)screen);
+              unInputMode = 2;                  // Menu 5/6: Start call (5=dial out, 6=answer)
+              iDisplayMessage = 104;
+              szTemp2 = font1_ascii;
+              iTemp = (int)font1_offsets;
+              modem_call = (iMenuPos != 5) - 1;
+              scale_text(front_vga[15], &language_buffer[6656], font1_ascii, font1_offsets, 400, 279, 143, 1u, 200, 640);
+              copypic(scrbuf, screen);
               gssCommsSetComPort(modem_port);
-              v8 = Initialise_Network(0);
-              v7 = gssModemHangUp(v8);
-              v31 = (float)(unsigned int)clock(v7);
+              Initialise_Network(0);
+              gssModemHangUp();
+              keypair = (tKeycodePair)clock();
+              fDialTime = (float)(unsigned int)keypair.iKeycode;
               break;
             default:
-              continue;
+              continue;                         // Execute menu selection
           }
-        } else if ((_DWORD)v7 == 27) {
-          v26 = -1;
-          v30 = 0;
-          v28 = 0.0;
-          v31 = 0.0;
-          v27 = 0;
+        } else if (keypair.iKeycode == 27) {
+          bExitRequested = -1;
+          iMessageTimeout = 0;
+          fInitTime = 0.0;
+          fDialTime = 0.0;
+          iWaitingForAnswer = 0;
         }
       }
     }
-    if (v33 == 2 && !v30) {
-      LODWORD(v7) = gssModemCheckResponse();
-      HIDWORD(v7) = v7;
-      if ((int)v7 >= 0) {
-        switch ((int)v7) {
+    if (unInputMode == 2 && !iMessageTimeout) // Handle modem responses during call
+    {
+      iModemResponse = gssModemCheckResponse(0, keypair.iCharacter, (int)szTemp2, iTemp);
+      iModemRespCopy = iModemResponse;
+      if (iModemResponse >= 0) {
+        switch (iModemResponse) {
           case 0:
-            if ((LODWORD(v28) & 0x7FFFFFFF) != 0) {
+            if ((LODWORD(fInitTime) & 0x7FFFFFFF) != 0)// Response 0: Modem ready - init or dial
+            {
               if (modem_call)
-                gssModemDial(&modem_phone, modem_tone);
-              HIDWORD(v7) = modem_call;
-              v28 = 0.0;
-              v6 = -1;
-              LODWORD(v7) = (modem_call != 0) + 93;
-              v27 = -1;
-              v32 = v7;
+                gssModemDial((int)modem_phone, modem_tone);
+              iModemRespCopy = modem_call;
+              fInitTime = 0.0;
+              szTemp2 = (char *)-1;
+              iWaitingForAnswer = -1;
+              iDisplayMessage = (modem_call != 0) + 93;
             }
-            if ((LODWORD(v31) & 0x7FFFFFFF) != 0) {
-              v11 = gssModemInit("ATX", HIDWORD(v7));
-              LODWORD(v7) = clock(v11);
-              v31 = 0.0;
-              v28 = (float)(unsigned int)v7;
+            if ((LODWORD(fDialTime) & 0x7FFFFFFF) != 0) {
+              gssModemInit((int)modem_initstring, iModemRespCopy, (int)szTemp2, iTemp);
+              fDialTime = 0.0;
+              fInitTime = (float)(unsigned int)clock();
             }
             break;
           case 1:
-            v32 = 95;
-            LODWORD(v7) = frames;
-            v30 = frames;
+            iDisplayMessage = 95;               // Response 1: Modem busy
+            iMessageTimeout = frames;
             break;
           case 2:
-            if (v27 && !modem_call) {
-              v6 = 96;
-              LODWORD(v7) = gssModemAnswer();
-              v32 = 96;
+            if (iWaitingForAnswer && !modem_call)// Response 2: Incoming call detected
+            {
+              gssModemAnswer();
+              iDisplayMessage = 96;
             }
             break;
           case 3:
@@ -441,345 +445,337 @@ int select_modemstuff(int a1)
           case 5:
           case 6:
           case 7:
-            v32 = v7 + 94;
-            LODWORD(v7) = close_network(v7 + 94, v7, v6);
-            v33 = 0;
+            iDisplayMessage = iModemResponse + 94;// Response 3-7: Connection errors
+            close_network();
+            unInputMode = 0;
             break;
           default:
             break;
         }
       }
     }
-    if ((LODWORD(v28) & 0x7FFFFFFF) != 0) {
-      LODWORD(v7) = clock(v7);
-      v6 = 0;
-      v13 = ((double)(unsigned int)v7 - v28) * comms_c_variable_5;
-      v14 = v13 < comms_c_variable_6;
-      v15 = 0;
-      v16 = v13 == comms_c_variable_6;
-      LOWORD(v7) = v12;
-      if (v13 > comms_c_variable_6) {
-        LODWORD(v7) = close_network(v7, SHIDWORD(v7), 0);
-        v28 = 0.0;
-        v31 = 0.0;
-        v27 = 0;
-        v33 = 0;
-        v32 = 105;
+    if ((LODWORD(fInitTime) & 0x7FFFFFFF) != 0 && ((double)(unsigned int)clock() - fInitTime) * 0.0099999998 > 5.0)// Check for dial timeout (5 seconds)
+    {
+      close_network();
+      iTemp = 105;
+      fInitTime = 0.0;
+      fDialTime = 0.0;
+      iWaitingForAnswer = 0;
+      unInputMode = 0;
+      iDisplayMessage = 105;
+    }
+    if ((LODWORD(fDialTime) & 0x7FFFFFFF) != 0)// Check for init timeout (5 seconds)
+    {
+      iTemp = 0;
+      if (((double)(unsigned int)clock() - fDialTime) * 0.0099999998 > 5.0) {
+        close_network();
+        fInitTime = 0.0;
+        fDialTime = 0.0;
+        iWaitingForAnswer = 0;
+        unInputMode = 0;
+        iDisplayMessage = 105;
       }
     }
-    if ((LODWORD(v31) & 0x7FFFFFFF) != 0) {
-      LODWORD(v7) = clock(v7);
-      v18 = ((double)(unsigned int)v7 - v31) * comms_c_variable_5;
-      v19 = v18 < comms_c_variable_6;
-      v20 = 0;
-      v21 = v18 == comms_c_variable_6;
-      LOWORD(v7) = v17;
-      if (v18 > comms_c_variable_6) {
-        close_network(v7, SHIDWORD(v7), v6);
-        v28 = 0.0;
-        v31 = 0.0;
-        v27 = 0;
-        v33 = 0;
-        v32 = 105;
-      }
-    }
-  } while (!v26);
-  fre(&modembuffer);
-  v22 = fre(&modembuffer2);
-  if (v30)
+  } while (!bExitRequested);
+  fre((void **)&modembuffer);                   // Cleanup - free modem buffers
+  fre((void **)&modembuffer2.bufPtr);
+  if (iMessageTimeout)
     return -1;
-  v24 = gssModemHangUp(v22);
-  close_network(v24, SHIDWORD(v24), v6);
-  return 0;*/
+  gssModemHangUp();
+  close_network();*/
+  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 //000769D0
-int loadmodemnames()
+void loadmodemnames()
 {
-  return 0; /*
-  int v0; // ecx
-  int v1; // eax
-  int v2; // ebp
-  int v3; // eax
-  char *v4; // esi
-  char *v5; // edi
-  char v6; // al
-  char v7; // al
-  int v8; // ecx
-  int v9; // eax
-  int v10; // ebp
-  int v11; // eax
-  int v12; // edx
-  char *v13; // esi
-  char *v14; // edi
-  char v15; // al
-  char v16; // al
-  int result; // eax
-  _BYTE v18[512]; // [esp+0h] [ebp-224h] BYREF
-  char *v19; // [esp+200h] [ebp-24h]
-  int v20; // [esp+204h] [ebp-20h]
-  int v21; // [esp+208h] [ebp-1Ch]
+  FILE *pFileModem; // ecx
+  char *pszToken; // eax
+  int iModemOffset; // ebp
+  char *pszModemData; // eax
+  char *pszSrc; // esi
+  char *pszDest; // edi
+  char byChar1; // al
+  char byChar2; // al
+  FILE *pFileModemStr; // ecx
+  char *pszStrToken; // eax
+  int iStrCount; // ebp
+  char *pszStrData; // eax
+  int iStrOffset; // edx
+  char *pszStrSrc; // esi
+  char *pszStrDest; // edi
+  char byStrChar1; // al
+  char byStrChar2; // al
+  char szBuffer[512]; // [esp+0h] [ebp-224h] BYREF
+  char *pszDelimiters; // [esp+200h] [ebp-24h]
+  int iStrOffsetCurrent; // [esp+204h] [ebp-20h]
+  int iModemIndex; // [esp+208h] [ebp-1Ch]
 
-  v19 = &aTa[2];
-  v0 = fopen(&aModemIni[2], &aR_2[2]);
-  fgets(v18, 512, v0, v0);
-  v1 = strtok(v18, &aTa[2]);
-  modems = strtol(v1, 0, 10);
-  modembuffer = getbuffer(56 * modems);
-  if (!modembuffer)
+  pszDelimiters = " ,\n\t\r";                   // Set up delimiters for parsing config files
+  pFileModem = fopen("MODEM.INI", "r");         // Open MODEM.INI file for reading modem configurations
+  fgets(szBuffer, 512, pFileModem);             // Read first line containing number of modems
+  pszToken = strtok(szBuffer, " ,\n\t\r");      // Parse modem count from first token
+  modems = strtol(pszToken, 0, 10);             // Convert string to integer and store global modem count
+  modembuffer = (char *)getbuffer(56 * modems); // Allocate buffer for modem data (56 bytes per modem)
+  if (!modembuffer)                           // If allocation failed, reset modem count to 0
     modems = 0;
-  v21 = 0;
+  iModemIndex = 0;                              // Initialize modem index counter
   if (modems > 0) {
-    v2 = 0;
+    iModemOffset = 0;
     do {
-      fgets(v18, 512, v0, v0);
-      v3 = strtok(v18, &aR_3[2]);
-      *(_DWORD *)(modembuffer + v2 + 52) = strtol(v3, 0, 10) - 1;
-      v4 = (char *)strtok(0, &aEa[2]);
-      v5 = (char *)(v2 + modembuffer);
+      fgets(szBuffer, 512, pFileModem);         // Read next line from MODEM.INI for each modem entry
+      pszModemData = strtok(szBuffer, " ");     // Parse modem type ID from first token
+      *(int *)&modembuffer[iModemOffset + 52] = strtol(pszModemData, 0, 10) - 1;// Store modem type (subtract 1 for 0-based index) at offset +52
+      pszSrc = strtok(0, "\r\n");               // Get remainder of line (modem name string)
+      pszDest = &modembuffer[iModemOffset];     // Set destination pointer to current modem buffer slot
       do {
-        v6 = *v4;
-        *v5 = *v4;
-        if (!v6)
+        byChar1 = *pszSrc;                      // Copy modem name string 2 bytes at a time for efficiency
+        *pszDest = *pszSrc;
+        if (!byChar1)
           break;
-        v7 = v4[1];
-        v4 += 2;
-        v5[1] = v7;
-        v5 += 2;
-      } while (v7);
-      v2 += 56;
-      ++v21;
-    } while (v21 < modems);
+        byChar2 = pszSrc[1];
+        pszSrc += 2;
+        pszDest[1] = byChar2;
+        pszDest += 2;
+      } while (byChar2);
+      iModemOffset += 56;                       // Advance to next modem slot (56 bytes per entry)
+      ++iModemIndex;
+    } while (iModemIndex < modems);
   }
-  fclose(v0);
-  v8 = fopen(&aModemstrIni[1], &aR_2[2]);
-  fgets(v18, 512, v8, v8);
-  v9 = strtok(v18, v19);
-  modemstrs = strtol(v9, 0, 10);
-  modembuffer2 = getbuffer(51 * modemstrs);
-  if (!modembuffer2)
+  fclose(pFileModem);                           // Close MODEM.INI file
+  pFileModemStr = fopen("MODEMSTR.INI", "r");   // Open MODEMSTR.INI file for reading modem command strings
+  fgets(szBuffer, 512, pFileModemStr);          // Read first line containing number of modem strings
+  pszStrToken = strtok(szBuffer, pszDelimiters);// Parse modem string count from first token
+  modemstrs = strtol(pszStrToken, 0, 10);       // Convert string to integer and store global string count
+  modembuffer2.bufPtr = (char *)getbuffer(51 * modemstrs);// Allocate buffer for modem strings (51 bytes per string)
+  if (!modembuffer2.bufPtr)                   // If allocation failed, reset string count to 0
     modemstrs = 0;
-  v10 = 0;
+  iStrCount = 0;                                // Initialize string counter and offset variables
   if (modemstrs > 0) {
-    v20 = 0;
+    iStrOffsetCurrent = 0;
     do {
-      fgets(v18, 512, v8, v8);
-      v11 = strtok(v18, &comms_c_variable_13);
-      v12 = v20;
-      v13 = (char *)v11;
-      v14 = (char *)(v20 + modembuffer2);
-      ++v10;
+      fgets(szBuffer, 512, pFileModemStr);      // Read next line from MODEMSTR.INI for each string entry
+      pszStrData = strtok(szBuffer, "\t");// Parse modem command string using tab delimiter
+      iStrOffset = iStrOffsetCurrent;
+      pszStrSrc = pszStrData;
+      pszStrDest = &modembuffer2.bufPtr[iStrOffsetCurrent];// Set destination pointer to current string buffer slot
+      ++iStrCount;
       do {
-        v15 = *v13;
-        *v14 = *v13;
-        if (!v15)
+        byStrChar1 = *pszStrSrc;                // Copy modem command string 2 bytes at a time
+        *pszStrDest = *pszStrSrc;
+        if (!byStrChar1)
           break;
-        v16 = v13[1];
-        v13 += 2;
-        v14[1] = v16;
-        v14 += 2;
-      } while (v16);
-      v20 = v12 + 51;
-    } while (v10 < modemstrs);
+        byStrChar2 = pszStrSrc[1];
+        pszStrSrc += 2;
+        pszStrDest[1] = byStrChar2;
+        pszStrDest += 2;
+      } while (byStrChar2);
+      iStrOffsetCurrent = iStrOffset + 51;      // Advance to next string slot (51 bytes per entry)
+    } while (iStrCount < modemstrs);
   }
-  fclose(v8);
-  if (current_modem >= modems)
-    current_modem = modems - 1;
-  result = -modems;
-  if (-modems > current_modem)
+  fclose(pFileModemStr);                        // Close MODEMSTR.INI file
+  if (current_modem >= modems)                // Validate current_modem index - clamp to valid range
+    current_modem = modems - 1;                 // If current modem >= total modems, set to last valid index
+  if (-modems > current_modem)                // Clamp current_modem to minimum valid range
     current_modem = -modems;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00076C30
-void select_modem()
-{/*
-  int v0; // eax
-  int v1; // esi
-  int v2; // edi
-  int v3; // eax
-  unsigned int v4; // eax
-  int v5; // kr00_4
-  int v6; // eax
-  char *v7; // edi
-  char *v8; // esi
-  char v9; // al
-  char v10; // al
-  int v11; // [esp+4h] [ebp-10h]
-  int v12; // [esp+8h] [ebp-Ch]
-  int v13; // [esp+Ch] [ebp-8h]
-  int v14; // [esp+10h] [ebp-4h]
+void select_modem(int iIconIdx)
+{
+  int iStartIdx; // eax
+  int iCurrentIdx; // esi
+  int iYPosition; // edi
+  char byTextColor; // al
+  unsigned int uiKeyCode; // eax
+  int iExtendedKey; // kr00_4
+  int iMaxIdx; // eax
+  char *pszDestInit; // edi
+  char *pszSrcInit; // esi
+  char byChar1; // al
+  char byChar2; // al
+  int iEndIdx; // [esp+4h] [ebp-10h]
+  int iExitFlag; // [esp+8h] [ebp-Ch]
+  int iModemOffset; // [esp+Ch] [ebp-8h]
+  int iSelectedModem; // [esp+10h] [ebp-4h]
 
-  v12 = 0;
-  v14 = current_modem;
-  if (current_modem < 0)
-    v14 = -current_modem - 1;
-  while (!v12) {
-    display_picture(scrbuf, front_vga[0], 3);
-    display_block(head_y, 0);
-    display_block(2, 0);
-    display_block(247, 0);
-    display_block(247, 0);
-    display_block(257, -1);
-    display_block(336, -1);
-    scale_text(400, 75, 143, 1, 200, 640);
-    v0 = v14 - 7;
-    if (v14 - 7 < 0)
-      v0 = 0;
-    v11 = v14 + 7;
-    if (v14 + 7 >= modems)
-      v11 = modems - 1;
-    v1 = v0;
-    if (v0 <= v11) {
-      v13 = 56 * v0;
-      v2 = -18 * v14 + 18 * v0 + 237;
-      do {
-        if (v1 == v14)
-          v3 = 171;
+  iExitFlag = 0;                                // Initialize exit flag (0 = continue loop, -1 = exit)
+  iSelectedModem = current_modem;               // Get current modem selection for display
+  if (current_modem < 0)                      // Handle negative modem index (convert to positive for display)
+    iSelectedModem = -current_modem - 1;
+  while (!iExitFlag)                          // Main display and input loop
+  {
+    display_picture(scrbuf, front_vga[0]);      // Display main background picture
+    display_block(scrbuf, front_vga[1], 3, head_x, head_y, 0);
+    display_block(scrbuf, front_vga[6], 0, 36, 2, 0);// Display UI element at position (36, 2)
+    display_block(scrbuf, front_vga[5], iIconIdx, -4, 247, 0);// Display gear selection indicator at bottom left
+    display_block(scrbuf, front_vga[5], game_type + 5, 135, 247, 0);// Display game type indicator (5 + game_type offset)
+    display_block(scrbuf, front_vga[4], 4, 76, 257, -1);// Display UI element at position (76, 257) with special color
+    display_block(scrbuf, front_vga[6], 4, 62, 336, -1);// Display UI element at position (62, 336) with special color
+    scale_text(front_vga[15], &language_buffer[6784], font1_ascii, font1_offsets, 400, 75, 143, 1u, 200, 640);// Display 'Select Modem' title text
+    iStartIdx = iSelectedModem - 7;             // Calculate display window start (7 items before current)
+    if (iSelectedModem - 7 < 0)               // Ensure start index is not negative
+      iStartIdx = 0;
+    iEndIdx = iSelectedModem + 7;               // Calculate display window end (7 items after current)
+    if (iSelectedModem + 7 >= modems)         // Ensure end index does not exceed available modems
+      iEndIdx = modems - 1;
+    iCurrentIdx = iStartIdx;                    // Initialize loop variables for modem list display
+    if (iStartIdx <= iEndIdx)                 // Check if there are modems to display
+    {
+      iModemOffset = 56 * iStartIdx;            // Calculate byte offset into modem buffer (56 bytes per modem)
+      iYPosition = -18 * iSelectedModem + 18 * iStartIdx + 237;// Calculate Y position for first visible modem (18 pixels per line)
+      do {                                         // Set highlight color for currently selected modem
+        if (iCurrentIdx == iSelectedModem)
+          byTextColor = 0xAB;
         else
-          v3 = 143;
-        ++v1;
-        scale_text(400, v2, v3, 1, 200, 640);
-        v2 += 18;
-        v13 += 56;
-      } while (v1 <= v11);
+          byTextColor = 0x8F;
+        ++iCurrentIdx;                          // Move to next modem in list
+        scale_text(front_vga[15], &modembuffer[iModemOffset], font1_ascii, font1_offsets, 400, iYPosition, byTextColor, 1u, 200, 640);// Display modem name from buffer (56 bytes per entry)
+        iYPosition += 18;                       // Move to next line (18 pixels down)
+        iModemOffset += 56;                     // Move to next modem data (56 bytes forward)
+      } while (iCurrentIdx <= iEndIdx);         // Continue until all visible modems are displayed
     }
-    copypic((char *)scrbuf, (int)screen);
-    while (fatkbhit()) {
-      v4 = fatgetch();
-      if (v4 < 0xD) {
-        if (!v4) {
-          v5 = fatgetch() - 71;
-          v6 = modems - 1;
-          switch (v5) {
+    copypic(scrbuf, screen);                    // Copy completed frame buffer to screen
+    while (fatkbhit())                        // Process all pending keyboard input
+    {
+      uiKeyCode = fatgetch();                   // Get next character from keyboard buffer
+      if (uiKeyCode < 0xD)                    // Check if key code is less than 13 (Enter key)
+      {                                         // Check for extended key code (0 = function/arrow keys)
+        if (!uiKeyCode) {
+          iExtendedKey = fatgetch() - 71;       // Get extended key and subtract 71 (base for navigation keys)
+          iMaxIdx = modems - 1;
+          switch (iExtendedKey) {
             case 0:
-              v14 = 0;
+              iSelectedModem = 0;               // HOME key (71) - Jump to first modem
               continue;
             case 1:
-              if (!v14)
-                continue;
-              v6 = v14 - 1;
+              if (!iSelectedModem)
+                continue;                       // UP key (72) - Move to previous modem
+              iMaxIdx = iSelectedModem - 1;
             LABEL_26:
-              v14 = v6;
+              iSelectedModem = iMaxIdx;         // LEFT key (75) and END key (79) - Move to previous modem
               break;
             case 2:
-              v14 -= 15;
-              if (v14 < 0)
-                v14 = 0;
+              iSelectedModem -= 15;             // PAGE UP key (73) - Move up 15 modems
+              if (iSelectedModem < 0)
+                iSelectedModem = 0;
               continue;
             case 8:
               goto LABEL_26;
             case 9:
-              if (v6 > v14)
-                ++v14;
+              if (iMaxIdx > iSelectedModem)   // RIGHT key (77) and DOWN key (80) - Move to next modem
+                ++iSelectedModem;
               continue;
             case 10:
-              v14 += 15;
-              if (v6 < v14)
-                v14 = modems - 1;
+              iSelectedModem += 15;             // PAGE DOWN key (81) - Move down 15 modems
+              if (iMaxIdx < iSelectedModem)
+                iSelectedModem = modems - 1;
               continue;
             default:
               continue;
           }
         }
-      } else if (v4 <= 0xD) {
-        current_modem = v14;
-        v7 = "ATX";
-        v8 = (char *)(51 * *(_DWORD *)(56 * v14 + modembuffer + 52) + modembuffer2);
-        v12 = -1;
+      } else if (uiKeyCode <= 0xD)              // Check for Enter key (13) to select modem
+      {
+        current_modem = iSelectedModem;         // Save selected modem as current choice
+        pszDestInit = modem_initstring;         // Set destination pointer for modem init string copy
+        pszSrcInit = &modembuffer2.bufPtr[51 * *(int *)&modembuffer[56 * iSelectedModem + 52]];// Calculate source pointer to modem init string (51 bytes per init string)
+        iExitFlag = -1;                         // Set exit flag to leave menu
         do {
-          v9 = *v8;
-          *v7 = *v8;
-          if (!v9)
-            break;
-          v10 = v8[1];
-          v8 += 2;
-          v7[1] = v10;
-          v7 += 2;
-        } while (v10);
-      } else if (v4 == 27) {
-        v12 = -1;
+          byChar1 = *pszSrcInit;                // Copy modem initialization string (2 bytes per iteration)
+          *pszDestInit = *pszSrcInit;
+          if (!byChar1)
+            break;                              // Check for null terminator to end string copy
+          byChar2 = pszSrcInit[1];              // Copy second byte of character pair
+          pszSrcInit += 2;
+          pszDestInit[1] = byChar2;
+          pszDestInit += 2;
+        } while (byChar2);                      // Continue until null terminator found
+      } else if (uiKeyCode == 27)               // Check for Escape key (27) to cancel selection
+      {
+        iExitFlag = -1;                         // Set exit flag to leave menu without selection
       }
     }
   }
-  JUMPOUT(0x76174);*/
+  exit(0);
+  //JUMPOUT(0x76174);
 }
 
 //-------------------------------------------------------------------------------------------------
 //00076F10
-char *getprintstring(char *a1, int a2)
+char *getprintstring(const char *szStr, int iEditMode)
 {
-  return 0; /*
-  char *v3; // edi
-  char *v4; // esi
-  char v5; // al
-  char v6; // al
-  unsigned int v7; // ecx
-  unsigned int v8; // kr08_4
-  unsigned int v9; // ecx
-  char *v10; // edi
-  char *v11; // esi
-  char v12; // al
-  char v13; // al
-  unsigned int v14; // ecx
-  unsigned int v15; // ecx
+  char *pszDest; // edi
+  const char *pszSrc; // esi
+  char byChar1; // al
+  char byChar2; // al
+  unsigned int uiStringLen; // ecx
+  unsigned int uiCursorPos; // kr08_4
+  unsigned int uiLastCharIdx; // ecx
+  char *pszTruncDest; // edi
+  const char *pszTruncSrc; // esi
+  char byTruncChar1; // al
+  char byTruncChar2; // al
+  unsigned int uiTruncLen; // ecx
+  unsigned int uiFinalLen; // ecx
 
-  v3 = modembuffer2_variable_2;
-  v4 = a1;
+  pszDest = modembuffer2.buffer;                // Initialize destination pointer to modembuffer2[1] (skip first byte)
+  pszSrc = szStr;                               // Initialize source pointer to input string
   do {
-    v5 = *v4;
-    *v3 = *v4;
-    if (!v5)
+    byChar1 = *pszSrc;                          // Copy string 2 bytes at a time to destination buffer
+    *pszDest = *pszSrc;
+    if (!byChar1)
       break;
-    v6 = v4[1];
-    v4 += 2;
-    v3[1] = v6;
-    v3 += 2;
-  } while (v6);
-  if (a2) {
-    v8 = strlen(modembuffer2_variable_2) + 1;
-    v9 = v8 - 1;
-    modembuffer2_variable_2[v9] = 95;
-    modembuffer2_variable_3[v9] = 0;
-    if (stringwidth(modembuffer2_variable_2) <= 240) {
-      v15 = v8;
+    byChar2 = pszSrc[1];
+    pszSrc += 2;
+    pszDest[1] = byChar2;
+    pszDest += 2;
+  } while (byChar2);
+  if (iEditMode)                              // If in edit mode, add cursor and handle text width
+  {
+    uiCursorPos = (int)strlen(modembuffer2.buffer) + 1;// Get string length and add underscore cursor at end
+    uiLastCharIdx = uiCursorPos - 1;
+    modembuffer2.buffer[uiLastCharIdx] = '_';   // Place underscore cursor at end of string (ASCII 95 = '_')
+    modembuffer2.buffer[uiLastCharIdx + 1] = '\0';
+    if (stringwidth(modembuffer2.buffer) <= 240)// Check if string width fits in 240 pixel limit
+    {
+      uiFinalLen = uiCursorPos;
     } else {
-      v10 = modembuffer2_variable_5;
-      v11 = a1;
-      modembuffer2_variable_2[0] = 46;
-      modembuffer2_variable_3[0] = 46;
-      modembuffer2_variable_4[0] = 46;
+      pszTruncDest = &modembuffer2.buffer[3];   // String too wide - truncate with ellipsis (...)
+      pszTruncSrc = szStr;
+      memset(modembuffer2.buffer, 46, 3);       // Set first 3 chars to dots (0x2E2E2E = "...")
       do {
-        v12 = *v11;
-        *v10 = *v11;
-        if (!v12)
+        byTruncChar1 = *pszTruncSrc;            // Copy remainder of source string after ellipsis
+        *pszTruncDest = *pszTruncSrc;
+        if (!byTruncChar1)
           break;
-        v13 = v11[1];
-        v11 += 2;
-        v10[1] = v13;
-        v10 += 2;
-      } while (v13);
-      modembuffer2_variable_6[v9] = 0;
-      modembuffer2_variable_5[v9] = 95;
-      v14 = v8;
-      while (stringwidth(modembuffer2_variable_2) > 240)
-        memmove(modembuffer2_variable_5, modembuffer2_variable_6, v14--);
-      v15 = v14 + 3;
+        byTruncChar2 = pszTruncSrc[1];
+        pszTruncSrc += 2;
+        pszTruncDest[1] = byTruncChar2;
+        pszTruncDest += 2;
+      } while (byTruncChar2);
+      modembuffer2.buffer[uiLastCharIdx + 4] = '\0';
+      modembuffer2.buffer[uiLastCharIdx + 3] = '_';
+      uiTruncLen = uiCursorPos;
+      while (stringwidth(modembuffer2.buffer) > 240)// Shrink string from beginning until it fits width limit
+        memmove(&modembuffer2.buffer[3], &modembuffer2.buffer[4], uiTruncLen--);
+      uiFinalLen = uiTruncLen + 3;
     }
-    if ((frames & 0xFu) >= 8)
-      *((_BYTE *)&modembuffer2_variable_1 + v15) = 0;
-  } else if (stringwidth(a1) > 240) {
-    v7 = strlen(modembuffer2_variable_2);
+    if ((frames & 0xFu) >= 8)                 // Blinking cursor: hide cursor every 8 frames
+      modembuffer2.buffer[uiFinalLen - 1] = '\0';
+  } else if (stringwidth((char *)szStr) > 240)  // Not in edit mode - just check if string fits
+  {
+    uiStringLen = (int)strlen(modembuffer2.buffer);
     do {
-      *((_BYTE *)&modembuffer2_variable_1 + v7) = 46;
-      modembuffer2_variable_2[v7] = 46;
-      modembuffer2_variable_3[v7] = 46;
-      modembuffer2_variable_4[v7--] = 0;
-    } while (stringwidth(modembuffer2_variable_2) > 240);
+      modembuffer2.buffer[uiStringLen - 1] = '.';// Truncate from end with "..." until string fits
+      modembuffer2.buffer[uiStringLen] = '.';
+      modembuffer2.buffer[uiStringLen + 1] = '.';
+      modembuffer2.buffer[uiStringLen-- + 2] = '\0';
+    } while (stringwidth(modembuffer2.buffer) > 240);
   }
-  return modembuffer2_variable_2;*/
+  return modembuffer2.buffer;                   // Return pointer to formatted string in modembuffer2[1]
 }
 
 //-------------------------------------------------------------------------------------------------
