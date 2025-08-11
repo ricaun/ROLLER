@@ -51,6 +51,49 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#define CHEAT_MODE_CHEAT_CAR        0x00000001
+#define CHEAT_MODE_DEATH_MODE       0x00000002
+#define CHEAT_MODE_INVINCIBLE       0x00000004
+#define CHEAT_MODE_GRAYSCALE        0x00000008
+#define CHEAT_MODE_END_SEQUENCE     0x00000010
+#define CHEAT_MODE_RACE_HISTORY     0x00000020
+#define CHEAT_MODE_WIDESCREEN       0x00000040
+#define CHEAT_MODE_CREDITS          0x00000080
+#define CHEAT_MODE_ADVANCED_CARS    0x00000100
+#define CHEAT_MODE_KILLER_OPPONENTS 0x00000200
+#define CHEAT_MODE_ICY_ROAD         0x00000400
+#define CHEAT_MODE_50HZ_TIMER       0x00000800
+#define CHEAT_MODE_DOUBLE_TRACK     0x00001000
+#define CHEAT_MODE_100HZ_TIMER      0x00002000
+#define CHEAT_MODE_CLONES           0x00004000
+#define CHEAT_MODE_TINY_CARS        0x00008000
+#define CHEAT_MODE_WARP             0x00010000
+#define CHEAT_MODE_FREAKY           0x00020000
+
+//-------------------------------------------------------------------------------------------------
+
+#define TEX_OFF_GROUND_TEXTURES         0x00000001
+#define TEX_OFF_ROAD_TEXTURES           0x00000002
+#define TEX_OFF_WALL_TEXTURES           0x00000004
+#define TEX_OFF_CLOUDS                  0x00000008
+#define TEX_OFF_HORIZON                 0x00000010
+#define TEX_OFF_PANEL_OFF               0x00000020
+#define TEX_OFF_CAR_TEXTURES            0x00000040
+#define TEX_OFF_BUILDING_TEXTURES       0x00000080
+#define TEX_OFF_SHADOWS                 0x00000100
+#define TEX_OFF_BUILDINGS               0x00000200
+#define TEX_OFF_KMH                     0x00000400
+#define TEX_OFF_GLASS_WALLS             0x00000800
+#define TEX_OFF_PREMIER_CUP_AVAILABLE   0x00001000
+#define TEX_OFF_WIDESCREEN              0x00002000
+#define TEX_OFF_CAR_SET_AVAILABLE       0x00008000
+#define TEX_OFF_ADVANCED_CARS           0x00010000
+#define TEX_OFF_BONUS_CUP_AVAILABLE     0x00020000
+#define TEX_OFF_PANEL_RESTRICTED        0x00040000
+#define TEX_OFF_PERSPECTIVE_CORRECTION  0x00080000
+
+//-------------------------------------------------------------------------------------------------
+
 #if defined(IS_WINDOWS)
 typedef signed char      int8;
 typedef signed short     int16;

@@ -1535,64 +1535,57 @@ void play_game_init()
 
 //-------------------------------------------------------------------------------------------------
 //00012930
-void play_game_uninit(int a1, int a2, int a3, int a4)
-{/*
-  int v4; // edx
-  int v5; // eax
-  int v6; // eax
-  int v7; // ebx
-  unsigned int v8; // eax
+void play_game_uninit()
+{
+  int iReplayType; // edx
+  int iView; // eax
+  //int iMaxOffset; // ebx
+  //unsigned int iOffset; // eax
 
-  _disable();
+  //_disable();
   if (!winner_mode && replaytype != 2 && network_on) {
-    name_copy((int)player_names, &player_names[9 * wConsoleNode]);
+    name_copy(player_names[0], player_names[wConsoleNode]);
     manual_control[0] = manual_control[wConsoleNode];
     player_invul[0] = player_invul[wConsoleNode];
-    a1 = Players_Cars[wConsoleNode];
-    Players_Cars[0] = a1;
+    Players_Cars[0] = Players_Cars[wConsoleNode];
     wConsoleNode = 0;
   }
   frontend_on = -1;
-  _enable();
-  v4 = replaytype;
-  if (replaytype == 2) {
-    a1 = replay_cheat;
+  //_enable();
+  iReplayType = replaytype;
+  if (replaytype == 2)
     cheat_mode = replay_cheat;
-  }
-  if ((cheat_mode & 2) != 0) {
+  // CHEAT_MODE_DEATH_MODE
+  if ((cheat_mode & CHEAT_MODE_DEATH_MODE) != 0) {
     level = game_level;
-    a1 = game_dam;
     damage_level = game_dam;
   }
   if (replaytype != 2 && !winner_mode) {
     game_size = scr_size;
     game_svga = SVGA_ON;
-    v5 = DeathView;
-    if (DeathView < 0)
-      v5 = SelectedView[0];
-    game_view = v5;
-    a3 = DeathView_variable_1[0];
-    if (DeathView_variable_1[0] < 0)
-      game_view_variable_1 = SelectedView_variable_1;
+    iView = DeathView[0];
+    if (DeathView[0] < 0)
+      iView = SelectedView[0];
+    game_view[0] = iView;
+    if (DeathView[1] < 0)
+      game_view[1] = SelectedView[1];
     else
-      game_view_variable_1 = DeathView_variable_1[0];
-    a1 = player1_car;
-    a4 = player_type;
+      game_view[1] = DeathView[1];
     result_p1 = player1_car;
-    if (player_type == 2) {
-      a1 = player2_car;
+    if (player_type == 2)
       result_p2 = player2_car;
-    }
   }
   if (replaytype == 2) {
-    if ((textures_off & 0x2000) != 0) {
-      textures_off ^= 0x2000u;
-      cheat_mode |= 0x40u;
+    // TEX_OFF_WIDESCREEN
+    if ((textures_off & TEX_OFF_WIDESCREEN) != 0) {
+      // TEX_OFF_WIDESCREEN
+      textures_off ^= TEX_OFF_WIDESCREEN;
+      // CHEAT_MODE_WIDESCREEN
+      cheat_mode |= CHEAT_MODE_WIDESCREEN;
     }
-    a1 = replay_player;
     player_type = replay_player;
   }
-  stopreplay(a1, replaytype, a3, a4);
+  stopreplay();
   tick_on = 0;
   if (network_error == 666) {
     network_buggered = 666;
@@ -1603,31 +1596,35 @@ void play_game_uninit(int a1, int a2, int a3, int a4)
   }
   network_error = 0;
   network_sync_error = 0;
-  fade_palette(0, v4, 0, a4);
+  fade_palette(0);
   if (!loading_replay)
-    stopmusic(v6, v4);
+    stopmusic();
   stopallsamples();
   releasesamples();
   free_game_memory();
-  if (v4 == 2) {
+  if (iReplayType == 2) {
     network_buggered = 0;
     if (numcars > 0) {
-      v7 = 4 * numcars;
-      v8 = 0;
-      do {
-        v8 += 4;
-        TrackArrow_variable_1[v8 / 4] = result_best_variable_1[v8 / 4];
-      } while ((int)v8 < v7);
+
+      for (int i = 0; i < numcars; ++i) {
+        non_competitors[i] = result_competing[i];
+      }
+      //iMaxOffset = 4 * numcars;
+      //iOffset = 0;
+      //do {
+      //  iOffset += 4;
+      //  TrackArrow_variable_1[iOffset / 4] = LODWORD(result_best[iOffset / 4 + 15]);// references adjacent data
+      //} while ((int)iOffset < iMaxOffset);
     }
   } else {
     SaveRecords();
     save_fatal_config();
   }
   if (no_mem) {
-    fre(&scrbuf);
-    scrbuf = (uint8 *)getbuffer(0x3E800u);
+    fre((void **)&scrbuf);
+    scrbuf = (uint8 *)getbuffer(256000u);
   }
-  tick_on = -1;*/
+  tick_on = -1;
 }
 
 //-------------------------------------------------------------------------------------------------
