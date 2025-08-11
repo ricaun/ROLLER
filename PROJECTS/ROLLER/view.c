@@ -3,6 +3,10 @@
 #include "car.h"
 #include "moving.h"
 #include "replay.h"
+#include "transfrm.h"
+#include "control.h"
+#include <math.h>
+#include <float.h>
 //-------------------------------------------------------------------------------------------------
 
 tViewData viewdata[2] =       //000A74A8
@@ -17,6 +21,8 @@ float PULLZ[2] = { 640.0, 640.0 }; //000A74F0
 float LOOKZ[2] = { 160.0, 160.0 }; //000A74F8
 int nextpoint[2] = { 0, 0 };  //000A7500
 tCameraPos lastpos[2][64];    //001A1250
+int lastcamelevation;         //001A1A60
+int lastcamdirection;         //001A1A64
 int NearTow;                  //001A1A68
 float chase_x;                //001A1A6C
 float chase_y;                //001A1A70
@@ -513,201 +519,239 @@ CALCULATE_CAMERA_POSITION:
 
 //-------------------------------------------------------------------------------------------------
 //00073920
-int newchaseview(int a1, int a2)
+void newchaseview(int iCarIdx, int iChaseCamIdx)
 {
-  return 0; /*
-  unsigned int v3; // eax
-  int v4; // ebx
-  int v5; // ecx
-  int v6; // edx
-  double v7; // st7
-  double v8; // st6
-  double v9; // st5
-  int v10; // eax
-  float *v11; // eax
-  float v12; // edx
-  double v13; // st7
-  float v14; // edx
-  float v15; // edx
-  double v16; // st7
-  float v17; // edx
-  int v18; // eax
-  int v19; // eax
-  int v20; // edx
-  long double v21; // st7
-  int v22; // edx
-  int v23; // edx
-  int v24; // ebx
-  int v25; // edx
-  double v26; // st7
-  int v27; // eax
-  int v28; // edi
-  int v29; // edx
-  int v30; // eax
-  int v31; // eax
-  int v32; // edi
-  int v33; // eax
-  int v34; // edx
-  int v35; // eax
-  int v36; // eax
-  int result; // eax
-  float v38; // [esp+8h] [ebp-88h]
-  float v39; // [esp+8h] [ebp-88h]
-  float v40; // [esp+18h] [ebp-78h]
-  float v41; // [esp+24h] [ebp-6Ch]
-  float v42; // [esp+28h] [ebp-68h]
-  float v43; // [esp+2Ch] [ebp-64h]
-  float v44; // [esp+30h] [ebp-60h]
-  float v45; // [esp+34h] [ebp-5Ch]
-  float v46; // [esp+38h] [ebp-58h]
-  int v47; // [esp+3Ch] [ebp-54h]
-  float v48; // [esp+40h] [ebp-50h]
-  float v49; // [esp+44h] [ebp-4Ch]
-  int v50; // [esp+48h] [ebp-48h]
-  int v51; // [esp+4Ch] [ebp-44h]
-  int v52; // [esp+50h] [ebp-40h]
-  int v53; // [esp+54h] [ebp-3Ch]
-  float v54; // [esp+58h] [ebp-38h]
-  int v55; // [esp+5Ch] [ebp-34h]
-  float v56; // [esp+60h] [ebp-30h]
-  float v57; // [esp+64h] [ebp-2Ch]
-  int v58; // [esp+68h] [ebp-28h]
-  float v59; // [esp+6Ch] [ebp-24h]
-  float v60; // [esp+70h] [ebp-20h]
-  float v61; // [esp+74h] [ebp-1Ch]
-  float v62; // [esp+78h] [ebp-18h]
+  int iCarIndex; // eax
+  int nYaw; // ebx
+  int nPitch; // ecx
+  int nRoll; // edx
+  double dBackwardX; // st7
+  double dBackwardY; // st6
+  double dBackwardZ; // st5
+  int iCurrChunk; // eax
+  float *pTransformMatrix; // eax
+  float fLookTempX; // edx
+  double dLookTransformedY; // st7
+  float fLookTempY; // edx
+  float fPullTempX; // edx
+  double dPullTransformedY; // st7
+  float fPullTempY; // edx
+  int iPrevIndex; // eax
+  int iPrevArrayIndex; // eax
+  //int iCurrArrayOffset; // edx
+  double dDistanceFromPrev; // st7
+  int iNextIndex; // edx
+  //int iNewArrayOffset; // edx
+  int iLoopCounter; // ebx
+  int iSearchIndex; // edx
+  double dAccumulatedDistance; // st7
+  int iPrevSearchIndex; // eax
+  //int iCarArrayOffset; // edi
+  //int iSearchArrayIndex; // edx
+  //int iPrevArrayOffset; // eax
+  int iNextPosIndex; // eax
+  //int iCarArrayOffset2; // edi
+  //int iNextArrayOffset; // eax
+  int iCalculatedDirection; // eax
+  int iCalculatedElevation; // eax
+  float fLookTempX2; // [esp+8h] [ebp-88h]
+  float fPullTempX2; // [esp+8h] [ebp-88h]
+  float fZ; // [esp+18h] [ebp-78h]
+  float fY; // [esp+24h] [ebp-6Ch]
+  float fX; // [esp+28h] [ebp-68h]
+  float fPrevPosZ; // [esp+2Ch] [ebp-64h]
+  float fPrevPosY; // [esp+30h] [ebp-60h]
+  float fPrevPosX; // [esp+34h] [ebp-5Ch]
+  float fCurrentDistance; // [esp+38h] [ebp-58h]
+  float fVerticalDelta; // [esp+3Ch] [ebp-54h]
+  float fHorizontalDistance; // [esp+40h] [ebp-50h]
+  float fInterpolationFactor; // [esp+44h] [ebp-4Ch]
+  float fViewZ; // [esp+48h] [ebp-48h]
+  float fViewY; // [esp+4Ch] [ebp-44h]
+  float fViewX; // [esp+50h] [ebp-40h]
+  float fHorizontalDeltaX; // [esp+54h] [ebp-3Ch]
+  float fLookAtX; // [esp+58h] [ebp-38h]
+  float fHorizontalDeltaY; // [esp+5Ch] [ebp-34h]
+  float fLookAtY; // [esp+60h] [ebp-30h]
+  float fLookAtZ; // [esp+64h] [ebp-2Ch]
+  float fCameraPosX; // [esp+68h] [ebp-28h]
+  float fCameraPosY; // [esp+6Ch] [ebp-24h]
+  float fCameraPosZ; // [esp+70h] [ebp-20h]
+  float fAccumulatedDist; // [esp+74h] [ebp-1Ch]
+  float fTempAccumulatedDist; // [esp+78h] [ebp-18h]
 
-  v3 = 308 * a1;
-  v4 = Car_variable_7[v3 / 2];
-  v5 = Car_variable_6[v3 / 2];
-  v42 = Car[v3 / 4];
-  v41 = Car_variable_1[v3 / 4];
-  v40 = Car_variable_2[v3 / 4];
-  v6 = Car_variable_5[v3 / 2];
-  v7 = -tcos[v4] * tsin[v5] * tcos[v6] - tsin[v4] * tsin[v6];
-  v8 = -tsin[v4] * tsin[v5] * tcos[v6] + tcos[v4] * tsin[v6];
-  v9 = tcos[v5] * tcos[v6];
-  *(float *)&v58 = PULLZ[a2] * v7 + v42;
-  v59 = PULLZ[a2] * v8 + v41;
-  v60 = PULLZ[a2] * v9 + v40;
-  v54 = v7 * LOOKZ[a2] + v42;
-  v56 = v8 * LOOKZ[a2] + v41;
-  v10 = Car_variable_3[v3 / 2];
-  v57 = v9 * LOOKZ[a2] + v40;
-  if (v10 != -1) {
-    v11 = (float *)((char *)&localdata + 128 * v10);
-    v12 = v7 * LOOKZ[a2] + v42;
-    v54 = v11[1] * v56 + *v11 * v54 + v11[2] * v57 - v11[9];
-    v38 = v12;
-    v13 = v11[3] * v12 + v11[4] * v56 + v11[5] * v57 - v11[10];
-    v14 = v8 * LOOKZ[a2] + v41;
-    v56 = v13;
-    v57 = v11[6] * v38 + v11[7] * v14 + v11[8] * v57 - v11[11];
-    v15 = *(float *)&v58;
-    *(float *)&v58 = v11[1] * v59 + *v11 * *(float *)&v58 + v11[2] * v60 - v11[9];
-    v39 = v15;
-    v16 = v11[3] * v15 + v11[4] * v59 + v11[5] * v60 - v11[10];
-    v17 = PULLZ[a2] * v8 + v41;
-    v59 = v16;
-    v60 = v11[6] * v39 + v11[7] * v17 + v11[8] * v60 - v11[11];
+  iCarIndex = iCarIdx;
+  nYaw = Car[iCarIndex].nYaw;                   // Get car orientation and position
+  nPitch = Car[iCarIndex].nPitch;
+  fX = Car[iCarIndex].pos.fX;
+  fY = Car[iCarIndex].pos.fY;
+  fZ = Car[iCarIndex].pos.fZ;
+  nRoll = Car[iCarIndex].nRoll;
+  dBackwardX = -tcos[nYaw] * tsin[nPitch] * tcos[nRoll] - tsin[nYaw] * tsin[nRoll];// Calculate backward direction vector from car orientation
+                                                // Uses trigonometric transformation to get direction opposite to car's forward vector
+  dBackwardY = -tsin[nYaw] * tsin[nPitch] * tcos[nRoll] + tcos[nYaw] * tsin[nRoll];
+  dBackwardZ = tcos[nPitch] * tcos[nRoll];
+  fCameraPosX = PULLZ[iChaseCamIdx] * (float)dBackwardX + fX;// Calculate camera position (behind car) using PULLZ distance
+  fCameraPosY = PULLZ[iChaseCamIdx] * (float)dBackwardY + fY;
+  fCameraPosZ = PULLZ[iChaseCamIdx] * (float)dBackwardZ + fZ;
+  fLookAtX = (float)dBackwardX * LOOKZ[iChaseCamIdx] + fX;// Calculate look-at position (in front of car) using LOOKZ distance
+  fLookAtY = (float)dBackwardY * LOOKZ[iChaseCamIdx] + fY;
+  iCurrChunk = Car[iCarIndex].nCurrChunk;
+  fLookAtZ = (float)dBackwardZ * LOOKZ[iChaseCamIdx] + fZ;
+  if (iCurrChunk != -1)                       // Transform positions to world coordinates if car is on track
+  {
+    pTransformMatrix = (float *)&localdata[iCurrChunk];// Apply transformation matrix to convert from car-local to world coordinates
+    fLookTempX = (float)dBackwardX * LOOKZ[iChaseCamIdx] + fX;
+    fLookAtX = pTransformMatrix[1] * fLookAtY + *pTransformMatrix * fLookAtX + pTransformMatrix[2] * fLookAtZ - pTransformMatrix[9];
+    fLookTempX2 = fLookTempX;
+    dLookTransformedY = pTransformMatrix[3] * fLookTempX + pTransformMatrix[4] * fLookAtY + pTransformMatrix[5] * fLookAtZ - pTransformMatrix[10];
+    fLookTempY = (float)dBackwardY * LOOKZ[iChaseCamIdx] + fY;
+    fLookAtY = (float)dLookTransformedY;
+    fLookAtZ = pTransformMatrix[6] * fLookTempX2 + pTransformMatrix[7] * fLookTempY + pTransformMatrix[8] * fLookAtZ - pTransformMatrix[11];
+    fPullTempX = fCameraPosX;
+    fCameraPosX = pTransformMatrix[1] * fCameraPosY + *pTransformMatrix * fCameraPosX + pTransformMatrix[2] * fCameraPosZ - pTransformMatrix[9];
+    fPullTempX2 = fPullTempX;
+    dPullTransformedY = pTransformMatrix[3] * fPullTempX + pTransformMatrix[4] * fCameraPosY + pTransformMatrix[5] * fCameraPosZ - pTransformMatrix[10];
+    fPullTempY = PULLZ[iChaseCamIdx] * (float)dBackwardY + fY;
+    fCameraPosY = (float)dPullTransformedY;
+    fCameraPosZ = pTransformMatrix[6] * fPullTempX2 + pTransformMatrix[7] * fPullTempY + pTransformMatrix[8] * fCameraPosZ - pTransformMatrix[11];
   }
-  v18 = nextpoint[a2] - 1;
-  if (v18 < 0)
-    v18 = 63;
-  v19 = 4 * v18;
-  v20 = 16 * nextpoint[a2] + (a2 << 10);
-  v45 = *(float *)((char *)lastpos + v20);
-  v44 = *(float *)((char *)lastpos_variable_1 + v20);
-  v43 = *(float *)((char *)lastpos_variable_2 + v20);
-  v21 = sqrt(
-          (*(float *)&v58 - *(float *)&lastpos[256 * a2 + v19]) * (*(float *)&v58 - *(float *)&lastpos[256 * a2 + v19])
-        + (v59 - lastpos_variable_1[256 * a2 + v19]) * (v59 - lastpos_variable_1[256 * a2 + v19])
-        + (v60 - lastpos_variable_2[256 * a2 + v19]) * (v60 - lastpos_variable_2[256 * a2 + v19]));
-  if (v21 >= view_c_variable_9) {
-    v22 = nextpoint[a2] + 1;
-    nextpoint[a2] = v22;
-    if (v22 == 64)
-      nextpoint[a2] = 0;
-    v23 = 16 * nextpoint[a2] + (a2 << 10);
-    *(int *)((char *)lastpos + v23) = v58;
-    *(float *)((char *)lastpos_variable_1 + v23) = v59;
-    *(float *)((char *)lastpos_variable_2 + v23) = v60;
-    *(float *)((char *)lastpos_variable_3 + v23) = sqrt(
-                                                     (v45 - *(float *)&v58) * (v45 - *(float *)&v58)
-                                                   + (v44 - v59) * (v44 - v59)
-                                                   + (v43 - v60) * (v43 - v60));
+  iPrevIndex = nextpoint[iChaseCamIdx] - 1;     // Get previous position index in circular buffer
+  if (iPrevIndex < 0)
+    iPrevIndex = 63;
+  iPrevArrayIndex = iPrevIndex;
+
+  // Get current position data from position history buffer
+  int iPositionIndex = nextpoint[iChaseCamIdx];
+  fPrevPosX = lastpos[iChaseCamIdx][iPositionIndex].pos.fX;
+  fPrevPosY = lastpos[iChaseCamIdx][iPositionIndex].pos.fY;
+  fPrevPosZ = lastpos[iChaseCamIdx][iPositionIndex].pos.fZ;
+  //iCurrArrayOffset = 16 * nextpoint[iChaseCamIdx] + (iChaseCamIdx << 10);// Get current position data from position history buffer
+  //fPrevPosX = *(float *)((char *)&lastpos[0][0].pos.fX + iCurrArrayOffset);
+  //fPrevPosY = *(float *)((char *)&lastpos[0][0].pos.fY + iCurrArrayOffset);
+  //fPrevPosZ = *(float *)((char *)&lastpos[0][0].pos.fZ + iCurrArrayOffset);
+
+  dDistanceFromPrev = sqrt(
+                        (fCameraPosX - lastpos[iChaseCamIdx][iPrevArrayIndex].pos.fX) * (fCameraPosX - lastpos[iChaseCamIdx][iPrevArrayIndex].pos.fX)
+                      + (fCameraPosY - lastpos[iChaseCamIdx][iPrevArrayIndex].pos.fY) * (fCameraPosY - lastpos[iChaseCamIdx][iPrevArrayIndex].pos.fY)
+                      + (fCameraPosZ - lastpos[iChaseCamIdx][iPrevArrayIndex].pos.fZ) * (fCameraPosZ - lastpos[iChaseCamIdx][iPrevArrayIndex].pos.fZ));// Calculate distance from previous recorded position
+  if (dDistanceFromPrev >= 3200.0)            // Check if car has moved far enough to record new position (3200 units)
+  {
+    iNextIndex = nextpoint[iChaseCamIdx] + 1;   // Car moved enough - advance to next position in circular buffer
+    nextpoint[iChaseCamIdx] = iNextIndex;
+    if (iNextIndex == 64)
+      nextpoint[iChaseCamIdx] = 0;
+
+    // Store new position and distance in history buffer
+    int iNewPositionIndex = nextpoint[iChaseCamIdx];
+    lastpos[iChaseCamIdx][iNewPositionIndex].pos.fX = fCameraPosX;
+    lastpos[iChaseCamIdx][iNewPositionIndex].pos.fY = fCameraPosY;
+    lastpos[iChaseCamIdx][iNewPositionIndex].pos.fZ = fCameraPosZ;
+    lastpos[iChaseCamIdx][iNewPositionIndex].fDistance = (float)sqrt(
+        (fPrevPosX - fCameraPosX) * (fPrevPosX - fCameraPosX)
+      + (fPrevPosY - fCameraPosY) * (fPrevPosY - fCameraPosY)
+      + (fPrevPosZ - fCameraPosZ) * (fPrevPosZ - fCameraPosZ));
+    //iNewArrayOffset = 16 * nextpoint[iChaseCamIdx] + (iChaseCamIdx << 10);// Store new position and distance in history buffer
+    //*(float *)((char *)&lastpos[0][0].pos.fX + iNewArrayOffset) = fCameraPosX;
+    //*(float *)((char *)&lastpos[0][0].pos.fY + iNewArrayOffset) = fCameraPosY;
+    //*(float *)((char *)&lastpos[0][0].pos.fZ + iNewArrayOffset) = fCameraPosZ;
+    //*(float *)((char *)&lastpos[0][0].fDistance + iNewArrayOffset) = sqrt(
+    //                                                                   (fPrevPosX - fCameraPosX) * (fPrevPosX - fCameraPosX)
+    //                                                                 + (fPrevPosY - fCameraPosY) * (fPrevPosY - fCameraPosY)
+    //                                                                 + (fPrevPosZ - fCameraPosZ) * (fPrevPosZ - fCameraPosZ));
   } else {
-    *(int *)((char *)lastpos + v20) = v58;
-    *(float *)((char *)lastpos_variable_1 + v20) = v59;
-    *(float *)((char *)lastpos_variable_2 + v20) = v60;
-    v46 = v21;
-    *(float *)((char *)lastpos_variable_3 + v20) = v46;
+    // Car hasn't moved enough - update current position in place
+    lastpos[iChaseCamIdx][iPositionIndex].pos.fX = fCameraPosX;
+    lastpos[iChaseCamIdx][iPositionIndex].pos.fY = fCameraPosY;
+    lastpos[iChaseCamIdx][iPositionIndex].pos.fZ = fCameraPosZ;
+    fCurrentDistance = (float)dDistanceFromPrev;
+    lastpos[iChaseCamIdx][iPositionIndex].fDistance = fCurrentDistance;
+    //*(float *)((char *)&lastpos[0][0].pos.fX + iCurrArrayOffset) = fCameraPosX;// Car hasn't moved enough - update current position in place
+    //*(float *)((char *)&lastpos[0][0].pos.fY + iCurrArrayOffset) = fCameraPosY;
+    //*(float *)((char *)&lastpos[0][0].pos.fZ + iCurrArrayOffset) = fCameraPosZ;
+    //fCurrentDistance = dDistanceFromPrev;
+    //*(float *)((char *)&lastpos[0][0].fDistance + iCurrArrayOffset) = fCurrentDistance;
   }
-  v24 = 62;
-  v61 = 0.0;
-  v25 = nextpoint[a2];
+  iLoopCounter = 62;                            // Search for chase camera position at specified distance behind car
+                                                // Loop through position history to find point at CHASE_DIST distance
+  fAccumulatedDist = 0.0;
+  iSearchIndex = nextpoint[iChaseCamIdx];
   while (1) {
-    v26 = v61 + *(float *)&lastpos_variable_3[256 * a2 + 4 * v25];
-    if (v26 >= CHASE_DIST[a2] || v24 < 0)
-      break;
-    v62 = v26;
-    v61 = v62;
-    v25 = v25 - 1 + (v25 - 1 < 0 ? 0x40 : 0);
-    --v24;
+    dAccumulatedDistance = fAccumulatedDist + lastpos[iChaseCamIdx][iSearchIndex].fDistance;// Accumulate distance from position history
+    if (dAccumulatedDistance >= CHASE_DIST[iChaseCamIdx] || iLoopCounter < 0)
+      break;                                    // Check if reached target chase distance or exhausted history
+    fTempAccumulatedDist = (float)dAccumulatedDistance;
+    fAccumulatedDist = fTempAccumulatedDist;
+    iSearchIndex = iSearchIndex - 1 + (iSearchIndex - 1 < 0 ? 0x40 : 0);
+    --iLoopCounter;
   }
-  if (v24 <= 0) {
-    v31 = nextpoint[a2] + 1;
-    if (nextpoint[a2] == 63)
-      v31 = 0;
-    v32 = a2 << 10;
-    v33 = 16 * v31;
-    v52 = *(int *)((char *)lastpos + v32 + v33);
-    v34 = *(_DWORD *)((char *)lastpos_variable_1 + v32 + v33);
-    v30 = *(_DWORD *)((char *)lastpos_variable_2 + v32 + v33);
-    v51 = v34;
-    v50 = v30;
+  if (iLoopCounter <= 0) {
+    iNextPosIndex = nextpoint[iChaseCamIdx] + 1;// Not enough history - use position ahead of current
+    if (nextpoint[iChaseCamIdx] == 63)
+      iNextPosIndex = 0;
+
+    fViewX = lastpos[iChaseCamIdx][iNextPosIndex].pos.fX;
+    fViewY = lastpos[iChaseCamIdx][iNextPosIndex].pos.fY;
+    fViewZ = lastpos[iChaseCamIdx][iNextPosIndex].pos.fZ;
+    //iCarArrayOffset2 = iChaseCamIdx << 10;
+    //iNextArrayOffset = 16 * iNextPosIndex;
+    //fViewX = *(float *)((char *)&lastpos[0][0].pos.fX + iCarArrayOffset2 + iNextArrayOffset);
+    //fViewY = *(float *)((char *)&lastpos[0][0].pos.fY + iCarArrayOffset2 + iNextArrayOffset);
+    //fViewZ = *(float *)((char *)&lastpos[0][0].pos.fZ + iCarArrayOffset2 + iNextArrayOffset);
   } else {
-    v27 = v25 - 1;
-    v49 = (*(float *)&lastpos_variable_3[256 * a2 + 4 * v25] + v61 - CHASE_DIST[a2])
-      / *(float *)&lastpos_variable_3[256 * a2 + 4 * v25];
-    v28 = a2 << 10;
-    v29 = 4 * v25;
-    v30 = 16 * (v27 + (v27 < 0 ? 0x40 : 0));
-    *(float *)&v52 = (*(float *)((char *)&lastpos[v29] + v28) - *(float *)((char *)lastpos + v28 + v30)) * v49
-      + *(float *)((char *)lastpos + v28 + v30);
-    *(float *)&v51 = (*(float *)((char *)&lastpos_variable_1[v29] + v28)
-                    - *(float *)((char *)lastpos_variable_1 + v28 + v30))
-      * v49
-      + *(float *)((char *)lastpos_variable_1 + v28 + v30);
-    *(float *)&v50 = v49
-      * (*(float *)((char *)&lastpos_variable_2[v29] + v28)
-       - *(float *)((char *)lastpos_variable_2 + v28 + v30))
-      + *(float *)((char *)lastpos_variable_2 + v28 + v30);
+    iPrevSearchIndex = iSearchIndex - 1;        // Interpolate camera position between two history points
+                                                // Calculate exact position at target distance using linear interpolation
+    fInterpolationFactor = (lastpos[iChaseCamIdx][iSearchIndex].fDistance + fAccumulatedDist - CHASE_DIST[iChaseCamIdx]) / lastpos[iChaseCamIdx][iSearchIndex].fDistance;
+
+
+    // Handle circular buffer wraparound for previous index
+    int iPrevIndex = (iPrevSearchIndex < 0) ? (iPrevSearchIndex + 64) : iPrevSearchIndex;
+    fViewX = (lastpos[iChaseCamIdx][iSearchIndex].pos.fX - lastpos[iChaseCamIdx][iPrevIndex].pos.fX)
+           * fInterpolationFactor
+           + lastpos[iChaseCamIdx][iPrevIndex].pos.fX;
+    fViewY = (lastpos[iChaseCamIdx][iSearchIndex].pos.fY - lastpos[iChaseCamIdx][iPrevIndex].pos.fY)
+           * fInterpolationFactor
+           + lastpos[iChaseCamIdx][iPrevIndex].pos.fY;
+    fViewZ = fInterpolationFactor
+           * (lastpos[iChaseCamIdx][iSearchIndex].pos.fZ - lastpos[iChaseCamIdx][iPrevIndex].pos.fZ)
+           + lastpos[iChaseCamIdx][iPrevIndex].pos.fZ;
+    //iCarArrayOffset = iChaseCamIdx << 10;
+    //iSearchArrayIndex = iSearchIndex;
+    //iPrevArrayOffset = 16 * (iPrevSearchIndex + (iPrevSearchIndex < 0 ? 64 : 0));
+    //fViewX = (*(float *)((char *)&lastpos[0][iSearchArrayIndex].pos.fX + iCarArrayOffset) - *(float *)((char *)&lastpos[0][0].pos.fX + iCarArrayOffset + iPrevArrayOffset))
+    //  * fInterpolationFactor
+    //  + *(float *)((char *)&lastpos[0][0].pos.fX + iCarArrayOffset + iPrevArrayOffset);
+    //fViewY = (*(float *)((char *)&lastpos[0][iSearchArrayIndex].pos.fY + iCarArrayOffset) - *(float *)((char *)&lastpos[0][0].pos.fY + iCarArrayOffset + iPrevArrayOffset))
+    //  * fInterpolationFactor
+    //  + *(float *)((char *)&lastpos[0][0].pos.fY + iCarArrayOffset + iPrevArrayOffset);
+    //fViewZ = fInterpolationFactor
+    //  * (*(float *)((char *)&lastpos[0][iSearchArrayIndex].pos.fZ + iCarArrayOffset) - *(float *)((char *)&lastpos[0][0].pos.fZ + iCarArrayOffset + iPrevArrayOffset))
+    //  + *(float *)((char *)&lastpos[0][0].pos.fZ + iCarArrayOffset + iPrevArrayOffset);
   }
-  *(float *)&v53 = v54 - *(float *)&v52;
-  *(float *)&v55 = v56 - *(float *)&v51;
-  if ((v53 & 0x7FFFFFFF) != 0 || fabs(v56 - *(float *)&v51))
-    v35 = getangle(v30, v53, *(float *)&v53, v55);
+  fHorizontalDeltaX = fLookAtX - fViewX;        // Calculate direction from camera to look-at point
+  fHorizontalDeltaY = fLookAtY - fViewY;
+  //if ((LODWORD(fHorizontalDeltaX) & 0x7FFFFFFF) != 0 || fabs(fLookAtY - fViewY))// Calculate horizontal direction angle (yaw)
+  if (fabs(fHorizontalDeltaX) > FLT_EPSILON || fabs(fLookAtY - fViewY))// Calculate horizontal direction angle (yaw)
+    iCalculatedDirection = getangle(fHorizontalDeltaX, fHorizontalDeltaY);
   else
-    v35 = lastcamdirection;
-  vdirection = v35;
-  v48 = sqrt(*(float *)&v53 * *(float *)&v53 + *(float *)&v55 * *(float *)&v55);
-  if ((LODWORD(v48) & 0x7FFFFFFF) != 0 || fabs(v57 - *(float *)&v50)) {
-    *(float *)&v47 = v57 - *(float *)&v50;
-    v36 = getangle(v35, v53, v48, v47);
+    iCalculatedDirection = lastcamdirection;    // Use last camera direction if no movement detected
+  vdirection = iCalculatedDirection;
+  fHorizontalDistance = (float)sqrt(fHorizontalDeltaX * fHorizontalDeltaX + fHorizontalDeltaY * fHorizontalDeltaY);// Calculate elevation angle (pitch) from horizontal distance and height difference
+  //if ((LODWORD(fHorizontalDistance) & 0x7FFFFFFF) != 0 || fabs(fLookAtZ - fViewZ)) {
+  if (fabs(fHorizontalDistance) > FLT_EPSILON || fabs(fLookAtZ - fViewZ)) {
+    fVerticalDelta = fLookAtZ - fViewZ;
+    iCalculatedElevation = getangle(fHorizontalDistance, fVerticalDelta);
   } else {
-    v36 = lastcamelevation;
+    iCalculatedElevation = lastcamelevation;    // Use last camera elevation if no height difference
   }
-  velevation = v36;
+  velevation = iCalculatedElevation;
   vtilt = 0;
-  calculatetransform(v52, v51, v50, DDX, DDY, DDZ);
-  lastcamdirection = vdirection;
+  calculatetransform(-1, vdirection, iCalculatedElevation, 0, fViewX, fViewY, fViewZ, DDX, DDY, DDZ);// Set up camera transformation matrix with calculated position and orientation
+  lastcamdirection = vdirection;                // Save camera angles for next frame to avoid sudden changes
   lastcamelevation = velevation;
-  worlddirn = vdirection;
+  worlddirn = vdirection;                       // Set global world orientation values
   worldelev = velevation;
-  result = vtilt;
   worldtilt = vtilt;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
