@@ -16,7 +16,7 @@ float CHASE_MIN[2] = { 500.0, 500.0 };  //000A74E8
 float PULLZ[2] = { 640.0, 640.0 }; //000A74F0
 float LOOKZ[2] = { 160.0, 160.0 }; //000A74F8
 int nextpoint[2] = { 0, 0 };  //000A7500
-float lastpos[2][256];        //001A1250
+tCameraPos lastpos[2][64];    //001A1250
 int NearTow;                  //001A1A68
 float chase_x;                //001A1A6C
 float chase_y;                //001A1A70
@@ -478,37 +478,37 @@ CALCULATE_CAMERA_POSITION:
   {
     chase_x = fCameraX;                         // No chunk: directly set global chase position and lastpos array
     chase_y = fCameraY;
-    lastpos[iPlayer][3] = 0.0;
+    lastpos[iPlayer][0].fDistance = 0.0;
     chase_z = fCameraZ;
-    lastpos[iPlayer][0] = fCameraX;
-    lastpos[iPlayer][1] = fCameraY;
-    lastpos[iPlayer][2] = fCameraZ;
+    lastpos[iPlayer][0].pos.fX = fCameraX;
+    lastpos[iPlayer][0].pos.fY = fCameraY;
+    lastpos[iPlayer][0].pos.fZ = fCameraZ;
   } else {
     pData = &localdata[iCurrChunk];             // In chunk: transform camera position using chunk transformation matrix
     chase_x = pData->pointAy[0].fY * fCameraY + pData->pointAy[0].fX * fCameraX + pData->pointAy[0].fZ * fCameraZ - pData->pointAy[3].fX;
     chase_y = pData->pointAy[1].fX * fCameraX + pData->pointAy[1].fY * fCameraY + pData->pointAy[1].fZ * fCameraZ - pData->pointAy[3].fY;
     chase_z = pData->pointAy[2].fX * fCameraX + pData->pointAy[2].fY * fCameraY + pData->pointAy[2].fZ * fCameraZ - pData->pointAy[3].fZ;
-    lastpos[iPlayer][0] = chase_x;
-    lastpos[iPlayer][1] = pData->pointAy[1].fX * fCameraX + pData->pointAy[1].fY * fCameraY + pData->pointAy[1].fZ * fCameraZ - pData->pointAy[3].fY;
+    lastpos[iPlayer][0].pos.fX = chase_x;
+    lastpos[iPlayer][0].pos.fY = pData->pointAy[1].fX * fCameraX + pData->pointAy[1].fY * fCameraY + pData->pointAy[1].fZ * fCameraZ - pData->pointAy[3].fY;
     dTransformZ = fCameraY * pData->pointAy[2].fY + fCameraX * pData->pointAy[2].fX + fCameraZ * pData->pointAy[2].fZ - pData->pointAy[3].fZ;
-    lastpos[iPlayer][3] = 0.0;
-    lastpos[iPlayer][2] = (float)dTransformZ;
+    lastpos[iPlayer][0].fDistance = 0.0;
+    lastpos[iPlayer][0].pos.fZ = (float)dTransformZ;
   }
 
-  // Copy current position to backup slots (lastpos[4-7]) for interpolation
-  lastpos[iPlayer][4] = lastpos[iPlayer][0];
-  lastpos[iPlayer][5] = lastpos[iPlayer][1];
-  lastpos[iPlayer][6] = lastpos[iPlayer][2];
-  //iPlayerShift = iPlayer << 10;                 // Copy current position to backup slots (lastpos[4-7]) for interpolation
-  //*(float *)((char *)&lastpos[0][4] + iPlayerShift) = lastpos[iPlayer][0];
-  //*(float *)((char *)&lastpos[0][5] + iPlayerShift) = lastpos[iPlayer][1];
-  //*(float *)((char *)&lastpos[0][6] + iPlayerShift) = lastpos[iPlayer][2];
+  // Copy current position to backup slots for interpolation
+  lastpos[iPlayer][1].pos.fX = lastpos[iPlayer][0].pos.fX;
+  lastpos[iPlayer][1].pos.fY = lastpos[iPlayer][0].pos.fY;  
+  lastpos[iPlayer][1].pos.fZ = lastpos[iPlayer][0].pos.fZ;
+  //iPlayerShift = iPlayer << 10;                 // Copy current position to backup slots for interpolation
+  //*(float *)((char *)&lastpos[0][1].pos.fX + iPlayerShift) = lastpos[iPlayer][0].pos.fX;
+  //*(float *)((char *)&lastpos[0][1].pos.fY + iPlayerShift) = lastpos[iPlayer][0].pos.fY;
+  //*(float *)((char *)&lastpos[0][1].pos.fZ + iPlayerShift) = lastpos[iPlayer][0].pos.fZ;
 
-  dLastPosW = lastpos[iPlayer][3];
+  dLastPosW = lastpos[iPlayer][0].fDistance;
   nextpoint[iPlayer] = 1;                       // Set nextpoint flag to indicate new camera position is ready
 
-  lastpos[iPlayer][7] = (float)dLastPosW;
-  //*(float *)((char *)&lastpos[0][7] + iPlayerShift) = dLastPosW;
+  lastpos[iPlayer][1].fDistance = (float)dLastPosW;
+  //*(float *)((char *)&lastpos[0][1].fDistance + iPlayerShift) = dLastPosW;
 }
 
 //-------------------------------------------------------------------------------------------------

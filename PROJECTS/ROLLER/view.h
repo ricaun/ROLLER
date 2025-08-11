@@ -1,6 +1,8 @@
 #ifndef _ROLLER_VIEW_H
 #define _ROLLER_VIEW_H
 //-------------------------------------------------------------------------------------------------
+#include "types.h"
+//-------------------------------------------------------------------------------------------------
 
 typedef struct
 {
@@ -14,6 +16,14 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  tVec3 pos;
+  float fDistance;
+} tCameraPos;
+
+//-------------------------------------------------------------------------------------------------
+
 extern tViewData viewdata[2];
 extern int chaseview[2];
 extern float CHASE_DIST[2];
@@ -21,7 +31,7 @@ extern float CHASE_MIN[2];
 extern float PULLZ[2];
 extern float LOOKZ[2];
 extern int nextpoint[2];
-extern float lastpos[2][256];
+extern tCameraPos lastpos[2][64];
 extern int NearTow;
 extern float chase_x;
 extern float chase_y;
