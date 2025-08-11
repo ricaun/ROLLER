@@ -41,6 +41,7 @@ int lastfile = -1;        //000A641C
 int lastautocut = -1;     //000A6420
 int pend_view_init = -1;  //000A6424
 int replayedit = 0;       //000A6428
+char replayfilename[32] = "INTRO1.GSS"; //000A642C
 char *views[8] = {        //000A644C
   "IN CAR",
   "CHASE",
@@ -123,19 +124,25 @@ tPoint rrotate[8] =       //000A65AC
 };
 tReplayCamera camera[100];//00189980
 int disabled[4096];       //00189BD8
+char temp_names[16][9];   //0018DBD8
+char newrepsample[16];    //0018DC68
+char repsample[16];       //0018DC78
+int oldtrack;             //0018EE30
+int oldtextures;          //0018EE34
+FILE *replayfile;         //0018EE3C
 int replayspeed;          //0018EE40
+int oldcars;              //0018EE44
 int replayframes;         //0018EE48
 int currentreplayframe;   //0018EE54
 int lastreplayframe;      //0018EE58
 int introfiles;           //0018EE70
-char newrepsample[16];    //0018DC68
-char repsample[16];       //0018DC78
 int replayselect;         //0018EE60
 int slowing;              //0018EE64
 int rewinding;            //0018EE68
 int forwarding;           //0018EE6C
 int replaystart;          //0018EE74
 int cuts;                 //0018EE78
+char rememberfilename[34];//0018EE9E
 
 //-------------------------------------------------------------------------------------------------
 //00063DB0
@@ -523,84 +530,87 @@ int startreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00064730
-void stopreplay(int a1, int a2, int a3, int a4)
-{/*
-  char *v4; // edx
-  char *v5; // ebx
-  char *v6; // edi
-  char *v7; // esi
-  char v8; // al
-  char v9; // al
-  __int64 v10; // rax
-  int v11; // ebx
-  int v12; // edx
-  char *v13; // edi
-  char *v14; // esi
-  char v15; // al
-  char v16; // al
-  _WORD v17[8]; // [esp-2h] [ebp-1Ch] BYREF
-  int v18; // [esp+Eh] [ebp-Ch]
-  int v19; // [esp+12h] [ebp-8h]
+void stopreplay()
+{
+  char *szTempNamePtr; // edx
+  char *szDriverNamePtr; // ebx
+  char *szDstPtr; // edi
+  char *szSrcPtr; // esi
+  char byChar1; // al
+  char byChar2; // al
+  int uiAvailBytes; // edx
+  int iFileHandle; // eax
+  int iFileHandleCopy; // ebx
+  int iNewFileSize; // edx
+  char *szReplayDstPtr; // edi
+  char *szRememberSrcPtr; // esi
+  char byReplayChar1; // al
+  char byReplayChar2; // al
+  //_diskfree_t diskfree; // [esp-2h] [ebp-1Ch] BYREF
 
-  v19 = a4;
-  v18 = a2;
-  if (replaytype)
+  if (replaytype)                             // Close replay file if replay is active
     fclose(replayfile);
-  if (replaytype == 2) {
-    v4 = (char *)&temp_names;
-    v5 = driver_names;
+  if (replaytype == 2)                        // If replay type is 2 (recording/playback mode), restore driver names
+  {
+    szTempNamePtr = temp_names[0];              // Copy temp driver names back to original driver names array
+    szDriverNamePtr = driver_names[0];
     do {
-      v6 = v5;
-      v7 = v4;
+      szDstPtr = szDriverNamePtr;
+      szSrcPtr = szTempNamePtr;
       do {
-        v8 = *v7;
-        *v6 = *v7;
-        if (!v8)
+        byChar1 = *szSrcPtr;
+        *szDstPtr = *szSrcPtr;
+        if (!byChar1)
           break;
-        v9 = v7[1];
-        v7 += 2;
-        v6[1] = v9;
-        v6 += 2;
-      } while (v9);
-      v4 += 9;
-      v5 += 9;
-    } while (v4 != (char *)&temp_names + 144);
-    TrackLoad = oldtrack;
+        byChar2 = szSrcPtr[1];
+        szSrcPtr += 2;
+        szDstPtr[1] = byChar2;
+        szDstPtr += 2;
+      } while (byChar2);
+      szTempNamePtr += 9;
+      szDriverNamePtr += 9;
+    } while (szTempNamePtr != temp_names[16]);
+    TrackLoad = oldtrack;                       // Restore original track, car count and texture settings
     numcars = oldcars;
     textures_off = oldtextures;
   }
-  if (replaytype == 1) {
-    dos_getdiskfree(0, v17);
-    if (v17[1] * v17[2] * v17[3] < (int)&unk_100000) {
-      v10 = open(replayfilename, 514);
-      v11 = v10;
-      if ((_DWORD)v10 != -1) {
-        v12 = filelength(v10, HIDWORD(v10), v10) - ((_DWORD)&unk_100000 - HIDWORD(v10));
-        if (v12 >= 20480) {
-          chsize(v11, v12);
-          close(v11, v12);
-        } else {
-          close(v11, v12);
-          remove(replayfilename);
-        }
-      }
-    }
+  if (replaytype == 1)                        // If replay type is 1 (recording mode), manage disk space
+  {
+    //dos_getdiskfree(0, &diskfree);              // Get disk free space information
+    //uiAvailBytes = HIWORD(diskfree.total_clusters) * LOWORD(diskfree.avail_clusters) * HIWORD(diskfree.avail_clusters);// Calculate available disk space in bytes
+    //if (uiAvailBytes < 0x100000)              // Check if available space is less than required threshold
+    //{
+    //  iFileHandle = open(replayfilename, 0x202);// Open replay file for trimming
+    //  iFileHandleCopy = iFileHandle;
+    //  if (iFileHandle != -1) {
+    //    iNewFileSize = filelength(iFileHandle) - (0x100000 - uiAvailBytes);// Calculate new file size to free up disk space
+    //    if (iNewFileSize >= 20480)            // If new size >= 20KB, truncate file; otherwise delete it
+    //    {
+    //      chsize(iFileHandleCopy, iNewFileSize);
+    //      close(iFileHandleCopy);
+    //    } else {
+    //      close(iFileHandleCopy);
+    //      remove(replayfilename);
+    //    }
+    //  }
+    //}
   }
-  replaytype = 0;
-  if (intro) {
-    v13 = replayfilename;
-    v14 = (char *)&rememberfilename;
+  replaytype = 0;                               // Reset replay type to inactive (0)
+  if (intro)                                  // If in intro mode, restore original filename
+  {
+    szReplayDstPtr = replayfilename;            // Copy remembered filename back to replay filename
+    szRememberSrcPtr = rememberfilename;
     do {
-      v15 = *v14;
-      *v13 = *v14;
-      if (!v15)
+      byReplayChar1 = *szRememberSrcPtr;
+      *szReplayDstPtr = *szRememberSrcPtr;
+      if (!byReplayChar1)
         break;
-      v16 = v14[1];
-      v14 += 2;
-      v13[1] = v16;
-      v13 += 2;
-    } while (v16);
-  }*/
+      byReplayChar2 = szRememberSrcPtr[1];
+      szRememberSrcPtr += 2;
+      szReplayDstPtr[1] = byReplayChar2;
+      szReplayDstPtr += 2;
+    } while (byReplayChar2);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

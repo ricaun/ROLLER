@@ -4,6 +4,8 @@
 #include "types.h"
 #include "func3.h"
 #include "frontend.h"
+#include <stdio.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
 #define REPLAY_SPEED_MIN      -8192
@@ -44,6 +46,7 @@ extern int lastfile;
 extern int lastautocut;
 extern int pend_view_init;
 extern int replayedit;
+extern char replayfilename[32];
 extern char *views[8];
 extern int loading_replay;
 extern tRIcon ricon[26];
@@ -52,19 +55,25 @@ extern int lsdsel;
 extern tPoint rrotate[8];
 extern tReplayCamera camera[100];
 extern int disabled[4096];
+extern char temp_names[16][9];
+extern char newrepsample[16];
+extern char repsample[16];
+extern int oldtrack;
+extern int oldtextures;
+extern FILE *replayfile;
 extern int replayspeed;
+extern int oldcars;
 extern int replayframes;
 extern int currentreplayframe;
 extern int lastreplayframe;
 extern int introfiles;
-extern char newrepsample[16];
-extern char repsample[16];
 extern int replayselect;
 extern int slowing;
 extern int rewinding;
 extern int forwarding;
 extern int replaystart;
 extern int cuts;
+extern char rememberfilename[34];
 
 //-------------------------------------------------------------------------------------------------;
 
