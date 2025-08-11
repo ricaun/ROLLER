@@ -60,13 +60,13 @@ typedef struct
   uint8 byLap;
   uint8 byRacePosition;
   uint8 byStatusFlags;
-  int iUnk34;
-  int iUnk35;
+  int iPitchDynamicOffset;
+  int iRollDynamicOffset;
   int iUnk35_2;
   int iUnk35_3;
-  int iUnk36;
+  int iPitchCameraOffset;
   int iUnk36_2;
-  int iUnk37;
+  int iRollCameraOffset;
   int iUnk38;
   int iUnk38_1;
   int iUnk38_2;

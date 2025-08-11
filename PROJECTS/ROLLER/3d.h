@@ -161,6 +161,7 @@ extern int network_on;
 extern int Play_View;
 extern int DriveView[2];
 extern int mirror;
+extern float TopViewHeight;
 extern int mpressed;
 extern int jpressed;
 extern uint8 *screen;

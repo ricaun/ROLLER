@@ -32,6 +32,9 @@ extern float PULLZ[2];
 extern float LOOKZ[2];
 extern int nextpoint[2];
 extern tCameraPos lastpos[2][64];
+extern float TowerGx;
+extern float TowerGy;
+extern float TowerGz;
 extern int lastcamelevation;
 extern int lastcamdirection;
 extern int NearTow;
@@ -41,7 +44,7 @@ extern float chase_z;
 
 //-------------------------------------------------------------------------------------------------
 
-int calculateview(int a1, int a2, int a3);
+void calculateview(int iViewMode, int iCarIdx, int iChaseCamIdx);
 void initcarview(int iCarIdx, int iPlayer);
 void newchaseview(int iCarIdx, int iChaseCamIdx);
 

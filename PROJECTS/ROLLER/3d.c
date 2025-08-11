@@ -74,6 +74,7 @@ int network_on = 0;         //000A3510
 int Play_View = 0;          //000A3518
 int DriveView[2] = { 0, 0 }; //000A351C
 int mirror = 0;             //000A3524
+float TopViewHeight = 12288.0f; //000A3528
 int mpressed = 0;           //000A352C
 int jpressed = 0;           //000A352D
 int start_time = 0;         //000A3534

@@ -5,6 +5,8 @@
 #include "replay.h"
 #include "transfrm.h"
 #include "control.h"
+#include "tower.h"
+#include "loadtrak.h"
 #include <math.h>
 #include <float.h>
 //-------------------------------------------------------------------------------------------------
@@ -21,6 +23,9 @@ float PULLZ[2] = { 640.0, 640.0 }; //000A74F0
 float LOOKZ[2] = { 160.0, 160.0 }; //000A74F8
 int nextpoint[2] = { 0, 0 };  //000A7500
 tCameraPos lastpos[2][64];    //001A1250
+float TowerGx;                //001A1A54
+float TowerGy;                //001A1A58
+float TowerGz;                //001A1A5C
 int lastcamelevation;         //001A1A60
 int lastcamdirection;         //001A1A64
 int NearTow;                  //001A1A68
@@ -30,371 +35,407 @@ float chase_z;                //001A1A74
 
 //-------------------------------------------------------------------------------------------------
 //000729C0
-int calculateview(int a1, int a2, int a3)
+void calculateview(int iViewMode, int iCarIdx, int iChaseCamIdx)
 {
-  return 0; /*
-  int v4; // esi
-  unsigned int v5; // eax
-  int v6; // eax
-  float *v7; // eax
-  int v8; // edx
-  int v9; // ebx
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  double v13; // st7
-  int v14; // eax
-  double v15; // st7
-  double v16; // st6
-  double v17; // st4
-  long double v18; // st3
-  int v19; // eax
-  int result; // eax
-  float v21; // edx
-  int v22; // eax
-  float *v23; // eax
-  int v24; // eax
-  float *v25; // eax
-  int v26; // eax
-  int v27; // edi
-  int v28; // edi
-  int v29; // [esp-18h] [ebp-E4h]
-  int v30; // [esp-14h] [ebp-E0h]
-  int v31; // [esp-10h] [ebp-DCh]
-  double v32; // [esp+0h] [ebp-CCh]
-  double v33; // [esp+8h] [ebp-C4h]
-  double v34; // [esp+10h] [ebp-BCh]
-  float v35; // [esp+2Ch] [ebp-A0h]
-  float v36; // [esp+30h] [ebp-9Ch]
-  float v37; // [esp+34h] [ebp-98h]
-  float v38; // [esp+38h] [ebp-94h]
-  float v39; // [esp+3Ch] [ebp-90h]
-  float v40; // [esp+40h] [ebp-8Ch]
-  float v41; // [esp+44h] [ebp-88h]
-  int v42; // [esp+48h] [ebp-84h]
-  int v43; // [esp+4Ch] [ebp-80h]
-  float v44; // [esp+50h] [ebp-7Ch]
-  float v45; // [esp+54h] [ebp-78h]
-  int v46; // [esp+58h] [ebp-74h]
-  float v47; // [esp+5Ch] [ebp-70h]
-  float v48; // [esp+60h] [ebp-6Ch]
-  float v49; // [esp+64h] [ebp-68h]
-  int v50; // [esp+6Ch] [ebp-60h]
-  float v51; // [esp+70h] [ebp-5Ch]
-  float v52; // [esp+74h] [ebp-58h]
-  float v53; // [esp+78h] [ebp-54h]
-  float v54; // [esp+7Ch] [ebp-50h]
-  float v55; // [esp+80h] [ebp-4Ch]
-  float v56; // [esp+84h] [ebp-48h]
-  float v57; // [esp+88h] [ebp-44h]
-  float v58; // [esp+8Ch] [ebp-40h]
-  float v59; // [esp+90h] [ebp-3Ch]
-  int v60; // [esp+94h] [ebp-38h]
-  float v61; // [esp+98h] [ebp-34h]
-  float v62; // [esp+9Ch] [ebp-30h]
-  float v63; // [esp+A0h] [ebp-2Ch]
-  int v64; // [esp+A4h] [ebp-28h]
-  int v65; // [esp+A8h] [ebp-24h]
-  float v66; // [esp+ACh] [ebp-20h]
-  float v67; // [esp+B0h] [ebp-1Ch]
-  float v68; // [esp+B4h] [ebp-18h]
-  float v69; // [esp+B8h] [ebp-14h]
-  float v70; // [esp+B8h] [ebp-14h]
+  int iClosestTowerIdx; // esi
+  int iCarIndex; // eax
+  int iChunkIndex; // eax
+  tData *pTransformMatrix; // eax
+  int iTowerLoopIdx; // edx
+  int iTowerArrayIdx; // ebx
+  //int iTempValue; // eax
+  int iTowerType; // eax
+  double dWorldZOffset; // st7
+  int iChunkIdxMinus2; // eax
+  float *pTransformMinus2; // eax
+  double dDeltaX; // st7
+  double dDeltaY; // st6
+  double dDeltaZ; // st4
+  double dInvMagnitude; // st3
+  int iCalculatedElevation; // eax
+  float fCarPosZ; // edx
+  int iCarChunk; // eax
+  tData *pCarTransform; // eax
+  float fCarPosZ2; // edx
+  int iCarChunk2; // eax
+  tData *pCarTransform2; // eax
+  int iRollCalculated; // eax
+  int iPitchCalculated; // edi
+  int iPitchCalculated2; // edi
+  int iCarIndex2; // edi
+  int iYaw; // edx
+  int iCurrChunk; // ecx
+  float fX; // [esp-18h] [ebp-E4h]
+  float fY; // [esp-14h] [ebp-E0h]
+  float fZ; // [esp-10h] [ebp-DCh]
+  double dChunkDistance; // [esp+0h] [ebp-CCh]
+  double dMinDistance; // [esp+8h] [ebp-C4h]
+  double dWrapDistance; // [esp+10h] [ebp-BCh]
+  float fCameraOffsetX; // [esp+2Ch] [ebp-A0h]
+  float fCameraOffsetY; // [esp+30h] [ebp-9Ch]
+  float fCameraOffsetZ; // [esp+34h] [ebp-98h]
+  float fPosX; // [esp+38h] [ebp-94h]
+  float fPosZ; // [esp+3Ch] [ebp-90h]
+  float fPosY; // [esp+40h] [ebp-8Ch]
+  float fHorizontalDistance; // [esp+44h] [ebp-88h]
+  float fVerticalDistance; // [esp+48h] [ebp-84h]
+  float fTowerVerticalDistance; // [esp+4Ch] [ebp-80h]
+  float fTowerHorizontalDistance; // [esp+50h] [ebp-7Ch]
+  float fDeltaX; // [esp+54h] [ebp-78h]
+  float fDeltaY; // [esp+58h] [ebp-74h]
+  float fCarPosY; // [esp+5Ch] [ebp-70h]
+  float fTowerDeltaX; // [esp+60h] [ebp-6Ch]
+  float fCarPosY2; // [esp+64h] [ebp-68h]
+  float fTowerDeltaY; // [esp+6Ch] [ebp-60h]
+  float fCarPosX; // [esp+70h] [ebp-5Ch]
+  float fCarPosZ3; // [esp+74h] [ebp-58h]
+  float fCarPosY3; // [esp+78h] [ebp-54h]
+  float fCarPosX2; // [esp+7Ch] [ebp-50h]
+  float fCarPosX3; // [esp+80h] [ebp-4Ch]
+  float fCarPosZ4; // [esp+84h] [ebp-48h]
+  float fTransformedPosZ; // [esp+88h] [ebp-44h]
+  float fTransformedPosX; // [esp+8Ch] [ebp-40h]
+  float fTransformedPosY; // [esp+90h] [ebp-3Ch]
+  int iTilt; // [esp+94h] [ebp-38h]
+  float fWorldPosX; // [esp+98h] [ebp-34h]
+  float fWorldPosX2; // [esp+9Ch] [ebp-30h]
+  float fWorldPosZ; // [esp+A0h] [ebp-2Ch]
+  int iElevation2; // [esp+A4h] [ebp-28h]
+  int iLastValidChunk; // [esp+A8h] [ebp-24h]
+  float fClosestTowerDistance; // [esp+ACh] [ebp-20h]
+  float fMinTowerDistance; // [esp+B0h] [ebp-1Ch]
+  float fCurrentTowerDistance; // [esp+B4h] [ebp-18h]
+  float fChunkIdx; // [esp+B8h] [ebp-14h]
+  float fChunkIndexDiff; // [esp+B8h] [ebp-14h]
 
-  VIEWDIST = 200;
-  v4 = -1;
-  if (a1 < -1) {
-    if (a1 != -2)
+  VIEWDIST = 200;                               // Set default view distance
+  iClosestTowerIdx = -1;
+  if (iViewMode < -1)                         // Handle different view modes - set camera offset values
+  {
+    if (iViewMode != -2)
       goto LABEL_8;
   LABEL_6:
-    ext_x = 1093664768;
-    ext_y = 0;
-    ext_z = 1091567616;
+    ext_x = 11.0;                               // Rear external view (mode -2) or cockpit view (mode 1) - behind car
+    ext_y = 0.0;
+    ext_z = 9.0;
     goto LABEL_9;
   }
-  if (a1 <= 0) {
-    ext_x = 0;
-    ext_y = 0;
-    ext_z = 1077936128;
+  if (iViewMode <= 0) {
+    ext_x = 0.0;                                // Driver view (mode 0) - inside car
+    ext_y = 0.0;
+    ext_z = 3.0;
     goto LABEL_9;
   }
-  if (a1 == 1)
+  if (iViewMode == 1)
     goto LABEL_6;
 LABEL_8:
-  ext_x = -1082130432;
-  ext_y = -1082130432;
-  ext_z = -1082130432;
+  ext_x = -1.0;                                 // Invalid view mode - set error values
+  ext_y = -1.0;
+  ext_z = -1.0;
 LABEL_9:
-  v5 = 154 * a2;
-  if (a1 < 3) {
-    if (a1 >= 0) {
-      mirror = 0;
-      if (a1 == 1) {
-        if (Car_variable_48[77 * a2])
-          v27 = Car_variable_36[77 * a2] + Car_variable_6[154 * a2];
+  iCarIndex = iCarIdx;
+  if (iViewMode < 3)                          // Check if view mode is less than 3 (standard car views)
+  {                                             // Standard car camera views (driver, cockpit, chase)
+    if (iViewMode >= 0) {
+      mirror = 0;                               // Normal view modes (non-mirror)
+      if (iViewMode == 1)                     // Check if cockpit view (mode 1)
+      {                                         // Calculate pitch for cockpit view - check if car is stunned
+        if (Car[iCarIdx].iStunned)
+          iPitchCalculated = Car[iCarIdx].iPitchCameraOffset + Car[iCarIdx].nPitch;
         else
-          v27 = Car_variable_34[77 * a2] + Car_variable_36[77 * a2] + Car_variable_6[154 * a2];
-        v64 = ((_WORD)v27 + 0x2000) & 0x3FFF;
-        v26 = Car_variable_35[77 * a2] + Car_variable_37[77 * a2] + Car_variable_5[154 * a2] + 0x2000;
-      } else {
-        if (Car_variable_48[77 * a2])
-          v28 = Car_variable_36[77 * a2] + Car_variable_6[154 * a2];
+          iPitchCalculated = Car[iCarIdx].iPitchDynamicOffset + Car[iCarIdx].iPitchCameraOffset + Car[iCarIdx].nPitch;
+        iElevation2 = ((int16)iPitchCalculated + 0x2000) & 0x3FFF;
+        iRollCalculated = Car[iCarIdx].iRollDynamicOffset + Car[iCarIdx].iRollCameraOffset + Car[iCarIdx].nRoll + 0x2000;
+      } else {                                         // Calculate pitch for driver view - check if car is stunned
+        if (Car[iCarIdx].iStunned)
+          iPitchCalculated2 = Car[iCarIdx].iPitchCameraOffset + Car[iCarIdx].nPitch;
         else
-          v28 = Car_variable_34[77 * a2] + Car_variable_36[77 * a2] + Car_variable_6[154 * a2];
-        v64 = ((_WORD)v28 + 455) & 0x3FFF;
-        v26 = Car_variable_35[77 * a2] + Car_variable_37[77 * a2] + Car_variable_5[154 * a2];
+          iPitchCalculated2 = Car[iCarIdx].iPitchDynamicOffset + Car[iCarIdx].iPitchCameraOffset + Car[iCarIdx].nPitch;
+        iElevation2 = ((int16)iPitchCalculated2 + 455) & 0x3FFF;
+        iRollCalculated = Car[iCarIdx].iRollDynamicOffset + Car[iCarIdx].iRollCameraOffset + Car[iCarIdx].nRoll;
       }
     } else {
-      mirror = -1;
-      v64 = (LOWORD(Car_variable_36[77 * a2]) + Car_variable_6[154 * a2] + 0x2000) & 0x3FFF;
-      v26 = Car_variable_37[77 * a2] + Car_variable_5[154 * a2] + 0x2000;
+      mirror = -1;                              // Mirror view mode - set mirror flag
+      iElevation2 = ((uint16)(Car[iCarIdx].iPitchCameraOffset) + Car[iCarIdx].nPitch + 0x2000) & 0x3FFF;
+      iRollCalculated = Car[iCarIdx].iRollCameraOffset + Car[iCarIdx].nRoll + 0x2000;
     }
-    v60 = v26 & 0x3FFF;
+    iTilt = iRollCalculated & 0x3FFF;
     NearTow = -1;
-    if (a1 == 2)
-      return newchaseview(a2, a3);
-    v36 = *(float *)&ext_y * view_c_variable_1;
-    v37 = *(float *)&ext_z * view_c_variable_2;
-    v35 = *(float *)&ext_x * view_c_variable_1;
-    v38 = DDX + v36;
-    v40 = DDY + v37;
-    v39 = DDZ - v35;
-    if (a1 == 1) {
-      v31 = LODWORD(Car_variable_2[77 * a2]);
-      v30 = LODWORD(Car_variable_1[77 * a2]);
-      v29 = LODWORD(Car[77 * a2]);
-      VIEWDIST = 120;
-      calculatetransform(v29, v30, v31, v38, v40, v39);
-      if (Car_variable_3[154 * a2] == -1) {
-        worlddirn = Car_variable_7[154 * a2];
-        worldelev = v64;
-        result = v60;
-        worldtilt = v60;
-        return result;
+    if (iViewMode == 2)                       // Check if chase view mode
+    {
+      newchaseview(iCarIdx, iChaseCamIdx);      // Handle chase view - call specialized function
+      return;
+    }
+    fCameraOffsetY = ext_y * 64.0f;              // Scale camera offsets and apply to display position
+    fCameraOffsetZ = ext_z * 32.0f;
+    fCameraOffsetX = ext_x * 64.0f;
+    fPosX = DDX + fCameraOffsetY;
+    iCarIndex2 = iCarIdx;
+    fPosY = DDY + fCameraOffsetZ;
+    fPosZ = DDZ - fCameraOffsetX;
+    if (iViewMode == 1)                       // Check if cockpit view for special handling
+    {
+      fZ = Car[iCarIdx].pos.fZ;                 // Cockpit view - get car position and orientation
+      fY = Car[iCarIdx].pos.fY;
+      fX = Car[iCarIdx].pos.fX;
+      iYaw = Car[iCarIdx].nYaw;
+      VIEWDIST = 120;                           // Set closer view distance for cockpit
+      calculatetransform(Car[iCarIndex2].nCurrChunk, iYaw, iElevation2, iTilt, fX, fY, fZ, fPosX, fPosY, fPosZ);// Calculate transformation matrix for cockpit view
+      iCurrChunk = Car[iCarIndex2].nCurrChunk;
+      if (iCurrChunk == -1)                   // Check if car is off-track (chunk = -1)
+      {
+        worlddirn = Car[iCarIndex2].nYaw;       // Car off-track - use raw orientation values
+        worldelev = iElevation2;
+        worldtilt = iTilt;
+        return;
       }
     } else {
-      calculatetransform(
-        LODWORD(Car[77 * a2]),
-        LODWORD(Car_variable_1[77 * a2]),
-        LODWORD(Car_variable_2[77 * a2]),
-        v38,
-        v40,
-        v39);
-      if (Car_variable_3[154 * a2] == -1) {
-        worlddirn = Car_variable_7[154 * a2];
-        worldelev = v64;
-        result = v60;
-        worldtilt = v60;
-        return result;
+      calculatetransform(Car[iCarIdx].nCurrChunk, Car[iCarIdx].nYaw, iElevation2, iTilt, Car[iCarIdx].pos.fX, Car[iCarIdx].pos.fY, Car[iCarIdx].pos.fZ, fPosX, fPosY, fPosZ);// Driver view - calculate transformation matrix
+      iCurrChunk = Car[iCarIdx].nCurrChunk;
+      if (iCurrChunk == -1) {
+        worlddirn = Car[iCarIdx].nYaw;
+        worldelev = iElevation2;
+        worldtilt = iTilt;
+        return;
       }
     }
-    return getworldangles(&worlddirn, &worldelev, &worldtilt);
-  } else if (a1 == 3) {
-    v55 = Car[77 * a2];
-    v49 = Car_variable_1[77 * a2];
-    v6 = Car_variable_3[154 * a2];
-    v52 = Car_variable_2[77 * a2];
-    v65 = v6;
-    if (v6 == -1) {
-      v62 = Car[77 * a2];
-      v63 = Car_variable_2[77 * a2];
-      v61 = Car_variable_1[77 * a2];
+    getworldangles(Car[iCarIndex2].nYaw, iElevation2, iTilt, iCurrChunk, &worlddirn, &worldelev, &worldtilt);// Convert car angles to world coordinates
+  } else if (iViewMode == 3)                    // Tower/spectator view mode (mode 3)
+  {
+    fCarPosX3 = Car[iCarIdx].pos.fX;            // Get car position for tower view
+    fCarPosY2 = Car[iCarIdx].pos.fY;
+    iChunkIndex = Car[iCarIdx].nCurrChunk;
+    fCarPosZ3 = Car[iCarIdx].pos.fZ;
+    iLastValidChunk = iChunkIndex;
+    if (iChunkIndex == -1)                    // Check if car is off-track
+    {
+      fWorldPosX2 = Car[iCarIdx].pos.fX;        // Car off-track - use raw position
+      fWorldPosZ = Car[iCarIdx].pos.fZ;
+      fWorldPosX = Car[iCarIdx].pos.fY;
     } else {
-      v7 = (float *)((char *)&localdata + 128 * v6);
-      v62 = v7[1] * v49 + *v7 * v55 + v7[2] * v52 - v7[9];
-      v61 = v7[3] * v55 + v7[4] * v49 + v7[5] * v52 - v7[10];
-      v63 = v49 * v7[7] + v55 * v7[6] + v52 * v7[8] - v7[11];
+      pTransformMatrix = &localdata[iChunkIndex];// Transform car position to world coordinates
+      fWorldPosX2 = pTransformMatrix->pointAy[0].fY * fCarPosY2
+        + pTransformMatrix->pointAy[0].fX * fCarPosX3
+        + pTransformMatrix->pointAy[0].fZ * fCarPosZ3
+        - pTransformMatrix->pointAy[3].fX;
+      fWorldPosX = pTransformMatrix->pointAy[1].fX * fCarPosX3
+        + pTransformMatrix->pointAy[1].fY * fCarPosY2
+        + pTransformMatrix->pointAy[1].fZ * fCarPosZ3
+        - pTransformMatrix->pointAy[3].fY;
+      fWorldPosZ = fCarPosY2 * pTransformMatrix->pointAy[2].fY
+        + fCarPosX3 * pTransformMatrix->pointAy[2].fX
+        + fCarPosZ3 * pTransformMatrix->pointAy[2].fZ
+        - pTransformMatrix->pointAy[3].fZ;
     }
-    if (NumTowers <= 0) {
-      v13 = v63 + view_c_variable_4;
-      worldx = LODWORD(v62);
-      v12 = LODWORD(v61);
-      worldy = LODWORD(v61);
+    if (NumTowers <= 0)                       // Check if towers are available for spectator mode
+    {
+      dWorldZOffset = fWorldPosZ + 16384.0;     // No towers - use default elevated view
+      worldx = fWorldPosX2;
+      worldy = fWorldPosX;
     LABEL_39:
-      *(float *)&worldz = v13;
-    } else {
-      if (v65 == -1)
-        v65 = Car_variable_51[77 * a2];
-      v4 = 0;
-      v8 = 0;
-      v67 = 9.9999998e17;
+      worldz = (float)dWorldZOffset;
+    } else {                                           // Find closest tower to car position
+      if (iLastValidChunk == -1)
+        iLastValidChunk = Car[iCarIdx].iLastValidChunk;
+      iClosestTowerIdx = 0;
+      iTowerLoopIdx = 0;                        // Initialize tower search variables
+      fMinTowerDistance = 9.9999998e17f;
       if (NumTowers > 0) {
-        v9 = 0;
+        iTowerArrayIdx = 0;                     // Loop through all towers
         do {
-          v69 = (float)TowerBase[v9];
-          v70 = (double)v65 - v69;
-          v66 = (float)TRAK_LEN;
-          v34 = fabs(v70 - v66);
-          v32 = fabs(v70);
-          if (v32 >= v34) {
-            v10 = HIDWORD(v34);
-            LODWORD(v33) = LODWORD(v34);
+          fChunkIdx = (float)TowerBase[iTowerArrayIdx].iChunkIdx;// Calculate distance considering track wraparound
+          fChunkIndexDiff = (float)((double)iLastValidChunk - fChunkIdx);
+          fClosestTowerDistance = (float)TRAK_LEN;
+          dWrapDistance = fabs(fChunkIndexDiff - fClosestTowerDistance);
+          dChunkDistance = fabs(fChunkIndexDiff);
+
+          if (dChunkDistance >= dWrapDistance) {
+            dMinDistance = dWrapDistance;
           } else {
-            v10 = HIDWORD(v32);
-            LODWORD(v33) = LODWORD(v32);
+            dMinDistance = dChunkDistance;
           }
-          HIDWORD(v33) = v10;
-          if (v33 < v67) {
-            v4 = v8;
-            v68 = v33;
-            v67 = v68;
+          //if (dChunkDistance >= dWrapDistance) {
+          //  iTempValue = HIDWORD(dWrapDistance);
+          //  LODWORD(dMinDistance) = LODWORD(dWrapDistance);
+          //} else {
+          //  iTempValue = HIDWORD(dChunkDistance);
+          //  LODWORD(dMinDistance) = LODWORD(dChunkDistance);
+          //}
+          //HIDWORD(dMinDistance) = iTempValue;
+
+          if (dMinDistance < fMinTowerDistance)// Update closest tower if this one is nearer
+          {
+            iClosestTowerIdx = iTowerLoopIdx;
+            fCurrentTowerDistance = (float)dMinDistance;
+            fMinTowerDistance = fCurrentTowerDistance;
           }
-          ++v8;
-          v9 += 5;
-        } while (v8 < NumTowers);
+          ++iTowerLoopIdx;
+          ++iTowerArrayIdx;
+        } while (iTowerLoopIdx < NumTowers);
       }
-      worldx = LODWORD(TowerX[v4]);
-      worldy = LODWORD(TowerY[v4]);
-      v11 = TowerBase_variable_4[5 * v4] - 1;
-      worldz = SLODWORD(TowerZ[v4]);
-      switch (v11) {
+      worldx = TowerX[iClosestTowerIdx];        // Use closest tower position
+      worldy = TowerY[iClosestTowerIdx];
+      iTowerType = TowerBase[iClosestTowerIdx].iUnk5 - 1;// Set view distance based on tower type
+      worldz = TowerZ[iClosestTowerIdx];
+      switch (iTowerType) {
         case 0:
-          VIEWDIST = 120;
+          VIEWDIST = 120;                       // Tower type 1 - medium view distance
           break;
         case 1:
-          VIEWDIST = 75;
+          VIEWDIST = 75;                        // Tower type 2 - close view distance
           break;
         case 2:
-          VIEWDIST = 500;
+          VIEWDIST = 500;                       // Tower type 3 - far view distance
           break;
         case 3:
-          VIEWDIST = 750;
+          VIEWDIST = 750;                       // Tower type 4 - very far view distance
           break;
         default:
           break;
       }
-      v12 = 20 * v4;
-      a2 = TowerBase_variable_3[5 * v4] + 5;
-      switch (TowerBase_variable_3[5 * v4]) {
-        case -5:
-          v12 = TowerBase_variable_2[5 * v4] << 7;
-          v13 = (double)v12 + v63;
-          worldx = LODWORD(v62);
-          a2 = LODWORD(v61);
-          worldy = LODWORD(v61);
+      switch (TowerBase[iClosestTowerIdx].iEnabled) {
+        case 0xFFFFFFFB:
+          dWorldZOffset = (double)(TowerBase[iClosestTowerIdx].iVOffset << 7) + fWorldPosZ;// Mode -5: Elevated view with vertical offset
+          worldx = fWorldPosX2;
+          worldy = fWorldPosX;
           goto LABEL_39;
-        case -4:
-          v14 = TowerBase[5 * v4] - 2;
-          if (v14 < 0)
-            v14 += TRAK_LEN;
-          v12 = (int)&localdata + 128 * v14;
-          v62 = -*(float *)(v12 + 36);
-          v61 = -*(float *)(v12 + 40);
-          v63 = -*(float *)(v12 + 44);
+        case 0xFFFFFFFC:
+          iChunkIdxMinus2 = TowerBase[iClosestTowerIdx].iChunkIdx - 2;// Mode -4: Look back 2 chunks
+          if (iChunkIdxMinus2 < 0)
+            iChunkIdxMinus2 += TRAK_LEN;
+          pTransformMinus2 = (float *)&localdata[iChunkIdxMinus2];
+          fWorldPosX2 = -pTransformMinus2[9];
+          fWorldPosX = -pTransformMinus2[10];
+          fWorldPosZ = -pTransformMinus2[11];
           break;
-        case -3:
+        case 0xFFFFFFFD:
         case 2:
-          v15 = *(float *)&worldx - v62;
-          v16 = *(float *)&worldy - v61;
-          v17 = *(float *)&worldz - v63;
-          v18 = 1.0 / sqrt(v15 * v15 + v16 * v16 + v17 * v17);
-          *(float *)&worldx = v15 * view_c_variable_7 * v18 + v62;
-          *(float *)&worldy = v16 * view_c_variable_7 * v18 + v61;
-          *(float *)&worldz = v18 * (v17 * view_c_variable_7) + v63;
+          dDeltaX = worldx - fWorldPosX2;       // Mode -3/2: Directional offset from tower
+          dDeltaY = worldy - fWorldPosX;
+          dDeltaZ = worldz - fWorldPosZ;
+          dInvMagnitude = 1.0 / sqrt(dDeltaX * dDeltaX + dDeltaY * dDeltaY + dDeltaZ * dDeltaZ);
+          worldx = (float)(dDeltaX * 2560.0 * dInvMagnitude + fWorldPosX2);
+          worldy = (float)(dDeltaY * 2560.0 * dInvMagnitude + fWorldPosX);
+          worldz = (float)(dInvMagnitude * (dDeltaZ * 2560.0) + fWorldPosZ);
           break;
-        case -2:
+        case 0xFFFFFFFE:
         case 1:
-          *(float *)&worldx = (*(float *)&worldx - v62) * view_c_variable_6 + v62;
-          *(float *)&worldy = v61 + (*(float *)&worldy - v61) * view_c_variable_6;
-          v13 = (*(float *)&worldz - v63) * view_c_variable_6 + v63;
+          worldx = (worldx - fWorldPosX2) * 0.25f + fWorldPosX2;// Mode -2/1: Interpolated position
+          worldy = fWorldPosX + (worldy - fWorldPosX) * 0.25f;
+          dWorldZOffset = (worldz - fWorldPosZ) * 0.25f + fWorldPosZ;
           goto LABEL_39;
         case 0:
-          v13 = *(float *)&worldz + view_c_variable_5;
+          dWorldZOffset = worldz + 3200.0;      // Mode 0: Fixed height offset
           goto LABEL_39;
         default:
-          break;
+          break;                                // Handle different tower camera modes
       }
     }
     TowerGx = worldx;
     TowerGy = worldy;
     TowerGz = worldz;
-    v48 = v62 - *(float *)&worldx;
-    *(float *)&v50 = v61 - *(float *)&worldy;
-    NearTow = v4;
-    *(float *)&v43 = v63 - *(float *)&worldz;
-    if ((LODWORD(v48) & 0x7FFFFFFF) != 0 || fabs(v61 - *(float *)&worldy)) {
-      v12 = getangle(v12, a2, v48, v50);
-      vdirection = v12;
-    } else {
-      vdirection = 0;
-    }
-    v44 = sqrt(v48 * v48 + *(float *)&v50 * *(float *)&v50);
-    if ((LODWORD(v44) & 0x7FFFFFFF) != 0 || (v43 & 0x7FFFFFFF) != 0)
-      v19 = getangle(v12, a2, v44, v43);
+    fTowerDeltaX = fWorldPosX2 - worldx;        // Calculate direction and elevation to look at car
+    fTowerDeltaY = fWorldPosX - worldy;
+    NearTow = iClosestTowerIdx;
+    fTowerVerticalDistance = fWorldPosZ - worldz;
+    //if ((LODWORD(fTowerDeltaX) & 0x7FFFFFFF) != 0 || fabs(fWorldPosX - worldy))
+    if (fabs(fTowerDeltaX) > FLT_EPSILON || fabs(fWorldPosX - worldy))
+      vdirection = getangle(fTowerDeltaX, fTowerDeltaY);// Calculate horizontal direction angle
     else
-      v19 = 0;
-    velevation = v19;
+      vdirection = 0;
+    fTowerHorizontalDistance = (float)sqrt(fTowerDeltaX * fTowerDeltaX + fTowerDeltaY * fTowerDeltaY);
+    //if ((LODWORD(fTowerHorizontalDistance) & 0x7FFFFFFF) != 0 || (LODWORD(fTowerVerticalDistance) & 0x7FFFFFFF) != 0)
+    if (fabs(fTowerHorizontalDistance) > FLT_EPSILON || fabs(fTowerVerticalDistance) > FLT_EPSILON)
+      iCalculatedElevation = getangle(fTowerHorizontalDistance, fTowerVerticalDistance);// Calculate elevation angle
+    else
+      iCalculatedElevation = 0;
+    velevation = iCalculatedElevation;
     vtilt = 0;
-    calculatetransform(worldx, worldy, worldz, DDX, DDY, DDZ);
+    calculatetransform(-1, vdirection, iCalculatedElevation, 0, worldx, worldy, worldz, DDX, DDY, DDZ);// Set up tower view transformation
     worlddirn = vdirection;
     worldelev = velevation;
-    result = vtilt;
     worldtilt = vtilt;
-  } else {
-    if (a1 == 6) {
-      *(float *)&worldx = -localdata_variable_16;
-      *(float *)&worldy = -localdata_variable_17;
-      VIEWDIST = 400;
-      v51 = Car[77 * a2];
-      v53 = Car_variable_1[77 * a2];
-      v21 = Car_variable_2[77 * a2];
-      v56 = Car_variable_2[v5 / 2];
-      v22 = Car_variable_3[v5];
-      *(float *)&worldz = view_c_variable_3 - localdata_variable_18;
-      if (v22 == -1) {
-        v58 = v51;
-        v23 = (float *)LODWORD(v53);
-        v57 = v21;
-        v59 = v53;
+  } else {                                             // Map view mode (mode 6)
+    if (iViewMode == 6) {
+      worldx = -localdata[2].pointAy[3].fX;     // Set map view position from chunk 2 data
+      worldy = -localdata[2].pointAy[3].fY;
+      VIEWDIST = 400;                           // Set map view distance
+      fCarPosX = Car[iCarIdx].pos.fX;           // Get car position for map view
+      fCarPosY3 = Car[iCarIdx].pos.fY;
+      fCarPosZ = Car[iCarIdx].pos.fZ;
+      fCarPosZ4 = Car[iCarIndex].pos.fZ;
+      iCarChunk = Car[iCarIndex].nCurrChunk;
+      worldz = 1024.0f - localdata[2].pointAy[3].fZ;
+      if (iCarChunk == -1)                    // Transform car position if on track
+      {
+        fTransformedPosX = fCarPosX;
+        fTransformedPosZ = fCarPosZ;
+        fTransformedPosY = fCarPosY3;
       } else {
-        v23 = (float *)((char *)&localdata + 128 * v22);
-        v58 = v23[1] * v53 + *v23 * v51 + v23[2] * v56 - v23[9];
-        v59 = v23[3] * v51 + v23[4] * v53 + v23[5] * v56 - v23[10];
-        v57 = v53 * v23[7] + v51 * v23[6] + v56 * v23[8] - v23[11];
+        pCarTransform = &localdata[iCarChunk];
+        fTransformedPosX = pCarTransform->pointAy[0].fY * fCarPosY3
+          + pCarTransform->pointAy[0].fX * fCarPosX
+          + pCarTransform->pointAy[0].fZ * fCarPosZ4
+          - pCarTransform->pointAy[3].fX;
+        fTransformedPosY = pCarTransform->pointAy[1].fX * fCarPosX
+          + pCarTransform->pointAy[1].fY * fCarPosY3
+          + pCarTransform->pointAy[1].fZ * fCarPosZ4
+          - pCarTransform->pointAy[3].fY;
+        fTransformedPosZ = fCarPosY3 * pCarTransform->pointAy[2].fY
+          + fCarPosX * pCarTransform->pointAy[2].fX
+          + fCarPosZ4 * pCarTransform->pointAy[2].fZ
+          - pCarTransform->pointAy[3].fZ;
       }
     } else {
-      v54 = Car[77 * a2];
-      v47 = Car_variable_1[77 * a2];
-      v21 = Car_variable_2[77 * a2];
-      v24 = Car_variable_3[v5];
-      if (v24 == -1) {
-        v58 = v54;
-        v57 = v21;
-        v59 = v47;
+      fCarPosX2 = Car[iCarIdx].pos.fX;          // Top view mode (other modes)
+      fCarPosY = Car[iCarIdx].pos.fY;
+      fCarPosZ2 = Car[iCarIdx].pos.fZ;
+      iCarChunk2 = Car[iCarIndex].nCurrChunk;
+      if (iCarChunk2 == -1)                   // Transform car position for top view
+      {
+        fTransformedPosX = fCarPosX2;
+        fTransformedPosZ = fCarPosZ2;
+        fTransformedPosY = fCarPosY;
       } else {
-        v25 = (float *)((char *)&localdata + 128 * v24);
-        v58 = v25[1] * v47 + *v25 * v54 + v25[2] * v21 - v25[9];
-        v59 = v25[3] * v54 + v25[4] * v47 + v25[5] * v21 - v25[10];
-        v57 = v47 * v25[7] + v54 * v25[6] + v21 * v25[8] - v25[11];
+        pCarTransform2 = &localdata[iCarChunk2];
+        fTransformedPosX = pCarTransform2->pointAy[0].fY * fCarPosY
+          + pCarTransform2->pointAy[0].fX * fCarPosX2
+          + pCarTransform2->pointAy[0].fZ * fCarPosZ2
+          - pCarTransform2->pointAy[3].fX;
+        fTransformedPosY = pCarTransform2->pointAy[1].fX * fCarPosX2
+          + pCarTransform2->pointAy[1].fY * fCarPosY
+          + pCarTransform2->pointAy[1].fZ * fCarPosZ2
+          - pCarTransform2->pointAy[3].fY;
+        fTransformedPosZ = fCarPosY * pCarTransform2->pointAy[2].fY
+          + fCarPosX2 * pCarTransform2->pointAy[2].fX
+          + fCarPosZ2 * pCarTransform2->pointAy[2].fZ
+          - pCarTransform2->pointAy[3].fZ;
       }
-      worldx = LODWORD(v58);
-      v23 = (float *)LODWORD(v59);
-      worldy = LODWORD(v59);
-      *(float *)&worldz = TopViewHeight + v57;
+      worldx = fTransformedPosX;                // Set world position with top view height
+      worldy = fTransformedPosY;
+      worldz = TopViewHeight + fTransformedPosZ;
     }
-    v45 = v58 - *(float *)&worldx;
-    *(float *)&v46 = v59 - *(float *)&worldy;
+    fDeltaX = fTransformedPosX - worldx;        // Calculate viewing angles for top/map view
+    fDeltaY = fTransformedPosY - worldy;
     NearTow = -1;
-    *(float *)&v42 = v57 - *(float *)&worldz;
-    if ((LODWORD(v45) & 0x7FFFFFFF) != 0 || fabs(v59 - *(float *)&worldy)) {
-      v23 = (float *)getangle((int)v23, SLODWORD(v21), v45, v46);
-      vdirection = (int)v23;
-    } else {
+    fVerticalDistance = fTransformedPosZ - worldz;
+    //if ((LODWORD(fDeltaX) & 0x7FFFFFFF) != 0 || fabs(fTransformedPosY - worldy))
+    if (fabs(fDeltaX) > FLT_EPSILON || fabs(fTransformedPosY - worldy))
+      vdirection = getangle(fDeltaX, fDeltaY);
+    else
       vdirection = 0;
-    }
-    v41 = sqrt(v45 * v45 + *(float *)&v46 * *(float *)&v46);
-    if ((LODWORD(v41) & 0x7FFFFFFF) != 0 || (v42 & 0x7FFFFFFF) != 0)
-      velevation = getangle((int)v23, SLODWORD(v21), v41, v42);
+    fHorizontalDistance = (float)sqrt(fDeltaX * fDeltaX + fDeltaY * fDeltaY);
+    //if ((LODWORD(fHorizontalDistance) & 0x7FFFFFFF) != 0 || (LODWORD(fVerticalDistance) & 0x7FFFFFFF) != 0)
+    if (fabs(fHorizontalDistance) > FLT_EPSILON || fabs(fVerticalDistance) > FLT_EPSILON)
+      velevation = getangle(fHorizontalDistance, fVerticalDistance);
     else
       velevation = 0;
     vtilt = 0;
-    calculatetransform(worldx, worldy, worldz, DDX, DDY, DDZ);
+    calculatetransform(-1, vdirection, velevation, 0, worldx, worldy, worldz, DDX, DDY, DDZ);// Set up final transformation and world angles
     worlddirn = vdirection;
     worldelev = velevation;
-    result = vtilt;
     worldtilt = vtilt;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
