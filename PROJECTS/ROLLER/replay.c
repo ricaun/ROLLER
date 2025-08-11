@@ -538,10 +538,10 @@ void stopreplay()
   char *szSrcPtr; // esi
   char byChar1; // al
   char byChar2; // al
-  int uiAvailBytes; // edx
-  int iFileHandle; // eax
-  int iFileHandleCopy; // ebx
-  int iNewFileSize; // edx
+  //int uiAvailBytes; // edx
+  //int iFileHandle; // eax
+  //int iFileHandleCopy; // ebx
+  //int iNewFileSize; // edx
   char *szReplayDstPtr; // edi
   char *szRememberSrcPtr; // esi
   char byReplayChar1; // al
