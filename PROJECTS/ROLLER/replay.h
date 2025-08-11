@@ -45,6 +45,7 @@ extern int lastautocut;
 extern int pend_view_init;
 extern int replayedit;
 extern char *views[8];
+extern int loading_replay;
 extern tRIcon ricon[26];
 extern char *replayhelp[26];
 extern int lsdsel;

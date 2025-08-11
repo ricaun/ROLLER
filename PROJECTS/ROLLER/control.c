@@ -9,6 +9,7 @@ int carorder[16];                 //00149790
 int stops[10];                    //001497D0
 float trial_times[96];            //001497F8
 float eng_chg_revs[168];          //00149978
+int FirstTick;                    //00149C18
 int JBYmax;                       //00149C24
 int JBYmin;                       //00149C30
 int JBXmin;                       //00149C34
@@ -18,9 +19,15 @@ int JAXmax;                       //00149C44
 int numstops;                     //00149C48
 int JAYmin;                       //00149C4C
 int JAXmin;                       //00149C50
+int race_started;                 //00149C54
 float RecordLaps[25];             //00149C5C
 int RecordCars[25];               //00149CC0
 int RecordKills[25];              //00149D24
+int Destroyed;                    //00149D8C
+int ahead_sect;                   //00149D94
+int ahead_time;                   //00149D98
+int Fatality;                     //00149DB0
+int fudge_wait;                   //00149DC4
 char RecordNames[25][9];          //00149DC8
 
 //-------------------------------------------------------------------------------------------------

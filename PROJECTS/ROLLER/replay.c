@@ -51,7 +51,8 @@ char *views[8] = {        //000A644C
   "BACK",
   "TEAM"
 };
-tRIcon ricon[26] =
+int loading_replay = 0;   //000A6470
+tRIcon ricon[26] =        //000A6474
 {
   { 0, 0, NULL },
   { 7, 5, &Rframeminus },

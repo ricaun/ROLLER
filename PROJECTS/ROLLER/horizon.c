@@ -253,7 +253,7 @@ void DrawHorizon(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //0006B1A0
-void initclouds(int a1)
+void initclouds()
 {/*
   int i; // edi
   int v2; // eax

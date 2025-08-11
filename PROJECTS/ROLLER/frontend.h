@@ -22,7 +22,7 @@
 #define CHEAT_MODE_CLONES           0x00004000
 #define CHEAT_MODE_TINY_CARS        0x00008000
 #define CHEAT_MODE_WARP             0x00010000
-#define CHEAT_MODE_BONUS_UNLOCKED   0x00020000
+#define CHEAT_MODE_FREAKY           0x00020000
 
 //-------------------------------------------------------------------------------------------------
 
@@ -80,6 +80,7 @@ extern char comp_name[16][15];
 extern int network_test;
 extern char cheat_names[32][9];
 extern char player_names[16][9];
+extern int DeathView[2];
 extern int teamorder[8];
 extern int champorder[16];
 extern int team_wins[16];

@@ -125,6 +125,7 @@ extern int net_players[16];
 extern int16 player_checks[512][16];
 extern int address[64];
 extern int player_ready[16];
+extern int16 player_syncs[16];
 extern int syncptr;
 extern int syncleft;
 extern int syncnode;

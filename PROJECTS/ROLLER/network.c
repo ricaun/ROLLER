@@ -24,6 +24,7 @@ int net_players[16];        //00178718
 int16 player_checks[512][16]; //00178758
 int address[64];            //0017C758
 int player_ready[16];       //0017C858
+int16 player_syncs[16];     //0017C898
 int syncptr;                //0017C928
 int syncleft;               //0017C92C
 int syncnode;               //0017C930

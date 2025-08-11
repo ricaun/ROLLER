@@ -484,6 +484,7 @@ char comp_name[16][15] =  //000A5EA8
 int network_test = 0;     //000A5F98
 char cheat_names[32][9];  //0016F8F0
 char player_names[16][9]; //0016FA10
+int DeathView[2];         //0016FAA0
 int teamorder[8];         //0016FAA8
 int champorder[16];       //0016FAC8
 int team_wins[16];        //0016FB08
@@ -6585,7 +6586,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
             break;
           case 25: //FREAKY (invert colors)
             name_copy(szPlayerName, "PAINTER");
-            cheat_mode |= CHEAT_MODE_BONUS_UNLOCKED;
+            cheat_mode |= CHEAT_MODE_FREAKY;
             break;
           default:
             break;

@@ -12,6 +12,7 @@ extern int carorder[16];
 extern int stops[10];
 extern float trial_times[96];
 extern float eng_chg_revs[168];
+extern int FirstTick;
 extern int JBYmax;
 extern int JBYmin;
 extern int JBXmin;
@@ -21,9 +22,15 @@ extern int JAXmax;
 extern int numstops;
 extern int JAYmin;
 extern int JAXmin;
+extern int race_started;
 extern float RecordLaps[25];
 extern int RecordCars[25];
 extern int RecordKills[25];
+extern int Destroyed;
+extern int ahead_sect;
+extern int ahead_time;
+extern int Fatality;
+extern int fudge_wait;
 extern char RecordNames[25][9];
 
 //-------------------------------------------------------------------------------------------------
