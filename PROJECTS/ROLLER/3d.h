@@ -305,7 +305,7 @@ void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5);
 int main(int argc, const char **argv, const char **envp);
 void play_game_init();
 void play_game_uninit();
-int winner_race();
+void winner_race();
 int champion_race();
 void play_game(int a1, int a2, int a3);
 void game_keys(int64 a1);

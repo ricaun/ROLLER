@@ -1629,32 +1629,37 @@ void play_game_uninit()
 
 //-------------------------------------------------------------------------------------------------
 //00012B90
-int winner_race()
+void winner_race()
 {
-  /*
-  int v0; // ecx
-  int v1; // eax
-  int v2; // edx
-  int v3; // edx
-  int v4; // edx
-  int v5; // ebx
-  int result; // eax
-  int v7; // ecx
-  int v8; // ebx
+  int iNumCars; // ecx
+  int iCarIdx; // eax
+  int iArrayIdx; // edx
+  int iWinnerCarIdx; // edx
+  int iRacers; // edx
+  int iPlayerType; // ebx
+  int iNumCars_1; // ecx
+  int iMaxOffset; // ebx
+  unsigned int uiOffset; // eax
 
-  v0 = numcars;
-  v1 = 0;
-  if (numcars > 0) {
-    v2 = 0;
-    do {
-      finished_car_variable_1[++v2] = v1++;
-      TrackArrow_variable_1[v2] = -1;
-    } while (v1 < v0);
+  iNumCars = numcars;
+  iCarIdx = 0;
+
+  for (int i = 0; i < numcars; ++i) {
+    grid[i] = i;
+    non_competitors[i] = -1;
   }
-  v3 = carorder[0];
+  //if (numcars > 0) {
+  //  iArrayIdx = 0;
+  //  do {
+  //    finished_car[++iArrayIdx + 15] = iCarIdx++;
+  //    TrackArrow_variable_1[iArrayIdx] = -1;
+  //  } while (iCarIdx < iNumCars);
+  //}
+
+  iWinnerCarIdx = carorder[0];
   winner_mode = -1;
   winner_done = 0;
-  ViewType = carorder[0];
+  ViewType[0] = carorder[0];
   if (prev_track >= 17)
     SelectedView[0] = 1;
   else
@@ -1662,8 +1667,8 @@ int winner_race()
   grid[0] = carorder[0];
   champ_zoom = 0;
   non_competitors[carorder[0]] = 0;
-  human_control[v3] = 0;
-  grid[v3] = 0;
+  human_control[iWinnerCarIdx] = 0;
+  grid[iWinnerCarIdx] = 0;
   start_race = 0;
   countdown = -36;
   gosound = 3;
@@ -1671,30 +1676,32 @@ int winner_race()
   delaywrite = 6;
   writeptr = 0;
   readptr = 0;
-  v4 = racers;
-  v5 = player_type;
-  numcars = v0;
+  iRacers = racers;
+  iPlayerType = player_type;
+  numcars = iNumCars;
   player_type = 0;
   replaytype = 0;
   racers = 1;
-  play_game(prev_track);
-  result = 270;
-  v7 = numcars;
+  play_game(prev_track, iRacers, iPlayerType);
+  iNumCars_1 = numcars;
   winner_mode = 0;
-  racers = v4;
-  player_type = v5;
+  racers = iRacers;
+  player_type = iPlayerType;
   VIEWDIST = 270;
-  if (numcars > 0) {
-    v8 = 4 * numcars;
-    result = 0;
-    do {
-      result += 4;
-      *(int *)((char *)TrackArrow_variable_1 + result) = *(int *)((char *)result_best_variable_1 + result);
-    } while (result < v8);
+
+  for (int i = 0; i < numcars; ++i) {
+    non_competitors[i] = result_competing[i];
   }
-  numcars = v7;
-  return result;*/
-  return 0;
+  //if (numcars > 0) {
+  //  iMaxOffset = 4 * numcars;
+  //  uiOffset = 0;
+  //  do {
+  //    uiOffset += 4;
+  //    TrackArrow_variable_1[uiOffset / 4] = LODWORD(result_best[uiOffset / 4 + 15]);
+  //  } while ((int)uiOffset < iMaxOffset);
+  //}
+
+  numcars = iNumCars_1;
 }
 
 //-------------------------------------------------------------------------------------------------
