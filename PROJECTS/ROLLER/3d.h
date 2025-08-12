@@ -150,7 +150,7 @@ extern tTrakColour TrakColour[MAX_TRACK_CHUNKS];
 extern int HorizonColour[MAX_TRACK_CHUNKS];
 extern tData localdata[MAX_TRACK_CHUNKS];
 extern tGroundPt GroundPt[MAX_TRACK_CHUNKS];
-float hor_scan[800];
+extern float hor_scan[800];
 extern tGroundPt TrakPt[MAX_TRACK_CHUNKS];
 extern tTrackScreenXYZ TrackScreenXYZ[MAX_TRACK_CHUNKS];
 extern uint8 shade_palette[4096];
