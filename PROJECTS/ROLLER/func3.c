@@ -1686,7 +1686,7 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   tTrackScreenXYZ *pCurrentSegmentScreenXYZ; // esi
   double dHeightColorCalc; // st7
   tTrackScreenXYZ *pNextTrackScreenXYZ_1; // edi
-  //uint32 uiSurfaceColor; // eax
+  //int iSurfaceColor_1; // eax
   tPoint pointTemp; // kr00_8
   float fBaseY; // [esp+34h] [ebp-B0h]
   float fBaseX; // [esp+38h] [ebp-ACh]
@@ -1878,18 +1878,18 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   dProjX2 = dTransformedX2 * vk1 + dTransformedY2 * vk4;
   iScreenSize = scr_size;
   dProjZ2 = dTransformedZ2 * vk7;
-  TrackScreenXYZ[0].screen1.x = (scr_size * xp) >> 6;
-  TrackScreenXYZ[0].screen1.y = (iScreenSize * (199 - yp)) >> 6;
+  TrackScreenXYZ[0].screenPtAy[0].screen.x = (scr_size * xp) >> 6;
+  TrackScreenXYZ[0].screenPtAy[0].screen.y = (iScreenSize * (199 - yp)) >> 6;
   fProjX1Int = fProjectedX1;
   fProjectedX2 = (float)(dProjX2 + dProjZ2);
   dProjY2Full = dTransformedX2 * vk2 + dTransformedY2 * vk5 + dTransformedZ2 * vk8;
-  TrackScreenXYZ[0].proj1.fX = fProjX1Int;
+  TrackScreenXYZ[0].screenPtAy[0].projected.fX = fProjX1Int;
   fProjY2 = fProjectedY1;
   fProjectedY2 = (float)dProjY2Full;
   dDepth2Full = dTransformedX2 * vk3 + dTransformedY2 * vk6 + dTransformedZ2 * vk9;
   fProjectedZ2 = (float)dDepth2Full;
-  TrackScreenXYZ[0].proj1.fY = fProjY2;
-  TrackScreenXYZ[0].proj1.fZ = fDepthTemp1;
+  TrackScreenXYZ[0].screenPtAy[0].projected.fY = fProjY2;
+  TrackScreenXYZ[0].screenPtAy[0].projected.fZ = fDepthTemp1;
   fDepthTemp2 = fProjectedZ2;
   if (dDepth2Full < 80.0) {
     fProjectedZ2 = 80.0;
@@ -1914,18 +1914,18 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   dProjX3 = dTransformedX3 * vk1 + fTransformedY3 * vk4;
   iScreenSize2 = scr_size;
   dProjZ3Full = dTransformedZ3 * vk7;
-  TrackScreenXYZ[0].screen2.x = (scr_size * xp) >> 6;
-  TrackScreenXYZ[0].screen2.y = (iScreenSize2 * (199 - yp)) >> 6;
+  TrackScreenXYZ[0].screenPtAy[1].screen.x = (scr_size * xp) >> 6;
+  TrackScreenXYZ[0].screenPtAy[1].screen.y = (iScreenSize2 * (199 - yp)) >> 6;
   fProjX2Temp = fProjectedX2;
   fProjectedX3 = (float)(dProjX3 + dProjZ3Full);
   dProjY3 = dTransformedX3 * vk2 + fTransformedY3 * vk5 + dTransformedZ3 * vk8;
-  TrackScreenXYZ[0].proj2.fX = fProjX2Temp;
+  TrackScreenXYZ[0].screenPtAy[1].projected.fX = fProjX2Temp;
   fProjY2Temp = fProjectedY2;
   fProjectedY3 = (float)dProjY3;
   dDepth3 = dTransformedX3 * vk3 + fTransformedY3 * vk6 + dTransformedZ3 * vk9;
   fProjectedZ3 = (float)dDepth3;
-  TrackScreenXYZ[0].proj2.fY = fProjY2Temp;
-  TrackScreenXYZ[0].proj2.fZ = fDepthTemp2;
+  TrackScreenXYZ[0].screenPtAy[1].projected.fY = fProjY2Temp;
+  TrackScreenXYZ[0].screenPtAy[1].projected.fZ = fDepthTemp2;
   fDepth1 = fProjectedZ3;
   if (dDepth3 < 80.0) {
     fProjectedZ3 = 80.0;
@@ -1950,18 +1950,18 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   dProjX4 = dTransformedX4 * vk1 + dTransformedY4 * vk4;
   iScreenSize3 = scr_size;
   dProjZ4 = dTransformedZ4 * vk7;
-  TrackScreenXYZ[0].screen3.x = (scr_size * xp) >> 6;
-  TrackScreenXYZ[0].screen3.y = (iScreenSize3 * (199 - yp)) >> 6;
+  TrackScreenXYZ[0].screenPtAy[2].screen.x = (scr_size * xp) >> 6;
+  TrackScreenXYZ[0].screenPtAy[2].screen.y = (iScreenSize3 * (199 - yp)) >> 6;
   fProjX3 = fProjectedX3;
   fProjectedX4 = (float)(dProjX4 + dProjZ4);
   dProjY4 = dTransformedX4 * vk2 + dTransformedY4 * vk5 + dTransformedZ4 * vk8;
-  TrackScreenXYZ[0].proj3.fX = fProjX3;
+  TrackScreenXYZ[0].screenPtAy[2].projected.fX = fProjX3;
   fProjY3Full = fProjectedY3;
   fProjectedY4 = (float)dProjY4;
   dDepth4Full = dTransformedX4 * vk3 + dTransformedY4 * vk6 + dTransformedZ4 * vk9;
   fProjectedZ4 = (float)dDepth4Full;
-  TrackScreenXYZ[0].proj3.fY = fProjY3Full;
-  TrackScreenXYZ[0].proj3.fZ = fDepth1;
+  TrackScreenXYZ[0].screenPtAy[2].projected.fY = fProjY3Full;
+  TrackScreenXYZ[0].screenPtAy[2].projected.fZ = fDepth1;
   fDepth2 = fProjectedZ4;
   if (dDepth4Full < 80.0) {
     fProjectedZ4 = 80.0;
@@ -1977,18 +1977,18 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
   iScreenSize4 = scr_size;
   //_CHP();
   yp = (int)dScreenY4;
-  TrackScreenXYZ[0].screen4.x = iProjX4Int >> 6;
-  TrackScreenXYZ[0].screen4.y = (iScreenSize4 * (199 - yp)) >> 6;
-  TrackScreenXYZ[0].proj4.fX = fProjectedX4;
-  TrackScreenXYZ[0].proj4.fY = fProjectedY4;
-  TrackScreenXYZ[0].proj4.fZ = fDepth2;
-  RoadPoly.vertices[0] = TrackScreenXYZ[0].screen1;
-  RoadPoly.vertices[1] = TrackScreenXYZ[0].screen2;
-  RoadPoly.vertices[2] = TrackScreenXYZ[0].screen3;
-  iScreenXFinal = TrackScreenXYZ[0].screen4.x;
+  TrackScreenXYZ[0].screenPtAy[3].screen.x = iProjX4Int >> 6;
+  TrackScreenXYZ[0].screenPtAy[3].screen.y = (iScreenSize4 * (199 - yp)) >> 6;
+  TrackScreenXYZ[0].screenPtAy[3].projected.fX = fProjectedX4;
+  TrackScreenXYZ[0].screenPtAy[3].projected.fY = fProjectedY4;
+  TrackScreenXYZ[0].screenPtAy[3].projected.fZ = fDepth2;
+  RoadPoly.vertices[0] = TrackScreenXYZ[0].screenPtAy[0].screen;
+  RoadPoly.vertices[1] = TrackScreenXYZ[0].screenPtAy[1].screen;
+  RoadPoly.vertices[2] = TrackScreenXYZ[0].screenPtAy[2].screen;
+  iScreenXFinal = TrackScreenXYZ[0].screenPtAy[3].screen.x;
   RoadPoly.uiNumVerts = 4;
   RoadPoly.vertices[3].x = iScreenXFinal;
-  RoadPoly.vertices[3].y = TrackScreenXYZ[0].screen4.y;
+  RoadPoly.vertices[3].y = TrackScreenXYZ[0].screenPtAy[3].screen.y;
   RoadPoly.iSurfaceType = SURFACE_FLAG_TRANSPARENT | SURFACE_FLAG_FLIP_BACKFACE | 0x2;
 
   // Render background polygon for track area
@@ -2029,11 +2029,11 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
       dScreenYTrack = dDepthInverseTrack * (dViewDistanceTrack * fTrackProjY1) + (double)ybase;
       //_CHP();
       yp = (int)dScreenYTrack;
-      pTrackScreenXYZ->screen2.x = iScreenXTrackInt >> 6;
-      pTrackScreenXYZ->screen2.y = (scr_size * (199 - yp)) >> 6;
-      pTrackScreenXYZ->proj2.fX = fTrackProjX1;
-      pTrackScreenXYZ->proj2.fY = fTrackProjY1;
-      pTrackScreenXYZ->proj2.fZ = fTrackDepth1;
+      pTrackScreenXYZ->screenPtAy[1].screen.x = iScreenXTrackInt >> 6;
+      pTrackScreenXYZ->screenPtAy[1].screen.y = (scr_size * (199 - yp)) >> 6;
+      pTrackScreenXYZ->screenPtAy[1].projected.fX = fTrackProjX1;
+      pTrackScreenXYZ->screenPtAy[1].projected.fY = fTrackProjY1;
+      pTrackScreenXYZ->screenPtAy[1].projected.fZ = fTrackDepth1;
 
       // Transform second track point (pointAy[4]) to screen coordinates
       dTrackPoint2Y = pTrackPt->fY + fTrackCenterY;
@@ -2061,13 +2061,13 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
       iScreenXCalc = scr_size * (int)dScreenXTrack2;
       //_CHP();
       yp = (int)dScreenYTrack2;
-      pTrackScreenXYZ->screen1.x = iScreenXCalc >> 6;
-      pTrackScreenXYZ->screen1.y = (iScreenSize5 * (199 - yp)) >> 6;
-      pTrackScreenXYZ->proj1.fX = fTrackProjX2;
+      pTrackScreenXYZ->screenPtAy[0].screen.x = iScreenXCalc >> 6;
+      pTrackScreenXYZ->screenPtAy[0].screen.y = (iScreenSize5 * (199 - yp)) >> 6;
+      pTrackScreenXYZ->screenPtAy[0].projected.fX = fTrackProjX2;
       pTrackPt += 12;
-      pTrackScreenXYZ->proj1.fY = fTrackProjY2;
+      pTrackScreenXYZ->screenPtAy[0].projected.fY = fTrackProjY2;
       iLoopIndex += 2;
-      pTrackScreenXYZ->proj1.fZ = fTrackDepth2;
+      pTrackScreenXYZ->screenPtAy[0].projected.fZ = fTrackDepth2;
       pTrackScreenXYZ += 2;
     } while (iLoopIndex < TRAK_LEN);
   }
@@ -2085,27 +2085,26 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
         iNextSegmentIdx = 0;
       CarZOrder[iZOrderIndex].iPolygonIndex = iTrackSegmentLoop;
       pNextTrackScreenXYZ = &TrackScreenXYZ[iNextSegmentIdx];
-      if (pTrackScreenXYZ_1->proj2.fZ <= (double)pTrackScreenXYZ_1->proj1.fZ)
-        fMaxDepthCurrent = pTrackScreenXYZ_1->proj1.fZ;
+      if (pTrackScreenXYZ_1->screenPtAy[1].projected.fZ <= (double)pTrackScreenXYZ_1->screenPtAy[0].projected.fZ)
+        fMaxDepthCurrent = pTrackScreenXYZ_1->screenPtAy[0].projected.fZ;
       else
-        fMaxDepthCurrent = pTrackScreenXYZ_1->proj2.fZ;
+        fMaxDepthCurrent = pTrackScreenXYZ_1->screenPtAy[1].projected.fZ;
       fMaxDepthForZOrder = fMaxDepthCurrent;
-      if (pNextTrackScreenXYZ->proj2.fZ <= (double)pNextTrackScreenXYZ->proj1.fZ)
-        fDepthForZOrderFinal = pNextTrackScreenXYZ->proj1.fZ;
+      if (pNextTrackScreenXYZ->screenPtAy[1].projected.fZ <= (double)pNextTrackScreenXYZ->screenPtAy[0].projected.fZ)
+        fDepthForZOrderFinal = pNextTrackScreenXYZ->screenPtAy[0].projected.fZ;
       else
-        fDepthForZOrderFinal = pNextTrackScreenXYZ->proj2.fZ;
+        fDepthForZOrderFinal = pNextTrackScreenXYZ->screenPtAy[1].projected.fZ;
       if (fMaxDepthForZOrder <= (double)fDepthForZOrderFinal) {
-        if (pNextTrackScreenXYZ->proj2.fZ <= (double)pNextTrackScreenXYZ->proj1.fZ)
-          fDepthForZOrder = pNextTrackScreenXYZ->proj1.fZ;
+        if (pNextTrackScreenXYZ->screenPtAy[1].projected.fZ <= (double)pNextTrackScreenXYZ->screenPtAy[0].projected.fZ)
+          fDepthForZOrder = pNextTrackScreenXYZ->screenPtAy[0].projected.fZ;
         else
-          fDepthForZOrder = pNextTrackScreenXYZ->proj2.fZ;
-      } else if (pTrackScreenXYZ_1->proj2.fZ <= (double)pTrackScreenXYZ_1->proj1.fZ) {
-        fDepthForZOrder = pTrackScreenXYZ_1->proj1.fZ;
+          fDepthForZOrder = pNextTrackScreenXYZ->screenPtAy[1].projected.fZ;
+      } else if (pTrackScreenXYZ_1->screenPtAy[1].projected.fZ <= (double)pTrackScreenXYZ_1->screenPtAy[0].projected.fZ) {
+        fDepthForZOrder = pTrackScreenXYZ_1->screenPtAy[0].projected.fZ;
       } else {
-        fDepthForZOrder = pTrackScreenXYZ_1->proj2.fZ;
+        fDepthForZOrder = pTrackScreenXYZ_1->screenPtAy[1].projected.fZ;
       }
 
-      //loop offset fixup
       CarZOrder[iZOrderIndex].fZDepth = fDepthForZOrder;
 
       ++iZOrderIndex;
@@ -2143,22 +2142,21 @@ void show_3dmap(float fZ, int iElevation, int iYaw)
           iSurfaceColor = 139;
         if (!iCurrentSegmentIdx)
           iSurfaceColor = 143;
-        //uiSurfaceColor = iSurfaceColor;
-        //SET_BYTE1(uiSurfaceColor, GET_BYTE1(iSurfaceColor) | 0x60);
+        //iSurfaceColor = iSurfaceColor;
+        //BYTE1(uiSurfaceColor) = BYTE1(iSurfaceColor) | 0x60;
+
+        // Render road segment with vert orders for both front and back faces
         RoadPoly.iSurfaceType = iSurfaceColor | SURFACE_FLAG_CONCAVE | SURFACE_FLAG_FLIP_BACKFACE;
-
-        //Render road segment with vert orders for both front and back faces
-        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screen1;    //0
-        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screen2;    //1
-        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screen2; //2
-        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screen1; //3
+        RoadPoly.vertices[0] = pNextTrackScreenXYZ_1->screenPtAy[0].screen;
+        RoadPoly.vertices[1] = pNextTrackScreenXYZ_1->screenPtAy[1].screen;
+        RoadPoly.vertices[2] = pCurrentSegmentScreenXYZ->screenPtAy[1].screen;
+        RoadPoly.vertices[3] = pCurrentSegmentScreenXYZ->screenPtAy[0].screen;
         POLYFLAT(scrbuf, &RoadPoly);
-
         pointTemp = RoadPoly.vertices[0];
-        RoadPoly.vertices[0] = RoadPoly.vertices[1];            //1
-        RoadPoly.vertices[1] = RoadPoly.vertices[2];            //2
-        RoadPoly.vertices[2] = RoadPoly.vertices[3];            //3
-        RoadPoly.vertices[3] = pointTemp;                       //0
+        RoadPoly.vertices[0] = RoadPoly.vertices[1];
+        RoadPoly.vertices[1] = RoadPoly.vertices[2];
+        RoadPoly.vertices[2] = RoadPoly.vertices[3];
+        RoadPoly.vertices[3] = pointTemp;
         POLYFLAT(scrbuf, &RoadPoly);
       }
       ++iRenderLoopIndex;

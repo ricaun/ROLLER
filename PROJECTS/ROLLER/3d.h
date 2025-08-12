@@ -50,6 +50,14 @@ typedef struct
 
 typedef struct
 {
+  tPoint screen;
+  tVec3 projected;
+} tScreenPt;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
   int iLeftSurfType;
   int iCenterSurfType;
   int iRightSurfType;
@@ -64,24 +72,7 @@ typedef struct
 {
   int iUnk1;
   int iClipCount;
-  tPoint screen1;
-  tVec3 proj1;
-  tPoint screen2;
-  tVec3 proj2;
-  tPoint screen3;
-  tVec3 proj3;
-  tPoint screen4;
-  tVec3 proj4;
-  int iUnk23;
-  int iUnk24;
-  int iUnk25;
-  int iUnk26;
-  int iUnk27;
-  int iUnk28;
-  int iUnk29;
-  int iUnk30;
-  int iUnk31;
-  int iUnk32;
+  tScreenPt screenPtAy[6];
 } tTrackScreenXYZ;
 
 //-------------------------------------------------------------------------------------------------
