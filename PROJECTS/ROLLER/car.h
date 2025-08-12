@@ -171,7 +171,7 @@ extern float CarBaseY;
 extern float CarDiag;
 extern float roadheight[4];
 extern tCarPt CarPt[128];
-extern tCarZOrderEntry CarZOrder[500];
+extern tCarZOrderEntry CarZOrder[MAX_TRACK_CHUNKS];
 extern int car_texmap[16];
 extern tCarBox CarBox;
 extern tCar Car[16];

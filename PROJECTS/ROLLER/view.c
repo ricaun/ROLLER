@@ -275,7 +275,7 @@ LABEL_9:
       }
       worldx = TowerX[iClosestTowerIdx];        // Use closest tower position
       worldy = TowerY[iClosestTowerIdx];
-      iTowerType = TowerBase[iClosestTowerIdx].iUnk5 - 1;// Set view distance based on tower type
+      iTowerType = TowerBase[iClosestTowerIdx].iTowerType - 1;// Set view distance based on tower type
       worldz = TowerZ[iClosestTowerIdx];
       switch (iTowerType) {
         case 0:

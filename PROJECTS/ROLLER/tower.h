@@ -10,12 +10,12 @@ typedef struct
   int iHOffset;
   int iVOffset;
   int iEnabled;
-  int iUnk5;
+  int iTowerType;
 } tTowerBase;
 
 //-------------------------------------------------------------------------------------------------
 
-extern int TowerSect[500];
+extern int TowerSect[MAX_TRACK_CHUNKS];
 extern float TowerX[32];
 extern float TowerY[32];
 extern float TowerZ[32];

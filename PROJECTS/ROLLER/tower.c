@@ -7,7 +7,7 @@
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
-int TowerSect[500];       //001A1FA0
+int TowerSect[MAX_TRACK_CHUNKS]; //001A1FA0
 float TowerX[32];         //001A2770
 float TowerY[32];         //001A27F0
 float TowerZ[32];         //001A2870

@@ -95,13 +95,13 @@ uint8 *cargen_vga = NULL;    //000A3590
 tBlockHeader *rev_vga[16] = { NULL }; //000A3594
 int firstrun = -1;          //000A35D4
 int language = 0;           //000A4768
-tGroundColour GroundColour[500];  //000B8C50
-tTrakColour TrakColour[500];//000BB360
-int HorizonColour[500];     //000BE240
-tData localdata[500];       //000BEA10
-tGroundPt GroundPt[500];    //000CE410
-tGroundPt TrakPt[500];      //000D7D30
-tTrackScreenXYZ TrackScreenXYZ[500]; //000F03D0
+tGroundColour GroundColour[MAX_TRACK_CHUNKS];  //000B8C50
+tTrakColour TrakColour[MAX_TRACK_CHUNKS];//000BB360
+int HorizonColour[MAX_TRACK_CHUNKS];     //000BE240
+tData localdata[MAX_TRACK_CHUNKS];       //000BEA10
+tGroundPt GroundPt[MAX_TRACK_CHUNKS];    //000CE410
+tGroundPt TrakPt[MAX_TRACK_CHUNKS];      //000D7D30
+tTrackScreenXYZ TrackScreenXYZ[MAX_TRACK_CHUNKS]; //000F03D0
 uint8 shade_palette[4096];  //000FFDD0
 tColor palette[256];        //00100DD0
 float tsin[16384];          //001010F0
@@ -1633,13 +1633,13 @@ void winner_race()
 {
   int iNumCars; // ecx
   int iCarIdx; // eax
-  int iArrayIdx; // edx
+  //int iArrayIdx; // edx
   int iWinnerCarIdx; // edx
   int iRacers; // edx
   int iPlayerType; // ebx
   int iNumCars_1; // ecx
-  int iMaxOffset; // ebx
-  unsigned int uiOffset; // eax
+  //int iMaxOffset; // ebx
+  //unsigned int uiOffset; // eax
 
   iNumCars = numcars;
   iCarIdx = 0;

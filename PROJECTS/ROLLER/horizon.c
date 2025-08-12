@@ -1,7 +1,11 @@
 #include "horizon.h"
+#include "3d.h"
+#include <math.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-int test_y1;
+tCloudData cloud[40]; //00199950
+int test_y1;          //0019A3F4
 
 //-------------------------------------------------------------------------------------------------
 //0006AB90
@@ -254,155 +258,145 @@ void DrawHorizon(int a1)
 //-------------------------------------------------------------------------------------------------
 //0006B1A0
 void initclouds()
-{/*
-  int i; // edi
-  int v2; // eax
-  int v3; // eax
-  int v4; // eax
-  int v5; // ebp
-  int v6; // eax
-  int v7; // esi
-  double v8; // st6
-  double v9; // st5
-  float v10; // eax
-  double v11; // st4
-  double v12; // st6
-  int v13; // ecx
-  double v14; // st6
-  double v15; // st3
-  double v16; // st2
-  double v17; // rt1
-  int v18; // eax
-  int v19; // eax
-  int v20; // eax
-  int v21; // edx
-  double v22; // st7
-  double v23; // st6
-  double v24; // st7
-  double v25; // st6
-  __int16 v26; // fps
-  _BOOL1 v27; // c0
-  char v28; // c2
-  _BOOL1 v29; // c3
-  float v30; // [esp+8h] [ebp-80h]
-  float v31; // [esp+Ch] [ebp-7Ch]
-  float v32; // [esp+10h] [ebp-78h]
-  float v33; // [esp+14h] [ebp-74h]
-  float v34; // [esp+18h] [ebp-70h]
-  float v35; // [esp+1Ch] [ebp-6Ch]
-  float v36; // [esp+20h] [ebp-68h]
-  float v37; // [esp+24h] [ebp-64h]
-  float v38; // [esp+28h] [ebp-60h]
-  float v39; // [esp+2Ch] [ebp-5Ch]
-  float v40; // [esp+30h] [ebp-58h]
-  float v41; // [esp+34h] [ebp-54h]
-  float v42; // [esp+38h] [ebp-50h]
-  float v43; // [esp+3Ch] [ebp-4Ch]
-  float v44; // [esp+40h] [ebp-48h]
-  float v45; // [esp+44h] [ebp-44h]
-  float v46; // [esp+48h] [ebp-40h]
-  float v47; // [esp+4Ch] [ebp-3Ch]
-  float v48; // [esp+50h] [ebp-38h]
-  float v49; // [esp+58h] [ebp-30h]
-  float v50; // [esp+5Ch] [ebp-2Ch]
-  float v51; // [esp+60h] [ebp-28h]
-  float v52; // [esp+64h] [ebp-24h]
-  float v53; // [esp+68h] [ebp-20h]
-  float v54; // [esp+6Ch] [ebp-1Ch]
+{                                               // Loop through all 40 cloud slots
+  int iCloudIdx; // edi
+  int iRandVal1; // eax
+  int iAngle1Calc; // eax
+  int iAngle1; // ebp
+  int iRandVal2; // eax
+  int iAngle2; // esi
+  double dRadiusRotComp1; // st6
+  double dRadiusRotComp2; // st5
+  double dBaseCalcX; // st4
+  double dBaseCalcY; // st6
+  int iValidPlacement; // ecx
+  double dMatrix12; // st6
+  double dMatrix20Temp; // st3
+  double dMatrix21Temp; // st2
+  double dMatrix22Temp; // rt1
+  int iRandColorBase; // eax
+  int iColorIndex; // eax
+  int iCheckIdx; // edx
+  double fDeltaX; // st7
+  double fDeltaY; // st6
+  double fXYDistSq; // st7
+  double fDeltaZ; // st6
+  float fCos1Cos2; // [esp+8h] [ebp-80h]
+  float fTransX2; // [esp+Ch] [ebp-7Ch]
+  float fSin1Cos2; // [esp+10h] [ebp-78h]
+  float fTransX1; // [esp+14h] [ebp-74h]
+  float fTransY2; // [esp+18h] [ebp-70h]
+  float fTransZ1; // [esp+1Ch] [ebp-6Ch]
+  float fTransY1; // [esp+20h] [ebp-68h]
+  float fMatrix11; // [esp+24h] [ebp-64h]
+  float fMatrix02; // [esp+28h] [ebp-60h]
+  float fMatrix10; // [esp+2Ch] [ebp-5Ch]
+  float fMatrix00; // [esp+30h] [ebp-58h]
+  float fMatrix01; // [esp+34h] [ebp-54h]
+  float fRadiusComp; // [esp+38h] [ebp-50h]
+  float fSin2; // [esp+3Ch] [ebp-4Ch]
+  float fBaseY; // [esp+40h] [ebp-48h]
+  float fBaseX; // [esp+44h] [ebp-44h]
+  float fRotComp2; // [esp+48h] [ebp-40h]
+  float fRotComp1; // [esp+4Ch] [ebp-3Ch]
+  float fBaseZ; // [esp+50h] [ebp-38h]
+  float fCos2; // [esp+54h] [ebp-34h]
+  float fNegSin1; // [esp+58h] [ebp-30h]
+  float fCos1; // [esp+5Ch] [ebp-2Ch]
+  float fNegRadius; // [esp+60h] [ebp-28h]
+  float fRadius; // [esp+64h] [ebp-24h]
+  float fMinDistance; // [esp+68h] [ebp-20h]
+  float fDistance; // [esp+6Ch] [ebp-1Ch]
 
-  for (i = 0; i < 40; ++i) {
-    v52 = 1800000.0;
+  for (iCloudIdx = 0; iCloudIdx < 40; ++iCloudIdx) {
+    fRadius = 1800000.0;                        // Start with maximum radius for placement attempt
     do {
-      v2 = rand(a1);
-      v3 = 3400 * ((v2 * v2 - (__CFSHL__((v2 * v2) >> 31, 15) + ((v2 * v2) >> 31 << 15))) >> 15);
-      v4 = (v3 - (__CFSHL__(v3 >> 31, 15) + (v3 >> 31 << 15))) >> 15;
-      v5 = v4 + 520;
-      v6 = rand(v4);
-      v7 = ((v6 << 14) - (__CFSHL__(v6 << 14 >> 31, 15) + (v6 << 14 >> 31 << 15))) >> 15;
-      v30 = tcos[v7] * tcos[v5];
-      v32 = tsin[v7] * tcos[v5];
-      v49 = -tsin[v7];
-      v43 = tsin[v5];
-      v50 = tcos[v7];
-      v47 = -v50 * v43;
-      v46 = v49 * v43;
-      v51 = -v52;
-      v45 = horizon_c_variable_7 * v30;
-      v33 = v51 * v49;
-      v40 = v45 + v33;
-      v8 = v52 * v47;
-      cloud[17 * i] = v40 + v8;
-      v44 = horizon_c_variable_7 * v32;
-      v36 = v51 * v50;
-      v41 = v44 + v36;
-      v9 = v52 * v46;
-      cloud_variable_1[17 * i] = v41 + v9;
-      v48 = horizon_c_variable_7 * v43;
-      v35 = 0.0 * v51;
-      v38 = v48 + v35;
-      v10 = tcos[v5];
-      v42 = v52 * v10;
-      cloud_variable_2[17 * i] = v38 + v42;
-      v31 = v52 * v49;
-      v11 = v45 + v31;
-      v39 = v11;
-      cloud_variable_3[17 * i] = v8 + v11;
-      v34 = v52 * v50;
-      v12 = v44 + v34;
-      v37 = v12;
-      v13 = -1;
-      cloud_variable_4[17 * i] = v9 + v12;
-      v14 = 0.0 * v52 + v48;
-      cloud_variable_5[17 * i] = v14 + v42;
-      v15 = v51 * v47;
-      cloud_variable_6[17 * i] = v39 + v15;
-      v16 = v51 * v46;
-      cloud_variable_7[17 * i] = v37 + v16;
-      v17 = v51 * v10;
-      cloud_variable_8[17 * i] = v14 + v17;
-      cloud_variable_9[17 * i] = v15 + v40;
-      cloud_variable_10[17 * i] = v16 + v41;
-      cloud_variable_11[17 * i] = v17 + v38;
-      cloud_variable_12[17 * i] = v47 * 0.0 + 0.0 * v49 + v45;
-      cloud_variable_13[17 * i] = 0.0 * v50 + v44 + 0.0 * v46;
-      cloud_variable_14[17 * i] = v48 + 0.0 * v10;
-      v18 = rand(LODWORD(v10));
-      v19 = (5 * v18 - (__CFSHL__((5 * v18) >> 31, 15) + ((5 * v18) >> 31 << 15))) >> 15;
-      *((_DWORD *)&cloud_variable_15 + 17 * i) = v19;
-      *((_DWORD *)&cloud_variable_15 + 17 * i) = v19 + 1288;
-      v20 = rand(v19);
-      if (v20 < 0x4000)
-        *((_DWORD *)&cloud_variable_15 + 17 * i) += 4096;
-      if ((int)rand(v20) < 0x4000)
-        *((_WORD *)&cloud_variable_16 + 34 * i) += 4;
-      HIWORD(a1) = HIWORD(v52);
-      cloud_variable_17[17 * i] = v52;
-      if (i > 0) {
-        v21 = 0;
-        do {
-          if (v13) {
-            v22 = cloud_variable_12[v21] - cloud_variable_12[17 * i];
-            v23 = cloud_variable_13[v21] - cloud_variable_13[17 * i];
-            v24 = v22 * v22 + v23 * v23;
-            v25 = cloud_variable_14[v21] - cloud_variable_14[17 * i];
-            v54 = sqrt(v24 + v25 * v25);
+      iRandVal1 = rand();                       // Generate random angle1 (theta) for spherical coordinates
+      iAngle1Calc = 3400 * ((iRandVal1 * iRandVal1) % 32768) / 32768;
+      //iAngle1Calc = 3400 * ((iRandVal1 * iRandVal1 - (__CFSHL__((iRandVal1 * iRandVal1) >> 31, 15) + ((iRandVal1 * iRandVal1) >> 31 << 15))) >> 15);
+      iAngle1 = (iAngle1Calc % 32768) / 32768 + 520;
+      //iAngle1 = ((iAngle1Calc - (__CFSHL__(iAngle1Calc >> 31, 15) + (iAngle1Calc >> 31 << 15))) >> 15) + 520;
+      iRandVal2 = rand();                       // Generate random angle2 (phi) for spherical coordinates
+      iAngle2 = iRandVal2 / 2;
+      //iAngle2 = ((iRandVal2 << 14) - (__CFSHL__(iRandVal2 << 14 >> 31, 15) + (iRandVal2 << 14 >> 31 << 15))) >> 15;
+      fCos1Cos2 = tcos[iAngle2] * tcos[iAngle1];// Calculate rotation matrix elements using trigonometric tables
+      fSin1Cos2 = tsin[iAngle2] * tcos[iAngle1];
+      fNegSin1 = -tsin[iAngle2];
+      fSin2 = tsin[iAngle1];
+      fCos1 = tcos[iAngle2];
+      fRotComp1 = -fCos1 * fSin2;               // Calculate rotation matrix components: -cos(phi)*sin(theta) and -sin(phi)*sin(theta)
+      fRotComp2 = fNegSin1 * fSin2;
+      fNegRadius = -fRadius;                    // Negative radius for translation calculations
+      fBaseX = 10000000.0f * fCos1Cos2;          // Calculate 3x4 transformation matrix for cloud positioning
+      fTransX1 = fNegRadius * fNegSin1;
+      fMatrix00 = fBaseX + fTransX1;
+      dRadiusRotComp1 = fRadius * fRotComp1;
+      cloud[iCloudIdx].matrix[0][0] = fMatrix00 + (float)dRadiusRotComp1;
+      fBaseY = 10000000.0f * fSin1Cos2;
+      fTransY1 = fNegRadius * fCos1;
+      fMatrix01 = fBaseY + fTransY1;
+      dRadiusRotComp2 = fRadius * fRotComp2;
+      cloud[iCloudIdx].matrix[0][1] = fMatrix01 + (float)dRadiusRotComp2;
+      fBaseZ = 10000000.0f * fSin2;
+      fTransZ1 = 0.0f * fNegRadius;
+      fMatrix02 = fBaseZ + fTransZ1;
+      fCos2 = tcos[iAngle1];
+      fRadiusComp = fRadius * fCos2;
+      cloud[iCloudIdx].matrix[0][2] = fMatrix02 + fRadiusComp;
+      fTransX2 = fRadius * fNegSin1;
+      dBaseCalcX = fBaseX + fTransX2;
+      fMatrix10 = (float)dBaseCalcX;
+      cloud[iCloudIdx].matrix[1][0] = (float)(dRadiusRotComp1 + dBaseCalcX);
+      fTransY2 = fRadius * fCos1;
+      dBaseCalcY = fBaseY + fTransY2;
+      fMatrix11 = (float)dBaseCalcY;
+      iValidPlacement = -1;
+      cloud[iCloudIdx].matrix[1][1] = (float)(dRadiusRotComp2 + dBaseCalcY);
+      dMatrix12 = 0.0 * fRadius + fBaseZ;
+      cloud[iCloudIdx].matrix[1][2] = (float)dMatrix12 + fRadiusComp;
+      dMatrix20Temp = fNegRadius * fRotComp1;
+      cloud[iCloudIdx].matrix[2][0] = fMatrix10 + (float)dMatrix20Temp;
+      dMatrix21Temp = fNegRadius * fRotComp2;
+      cloud[iCloudIdx].matrix[2][1] = fMatrix11 + (float)dMatrix21Temp;
+      dMatrix22Temp = fNegRadius * fCos2;
+      cloud[iCloudIdx].matrix[2][2] = (float)(dMatrix12 + dMatrix22Temp);
+      cloud[iCloudIdx].matrix[3][0] = (float)dMatrix20Temp + fMatrix00;
+      cloud[iCloudIdx].matrix[3][1] = (float)dMatrix21Temp + fMatrix01;
+      cloud[iCloudIdx].matrix[3][2] = (float)dMatrix22Temp + fMatrix02;
+      cloud[iCloudIdx].world.fX = fRotComp1 * 0.0f + 0.0f * fNegSin1 + fBaseX;// World X coordinate: final cloud position after transformation
+      cloud[iCloudIdx].world.fY = 0.0f * fCos1 + fBaseY + 0.0f * fRotComp2;// World Y coordinate: final cloud position after transformation
+      cloud[iCloudIdx].world.fZ = fBaseZ + 0.0f * fCos2;// World Z coordinate: final cloud position after transformation
+      iRandColorBase = rand();                  // Generate random cloud color/texture index
+      iColorIndex = (5 * iRandColorBase) % 32768 / 32768;
+      //iColorIndex = (5 * iRandColorBase - (__CFSHL__((5 * iRandColorBase) >> 31, 15) + ((5 * iRandColorBase) >> 31 << 15))) >> 15;
+      cloud[iCloudIdx].iSurfaceType = iColorIndex;
+      cloud[iCloudIdx].iSurfaceType = iColorIndex + 0x508;
+      if (rand() < 0x4000)                    // Randomly modify color properties (50% chance each)
+        cloud[iCloudIdx].iSurfaceType += 0x1000;
+      if (rand() < 0x4000)
+        SET_HIWORD(cloud[iCloudIdx].iSurfaceType, 4 + GET_HIWORD(cloud[iCloudIdx].iSurfaceType));
+        //HIWORD(cloud[iCloudIdx].iSurfaceType) += 4;
+      cloud[iCloudIdx].fRadius = fRadius;       // Store cloud radius
+      if (iCloudIdx > 0) {                                         // Check collision with previously placed clouds
+        for (iCheckIdx = 0; iCheckIdx < iCloudIdx; ++iCheckIdx) {
+          if (iValidPlacement) {
+            fDeltaX = cloud[iCheckIdx].world.fX - cloud[iCloudIdx].world.fX;
+            fDeltaY = cloud[iCheckIdx].world.fY - cloud[iCloudIdx].world.fY;
+            fXYDistSq = fDeltaX * fDeltaX + fDeltaY * fDeltaY;
+            fDeltaZ = cloud[iCheckIdx].world.fZ - cloud[iCloudIdx].world.fZ;
+            fDistance = (float)sqrt(fXYDistSq + fDeltaZ * fDeltaZ);// Calculate 3D distance between cloud centers
           }
-          v53 = v52 + cloud_variable_17[17 * i];
-          if (v54 < v53 * horizon_c_variable_6)
-            v13 = 0;
-          v21 += 17;
-        } while (v21 < 17 * i);
+          fMinDistance = fRadius + cloud[iCloudIdx].fRadius;
+          if (fDistance < fMinDistance * 1.3f) // Check if clouds overlap (distance < combined radii * 1.3)
+            iValidPlacement = 0;
+        }
       }
-      if (!v13)
-        v52 = v52 + horizon_c_variable_8;
-      v27 = v52 < (double)horizon_c_variable_9;
-      v28 = 0;
-      v29 = v52 == horizon_c_variable_9;
-      LOWORD(a1) = v26;
-      if (v52 < (double)horizon_c_variable_9)
-        v52 = 1000000.0;
-    } while (!v13);
-  }*/
+      if (!iValidPlacement)
+        fRadius = fRadius + -2000.0f;            // Reduce radius and retry if collision detected
+      if (fRadius < 1000000.0f)                // Minimum radius constraint
+        fRadius = 1000000.0f;
+    } while (!iValidPlacement);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

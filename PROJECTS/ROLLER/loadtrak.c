@@ -46,23 +46,23 @@ char *names[25] = {         //000A608C
     "TRACK23.TRK",  // 23
     "TRACK24.TRK"   // 24
 };
-tTrakView TrakView[500];    //0016FF20
-int16 samplespeed[500];     //00170EC0
-int16 samplemax[500];       //001712A8
-float GroundLevel[500];     //00171690
-tTrackInfo TrackInfo[500];  //00171E60
+tTrakView TrakView[MAX_TRACK_CHUNKS];    //0016FF20
+int16 samplespeed[MAX_SAMPLES];     //00170EC0
+int16 samplemax[MAX_SAMPLES];       //001712A8
+float GroundLevel[MAX_TRACK_CHUNKS];     //00171690
+tTrackInfo TrackInfo[MAX_TRACK_CHUNKS];  //00171E60
 int cur_mapsect;            //00178044
 float cur_TrackZ;           //00178048
 float cur_mapsize;          //0017804C
 int TRAK_LEN;               //00178050
-int16 samplemin[500];       //001764B0
+int16 samplemin[MAX_SAMPLES];       //001764B0
 int cur_laps[6];            //00176898
 uint8 fp_buf[512];          //001768B0
 int actualtrack;            //00176AB8
 uint8 *start_f;             //00176ABC
 int TrackFlags;             //00176AC0
 int meof;                   //00176AC4
-tSubdivide Subdivide[500];  //00176AC8
+tSubdivide Subdivide[MAX_TRACK_CHUNKS];  //00176AC8
 
 //-------------------------------------------------------------------------------------------------
 //0004AF80

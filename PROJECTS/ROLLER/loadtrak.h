@@ -42,23 +42,23 @@ typedef struct
 extern uint8 TrackSelect;
 extern char *delims;
 extern char *names[25];
-extern tTrakView TrakView[500];
-extern int16 samplespeed[500];
-extern int16 samplemax[500];
-extern float GroundLevel[500];
-extern tTrackInfo TrackInfo[500];
+extern tTrakView TrakView[MAX_TRACK_CHUNKS];
+extern int16 samplespeed[MAX_SAMPLES];
+extern int16 samplemax[MAX_SAMPLES];
+extern float GroundLevel[MAX_TRACK_CHUNKS];
+extern tTrackInfo TrackInfo[MAX_TRACK_CHUNKS];
 extern int cur_mapsect;
 extern float cur_TrackZ;
 extern float cur_mapsize;
 extern int TRAK_LEN;
-extern int16 samplemin[500];
+extern int16 samplemin[MAX_SAMPLES];
 extern int cur_laps[6];
 extern uint8 fp_buf[512];
 extern int actualtrack;
 extern uint8 *start_f;
 extern int TrackFlags;
 extern int meof;
-extern tSubdivide Subdivide[500];
+extern tSubdivide Subdivide[MAX_TRACK_CHUNKS];
 
 //-------------------------------------------------------------------------------------------------
 

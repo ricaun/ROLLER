@@ -34,7 +34,7 @@ float CarBaseY;                 //00188520
 float CarDiag;                  //00188524
 float roadheight[4];            //0017CA70
 tCarPt CarPt[128];              //0017CA80
-tCarZOrderEntry CarZOrder[500]; //0017DA80
+tCarZOrderEntry CarZOrder[MAX_TRACK_CHUNKS]; //0017DA80
 int car_texmap[16];             //0017F2B0
 tCarBox CarBox;                 //0017F2F0
 tCar Car[16];                   //0017F8F0
