@@ -6,6 +6,7 @@
 #include "network.h"
 #include <math.h>
 #include <float.h>
+#include <string.h>
 //-------------------------------------------------------------------------------------------------
 
 int serial_port = 2;    //000AFD98
