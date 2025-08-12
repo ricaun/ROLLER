@@ -7,257 +7,250 @@
 #include "drawtrk3.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
+#include <float.h>
 //-------------------------------------------------------------------------------------------------
 
 tCloudData cloud[40]; //00199950
 int test_y1;          //0019A3F4
+char upside_down;     //0019A410
+char ground_left;     //0019A411
 
 //-------------------------------------------------------------------------------------------------
 //0006AB90
-void DrawHorizon(int a1)
+void DrawHorizon(uint8 *pScrBuf)
 {
-  /*
-  int v1; // edx
-  int v2; // ecx
-  unsigned __int8 v3; // dl
-  int v4; // eax
-  int v5; // eax
-  double v6; // st7
-  double v7; // st6
-  double v8; // st7
-  int v9; // eax
-  int v10; // esi
-  int v11; // edi
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  __int16 v15; // fps
-  _BOOL1 v16; // c0
-  char v17; // c2
-  _BOOL1 v18; // c3
-  int v19; // eax
-  int v20; // edx
-  int v21; // edi
-  int v22; // esi
-  double v23; // st7
-  double v24; // st6
-  int v25; // edx
-  int v26; // edi
-  int v27; // ebp
-  double v28; // st7
-  double v29; // st7
-  double v30; // st6
-  int v31; // esi
-  int v32; // esi
-  int v33; // ecx
-  int v34; // eax
-  int v35; // edi
-  int v36; // esi
-  double v37; // st7
-  int v38; // ebp
-  double v39; // st7
-  double v40; // st6
-  int v41[2]; // [esp+14h] [ebp-70h] BYREF
-  int v42[2]; // [esp+1Ch] [ebp-68h] BYREF
-  double v43; // [esp+24h] [ebp-60h]
-  float v44; // [esp+2Ch] [ebp-58h]
-  int v45; // [esp+38h] [ebp-4Ch]
-  int v46; // [esp+3Ch] [ebp-48h]
-  int v47; // [esp+40h] [ebp-44h]
-  int v48; // [esp+44h] [ebp-40h]
-  int v49; // [esp+48h] [ebp-3Ch]
-  float v50; // [esp+4Ch] [ebp-38h]
-  float v51; // [esp+50h] [ebp-34h]
-  float v52; // [esp+54h] [ebp-30h]
-  float v53; // [esp+58h] [ebp-2Ch]
-  int v54; // [esp+5Ch] [ebp-28h]
-  int v55; // [esp+60h] [ebp-24h]
-  unsigned __int8 v56; // [esp+64h] [ebp-20h]
-  unsigned __int8 v57; // [esp+68h] [ebp-1Ch]
+  uint8 *pScrPtr; // ecx
+  uint8 byFillColor; // dl
+  int iWorldTiltMasked; // eax
+  double dViewDistTan; // st7
+  double dHorizonX; // st6
+  double dHorizonY; // st7
+  int iGroundHeight1; // esi
+  int iGroundHeight2; // edi
+  int iSkyHeight1; // eax
+  int iSkyHeight2; // eax
+  int iGroundHeight3; // eax
+  int iLoopEnd; // edi
+  int iLoopCounter; // esi
+  double dSlope; // st7
+  double dPrevScanValue; // st6
+  int iRowCounter; // edi
+  int iScanIdx; // ebp
+  double dScanValue; // st7
+  double dNegGroundWidth; // st7
+  double dInvScale; // st6
+  signed int iGroundWidthCopy; // esi
+  int iSkyWidth; // esi
+  uint8 *pScrPtrRight; // ecx
+  int iRowCounter2; // edi
+  int iScanIdx2; // esi
+  double dScanValue2; // st7
+  int iGroundWidthTemp; // ebp
+  double dExcessWidth; // st7
+  double dInvScale2; // st6
+  double dModfResult1; // [esp+14h] [ebp-70h] BYREF
+  double dModfResult2; // [esp+1Ch] [ebp-68h] BYREF
+  double fSinElevation; // [esp+24h] [ebp-60h]
+  float fTempCalc; // [esp+2Ch] [ebp-58h]
+  int iYBase; // [esp+38h] [ebp-4Ch]
+  signed int iGroundWidth; // [esp+3Ch] [ebp-48h]
+  int iHorizonX; // [esp+40h] [ebp-44h]
+  uint8 *pScrBuf_1; // [esp+44h] [ebp-40h]
+  int iHorizonY; // [esp+48h] [ebp-3Ch]
+  float fSlope; // [esp+4Ch] [ebp-38h]
+  float fScale; // [esp+50h] [ebp-34h]
+  float fCosTilt; // [esp+54h] [ebp-30h]
+  float fNegSinTilt; // [esp+58h] [ebp-2Ch]
+  float fScanValue; // [esp+5Ch] [ebp-28h]
+  signed int iGroundWidth2; // [esp+60h] [ebp-24h]
+  uint8 bySkyColor; // [esp+64h] [ebp-20h]
+  uint8 byGroundColor; // [esp+68h] [ebp-1Ch]
 
-  v48 = a1;
-  v1 = worldelev & 0x3FFF;
-  v43 = tsin[v1];
-  v2 = a1;
-  v56 = -111;
-  v57 = HorizonColour[4 * front_sec];
-  if (v43 > horizon_c_variable_1 || v43 < horizon_c_variable_2 || (textures_off & 0x10) != 0) {
-    if (tsin[worldelev & 0x3FFF] <= horizon_c_variable_1)
-      v3 = v57;
+  pScrBuf_1 = pScrBuf;
+  fSinElevation = tsin[worldelev & 0x3FFF];     // Calculate sine of world elevation (masked to 14 bits for lookup table)
+  pScrPtr = pScrBuf;
+  bySkyColor = 0x91;
+  byGroundColor = HorizonColour[front_sec];
+
+  // 0x10 = TEX_OFF_HORIZON
+  if (fSinElevation > 0.7 || fSinElevation < -0.7 || (textures_off & TEX_OFF_HORIZON) != 0)// Check for simple fill cases: steep angle or horizon textures disabled
+  {
+    if (tsin[worldelev & 0x3FFF] <= 0.7)
+      byFillColor = byGroundColor;
     else
-      v3 = v56;
-    if ((textures_off & 0x10) != 0)
-      v3 = v56;
-    memset(a1, v3, winh * winw);
+      byFillColor = bySkyColor;
+    if ((textures_off & TEX_OFF_HORIZON) != 0)
+      byFillColor = bySkyColor;
+    memset(pScrBuf, byFillColor, winh * winw);  // Simple case: fill entire screen with single color
   } else {
-    v4 = worldtilt & 0x3FFF;
-    v53 = -tsin[v4];
-    v52 = tcos[v4];
-    upside_down = tcos[worldelev & 0x3FFF] < 0.0 != v52 < 0.0;
-    ground_left = v53 < 0.0;
+    iWorldTiltMasked = worldtilt & 0x3FFF;      // Complex horizon rendering: calculate tilt trigonometry
+    fNegSinTilt = -tsin[iWorldTiltMasked];
+    fCosTilt = tcos[iWorldTiltMasked];
+    upside_down = tcos[worldelev & 0x3FFF] < 0.0 != fCosTilt < 0.0;// Determine if world is upside-down (elevation vs tilt sign comparison)
+    ground_left = fNegSinTilt < 0.0;            // Determine which side has ground based on tilt direction
     if (tcos[worldelev & 0x3FFF] < 0.0)
-      ground_left = v53 >= 0.0;
-    v5 = worldelev & 0x3FFF;
-    v6 = (double)VIEWDIST * ptan[v5];
-    v7 = v6 * v53 + (double)xbase;
-    _CHP(v5, v1 * 4);
-    v47 = (int)v7;
-    v45 = 199 - ybase;
-    v8 = (double)(199 - ybase) + v6 * v52;
-    _CHP(v9, 199 - ybase);
-    v49 = (int)v8;
-    if ((LODWORD(v53) & 0x7FFFFFFF) != 0)
-      v50 = v52 / v53;
+      ground_left = fNegSinTilt >= 0.0;
+    dViewDistTan = (double)VIEWDIST * ptan[worldelev & 0x3FFF];// Calculate horizon line position using perspective projection
+    dHorizonX = dViewDistTan * fNegSinTilt + (double)xbase;
+    //_CHP();
+    iHorizonX = (int)dHorizonX;
+    iYBase = 199 - ybase;
+    dHorizonY = (double)(199 - ybase) + dViewDistTan * fCosTilt;
+    //_CHP();
+    iHorizonY = (int)dHorizonY;
+    //if ((LODWORD(fNegSinTilt) & 0x7FFFFFFF) != 0)// Calculate horizon slope (rise/run) with divide-by-zero protection
+    if (fabs(fNegSinTilt) > FLT_EPSILON)// Calculate horizon slope (rise/run) with divide-by-zero protection
+      fSlope = fCosTilt / fNegSinTilt;
     else
-      v50 = 41.0;
-    if (v50 <= (double)horizon_c_variable_3 && v50 >= (double)horizon_c_variable_4) {
-      v51 = (double)scr_size * horizon_c_variable_5;
-      v19 = worldelev & 0x3FFF;
-      v16 = tcos[v19] > 0.0;
-      v17 = 0;
-      v18 = 0.0 == tcos[v19];
-      LOWORD(v19) = v15;
-      if (!v16 && !v18) {
-        HIBYTE(v52) ^= 0x80u;
-        HIBYTE(v53) ^= 0x80u;
+      fSlope = 41.0;
+    if (fSlope <= 40.0 && fSlope >= -40.0)    // Check if slope is reasonable for scanline rendering (not too steep)
+    {
+      fScale = (float)((double)scr_size * 0.015625);     // Scanline rendering case: calculate per-row horizon intersection
+      if (tcos[worldelev & 0x3FFF] < 0.0)     // Handle upside-down case by flipping tilt values
+      {
+        fCosTilt = -fCosTilt;
+        fNegSinTilt = -fNegSinTilt;
+        //HIBYTE(fCosTilt) ^= 0x80u;
+        //HIBYTE(fNegSinTilt) ^= 0x80u;
       }
-      v20 = winh;
-      *(float *)&v54 = ((double)v49 * v50 + (double)v47) * v51;
+      fScanValue = (float)(((double)iHorizonY * fSlope + (double)iHorizonX) * fScale);// Pre-calculate horizon intersection points for each scanline
       if (winh > 0) {
-        v21 = 4 * winh;
-        v22 = 0;
-        v23 = v50;
+        // // Pre-calculate horizon intersection points for each scanline
+        // for (int iScanlineIdx = 0; iScanlineIdx < winh; iScanlineIdx++)
+        // {
+        //     hor_scan[iScanlineIdx] = fScanValue;
+        //     fScanValue -= fSlope;  // Move to next scanline position
+        // }
+        iLoopEnd = 4 * winh;
+        iLoopCounter = 0;
+        dSlope = fSlope;
         do {
-          v24 = *(float *)&v54 - v23;
-          v22 += 4;
-          v19 = v54;
-          GroundPt_variable_7[v22 / 4u] = v54;
-          *(float *)&v54 = v24;
-        } while (v22 < v21);
+          dPrevScanValue = fScanValue - dSlope;
+          iLoopCounter += 4;
+          *(float *)((char *)&GroundPt[499].pointAy[5].fZ + iLoopCounter) = fScanValue;// reference to hor_scan
+          fScanValue = (float)dPrevScanValue;
+        } while (iLoopCounter < iLoopEnd);
       }
-      if (ground_left) {
-        v25 = winh;
-        v26 = 0;
+      if (ground_left)                        // Branch: ground on left side of screen
+      {
+        iRowCounter = 0;
         if (winh > 0) {
-          v27 = 0;
+          iScanIdx = 0;
           do {
-            v28 = hor_scan[v27];
-            _CHP(v19, v25);
-            v46 = (int)v28;
-            if ((int)v28 <= winw) {
-              if ((int)v28 >= 0) {
-                v31 = v46;
-                v19 = memset(v2, v57, v46);
-                v2 += v31;
+            dScanValue = hor_scan[iScanIdx];    // Get horizon intersection point for current scanline from pre-calculated array
+            //_CHP();
+            iGroundWidth = (int)dScanValue;
+            if ((int)dScanValue <= winw)      // Check if horizon intersection is within screen bounds
+            {                                   // Horizon intersection is on-screen: render ground portion
+              if ((int)dScanValue >= 0) {
+                iGroundWidthCopy = iGroundWidth;
+                memset(pScrPtr, byGroundColor, iGroundWidth);// Fill ground pixels from left edge to horizon intersection
+                pScrPtr += iGroundWidthCopy;
               } else {
-                v29 = (double)v46;
-                v30 = 1.0 / v51;
-                v44 = -v52 * v29 * v30;
-                modf(v29 * v53 * v30, (int)v41);
-                modf(v44, (int)v42);
-                v19 = 0;
-                v46 = 0;
+                dNegGroundWidth = (double)iGroundWidth;// Horizon intersection is off-screen left: calculate texture coordinates
+                dInvScale = 1.0 / fScale;
+                fTempCalc = (float)(-fCosTilt * dNegGroundWidth * dInvScale);
+                modf(dNegGroundWidth * fNegSinTilt * dInvScale, &dModfResult1);// modf() splits floating point into integer and fractional parts
+                modf(fTempCalc, &dModfResult2);
+                iGroundWidth = 0;
               }
-              v25 = v46;
-              v32 = winw - v46;
-              if (winw - v46 >= 0) {
-                v25 = v56;
-                v19 = memset(v2, v56, winw - v46);
-                v2 += v32;
+              iSkyWidth = winw - iGroundWidth;
+              if (winw - iGroundWidth >= 0) {
+                memset(pScrPtr, bySkyColor, winw - iGroundWidth);// Fill sky pixels from horizon intersection to right edge
+                pScrPtr += iSkyWidth;
               }
             } else {
-              v25 = v57;
-              v19 = memset(v2, v57, winw);
-              v2 += winw;
+              memset(pScrPtr, byGroundColor, winw);
+              pScrPtr += winw;
             }
-            ++v26;
-            ++v27;
-          } while (v26 < winh);
+            ++iRowCounter;
+            ++iScanIdx;
+          } while (iRowCounter < winh);
         }
       } else {
-        v33 = winw - 1 + v2;
-        v34 = winh;
-        v35 = 0;
+        pScrPtrRight = &pScrPtr[winw - 1];      // Branch: ground on right side of screen (render right-to-left)
+        iRowCounter2 = 0;
         if (winh > 0) {
-          v36 = 0;
+          iScanIdx2 = 0;
           do {
-            v37 = hor_scan[v36];
-            _CHP(v34, v20);
-            v55 = (int)v37;
-            v38 = (int)v37;
-            if ((int)v37 >= 0) {
-              if (v38 <= winw) {
-                v33 -= winw - v38;
-                v20 = v57;
-                memset(v33 + 1, v57, winw - v38);
+            dScanValue2 = hor_scan[iScanIdx2];
+            //_CHP();
+            iGroundWidth2 = (int)dScanValue2;
+            iGroundWidthTemp = (int)dScanValue2;
+            if ((int)dScanValue2 >= 0)        // Right-side rendering: check horizon intersection bounds
+            {
+              if (iGroundWidthTemp <= winw) {
+                pScrPtrRight -= winw - iGroundWidthTemp;
+                memset(pScrPtrRight + 1, byGroundColor, winw - iGroundWidthTemp);// Fill ground pixels from intersection to right edge (right-to-left)
               } else {
-                v20 = v38 - (winw - 1);
-                v45 = v20;
-                v39 = (double)v20;
-                v40 = 1.0 / v51;
-                v44 = -v52 * v39 * v40;
-                modf(v39 * v53 * v40, (int)v41);
-                modf(v44, (int)v42);
-                v55 = winw;
+                iYBase = iGroundWidthTemp - (winw - 1);// Horizon extends beyond screen right: calculate excess width
+                dExcessWidth = (double)iYBase;
+                dInvScale2 = 1.0 / fScale;
+                fTempCalc = (float)(-fCosTilt * dExcessWidth * dInvScale2);
+                modf(dExcessWidth * fNegSinTilt * dInvScale2, &dModfResult1);
+                modf(fTempCalc, &dModfResult2);
+                iGroundWidth2 = winw;
               }
-              if (v55 >= 0) {
-                v33 -= v55;
-                v20 = v56;
-                memset(v33 + 1, v56, v55);
+              if (iGroundWidth2 >= 0) {
+                pScrPtrRight -= iGroundWidth2;
+                memset(pScrPtrRight + 1, bySkyColor, iGroundWidth2);// Fill sky pixels from left edge to intersection (right-to-left)
               }
-              v34 = 2 * winw;
-              v33 += 2 * winw;
+              pScrPtrRight += 2 * winw;
             } else {
-              v20 = v57;
-              v34 = memset(v33 - winw + 1, v57, winw);
-              v33 += winw;
+              memset(&pScrPtrRight[-winw + 1], byGroundColor, winw);
+              pScrPtrRight += winw;
             }
-            ++v35;
-            ++v36;
-          } while (v35 < winh);
+            ++iRowCounter2;
+            ++iScanIdx2;
+          } while (iRowCounter2 < winh);
         }
       }
-    } else {
+    } else {                                           // Steep slope case: fill screen in large blocks rather than scanlines
       if (upside_down) {
-        v10 = (v49 * scr_size + 32 - (__CFSHL__((v49 * scr_size + 32) >> 31, 6) + ((v49 * scr_size + 32) >> 31 << 6))) >> 6;
-        if (v10 > winh)
-          v10 = winh;
-        if (v10 > 0) {
-          memset(v2, v57, v10 * winw);
-          v2 += v10 * winw;
+        iGroundHeight1 = (iHorizonY * scr_size + 32) / 64;
+        //iGroundHeight1 = (iHorizonY * scr_size + 32 - (__CFSHL__((iHorizonY * scr_size + 32) >> 31, 6) + ((iHorizonY * scr_size + 32) >> 31 << 6))) >> 6;
+        if (iGroundHeight1 > winh)
+          iGroundHeight1 = winh;
+        if (iGroundHeight1 > 0) {
+          memset(pScrPtr, byGroundColor, iGroundHeight1 * winw);
+          pScrPtr += iGroundHeight1 * winw;
         }
       } else {
-        v10 = (v49 * scr_size - (__CFSHL__((v49 * scr_size) >> 31, 6) + ((v49 * scr_size) >> 31 << 6))) >> 6;
-        v11 = v10;
-        if (v10 > winh)
-          v10 = winh;
-        if (v11 > winh)
-          v11 = winh;
-        if (v11 > 0) {
-          memset(v2, v56, v11 * winw);
-          v2 += winw * v11;
+        iGroundHeight1 = (iHorizonY * scr_size) / 64;
+        //iGroundHeight1 = (iHorizonY * scr_size - (__CFSHL__((iHorizonY * scr_size) >> 31, 6) + ((iHorizonY * scr_size) >> 31 << 6))) >> 6;
+        iGroundHeight2 = iGroundHeight1;
+        if (iGroundHeight1 > winh)
+          iGroundHeight1 = winh;
+        if (iGroundHeight2 > winh)
+          iGroundHeight2 = winh;
+        if (iGroundHeight2 > 0) {
+          memset(pScrPtr, bySkyColor, iGroundHeight2 * winw);
+          pScrPtr += winw * iGroundHeight2;
         }
       }
       if (upside_down) {
-        v12 = (v49 * scr_size + 32 - (__CFSHL__((v49 * scr_size + 32) >> 31, 6) + ((v49 * scr_size + 32) >> 31 << 6))) >> 6;
-        if (v12 > winh)
-          v12 = winh;
-        v13 = winh - v12;
-        if (v13 > winh)
-          v13 = winh;
-        if (v13 > 0)
-          memset(v2, v56, v13 * winw);
+        iSkyHeight1 = (iHorizonY * scr_size + 32) / 64;
+        //iSkyHeight1 = (iHorizonY * scr_size + 32 - (__CFSHL__((iHorizonY * scr_size + 32) >> 31, 6) + ((iHorizonY * scr_size + 32) >> 31 << 6))) >> 6;
+        if (iSkyHeight1 > winh)
+          iSkyHeight1 = winh;
+        iSkyHeight2 = winh - iSkyHeight1;
+        if (iSkyHeight2 > winh)
+          iSkyHeight2 = winh;
+        if (iSkyHeight2 > 0)
+          memset(pScrPtr, bySkyColor, iSkyHeight2 * winw);
       } else {
-        v14 = winh - v10;
-        if (winh - v10 > winh)
-          v14 = winh;
-        if (v14 > 0)
-          memset(v2, v57, v14 * winw);
+        iGroundHeight3 = winh - iGroundHeight1;
+        if (winh - iGroundHeight1 > winh)
+          iGroundHeight3 = winh;
+        if (iGroundHeight3 > 0)
+          memset(pScrPtr, byGroundColor, iGroundHeight3 * winw);
       }
     }
   }
-  if ((textures_off & 8) == 0)
-    displayclouds();*/
+  // 0x8 = TEX_OFF_CLOUDS
+  if ((textures_off & TEX_OFF_CLOUDS) == 0)                // Render clouds on top of horizon if cloud textures enabled
+    displayclouds(pScrBuf_1);
 }
 
 //-------------------------------------------------------------------------------------------------

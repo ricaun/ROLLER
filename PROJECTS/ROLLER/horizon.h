@@ -16,12 +16,14 @@ typedef struct
 
 extern tCloudData cloud[40];
 extern int test_y1;
+extern char upside_down;
+extern char ground_left;
 
 //-------------------------------------------------------------------------------------------------
 
-void DrawHorizon(int a1);
+void DrawHorizon(uint8 *pScrBuf);
 void initclouds();
-void displayclouds();
+void displayclouds(uint8 *pScrBuf);
 
 //-------------------------------------------------------------------------------------------------
 #endif

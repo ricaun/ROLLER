@@ -100,6 +100,7 @@ tTrakColour TrakColour[MAX_TRACK_CHUNKS];//000BB360
 int HorizonColour[MAX_TRACK_CHUNKS];     //000BE240
 tData localdata[MAX_TRACK_CHUNKS];       //000BEA10
 tGroundPt GroundPt[MAX_TRACK_CHUNKS];    //000CE410
+float hor_scan[800];        //000D70B0
 tGroundPt TrakPt[MAX_TRACK_CHUNKS];      //000D7D30
 tTrackScreenXYZ TrackScreenXYZ[MAX_TRACK_CHUNKS]; //000F03D0
 uint8 shade_palette[4096];  //000FFDD0
