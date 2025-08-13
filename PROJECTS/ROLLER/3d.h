@@ -88,6 +88,15 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int16 nRenderPriority;
+  int16 nChunkIdx;
+  float fZDepth;
+} tTrackZOrderEntry;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int exiting;
 extern int dontrestart;
 extern int champ_mode;

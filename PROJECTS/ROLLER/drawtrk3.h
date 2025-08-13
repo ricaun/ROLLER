@@ -51,7 +51,7 @@ int facing_ok(float fX0, float fY0, float fZ0,
               float fX1, float fY1, float fZ1,
               float fX2, float fY2, float fZ2,
               float fX3, float fY3, float fZ3);
-int Zcmp(float *a1, float *a2);
+int Zcmp(const void *pTrackView1, const void *pTrackView2);
 void set_starts(unsigned int uiType);
 
 //-------------------------------------------------------------------------------------------------

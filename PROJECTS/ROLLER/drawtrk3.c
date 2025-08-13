@@ -6122,29 +6122,29 @@ int facing_ok(float fX0, float fY0, float fZ0,
 
 //-------------------------------------------------------------------------------------------------
 //00027A10
-int Zcmp(float *a1, float *a2)
+int Zcmp(const void *pTrackView1, const void *pTrackView2)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v2; // edx
-  int v3; // ebx
-  float v5; // [esp+0h] [ebp-Ch]
-  float v6; // [esp+4h] [ebp-8h]
+  int iRenderPriorityCmp2; // edx
+  int iRenderPriorityCmp1; // ebx
+  float fZCmp2; // [esp+0h] [ebp-Ch]
+  float fZCmp1; // [esp+4h] [ebp-8h]
 
-  v6 = a1[1];
-  v5 = a2[1];
-  v2 = *(__int16 *)a2;
-  v3 = *(__int16 *)a1;
-  if (v6 < (double)v5)
+  const tTrackZOrderEntry *pTrackZ1 = (const tTrackZOrderEntry *)pTrackView1;
+  const tTrackZOrderEntry *pTrackZ2 = (const tTrackZOrderEntry *)pTrackView2;
+
+  fZCmp1 = pTrackZ1->fZDepth;
+  fZCmp2 = pTrackZ2->fZDepth;
+  iRenderPriorityCmp2 = pTrackZ2->nRenderPriority;
+  iRenderPriorityCmp1 = pTrackZ1->nRenderPriority;
+  if (fZCmp1 < (double)fZCmp2)
     return -1;
-  if (v6 == v5) {
-    if (v3 == v2)
+  if (fZCmp1 == fZCmp2) {
+    if (iRenderPriorityCmp1 == iRenderPriorityCmp2)
       return 0;
-    if (v3 >= v2)
+    if (iRenderPriorityCmp1 >= iRenderPriorityCmp2)
       return -1;
   }
-  return 1;*/
+  return 1;
 }
 
 //-------------------------------------------------------------------------------------------------
