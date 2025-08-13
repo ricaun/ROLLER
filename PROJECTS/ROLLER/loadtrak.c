@@ -279,15 +279,15 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
   iChunkIdx = 0;
   TrackFlags = 0;
   if (TRAK_LEN > 0) {
-    p_iCenterSurfType = &TrakColour[0].iCenterSurfType;// Main track chunk processing loop
-    p_iRightSurfType = &TrakColour[0].iRightSurfType;
-    p_iLeftWallType = &TrakColour[0].iLeftWallType;
+    p_iCenterSurfType = &TrakColour[0][COLOUR_CENTER];// Main track chunk processing loop
+    p_iRightSurfType = &TrakColour[0][COLOUR_RIGHT_LANE];
+    p_iLeftWallType = &TrakColour[0][COLOUR_LEFT_WALL];
     uiTrakViewOffset = 0;
     uiLocalDataOffset = 0;
-    p_iRightWallType = &TrakColour[0].iRightWallType;
+    p_iRightWallType = &TrakColour[0][COLOUR_RIGHT_WALL];
     uiGroundPtOffset = 0;
     uiGroundColourOffset = 0;
-    p_uiRoofType = &TrakColour[0].iRoofType;
+    p_uiRoofType = &TrakColour[0][COLOUR_ROOF];
     iSubdivArrayBaseOffset = 11;
     p_fGroundLevel = GroundLevel;
     p_iLLOWallType = &GroundColour[0].iLLOWallType;
@@ -496,10 +496,10 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
         TrakView[uiTrakViewOffset2 / 8].byBackwardExtraChunks = iBackwardExtraChunks;
         //*(&TrakView[0].byBackwardExtraChunks + uiTrakViewOffset2) = iBackwardExtraChunks;
       }
-      if (TrakColour[iTrakColourIdx].iLeftWallType == -1)
-        TrakColour[iTrakColourIdx].iLeftWallType = 0;
-      if (TrakColour[iTrakColourIdx].iRightWallType == -1)
-        TrakColour[iTrakColourIdx].iRightWallType = 0;
+      if (TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] == -1)
+        TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] = 0;
+      if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] == -1)
+        TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] = 0;
       if (!iChunkIdx) {
         dTempYaw = dYaw;
         dTempPitch = dPitch;
@@ -601,11 +601,11 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
           dROFloorHOffset = dRightShoulderWidth;
           dROFloorHeight = -dRightShoulderHeight;
         }
-        if (TrakColour[iTrakColourIdx].iLeftSurfType < 0) {
+        if (TrakColour[iTrakColourIdx][COLOUR_LEFT_LANE] < 0) {
           dLOFloorHOffset = dLeftShoulderWidth;
           dLOFloorHeight = 0.0;
         }
-        if (TrakColour[iTrakColourIdx].iRightSurfType < 0) {
+        if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_LANE] < 0) {
           dROFloorHOffset = dRightShoulderWidth;
           dROFloorHeight = 0.0;
         }
@@ -658,14 +658,14 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
             &dZ);
           setgpoint(iChunkIdx, 5, dWallCalc3 + dX, dWallCalc2 + dY, dZ);
         }
-        if (TrakColour[iTrakColourIdx].iLeftWallType >= 0) {
+        if (TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] >= 0) {
           rotatepoint(0.0, dLeftLaneWidth + dLeftShoulderWidth, dRoofHeight + dLeftShoulderHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         } else {
           dLeftShoulderHeight = 0.0;
           rotatepoint(0.0, dLeftLaneWidth, dRoofHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         }
         setpoint(iChunkIdx, 1, dWallCalc3 + dX, dWallCalc2 + dY, dWallCalc1 + dZ);
-        if (TrakColour[iTrakColourIdx].iRightWallType >= 0) {
+        if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] >= 0) {
           rotatepoint(0.0, -dRightLaneWidth - dRightShoulderWidth, dRoofHeight + dRightShoulderHeight, dClampedYaw, dClampedPitch, dRoll, &dX, &dY, &dZ);
         } else {
           dRightShoulderHeight = 0.0;
@@ -714,90 +714,90 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 0;
         }
         if (GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
-          && !TrakColour[iTrakColourIdx].iLeftWallType
+          && !TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL]
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 1;
         }
         if (GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
-          && !TrakColour[iTrakColourIdx].iRightWallType
+          && !TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL]
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 1;
         }
         if (GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
-          && !TrakColour[iTrakColourIdx].iLeftWallType
+          && !TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL]
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 2;
         }
         if (GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
-          && !TrakColour[iTrakColourIdx].iRightWallType
+          && !TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL]
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 2;
         }
-        if (TrakColour[iTrakColourIdx].iLeftWallType > 0
+        if (TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] > 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 3;
         }
-        if (TrakColour[iTrakColourIdx].iRightWallType > 0
+        if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] > 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 3;
         }
-        if (TrakColour[iTrakColourIdx].iLeftWallType > 0
+        if (TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] > 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 4;
         }
-        if (TrakColour[iTrakColourIdx].iRightWallType > 0
+        if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] > 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 4;
         }
-        if (TrakColour[iTrakColourIdx].iLeftWallType < 0
+        if (TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] < 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 5;
         }
-        if (TrakColour[iTrakColourIdx].iRightWallType < 0
+        if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] < 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ >= (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 5;
         }
-        if (TrakColour[iTrakColourIdx].iLeftWallType < 0
+        if (TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] < 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[1].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[2].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 6;
         }
-        if (TrakColour[iTrakColourIdx].iRightWallType < 0
+        if (TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] < 0
           && GroundPt[uiGroundPtOffset / 0x48].pointAy[4].fZ < (double)GroundPt[uiGroundPtOffset / 0x48].pointAy[3].fZ
           && GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -2) {
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 6;
         }
-        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iLeftWallType > 0)
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] > 0)
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 7;
-        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iRightWallType > 0)
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] > 0)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 7;
-        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType >= 0 && TrakColour[iTrakColourIdx].iLeftWallType > 0)
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType >= 0 && TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] > 0)
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 8;
-        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType >= 0 && TrakColour[iTrakColourIdx].iRightWallType > 0)
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType >= 0 && TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] > 0)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 8;
-        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iLeftWallType < 0)
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL] < 0)
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 9;
-        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx].iRightWallType < 0)
+        if (GroundColour[uiGroundColourOffset / 0x14].iOFloorType == -1 && TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL] < 0)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 9;
         iLeftSurfaceType = TrackInfo[iTrackInfoIdx].iLeftSurfaceType;
-        if ((!iLeftSurfaceType || iLeftSurfaceType == 2) && (abs(TrakColour[iTrakColourIdx].iLeftSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+        if ((!iLeftSurfaceType || iLeftSurfaceType == 2) && (abs(TrakColour[iTrakColourIdx][COLOUR_LEFT_LANE]) & SURFACE_FLAG_BOUNCE_20) == 0)
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 1;
         iRightSurfaceType = TrackInfo[iTrackInfoIdx].iRightSurfaceType;
-        if ((!iRightSurfaceType || iRightSurfaceType == 2) && (abs(TrakColour[iTrakColourIdx].iRightSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+        if ((!iRightSurfaceType || iRightSurfaceType == 2) && (abs(TrakColour[iTrakColourIdx][COLOUR_RIGHT_LANE]) & SURFACE_FLAG_BOUNCE_20) == 0)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 1;
         iLeftSurfCheck = TrackInfo[iTrackInfoIdx].iLeftSurfaceType;
-        if ((iLeftSurfCheck == 6 || iLeftSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx].iLeftSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+        if ((iLeftSurfCheck == 6 || iLeftSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx][COLOUR_LEFT_LANE]) & SURFACE_FLAG_BOUNCE_20) == 0)
           TrackInfo[iTrackInfoIdx].iLeftSurfaceType = 5;
         iRightSurfCheck = TrackInfo[iTrackInfoIdx].iRightSurfaceType;
-        if ((iRightSurfCheck == 6 || iRightSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx].iRightSurfType) & SURFACE_FLAG_BOUNCE_20) == 0)
+        if ((iRightSurfCheck == 6 || iRightSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx][COLOUR_RIGHT_LANE]) & SURFACE_FLAG_BOUNCE_20) == 0)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 5;
-        if ((abs(TrakColour[iTrakColourIdx].iLeftWallType) & 0x20000) != 0) {
+        if ((abs(TrakColour[iTrakColourIdx][COLOUR_LEFT_WALL]) & 0x20000) != 0) {
           switch (TrackInfo[iTrackInfoIdx].iLeftSurfaceType) {
             case 3:
             case 5:
@@ -816,7 +816,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
               break;
           }
         }
-        if ((abs(TrakColour[iTrakColourIdx].iRightWallType) & 0x20000) != 0) {
+        if ((abs(TrakColour[iTrakColourIdx][COLOUR_RIGHT_WALL]) & 0x20000) != 0) {
           switch (TrackInfo[iTrackInfoIdx].iRightSurfaceType) {
             case 3:
             case 5:

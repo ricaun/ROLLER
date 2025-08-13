@@ -106,7 +106,7 @@ int firstrun = -1;          //000A35D4
 int lagdone = 0;            //000A35D8
 int language = 0;           //000A4768
 tGroundColour GroundColour[MAX_TRACK_CHUNKS];  //000B8C50
-tTrakColour TrakColour[MAX_TRACK_CHUNKS];//000BB360
+int TrakColour[MAX_TRACK_CHUNKS][6];//000BB360
 int HorizonColour[MAX_TRACK_CHUNKS];     //000BE240
 tData localdata[MAX_TRACK_CHUNKS];       //000BEA10
 tGroundPt GroundPt[MAX_TRACK_CHUNKS];    //000CE410

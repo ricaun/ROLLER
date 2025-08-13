@@ -193,9 +193,9 @@ int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode)
   // This triggers special rendering for better visibility
   if (fViewAlignment < 0.3
     && fViewAlignment >= -0.3
-    && ((TrakColour[iCurrChunk].iLeftSurfType & SURFACE_FLAG_SKIP_RENDER) == 0// SURFACE_FLAG_SKIP_RENDER
-        || (TrakColour[iCurrChunk].iCenterSurfType & SURFACE_FLAG_SKIP_RENDER) == 0
-        || (TrakColour[iCurrChunk].iRightSurfType & SURFACE_FLAG_SKIP_RENDER) == 0)) {
+    && ((TrakColour[iCurrChunk][COLOUR_LEFT_LANE] & SURFACE_FLAG_SKIP_RENDER) == 0// SURFACE_FLAG_SKIP_RENDER
+        || (TrakColour[iCurrChunk][COLOUR_CENTER] & SURFACE_FLAG_SKIP_RENDER) == 0
+        || (TrakColour[iCurrChunk][COLOUR_RIGHT_LANE] & SURFACE_FLAG_SKIP_RENDER) == 0)) {
        // Extend view range when looking perpendicular to track
     if (uiViewMode >= 3 && (uiViewMode <= 3 || uiViewMode == 6)) {
       TrackSize = 48;                           // render 48 chunks
@@ -1231,9 +1231,9 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
       pCurrentTrackScreenXYZ->screenPtAy[3].projected.fX = fWorldX;
       pCurrentTrackScreenXYZ->screenPtAy[3].projected.fY = fWorldY;
       pCurrentTrackScreenXYZ->screenPtAy[3].projected.fZ = (float)iProjectedZ;
-      pLeftWallTypePtr = &TrakColour[iCurrentTrackIndex].iLeftWallType;
+      pLeftWallTypePtr = &TrakColour[iCurrentTrackIndex][COLOUR_LEFT_WALL];
       iPrevSectionIndex = iCurrentTrackIndex ? iCurrentTrackIndex - 1 : TRAK_LEN - 1;
-      pPrevLeftWallTypePtr = &TrakColour[iPrevSectionIndex].iLeftWallType;
+      pPrevLeftWallTypePtr = &TrakColour[iPrevSectionIndex][COLOUR_LEFT_WALL];
       if (*pLeftWallTypePtr && *pPrevLeftWallTypePtr) {
         //LODWORD(fOffsetTmp1) = 72 * iCurrentTrackIndex;//unused here?
         pGroundPt = &TrakPt[iCurrentTrackIndex];
@@ -1280,7 +1280,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
         pCurrentTrackScreenXYZ->screenPtAy[4].screen.y = iLeftWallCopyY;
         pCurrentTrackScreenXYZ->screenPtAy[4].projected.fZ = (float)dLeftWallCopyZ;
       }
-      if (TrakColour[iCurrentTrackIndex].iRightWallType && pPrevLeftWallTypePtr[1]) {
+      if (TrakColour[iCurrentTrackIndex][COLOUR_RIGHT_WALL] && pPrevLeftWallTypePtr[1]) {
         pGroundPt2 = &TrakPt[iCurrentTrackIndex];
         dRightWallDeltaX = pGroundPt2->pointAy[5].fX - viewx;// Calculate right wall point (point 6) projection to screen coordinates
         dRightWallDeltaY = pGroundPt2->pointAy[5].fY - viewy;
@@ -1310,7 +1310,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
         pCurrentTrackScreenXYZ->screenPtAy[5].projected.fX = fRightWallCameraX;
         pCurrentTrackScreenXYZ->screenPtAy[5].projected.fY = fRightWallCameraY;
       } else {                                         // Copy right wall coordinates from existing points when walls are not present
-        if (TrakColour[iCurrentTrackIndex].iRightWallType >= 0 && pPrevLeftWallTypePtr[1] >= 0) {
+        if (TrakColour[iCurrentTrackIndex][COLOUR_RIGHT_WALL] >= 0 && pPrevLeftWallTypePtr[1] >= 0) {
           pCurrentTrackScreenXYZ->screenPtAy[5].projected.fX = pCurrentTrackScreenXYZ->screenPtAy[3].projected.fX;
           pCurrentTrackScreenXYZ->screenPtAy[5].projected.fY = pCurrentTrackScreenXYZ->screenPtAy[3].projected.fY;
           dRightWallDepthCopy = pCurrentTrackScreenXYZ->screenPtAy[3].projected.fZ;
@@ -1599,7 +1599,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
     }
     if (pScreenCoord_1->iClipCount != 99 && pScreenCoord->iClipCount != 99) {
       if (Walls_On) {
-        iRoofTypeCheck = TrakColour[iCurrentSect].iRoofType;
+        iRoofTypeCheck = TrakColour[iCurrentSect][COLOUR_ROOF];
         if (iRoofTypeCheck != -1 && iLeftWallFlags && iRightWallFlags) {
           if (iRoofTypeCheck < 0) {
             if (pNextGroundScreen->screenPtAy[5].projected.fZ >= (double)pNextGroundScreen->screenPtAy[0].projected.fZ)
@@ -1634,7 +1634,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
             ++num_bits;
             goto LABEL_238;
           }
-          iRoofType = TrakColour[iNextSectionIndex].iRoofType;
+          iRoofType = TrakColour[iNextSectionIndex][COLOUR_ROOF];
           if (iRoofType <= 0) {
             if (iRoofType >= -1)
               goto LABEL_238;
@@ -1665,13 +1665,13 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
             pRoof2RenderCmd = &TrackView[num_bits];
             fRoof2CmdDepth = fRoof3DepthSelected;
           } else {
-            if (TrakColour[iCurrentSect].iRightWallType >= 0)
+            if (TrakColour[iCurrentSect][COLOUR_RIGHT_WALL] >= 0)
               dRoof2WallDepth1 = pScreenCoord_1->screenPtAy[3].projected.fZ;
             else
               dRoof2WallDepth1 = pScreenCoord_1->screenPtAy[2].projected.fZ;
             //_CHP();
             iRightWallFlags = (int)dRoof2WallDepth1;
-            if (TrakColour[iCurrentSect].iLeftWallType >= 0)
+            if (TrakColour[iCurrentSect][COLOUR_LEFT_WALL] >= 0)
               dRoof2WallDepth2 = pScreenCoord_1->screenPtAy[0].projected.fZ;
             else
               dRoof2WallDepth2 = pScreenCoord_1->screenPtAy[1].projected.fZ;
@@ -1778,7 +1778,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
     }
     if (pScreenCoord_1->iClipCount != 99 && pScreenCoord->iClipCount != 99) {
       if (Walls_On) {
-        iLeftWallFlags = TrakColour[iCurrentSect].iLeftWallType;
+        iLeftWallFlags = TrakColour[iCurrentSect][COLOUR_LEFT_WALL];
         if (iLeftWallFlags) {
           if (TrackInfo[iCurrentSect].fRoofHeight >= 0.0 && TrackInfo[iNextSectionIndex].fRoofHeight >= 0.0) {
             if (iLeftWallFlags >= 0) {
@@ -1857,7 +1857,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
     }
     if (pScreenCoord_1->iClipCount != 99 && pScreenCoord->iClipCount != 99) {
       if (Walls_On) {
-        iRightWallFlags = TrakColour[iCurrentSect].iRightWallType;
+        iRightWallFlags = TrakColour[iCurrentSect][COLOUR_RIGHT_WALL];
         if (iRightWallFlags) {
           if (TrackInfo[iCurrentSect].fRoofHeight >= 0.0 && TrackInfo[iNextSectionIndex].fRoofHeight >= 0.0) {
             if (iRightWallFlags >= 0) {
@@ -2077,9 +2077,9 @@ LABEL_393:
       switch (pRenderCommand->nRenderPriority) {
         case 0:
         case 8:
-          if (TrakColour[iSectionNum].iLeftWallType < 0)// Render left wall polygon (cases 0 and 8)
+          if (TrakColour[iSectionNum][COLOUR_LEFT_WALL] < 0)// Render left wall polygon (cases 0 and 8)
           {
-            iLeftWallType = TrakColour[iSectionNum].iLeftWallType;
+            iLeftWallType = TrakColour[iSectionNum][COLOUR_LEFT_WALL];
             LWallPoly.uiNumVerts = 4;
             LWallPoly.iSurfaceType = iLeftWallType;
             if (iLeftWallType < 0)
@@ -2210,7 +2210,7 @@ LABEL_393:
               goto LABEL_607;
             goto LABEL_606;
           }
-          LWallPoly.iSurfaceType = TrakColour[iSectionNum].iLeftWallType;
+          LWallPoly.iSurfaceType = TrakColour[iSectionNum][COLOUR_LEFT_WALL];
           LWallPoly.uiNumVerts = 4;
           LWallPoly.iSurfaceType |= SURFACE_FLAG_FLIP_BACKFACE;
           //BYTE1(LWallPoly.iSurfaceType) |= 0x20u;
@@ -2338,8 +2338,8 @@ LABEL_393:
           goto LABEL_655;
         case 1:
         case 9:
-          if (TrakColour[iSectionNum].iRightWallType < 0) {
-            iRightWallType = TrakColour[iSectionNum].iRightWallType;
+          if (TrakColour[iSectionNum][COLOUR_RIGHT_WALL] < 0) {
+            iRightWallType = TrakColour[iSectionNum][COLOUR_RIGHT_WALL];
             RWallPoly.uiNumVerts = 4;
             RWallPoly.iSurfaceType = iRightWallType;
             if (iRightWallType < 0)
@@ -2472,7 +2472,7 @@ LABEL_393:
               goto LABEL_710;
             goto LABEL_709;
           }
-          RWallPoly.iSurfaceType = TrakColour[iSectionNum].iRightWallType;
+          RWallPoly.iSurfaceType = TrakColour[iSectionNum][COLOUR_RIGHT_WALL];
           RWallPoly.uiNumVerts = 4;
           //byWallTypeFlag = BYTE1(RWallPoly.iSurfaceType) | 0x20;
           RWallPoly.iSurfaceType |= SURFACE_FLAG_FLIP_BACKFACE;
@@ -3295,9 +3295,9 @@ LABEL_393:
             pScreenCoord_1->screenPtAy[2].projected.fX,
             pScreenCoord_1->screenPtAy[2].projected.fY,
             pScreenCoord_1->screenPtAy[2].projected.fZ)
-            || (TrakColour[iSectionNum].iCenterSurfType & 0x4000) != 0) {
+            || (TrakColour[iSectionNum][COLOUR_CENTER] & 0x4000) != 0) {
             RoadPoly.uiNumVerts = 4;
-            iSectionCommand = TrakColour[iSectionNum].iCenterSurfType;
+            iSectionCommand = TrakColour[iSectionNum][COLOUR_CENTER];
             RoadPoly.iSurfaceType = iSectionCommand;
             if ((textures_off & TEX_OFF_ROAD_TEXTURES) != 0 && (RoadPoly.iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)
               RoadPoly.iSurfaceType = remap_tex[(uint8)iSectionCommand] + (RoadPoly.iSurfaceType & 0xFFFFFE00);
@@ -3370,7 +3370,7 @@ LABEL_393:
               goto LABEL_456;
             }
           } else {
-            iCenterSurfType = TrakColour[iSectionNum].iCenterSurfType;
+            iCenterSurfType = TrakColour[iSectionNum][COLOUR_CENTER];
             RoadPoly.uiNumVerts = 4;
             RoadPoly.iSurfaceType = iCenterSurfType;
             if ((textures_off & TEX_OFF_ROAD_TEXTURES) != 0 && (RoadPoly.iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)
@@ -3495,7 +3495,7 @@ LABEL_393:
             gfx_size);
           goto LABEL_1271;
         case 6:
-          iObjectSectionCmd = TrakColour[iSectionNum].iLeftSurfType;
+          iObjectSectionCmd = TrakColour[iSectionNum][COLOUR_LEFT_LANE];
           if (iObjectSectionCmd < 0)
             iObjectSectionCmd = -iObjectSectionCmd;
           LeftPoly.iSurfaceType = iObjectSectionCmd;
@@ -3614,7 +3614,7 @@ LABEL_393:
             POLYFLAT(pScrPtr_1, &LeftPoly);
           goto LABEL_1227;
         case 7:
-          iMiddleSectionCmd = TrakColour[iSectionNum].iRightSurfType;
+          iMiddleSectionCmd = TrakColour[iSectionNum][COLOUR_RIGHT_LANE];
           if (iMiddleSectionCmd < 0)
             iMiddleSectionCmd = -iMiddleSectionCmd;
           RightPoly.iSurfaceType = iMiddleSectionCmd;
@@ -3734,7 +3734,7 @@ LABEL_393:
           goto LABEL_1227;
         case 0xA:
           RoofPoly.uiNumVerts = 4;
-          iGeometryIndex = TrakColour[iSectionNum].iRoofType;
+          iGeometryIndex = TrakColour[iSectionNum][COLOUR_ROOF];
           RoofPoly.iSurfaceType = iGeometryIndex;
           if (iGeometryIndex < 0) {
             RoofPoly.vertices[2].x = GroundScreenXYZ[iNextSectionIndex].screenPtAy[5].screen.x;
@@ -3857,9 +3857,9 @@ LABEL_393:
               goto LABEL_963;
             goto LABEL_944;
           }
-          if (!TrakColour[iSectionNum].iRightWallType || !TrakColour[iSectionNum].iLeftWallType)
+          if (!TrakColour[iSectionNum][COLOUR_RIGHT_WALL] || !TrakColour[iSectionNum][COLOUR_LEFT_WALL])
             goto LABEL_1271;
-          iRenderCommandIndex = TrakColour[iNextSectionIndex].iRoofType;
+          iRenderCommandIndex = TrakColour[iNextSectionIndex][COLOUR_ROOF];
           if (iRenderCommandIndex < -1) {
             RoofPoly.iSurfaceType = -iRenderCommandIndex;
             RoofPoly.vertices[0].x = GroundScreenXYZ[iSectionNum].screenPtAy[4].screen.x;

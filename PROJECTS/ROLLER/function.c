@@ -599,7 +599,7 @@ void initpits()
     iStopsIdx = 0;
     iChunkIdx = iChunkIdx_1;
     do {
-      if ((TrakColour[iChunkIdx].iCenterSurfType & SURFACE_FLAG_PIT_2) != 0)
+      if ((TrakColour[iChunkIdx][COLOUR_CENTER] & SURFACE_FLAG_PIT_2) != 0)
       {
         // store pit stop position
         stops[iStopsIdx] = iChunkIdx_1; // reference into stops
@@ -1134,7 +1134,7 @@ bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
     iLeftBarierPresent = false;
 
   // Check if invisible
-  iNotRendered = abs(TrakColour[iChunkIdx].iCenterSurfType) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
+  iNotRendered = abs(TrakColour[iChunkIdx][COLOUR_CENTER]) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
 
   // Determine line validity based on region crossing and surface blocking
   if (!uiStartRegion)                         // start outside positive side

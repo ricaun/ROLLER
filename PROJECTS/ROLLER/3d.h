@@ -6,6 +6,15 @@
 #include "frontend.h"
 //-------------------------------------------------------------------------------------------------
 
+#define COLOUR_LEFT_LANE  0
+#define COLOUR_CENTER     1
+#define COLOUR_RIGHT_LANE 2
+#define COLOUR_LEFT_WALL  3
+#define COLOUR_RIGHT_WALL 4
+#define COLOUR_ROOF       5
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   void *pBuf;
@@ -53,18 +62,6 @@ typedef struct
   tPoint screen;
   tVec3 projected;
 } tScreenPt;
-
-//-------------------------------------------------------------------------------------------------
-
-typedef struct
-{
-  int iLeftSurfType;
-  int iCenterSurfType;
-  int iRightSurfType;
-  int iLeftWallType;
-  int iRightWallType;
-  int iRoofType;
-} tTrakColour;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -162,7 +159,7 @@ extern int firstrun;
 extern int lagdone;
 extern int language;
 extern tGroundColour GroundColour[MAX_TRACK_CHUNKS];
-extern tTrakColour TrakColour[MAX_TRACK_CHUNKS];
+extern int TrakColour[MAX_TRACK_CHUNKS][6];
 extern int HorizonColour[MAX_TRACK_CHUNKS];
 extern tData localdata[MAX_TRACK_CHUNKS];
 extern tGroundPt GroundPt[MAX_TRACK_CHUNKS];
