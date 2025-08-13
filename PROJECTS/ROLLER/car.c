@@ -720,8 +720,6 @@ int DrawCars(int result, int a2)
 //000534A0
 void DisplayCar(int a1, uint8 *a2, float a3)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
   /*
   int v6; // ebx
   int v7; // esi
