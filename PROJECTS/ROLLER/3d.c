@@ -30,6 +30,8 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 //symbols defined by ROLLER
+char szIngameEng[11] = "ingame.eng";                    //000A01FC
+char szConfigEng_0[11] = "config.eng";                  //000A0208
 char szCheatPal[13] = "cheatpal.pal";                   //000A0244
 char szPal[12] = "palette.pal";                         //000A0254
 char szF10ToQuitChamp[25] = "F10 TO QUIT CHAMPIONSHIP"; //000A029C
@@ -1398,8 +1400,8 @@ void play_game_init()
   dead_humans = 0;
   ticks = 0;
   tick_on = -1;
-  load_language_file("ingame.eng", 0);
-  load_language_file("config.eng", 1);
+  load_language_file(szIngameEng, 0);
+  load_language_file(szConfigEng_0, 1);
   if (frontendspeechptr) {
     printf("Front end speech memory still allocated!!!!!!!\n");
     doexit();

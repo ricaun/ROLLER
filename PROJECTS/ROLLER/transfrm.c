@@ -488,18 +488,18 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
   double dTempValue; // st4
   int iRotationIndex1; // ebx
   double dLaneDirection1; // st7
-  long double dSinValue1; // rt0
-  long double dCosValue1; // st5
+  double dSinValue1; // rt0
+  double dCosValue1; // st5
   int iRotationIndex2; // ebx
   double dLaneDirection2; // st7
-  long double dSinValue2; // st6
-  long double dCosValue2; // st5
+  double dSinValue2; // st6
+  double dCosValue2; // st5
   int iRotationIndex3; // ebx
-  long double dLaneDirection3; // st6
-  long double dCosValue3; // st7
-  long double dSinValue3; // st5
-  long double dMatrixComp1; // rt2
-  long double dMatrixComp2; // st6
+  double dLaneDirection3; // st6
+  double dCosValue3; // st7
+  double dSinValue3; // st5
+  double dMatrixComp1; // rt2
+  double dMatrixComp2; // st6
   tData *pNextTrackData; // ebx
   int uiTransformLoop; // eax
   double dNextTransformZ; // st7
@@ -508,63 +508,61 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
   int uiNextTransformLoop; // eax
   double dNextSegmentTransformZ; // st7
   int uiFinalRotationLoop; // eax
-  long double dMatrixRotValue1; // st7
-  long double dMatrixRotValue2; // st6
+  double dMatrixRotValue1; // st7
+  double dMatrixRotValue2; // st6
   double dPointY; // st5
   double dPointX; // st3
   double dPointZ; // rt2
   int iDirectionCalcLoop; // ebx
   double dFinalDirection; // st7
-  long double dSinFinal; // rtt
-  long double dCosFinal; // st5
+  double dSinFinal; // rtt
+  double dCosFinal; // st5
   double dFinalLanePitchAngle; // st7
   tData *pOutputTrackData; // edx
   //double transformCoordsOffset[3]; // [esp+0h] [ebp-3DCh]
   double transformCoords[12]; // [esp+18h] [ebp-3C4h]
   double midpoint1[3]; // [esp+78h] [ebp-364h]
   double midpoint2[12]; // [esp+90h] [ebp-34Ch]
-  double dBaseTransformX; // [esp+F0h] [ebp-2ECh]
-  double leftLaneBankRot[4]; // [esp+F8h] [ebp-2E4h]
-  double rightLaneBankRotY[4]; // [esp+118h] [ebp-2C4h]
-  double dUnused_6; // [esp+138h] [ebp-2A4h]
+  double leftLaneBankRot[5]; // [esp+F0h] [ebp-2ECh]
+  double rightLaneBankRotY[5]; // [esp+118h] [ebp-2C4h]
   double dNextBankRotX2; // [esp+140h] [ebp-29Ch]
   double dNextBankRotY2; // [esp+148h] [ebp-294h]
   //double laneCornerPointsOffset[3]; // [esp+1B0h] [ebp-22Ch]
   double laneCornerPoints[27]; // [esp+1C8h] [ebp-214h]
-  long double dRotMatrix00; // [esp+2A0h] [ebp-13Ch]
-  long double dRotMatrix01; // [esp+2A8h] [ebp-134h]
-  long double dRotMatrix02; // [esp+2B0h] [ebp-12Ch]
-  long double dRotMatrix10; // [esp+2B8h] [ebp-124h]
-  long double dRotMatrix11; // [esp+2C0h] [ebp-11Ch]
-  long double dRotMatrix12; // [esp+2C8h] [ebp-114h]
-  long double dRotMatrix20; // [esp+2D0h] [ebp-10Ch]
-  long double dRotMatrix21; // [esp+2D8h] [ebp-104h]
-  long double dRotMatrix22; // [esp+2E8h] [ebp-F4h]
-  long double dTempRotValue1; // [esp+2F0h] [ebp-ECh]
+  double dRotMatrix00; // [esp+2A0h] [ebp-13Ch]
+  double dRotMatrix01; // [esp+2A8h] [ebp-134h]
+  double dRotMatrix02; // [esp+2B0h] [ebp-12Ch]
+  double dRotMatrix10; // [esp+2B8h] [ebp-124h]
+  double dRotMatrix11; // [esp+2C0h] [ebp-11Ch]
+  double dRotMatrix12; // [esp+2C8h] [ebp-114h]
+  double dRotMatrix20; // [esp+2D0h] [ebp-10Ch]
+  double dRotMatrix21; // [esp+2D8h] [ebp-104h]
+  double dRotMatrix22; // [esp+2E8h] [ebp-F4h]
+  double dTempRotValue1; // [esp+2F0h] [ebp-ECh]
   double dSinBank2; // [esp+2F8h] [ebp-E4h]
   double dNextSinBank2; // [esp+300h] [ebp-DCh]
   double dNextSinBank1; // [esp+308h] [ebp-D4h]
   double dSinBank1; // [esp+310h] [ebp-CCh]
   double dNextCosBank1; // [esp+318h] [ebp-C4h]
-  long double dLaneDirection1Stored; // [esp+320h] [ebp-BCh]
+  double dLaneDirection1Stored; // [esp+320h] [ebp-BCh]
   double dLaneDirectionAngle; // [esp+328h] [ebp-B4h]
-  long double dCosMatrix22; // [esp+330h] [ebp-ACh]
-  long double dSinMatrix10; // [esp+338h] [ebp-A4h]
-  long double dNegSinMatrix20; // [esp+340h] [ebp-9Ch]
-  long double dCosMatrix11; // [esp+348h] [ebp-94h]
-  long double dCosMatrix00; // [esp+350h] [ebp-8Ch]
-  long double dLaneDirection2Stored; // [esp+358h] [ebp-84h]
-  long double dCosDirection3; // [esp+360h] [ebp-7Ch]
-  long double dSinDirection3; // [esp+368h] [ebp-74h]
+  double dCosMatrix22; // [esp+330h] [ebp-ACh]
+  double dSinMatrix10; // [esp+338h] [ebp-A4h]
+  double dNegSinMatrix20; // [esp+340h] [ebp-9Ch]
+  double dCosMatrix11; // [esp+348h] [ebp-94h]
+  double dCosMatrix00; // [esp+350h] [ebp-8Ch]
+  double dLaneDirection2Stored; // [esp+358h] [ebp-84h]
+  double dCosDirection3; // [esp+360h] [ebp-7Ch]
+  double dSinDirection3; // [esp+368h] [ebp-74h]
   double dNegCenterOffsetY; // [esp+370h] [ebp-6Ch]
   double dNegCenterOffsetZ; // [esp+378h] [ebp-64h]
   double dNegCenterOffsetX; // [esp+380h] [ebp-5Ch]
-  long double dTempSin; // [esp+388h] [ebp-54h]
+  double dTempSin; // [esp+388h] [ebp-54h]
   double dStoredPitchAngle; // [esp+390h] [ebp-4Ch]
   double dNextCosBank2; // [esp+398h] [ebp-44h]
   double dCosBank2; // [esp+3A0h] [ebp-3Ch]
   double dCosBank1; // [esp+3A8h] [ebp-34h]
-  long double dTempCos; // [esp+3B0h] [ebp-2Ch]
+  double dTempCos; // [esp+3B0h] [ebp-2Ch]
   unsigned int uiLeftLaneOffset12; // [esp+3B8h] [ebp-24h]
   unsigned int uiRightLaneOffset12; // [esp+3BCh] [ebp-20h]
   int iNextTrackIndex2; // [esp+3C0h] [ebp-1Ch]
@@ -613,10 +611,7 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dTransformZ1 = (pCurrentTrackData->pointAy[3].fY + laneCornerPoints[uiLoopCounter1 + 1]) * pCurrentTrackData->pointAy[1].fZ
           + (pCurrentTrackData->pointAy[3].fX + laneCornerPoints[uiLoopCounter1]) * pCurrentTrackData->pointAy[0].fZ
           + (pCurrentTrackData->pointAy[3].fZ + laneCornerPoints[uiLoopCounter1 + 2]) * pCurrentTrackData->pointAy[2].fZ;
-        
-        //loop offset fix
         transformCoords[uiLoopCounter1 + 2] = dTransformZ1;
-        
         uiLoopCounter1 += 3;
         //transformCoordsOffset[uiLoopCounter1 + 2] = dTransformZ1;// Store Z coordinate into transformCoords[2+loop_index] via offset alias
       } while (uiLoopCounter1 != 12);
@@ -625,12 +620,12 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
       iBankAngle1 = (-pCurrentTrackData->iBankDelta / 2) & 0x3FFF;
       dCosBank1 = tcos[iBankAngle1];            // Get cosine from lookup table
       dSinBank1 = tsin[iBankAngle1];
-      leftLaneBankRot[0] = transformCoords[1] * dCosBank1 - transformCoords[2] * dSinBank1;// Apply first bank rotation transformation
-      leftLaneBankRot[1] = transformCoords[1] * dSinBank1 + transformCoords[2] * dCosBank1;
-      leftLaneBankRot[3] = transformCoords[4] * dCosBank1 - transformCoords[5] * dSinBank1;
+      leftLaneBankRot[1] = transformCoords[1] * dCosBank1 - transformCoords[2] * dSinBank1;// Apply first bank rotation transformation
+      leftLaneBankRot[2] = transformCoords[1] * dSinBank1 + transformCoords[2] * dCosBank1;
+      leftLaneBankRot[4] = transformCoords[4] * dCosBank1 - transformCoords[5] * dSinBank1;
       rightLaneBankRotY[0] = transformCoords[4] * dSinBank1 + transformCoords[5] * dCosBank1;
-      dBaseTransformX = transformCoords[0];
-      leftLaneBankRot[2] = transformCoords[3];
+      leftLaneBankRot[0] = transformCoords[0];
+      leftLaneBankRot[3] = transformCoords[3];
       iBankAngle2 = (pCurrentTrackData->iBankDelta / 2) & 0x3FFF;// Calculate bank angle for rotation (positive half)
       dCosBank2 = tcos[iBankAngle2];
       dSinBank2 = tsin[iBankAngle2];
@@ -638,26 +633,23 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
       rightLaneBankRotY[3] = transformCoords[7] * dSinBank2 + transformCoords[8] * dCosBank2;
       dNextBankRotX2 = transformCoords[10] * dCosBank2 - transformCoords[11] * dSinBank2;
       rightLaneBankRotY[1] = transformCoords[6];
-      dUnused_6 = transformCoords[9];
+      rightLaneBankRotY[4] = transformCoords[9];
       uiLoopCounter2 = 0;
       dNextBankRotY2 = transformCoords[10] * dSinBank2 + transformCoords[11] * dCosBank2;
       do {
-        laneCornerPoints[uiLoopCounter2] = pCurrentTrackData->pointAy[0].fY * leftLaneBankRot[uiLoopCounter2]
-          + pCurrentTrackData->pointAy[0].fX * leftLaneBankRot[uiLoopCounter2 - 1]
-          + pCurrentTrackData->pointAy[0].fZ * leftLaneBankRot[uiLoopCounter2 + 1]
+        laneCornerPoints[uiLoopCounter2] = pCurrentTrackData->pointAy[0].fY * leftLaneBankRot[uiLoopCounter2 + 1]
+          + pCurrentTrackData->pointAy[0].fX * leftLaneBankRot[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[0].fZ * leftLaneBankRot[uiLoopCounter2 + 2]
           - pCurrentTrackData->pointAy[3].fX;// Transform coordinates and subtract offset
-        laneCornerPoints[uiLoopCounter2 + 1] = pCurrentTrackData->pointAy[1].fY * leftLaneBankRot[uiLoopCounter2]
-          + pCurrentTrackData->pointAy[1].fX * leftLaneBankRot[uiLoopCounter2 - 1]
-          + pCurrentTrackData->pointAy[1].fZ * leftLaneBankRot[uiLoopCounter2 + 1]
+        laneCornerPoints[uiLoopCounter2 + 1] = pCurrentTrackData->pointAy[1].fY * leftLaneBankRot[uiLoopCounter2 + 1]
+          + pCurrentTrackData->pointAy[1].fX * leftLaneBankRot[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[1].fZ * leftLaneBankRot[uiLoopCounter2 + 2]
           - pCurrentTrackData->pointAy[3].fY;
-        dTransformZ2 = pCurrentTrackData->pointAy[2].fY * leftLaneBankRot[uiLoopCounter2]
-          + pCurrentTrackData->pointAy[2].fX * leftLaneBankRot[uiLoopCounter2 - 1]
-          + pCurrentTrackData->pointAy[2].fZ * leftLaneBankRot[uiLoopCounter2 + 1]
+        dTransformZ2 = pCurrentTrackData->pointAy[2].fY * leftLaneBankRot[uiLoopCounter2 + 1]
+          + pCurrentTrackData->pointAy[2].fX * leftLaneBankRot[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[2].fZ * leftLaneBankRot[uiLoopCounter2 + 2]
           - pCurrentTrackData->pointAy[3].fZ;
-        
-        //loop offset fix
         laneCornerPoints[uiLoopCounter2 + 2] = dTransformZ2;
-        
         uiLoopCounter2 += 3;
         //laneCornerPointsOffset[uiLoopCounter2 + 2] = dTransformZ2;// laneCornerPoints[uiLoopCounter2 + 2] when above loop inc
       } while (uiLoopCounter2 != 12);
@@ -701,10 +693,7 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         laneCornerPoints[iPointIndex + 9] = laneCornerPoints[iPointIndex + 9] + dLaneCenterOffsetX;
         laneCornerPoints[iPointIndex + 10] = laneCornerPoints[iPointIndex + 10] + dLaneCenterOffsetY;
         dTempValue = laneCornerPoints[iPointIndex + 11] + dLaneCenterOffsetZ;
-        
-        //loop offset fix
         laneCornerPoints[iPointIndex + 11] = dTempValue;
-        
         iPointIndex += 12;
         //laneCornerPointsOffset[iPointIndex + 2] = dTempValue;// laneCornerPoints[iPointIndex + 11] when before loop inc
       } while (iPointIndex != 27);
@@ -719,12 +708,9 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dRotMatrix21 = dTempCos;
         dRotMatrix02 = laneCornerPoints[iRotationIndex1] * dTempCos - dCosValue1;
         dRotMatrix01 = dSinValue1 * laneCornerPoints[iRotationIndex1] + laneCornerPoints[iRotationIndex1 + 1] * dTempCos;
-        
-        //loop offset fix
         laneCornerPoints[iRotationIndex1] = dRotMatrix02;
-        laneCornerPoints[iRotationIndex1 = 1]  = dRotMatrix01;
-        
-        iRotationIndex1 += 3;        
+        laneCornerPoints[iRotationIndex1 + 1]  = dRotMatrix01;
+        iRotationIndex1 += 3;
         //LODWORD(laneCornerPointsOffset[iRotationIndex1]) = LODWORD(dRotMatrix02);// laneCornerPoints[iRotationIndex1] when before loop inc
         //HIDWORD(laneCornerPointsOffset[iRotationIndex1]) = HIDWORD(dRotMatrix02);
         //LODWORD(laneCornerPointsOffset[iRotationIndex1 + 1]) = LODWORD(dRotMatrix01);// laneCornerPoints[iRotationIndex1 + 1] when before loop inc
@@ -741,11 +727,8 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dRotMatrix21 = dTempCos;
         dRotMatrix02 = dCosValue2 + laneCornerPoints[iRotationIndex2] * dTempCos;
         dRotMatrix00 = laneCornerPoints[iRotationIndex2 + 2] * dTempCos + -dSinValue2 * laneCornerPoints[iRotationIndex2];
-        
-        //loop offset fix
         laneCornerPoints[iRotationIndex2] = dRotMatrix02;
         laneCornerPoints[iRotationIndex2 + 2] = dRotMatrix00;
-        
         iRotationIndex2 += 3;
         //LODWORD(laneCornerPointsOffset[iRotationIndex2]) = LODWORD(dRotMatrix02);// laneCornerPoints[iRotationIndex2] when before loop inc
         //HIDWORD(laneCornerPointsOffset[iRotationIndex2]) = HIDWORD(dRotMatrix02);
@@ -762,11 +745,8 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dSinDirection3 = dTempCos;
         dRotMatrix01 = dSinValue3 - laneCornerPoints[iRotationIndex3 + 2] * dTempCos;
         dRotMatrix00 = laneCornerPoints[iRotationIndex3 + 1] * dTempCos + laneCornerPoints[iRotationIndex3 + 2] * dCosValue3;
-        
-        //loop offset fix
         laneCornerPoints[iRotationIndex3 + 1] = dRotMatrix01;
         laneCornerPoints[iRotationIndex3 + 2] = dRotMatrix00;
-        
         iRotationIndex3 += 3;
         //LODWORD(laneCornerPointsOffset[iRotationIndex3 + 1]) = LODWORD(dRotMatrix01);// laneCornerPoints[iRotationIndex3 + 1] when before loop inc
         //HIDWORD(laneCornerPointsOffset[iRotationIndex3 + 1]) = HIDWORD(dRotMatrix01);
@@ -817,22 +797,19 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dNextTransformZ = (pNextTrackData->pointAy[3].fY + laneCornerPoints[uiTransformLoop + 1]) * pNextTrackData->pointAy[1].fZ
           + (pNextTrackData->pointAy[3].fX + laneCornerPoints[uiTransformLoop]) * pNextTrackData->pointAy[0].fZ
           + (pNextTrackData->pointAy[3].fZ + laneCornerPoints[uiTransformLoop + 2]) * pNextTrackData->pointAy[2].fZ;
-        
-        //loop offset fix
         transformCoords[uiTransformLoop + 2] = dNextTransformZ;
-
-        uiTransformLoop += 3;        
+        uiTransformLoop += 3;
         //transformCoordsOffset[uiTransformLoop + 2] = dNextTransformZ;// transformCoords[uiTransformLoop + 2] when before loop inc
       } while (uiTransformLoop != 12);
       iNextBankAngle1 = (-pNextTrackData->iBankDelta / 2) & 0x3FFF;
       dNextCosBank2 = tcos[iNextBankAngle1];
       dNextSinBank1 = tsin[iNextBankAngle1];
-      leftLaneBankRot[0] = transformCoords[1] * dNextCosBank2 - transformCoords[2] * dNextSinBank1;
-      leftLaneBankRot[1] = transformCoords[1] * dNextSinBank1 + transformCoords[2] * dNextCosBank2;
-      leftLaneBankRot[3] = transformCoords[4] * dNextCosBank2 - transformCoords[5] * dNextSinBank1;
+      leftLaneBankRot[1] = transformCoords[1] * dNextCosBank2 - transformCoords[2] * dNextSinBank1;
+      leftLaneBankRot[2] = transformCoords[1] * dNextSinBank1 + transformCoords[2] * dNextCosBank2;
+      leftLaneBankRot[4] = transformCoords[4] * dNextCosBank2 - transformCoords[5] * dNextSinBank1;
       rightLaneBankRotY[0] = transformCoords[4] * dNextSinBank1 + transformCoords[5] * dNextCosBank2;
-      dBaseTransformX = transformCoords[0];
-      leftLaneBankRot[2] = transformCoords[3];
+      leftLaneBankRot[0] = transformCoords[0];
+      leftLaneBankRot[3] = transformCoords[3];
       iNextBankAngle2 = (pNextTrackData->iBankDelta / 2) & 0x3FFF;
       dNextCosBank1 = tcos[iNextBankAngle2];
       dNextSinBank2 = tsin[iNextBankAngle2];
@@ -840,26 +817,23 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
       rightLaneBankRotY[3] = transformCoords[7] * dNextSinBank2 + transformCoords[8] * dNextCosBank1;
       dNextBankRotX2 = transformCoords[10] * dNextCosBank1 - transformCoords[11] * dNextSinBank2;
       rightLaneBankRotY[1] = transformCoords[6];
-      dUnused_6 = transformCoords[9];
+      rightLaneBankRotY[4] = transformCoords[9];
       uiNextTransformLoop = 0;
       dNextBankRotY2 = transformCoords[10] * dNextSinBank2 + transformCoords[11] * dNextCosBank1;
       do {
-        laneCornerPoints[uiNextTransformLoop] = pNextTrackData->pointAy[0].fY * leftLaneBankRot[uiNextTransformLoop]
-          + pNextTrackData->pointAy[0].fX * leftLaneBankRot[uiNextTransformLoop - 1]
-          + pNextTrackData->pointAy[0].fZ * leftLaneBankRot[uiNextTransformLoop + 1]
+        laneCornerPoints[uiNextTransformLoop] = pNextTrackData->pointAy[0].fY * leftLaneBankRot[uiNextTransformLoop + 1]
+          + pNextTrackData->pointAy[0].fX * leftLaneBankRot[uiNextTransformLoop]
+          + pNextTrackData->pointAy[0].fZ * leftLaneBankRot[uiNextTransformLoop + 2]
           - pNextTrackData->pointAy[3].fX;
-        laneCornerPoints[uiNextTransformLoop + 1] = pNextTrackData->pointAy[1].fY * leftLaneBankRot[uiNextTransformLoop]
-          + pNextTrackData->pointAy[1].fX * leftLaneBankRot[uiNextTransformLoop - 1]
-          + pNextTrackData->pointAy[1].fZ * leftLaneBankRot[uiNextTransformLoop + 1]
+        laneCornerPoints[uiNextTransformLoop + 1] = pNextTrackData->pointAy[1].fY * leftLaneBankRot[uiNextTransformLoop + 1]
+          + pNextTrackData->pointAy[1].fX * leftLaneBankRot[uiNextTransformLoop]
+          + pNextTrackData->pointAy[1].fZ * leftLaneBankRot[uiNextTransformLoop + 2]
           - pNextTrackData->pointAy[3].fY;
-        dNextSegmentTransformZ = pNextTrackData->pointAy[2].fY * leftLaneBankRot[uiNextTransformLoop]
-          + pNextTrackData->pointAy[2].fX * leftLaneBankRot[uiNextTransformLoop - 1]
-          + pNextTrackData->pointAy[2].fZ * leftLaneBankRot[uiNextTransformLoop + 1]
+        dNextSegmentTransformZ = pNextTrackData->pointAy[2].fY * leftLaneBankRot[uiNextTransformLoop + 1]
+          + pNextTrackData->pointAy[2].fX * leftLaneBankRot[uiNextTransformLoop]
+          + pNextTrackData->pointAy[2].fZ * leftLaneBankRot[uiNextTransformLoop + 2]
           - pNextTrackData->pointAy[3].fZ;
-        
-        //loop offset fix
         laneCornerPoints[uiNextTransformLoop + 2] = dNextSegmentTransformZ;
-        
         uiNextTransformLoop += 3;
         //laneCornerPointsOffset[uiNextTransformLoop + 2] = dNextSegmentTransformZ;// laneCornerPoints[uiNextTransformLoop + 2] when before loop inc
       } while (uiNextTransformLoop != 12);
@@ -888,10 +862,7 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dPointZ = laneCornerPoints[uiFinalRotationLoop + 2] + dNegCenterOffsetZ;
         transformCoords[uiFinalRotationLoop] = dSinMatrix10 * dPointY + dCosMatrix00 * dPointX + dRotMatrix12 * dPointZ;
         transformCoords[uiFinalRotationLoop + 1] = dCosMatrix11 * dPointY + dMatrixRotValue2 * dPointX + dRotMatrix20 * dPointZ;
-        
-        //loop offset fix
         transformCoords[uiFinalRotationLoop + 2] = dPointY * dRotMatrix11 + dPointX * dMatrixRotValue1 + dPointZ * dCosMatrix22;
-        
         uiFinalRotationLoop += 3;
         //transformCoordsOffset[uiFinalRotationLoop + 2] = dPointY * dRotMatrix11 + dPointX * dMatrixRotValue1 + dPointZ * dCosMatrix22;// transformCoords[uiFinalRotationLoop + 1] when before loop inc
       } while (uiFinalRotationLoop != 27);
@@ -906,7 +877,6 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dRotMatrix02 = transformCoords[iDirectionCalcLoop] * dTempCos - dCosFinal;
         dRotMatrix01 = dSinFinal * transformCoords[iDirectionCalcLoop] + transformCoords[iDirectionCalcLoop + 1] * dTempCos;
         
-        //loop offset fix
         transformCoords[iDirectionCalcLoop] = dRotMatrix02;
         transformCoords[iDirectionCalcLoop + 1] = dRotMatrix01;
         
@@ -955,16 +925,16 @@ int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
   double dTempValue; // st4
   int iRotationIndex1; // edx
   double dDirection1; // st7
-  long double dSin1; // rt0
-  long double dCos1; // st5
+  double dSin1; // rt0
+  double dCos1; // st5
   int iRotationIndex2; // edx
   double dDirection2; // st7
-  long double dSin2; // st6
-  long double dCos2; // st5
+  double dSin2; // st6
+  double dCos2; // st5
   int iRotationIndex3; // edx
-  long double dDirection3; // st6
-  long double dCos3; // st7
-  long double dSin3; // st5
+  double dDirection3; // st6
+  double dCos3; // st7
+  double dSin3; // st5
   double dPitchAngle1; // st7
   double dPitchAngle2; // st7
   //int iNextLaneAOffset; // eax
@@ -976,15 +946,15 @@ int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
   double dPointZ; // rt0
   int iFinalRotationIndex; // edx
   double dFinalDirection; // st7
-  long double dFinalSin; // rt1
-  long double dFinalCos; // st5
+  double dFinalSin; // rt1
+  double dFinalCos; // st5
   double dFinalPitchAngle; // st7
   //double laneCornerPointsOffset[3]; // [esp+0h] [ebp-28Ch]
   double laneCornerPoints[27]; // [esp+18h] [ebp-274h]
   double transformCoords[27]; // [esp+F0h] [ebp-19Ch]
-  long double dRotMatrix02; // [esp+1C8h] [ebp-C4h]
-  long double dRotMatrix01; // [esp+1D0h] [ebp-BCh]
-  long double dRotMatrix00; // [esp+1D8h] [ebp-B4h]
+  double dRotMatrix02; // [esp+1C8h] [ebp-C4h]
+  double dRotMatrix01; // [esp+1D0h] [ebp-BCh]
+  double dRotMatrix00; // [esp+1D8h] [ebp-B4h]
   double dCurrentMatrixY; // [esp+1E0h] [ebp-ACh]
   double dMatrixRotX; // [esp+1E8h] [ebp-A4h]
   double dMatrixScaleY; // [esp+1F0h] [ebp-9Ch]
@@ -993,15 +963,15 @@ int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
   double dMatrixScaleZ; // [esp+208h] [ebp-84h]
   double dMatrixRotY; // [esp+210h] [ebp-7Ch]
   double dMatrixScaleX; // [esp+218h] [ebp-74h]
-  long double dTempCos; // [esp+220h] [ebp-6Ch]
-  long double dTempSin; // [esp+228h] [ebp-64h]
-  long double dTempCos3; // [esp+230h] [ebp-5Ch]
+  double dTempCos; // [esp+220h] [ebp-6Ch]
+  double dTempSin; // [esp+228h] [ebp-64h]
+  double dTempCos3; // [esp+230h] [ebp-5Ch]
   double dNegOffsetX; // [esp+238h] [ebp-54h]
   double dNegOffsetY; // [esp+240h] [ebp-4Ch]
   double dNegOffsetZ; // [esp+248h] [ebp-44h]
   double dDirection3Stored; // [esp+250h] [ebp-3Ch]
-  long double dTempSin3; // [esp+258h] [ebp-34h]
-  long double dFinalCosSin; // [esp+260h] [ebp-2Ch]
+  double dTempSin3; // [esp+258h] [ebp-34h]
+  double dFinalCosSin; // [esp+260h] [ebp-2Ch]
   double dCurrentMatrixZ; // [esp+268h] [ebp-24h]
   int iTrack72ByteOffset; // [esp+270h] [ebp-1Ch]
   int iLane12ByteOffset; // [esp+274h] [ebp-18h]
