@@ -16,6 +16,7 @@
 #include "graphics.h"
 #include "colision.h"
 #include "horizon.h"
+#include "building.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -36,6 +37,7 @@ char szF10ToQuitGame[17] = "F10 TO QUIT GAME";          //000A02B8
 
 //-------------------------------------------------------------------------------------------------
 
+int champ_track[16] = { 1, 2, 3, 9, 5, 1, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1 }; //000A3130
 int exiting = 0;            //000A3170
 int dontrestart = 0;        //000A3174
 int champ_mode = 0;         //000A3178
@@ -90,8 +92,8 @@ int mpressed = 0;           //000A352C
 int jpressed = 0;           //000A352D
 int start_time = 0;         //000A3534
 uint8 *screen = NULL; //= 0xA0000; //000A3538
-uint8 *scrbuf = NULL;        //000A353C
-void *mirbuf = NULL;        //000A3540
+uint8 *scrbuf = NULL;       //000A353C
+uint8 *mirbuf = NULL;       //000A3540
 uint8 *texture_vga = NULL;   //000A3544
 uint8 *building_vga = NULL;  //000A3548
 uint8 *horizon_vga = NULL;   //000A354C
@@ -124,6 +126,7 @@ int zoom_size[2];           //0013E858
 char zoom_mes[2][24];       //0013E860
 int sub_on[2];              //0013E890
 char zoom_sub[2][24];       //0013E898
+int champ_go[16];           //0013E8C8
 int game_overs;             //0013E908
 int averagesectionlen;      //0013E90C
 int racing;                 //0013E910
@@ -223,6 +226,7 @@ int network_buggered;       //0013FB24
 int replay_cheat;           //0013FB2C
 int w95;                    //0013FB30
 int gave_up;                //0013FB34
+int champ_size;             //0013FB38
 int send_finished;          //0013FB40
 int game_frame;             //0013FB44
 int game_track;             //0013FB50
@@ -683,133 +687,144 @@ void firework_screen()
 //00010E30
 void updatescreen()
 {
-  /*
-  int v0; // esi
-  int v1; // edi
-  int v2; // ebp
-  int v3; // esi
-  int v4; // ecx
-  char *v5; // esi
-  int v6; // ebx
-  _BYTE *k; // ecx
-  int v8; // eax
-  _BYTE *m; // ecx
-  char v10; // dl
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v15; // esi
-  int v16; // edi
-  int v17; // ebp
-  int v18; // ecx
-  char *v19; // esi
-  int v20; // ebx
-  _BYTE *i; // ecx
-  int v22; // eax
-  _BYTE *j; // ecx
-  char v24; // dl
-  int v25; // eax
-  int v26; // ebx
-  int v27; // edx
-  int v28; // ecx
-  int v29; // [esp+0h] [ebp-24h]
-  int v30; // [esp+4h] [ebp-20h]
+  int iOriginalScrSize; // esi
+  int iMirrorWinWidth; // edi
+  int iMirrorWinHeight; // ebp
+  int iMirrorXOffset; // esi
+  uint8 *pDestPtr; // ecx
+  uint8 *pMirrorSrcPtr; // esi
+  int iRowCounter; // ebx
+  uint8 *pCurrentRowPtr; // ecx
+  int iPixelCounter; // eax
+  uint8 *pPixelPtr; // ecx
+  uint8 byPixelData; // dl
+  int iWinWidthCopy; // eax
+  int iReareaViewScrSize; // esi
+  int iRearViewWinWidth; // edi
+  int iRearViewWinHeight; // ebp
+  int iViewTypeIndex; // edx
+  uint8 *pRearViewDestPtr; // ecx
+  uint8 *pRearViewSrcPtr; // esi
+  int iRearViewRowCounter; // ebx
+  uint8 *pRearViewRowPtr; // ecx
+  int iRearViewPixelCounter; // eax
+  uint8 *pRearViewPixelPtr; // ecx
+  uint8 byRearViewPixelData; // dl
+  int iRearViewWinWidthCopy; // eax
+  int iXMaxCopy; // ebx
+  int iWinHeightPlusY; // edx
+  int iYMaxCopy; // ecx
+  int iMirrorYOffset; // [esp+0h] [ebp-24h]
+  int iShowRearView; // [esp+4h] [ebp-20h]
 
-  mirror = 0;
+  mirror = 0;                                   // Initialize global screen state variables
   shown_panel = 0;
   screenready = -1;
-  if (SVGA_ON)
+  if (SVGA_ON)                                // Set polygon detail level based on SVGA mode
     small_poly = 200;
   else
     small_poly = 100;
   time_shown = 0;
   if (!Play_View)
-    goto LABEL_30;
-  if ((unsigned __int8)Play_View <= 1u) {
-    time_shown = -1;
-    v15 = scr_size;
+    goto LABEL_30;                              // Check if we're in a play view mode (rear view or side view)
+  if ((uint8)Play_View <= 1u)       // Handle rear view mode (Play_View <= 1)
+  {
+    time_shown = -1;                            // Setup rear view window - reduce screen size and position window
+    iReareaViewScrSize = scr_size;
     xbase = 319;
-    scr_size = (scr_size - (__CFSHL__(scr_size >> 31, 2) + 4 * (scr_size >> 31))) >> 2;
+    scr_size /= 4;  // Reduce screen size to 1/4 for rear view window
+    //scr_size = (scr_size - (__CFSHL__(scr_size >> 31, 2) + 4 * (scr_size >> 31))) >> 2;
     winw = (320 * scr_size) >> 5;
-    v16 = (320 * scr_size) >> 5;
+    iRearViewWinWidth = (320 * scr_size) >> 5;
     winx = 0;
     winy = 0;
     winh = (200 * scr_size) >> 6;
-    v17 = (200 * scr_size) >> 6;
-    v30 = 0;
-    if ((ViewType & 1) != 0) {
-      if (Car_variable_23[308 * ViewType - 308] < 0)
+    iRearViewWinHeight = (200 * scr_size) >> 6;
+    iShowRearView = 0;
+    if ((ViewType[0] & 1) != 0)               // Check if we should show rear view for current car
+    {
+      iViewTypeIndex = ViewType[0] - 1;         // Get car index for rear view based on ViewType flags
+      if ((Car[iViewTypeIndex].byLives & 0x80u) != 0)
+        goto LABEL_20;                          // Check if car is alive (bit 7 of byLives indicates death)
+    } else {
+      iViewTypeIndex = ViewType[0] + 1;
+      if ((Car[iViewTypeIndex].byLives & 0x80u) != 0)
         goto LABEL_20;
-    } else if (Car_variable_23[308 * ViewType + 308] < 0) {
-      goto LABEL_20;
     }
-    v30 = -1;
-    draw_road(0);
+    iShowRearView = -1;
+    draw_road(mirbuf, iViewTypeIndex, 2u, 0, 0);// Draw rear view road to mirror buffer
   LABEL_20:
     time_shown = 0;
     shown_panel = 0;
-    winw = (320 * v15 + 32) >> 6;
+    winw = (320 * iReareaViewScrSize + 32) >> 6;
     xbase = 159;
-    winh = (200 * v15 + 32) >> 6;
-    winx = (XMAX - ((320 * v15 + 32) >> 6)) / 2;
-    winy = (YMAX - ((200 * v15 + 32) >> 6)) / 2;
-    scr_size = v15;
-    v12 = draw_road(0);
-    if (clear_borders) {
+    winh = (200 * iReareaViewScrSize + 32) >> 6;
+    winx = (XMAX - ((320 * iReareaViewScrSize + 32) >> 6)) / 2;
+    winy = (YMAX - ((200 * iReareaViewScrSize + 32) >> 6)) / 2;
+    scr_size = iReareaViewScrSize;
+    draw_road(scrbuf, ViewType[0], DriveView[0], 0, 0);// Draw main forward view road to screen buffer
+    if (clear_borders)                        // Clear screen borders if needed
+    {
       clear_borders = 0;
-      ((void (*)(void))clear_border)();
+      clear_border(0, 0, XMAX, winy);
       clear_border(0, winy, winx, winh);
       clear_border(winx + winw, winy, winx, winh);
-      v12 = clear_border(0, winy + winh, XMAX, YMAX - (winy + winh));
+      clear_border(0, winy + winh, XMAX, YMAX - (winy + winh));
     }
-    if (v30) {
-      v18 = (winw - v16 - 1) / 2
-        + scrbuf
-        + winw * ((11 * scr_size - (__CFSHL__((11 * scr_size) >> 31, 6) + ((11 * scr_size) >> 31 << 6))) >> 6);
-      v19 = (char *)mirbuf;
-      memset(v18, 119, v16 + 2);
-      v20 = 0;
-      for (i = (_BYTE *)(winw + v18); v20 < v17; i = &j[v25 - v16 - 1]) {
-        *i = 119;
-        v22 = 0;
-        for (j = i + 1; v22 < v16; *(j - 1) = v24) {
-          ++j;
-          v24 = *v19++;
-          ++v22;
+    if (iShowRearView)                        // Copy rear view mirror data to main screen with border (color 119)
+    {
+      // Position rear view mirror horizontally centered
+      pRearViewDestPtr = &scrbuf[(winw - iRearViewWinWidth - 1) / 2];
+      //pRearViewDestPtr = &scrbuf[(winw - iRearViewWinWidth - 1) / 2 + winw * ((11 * scr_size - (__CFSHL__((11 * scr_size) >> 31, 6) + ((11 * scr_size) >> 31 << 6))) >> 6)];
+      pRearViewSrcPtr = mirbuf;
+      memset(pRearViewDestPtr, 0x77, iRearViewWinWidth + 2);
+      iRearViewRowCounter = 0;
+      for (pRearViewRowPtr = &pRearViewDestPtr[winw];
+            iRearViewRowCounter < iRearViewWinHeight;
+            pRearViewRowPtr = &pRearViewPixelPtr[iRearViewWinWidthCopy - iRearViewWinWidth - 1]) {
+        *pRearViewRowPtr = 0x77;
+        iRearViewPixelCounter = 0;
+        for (pRearViewPixelPtr = pRearViewRowPtr + 1; iRearViewPixelCounter < iRearViewWinWidth; *(pRearViewPixelPtr - 1) = byRearViewPixelData) {
+          ++pRearViewPixelPtr;
+          byRearViewPixelData = *pRearViewSrcPtr++;
+          ++iRearViewPixelCounter;
         }
-        v25 = winw;
-        *j = 119;
-        ++v20;
+        iRearViewWinWidthCopy = winw;
+        *pRearViewPixelPtr = 0x77;
+        ++iRearViewRowCounter;
       }
-      v12 = memset(i, 119, v16 + 2);
+      memset(pRearViewRowPtr, 0x77, iRearViewWinWidth + 2);
     }
     if (screenready)
       goto LABEL_14;
-    return init_animate_ads(v12);
+    goto LABEL_59;
   }
-  if (Play_View == 2) {
-    v0 = scr_size;
+  if (Play_View == 2)                         // Handle side view mode (Play_View == 2)
+  {
+    iOriginalScrSize = scr_size;
     xbase = 159;
     scr_size /= 2;
     winw = (320 * scr_size) >> 6;
-    v1 = (320 * scr_size) >> 6;
+    iMirrorWinWidth = (320 * scr_size) >> 6;
     time_shown = -1;
     winx = 0;
     winy = 0;
     winh = (200 * scr_size) >> 7;
-    v2 = (200 * scr_size) >> 7;
-    draw_road(0);
+    iMirrorWinHeight = (200 * scr_size) >> 7;
+    draw_road(mirbuf, ViewType[0], -DriveView[0] - 1, 0, 0);// Draw mirrored view (negative DriveView for reverse perspective)
     xbase = 159;
-    winw = (320 * v0 + 32) >> 6;
-    winh = (200 * v0 + 32) >> 6;
+    winw = (320 * iOriginalScrSize + 32) >> 6;
+    winh = (200 * iOriginalScrSize + 32) >> 6;
     time_shown = 0;
     shown_panel = 0;
-    winx = (XMAX - ((320 * v0 + 32) >> 6)) / 2;
-    winy = (YMAX - ((200 * v0 + 32) >> 6)) / 2;
-    scr_size = v0;
-    draw_road(0);
-    v3 = (winw - v1 - 1) / 2;
-    v29 = (11 * scr_size - (__CFSHL__((11 * scr_size) >> 31, 6) + ((11 * scr_size) >> 31 << 6))) >> 6;
+    winx = (XMAX - ((320 * iOriginalScrSize + 32) >> 6)) / 2;
+    winy = (YMAX - ((200 * iOriginalScrSize + 32) >> 6)) / 2;
+    scr_size = iOriginalScrSize;
+    draw_road(scrbuf, ViewType[0], DriveView[0], 0, 0);
+    iMirrorXOffset = (winw - iMirrorWinWidth - 1) / 2;
+    // Calculate vertical offset for rear view mirror position  
+    iMirrorYOffset = (11 * scr_size) / 64;
+    //iMirrorYOffset = (11 * scr_size - (__CFSHL__((11 * scr_size) >> 31, 6) + ((11 * scr_size) >> 31 << 6))) >> 6;
     if (clear_borders) {
       clear_borders = 0;
       clear_border(0, 0, XMAX, winy);
@@ -817,33 +832,35 @@ void updatescreen()
       clear_border(winx + winw, winy, winx, winh);
       clear_border(0, winh + winy, XMAX, YMAX - (winh + winy));
     }
-    v4 = v29 * winw + v3 + scrbuf;
-    v5 = (char *)(v1 + mirbuf - 1);
-    memset(v4, 112, v1 + 2);
-    v6 = 0;
-    for (k = (_BYTE *)(winw + v4); v6 < v2; k = &m[v11 - v1 - 1]) {
-      *k = 112;
-      v8 = 0;
-      for (m = k + 1; v8 < v1; *(m - 1) = v10) {
-        ++m;
-        v10 = *v5--;
-        ++v8;
+    pDestPtr = &scrbuf[iMirrorXOffset + iMirrorYOffset * winw];// Copy side mirror view with border (color 112/0x70)
+    pMirrorSrcPtr = &mirbuf[iMirrorWinWidth - 1];
+    memset(pDestPtr, 0x70, iMirrorWinWidth + 2);
+    iRowCounter = 0;
+    for (pCurrentRowPtr = &pDestPtr[winw]; iRowCounter < iMirrorWinHeight; pCurrentRowPtr = &pPixelPtr[iWinWidthCopy - iMirrorWinWidth - 1]) {
+      *pCurrentRowPtr = 0x70;
+      iPixelCounter = 0;
+      for (pPixelPtr = pCurrentRowPtr + 1; iPixelCounter < iMirrorWinWidth; *(pPixelPtr - 1) = byPixelData) {
+        ++pPixelPtr;
+        byPixelData = *pMirrorSrcPtr--;         // Copy pixels in reverse order for mirror effect
+        ++iPixelCounter;
       }
-      v11 = winw;
-      ++v6;
-      *m = 112;
-      v5 += 2 * v1;
+      iWinWidthCopy = winw;
+      ++iRowCounter;
+      *pPixelPtr = 0x70;
+      pMirrorSrcPtr += 2 * iMirrorWinWidth;
     }
-    v12 = memset(k, 112, v1 + 2);
+    memset(pCurrentRowPtr, 0x70, iMirrorWinWidth + 2);
     if (screenready) {
     LABEL_14:
-      v13 = game_copypic(scrbuf, screen, ViewType);
-      return init_animate_ads(v13);
+      game_copypic(scrbuf, screen, ViewType[0]);// Copy screen buffer to final display and initialize animated elements
+      init_animate_ads();
+      return;
     }
-    return init_animate_ads(v12);
+    goto LABEL_59;
   }
 LABEL_30:
-  if (player_type == 2) {
+  if (player_type == 2)                       // Handle 2-player split screen mode
+  {                                             // Setup split screen for 2-player mode
     if (SVGA_ON)
       scr_size = 64;
     else
@@ -854,10 +871,10 @@ LABEL_30:
     winy = 0;
     winh = YMAX / 2 - 2;
     if (clear_borders)
-      memset(scrbuf + winh * winw, 0, 4 * winw);
-    draw_road(0);
+      memset(&scrbuf[winh * winw], 0, 4 * winw);
+    draw_road(scrbuf, ViewType[0], DriveView[0], -1, 0);// Draw player 1 view (top half)
     shown_panel = 0;
-    draw_road(1);
+    draw_road(&scrbuf[winw * (winh + 4)], ViewType[1], DriveView[1], -1, 1);// Draw player 2 view (bottom half)
     time_shown = -1;
     if (SVGA_ON)
       scr_size = 128;
@@ -866,12 +883,14 @@ LABEL_30:
     draw_type = 0;
     winw = XMAX;
     winh = YMAX;
-    v12 = game_copypic(scrbuf, screen, ViewType);
+    game_copypic(scrbuf, screen, ViewType[0]);
     draw_type = 2;
-    return init_animate_ads(v12);
+    goto LABEL_59;
   }
-  if ((cheat_mode & 0x40) == 0 || paused) {
-    if ((cheat_mode & 0x40) != 0) {
+  // CHEAT_MODE_WIDESCREEN
+  if ((cheat_mode & CHEAT_MODE_WIDESCREEN) == 0 || paused)     // Handle single player normal/widescreen mode
+  {                                             // Standard windowed mode or paused state
+    if ((cheat_mode & CHEAT_MODE_WIDESCREEN) != 0) {
       if (SVGA_ON)
         scr_size = 128;
       else
@@ -887,12 +906,12 @@ LABEL_30:
       clear_border(0, 0, XMAX, winy);
       clear_border(0, winy, winx, winh);
       clear_border(winx + winw, winy, winx, winh);
-      v28 = YMAX;
-      v27 = winh + winy;
-      v26 = XMAX;
+      iYMaxCopy = YMAX;
+      iWinHeightPlusY = winh + winy;
+      iXMaxCopy = XMAX;
       goto LABEL_44;
     }
-  } else {
+  } else {                                             // Widescreen cheat mode (cheat_mode & 0x40) and not paused
     if (SVGA_ON)
       scr_size = 64;
     else
@@ -901,70 +920,81 @@ LABEL_30:
     winw = XMAX;
     winx = 0;
     xbase = 319;
-    winy = (YMAX - (__CFSHL__(YMAX >> 31, 2) + 4 * (YMAX >> 31))) >> 2;
+    winy = YMAX / 4;  // Position window at 1/4 down from top of screen
+    //winy = (YMAX - (__CFSHL__(YMAX >> 31, 2) + 4 * (YMAX >> 31))) >> 2;
     if (clear_borders) {
       clear_borders = 0;
-      clear_border(0, 0, XMAX, (YMAX - (__CFSHL__(YMAX >> 31, 2) + 4 * (YMAX >> 31))) >> 2);
-      v26 = XMAX;
-      v27 = winh + winy;
-      v28 = YMAX;
+      // Clear top border area (top quarter of screen)
+      clear_border(0, 0, XMAX, YMAX / 4);
+      //clear_border(0, 0, XMAX, (YMAX - (__CFSHL__(YMAX >> 31, 2) + 4 * (YMAX >> 31))) >> 2);
+      iXMaxCopy = XMAX;
+      iWinHeightPlusY = winh + winy;
+      iYMaxCopy = YMAX;
     LABEL_44:
-      clear_border(0, v27, v26, v28 - v27);
+      clear_border(0, iWinHeightPlusY, iXMaxCopy, iYMaxCopy - iWinHeightPlusY);
     }
   }
-  v12 = draw_road(0);
-  if ((cheat_mode & 0x40) == 0)
-    return init_animate_ads(v12);
+  draw_road(scrbuf, ViewType[0], DriveView[0], -1, 0);// Draw main road view
+  // CHEAT_MODE_WIDESCREEN
+  if ((cheat_mode & CHEAT_MODE_WIDESCREEN) == 0)               // Check for widescreen cheat mode to copy to final screen
+  {
+  LABEL_59:
+    init_animate_ads();                         // Initialize animated advertisements and return
+    return;
+  }
   if (SVGA_ON)
     scr_size = 128;
   else
     scr_size = 64;
   winw = XMAX;
   winh = YMAX;
-  return init_animate_ads(YMAX);
-  */
+  init_animate_ads();
 }
 
 //-------------------------------------------------------------------------------------------------
 //00011800
-void draw_road(uint8 *a1, char *a2, float *a3, int a4, int a5)
-{/*
-  double v6; // st7
-  double v7; // st7
+void draw_road(uint8 *pScrPtr, int iCarIdx, unsigned int uiViewMode, int iCopyImmediately, int iChaseCamIdx)
+{
+  double dSubscaleMultiplier; // st7
+  double dTextureSubscaleMultiplier; // st7
 
-  if ((textures_off & 0x80000) != 0 || game_track == 13) {
+  // TEX_OFF_PERSPECTIVE_CORRECTION
+  if ((textures_off & TEX_OFF_PERSPECTIVE_CORRECTION) != 0 || game_track == 13) {                                             // Set minimum subdivision size for texture-less rendering
     if (gfx_size == 1)
       min_sub_size = 64;
     else
       min_sub_size = 128;
-  } else if (gfx_size == 1) {
+  } else if (gfx_size == 1)                     // Set minimum subdivision size for textured rendering
+  {
     min_sub_size = 4;
   } else {
     min_sub_size = 8;
   }
-  if (SVGA_ON)
-    v6 = (double)scr_size * threed_c_variable_20;
+  if (SVGA_ON)                                // Calculate base subscale multiplier based on graphics mode
+    dSubscaleMultiplier = (double)scr_size * 2.0;// SVGA mode: 2x multiplier for higher detail
   else
-    v6 = (double)scr_size * threed_c_variable_21;
-  subscale = v6;
-  if ((textures_off & 0x80000) != 0 || game_track == 13) {
+    dSubscaleMultiplier = (double)scr_size * 4.0;// VGA mode: 4x multiplier for standard detail
+  subscale = (float)dSubscaleMultiplier;
+  // TEX_OFF_PERSPECTIVE_CORRECTION
+  if ((textures_off & TEX_OFF_PERSPECTIVE_CORRECTION) != 0 || game_track == 13) {
     if (SVGA_ON)
-      v7 = (double)scr_size * threed_c_variable_22;
+      dTextureSubscaleMultiplier = (double)scr_size * 1.1;// SVGA texture-less: 1.1x multiplier (slightly higher detail)
     else
-      v7 = (double)scr_size * threed_c_variable_23;
-    subscale = v7;
+      dTextureSubscaleMultiplier = (double)scr_size * 1.2;// VGA texture-less: 1.2x multiplier (slightly higher detail)
+    subscale = (float)dTextureSubscaleMultiplier;
   }
-  screen_pointer = a1;
-  calculateview((int)a3, (int)a2, a5);
-  DrawHorizon((int)a1);
-  CalcVisibleTrack((int)a2, (unsigned int)a3);
-  DrawCars((int)a2, (int)a3);
-  CalcVisibleBuildings();
-  DrawTrack3((int *)a1, a5, (int)a2, a3, (float *)a1);
-  if (a4) {
+  screen_pointer = pScrPtr;                     // Set global screen buffer pointer for rendering functions
+  calculateview(uiViewMode, iCarIdx, iChaseCamIdx);// Calculate camera view matrix and projection parameters
+  DrawHorizon(pScrPtr);                         // Draw sky/horizon background
+  CalcVisibleTrack(iCarIdx, uiViewMode);        // Calculate which track segments are visible from current viewpoint
+  DrawCars(iCarIdx, uiViewMode);                // Render all visible cars (excluding current player if in chase cam)
+  CalcVisibleBuildings();                       // Calculate visibility and prepare building rendering data
+  DrawTrack3(pScrPtr, iChaseCamIdx, iCarIdx);   // Render track surface, buildings, and track-side objects
+  if (iCopyImmediately)                       // Check if immediate screen copy is requested
+  {                                             // Copy rendered frame to display if screen is ready
     if (screenready)
-      game_copypic(a1, (int)screen, a2);
-  }*/
+      game_copypic(pScrPtr, screen, iCarIdx);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1131,7 +1161,7 @@ int main(int argc, const char **argv, const char **envp)
           nGameFlags = 0;
         net_quit = 0;
         prev_track = TrackLoad;
-        play_game(TrackLoad, nGameFlags, replaytype);
+        play_game(TrackLoad);
         if (network_buggered) {
           network_fucked();
           nGameFlags = 0;
@@ -1691,7 +1721,7 @@ void winner_race()
   player_type = 0;
   replaytype = 0;
   racers = 1;
-  play_game(prev_track, iRacers, iPlayerType);
+  play_game(prev_track);
   iNumCars_1 = numcars;
   winner_mode = 0;
   racers = iRacers;
@@ -1715,78 +1745,86 @@ void winner_race()
 
 //-------------------------------------------------------------------------------------------------
 //00012CE0
-int champion_race()
+void champion_race()
 {
-  /*
-  int v0; // ebx
-  unsigned int v1; // eax
-  int v2; // eax
-  int v3; // ecx
-  int v4; // ebx
-  int v5; // edx
-  int v6; // esi
-  int v7; // edx
-  int v8; // ecx
-  int v9; // edi
-  int i; // eax
-  int v11; // ebx
-  int v12; // edx
-  int v13; // edx
-  unsigned int v14; // eax
-  int v15; // ebx
-  int result; // eax
-  int v17; // [esp+0h] [ebp-20h]
-  int v18; // [esp+4h] [ebp-1Ch]
+  //int iMaxOffset_1; // ebx
+  //unsigned int iOffset_1; // eax
+  int iRacer; // eax
+  int iNumRacers; // ecx
+  int iGridIdx; // ebx
+  int iCarIdx; // edx
+  int iRacers; // esi
+  int iCarIdx_1; // edx
+  int iOffset_2; // ecx
+  int iMaxOffset_2; // edi
+  int j; // eax
+  int iOldRacers; // ebx
+  int iDriver; // edx
+  int iPlayerType; // edx
+  //unsigned int iOffset; // eax
+  //int iMaxOffset; // ebx
+  int iTrackLoad; // [esp+0h] [ebp-20h]
+  int iTrack; // [esp+4h] [ebp-1Ch]
 
-  v17 = TrackLoad;
+  iTrackLoad = TrackLoad;
   champ_size = scr_size;
   if (game_type != 1 && numcars > 0) {
-    v0 = 4 * numcars;
-    v1 = 0;
-    do {
-      v1 += 4;
-      teamorder_variable_1[v1 / 4] = result_lap_variable_1[v1 / 4];
-    } while ((int)v1 < v0);
+
+    for (int i = 0; i < numcars; ++i) {
+      champorder[i] = result_order[i];
+    }
+    //iMaxOffset_1 = 4 * numcars;
+    //iOffset_1 = 0;
+    //do {
+    //  iOffset_1 += 4;
+    //  teamorder[iOffset_1 / 4 + 7] = result_lap[iOffset_1 / 4 + 15];// references adjacent data see above fixed loop
+    //} while ((int)iOffset_1 < iMaxOffset_1);
   }
-  v18 = champ_track[champorder[0] / 2];
-  v2 = 0;
+
+  iTrack = champ_track[champorder[0] / 2];
+  iRacer = 0;
   if (racers > 0) {
-    v3 = racers;
-    v4 = 0;
+    iNumRacers = racers;
+    iGridIdx = 0;
     do {
-      ++v4;
-      v5 = champorder[v3 - 1 - v2++];
-      finished_car_variable_1[v4] = v5;
-      non_competitors[v5] = 0;
-      human_control[v5] = 0;
-    } while (v2 < v3);
+      ++iGridIdx;
+      iCarIdx = champorder[iNumRacers - 1 - iRacer++];
+      finished_car[iGridIdx + 15] = iCarIdx;    // reference into grid
+      non_competitors[iCarIdx] = 0;
+      human_control[iCarIdx] = 0;
+    } while (iRacer < iNumRacers);
   }
-  v6 = racers;
-  v7 = 0;
+
+  iRacers = racers;
+  iCarIdx_1 = 0;
   if (racers < numcars) {
-    v8 = 4 * racers;
-    v9 = 4 * numcars;
+    iOffset_2 = 4 * racers;
+    iMaxOffset_2 = 4 * numcars;
     do {
-      for (i = v7; !result_competing[i]; ++i)
-        ++v7;
-      ++v6;
-      grid[v8 / 4u] = v7;
-      v8 += 4;
-      human_control[i] = 0;
-      non_competitors[i] = -1;
-      ++v7;
-    } while (v8 < v9);
+      for (j = iCarIdx_1; !result_competing[j]; ++j)
+        ++iCarIdx_1;
+      ++iRacers;
+      grid[iOffset_2 / 4u] = iCarIdx_1;
+      iOffset_2 += 4;
+      human_control[j] = 0;
+      non_competitors[j] = -1;
+      ++iCarIdx_1;
+    } while (iOffset_2 < iMaxOffset_2);
   }
-  v11 = racers;
+
+  iOldRacers = racers;
   winner_mode = -1;
   winner_done = 0;
   champ_mode = -1;
   champ_zoom = 0;
   SelectedView[0] = 8;
-  v12 = teamorder_variable_1[racers];
+
+  iDriver = champorder[racers - 1];
+  //iDriver = teamorder[racers + 7];
+
   champ_car = racers - 1;
-  ViewType = v12;
-  champ_go[v12] = -1;
+  ViewType[0] = iDriver;
+  champ_go[iDriver] = -1;
   start_race = 0;
   countdown = -36;
   gosound = 3;
@@ -1794,33 +1832,35 @@ int champion_race()
   delaywrite = 6;
   writeptr = 0;
   readptr = 0;
-  v13 = player_type;
+  iPlayerType = player_type;
   replaytype = 0;
   player_type = 0;
-  play_game(v18);
+  play_game(iTrack);
   VIEWDIST = 270;
   winner_mode = 0;
   champ_mode = 0;
-  racers = v11;
-  player_type = v13;
-  TrackLoad = v17;
-  if (numcars > 0) {
-    v14 = 0;
-    v15 = 4 * numcars;
-    do {
-      v14 += 4;
-      TrackArrow_variable_1[v14 / 4] = result_best_variable_1[v14 / 4];
-    } while ((int)v14 < v15);
+  racers = iOldRacers;
+  player_type = iPlayerType;
+  TrackLoad = iTrackLoad;
+
+  for (int i = 0; i < numcars; ++i) {
+    non_competitors[i] = result_competing[i];
   }
-  result = champ_size;
+  //if (numcars > 0) {
+  //  iOffset = 0;
+  //  iMaxOffset = 4 * numcars;
+  //  do {
+  //    iOffset += 4;
+  //    TrackArrow_variable_1[iOffset / 4] = LODWORD(result_best[iOffset / 4 + 15]);// references adjacent data see above fixed loop
+  //  } while ((int)iOffset < iMaxOffset);
+  //}
+
   scr_size = champ_size;
-  return result;*/
-  return 0;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00012EF0
-void play_game(int a1, int a2, int a3)
+void play_game(int iTrack)
 {
   /*
   int v3; // eax
