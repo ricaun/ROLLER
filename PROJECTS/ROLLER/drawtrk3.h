@@ -27,14 +27,19 @@ extern int next_front;
 extern int mid_sec;
 extern int back_sec;
 extern int front_sec;
+extern int VisibleHumans;
 extern int min_sub_size;
+extern int NamesLeft;
+extern int CarsLeft;
+extern int VisibleCars;
 extern int num_pols;
 extern int small_poly;
+extern int num_bits;
 
 //-------------------------------------------------------------------------------------------------
 
 int CalcVisibleTrack(int iCarIdx, unsigned int uiViewMode);
-int DrawTrack3(int *a1, int a2, int a3, float *a4, char *a5);
+void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx);
 void subdivide(uint8 *pDest, tPolyParams *polyParams,
                float fX0_3D, float fY0_3D, float fZ0_3D,
                float fX1_3D, float fY1_3D, float fZ1_3D,

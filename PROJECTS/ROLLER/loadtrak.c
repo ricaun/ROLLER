@@ -216,7 +216,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
 
   iTrackIdx_1 = iTrackIdx;                      // Initialize variables and clear car structures
   bMinimalMode = iPreviewMode;
-  p_iBuildingBase = BuildingBase;
+  p_iBuildingBase = BuildingBase[0];
   p_fBuildingAnglesBase = BuildingAngles;
   pTowerBasePtr = (int *)TowerBase;
   iCompactedFlag = 0;

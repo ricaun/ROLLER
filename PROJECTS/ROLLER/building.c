@@ -1,8 +1,16 @@
 #include "building.h"
+#include "3d.h"
+#include "loadtrak.h"
+#include "drawtrk3.h"
+#include "transfrm.h"
+#include <float.h>
 //-------------------------------------------------------------------------------------------------
 
+int BuildingSect[MAX_TRACK_CHUNKS]; //0018F040
 float BuildingAngles[768];  //0018F990
-int BuildingBase[1024];     //00190590
+int BuildingBase[256][4];   //00190590
+tVec3 BuildingBox[256][8];  //00191590
+tVisibleBuilding VisibleBuildings[256]; //00198F10
 int16 advert_list[256];     //00199710
 int NumBuildings;           //0019993C
 int NumVisibleBuildings;    //00199940
@@ -215,104 +223,123 @@ void InitBuildings()
 
 //-------------------------------------------------------------------------------------------------
 //00069960
-int CalcVisibleBuildings()
+void CalcVisibleBuildings()
 {
-  return 0;/*
-  int v0; // ebp
-  int *v1; // edi
-  int v2; // ecx
-  int v3; // edx
-  int result; // eax
-  int v5; // edx
-  int v6; // esi
-  unsigned int v7; // edx
-  int v8; // edx
-  double v9; // st7
-  int v10; // edx
-  double v11; // st7
-  int v12; // eax
-  float v13; // [esp+18h] [ebp-24h]
-  float v14; // [esp+1Ch] [ebp-20h]
-  float v15; // [esp+20h] [ebp-1Ch]
+  int iTrackLen; // ebp
+  tVisibleBuilding *pVisibleBuilding; // edi
+  int iTrackSectIdx; // ecx
+  int iBuildingCounter; // edx
+  int iWrappedSectIdx; // edx
+  int iBuildingIdx; // esi
+  unsigned int uiBuildingType; // edx
+  //int iPointOffset; // edx
+  double dPointDepth; // st7
+  //int iPointOffset2; // edx
+  double dPointDepth2; // st7
+  int iCurrentCount; // eax
+  //float fTempDepth; // [esp+18h] [ebp-24h]
+  //float fTempDepth2; // [esp+1Ch] [ebp-20h]
+  float fBuildingDepth; // [esp+20h] [ebp-1Ch]
 
-  v0 = TRAK_LEN;
-  v1 = &VisibleBuildings;
-  v2 = TrackSize;
-  VisibleBuildings = -1;
-  NumVisibleBuildings = 0;
-  v3 = 0;
-  if (NumBuildings > 0) {
-    result = NumBuildings;
-    do
-      ++v3;
-    while (v3 < NumBuildings);
-  }
-  if ((textures_off & 0x200) == 0) {
+  iTrackLen = TRAK_LEN;                         // Store track length for later restoration
+  pVisibleBuilding = VisibleBuildings;          // Get pointer to visible buildings array
+  iTrackSectIdx = TrackSize;
+  VisibleBuildings[0].iBuildingIdx = -1;        // Initialize visible buildings array with terminator
+  NumVisibleBuildings = 0;                      // Reset visible building count
+  for (iBuildingCounter = 0; iBuildingCounter < NumBuildings; ++iBuildingCounter)// Count through all buildings (purpose unclear - possibly validation)
+    ;
+  if ((textures_off & 0x200) == 0)            // Check if building textures are enabled (bit 9 of textures_off)
+  {
     while (1) {
-      if (v2 < 0)
-        goto LABEL_29;
-      if (v2 <= first_size || v2 >= gap_size) {
-        v5 = v2 + start_sect;
-        if (v2 + start_sect < 0)
-          v5 += v0;
-        if (v5 >= v0)
-          v5 -= v0;
-        v6 = BuildingSect[v5];
-        if (v6 != -1)
-          break;
+      if (iTrackSectIdx < 0)
+        goto FUNCTION_EXIT;                     // Start of main track section loop - iterate backwards through track
+      if (iTrackSectIdx <= first_size || iTrackSectIdx >= gap_size)// Skip sections in track gap (between first_size and gap_size)
+      {
+        iWrappedSectIdx = iTrackSectIdx + start_sect;// Calculate wrapped track section index with start_sect offset
+        if (iTrackSectIdx + start_sect < 0)   // Handle negative wraparound
+          iWrappedSectIdx += iTrackLen;
+        if (iWrappedSectIdx >= iTrackLen)     // Handle positive wraparound
+          iWrappedSectIdx -= iTrackLen;
+        iBuildingIdx = BuildingSect[iWrappedSectIdx];// Get building index for this track section
+        if (iBuildingIdx != -1)
+          break;                                // Skip if no building in this section (-1)
       }
-    LABEL_28:
-      --v2;
+    NEXT_TRACK_SECTION:
+      --iTrackSectIdx;                          // Continue to next track section
     }
-    v7 = BuildingBase[4 * v6];
-    if (v7 < 4) {
-      if (v7 > 1)
-        goto LABEL_23;
-    } else if (v7 > 7 && v7 != 14) {
-    LABEL_23:
-      v10 = 96 * v6 + 12;
-      v15 = (*(float *)&BuildingBox[24 * v6] - viewx) * vk3
-        + (*(float *)&BuildingBox_variable_1[24 * v6] - viewy) * vk6
-        + (*(float *)&BuildingBox_variable_2[24 * v6] - viewz) * vk9;
-      do {
-        v11 = (*(float *)((char *)BuildingBox + v10) - viewx) * vk3
-          + (*(float *)((char *)BuildingBox_variable_1 + v10) - viewy) * vk6
-          + (*(float *)((char *)BuildingBox_variable_2 + v10) - viewz) * vk9;
-        if (v11 < v15) {
-          v13 = v11;
-          v15 = v13;
+    uiBuildingType = BuildingBase[iBuildingIdx][0];// Get building type from BuildingBase array
+    if (uiBuildingType < 4)                   // Check building type - types 0,1 use max depth, others use min depth
+    {
+      if (uiBuildingType > 1)
+        goto CALC_MIN_DEPTH;
+    } else if (uiBuildingType > 7 && uiBuildingType != 14)// Types 8+ except 14 use min depth calculation
+    {
+    CALC_MIN_DEPTH:
+      // Calculate min depth
+      fBuildingDepth = FLT_MAX;  // Initialize to very large value
+      for (int iPointIdx = 0; iPointIdx < 8; iPointIdx++)
+      {
+        dPointDepth2 = (BuildingBox[iBuildingIdx][iPointIdx].fX - viewx) * vk3
+                     + (BuildingBox[iBuildingIdx][iPointIdx].fY - viewy) * vk6  
+                     + (BuildingBox[iBuildingIdx][iPointIdx].fZ - viewz) * vk9;
+         
+        if (dPointDepth2 < fBuildingDepth)
+        {
+          fBuildingDepth = (float)dPointDepth2;
         }
-        v10 += 12;
-      } while (v10 != 96 * v6 + 96);
-    LABEL_27:
-      v1 += 2;
-      *((float *)v1 - 1) = v15;
-      v12 = NumVisibleBuildings;
-      *(v1 - 2) = v6;
-      result = v12 + 1;
-      *v1 = -1;
-      NumVisibleBuildings = result;
-      goto LABEL_28;
-    }
-    v8 = 96 * v6 + 12;
-    v15 = (*(float *)&BuildingBox[24 * v6] - viewx) * vk3
-      + (*(float *)&BuildingBox_variable_1[24 * v6] - viewy) * vk6
-      + (*(float *)&BuildingBox_variable_2[24 * v6] - viewz) * vk9;
-    do {
-      v9 = (*(float *)((char *)BuildingBox + v8) - viewx) * vk3
-        + (*(float *)((char *)BuildingBox_variable_1 + v8) - viewy) * vk6
-        + (*(float *)((char *)BuildingBox_variable_2 + v8) - viewz) * vk9;
-      if (v9 > v15) {
-        v14 = v9;
-        v15 = v14;
       }
-      v8 += 12;
-    } while (v8 != 96 * v6 + 96);
-    goto LABEL_27;
+      //iPointOffset2 = 96 * iBuildingIdx + 12;   // Calculate min depth for other building types - start with first point
+      //fBuildingDepth = (BuildingBox[iBuildingIdx][0].fX - viewx) * vk3 + (BuildingBox[iBuildingIdx][0].fY - viewy) * vk6 + (BuildingBox[iBuildingIdx][0].fZ - viewz) * vk9;// Transform first bounding box point to view space depth
+      //do {
+      //  dPointDepth2 = (*(float *)((char *)&BuildingBox[0][0].fX + iPointOffset2) - viewx) * vk3
+      //    + (*(float *)((char *)&BuildingBox[0][0].fY + iPointOffset2) - viewy) * vk6
+      //    + (*(float *)((char *)&BuildingBox[0][0].fZ + iPointOffset2) - viewz) * vk9;// Transform current point to view space depth
+      //  if (dPointDepth2 < fBuildingDepth)    // Keep minimum depth value
+      //  {
+      //    fTempDepth = dPointDepth2;
+      //    fBuildingDepth = fTempDepth;
+      //  }
+      //  iPointOffset2 += 12;
+      //} while (iPointOffset2 != 96 * iBuildingIdx + 96);// Loop through all 8 bounding box points
+    ADD_BUILDING_TO_LIST:
+      ++pVisibleBuilding;                       // Add building to visible list - advance pointer
+      pVisibleBuilding[-1].fDepth = fBuildingDepth;// Store depth value in array (float)
+      iCurrentCount = NumVisibleBuildings;
+      pVisibleBuilding[-1].iBuildingIdx = iBuildingIdx;// Store building index in array
+      pVisibleBuilding->iBuildingIdx = -1;      // Add array terminator (-1)
+      NumVisibleBuildings = iCurrentCount + 1;  // Increment visible building count
+      goto NEXT_TRACK_SECTION;
+    }
+
+    fBuildingDepth = -FLT_MAX;  // Initialize to very small value
+    for (int iPointIdx = 0; iPointIdx < 8; iPointIdx++)
+    {
+      dPointDepth = (BuildingBox[iBuildingIdx][iPointIdx].fX - viewx) * vk3
+                  + (BuildingBox[iBuildingIdx][iPointIdx].fY - viewy) * vk6  
+                  + (BuildingBox[iBuildingIdx][iPointIdx].fZ - viewz) * vk9;
+        
+      if (dPointDepth > fBuildingDepth)
+      {
+        fBuildingDepth = (float)dPointDepth;
+      }
+    }
+    //iPointOffset = 96 * iBuildingIdx + 12;      // Calculate max depth for building types 0,1 - start with first point
+    //fBuildingDepth = (BuildingBox[iBuildingIdx][0].fX - viewx) * vk3 + (BuildingBox[iBuildingIdx][0].fY - viewy) * vk6 + (BuildingBox[iBuildingIdx][0].fZ - viewz) * vk9;// Transform first bounding box point to view space using view matrix
+    //do {
+    //  dPointDepth = (*(float *)((char *)&BuildingBox[0][0].fX + iPointOffset) - viewx) * vk3
+    //    + (*(float *)((char *)&BuildingBox[0][0].fY + iPointOffset) - viewy) * vk6
+    //    + (*(float *)((char *)&BuildingBox[0][0].fZ + iPointOffset) - viewz) * vk9;// Transform current point to view space depth
+    //  if (dPointDepth > fBuildingDepth)       // Keep maximum depth value
+    //  {
+    //    fTempDepth2 = dPointDepth;
+    //    fBuildingDepth = fTempDepth2;
+    //  }
+    //  iPointOffset += sizeof(tVec3);
+    //} while (iPointOffset != 96 * iBuildingIdx + 96);// Loop through all 8 bounding box points (96 bytes total, 12 per point)
+    goto ADD_BUILDING_TO_LIST;
   }
-LABEL_29:
-  TRAK_LEN = v0;
-  return result;*/
+FUNCTION_EXIT:
+  TRAK_LEN = iTrackLen;                         // Restore original TRAK_LEN value
 }
 
 //-------------------------------------------------------------------------------------------------

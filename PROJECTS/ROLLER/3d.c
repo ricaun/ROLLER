@@ -77,7 +77,11 @@ int oldbut = 0;             //000A34FC
 int mclick = 0;             //000A3500
 int mouse = 0;              //000A3504
 int network_on = 0;         //000A3510
-int Play_View = 0;          //000A3518
+char Banks_On = -1;         //000A3514
+char Buildings_On = 0;      //000A3515
+char Road_On = -1;          //000A3516
+char Walls_On = -1;         //000A3517
+char Play_View = 0;         //000A3518
 int DriveView[2] = { 0, 0 }; //000A351C
 int mirror = 0;             //000A3524
 float TopViewHeight = 12288.0f; //000A3528
@@ -102,6 +106,7 @@ tData localdata[MAX_TRACK_CHUNKS];       //000BEA10
 tGroundPt GroundPt[MAX_TRACK_CHUNKS];    //000CE410
 float hor_scan[800];        //000D70B0
 tGroundPt TrakPt[MAX_TRACK_CHUNKS];      //000D7D30
+tTrackScreenXYZ GroundScreenXYZ[MAX_TRACK_CHUNKS]; //000E09D0
 tTrackScreenXYZ TrackScreenXYZ[MAX_TRACK_CHUNKS]; //000F03D0
 uint8 shade_palette[4096];  //000FFDD0
 tColor palette[256];        //00100DD0
@@ -110,6 +115,7 @@ float ptan[16384];          //001110F0
 float tcos[16384];          //00121128
 char buffer[128];           //00131228
 uint8 blank_line[640];      //001312A8
+tTrackZOrderEntry TrackView[6500]; //00131528
 int p_joyk1[2];             //0013E048
 int p_joyk2[2];             //0013E050
 tMemBlock mem_blocks[128];  //0013E058

@@ -162,6 +162,15 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iChunkIdx;
+  int iCarIdx;
+  float fMinZDepth;
+} tCarDrawOrder;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int numcars;
 extern char default_names[16][9];
 extern int16 ViewType[2];
@@ -172,6 +181,7 @@ extern float CarDiag;
 extern float roadheight[4];
 extern tCarPt CarPt[128];
 extern tCarZOrderEntry CarZOrder[MAX_TRACK_CHUNKS];
+extern tCarDrawOrder car_draw_order[16];
 extern int car_texmap[16];
 extern tCarBox CarBox;
 extern tCar Car[16];
@@ -182,6 +192,7 @@ extern char driver_names[16][9];
 extern tStoreEngine StoreEngines[14];
 extern int finished_car[16];
 extern int grid[16];
+extern int cars_drawn;
 extern int LoadCarTextures;
 
 //-------------------------------------------------------------------------------------------------
