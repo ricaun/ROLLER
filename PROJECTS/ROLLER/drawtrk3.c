@@ -563,11 +563,11 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   int iBuildingCmdIndex; // ecx
   //int iBuildingValue; // eax
   int iBuildingNext; // esi
-  //int iLightIndex; // ebx
-  //tTrackZOrderEntry *pLightRenderCmd; // ecx
-  //int iLightArrayOffset; // edx
-  //float fLightDepth; // eax
-  //int iLightCmdIndex; // esi
+  int iLightIndex; // ebx
+  tTrackZOrderEntry *pLightRenderCmd; // ecx
+  int iLightArrayOffset; // edx
+  float fLightDepth; // eax
+  int iLightCmdIndex; // esi
   tTrackZOrderEntry *pRenderCommand; // eax
   int iSectionNum; // esi
   int iSectionCommand; // eax
@@ -976,7 +976,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   int iIndexTmp2; // [esp+2E0h] [ebp-214h]
   int iIndexTmp3; // [esp+2E4h] [ebp-210h]
   float fRenderDepth; // [esp+2E8h] [ebp-20Ch]
-  //float fLightZ; // [esp+2ECh] [ebp-208h]
+  float fLightZ; // [esp+2ECh] [ebp-208h]
   float fRightWallRoofDepth; // [esp+2F0h] [ebp-204h]
   float fLeftWallRoofDepth; // [esp+2F4h] [ebp-200h]
   int *pPrevGroundColour; // [esp+2F8h] [ebp-1FCh]
@@ -2033,14 +2033,15 @@ LABEL_393:
       num_bits = iBuildingCmdIndex + 1;
     } while (iBuildingNext != -1);
   }
-  if (countdown > -72 && replaytype != 2 && game_type != 2 && !winner_mode)// Process street lights for rendering (if countdown active)
+  if (countdown > -72 && replaytype != 2 && game_type != 2 && !winner_mode)// Process starting lights for rendering (if countdown active)
   {
-    //TODO
-    /*iLightIndex = 0;
+    iLightIndex = 0;
     pLightRenderCmd = &TrackView[num_bits];
-    iLightArrayOffset = 36 * iChaseCamIdx_1;
+    iLightArrayOffset = 3 * iChaseCamIdx_1;
     do {
-      fLightZ = (SLight[iLightArrayOffset] - viewx) * vk3 + (SLight[iLightArrayOffset + 1] - viewy) * vk6 + (SLight[iLightArrayOffset + 2] - viewz) * vk9;
+      fLightZ = (SLight[0][iLightArrayOffset].currentPos.fX - viewx) * vk3
+        + (SLight[0][iLightArrayOffset].currentPos.fY - viewy) * vk6
+        + (SLight[0][iLightArrayOffset].currentPos.fZ - viewz) * vk9;
       if (fLightZ > 0.0) {
         pLightRenderCmd->nRenderPriority = 14;
         ++pLightRenderCmd;
@@ -2051,8 +2052,8 @@ LABEL_393:
         num_bits = iLightCmdIndex + 1;
       }
       ++iLightIndex;
-      iLightArrayOffset += 12;
-    } while (iLightIndex < 3);*/
+      ++iLightArrayOffset;
+    } while (iLightIndex < 3);
   }
   qsort(TrackView, num_bits, 8u, Zcmp);// Fifth phase: Sort render list by Z-depth and render objects
   iRenderObjectIndex = 0;

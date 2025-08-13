@@ -171,6 +171,18 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  tVec3 currentPos;
+  tVec3 targetPos;
+  tVec3 speed;
+  uint32 uiRotation;
+  float fUnk1;
+  float fUnk2;
+} tSLight;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int numcars;
 extern char default_names[16][9];
 extern int16 ViewType[2];
@@ -190,6 +202,7 @@ extern int car_texs_loaded[16];
 extern tCarSpray CarSpray[18][32];
 extern char driver_names[16][9];
 extern tStoreEngine StoreEngines[14];
+extern tSLight SLight[2][3];
 extern int finished_car[16];
 extern int grid[16];
 extern int cars_drawn;

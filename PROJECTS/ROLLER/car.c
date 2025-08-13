@@ -44,6 +44,7 @@ int car_texs_loaded[16];        //00181E30
 tCarSpray CarSpray[18][32];     //00181E70
 char driver_names[16][9];       //00188170
 tStoreEngine StoreEngines[14];  //00188200
+tSLight SLight[2][3];           //00188350
 int finished_car[16];           //00188470
 int grid[16];                   //001884B0
 int cars_drawn;                 //00188528
