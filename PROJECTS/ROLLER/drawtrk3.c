@@ -700,107 +700,107 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   tTrackScreenXYZ *pTrackScreen8; // eax
   float fTrackScreenDepth8; // eax
   tTrackScreenXYZ *pTrackScreen9; // eax
-  //int iScreenIndex1; // edx
-  //int iScreenIndex2; // esi
-  //int iScreenIndex3; // edx
-  //double dTransform1; // st7
-  //double dTransform2; // st7
-  //double dTransform3; // st6
-  //double dTransform4; // st7
-  //double dTransform5; // st6
-  //double dTransform6; // st5
-  //double dTransform7; // st7
-  //double dTransform8; // st7
-  //double dTransform9; // st6
-  //double dTransform10; // st5
-  //double dTransform11; // st7
-  //double dTransform12; // st6
-  //double dTransform13; // st7
-  //double dTransform14; // st5
-  //float iTransformInt1; // eax
-  //double dTransform15; // st7
+  int iScreenIndex1; // edx
+  int iScreenIndex2; // esi
+  int iScreenIndex3; // edx
+  double dTransform1; // st7
+  double dTransform2; // st7
+  double dTransform3; // st6
+  double dTransform4; // st7
+  double dTransform5; // st6
+  double dTransform6; // st5
+  double dTransform7; // st7
+  double dTransform8; // st7
+  double dTransform9; // st6
+  double dTransform10; // st5
+  double dTransform11; // st7
+  double dTransform12; // st6
+  double dTransform13; // st7
+  double dTransform14; // st5
+  float iTransformInt1; // eax
+  double dTransform15; // st7
   //float iTransformInt2; // eax
-  //double dTransform16; // st7
-  //double dTransform17; // st6
-  //double dTransform18; // st5
-  //double dTransform19; // st7
-  //double dTransform20; // st6
-  //double dTransform21; // st7
-  //double dTransform22; // st5
-  //float iTransformInt3; // eax
-  //double dTransform23; // st7
+  double dTransform16; // st7
+  double dTransform17; // st6
+  double dTransform18; // st5
+  double dTransform19; // st7
+  double dTransform20; // st6
+  double dTransform21; // st7
+  double dTransform22; // st5
+  float iTransformInt3; // eax
+  double dTransform23; // st7
   //float iTransformInt4; // eax
-  //double dTransform24; // st7
-  //double dTransform25; // st6
-  //double dTransform26; // st5
-  //double dTransform27; // st7
-  //double dTransform28; // st6
-  //double dTransform29; // st7
-  //double dTransform30; // st5
-  //float iTransformInt5; // eax
-  //double dTransform31; // st7
+  double dTransform24; // st7
+  double dTransform25; // st6
+  double dTransform26; // st5
+  double dTransform27; // st7
+  double dTransform28; // st6
+  double dTransform29; // st7
+  double dTransform30; // st5
+  float iTransformInt5; // eax
+  double dTransform31; // st7
   //float iTransformInt6; // eax
-  //double dTransform32; // st7
-  //double dTransform33; // st6
-  //double dTransform34; // st5
-  //double dProjectionDepth1; // st7
-  //double dProjectionDepth2; // st6
-  //double dProjectionDepth3; // st7
-  //double dProjectionDepth4; // st5
-  //float iProjectionIndex1; // eax
-  //double dProjectionDepth5; // st7
+  double dTransform32; // st7
+  double dTransform33; // st6
+  double dTransform34; // st5
+  double dProjectionDepth1; // st7
+  double dProjectionDepth2; // st6
+  double dProjectionDepth3; // st7
+  double dProjectionDepth4; // st5
+  float iProjectionIndex1; // eax
+  double dProjectionDepth5; // st7
   //float iProjectionIndex2; // eax
-  //double dProjectionDepth6; // st7
-  //double dProjectionDepth7; // st6
-  //double dProjectionDepth8; // st5
-  //double dProjectionDepth9; // st7
-  //double dProjectionDepth10; // st6
-  //double dProjectionDepth11; // st7
-  //double dProjectionDepth12; // st5
-  //float iProjectionIndex3; // eax
-  //double dProjectionDepth13; // st7
+  double dProjectionDepth6; // st7
+  double dProjectionDepth7; // st6
+  double dProjectionDepth8; // st5
+  double dProjectionDepth9; // st7
+  double dProjectionDepth10; // st6
+  double dProjectionDepth11; // st7
+  double dProjectionDepth12; // st5
+  float iProjectionIndex3; // eax
+  double dProjectionDepth13; // st7
   //float iProjectionIndex4; // eax
-  //double dProjectionDepth14; // st7
-  //double dProjectionDepth15; // st6
-  //double dProjectionDepth16; // st5
-  //double dProjectionDepth17; // st7
-  //double dProjectionDepth18; // st6
-  //double dProjectionDepth19; // st7
-  //double dProjectionDepth20; // st5
-  //float iProjectionIndex5; // eax
-  //double dProjectionDepth21; // st7
+  double dProjectionDepth14; // st7
+  double dProjectionDepth15; // st6
+  double dProjectionDepth16; // st5
+  double dProjectionDepth17; // st7
+  double dProjectionDepth18; // st6
+  double dProjectionDepth19; // st7
+  double dProjectionDepth20; // st5
+  float iProjectionIndex5; // eax
+  double dProjectionDepth21; // st7
   //float iProjectionIndex6; // eax
-  //double dProjectionDepth22; // st7
-  //double dProjectionDepth23; // st6
-  //double dProjectionDepth24; // st5
-  //double dProjectionDepth25; // st7
-  //double dProjectionDepth26; // st6
-  //double dProjectionDepth27; // st7
-  //double dProjectionDepth28; // st5
-  //float iProjectionIndex7; // eax
-  //double dProjectionDepth29; // st7
+  double dProjectionDepth22; // st7
+  double dProjectionDepth23; // st6
+  double dProjectionDepth24; // st5
+  double dProjectionDepth25; // st7
+  double dProjectionDepth26; // st6
+  double dProjectionDepth27; // st7
+  double dProjectionDepth28; // st5
+  float iProjectionIndex7; // eax
+  double dProjectionDepth29; // st7
   //float iProjectionIndex8; // eax
-  //double dProjectionDepth30; // st7
-  //double dProjectionDepth31; // st6
-  //double dProjectionDepth32; // st5
-  //double dProjectionDepth33; // st7
-  //int iRenderingIndex1; // edx
+  double dProjectionDepth30; // st7
+  double dProjectionDepth31; // st6
+  double dProjectionDepth32; // st5
+  double dProjectionDepth33; // st7
+  int iRenderingIndex1; // edx
   //int iRenderingIndex2; // eax
-  //int iRenderingIndex3; // edx
-  //int iRenderingIndex4; // eax
-  //double dRenderingDepth1; // st6
-  //int iRenderingIndex5; // esi
-  //int iRenderingIndex6; // edx
-  //int iRenderingIndex7; // ebx
-  //int iRenderingIndex8; // ebx
-  //int iRenderingIndex9; // eax
-  //int iRenderingIndex10; // edx
-  //int iRenderingIndex11; // ecx
-  //int iRenderLoopVar; // edx
-  //int iRenderingLoopIndex; // esi
-  //int iRenderingIndexTmp; // edx
-  //int iRenderingCoordIndex; // eax
-  //int iRenderingDataIndex; // edx
+  int iRenderingIndex3; // edx
+  int iRenderingIndex4; // eax
+  double dRenderingDepth1; // st6
+  int iRenderingIndex5; // esi
+  int iRenderingIndex6; // edx
+  int iRenderingIndex7; // ebx
+  int iRenderingIndex8; // ebx
+  int iRenderingIndex9; // eax
+  int iRenderingIndex10; // edx
+  int iRenderingIndex11; // ecx
+  int iRenderLoopVar; // edx
+  int iRenderingLoopIndex; // esi
+  int iRenderingIndexTmp; // edx
+  int iRenderingCoordIndex; // eax
+  int iRenderingDataIndex; // edx
   float fDepthValuesArray[9]; // [esp+4h] [ebp-4F0h]
   float fRoadCenterDepth1; // [esp+28h] [ebp-4CCh]
   float fRoadCenterDepth2; // [esp+2Ch] [ebp-4C8h]
@@ -871,15 +871,15 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   float fRenderDepthTmp6; // [esp+130h] [ebp-3C4h]
   tVec3 *pTrackVec3Array; // [esp+134h] [ebp-3C0h]
   tVec3 *pTrackGeomFloats; // [esp+138h] [ebp-3BCh]
-  //float fRenderDepthTmp7; // [esp+13Ch] [ebp-3B8h]
-  //float fRenderDepthTmp8; // [esp+140h] [ebp-3B4h]
-  //float fRenderDepthTmp9; // [esp+144h] [ebp-3B0h]
+  float fRenderDepthTmp7; // [esp+13Ch] [ebp-3B8h]
+  float fRenderDepthTmp8; // [esp+140h] [ebp-3B4h]
+  float fRenderDepthTmp9; // [esp+144h] [ebp-3B0h]
   float fRenderDepthTmp10; // [esp+148h] [ebp-3ACh]
   float fRightWallDepth1; // [esp+14Ch] [ebp-3A8h]
-  //float fRenderDepthTmp11; // [esp+150h] [ebp-3A4h]
-  //float fRenderDepthTmp12; // [esp+154h] [ebp-3A0h]
-  //float fRenderDepthTmp13; // [esp+158h] [ebp-39Ch]
-  //float fRenderDepthTmp14; // [esp+15Ch] [ebp-398h]
+  float fRenderDepthTmp11; // [esp+150h] [ebp-3A4h]
+  float fRenderDepthTmp12; // [esp+154h] [ebp-3A0h]
+  float fRenderDepthTmp13; // [esp+158h] [ebp-39Ch]
+  float fRenderDepthTmp14; // [esp+15Ch] [ebp-398h]
   int iTrackSectionIndex; // [esp+160h] [ebp-394h]
   int iProjectedZ; // [esp+164h] [ebp-390h]
   int iNextSectionIndex; // [esp+168h] [ebp-38Ch]
@@ -980,21 +980,21 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   float fRightWallRoofDepth; // [esp+2F0h] [ebp-204h]
   float fLeftWallRoofDepth; // [esp+2F4h] [ebp-200h]
   int *pPrevGroundColour; // [esp+2F8h] [ebp-1FCh]
-  //float fLightTmp1; // [esp+2FCh] [ebp-1F8h]
+  float fLightTmp1; // [esp+2FCh] [ebp-1F8h]
   float fOffsetTmp1; // [esp+300h] [ebp-1F4h]
-  //int iOffsetTmp2; // [esp+308h] [ebp-1ECh]
+  int iOffsetTmp2; // [esp+308h] [ebp-1ECh]
   int iGroundProjectedZ; // [esp+30Ch] [ebp-1E8h]
   int iRightWallProjectedZ; // [esp+310h] [ebp-1E4h]
   int iLeftWallProjectedZ; // [esp+314h] [ebp-1E0h]
-  //float fCameraTransformX1; // [esp+318h] [ebp-1DCh]
+  float fCameraTransformX1; // [esp+318h] [ebp-1DCh]
   float fGroundCameraZ; // [esp+31Ch] [ebp-1D8h]
   float fRightWallCameraZ; // [esp+320h] [ebp-1D4h]
   float fLeftWallCameraZ; // [esp+324h] [ebp-1D0h]
-  //float fCameraTransformY1; // [esp+328h] [ebp-1CCh]
+  float fCameraTransformY1; // [esp+328h] [ebp-1CCh]
   float fGroundCameraY; // [esp+32Ch] [ebp-1C8h]
   float fRightWallCameraY; // [esp+330h] [ebp-1C4h]
   float fLeftWallCameraY; // [esp+334h] [ebp-1C0h]
-  //float fCameraTransformZ1; // [esp+338h] [ebp-1BCh]
+  float fCameraTransformZ1; // [esp+338h] [ebp-1BCh]
   float fGroundCameraX; // [esp+33Ch] [ebp-1B8h]
   float fRightWallCameraX; // [esp+340h] [ebp-1B4h]
   float fLeftWallCameraX; // [esp+344h] [ebp-1B0h]
@@ -1084,13 +1084,13 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   tTrackScreenXYZ *pNextGroundScreen; // [esp+49Ch] [ebp-58h]
   tTrackScreenXYZ *pCurrentGroundScreen; // [esp+4A0h] [ebp-54h]
   int *pCurrentGroundColour; // [esp+4A4h] [ebp-50h]
-  //float fTransformTempX1; // [esp+4A8h] [ebp-4Ch]
-  //float fTransformTempY1; // [esp+4ACh] [ebp-48h]
-  //float fTransformTempZ1; // [esp+4B0h] [ebp-44h]
-  //float fTransformTempX2; // [esp+4B4h] [ebp-40h]
-  //float fTransformTempY2; // [esp+4B8h] [ebp-3Ch]
-  //float fTransformTempZ2; // [esp+4BCh] [ebp-38h]
-  //float fTransformTempFinal; // [esp+4C0h] [ebp-34h]
+  float fTransformTempX1; // [esp+4A8h] [ebp-4Ch]
+  float fTransformTempY1; // [esp+4ACh] [ebp-48h]
+  float fTransformTempZ1; // [esp+4B0h] [ebp-44h]
+  float fTransformTempX2; // [esp+4B4h] [ebp-40h]
+  float fTransformTempY2; // [esp+4B8h] [ebp-3Ch]
+  float fTransformTempZ2; // [esp+4BCh] [ebp-38h]
+  float fTransformTempFinal; // [esp+4C0h] [ebp-34h]
   float fWorldZ; // [esp+4C8h] [ebp-2Ch]
   float fWorldY; // [esp+4CCh] [ebp-28h]
   float fWorldX; // [esp+4D0h] [ebp-24h]
@@ -4158,45 +4158,44 @@ LABEL_393:
           DrawBuilding(iSectionNum, pScrPtr_1);
           goto LABEL_1271;
         case 0xE:
-          //TODO
-          /*iScreenIndex1 = iIndexTmp1 + 48 * iSectionNum;
-          fRenderDepthTmp14 = *(float *)((char *)SLight + iScreenIndex1);
-          fRenderDepthTmp13 = *(float *)((char *)&SLight[1] + iScreenIndex1);
-          iScreenIndex2 = *(_DWORD *)((char *)&SLight[9] + iScreenIndex1);
-          fRenderDepthTmp12 = *(float *)((char *)&SLight[2] + iScreenIndex1);
-          iScreenIndex3 = ((_WORD)iScreenIndex2 + (_WORD)worlddirn) & 0x3FFF;
+          iScreenIndex1 = iIndexTmp1 + 48 * iSectionNum;
+          fRenderDepthTmp14 = *(float *)((char *)&SLight[0][0].currentPos.fX + iScreenIndex1);
+          fRenderDepthTmp13 = *(float *)((char *)&SLight[0][0].currentPos.fY + iScreenIndex1);
+          iScreenIndex2 = *(uint32 *)((char *)&SLight[0][0].uiRotation + iScreenIndex1);
+          fRenderDepthTmp12 = *(float *)((char *)&SLight[0][0].currentPos.fZ + iScreenIndex1);
+          iScreenIndex3 = ((int16)iScreenIndex2 + (int16)worlddirn) & 0x3FFF;
           fTransformTempZ2 = tcos[iScreenIndex3] * tcos[0];
           fTransformTempY2 = tsin[iScreenIndex3] * tcos[0];
           dTransform1 = tcos[iScreenIndex3];
           fTransformTempX2 = tsin[0];
           dTransform2 = dTransform1 * tsin[0];
-          fTransformTempZ1 = dTransform2 * tsin[0] - fTransformTempY2;
+          fTransformTempZ1 = (float)dTransform2 * tsin[0] - fTransformTempY2;
           dTransform3 = tsin[iScreenIndex3] * tsin[0];
-          fTransformTempY1 = dTransform3 * tsin[0] + fTransformTempZ2;
+          fTransformTempY1 = (float)dTransform3 * tsin[0] + fTransformTempZ2;
           fTransformTempX1 = -tsin[0] * tcos[0];
-          fRenderDepthTmp9 = -tcos[iScreenIndex3] * tsin[0] * tcos[0] - dTransform3;
-          fRenderDepthTmp8 = dTransform2 + -tsin[iScreenIndex3] * tsin[0] * tcos[0];
+          fRenderDepthTmp9 = -tcos[iScreenIndex3] * tsin[0] * tcos[0] - (float)dTransform3;
+          fRenderDepthTmp8 = (float)dTransform2 + -tsin[iScreenIndex3] * tsin[0] * tcos[0];
           fRenderDepthTmp7 = tcos[0] * tcos[0];
-          fRenderDepthTmp11 = -100.0 * fTransformTempZ2 + 100.0 * fTransformTempZ1 - 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14;
-          fTransformTempFinal = -100.0 * tsin[0] + 100.0 * fTransformTempX1 - 100.0 * fRenderDepthTmp7 + fRenderDepthTmp12;
+          fRenderDepthTmp11 = -100.0f * fTransformTempZ2 + 100.0f * fTransformTempZ1 - 100.0f * fRenderDepthTmp9 + fRenderDepthTmp14;
+          fTransformTempFinal = -100.0f * tsin[0] + 100.0f * fTransformTempX1 - 100.0f * fRenderDepthTmp7 + fRenderDepthTmp12;
           dTransform4 = fRenderDepthTmp11 - viewx;
           dTransform5 = -100.0 * fTransformTempY2 + 100.0 * fTransformTempY1 - 100.0 * fRenderDepthTmp8 + fRenderDepthTmp13 - viewy;
           dTransform6 = fTransformTempFinal - viewz;
-          fCameraTransformZ1 = dTransform4 * vk1 + dTransform5 * vk4 + dTransform6 * vk7;
-          fCameraTransformY1 = dTransform4 * vk2 + dTransform5 * vk5 + dTransform6 * vk8;
+          fCameraTransformZ1 = (float)(dTransform4 * vk1 + dTransform5 * vk4 + dTransform6 * vk7);
+          fCameraTransformY1 = (float)(dTransform4 * vk2 + dTransform5 * vk5 + dTransform6 * vk8);
           dTransform7 = dTransform4 * vk3 + dTransform5 * vk6 + dTransform6 * vk9;
-          fCameraTransformX1 = dTransform7;
-          _CHP();
+          fCameraTransformX1 = (float)dTransform7;
+          //_CHP();
           iOffsetTmp2 = (int)dTransform7;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dTransform8 = (double)VIEWDIST;
           dTransform9 = 1.0 / fCameraTransformX1;
           dTransform10 = dTransform8 * fCameraTransformZ1 * dTransform9 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dTransform10;
           dTransform11 = dTransform9 * (dTransform8 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dTransform11;
           LightXYZ[0].projected.fZ = (float)iOffsetTmp2;
           dTransform12 = -100.0 * fTransformTempZ2 - 100.0 * fTransformTempZ1 - 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4205,23 +4204,23 @@ LABEL_393:
           LightXYZ[0].screen.x = (scr_size * xp) >> 6;
           LightXYZ[0].screen.y = (scr_size * (199 - yp)) >> 6;
           iTransformInt1 = fCameraTransformZ1;
-          fCameraTransformZ1 = dTransform12 * vk1 + dTransform13 * vk4 + dTransform14 * vk7;
+          fCameraTransformZ1 = (float)(dTransform12 * vk1 + dTransform13 * vk4 + dTransform14 * vk7);
           LightXYZ[0].projected.fX = iTransformInt1;
-          fCameraTransformY1 = dTransform12 * vk2 + dTransform13 * vk5 + dTransform14 * vk8;
+          fCameraTransformY1 = (float)(dTransform12 * vk2 + dTransform13 * vk5 + dTransform14 * vk8);
           dTransform15 = dTransform12 * vk3 + dTransform13 * vk6 + dTransform14 * vk9;
-          fCameraTransformX1 = dTransform15;
-          _CHP();
+          fCameraTransformX1 = (float)dTransform15;
+          //_CHP();
           iOffsetTmp2 = (int)dTransform15;
-          LightXYZ[0].projected.fY = iTransformInt2;
+          LightXYZ[0].projected.fY = (float)(int)dTransform15;// iTransformInt2;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dTransform16 = (double)VIEWDIST;
           dTransform17 = 1.0 / fCameraTransformX1;
           dTransform18 = dTransform16 * fCameraTransformZ1 * dTransform17 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dTransform18;
           dTransform19 = dTransform17 * (dTransform16 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dTransform19;
           LightXYZ[1].projected.fZ = (float)iOffsetTmp2;
           dTransform20 = 100.0 * fTransformTempZ2 - 100.0 * fTransformTempZ1 - 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4230,23 +4229,23 @@ LABEL_393:
           LightXYZ[1].screen.x = (scr_size * xp) >> 6;
           LightXYZ[1].screen.y = (scr_size * (199 - yp)) >> 6;
           iTransformInt3 = fCameraTransformZ1;
-          fCameraTransformZ1 = dTransform20 * vk1 + dTransform21 * vk4 + dTransform22 * vk7;
+          fCameraTransformZ1 = (float)(dTransform20 * vk1 + dTransform21 * vk4 + dTransform22 * vk7);
           LightXYZ[1].projected.fX = iTransformInt3;
-          fCameraTransformY1 = dTransform20 * vk2 + dTransform21 * vk5 + dTransform22 * vk8;
+          fCameraTransformY1 = (float)(dTransform20 * vk2 + dTransform21 * vk5 + dTransform22 * vk8);
           dTransform23 = dTransform20 * vk3 + dTransform21 * vk6 + dTransform22 * vk9;
-          fCameraTransformX1 = dTransform23;
-          _CHP();
+          fCameraTransformX1 = (float)dTransform23;
+          //_CHP();
           iOffsetTmp2 = (int)dTransform23;
-          LightXYZ[1].projected.fY = iTransformInt4;
+          LightXYZ[1].projected.fY = (float)(int)dTransform23;// iTransformInt4;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dTransform24 = (double)VIEWDIST;
           dTransform25 = 1.0 / fCameraTransformX1;
           dTransform26 = dTransform24 * fCameraTransformZ1 * dTransform25 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dTransform26;
           dTransform27 = dTransform25 * (dTransform24 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dTransform27;
           LightXYZ[2].projected.fZ = (float)iOffsetTmp2;
           dTransform28 = 100.0 * fTransformTempZ2 + 100.0 * fTransformTempZ1 - 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4255,23 +4254,23 @@ LABEL_393:
           LightXYZ[2].screen.x = (scr_size * xp) >> 6;
           LightXYZ[2].screen.y = (scr_size * (199 - yp)) >> 6;
           iTransformInt5 = fCameraTransformZ1;
-          fCameraTransformZ1 = dTransform28 * vk1 + dTransform29 * vk4 + dTransform30 * vk7;
+          fCameraTransformZ1 = (float)(dTransform28 * vk1 + dTransform29 * vk4 + dTransform30 * vk7);
           LightXYZ[2].projected.fX = iTransformInt5;
-          fCameraTransformY1 = dTransform28 * vk2 + dTransform29 * vk5 + dTransform30 * vk8;
+          fCameraTransformY1 = (float)(dTransform28 * vk2 + dTransform29 * vk5 + dTransform30 * vk8);
           dTransform31 = dTransform28 * vk3 + dTransform29 * vk6 + dTransform30 * vk9;
-          fCameraTransformX1 = dTransform31;
-          _CHP();
+          fCameraTransformX1 = (float)dTransform31;
+          //_CHP();
           iOffsetTmp2 = (int)dTransform31;
-          LightXYZ[2].projected.fY = iTransformInt6;
+          LightXYZ[2].projected.fY = (float)(int)dTransform31;// iTransformInt6;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dTransform32 = (double)VIEWDIST;
           dTransform33 = 1.0 / fCameraTransformX1;
           dTransform34 = dTransform32 * fCameraTransformZ1 * dTransform33 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dTransform34;
           dProjectionDepth1 = dTransform33 * (dTransform32 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dProjectionDepth1;
           LightXYZ[3].projected.fZ = (float)iOffsetTmp2;
           dProjectionDepth2 = -100.0 * fTransformTempZ2 + 100.0 * fTransformTempZ1 + 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4280,23 +4279,23 @@ LABEL_393:
           LightXYZ[3].screen.x = (scr_size * xp) >> 6;
           LightXYZ[3].screen.y = (scr_size * (199 - yp)) >> 6;
           iProjectionIndex1 = fCameraTransformZ1;
-          fCameraTransformZ1 = dProjectionDepth2 * vk1 + dProjectionDepth3 * vk4 + dProjectionDepth4 * vk7;
+          fCameraTransformZ1 = (float)(dProjectionDepth2 * vk1 + dProjectionDepth3 * vk4 + dProjectionDepth4 * vk7);
           LightXYZ[3].projected.fX = iProjectionIndex1;
-          fCameraTransformY1 = dProjectionDepth2 * vk2 + dProjectionDepth3 * vk5 + dProjectionDepth4 * vk8;
+          fCameraTransformY1 = (float)(dProjectionDepth2 * vk2 + dProjectionDepth3 * vk5 + dProjectionDepth4 * vk8);
           dProjectionDepth5 = dProjectionDepth2 * vk3 + dProjectionDepth3 * vk6 + dProjectionDepth4 * vk9;
-          fCameraTransformX1 = dProjectionDepth5;
-          _CHP();
+          fCameraTransformX1 = (float)dProjectionDepth5;
+          //_CHP();
           iOffsetTmp2 = (int)dProjectionDepth5;
-          LightXYZ[3].projected.fY = iProjectionIndex2;
+          LightXYZ[3].projected.fY = (float)(int)dProjectionDepth5;// iProjectionIndex2;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dProjectionDepth6 = (double)VIEWDIST;
           dProjectionDepth7 = 1.0 / fCameraTransformX1;
           dProjectionDepth8 = dProjectionDepth6 * fCameraTransformZ1 * dProjectionDepth7 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dProjectionDepth8;
           dProjectionDepth9 = dProjectionDepth7 * (dProjectionDepth6 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dProjectionDepth9;
           LightXYZ[4].projected.fZ = (float)iOffsetTmp2;
           dProjectionDepth10 = -100.0 * fTransformTempZ2 - 100.0 * fTransformTempZ1 + 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4305,23 +4304,23 @@ LABEL_393:
           LightXYZ[4].screen.x = (scr_size * xp) >> 6;
           LightXYZ[4].screen.y = (scr_size * (199 - yp)) >> 6;
           iProjectionIndex3 = fCameraTransformZ1;
-          fCameraTransformZ1 = dProjectionDepth10 * vk1 + dProjectionDepth11 * vk4 + dProjectionDepth12 * vk7;
+          fCameraTransformZ1 = (float)(dProjectionDepth10 * vk1 + dProjectionDepth11 * vk4 + dProjectionDepth12 * vk7);
           LightXYZ[4].projected.fX = iProjectionIndex3;
-          fCameraTransformY1 = dProjectionDepth10 * vk2 + dProjectionDepth11 * vk5 + dProjectionDepth12 * vk8;
+          fCameraTransformY1 = (float)(dProjectionDepth10 * vk2 + dProjectionDepth11 * vk5 + dProjectionDepth12 * vk8);
           dProjectionDepth13 = dProjectionDepth10 * vk3 + dProjectionDepth11 * vk6 + dProjectionDepth12 * vk9;
-          fCameraTransformX1 = dProjectionDepth13;
-          _CHP();
+          fCameraTransformX1 = (float)dProjectionDepth13;
+          //_CHP();
           iOffsetTmp2 = (int)dProjectionDepth13;
-          LightXYZ[4].projected.fY = iProjectionIndex4;
+          LightXYZ[4].projected.fY = (float)(int)dProjectionDepth13;// iProjectionIndex4;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dProjectionDepth14 = (double)VIEWDIST;
           dProjectionDepth15 = 1.0 / fCameraTransformX1;
           dProjectionDepth16 = dProjectionDepth14 * fCameraTransformZ1 * dProjectionDepth15 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dProjectionDepth16;
           dProjectionDepth17 = dProjectionDepth15 * (dProjectionDepth14 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dProjectionDepth17;
           LightXYZ[5].projected.fZ = (float)iOffsetTmp2;
           dProjectionDepth18 = 100.0 * fTransformTempZ2 - 100.0 * fTransformTempZ1 + 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4330,23 +4329,23 @@ LABEL_393:
           LightXYZ[5].screen.x = (scr_size * xp) >> 6;
           LightXYZ[5].screen.y = (scr_size * (199 - yp)) >> 6;
           iProjectionIndex5 = fCameraTransformZ1;
-          fCameraTransformZ1 = dProjectionDepth18 * vk1 + dProjectionDepth19 * vk4 + dProjectionDepth20 * vk7;
+          fCameraTransformZ1 = (float)(dProjectionDepth18 * vk1 + dProjectionDepth19 * vk4 + dProjectionDepth20 * vk7);
           LightXYZ[5].projected.fX = iProjectionIndex5;
-          fCameraTransformY1 = dProjectionDepth18 * vk2 + dProjectionDepth19 * vk5 + dProjectionDepth20 * vk8;
+          fCameraTransformY1 = (float)(dProjectionDepth18 * vk2 + dProjectionDepth19 * vk5 + dProjectionDepth20 * vk8);
           dProjectionDepth21 = dProjectionDepth18 * vk3 + dProjectionDepth19 * vk6 + dProjectionDepth20 * vk9;
-          fCameraTransformX1 = dProjectionDepth21;
-          _CHP();
+          fCameraTransformX1 = (float)dProjectionDepth21;
+          //_CHP();
           iOffsetTmp2 = (int)dProjectionDepth21;
-          LightXYZ[5].projected.fY = iProjectionIndex6;
+          LightXYZ[5].projected.fY = (float)(int)dProjectionDepth21; //iProjectionIndex6;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dProjectionDepth22 = (double)VIEWDIST;
           dProjectionDepth23 = 1.0 / fCameraTransformX1;
           dProjectionDepth24 = dProjectionDepth22 * fCameraTransformZ1 * dProjectionDepth23 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dProjectionDepth24;
           dProjectionDepth25 = dProjectionDepth23 * (dProjectionDepth22 * fCameraTransformY1) + (double)ybase;
-          _CHP();
+          //_CHP();
           yp = (int)dProjectionDepth25;
           LightXYZ[6].projected.fZ = (float)iOffsetTmp2;
           dProjectionDepth26 = 100.0 * fTransformTempZ2 + 100.0 * fTransformTempZ1 + 100.0 * fRenderDepthTmp9 + fRenderDepthTmp14 - viewx;
@@ -4355,26 +4354,27 @@ LABEL_393:
           LightXYZ[6].screen.x = (scr_size * xp) >> 6;
           LightXYZ[6].screen.y = (scr_size * (199 - yp)) >> 6;
           iProjectionIndex7 = fCameraTransformZ1;
-          fCameraTransformZ1 = dProjectionDepth26 * vk1 + dProjectionDepth27 * vk4 + dProjectionDepth28 * vk7;
+          fCameraTransformZ1 = (float)(dProjectionDepth26 * vk1 + dProjectionDepth27 * vk4 + dProjectionDepth28 * vk7);
           LightXYZ[6].projected.fX = iProjectionIndex7;
-          fCameraTransformY1 = dProjectionDepth26 * vk2 + dProjectionDepth27 * vk5 + dProjectionDepth28 * vk8;
+          fCameraTransformY1 = (float)(dProjectionDepth26 * vk2 + dProjectionDepth27 * vk5 + dProjectionDepth28 * vk8);
           dProjectionDepth29 = dProjectionDepth26 * vk3 + dProjectionDepth27 * vk6 + dProjectionDepth28 * vk9;
-          fCameraTransformX1 = dProjectionDepth29;
-          _CHP();
+          fCameraTransformX1 = (float)dProjectionDepth29;
+          //_CHP();
           iOffsetTmp2 = (int)dProjectionDepth29;
-          LightXYZ[6].projected.fY = iProjectionIndex8;
+          LightXYZ[6].projected.fY = (float)(int)dProjectionDepth29; //iProjectionIndex8;
           if (fCameraTransformX1 < 80.0)
             fCameraTransformX1 = 80.0;
           dProjectionDepth30 = (double)VIEWDIST;
           dProjectionDepth31 = 1.0 / fCameraTransformX1;
           dProjectionDepth32 = dProjectionDepth30 * fCameraTransformZ1 * dProjectionDepth31 + (double)xbase;
-          _CHP();
+          //_CHP();
           xp = (int)dProjectionDepth32;
           dProjectionDepth33 = dProjectionDepth31 * (dProjectionDepth30 * fCameraTransformY1) + (double)ybase;
           iRenderingIndex1 = scr_size;
-          _CHP();
+          //_CHP();
           yp = (int)dProjectionDepth33;
-          LightXYZ[7].screen.x = iRenderingIndex2 >> 6;
+          LightXYZ[7].screen.x = xp >> 6;
+          //LightXYZ[7].screen.x = iRenderingIndex2 >> 6;
           LightXYZ[7].screen.y = (iRenderingIndex1 * (199 - (int)dProjectionDepth33)) >> 6;
           LightXYZ[7].projected.fX = fCameraTransformZ1;
           RoadPoly.uiNumVerts = 4;
@@ -4398,7 +4398,7 @@ LABEL_393:
               * 0.25;
             ++iRenderingIndex3;
             ++iRenderingIndex4;
-            fDepthValuesArray[iRenderingIndex3 - 1] = dRenderingDepth1;
+            fDepthValuesArray[iRenderingIndex3 - 1] = (float)dRenderingDepth1;
           } while (iRenderingIndex3 != 6);
           iNextSectionIndex = 0;
           set_starts(0);
@@ -4415,7 +4415,7 @@ LABEL_393:
               ++iRenderingIndex5;
               ++iRenderingIndex6;
             } while (iRenderingIndex5 < 6);
-            fDepthValuesArray[iRenderingIndex7] = -9.9999998e17;
+            fDepthValuesArray[iRenderingIndex7] = -9.9999998e17f;
             iRenderingIndex8 = iRenderingIndex7;
             iRenderingIndex9 = cube_faces[iRenderingIndex8][0];
             iRenderingIndex10 = LightXYZ[iRenderingIndex9].screen.x;
@@ -4433,12 +4433,12 @@ LABEL_393:
             iRenderingDataIndex = LightXYZ[iRenderingIndexTmp].screen.x;
             RoadPoly.vertices[3].y = LightXYZ[iRenderingCoordIndex].screen.y;
             RoadPoly.vertices[3].x = iRenderingDataIndex;
-            if ((RoadPoly.iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)
+            if ((RoadPoly.iSurfaceType & 0x100) != 0)// SURFACE_FLAG_APPLY_TEXTURE
               POLYTEX(cargen_vga, pScrPtr_1, &RoadPoly, 18, gfx_size);
             else
               POLYFLAT(pScrPtr_1, &RoadPoly);
             ++iNextSectionIndex;
-          } while (iNextSectionIndex < 6);*/
+          } while (iNextSectionIndex < 6);
           goto LABEL_1271;
         default:
           goto LABEL_1271;                      // Switch on render object type to call appropriate renderer
