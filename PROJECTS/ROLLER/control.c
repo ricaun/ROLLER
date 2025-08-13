@@ -1,5 +1,7 @@
 #include "control.h"
 #include "view.h"
+#include "loadtrak.h"
+#include "3d.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
@@ -4311,55 +4313,54 @@ double getroadz(float a1, float a2, int iChunkIdx)
 
 //-------------------------------------------------------------------------------------------------
 //00030BD0
-int16 putflat(tCar *pCar)
+void putflat(tCar *pCar)
 {
-  return 0;/*
   int nCurrChunk; // esi
-  tTrackInfo *v3; // edi
+  tTrackInfo *pTrackInfo; // edi
   tData *pCurrData; // ecx
   int iPrevChunkIdx; // eax
   int iNextChunkIdx2; // edx
   tData *pPrevData; // ebp
-  int iUnk15; // eax
-  int v9; // edx
-  __int64 v10; // rax
-  __int64 v11; // rax
-  __int64 v12; // rax
-  double v13; // st7
-  float fUnk23; // esi
-  double v15; // st7
-  double v16; // st6
-  double v17; // st5
-  double v18; // st7
-  __int16 v19; // fps
-  double v20; // st7
-  double v21; // st7
-  double v22; // st7
-  double v23; // st7
-  double v24; // st7
-  double v25; // st7
-  double v26; // st7
-  double v27; // st5
-  int v28; // eax
-  double v29; // st7
-  int v30; // eax
-  int iUnk48; // edi
-  __int16 result; // ax
-  int nDirection; // [esp+14h] [ebp-40h]
-  float v34; // [esp+1Ch] [ebp-38h]
-  float v35; // [esp+20h] [ebp-34h]
-  int v36; // [esp+24h] [ebp-30h]
+  int iPitch; // eax
+  int iLaneType; // edx
+  //int64 llSurfaceType1; // rax
+  //int64 llSurfaceType2; // rax
+  //int64 llSurfaceType3; // rax
+  double dPitchFloat; // st7
+  int iBankDelta; // esi
+  double dInvHalfLength; // st7
+  double dBankTerm1; // st6
+  double dBankTerm2; // st5
+  double dBankAngle; // st7
+  //int16 nBankAngleInt; // fps
+  double dPitchCorrected; // st7
+  double dBankFloat; // st7
+  double dLeftBankAdj; // st7
+  double dShoulderHeight; // st7
+  double dRightBankAdj; // st7
+  double dAbsYPos; // st7
+  double dPitchForCalc; // st7
+  double dPitchResult; // st5
+  //int iYawIndex; // eax
+  double dRollResult; // st7
+  int nPitchFinal; // eax
+  int iStunned; // edi
+  int nYaw; // [esp+14h] [ebp-40h]
+  float fAbsYPos; // [esp+1Ch] [ebp-38h]
+  float fNegYPos; // [esp+20h] [ebp-34h]
+  int iRollFinal; // [esp+24h] [ebp-30h]
   tData *pNextData; // [esp+28h] [ebp-2Ch]
   int iNextChunkIdx; // [esp+2Ch] [ebp-28h]
-  int v39; // [esp+30h] [ebp-24h]
-  int v40; // [esp+34h] [ebp-20h]
-  int v41; // [esp+34h] [ebp-20h]
+  int iBankInt; // [esp+30h] [ebp-24h]
+  int iPitchInt; // [esp+34h] [ebp-20h]
+  int iPitchFinal; // [esp+34h] [ebp-20h]
 
-  nCurrChunk = pCar->nCurrChunk;
-  v3 = &TrackInfo[nCurrChunk];
+  nCurrChunk = pCar->nCurrChunk;                // Get current track chunk and related data
+  pTrackInfo = &TrackInfo[nCurrChunk];
   pCurrData = &localdata[nCurrChunk];
-  nDirection = pCar->nDirection;
-  if (pCar->pos.fX >= 0.0) {
+  nYaw = pCar->nYaw;
+  if (pCar->pos.fX >= 0.0)                    // Determine previous and next chunk indices based on car direction
+  {
     iPrevChunkIdx = pCar->nCurrChunk;
     iNextChunkIdx = nCurrChunk + 1;
     if (nCurrChunk + 1 == TRAK_LEN)
@@ -4373,120 +4374,122 @@ int16 putflat(tCar *pCar)
   }
   pNextData = &localdata[iNextChunkIdx2];
   pPrevData = &localdata[iPrevChunkIdx];
-  if (pCar->pos.fY <= (double)pCurrData->fUnk14) {
-    if (-pCurrData->fUnk14 <= pCar->pos.fY) {
-      iUnk15 = pPrevData->iUnk15;
-      v9 = 1;
+  if (pCar->pos.fY <= (double)pCurrData->fTrackHalfWidth)// Determine which lane car is in and get appropriate pitch angle
+  {
+    if (-pCurrData->fTrackHalfWidth <= pCar->pos.fY) {
+      iPitch = pPrevData->iPitch;               // Center lane (on track)
+      iLaneType = 1;
     } else {
-      iUnk15 = pPrevData->iUnk19;
-      v9 = 2;
+      iPitch = pPrevData->iOuterLanePitchAngle; // Outer lane (left side of track)
+      iLaneType = 2;
     }
   } else {
-    iUnk15 = pPrevData->iUnk18;
-    v9 = 0;
+    iPitch = pPrevData->iInnerLanePitchAngle;   // Inner lane (right side of track)
+    iLaneType = 0;
   }
-  v40 = iUnk15;
-  if (pCar->pos.fX < 0.0) {
-    v12 = *((int *)&TrakColour + 6 * nCurrChunk + v9);
-    if ((((HIDWORD(v12) ^ (unsigned int)v12) - HIDWORD(v12)) & 0x20000) != 0)
-      v40 = 0;
-  } else {
-    if (iUnk15 < -512
-      && pCar->fMaxSpeed >(double)control_c_variable_131
-      && (TrakColour_variable_1[12 * pCar->nCurrChunk + 2 * pCar->iUnk50] & 8) != 0) {
-      v40 = 0;
-    }
-    v10 = *((int *)&TrakColour + 6 * nCurrChunk + v9);
-    if ((((HIDWORD(v10) ^ (unsigned int)v10) - HIDWORD(v10)) & 0x20000) != 0)
-      v40 = 0;
-    if (pCar->fMaxSpeed > (double)control_c_variable_131) {
-      v11 = *((int *)&TrakColour + 6 * iNextChunkIdx + pCar->iUnk50);
-      if ((((HIDWORD(v11) ^ (unsigned int)v11) - HIDWORD(v11)) & 0x20000) != 0)
-        v40 = 0;
+  iPitchInt = iPitch;
+  if (pCar->pos.fX < 0.0)                     // Check surface type and apply pitch corrections based on car position
+  {
+
+    if ((TrakColour[nCurrChunk][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0)
+    //llSurfaceType3 = TrakColour[nCurrChunk][iLaneType];
+    //if ((((HIDWORD(llSurfaceType3) ^ (unsigned int)llSurfaceType3) - HIDWORD(llSurfaceType3)) & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
+      iPitchInt = 0;
+  } else {                                             // Steep downhill: zero pitch if car is fast and AI state allows
+    if (iPitch < -512 && pCar->fMaxSpeed > 50.0 && (TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x80000) != 0)
+      iPitchInt = 0;
+
+    if ((TrakColour[nCurrChunk][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0)
+    //llSurfaceType1 = TrakColour[nCurrChunk][iLaneType];// Check current chunk surface type and zero pitch if needed
+    //if ((((HIDWORD(llSurfaceType1) ^ (unsigned int)llSurfaceType1) - HIDWORD(llSurfaceType1)) & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
+      iPitchInt = 0;
+
+    if (pCar->fMaxSpeed > 50.0) {
+
+      if ((TrakColour[iNextChunkIdx][pCar->iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0)
+      //llSurfaceType2 = TrakColour[iNextChunkIdx][pCar->iLaneType];// Check next chunk surface type for fast cars
+      //if ((((HIDWORD(llSurfaceType2) ^ (unsigned int)llSurfaceType2) - HIDWORD(llSurfaceType2)) & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
+        iPitchInt = 0;
     }
   }
-  v13 = (double)v40 * pCar->pos.fX / (pCurrData->fUnk13 * control_c_variable_130);
-  _CHP();
-  v41 = (int)v13;
-  if ((TrakColour_variable_5[12 * nCurrChunk] & 0x4000) != 0) {
+  dPitchFloat = (double)iPitchInt * pCar->pos.fX / (pCurrData->fTrackHalfLength * 2.0);// Calculate pitch angle based on car position along track
+  //_CHP();
+  iPitchFinal = (int)dPitchFloat;
+  if ((TrakColour[nCurrChunk][1] & SURFACE_FLAG_BOUNCE_30) != 0)// SURFACE_FLAG_BOUNCE_30
+  {
     if (pCar->pos.fX < 0.0) {
-      v15 = 1.0 / pCurrData->fUnk13;
-      v16 = (pCar->pos.fX + pCurrData->fUnk13) * (double)SLODWORD(pCurrData->fUnk23) * v15;
-      v17 = (double)((LODWORD(pNextData->fUnk23) + LODWORD(pCurrData->fUnk23)) / -2);
+      dInvHalfLength = 1.0 / pCurrData->fTrackHalfLength;
+      dBankTerm1 = (pCar->pos.fX + pCurrData->fTrackHalfLength) * (double)pCurrData->iBankDelta * dInvHalfLength;
+      dBankTerm2 = (double)((pNextData->iBankDelta + pCurrData->iBankDelta) / -2);
     } else {
-      fUnk23 = pCurrData->fUnk23;
-      v15 = 1.0 / pCurrData->fUnk13;
-      v16 = (pCar->pos.fX - pCurrData->fUnk13) * (double)-LODWORD(fUnk23) * v15;
-      v17 = (double)((LODWORD(fUnk23) + LODWORD(pNextData->fUnk23)) / 2);
+      iBankDelta = pCurrData->iBankDelta;
+      dInvHalfLength = 1.0 / pCurrData->fTrackHalfLength;
+      dBankTerm1 = (pCar->pos.fX - pCurrData->fTrackHalfLength) * (double)-iBankDelta * dInvHalfLength;
+      dBankTerm2 = (double)((iBankDelta + pNextData->iBankDelta) / 2);
     }
-    v18 = v15 * (v17 * pCar->pos.fX) + v16;
-    _CHP();
-    v20 = (double)v41
-      - IF_DATAN2(v19, pCar->pos.fY * tsin[(int)v18 & 0x3FFF], pCurrData->fUnk13 * control_c_variable_130)
-      * control_c_variable_132
-      / control_c_variable_133;
-    _CHP();
-    v41 = (int)v20;
+    dBankAngle = dInvHalfLength * (dBankTerm2 * pCar->pos.fX) + dBankTerm1;// Apply special banking interpolation and atan2 correction
+    //_CHP();
+    dPitchCorrected = (double)iPitchFinal
+      - atan2(pCar->pos.fY * tsin[(int)dBankAngle & 0x3FFF], pCurrData->fTrackHalfLength * 2.0) * 16384.0 / 6.28318530718;
+    //_CHP();
+    iPitchFinal = (int)dPitchCorrected;
   }
-  v21 = (double)SLODWORD(pCurrData->fUnk23) * pCar->pos.fX / (pCurrData->fUnk13 * control_c_variable_130);
-  _CHP();
-  v39 = (int)v21;
-  pCar->pos.fZ = -(pCar->pos.fY * ptan[(int)v21 & 0x3FFF]);
-  if (pCar->pos.fY < 0.0) {
-    v35 = -pCar->pos.fY;
-    if (pCurrData->fUnk14 + pCar->fUnk19 > v35) {
-      if (pCurrData->fUnk14 - pCar->fUnk19 <= v35) {
-        v24 = (v35 - pCurrData->fUnk14 + pCar->fUnk19) * (double)v3->iUnk3 / (pCar->fUnk19 * control_c_variable_130)
-          + (double)v39;
-        _CHP();
-        v39 = (int)v24;
+  dBankFloat = (double)pCurrData->iBankDelta * pCar->pos.fX / (pCurrData->fTrackHalfLength * 2.0);// Calculate basic banking angle based on car X position
+  //_CHP();
+  iBankInt = (int)dBankFloat;
+  pCar->pos.fZ = -(pCar->pos.fY * ptan[(int)dBankFloat & 0x3FFF]);// Calculate car Z position using banking angle
+  if (pCar->pos.fY < 0.0)                     // Apply track banking adjustments based on car Y position
+  {
+    fNegYPos = -pCar->pos.fY;                   // Right side banking adjustments
+    if (pCurrData->fTrackHalfWidth + pCar->fCarHalfWidth > fNegYPos) {
+      if (pCurrData->fTrackHalfWidth - pCar->fCarHalfWidth <= fNegYPos) {
+        dRightBankAdj = (fNegYPos - pCurrData->fTrackHalfWidth + pCar->fCarHalfWidth) * (double)pTrackInfo->iRightBankAngle / (pCar->fCarHalfWidth * 2.0) + (double)iBankInt;
+        //_CHP();
+        iBankInt = (int)dRightBankAdj;
       }
     } else {
-      v39 += v3->iUnk3;
+      iBankInt += pTrackInfo->iRightBankAngle;
     }
-    v25 = -pCar->pos.fY;
-    if (v25 >= pCurrData->fUnk14) {
-      v34 = v25;
-      v23 = (v34 - pCurrData->fUnk14) * *(float *)&v3->iUnk1 / v3->center.fZ;
+    dAbsYPos = -pCar->pos.fY;                   // Add shoulder height if car is off track (right side)
+    if (dAbsYPos >= pCurrData->fTrackHalfWidth) {
+      fAbsYPos = (float)dAbsYPos;
+      dShoulderHeight = (fAbsYPos - pCurrData->fTrackHalfWidth) * pTrackInfo->fRShoulderHeight / pTrackInfo->fRShoulderWidth;
       goto LABEL_43;
     }
-  } else {
-    if (pCurrData->fUnk14 + pCar->fUnk19 > pCar->pos.fY) {
-      if (pCurrData->fUnk14 - pCar->fUnk19 <= pCar->pos.fY) {
-        v22 = (double)v39
-          - (pCar->pos.fY - pCurrData->fUnk14 + pCar->fUnk19)
-          * (double)v3->iUnk2
-          / (pCar->fUnk19
-           * control_c_variable_130);
-        _CHP();
-        v39 = (int)v22;
+  } else {                                             // Left side banking adjustments
+    if (pCurrData->fTrackHalfWidth + pCar->fCarHalfWidth > pCar->pos.fY) {
+      if (pCurrData->fTrackHalfWidth - pCar->fCarHalfWidth <= pCar->pos.fY) {
+        dLeftBankAdj = (double)iBankInt - (pCar->pos.fY - pCurrData->fTrackHalfWidth + pCar->fCarHalfWidth) * (double)pTrackInfo->iLeftBankAngle / (pCar->fCarHalfWidth * 2.0);
+        //_CHP();
+        iBankInt = (int)dLeftBankAdj;
       }
     } else {
-      v39 -= v3->iUnk2;
+      iBankInt -= pTrackInfo->iLeftBankAngle;
     }
-    if (pCar->pos.fY >= (double)pCurrData->fUnk14) {
-      v23 = (pCar->pos.fY - pCurrData->fUnk14) * v3->center.fY / v3->center.fX;
+    if (pCar->pos.fY >= (double)pCurrData->fTrackHalfWidth)// Add shoulder height if car is off track (left side)
+    {
+      dShoulderHeight = (pCar->pos.fY - pCurrData->fTrackHalfWidth) * pTrackInfo->fLShoulderHeight / pTrackInfo->fLShoulderWidth;
     LABEL_43:
-      pCar->pos.fZ = v23 + pCar->pos.fZ;
+      pCar->pos.fZ = (float)dShoulderHeight + pCar->pos.fZ;
     }
   }
-  v26 = (double)v41;
-  v27 = v26 * tcos[nDirection] - (double)v39 * tsin[nDirection];
-  _CHP();
-  v29 = v26 * tsin[v28] + (double)v39 * tcos[v28];
-  _CHP();
-  v30 = (int)v27;
-  BYTE1(v30) = ((unsigned __int16)(int)v27 >> 8) & 0x3F;
-  iUnk48 = pCar->iUnk48;
-  pCar->nUnk6 = v30;
-  v36 = (int)v29;
-  if (iUnk48) {
-    LOWORD(v36) = v36 + 0x2000;
-    pCar->pos.fZ = CarBox.hitboxAy[8 * pCar->byCarDesignIdx + 4].fZ + pCar->pos.fZ;
+  dPitchForCalc = (double)iPitchFinal;          // Transform pitch and bank angles using car yaw rotation
+  dPitchResult = dPitchForCalc * tcos[nYaw] - (double)iBankInt * tsin[nYaw];
+  //_CHP();
+  dRollResult = dPitchForCalc * tsin[nYaw] + (double)iBankInt * tcos[nYaw];
+  //_CHP();
+  nPitchFinal = (int)dPitchResult;
+  nPitchFinal = ((uint16)(int)dPitchResult >> 8) & 0x3FFF;// Mask pitch angle to 14-bit range
+  //BYTE1(nPitchFinal) = ((unsigned __int16)(int)dPitchResult >> 8) & 0x3F;// Mask pitch result to 14-bit range (0x3FFF)
+  iStunned = pCar->iStunned;
+  pCar->nPitch = nPitchFinal;
+  iRollFinal = (int)dRollResult;
+  if (iStunned)                               // Apply stunned car effects - add roll offset and height adjustment
+  {
+    (int16)(iRollFinal) = iRollFinal + 0x2000;
+    pCar->pos.fZ = CarBox.hitboxAy[pCar->byCarDesignIdx][4].fZ + pCar->pos.fZ;
   }
-  result = v36 & 0x3FFF;
-  pCar->nUnk5 = v36 & 0x3FFF;
-  return result;*/
+  pCar->nRoll = (int16)iRollFinal & 0x3FFF;            // Set final roll angle with 14-bit mask
 }
 
 //-------------------------------------------------------------------------------------------------

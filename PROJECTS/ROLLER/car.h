@@ -30,7 +30,7 @@ typedef struct
   int16 nPadding1;
   float fMaxSpeed;
   float fHealth;
-  int iUnk5;
+  int iDriverIdx;
   int iUnk6;
   int iUnk7;
   int iUnk8;
@@ -41,7 +41,7 @@ typedef struct
   int iControlType;
   int iUnk18;
   int iUnk18_2;
-  float fUnk19;
+  float fCarHalfWidth;
   int iPadding3;
   int iUnk20;
   int iUnk20_2;
@@ -57,7 +57,7 @@ typedef struct
   float fCameraDistance;
   float fPower;
   uint8 byGearAyMax;
-  uint8 byLap;
+  char byLap;
   uint8 byRacePosition;
   uint8 byStatusFlags;
   int iPitchDynamicOffset;
@@ -67,7 +67,7 @@ typedef struct
   int iPitchCameraOffset;
   int iUnk36_2;
   int iRollCameraOffset;
-  int iUnk38;
+  int iUnk37;
   int iUnk38_1;
   int iUnk38_2;
   int iUnk38_3;
@@ -82,15 +82,15 @@ typedef struct
   int iUnk46;
   int iUnk47;
   int iStunned;
-  int iUnk49;
-  int iUnk50;
+  int iAITargetCar;
+  int iLaneType;
   int iLastValidChunk;
   float fRunningLapTime;
   float fBestLapTime;
   float fPreviousLapTime;
   float fTotalRaceTime;
-  int16 nUnk56;
-  int16 nUnk57;
+  int16 nTargetChunk;
+  int16 nChangeMateCooldown;
   uint8 byUnk58;
   uint8 byUnk59;
   uint8 byUnk60;

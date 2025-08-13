@@ -56,7 +56,7 @@ int16 hitright(int a1, int a2, int a3);
 int scansection(tCar *pCar);
 double getgroundz(float a1, float a2, int iChunkIdx);
 double getroadz(float a1, float a2, int iChunkIdx);
-int16 putflat(tCar *pCar);
+void putflat(tCar *pCar);
 float *findnearcars(float *a1, float *a2, float *a3, float *a4, float *a5, float *a6, float *a7);
 int findnearcarsforce(int a1, int *a2, float *a3, int *a4, void *a5, float *a6, float *a7);
 double interpolatesteer(float a1, float a2, float a3, int a4, int a5);
