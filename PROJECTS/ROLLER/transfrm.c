@@ -520,13 +520,8 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
   double dFinalLanePitchAngle; // st7
   tData *pOutputTrackData; // edx
   //double transformCoordsOffset[3]; // [esp+0h] [ebp-3DCh]
-  double transformCoords[12]; // [esp+18h] [ebp-3C4h]
-  double midpoint1[3]; // [esp+78h] [ebp-364h]
-  double midpoint2[12]; // [esp+90h] [ebp-34Ch]
-  double leftLaneBankRot[5]; // [esp+F0h] [ebp-2ECh]
-  double rightLaneBankRotY[5]; // [esp+118h] [ebp-2C4h]
-  double dNextBankRotX2; // [esp+140h] [ebp-29Ch]
-  double dNextBankRotY2; // [esp+148h] [ebp-294h]
+  double transformCoords[27]; // [esp+18h] [ebp-3C4h]
+  double bankRotData[24]; // [esp+F0h] [ebp-2ECh]
   //double laneCornerPointsOffset[3]; // [esp+1B0h] [ebp-22Ch]
   double laneCornerPoints[27]; // [esp+1C8h] [ebp-214h]
   double dRotMatrix00; // [esp+2A0h] [ebp-13Ch]
@@ -620,34 +615,34 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
       iBankAngle1 = (-pCurrentTrackData->iBankDelta / 2) & 0x3FFF;
       dCosBank1 = tcos[iBankAngle1];            // Get cosine from lookup table
       dSinBank1 = tsin[iBankAngle1];
-      leftLaneBankRot[1] = transformCoords[1] * dCosBank1 - transformCoords[2] * dSinBank1;// Apply first bank rotation transformation
-      leftLaneBankRot[2] = transformCoords[1] * dSinBank1 + transformCoords[2] * dCosBank1;
-      leftLaneBankRot[4] = transformCoords[4] * dCosBank1 - transformCoords[5] * dSinBank1;
-      rightLaneBankRotY[0] = transformCoords[4] * dSinBank1 + transformCoords[5] * dCosBank1;
-      leftLaneBankRot[0] = transformCoords[0];
-      leftLaneBankRot[3] = transformCoords[3];
+      bankRotData[1] = transformCoords[1] * dCosBank1 - transformCoords[2] * dSinBank1;// Apply first bank rotation transformation
+      bankRotData[2] = transformCoords[1] * dSinBank1 + transformCoords[2] * dCosBank1;
+      bankRotData[4] = transformCoords[4] * dCosBank1 - transformCoords[5] * dSinBank1;
+      bankRotData[5] = transformCoords[4] * dSinBank1 + transformCoords[5] * dCosBank1;
+      bankRotData[0] = transformCoords[0];
+      bankRotData[3] = transformCoords[3];
       iBankAngle2 = (pCurrentTrackData->iBankDelta / 2) & 0x3FFF;// Calculate bank angle for rotation (positive half)
       dCosBank2 = tcos[iBankAngle2];
       dSinBank2 = tsin[iBankAngle2];
-      rightLaneBankRotY[2] = transformCoords[7] * dCosBank2 - transformCoords[8] * dSinBank2;// Apply second bank rotation transformation
-      rightLaneBankRotY[3] = transformCoords[7] * dSinBank2 + transformCoords[8] * dCosBank2;
-      dNextBankRotX2 = transformCoords[10] * dCosBank2 - transformCoords[11] * dSinBank2;
-      rightLaneBankRotY[1] = transformCoords[6];
-      rightLaneBankRotY[4] = transformCoords[9];
+      bankRotData[7] = transformCoords[7] * dCosBank2 - transformCoords[8] * dSinBank2;// Apply second bank rotation transformation
+      bankRotData[8] = transformCoords[7] * dSinBank2 + transformCoords[8] * dCosBank2;
+      bankRotData[10] = transformCoords[10] * dCosBank2 - transformCoords[11] * dSinBank2;
+      bankRotData[6] = transformCoords[6];
+      bankRotData[9] = transformCoords[9];
       uiLoopCounter2 = 0;
-      dNextBankRotY2 = transformCoords[10] * dSinBank2 + transformCoords[11] * dCosBank2;
+      bankRotData[11] = transformCoords[10] * dSinBank2 + transformCoords[11] * dCosBank2;
       do {
-        laneCornerPoints[uiLoopCounter2] = pCurrentTrackData->pointAy[0].fY * leftLaneBankRot[uiLoopCounter2 + 1]
-          + pCurrentTrackData->pointAy[0].fX * leftLaneBankRot[uiLoopCounter2]
-          + pCurrentTrackData->pointAy[0].fZ * leftLaneBankRot[uiLoopCounter2 + 2]
+        laneCornerPoints[uiLoopCounter2] = pCurrentTrackData->pointAy[0].fY * bankRotData[uiLoopCounter2 + 1]
+          + pCurrentTrackData->pointAy[0].fX * bankRotData[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[0].fZ * bankRotData[uiLoopCounter2 + 2]
           - pCurrentTrackData->pointAy[3].fX;// Transform coordinates and subtract offset
-        laneCornerPoints[uiLoopCounter2 + 1] = pCurrentTrackData->pointAy[1].fY * leftLaneBankRot[uiLoopCounter2 + 1]
-          + pCurrentTrackData->pointAy[1].fX * leftLaneBankRot[uiLoopCounter2]
-          + pCurrentTrackData->pointAy[1].fZ * leftLaneBankRot[uiLoopCounter2 + 2]
+        laneCornerPoints[uiLoopCounter2 + 1] = pCurrentTrackData->pointAy[1].fY * bankRotData[uiLoopCounter2 + 1]
+          + pCurrentTrackData->pointAy[1].fX * bankRotData[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[1].fZ * bankRotData[uiLoopCounter2 + 2]
           - pCurrentTrackData->pointAy[3].fY;
-        dTransformZ2 = pCurrentTrackData->pointAy[2].fY * leftLaneBankRot[uiLoopCounter2 + 1]
-          + pCurrentTrackData->pointAy[2].fX * leftLaneBankRot[uiLoopCounter2]
-          + pCurrentTrackData->pointAy[2].fZ * leftLaneBankRot[uiLoopCounter2 + 2]
+        dTransformZ2 = pCurrentTrackData->pointAy[2].fY * bankRotData[uiLoopCounter2 + 1]
+          + pCurrentTrackData->pointAy[2].fX * bankRotData[uiLoopCounter2]
+          + pCurrentTrackData->pointAy[2].fZ * bankRotData[uiLoopCounter2 + 2]
           - pCurrentTrackData->pointAy[3].fZ;
         laneCornerPoints[uiLoopCounter2 + 2] = dTransformZ2;
         uiLoopCounter2 += 3;
@@ -804,34 +799,34 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
       iNextBankAngle1 = (-pNextTrackData->iBankDelta / 2) & 0x3FFF;
       dNextCosBank2 = tcos[iNextBankAngle1];
       dNextSinBank1 = tsin[iNextBankAngle1];
-      leftLaneBankRot[1] = transformCoords[1] * dNextCosBank2 - transformCoords[2] * dNextSinBank1;
-      leftLaneBankRot[2] = transformCoords[1] * dNextSinBank1 + transformCoords[2] * dNextCosBank2;
-      leftLaneBankRot[4] = transformCoords[4] * dNextCosBank2 - transformCoords[5] * dNextSinBank1;
-      rightLaneBankRotY[0] = transformCoords[4] * dNextSinBank1 + transformCoords[5] * dNextCosBank2;
-      leftLaneBankRot[0] = transformCoords[0];
-      leftLaneBankRot[3] = transformCoords[3];
+      bankRotData[1] = transformCoords[1] * dNextCosBank2 - transformCoords[2] * dNextSinBank1;
+      bankRotData[2] = transformCoords[1] * dNextSinBank1 + transformCoords[2] * dNextCosBank2;
+      bankRotData[4] = transformCoords[4] * dNextCosBank2 - transformCoords[5] * dNextSinBank1;
+      bankRotData[5] = transformCoords[4] * dNextSinBank1 + transformCoords[5] * dNextCosBank2;
+      bankRotData[0] = transformCoords[0];
+      bankRotData[3] = transformCoords[3];
       iNextBankAngle2 = (pNextTrackData->iBankDelta / 2) & 0x3FFF;
       dNextCosBank1 = tcos[iNextBankAngle2];
       dNextSinBank2 = tsin[iNextBankAngle2];
-      rightLaneBankRotY[2] = transformCoords[7] * dNextCosBank1 - transformCoords[8] * dNextSinBank2;
-      rightLaneBankRotY[3] = transformCoords[7] * dNextSinBank2 + transformCoords[8] * dNextCosBank1;
-      dNextBankRotX2 = transformCoords[10] * dNextCosBank1 - transformCoords[11] * dNextSinBank2;
-      rightLaneBankRotY[1] = transformCoords[6];
-      rightLaneBankRotY[4] = transformCoords[9];
+      bankRotData[7] = transformCoords[7] * dNextCosBank1 - transformCoords[8] * dNextSinBank2;
+      bankRotData[8] = transformCoords[7] * dNextSinBank2 + transformCoords[8] * dNextCosBank1;
+      bankRotData[10] = transformCoords[10] * dNextCosBank1 - transformCoords[11] * dNextSinBank2;
+      bankRotData[6] = transformCoords[6];
+      bankRotData[9] = transformCoords[9];
       uiNextTransformLoop = 0;
-      dNextBankRotY2 = transformCoords[10] * dNextSinBank2 + transformCoords[11] * dNextCosBank1;
+      bankRotData[11] = transformCoords[10] * dNextSinBank2 + transformCoords[11] * dNextCosBank1;
       do {
-        laneCornerPoints[uiNextTransformLoop] = pNextTrackData->pointAy[0].fY * leftLaneBankRot[uiNextTransformLoop + 1]
-          + pNextTrackData->pointAy[0].fX * leftLaneBankRot[uiNextTransformLoop]
-          + pNextTrackData->pointAy[0].fZ * leftLaneBankRot[uiNextTransformLoop + 2]
+        laneCornerPoints[uiNextTransformLoop] = pNextTrackData->pointAy[0].fY * bankRotData[uiNextTransformLoop + 1]
+          + pNextTrackData->pointAy[0].fX * bankRotData[uiNextTransformLoop]
+          + pNextTrackData->pointAy[0].fZ * bankRotData[uiNextTransformLoop + 2]
           - pNextTrackData->pointAy[3].fX;
-        laneCornerPoints[uiNextTransformLoop + 1] = pNextTrackData->pointAy[1].fY * leftLaneBankRot[uiNextTransformLoop + 1]
-          + pNextTrackData->pointAy[1].fX * leftLaneBankRot[uiNextTransformLoop]
-          + pNextTrackData->pointAy[1].fZ * leftLaneBankRot[uiNextTransformLoop + 2]
+        laneCornerPoints[uiNextTransformLoop + 1] = pNextTrackData->pointAy[1].fY * bankRotData[uiNextTransformLoop + 1]
+          + pNextTrackData->pointAy[1].fX * bankRotData[uiNextTransformLoop]
+          + pNextTrackData->pointAy[1].fZ * bankRotData[uiNextTransformLoop + 2]
           - pNextTrackData->pointAy[3].fY;
-        dNextSegmentTransformZ = pNextTrackData->pointAy[2].fY * leftLaneBankRot[uiNextTransformLoop + 1]
-          + pNextTrackData->pointAy[2].fX * leftLaneBankRot[uiNextTransformLoop]
-          + pNextTrackData->pointAy[2].fZ * leftLaneBankRot[uiNextTransformLoop + 2]
+        dNextSegmentTransformZ = pNextTrackData->pointAy[2].fY * bankRotData[uiNextTransformLoop + 1]
+          + pNextTrackData->pointAy[2].fX * bankRotData[uiNextTransformLoop]
+          + pNextTrackData->pointAy[2].fZ * bankRotData[uiNextTransformLoop + 2]
           - pNextTrackData->pointAy[3].fZ;
         laneCornerPoints[uiNextTransformLoop + 2] = dNextSegmentTransformZ;
         uiNextTransformLoop += 3;
@@ -867,7 +862,7 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         //transformCoordsOffset[uiFinalRotationLoop + 2] = dPointY * dRotMatrix11 + dPointX * dMatrixRotValue1 + dPointZ * dCosMatrix22;// transformCoords[uiFinalRotationLoop + 1] when before loop inc
       } while (uiFinalRotationLoop != 27);
       iDirectionCalcLoop = 0;
-      dFinalDirection = getdirection(midpoint2[0] - midpoint1[0], midpoint2[1] - midpoint1[1]);// Get final direction angle for last rotation
+      dFinalDirection = getdirection(transformCoords[15] - transformCoords[12], transformCoords[16] - transformCoords[13]);// Get final direction angle for last rotation
       do {
         // Final rotation transformation
         dSinFinal = sin(-dFinalDirection);
@@ -876,10 +871,8 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
         dTempSin = dTempCos;
         dRotMatrix02 = transformCoords[iDirectionCalcLoop] * dTempCos - dCosFinal;
         dRotMatrix01 = dSinFinal * transformCoords[iDirectionCalcLoop] + transformCoords[iDirectionCalcLoop + 1] * dTempCos;
-        
         transformCoords[iDirectionCalcLoop] = dRotMatrix02;
         transformCoords[iDirectionCalcLoop + 1] = dRotMatrix01;
-        
         iDirectionCalcLoop += 3;
         //LODWORD(transformCoordsOffset[iDirectionCalcLoop]) = LODWORD(dRotMatrix02);// transformCoords[iDirectionCalcLoop] when before loop inc
         //HIDWORD(transformCoordsOffset[iDirectionCalcLoop]) = HIDWORD(dRotMatrix02);
@@ -888,7 +881,7 @@ void dopitchchanges(int iLLaneIdx, int iRLaneIdx)
       } while (iDirectionCalcLoop != 27);
 
       // Calculate final pitch angle in degrees and store result
-      dFinalLanePitchAngle = getdirection(midpoint2[0] - midpoint1[0], midpoint2[2] - midpoint1[2]) * 16384.0 / 6.28318530718 + 0.5;
+      dFinalLanePitchAngle = getdirection(transformCoords[15] - transformCoords[12], transformCoords[17] - transformCoords[14]) * 16384.0 / 6.28318530718 + 0.5;
       pOutputTrackData = &localdata[iTrackIndex];
       dStoredPitchAngle = dFinalLanePitchAngle;
 

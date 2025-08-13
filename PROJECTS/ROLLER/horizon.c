@@ -385,8 +385,9 @@ void initclouds()
             fDistance = (float)sqrt(fXYDistSq + fDeltaZ * fDeltaZ);// Calculate 3D distance between cloud centers
           }
           fMinDistance = fRadius + cloud[iCloudIdx].fRadius;
-          if (fDistance < fMinDistance * 1.3f) // Check if clouds overlap (distance < combined radii * 1.3)
-            iValidPlacement = 0;
+          //TODO
+          //if (fDistance < fMinDistance * 1.3f) // Check if clouds overlap (distance < combined radii * 1.3)
+          //  iValidPlacement = 0;
         }
       }
       if (!iValidPlacement)

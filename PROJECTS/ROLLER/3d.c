@@ -2109,23 +2109,24 @@ void play_game(int iTrack)
         }
       }
     }
-    if (!intro && replaytype != 2)            // Handle CD-ROM validation for copy protection
-    {
-      if (player_type && player_type != 2) {
-        if (!cdchecked) {
-          if (active_nodes == network_on)
-            cdchecked = -1;
-          if (wConsoleNode == master && !netCD && active_nodes == network_on) {
-            send_nocd_error();
-            cd_error = -1;
-            cdchecked = -1;
-          }
-        }
-      } else if (!localCD) {
-        racing = 0;
-        cd_error = -1;
-      }
-    }
+    //NOCD error disabled for ROLLER
+    //if (!intro && replaytype != 2)            // Handle CD-ROM validation for copy protection
+    //{
+    //  if (player_type && player_type != 2) {
+    //    if (!cdchecked) {
+    //      if (active_nodes == network_on)
+    //        cdchecked = -1;
+    //      if (wConsoleNode == master && !netCD && active_nodes == network_on) {
+    //        send_nocd_error();
+    //        cd_error = -1;
+    //        cdchecked = -1;
+    //      }
+    //    }
+    //  } else if (!localCD) {
+    //    racing = 0;
+    //    cd_error = -1;
+    //  }
+    //}
   }
   play_game_uninit();                           // Clean up and uninitialize game systems
 }

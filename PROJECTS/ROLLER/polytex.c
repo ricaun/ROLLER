@@ -749,16 +749,16 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
     return;
 
 // Edge walking variables (16.16 fixed-point)
-  int iLeftEdgeX;          // Left edge X position
-  int iRightEdgeX;         // Right edge X position  
-  int iLeftEdgeStep;       // Left edge X step per scanline
-  int iRightEdgeStep;      // Right edge X step per scanline
+  int iLeftEdgeX = 0;          // Left edge X position
+  int iRightEdgeX = 0;         // Right edge X position  
+  int iLeftEdgeStep = 0;       // Left edge X step per scanline
+  int iRightEdgeStep = 0;      // Right edge X step per scanline
 
   // Texture coordinate interpolation variables
-  int iLeftTexX, iLeftTexY;      // Current texture coords on left edge
-  int iRightTexX, iRightTexY;    // Current texture coords on right edge
-  int iLeftTexXStep, iLeftTexYStep;    // Texture coord steps for left edge
-  int iRightTexXStep, iRightTexYStep;  // Texture coord steps for right edge
+  int iLeftTexX = 0, iLeftTexY = 0;      // Current texture coords on left edge
+  int iRightTexX = 0, iRightTexY = 0;    // Current texture coords on right edge
+  int iLeftTexXStep = 0, iLeftTexYStep = 0;    // Texture coord steps for left edge
+  int iRightTexXStep = 0, iRightTexYStep = 0;  // Texture coord steps for right edge
 
   // Vertex indices for edge walking
   int iLeftVertexIdx = iTopVertexIdx;

@@ -548,8 +548,10 @@ void stopreplay()
   char byReplayChar2; // al
   //_diskfree_t diskfree; // [esp-2h] [ebp-1Ch] BYREF
 
-  if (replaytype)                             // Close replay file if replay is active
-    fclose(replayfile);
+  if (replaytype) {                            // Close replay file if replay is active
+    if (replayfile) //check added by ROLLER
+      fclose(replayfile);
+  }
   if (replaytype == 2)                        // If replay type is 2 (recording/playback mode), restore driver names
   {
     szTempNamePtr = temp_names[0];              // Copy temp driver names back to original driver names array
