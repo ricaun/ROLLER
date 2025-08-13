@@ -344,7 +344,7 @@ FUNCTION_EXIT:
 
 //-------------------------------------------------------------------------------------------------
 //00069C10
-void DrawBuilding(int a1, int a2)
+void DrawBuilding(int a1, uint8 *a2)
 {
   (void)(a1); (void)(a2);
   /*

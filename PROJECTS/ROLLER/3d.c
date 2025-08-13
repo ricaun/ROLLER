@@ -76,6 +76,7 @@ int mbut = 0;               //000A34F8
 int oldbut = 0;             //000A34FC
 int mclick = 0;             //000A3500
 int mouse = 0;              //000A3504
+int wide_on = -1;           //000A350C
 int network_on = 0;         //000A3510
 char Banks_On = -1;         //000A3514
 char Buildings_On = 0;      //000A3515
@@ -199,6 +200,7 @@ int fadedin;                //0013FAC8
 int control_edit;           //0013FACC
 int req_edit;               //0013FAD0
 int controlrelease;         //0013FAD4
+float subscale;             //0013FAD8
 int fatal_ini_loaded;       //0013FADC
 int machine_speed;          //0013FAE0
 int netCD;                  //0013FAE4

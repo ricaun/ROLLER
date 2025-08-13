@@ -718,7 +718,7 @@ int DrawCars(int result, int a2)
 
 //-------------------------------------------------------------------------------------------------
 //000534A0
-int16 DisplayCar(int a1, int a2, float a3)
+void DisplayCar(int a1, uint8 *a2, float a3)
 {
   (void)(a1); (void)(a2); (void)(a3);
   return 0;

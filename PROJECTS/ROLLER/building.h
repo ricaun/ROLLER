@@ -25,7 +25,7 @@ extern int NumVisibleBuildings;
 
 void InitBuildings();
 void CalcVisibleBuildings();
-void DrawBuilding(int a1, int a2);
+void DrawBuilding(int a1, uint8 *a2);
 void init_animate_ads();
 int bldZcmp(int a1, int a2);
 

@@ -3,11 +3,15 @@
 //-------------------------------------------------------------------------------------------------
 #include "polyf.h"
 #include "types.h"
+#include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
 extern int showsub;
+extern int cube_faces[6][4];
 extern int view_limit;
 extern int divtype;
+extern int NextSect[500];
+extern tScreenPt LightXYZ[8];
 extern int tex_hgt;
 extern int polyysize;
 extern int polyxsize;
@@ -17,6 +21,16 @@ extern int subpolytype;
 extern tPolyParams *subpoly;
 extern int tex_wid;
 extern int flatpol;
+extern tPolyParams RoofPoly;
+extern tPolyParams G5Poly;
+extern tPolyParams G4Poly;
+extern tPolyParams G3Poly;
+extern tPolyParams G2Poly;
+extern tPolyParams G1Poly;
+extern tPolyParams RWallPoly;
+extern tPolyParams LWallPoly;
+extern tPolyParams RightPoly;
+extern tPolyParams LeftPoly;
 extern tPolyParams RoadPoly;
 extern int start_sect;
 extern int gap_size;
