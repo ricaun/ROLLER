@@ -6,12 +6,24 @@
 #include "frontend.h"
 //-------------------------------------------------------------------------------------------------
 
-#define COLOUR_LEFT_LANE  0
-#define COLOUR_CENTER     1
-#define COLOUR_RIGHT_LANE 2
-#define COLOUR_LEFT_WALL  3
-#define COLOUR_RIGHT_WALL 4
-#define COLOUR_ROOF       5
+enum eTrakColour
+{
+  TRAK_COLOUR_LEFT_LANE  = 0,
+  TRAK_COLOUR_CENTER     = 1,
+  TRAK_COLOUR_RIGHT_LANE = 2,
+  TRAK_COLOUR_LEFT_WALL  = 3,
+  TRAK_COLOUR_RIGHT_WALL = 4,
+  TRAK_COLOUR_ROOF       = 5,
+};
+
+enum eGroundColour
+{
+  GROUND_COLOUR_LUOWALL  = 0,
+  GROUND_COLOUR_LLOWALL  = 1,
+  GROUND_COLOUR_OFLOOR   = 2,
+  GROUND_COLOUR_RLOWALL  = 3,
+  GROUND_COLOUR_RUOWALL  = 4,
+};
 
 //-------------------------------------------------------------------------------------------------
 
@@ -71,17 +83,6 @@ typedef struct
   int iClipCount;
   tScreenPt screenPtAy[6];
 } tTrackScreenXYZ;
-
-//-------------------------------------------------------------------------------------------------
-
-typedef struct
-{
-  int iLUOWallType;
-  int iLLOWallType;
-  int iOFloorType;
-  int iRLOWallType;
-  int iRUOWallType;
-} tGroundColour;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -158,7 +159,7 @@ extern tBlockHeader *rev_vga[16];
 extern int firstrun;
 extern int lagdone;
 extern int language;
-extern tGroundColour GroundColour[MAX_TRACK_CHUNKS];
+extern int GroundColour[MAX_TRACK_CHUNKS][5];
 extern int TrakColour[MAX_TRACK_CHUNKS][6];
 extern int HorizonColour[MAX_TRACK_CHUNKS];
 extern tData localdata[MAX_TRACK_CHUNKS];
