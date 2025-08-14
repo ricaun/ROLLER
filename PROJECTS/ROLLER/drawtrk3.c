@@ -460,9 +460,9 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   double dGroundScreenY; // st7
   //int iGroundScreenX; // eax
   int iGroundScreenY; // eax
-  int iGroundSectionOffset; // eax
+  //int iGroundSectionOffset; // eax
   float fGroundProjectedZ; // ecx
-  int iGroundSectionOffset2; // eax
+  //int iGroundSectionOffset2; // eax
   int iTrackLoopCounter; // ecx
   int iCurrentSect; // esi
   int iSectionOffset; // edx
@@ -973,7 +973,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   float fSurfaceTmp32; // [esp+2D4h] [ebp-220h]
   float fSurfaceTmp33; // [esp+2D8h] [ebp-21Ch]
   int iIndexTmp1; // [esp+2DCh] [ebp-218h]
-  int iIndexTmp2; // [esp+2E0h] [ebp-214h]
+  //int iIndexTmp2; // [esp+2E0h] [ebp-214h]
   int iIndexTmp3; // [esp+2E4h] [ebp-210h]
   float fRenderDepth; // [esp+2E8h] [ebp-20Ch]
   float fLightZ; // [esp+2ECh] [ebp-208h]
@@ -1338,7 +1338,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
           iPrevGroundIndex = TRAK_LEN - 1;
         pPrevGroundColour = &GroundColour[iPrevGroundIndex][GROUND_COLOUR_LUOWALL];
         iGroundPointIndex = 0;
-        iIndexTmp2 = iCurrentTrackIndex << 7;
+        //iIndexTmp2 = iCurrentTrackIndex << 7;
         do {
           if (*pCurrentGroundColour != -1 || *pPrevGroundColour != -1) {
             if (iGroundPointIndex < 2 || iGroundPointIndex > 3 || *pCurrentGroundColour != -2 || TrackScreenXYZ[iCurrentTrackIndex].iClipCount == 99) {
@@ -1374,19 +1374,29 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
               goto LABEL_58;
             }
             if (iGroundPointIndex == 2) {
-              pScreenPoint->screen.x = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[0].screen.x + iIndexTmp2);
-              pScreenPoint->screen.y = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[0].screen.y + iIndexTmp2);
-              iGroundSectionOffset = iIndexTmp2;
-              pScreenPoint->projected.fX = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[0].projected.fX + iIndexTmp2);
-              pScreenPoint->projected.fY = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[0].projected.fY + iGroundSectionOffset);
-              fGroundProjectedZ = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[0].projected.fZ + iGroundSectionOffset);
+              pScreenPoint->screen.x = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].screen.x;
+              pScreenPoint->screen.y = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].screen.y;
+              pScreenPoint->projected.fX = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].projected.fX;
+              pScreenPoint->projected.fY = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].projected.fY;
+              fGroundProjectedZ = TrackScreenXYZ[0].screenPtAy[iCurrentTrackIndex].projected.fZ;
+              //pScreenPoint->screen.x = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[0].screen.x + iIndexTmp2);
+              //pScreenPoint->screen.y = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[0].screen.y + iIndexTmp2);
+              //iGroundSectionOffset = iIndexTmp2;
+              //pScreenPoint->projected.fX = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[0].projected.fX + iIndexTmp2);
+              //pScreenPoint->projected.fY = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[0].projected.fY + iGroundSectionOffset);
+              //fGroundProjectedZ = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[0].projected.fZ + iGroundSectionOffset);
             } else {
-              pScreenPoint->screen.x = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[3].screen.x + iIndexTmp2);
-              pScreenPoint->screen.y = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[3].screen.y + iIndexTmp2);
-              iGroundSectionOffset2 = iIndexTmp2;
-              pScreenPoint->projected.fX = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[3].projected.fX + iIndexTmp2);
-              pScreenPoint->projected.fY = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[3].projected.fY + iGroundSectionOffset2);
-              fGroundProjectedZ = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[3].projected.fZ + iGroundSectionOffset2);
+              pScreenPoint->screen.x = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[3].screen.x;
+              pScreenPoint->screen.y = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[3].screen.y;
+              pScreenPoint->projected.fX = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[3].projected.fX;
+              pScreenPoint->projected.fY = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[3].projected.fY;
+              fGroundProjectedZ = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[3].projected.fZ;
+              //pScreenPoint->screen.x = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[3].screen.x + iIndexTmp2);
+              //pScreenPoint->screen.y = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[3].screen.y + iIndexTmp2);
+              //iGroundSectionOffset2 = iIndexTmp2;
+              //pScreenPoint->projected.fX = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[3].projected.fX + iIndexTmp2);
+              //pScreenPoint->projected.fY = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[3].projected.fY + iGroundSectionOffset2);
+              //fGroundProjectedZ = *(float *)((char *)&TrackScreenXYZ[0].screenPtAy[3].projected.fZ + iGroundSectionOffset2);
             }
             pScreenPoint->projected.fZ = fGroundProjectedZ;
           }
