@@ -213,7 +213,7 @@ extern int LoadCarTextures;
 void InitCarStructs();
 void CalcCarSizes();
 void InitCars();
-int16 placecars();
+void placecars();
 int DrawCars(int result, int a2);
 void DisplayCar(int a1, uint8 *a2, float a3);
 int carZcmp(const void *pCar1, const void *pCar2);

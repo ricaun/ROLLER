@@ -706,7 +706,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
         TrackInfo[iTrackInfoIdx].iLeftSurfaceType = -100;
         localdata[uiLocalDataOffset2 / 0x80].fAIMaxSpeed = (float)dAIMaxSpeed_1;
         //*(float *)((char *)&localdata[0].fAIMaxSpeed + uiLocalDataOffset2) = dAIMaxSpeed_1;
-        iOFloorType = GroundColour[uiGroundColourOffset1][GROUND_COLOUR_OFLOOR];
+        iOFloorType = GroundColour[uiGroundColourOffset1 / 0x14][GROUND_COLOUR_OFLOOR];
         //iOFloorType = *(int *)((char *)&GroundColour[0][GROUND_COLOUR_OFLOOR] + uiGroundColourOffset1);
         TrackInfo[iTrackInfoIdx].iRightSurfaceType = -100;// Determine surface grip types for physics
         if (iOFloorType != -2) {
