@@ -214,7 +214,7 @@ void InitCarStructs();
 void CalcCarSizes();
 void InitCars();
 void placecars();
-int DrawCars(int result, int a2);
+void DrawCars(int iCarIdx, int iViewMode);
 void DisplayCar(int a1, uint8 *a2, float a3);
 int carZcmp(const void *pCar1, const void *pCar2);
 

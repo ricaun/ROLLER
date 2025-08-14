@@ -5,6 +5,8 @@
 #include "3d.h"
 #include "graphics.h"
 #include "loadtrak.h"
+#include "transfrm.h"
+#include "drawtrk3.h"
 #include <math.h>
 #include <assert.h>
 #include <string.h>
@@ -305,25 +307,25 @@ void placecars()
   int iViewCarIdx; // ebx
   tCarEngine *pEngine; // eax
   char byGearAyMax; // dl
-  double fPower; // st7
+  double dPower; // st7
   int nCurrChunk; // edx
   tData *pTrackLocalData; // ebp
-  double fTrackYPos; // st7
+  double dTrackYPos; // st7
   int iPlayers; // edi
   int iMaxOffset; // ebp
   int iPlayerIdx; // esi
   int iPlayerCarIdx; // eax
   unsigned int iSLightOffset; // edx
-  double fZ; // st7
+  double dZ; // st7
   int nPlayerChunk; // ebx
   float *pLightTrackData; // ebx
-  double fTransform1; // st7
-  double fTransform2; // st7
-  double fTransform3; // st6
-  double fTransform4; // st7
-  double fTransform5; // st7
-  double fTransform6; // st6
-  double fLightSpeedZ; // st7
+  double dTransform1; // st7
+  double dTransform2; // st7
+  double dTransform3; // st6
+  double dTransform4; // st7
+  double dTransform5; // st7
+  double dTransform6; // st6
+  double dLightSpeedZ; // st7
   int surfaceTypeAy[4]; // [esp+0h] [ebp-50h]
   float fX; // [esp+10h] [ebp-40h]
   tTrackInfo *pTrackChunk; // [esp+14h] [ebp-3Ch]
@@ -358,15 +360,15 @@ void placecars()
       byCarIdx = iCarCounter;
       Car[iCarIdx].pos.fX = 0.0;
       if ((byCarIdx & 1) != 0)                // Alternate Y position based on car index (staggered grid)
-        Car[iDriverIdx].pos.fY = 500.0;
+        Car[iDriverIdx].pos.fY = 500.0f;
       else
-        Car[iDriverIdx].pos.fY = -500.0;
+        Car[iDriverIdx].pos.fY = -500.0f;
       iCarIdx2 = iDriverIdx;
       Car[iCarIdx2].pos.fZ = 0.0;
-      Car[iCarIdx2].fBestLapTime = 9999.9902;   // Initialize best lap time to maximum value
+      Car[iCarIdx2].fBestLapTime = 9999.9902f;   // Initialize best lap time to maximum value
       Car[iCarIdx2].nRoll = 0;                  // Initialize car orientation angles
       Car[iCarIdx2].nYaw = 0;
-      Car[iCarIdx2].fMaxSpeed = 0.0;
+      Car[iCarIdx2].fMaxSpeed = 0.0f;
       Car[iCarIdx2].byGearAyMax = -1;
       iChampMode = champ_mode;                  // Set starting track chunk based on championship mode
       Car[iCarIdx2].nPitch = 0;
@@ -389,7 +391,7 @@ void placecars()
       Car[iCarIdx3].iUnk46 = -1;
       iRandomVal = rand();
       Car[iDriverIdx].iAITargetCar = -1;
-      Car[iDriverIdx].fHealth = 100.0;
+      Car[iDriverIdx].fHealth = 100.0f;
       Car[iDriverIdx].nTargetChunk = -1;
       Car[iDriverIdx].nUnk70 = -1;
       Car[iDriverIdx].iUnk37 = (iRandomVal % 8192) / 8192;
@@ -422,15 +424,15 @@ void placecars()
         finished_car[iDriverIdx] = -1;          // Mark as finished (disabled)
         pTrackData = localdata[Car[iDriverIdx].nCurrChunk].pointAy;// Get track data for positioning
         Car[iDriverIdx].iControlType = 0;       // Set control type to inactive (0)
-        Car[iDriverIdx].pos.fX = 0.0 * pTrackData->fY + 0.0 * pTrackData->fX + 0.0 * pTrackData->fZ - pTrackData[3].fX;// Transform and set position using track transformation matrix
-        Car[iDriverIdx].pos.fY = 0.0 * pTrackData[1].fX + 0.0 * pTrackData[1].fY + 0.0 * pTrackData[1].fZ - pTrackData[3].fY;
+        Car[iDriverIdx].pos.fX = 0.0f * pTrackData->fY + 0.0f * pTrackData->fX + 0.0f * pTrackData->fZ - pTrackData[3].fX;// Transform and set position using track transformation matrix
+        Car[iDriverIdx].pos.fY = 0.0f * pTrackData[1].fX + 0.0f * pTrackData[1].fY + 0.0f * pTrackData[1].fZ - pTrackData[3].fY;
         dZCmp = 0.0 * pTrackData[2].fX + 0.0 * pTrackData[2].fY + 0.0 * pTrackData[2].fZ - pTrackData[3].fZ + 1000.0;// Calculate Z position with offset
         Car[iDriverIdx].fMaxSpeed = 0.0;
         //LOWORD(pTrackData) = Car[iDriverIdx].nCurrChunk;
         Car[iDriverIdx].iUnk27 = 0;
         Car[iDriverIdx].nChunk2 = Car[iDriverIdx].nCurrChunk;// (__int16)pTrackData;
         Car[iDriverIdx].nCurrChunk = -1;        // Set chunk to -1 (disabled car)
-        Car[iDriverIdx].pos.fZ = dZCmp;
+        Car[iDriverIdx].pos.fZ = (float)dZCmp;
       }
       if (champ_mode && iDriverIdx == ViewType[0])// Special handling for player car in championship mode
       {
@@ -441,11 +443,11 @@ void placecars()
         Car[iViewCarIdx].byGearAyMax = byGearAyMax;
         Car[iViewCarIdx].fMaxSpeed = pEngine->pSpds[byGearAyMax];// Set max speed from engine data
         Car[iViewCarIdx].fMaxSpeed2 = Car[iViewCarIdx].fMaxSpeed;
-        fPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fCameraDistance);// Calculate power for this car configuration
+        dPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fCameraDistance);// Calculate power for this car configuration
         Car[iViewCarIdx].iUnk27 = 0;
         Car[iViewCarIdx].byUnk58 = -1;
         Car[iViewCarIdx].byUnk61 = 36;
-        Car[iViewCarIdx].fPower = fPower;
+        Car[iViewCarIdx].fPower = (float)dPower;
       }
       nCurrChunk = Car[iDriverIdx].nCurrChunk;  // Position cars on track based on available lanes
       pTrackLocalData = &localdata[nCurrChunk]; // Get track data for current chunk
@@ -459,19 +461,19 @@ void placecars()
       if (uiStartingLane <= 3) {                                         // Calculate Y position based on selected lane
         switch (uiStartingLane) {
           case 0u:
-            fTrackYPos = pTrackChunk->fLShoulderWidth * 0.5 + pTrackLocalData->fTrackHalfWidth;// Lane 0: left shoulder position
+            dTrackYPos = pTrackChunk->fLShoulderWidth * 0.5 + pTrackLocalData->fTrackHalfWidth;// Lane 0: left shoulder position
             break;
           case 1u:
-            fTrackYPos = pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 1: left side of track
+            dTrackYPos = pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 1: left side of track
             break;
           case 2u:
-            fTrackYPos = -pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 2: right side of track
+            dTrackYPos = -pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 2: right side of track
             break;
           case 3u:
-            fTrackYPos = -pTrackLocalData->fTrackHalfWidth - pTrackChunk->fRShoulderWidth * 0.5;// Lane 3: right shoulder position
+            dTrackYPos = -pTrackLocalData->fTrackHalfWidth - pTrackChunk->fRShoulderWidth * 0.5;// Lane 3: right shoulder position
             break;
         }
-        Car[iDriverIdx].pos.fY = fTrackYPos;    // Set calculated Y position for car
+        Car[iDriverIdx].pos.fY = (float)dTrackYPos;    // Set calculated Y position for car
       }
       ++uiStartingLane;
       putflat(&Car[iDriverIdx]);                // Position car flat on track surface
@@ -490,65 +492,65 @@ void placecars()
     do {
       iPlayerCarIdx = ViewType[iPlayerIdx];
       iSLightOffset = 144 * iPlayers;
-      fLightPosX = Car[iPlayerCarIdx].pos.fX + 2000.0;
+      fLightPosX = Car[iPlayerCarIdx].pos.fX + 2000.0f;
       SLight[0][iSLightOffset / 0x30].targetPos.fY = Car[iPlayerCarIdx].pos.fY;
-      fLightPosZ = Car[iPlayerCarIdx].pos.fZ + 500.0;
+      fLightPosZ = Car[iPlayerCarIdx].pos.fZ + 500.0f;
       SLight[0][iSLightOffset / 0x30].targetPos.fX = fLightPosX;
-      SLight[0][iSLightOffset / 0x30].currentPos.fX = SLight[iPlayers][0].targetPos.fX + 10000.0;
+      SLight[0][iSLightOffset / 0x30].currentPos.fX = SLight[iPlayers][0].targetPos.fX + 10000.0f;
       SLight[0][iSLightOffset / 0x30].currentPos.fY = SLight[iPlayers][0].targetPos.fY;
       SLight[0][iSLightOffset / 0x30].targetPos.fZ = fLightPosZ;
-      SLight[0][iSLightOffset / 0x30].currentPos.fZ = SLight[iPlayers][0].targetPos.fZ + 5000.0;
-      SLight[0][iSLightOffset / 0x30 + 1].targetPos.fY = Car[iPlayerCarIdx].pos.fY + -500.0;
-      SLight[0][iSLightOffset / 0x30].speed.fX = 100.0;
-      SLight[0][iSLightOffset / 0x30].speed.fY = 100.0;
-      SLight[0][iSLightOffset / 0x30].speed.fZ = 40.0;
+      SLight[0][iSLightOffset / 0x30].currentPos.fZ = SLight[iPlayers][0].targetPos.fZ + 5000.0f;
+      SLight[0][iSLightOffset / 0x30 + 1].targetPos.fY = Car[iPlayerCarIdx].pos.fY + -500.0f;
+      SLight[0][iSLightOffset / 0x30].speed.fX = 100.0f;
+      SLight[0][iSLightOffset / 0x30].speed.fY = 100.0f;
+      SLight[0][iSLightOffset / 0x30].speed.fZ = 40.0f;
       SLight[0][iSLightOffset / 0x30 + 1].targetPos.fX = fLightPosX;
-      SLight[0][iSLightOffset / 0x30 + 1].currentPos.fX = SLight[iPlayers][1].targetPos.fX + 10000.0;
-      SLight[0][iSLightOffset / 0x30 + 1].currentPos.fY = SLight[iPlayers][1].targetPos.fY + -1000.0;
+      SLight[0][iSLightOffset / 0x30 + 1].currentPos.fX = SLight[iPlayers][1].targetPos.fX + 10000.0f;
+      SLight[0][iSLightOffset / 0x30 + 1].currentPos.fY = SLight[iPlayers][1].targetPos.fY + -1000.0f;
       SLight[0][iSLightOffset / 0x30 + 1].targetPos.fZ = fLightPosZ;
-      SLight[0][iSLightOffset / 0x30 + 1].currentPos.fZ = SLight[iPlayers][1].targetPos.fZ + 5000.0;
-      SLight[0][iSLightOffset / 0x30 + 2].targetPos.fY = Car[iPlayerCarIdx].pos.fY + 500.0;
+      SLight[0][iSLightOffset / 0x30 + 1].currentPos.fZ = SLight[iPlayers][1].targetPos.fZ + 5000.0f;
+      SLight[0][iSLightOffset / 0x30 + 2].targetPos.fY = Car[iPlayerCarIdx].pos.fY + 500.0f;
       SLight[0][iSLightOffset / 0x30 + 2].targetPos.fX = fLightPosX;
-      SLight[0][iSLightOffset / 0x30 + 2].currentPos.fX = SLight[iPlayers][2].targetPos.fX + 10000.0;
-      SLight[0][iSLightOffset / 0x30 + 2].currentPos.fY = SLight[iPlayers][2].targetPos.fY + 1000.0;
+      SLight[0][iSLightOffset / 0x30 + 2].currentPos.fX = SLight[iPlayers][2].targetPos.fX + 10000.0f;
+      SLight[0][iSLightOffset / 0x30 + 2].currentPos.fY = SLight[iPlayers][2].targetPos.fY + 1000.0f;
       SLight[0][iSLightOffset / 0x30].uiRotation = 0;
       SLight[0][iSLightOffset / 0x30 + 1].uiRotation = 0;
       SLight[0][iSLightOffset / 0x30 + 2].targetPos.fZ = fLightPosZ;
-      fZ = SLight[iPlayers][2].targetPos.fZ;
-      SLight[0][iSLightOffset / 0x30 + 1].speed.fX = 100.0;
-      SLight[0][iSLightOffset / 0x30 + 1].speed.fY = 100.0;
-      SLight[0][iSLightOffset / 0x30 + 1].speed.fZ = 40.0;
-      SLight[0][iSLightOffset / 0x30 + 2].speed.fX = 100.0;
-      SLight[0][iSLightOffset / 0x30 + 2].speed.fY = 100.0;
+      dZ = SLight[iPlayers][2].targetPos.fZ;
+      SLight[0][iSLightOffset / 0x30 + 1].speed.fX = 100.0f;
+      SLight[0][iSLightOffset / 0x30 + 1].speed.fY = 100.0f;
+      SLight[0][iSLightOffset / 0x30 + 1].speed.fZ = 40.0f;
+      SLight[0][iSLightOffset / 0x30 + 2].speed.fX = 100.0f;
+      SLight[0][iSLightOffset / 0x30 + 2].speed.fY = 100.0f;
       SLight[0][iSLightOffset / 0x30 + 2].uiRotation = 0;
       nPlayerChunk = Car[iPlayerCarIdx].nCurrChunk;
-      SLight[0][iSLightOffset / 0x30 + 2].speed.fZ = 40.0;
+      SLight[0][iSLightOffset / 0x30 + 2].speed.fZ = 40.0f;
       pLightTrackData = (float *)&localdata[nPlayerChunk];
-      SLight[0][iSLightOffset / 0x30 + 2].currentPos.fZ = fZ + 5000.0;
+      SLight[0][iSLightOffset / 0x30 + 2].currentPos.fZ = (float)dZ + 5000.0f;
       do {
-        fTransform1 = pLightTrackData[1];
+        dTransform1 = pLightTrackData[1];
         fX = SLight[0][iSLightOffset / 0x30].currentPos.fX;
         fY = SLight[0][iSLightOffset / 0x30].currentPos.fY;
-        fTransform2 = fTransform1 * fY + *pLightTrackData * fX;
-        fTransform3 = pLightTrackData[2];
+        dTransform2 = dTransform1 * fY + *pLightTrackData * fX;
+        dTransform3 = pLightTrackData[2];
         fTempZ = SLight[0][iSLightOffset / 0x30].currentPos.fZ;
-        SLight[0][iSLightOffset / 0x30].currentPos.fX = fTransform2 + fTransform3 * fTempZ - pLightTrackData[9];
+        SLight[0][iSLightOffset / 0x30].currentPos.fX = (float)(dTransform2 + dTransform3 * fTempZ - pLightTrackData[9]);
         SLight[0][iSLightOffset / 0x30].currentPos.fY = pLightTrackData[3] * fX + pLightTrackData[4] * fY + pLightTrackData[5] * fTempZ - pLightTrackData[10];
         SLight[0][iSLightOffset / 0x30].currentPos.fZ = pLightTrackData[6] * fX + pLightTrackData[7] * fY + pLightTrackData[8] * fTempZ - pLightTrackData[11];
-        fTransform4 = pLightTrackData[1];
+        dTransform4 = pLightTrackData[1];
         fX = SLight[0][iSLightOffset / 0x30].targetPos.fX;
         fY = SLight[0][iSLightOffset / 0x30].targetPos.fY;
-        fTransform5 = fTransform4 * fY + *pLightTrackData * fX;
-        fTransform6 = pLightTrackData[2];
+        dTransform5 = dTransform4 * fY + *pLightTrackData * fX;
+        dTransform6 = pLightTrackData[2];
         fTempZ = SLight[0][iSLightOffset / 0x30].targetPos.fZ;
-        SLight[0][iSLightOffset / 0x30].targetPos.fX = fTransform5 + fTransform6 * fTempZ - pLightTrackData[9];
+        SLight[0][iSLightOffset / 0x30].targetPos.fX = (float)(dTransform5 + dTransform6 * fTempZ - pLightTrackData[9]);
         SLight[0][iSLightOffset / 0x30].targetPos.fY = pLightTrackData[3] * fX + pLightTrackData[4] * fY + pLightTrackData[5] * fTempZ - pLightTrackData[10];
         SLight[0][iSLightOffset / 0x30].targetPos.fZ = pLightTrackData[6] * fX + pLightTrackData[7] * fY + pLightTrackData[8] * fTempZ - pLightTrackData[11];
-        SLight[0][iSLightOffset / 0x30].speed.fX = fabs(SLight[0][iSLightOffset / 0x30].targetPos.fX - SLight[0][iSLightOffset / 0x30].currentPos.fX) * 0.01388888888888889;
-        SLight[0][iSLightOffset / 0x30].speed.fY = fabs(SLight[0][iSLightOffset / 0x30].targetPos.fY - SLight[0][iSLightOffset / 0x30].currentPos.fY) * 0.01388888888888889;
-        fLightSpeedZ = fabs(SLight[0][iSLightOffset / 0x30].targetPos.fZ - SLight[0][iSLightOffset / 0x30].currentPos.fZ) * 0.02777777777777778;
+        SLight[0][iSLightOffset / 0x30].speed.fX = (float)(fabs(SLight[0][iSLightOffset / 0x30].targetPos.fX - SLight[0][iSLightOffset / 0x30].currentPos.fX) * 0.01388888888888889);
+        SLight[0][iSLightOffset / 0x30].speed.fY = (float)(fabs(SLight[0][iSLightOffset / 0x30].targetPos.fY - SLight[0][iSLightOffset / 0x30].currentPos.fY) * 0.01388888888888889);
+        dLightSpeedZ = fabs(SLight[0][iSLightOffset / 0x30].targetPos.fZ - SLight[0][iSLightOffset / 0x30].currentPos.fZ) * 0.02777777777777778;
         iSLightOffset += 48;
-        StoreEngines[iSLightOffset / 0x18 + 13].speeds[2] = fLightSpeedZ;
+        StoreEngines[iSLightOffset / 0x18 + 13].speeds[2] = (float)dLightSpeedZ;
       } while (iSLightOffset != iMaxOffset);
       iMaxOffset += 144;
       ++iPlayers;
@@ -559,164 +561,161 @@ void placecars()
 
 //-------------------------------------------------------------------------------------------------
 //00052FE0
-int DrawCars(int result, int a2)
+void DrawCars(int iCarIdx, int iViewMode)
 {
-  (void)(result); (void)(a2);
-  return 0;
-  /*
-  int v2; // ebp
-  int v3; // esi
-  int v4; // edi
-  int v5; // edx
-  int v6; // ebx
-  int v7; // eax
-  int v8; // edx
-  float *v9; // ebx
-  float *v10; // ecx
-  double v11; // st7
-  int v12; // edi
-  float v13; // [esp+0h] [ebp-74h]
-  float v14; // [esp+4h] [ebp-70h]
-  float v15; // [esp+8h] [ebp-6Ch]
-  float v16; // [esp+Ch] [ebp-68h]
-  float v17; // [esp+10h] [ebp-64h]
-  int v18; // [esp+14h] [ebp-60h]
-  float v19; // [esp+18h] [ebp-5Ch]
-  int v20; // [esp+1Ch] [ebp-58h]
-  int v22; // [esp+24h] [ebp-50h]
-  float *v23; // [esp+28h] [ebp-4Ch]
-  float v24; // [esp+2Ch] [ebp-48h]
-  float v25; // [esp+30h] [ebp-44h]
-  float v26; // [esp+34h] [ebp-40h]
-  float v27; // [esp+38h] [ebp-3Ch]
-  float v28; // [esp+3Ch] [ebp-38h]
-  float v29; // [esp+40h] [ebp-34h]
-  float v30; // [esp+44h] [ebp-30h]
-  float v31; // [esp+48h] [ebp-2Ch]
-  float v32; // [esp+4Ch] [ebp-28h]
-  float v33; // [esp+50h] [ebp-24h]
-  float v34; // [esp+54h] [ebp-20h]
-  float v35; // [esp+58h] [ebp-1Ch]
-  float v36; // [esp+5Ch] [ebp-18h]
+  int iCarDrawIdx; // ebp
+  int iCurrChunk_1; // esi
+  int iCurrChunk; // edi
+  int iVisibilityFlag; // edx
+  int iYaw; // ebx
+  int iPitch; // eax
+  int iPointIdx; // edx
+  tVec3 *pointAy; // ebx
+  tVec3 *pHitboxPt; // ecx
+  double dMinZ; // st7
+  int iNumCars; // edi
+  float fHitboxZ; // [esp+0h] [ebp-74h]
+  float fHitboxY; // [esp+4h] [ebp-70h]
+  float fHitboxX; // [esp+8h] [ebp-6Ch]
+  float fWorldZ; // [esp+Ch] [ebp-68h]
+  float fWorldY; // [esp+10h] [ebp-64h]
+  int iRoll; // [esp+14h] [ebp-60h]
+  float fWorldX; // [esp+18h] [ebp-5Ch]
+  int iCarIterator; // [esp+24h] [ebp-50h]
+  tCar *pCar; // [esp+28h] [ebp-4Ch]
+  float fTransformM12; // [esp+2Ch] [ebp-48h]
+  float fX; // [esp+30h] [ebp-44h]
+  float fTransformM00; // [esp+34h] [ebp-40h]
+  float fTransformM02; // [esp+38h] [ebp-3Ch]
+  float fTransformM11; // [esp+3Ch] [ebp-38h]
+  float fTransformM01; // [esp+40h] [ebp-34h]
+  float fTransformM21; // [esp+44h] [ebp-30h]
+  float fTransformM10; // [esp+48h] [ebp-2Ch]
+  float fTransformM22; // [esp+4Ch] [ebp-28h]
+  float fZ; // [esp+50h] [ebp-24h]
+  float fY; // [esp+54h] [ebp-20h]
+  float fTransformM20; // [esp+58h] [ebp-1Ch]
+  float fClosestZ; // [esp+5Ch] [ebp-18h]
 
-  v20 = result;
-  v22 = 0;
+  iCarIterator = 0;                             // Initialize car iterator counter
   if (numcars > 0) {
-    v23 = Car;
-    v2 = 0;
+    pCar = Car;
+    iCarDrawIdx = 0;
     do {
-      v25 = *v23;
-      v3 = *((__int16 *)v23 + 6);
-      v34 = v23[1];
-      v4 = v3;
-      v33 = v23[2];
-      if (v3 == -1)
-        v4 = *((_DWORD *)v23 + 54);
-      if (backwards) {
+      fX = pCar->pos.fX;                        // Get car position and current track chunk
+      iCurrChunk_1 = pCar->nCurrChunk;
+      fY = pCar->pos.fY;
+      iCurrChunk = iCurrChunk_1;
+      fZ = pCar->pos.fZ;
+      if (iCurrChunk_1 == -1)                 // Use last valid chunk if current chunk is invalid (-1)
+        iCurrChunk = pCar->iLastValidChunk;
+      if (backwards)                          // Visibility culling - check if car is in visible track sections
+      {
         if (front_sec <= back_sec) {
-          if (v4 <= front_sec || v4 >= back_sec) {
-            v5 = -1;
+          if (iCurrChunk <= front_sec || iCurrChunk >= back_sec) {
+            iVisibilityFlag = -1;
             goto LABEL_32;
           }
-        } else if (v4 <= front_sec && v4 >= back_sec) {
-          v5 = -1;
+        } else if (iCurrChunk <= front_sec && iCurrChunk >= back_sec) {
+          iVisibilityFlag = -1;
         LABEL_32:
-          if (!v5 || mid_sec < 0 || next_front < 0)
+          if (!iVisibilityFlag || mid_sec < 0 || next_front < 0)
             goto LABEL_42;
           if (mid_sec <= next_front) {
-            if (v4 >= mid_sec && v4 <= next_front)
+            if (iCurrChunk >= mid_sec && iCurrChunk <= next_front)
               goto LABEL_42;
-          } else if (v4 >= mid_sec || v4 <= next_front) {
+          } else if (iCurrChunk >= mid_sec || iCurrChunk <= next_front) {
             goto LABEL_42;
           }
           goto LABEL_41;
         }
-        v5 = 0;
+        iVisibilityFlag = 0;
         goto LABEL_32;
       }
       if (front_sec >= back_sec) {
-        if (v4 > back_sec && v4 < front_sec) {
+        if (iCurrChunk > back_sec && iCurrChunk < front_sec) {
         LABEL_13:
-          v5 = 0;
+          iVisibilityFlag = 0;
           goto LABEL_14;
         }
-        v5 = -1;
+        iVisibilityFlag = -1;
       } else {
-        if (v4 < front_sec || v4 > back_sec)
+        if (iCurrChunk < front_sec || iCurrChunk > back_sec)
           goto LABEL_13;
-        v5 = -1;
+        iVisibilityFlag = -1;
       }
     LABEL_14:
-      if (!v5 || mid_sec < 0 || next_front < 0)
+      if (!iVisibilityFlag || mid_sec < 0 || next_front < 0)
         goto LABEL_42;
       if (mid_sec >= next_front) {
-        if (v4 <= mid_sec && v4 >= next_front)
+        if (iCurrChunk <= mid_sec && iCurrChunk >= next_front)
           goto LABEL_42;
-      } else if (v4 <= mid_sec || v4 >= next_front) {
+      } else if (iCurrChunk <= mid_sec || iCurrChunk >= next_front) {
         goto LABEL_42;
       }
     LABEL_41:
-      v5 = 0;
+      iVisibilityFlag = 0;
     LABEL_42:
-      if (v5 && *((char *)v23 + 103) >= 0) {
-        v18 = (*((_DWORD *)v23 + 34) + *((__int16 *)v23 + 8)) & 0x3FFF;
-        v6 = *((__int16 *)v23 + 10);
-        v7 = ((unsigned __int16)*((_DWORD *)v23 + 33) + *((_WORD *)v23 + 9)) & 0x3FFF;
-        v26 = tcos[v6] * tcos[v7];
-        v31 = tsin[v6] * tcos[v7];
-        v35 = tsin[v7];
-        v29 = tcos[v6] * v35 * tsin[v18] - tsin[v6] * tcos[v18];
-        v28 = tsin[v6] * v35 * tsin[v18] + tcos[v6] * tcos[v18];
-        v24 = -tsin[v18] * tcos[v7];
-        v27 = -tcos[v6] * v35 * tcos[v18] - tsin[v6] * tsin[v18];
-        v30 = -tsin[v6] * v35 * tcos[v18] + tcos[v6] * tsin[v18];
-        v32 = tcos[v7] * tcos[v18];
-        v8 = 0;
-        v36 = 1073676300.0;
-        v9 = (float *)((char *)&localdata + 128 * v3);
-        v10 = (float *)&CarBox[24 * *((unsigned __int8 *)v23 + 102)];
+      if (iVisibilityFlag && (pCar->byLives & 0x80u) == 0) {
+        iRoll = (pCar->iRollDynamicOffset + pCar->nRoll) & 0x3FFF;// Calculate car rotation matrix from yaw, pitch, roll
+        iYaw = pCar->nYaw;
+        iPitch = ((unsigned __int16)pCar->iPitchDynamicOffset + pCar->nPitch) & 0x3FFF;
+        fTransformM00 = tcos[iYaw] * tcos[iPitch];// Build 3x3 rotation matrix for car orientation
+        fTransformM10 = tsin[iYaw] * tcos[iPitch];
+        fTransformM20 = tsin[iPitch];
+        fTransformM01 = tcos[iYaw] * fTransformM20 * tsin[iRoll] - tsin[iYaw] * tcos[iRoll];
+        fTransformM11 = tsin[iYaw] * fTransformM20 * tsin[iRoll] + tcos[iYaw] * tcos[iRoll];
+        fTransformM12 = -tsin[iRoll] * tcos[iPitch];
+        fTransformM02 = -tcos[iYaw] * fTransformM20 * tcos[iRoll] - tsin[iYaw] * tsin[iRoll];
+        fTransformM21 = -tsin[iYaw] * fTransformM20 * tcos[iRoll] + tcos[iYaw] * tsin[iRoll];
+        fTransformM22 = tcos[iPitch] * tcos[iRoll];
+        iPointIdx = 0;
+        fClosestZ = 1073676300.0f;               // Initialize closest Z distance for depth sorting
+        pointAy = localdata[iCurrChunk_1].pointAy;
+        pHitboxPt = CarBox.hitboxAy[pCar->byCarDesignIdx];// Get car hitbox points and chunk transform matrix
         do {
-          v15 = *v10;
-          v14 = v10[1];
-          v13 = v10[2];
-          CarPt_variable_2[v8] = *v10 * v26 + v14 * v29 + v13 * v27 + v25;
-          CarPt_variable_3[v8] = v15 * v31 + v14 * v28 + v13 * v30 + v34;
-          v10 += 3;
-          CarPt_variable_4[v8] = v15 * v35 + v14 * v24 + v13 * v32 + v33;
-          if (v3 != -1) {
-            v19 = CarPt_variable_2[v8];
-            v17 = CarPt_variable_3[v8];
-            v16 = CarPt_variable_4[v8];
-            CarPt_variable_2[v8] = v9[1] * v17 + *v9 * v19 + v9[2] * v16 - v9[9];
-            CarPt_variable_3[v8] = v9[3] * v19 + v9[4] * v17 + v9[5] * v16 - v9[10];
-            CarPt_variable_4[v8] = v9[6] * v19 + v9[7] * v17 + v9[8] * v16 - v9[11];
+          fHitboxX = pHitboxPt->fX;             // Transform car hitbox points loop (8 points)
+          fHitboxY = pHitboxPt->fY;
+          fHitboxZ = pHitboxPt->fZ;
+          CarPt[iPointIdx].world.fX = pHitboxPt->fX * fTransformM00 + fHitboxY * fTransformM01 + fHitboxZ * fTransformM02 + fX;// Apply car rotation matrix to hitbox point
+          CarPt[iPointIdx].world.fY = fHitboxX * fTransformM10 + fHitboxY * fTransformM11 + fHitboxZ * fTransformM21 + fY;
+          ++pHitboxPt;
+          CarPt[iPointIdx].world.fZ = fHitboxX * fTransformM20 + fHitboxY * fTransformM12 + fHitboxZ * fTransformM22 + fZ;
+          if (iCurrChunk_1 != -1)             // Transform from car space to track chunk space if valid chunk
+          {
+            fWorldX = CarPt[iPointIdx].world.fX;
+            fWorldY = CarPt[iPointIdx].world.fY;
+            fWorldZ = CarPt[iPointIdx].world.fZ;
+            CarPt[iPointIdx].world.fX = pointAy->fY * fWorldY + pointAy->fX * fWorldX + pointAy->fZ * fWorldZ - pointAy[3].fX;
+            CarPt[iPointIdx].world.fY = pointAy[1].fX * fWorldX + pointAy[1].fY * fWorldY + pointAy[1].fZ * fWorldZ - pointAy[3].fY;
+            CarPt[iPointIdx].world.fZ = pointAy[2].fX * fWorldX + pointAy[2].fY * fWorldY + pointAy[2].fZ * fWorldZ - pointAy[3].fZ;
           }
-          k1 = CarPt_variable_2[v8] - viewx;
-          k2 = CarPt_variable_3[v8] - viewy;
-          k3 = CarPt_variable_4[v8] - viewz;
-          v11 = k1 * vk3 + k2 * vk6 + k3 * vk9;
-          CarPt_variable_7[v8] = v11;
-          if (v11 < v36)
-            v36 = CarPt_variable_7[v8];
-          v8 += 8;
-        } while (v8 != 64);
-        *(float *)&car_draw_order_variable_2[v2] = v36;
-        car_draw_order[v2] = v4;
-        if (v22 == v20 && (!a2 || a2 == -1))
-          car_draw_order[v2] = -2;
+          k1 = CarPt[iPointIdx].world.fX - viewx;// Transform to camera view space for rendering
+          k2 = CarPt[iPointIdx].world.fY - viewy;
+          k3 = CarPt[iPointIdx].world.fZ - viewz;
+          dMinZ = k1 * vk3 + k2 * vk6 + k3 * vk9;
+          CarPt[iPointIdx].view.fZ = (float)dMinZ;
+          if (dMinZ < fClosestZ)              // Track closest Z value for depth sorting
+            fClosestZ = CarPt[iPointIdx].view.fZ;
+          ++iPointIdx;
+        } while (iPointIdx != 8);
+        car_draw_order[iCarDrawIdx].fMinZDepth = fClosestZ;// Store car in draw order array for Z-sorting
+        car_draw_order[iCarDrawIdx].iChunkIdx = iCurrChunk;
+        if (iCarIterator == iCarIdx && (!iViewMode || iViewMode == -1))// Hide player car in certain view modes
+          car_draw_order[iCarDrawIdx].iChunkIdx = -2;
       } else {
-        car_draw_order[v2] = -2;
-        car_draw_order_variable_2[v2] = -1082130432;
+        car_draw_order[iCarDrawIdx].iChunkIdx = -2;// Mark invisible cars with special values
+        car_draw_order[iCarDrawIdx].fMinZDepth = -1.0f;
       }
-      result = v22;
-      v12 = numcars;
-      v2 += 3;
-      CarZOrder_variable_3[v2] = v22;
-      v23 += 77;
-      ++v22;
-    } while (v22 < v12);
+      iNumCars = numcars;
+
+      // car_draw_order[iCarDrawIdx].iCarIdx = v22;
+      // iCarDrawIdx++;
+      CarZOrder[++iCarDrawIdx + 499].iPolygonIndex = iCarIterator;// references car_draw_order
+      ++pCar;
+      ++iCarIterator;
+    } while (iCarIterator < iNumCars);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
