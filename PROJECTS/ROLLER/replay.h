@@ -36,6 +36,7 @@ typedef struct
 
 extern int disciconpressed;
 extern int rotpoint;
+extern int replaypanel;
 extern int controlicon;
 extern int replayspeeds[9];
 extern char *replayname[9];

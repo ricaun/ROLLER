@@ -21,6 +21,7 @@ char szEdit[6] = "EDIT:";         //000A2758
 
 int disciconpressed = 0;  //000A63AC
 int rotpoint = 0;         //000A63B0
+int replaypanel = -1;     //000A63B4
 int controlicon = 9;      //000A63B8
 int replayspeeds[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 }; //000A63BC
 char *replayname[9] = {   //000A63E0

@@ -2134,23 +2134,20 @@ void play_game(int iTrack)
 //-------------------------------------------------------------------------------------------------
 //00013A10
 void game_keys()
-{/*
-  unsigned int v1; // eax
-  int v2; // ecx
-  int v3; // eax
-  int v4; // eax
-  int v5; // eax
-  _BOOL1 v6; // zf
-  bool v7; // eax
-  uint32 v8; // eax
-  uint32 v9; // eax
-  uint32 v10; // ecx
-  uint32 v11; // eax
-  bool v12; // eax
+{
+  unsigned int uiKeyCode; // eax
+  int iExtendedKey; // eax
+  int iGameReqState; // eax
+  bool bToggleState; // zf
+  //uint32 uiTextureFlags1; // eax
+  //uint32 uiTextureFlags2; // eax
+  //uint32 uiTextureFlags3; // ecx
+  //uint32 uiTextureFlags4; // eax
 
   if (define_mode)
-    LABEL_328:
-  JUMPOUT(0x1381B);
+    EXIT_FUNCTION:
+  return;
+  //JUMPOUT(0x1381B);
   while (1) {
     do {
       while (1) {
@@ -2158,23 +2155,25 @@ void game_keys()
           while (1) {
             while (1) {
               while (1) {
-              LABEL_2:
+                UpdateSDL();
+              PROCESS_NEXT_KEY:
                 if (!fatkbhit())
-                  goto LABEL_328;
-                v1 = fatgetch();
-                v2 = intro;
-                if (intro || winner_mode) {
-                  if (v1) {
-                    v1 = -1;
+                  goto EXIT_FUNCTION;               // Check if a key is available in the keyboard buffer
+                uiKeyCode = fatgetch();         // Get the key code from the keyboard buffer
+                if (intro || winner_mode)     // Handle intro/winner mode - any key exits these modes
+                {
+                  if (uiKeyCode) {
+                    uiKeyCode = -1;
                     racing = 0;
                   } else {
                     fatgetch();
-                    v1 = -1;
+                    uiKeyCode = -1;
                   }
                 }
-                if (trying_to_exit) {
-                  if (v1) {
-                    if (v1 == 121 || v1 == 89) {
+                if (trying_to_exit)           // Handle exit confirmation (Y/N prompt)
+                {
+                  if (uiKeyCode) {                             // Check for 'Y' or 'y' to confirm exit (ASCII 121='y', 89='Y')
+                    if (uiKeyCode == 121 || uiKeyCode == 89) {
                       racing = 0;
                       quit_game = -1;
                       scr_size = req_size;
@@ -2184,91 +2183,83 @@ void game_keys()
                     trying_to_exit = 0;
                     fatgetch();
                   }
-                  v1 = -1;
+                  uiKeyCode = -1;
                 }
-                if (v1)
+                if (uiKeyCode)
                   break;
-                v3 = fatgetch();
-                if (v3 != 75 && v3 != 77 && v3 != 72 && v3 != 80) {
-                  LOBYTE(v2) = keys_variable_3;
-                  if (keys_variable_3 || (BYTE1(v2) = keys_variable_4) != 0) {
-                    v3 += 25;
-                  } else if (keys_variable_5) {
-                    v3 += 45;
+                iExtendedKey = fatgetch();      // Process extended keys (arrow keys, function keys)
+                if (iExtendedKey != 75 && iExtendedKey != 77 && iExtendedKey != 72 && iExtendedKey != 80)// Check for arrow keys (75=Left, 77=Right, 72=Up, 80=Down)
+                {                               // Apply Shift modifier (keys[42]=LShift, keys[54]=RShift, adds 25)
+                  if (keys[42] || keys[54]) {
+                    iExtendedKey += 25;
+                  } else if (keys[56])          // Apply Alt modifier (keys[56]=Alt, adds 45)
+                  {
+                    iExtendedKey += 45;
                   }
                 }
-                v4 = v3 - 59;
-                switch (v4) {
-                  case 0:
-                    if (network_on)
-                      v4 = mesminus();
+                switch (iExtendedKey) {
+                  case 0x3B:
+                    if (network_on)           // F1 (0x3B) - Network message controls / Replay car selection
+                      mesminus();
                     if (replaytype == 2)
-                      carminus(v4, 0, 2);
+                      carminus();
                     break;
-                  case 1:
-                    if (network_on)
-                      v4 = mesplus();
+                  case 0x3C:
+                    if (network_on)           // F2 (0x3C) - Network message controls / Replay car selection
+                      mesplus();
                     if (replaytype == 2)
-                      carplus(v4, 0, 2, v2);
+                      carplus();
                     break;
-                  case 2:
-                    if (view0_cnt < 0) {
-                      LODWORD(a1) = 18;
+                  case 0x3D:
+                    if (view0_cnt < 0)        // F3 (0x3D) - Previous view for player 1
+                    {
                       view0_cnt = 18;
                       viewminus(0);
                     }
                     break;
-                  case 3:
-                    if (view0_cnt < 0) {
+                  case 0x3E:
+                    if (view0_cnt < 0)        // F4 (0x3E) - Next view for player 1
+                    {
                       view0_cnt = 18;
                       viewplus(0);
                     }
                     break;
-                  case 6:
+                  case 0x41:
                     if (player_type == 2 && view1_cnt < 0) {
-                      LODWORD(a1) = 18;
                       view1_cnt = 18;
                       viewminus(1);
                     }
                     break;
-                  case 7:
+                  case 0x42:
                     if (player_type == 2 && view1_cnt < 0) {
                       view1_cnt = 18;
                       viewplus(1);
                     }
                     break;
-                  case 8:
-                    if (++names_on > 2)
+                  case 0x43:
+                    if (++names_on > 2)       // F9 (0x43) - Toggle player names display (0=off, 1=on, 2=detailed)
                       names_on = 0;
                     break;
-                  case 9:
-                    if (I_Would_Like_To_Quit && Quit_Count <= 0) {
+                  case 0x44:
+                    if (I_Would_Like_To_Quit && Quit_Count <= 0)// F10 (0x44) - Quit game (if quit sequence active)
+                    {
                       I_Want_Out = -1;
                       stopallsamples();
                     }
                     break;
-                  case 11:
-                    showversion = showversion == 0;
+                  case 0x46:
+                    showversion = showversion == 0;// F12 (0x46) - Toggle version display
                     break;
-                  case 13:
-                    HIDWORD(a1) = game_req;
+                  case 0x48:
                     if (game_req) {
-                      LODWORD(a1) = pausewindow;
                       if (!pausewindow && req_edit > 0)
                         --req_edit;
                       if (pausewindow == 1 && !calibrate_mode && calibrate_select < pausewindow)
                         calibrate_select += pausewindow;
-                      HIDWORD(a1) = pausewindow;
-                      if (pausewindow == 2) {
-                        LODWORD(a1) = control_select;
-                        if (control_select < 2)
-                          ++control_select;
-                      }
-                      if (pausewindow == 3) {
-                        HIDWORD(a1) = graphic_mode;
-                        if (graphic_mode < 16)
-                          LODWORD(a1) = ++graphic_mode;
-                      }
+                      if (pausewindow == 2 && control_select < 2)
+                        ++control_select;
+                      if (pausewindow == 3 && graphic_mode < 16)
+                        ++graphic_mode;
                       if (pausewindow == 4) {
                         if (sound_edit <= 1) {
                           if (!sound_edit)
@@ -2299,48 +2290,45 @@ void game_keys()
                       }
                     }
                     break;
-                  case 16:
+                  case 0x4B:
                     if (game_req) {
-                      LODWORD(a1) = pausewindow;
                       if (pausewindow == 4) {
                         switch (sound_edit) {
                           case 1:
-                            EngineVolume -= pausewindow;
+                            EngineVolume -= pausewindow;// Left Arrow - Decrease Engine Volume
                             if (EngineVolume < 0)
                               EngineVolume = 0;
                             continue;
                           case 2:
-                            HIDWORD(a1) = SFXVolume - pausewindow;
-                            SFXVolume = HIDWORD(a1);
-                            if (a1 < 0)
+                            SFXVolume -= pausewindow;// Left Arrow - Decrease SFX Volume
+                            if (SFXVolume < 0)
                               SFXVolume = 0;
                             continue;
                           case 3:
-                            SpeechVolume -= pausewindow;
+                            SpeechVolume -= pausewindow;// Left Arrow - Decrease Speech Volume
                             if (SpeechVolume < 0)
                               SpeechVolume = 0;
                             continue;
                           case 4:
-                            MusicVolume -= pausewindow;
+                            MusicVolume -= pausewindow;// Left Arrow - Decrease Music Volume
                             if (MusicVolume < 0)
                               MusicVolume = 0;
                             if (MusicCard)
-                              sosMIDISetMasterVolume(MusicVolume);
+                              MIDISetMasterVolume(MusicVolume);
+                              //sosMIDISetMasterVolume(MusicVolume);
                             if (MusicCD)
-                              goto LABEL_82;
+                              goto UPDATE_CD_VOLUME;
                             continue;
                           default:
                             continue;
                         }
                       }
-                    } else if (replaytype == 2 && game_req != replaypanel) {
-                      LODWORD(a1) = controlicon;
-                      if (controlicon != 1 && controlicon != 7 && controlicon != 12)
-                        HIDWORD(a1) = --controlicon;
+                    } else if (replaytype == 2 && game_req != replaypanel && controlicon != 1 && controlicon != 7 && controlicon != 12) {
+                      --controlicon;
                     }
                     break;
-                  case 18:
-                    v5 = game_req;
+                  case 0x4D:
+                    iGameReqState = game_req;
                     if (game_req) {
                       if (pausewindow == 4) {
                         switch (sound_edit) {
@@ -2350,68 +2338,52 @@ void game_keys()
                               EngineVolume = 127;
                             break;
                           case 2:
-                            HIDWORD(a1) = pausewindow + SFXVolume;
-                            SFXVolume = HIDWORD(a1);
-                            if (SHIDWORD(a1) >= 128)
+                            SFXVolume += pausewindow;
+                            if (SFXVolume >= 128)
                               SFXVolume = 127;
                             break;
                           case 3:
-                            LODWORD(a1) = pausewindow + SpeechVolume;
-                            SpeechVolume = a1;
-                            if ((int)a1 >= 128)
+                            SpeechVolume += pausewindow;
+                            if (SpeechVolume >= 128)
                               SpeechVolume = 127;
                             break;
                           case 4:
-                            HIDWORD(a1) = pausewindow + MusicVolume;
-                            MusicVolume = HIDWORD(a1);
-                            if (SHIDWORD(a1) >= 128)
+                            MusicVolume += pausewindow;
+                            if (MusicVolume >= 128)
                               MusicVolume = 127;
                             if (MusicCard)
-                              sosMIDISetMasterVolume(MusicVolume);
+                              MIDISetMasterVolume(MusicVolume);
+                              //sosMIDISetMasterVolume(MusicVolume);
                             if (MusicCD)
-                              LABEL_82:
+                              UPDATE_CD_VOLUME:
                             SetAudioVolume(MusicVolume);
                             break;
                           default:
                             continue;
                         }
                       }
-                    } else if (replaytype == 2 && game_req != replaypanel) {
-                      LODWORD(a1) = controlicon;
-                      if (controlicon != 6 && controlicon != 11 && controlicon != 25) {
-                        if (controlicon != 17 || game_req != replayedit)
-                          v5 = 1;
-                        if (v5)
-                          ++controlicon;
-                      }
+                    } else if (replaytype == 2 && game_req != replaypanel && controlicon != 6 && controlicon != 11 && controlicon != 25) {
+                      if (controlicon != 17 || game_req != replayedit)
+                        iGameReqState = 1;
+                      if (iGameReqState)
+                        ++controlicon;
                     }
                     break;
-                  case 21:
-                    HIDWORD(a1) = game_req;
+                  case 0x50:
                     if (game_req) {
                       if (!pausewindow && req_edit < 6)
                         ++req_edit;
-                      HIDWORD(a1) = pausewindow;
-                      if (pausewindow == 1) {
-                        LODWORD(a1) = calibrate_select;
-                        if (calibrate_select > 0 && !calibrate_mode)
-                          calibrate_select -= pausewindow;
-                      }
-                      if (pausewindow == 2) {
-                        LODWORD(a1) = control_select;
-                        if (control_select > 0)
-                          --control_select;
-                      }
-                      if (pausewindow == 3) {
-                        HIDWORD(a1) = graphic_mode;
-                        if (graphic_mode > 0)
-                          LODWORD(a1) = --graphic_mode;
-                      }
+                      if (pausewindow == 1 && calibrate_select > 0 && !calibrate_mode)
+                        calibrate_select -= pausewindow;
+                      if (pausewindow == 2 && control_select > 0)
+                        --control_select;
+                      if (pausewindow == 3 && graphic_mode > 0)
+                        --graphic_mode;
                       if (pausewindow == 4 && sound_edit > 0) {
                         if (sound_edit >= 7)
                           sound_edit = 0;
                         else
-                          LODWORD(a1) = ++sound_edit;
+                          ++sound_edit;
                       }
                     } else if (replaytype == 2 && game_req != replaypanel) {
                       switch (controlicon) {
@@ -2435,82 +2407,82 @@ void game_keys()
                       }
                     }
                     break;
-                  case 25:
+                  case 0x54:
                     controlicon = 9;
-                    Rreverseplay(v4, 0, 2, v2);
+                    Rreverseplay();
                     break;
-                  case 26:
+                  case 0x55:
                     controlicon = 9;
-                    Rplay(a1);
+                    Rplay();
                     break;
-                  case 27:
+                  case 0x56:
                     controlicon = 9;
-                    Rspeedminus(a1);
+                    Rspeedminus();
                     break;
-                  case 28:
+                  case 0x57:
                     controlicon = 9;
-                    Rspeedplus(v4, 0, a1);
+                    Rspeedplus();
                     break;
-                  case 29:
+                  case 0x58:
                     controlicon = 9;
-                    Rframeminus(v4, 0);
+                    Rframeminus();
                     break;
-                  case 30:
+                  case 0x59:
                     controlicon = 9;
-                    Rframeplus(v4, 0);
+                    Rframeplus();
                     break;
-                  case 33:
+                  case 0x5C:
                     controlicon = 9;
-                    Rstart(v4, 0, 2, v2);
+                    Rstart();
                     break;
-                  case 34:
+                  case 0x5D:
                     controlicon = 9;
-                    Rend(v4, 0, 2, v2);
+                    Rend();
                     break;
-                  case 45:
+                  case 0x68:
                     controlicon = 9;
-                    rtoggleedit(v4, 0, 2, v2);
+                    rtoggleedit();
                     break;
-                  case 46:
+                  case 0x69:
                     controlicon = 9;
-                    rstartblock(v4, 0, 2, v2);
+                    rstartblock();
                     break;
-                  case 47:
+                  case 0x6A:
                     controlicon = 9;
                     rselectblock();
                     break;
-                  case 48:
+                  case 0x6B:
                     controlicon = 9;
-                    rdeleteblock(a1);
+                    rdeleteblock();
                     break;
-                  case 49:
+                  case 0x6C:
                     controlicon = 9;
-                    rstoreview(v4, 0, 2, v2);
+                    rstoreview();
                     break;
-                  case 50:
+                  case 0x6D:
                     controlicon = 9;
-                    rremoveview(v4, 0, 2, v2);
+                    rremoveview();
                     break;
-                  case 51:
+                  case 0x6E:
                     controlicon = 9;
-                    rpreviouscut(v4, 0, 2, v2);
+                    rpreviouscut();
                     break;
-                  case 52:
+                  case 0x6F:
                     controlicon = 9;
-                    rnextcut(v4, 0, 2, v2);
+                    rnextcut();
                     break;
-                  case 53:
+                  case 0x70:
                     controlicon = 9;
-                    rstartassemble(a1);
+                    rstartassemble();
                     break;
                   default:
                     continue;
                 }
               }
-              if (v1 < 0x2D)
+              if (uiKeyCode < 0x2D)
                 break;
-              if (v1 <= 0x2D) {
-              LABEL_313:
+              if (uiKeyCode <= 0x2D) {                                 // '-' key (0x2D) - Decrease screen size
+              DECREASE_SCREEN_SIZE:
                 if (replaytype != 2) {
                   if (game_req) {
                     if (pausewindow == 3 && graphic_mode == 2) {
@@ -2525,38 +2497,35 @@ void game_keys()
                       }
                     }
                   } else if (SVGA_ON) {
-                    LODWORD(a1) = scr_size - 16;
-                    scr_size = a1;
-                    if ((int)a1 >= 64)
-                      goto LABEL_318;
+                    scr_size -= 16;
+                    if (scr_size >= 64)
+                      goto SET_CLEAR_BORDERS;
                     scr_size = 64;
                   } else {
                     scr_size -= 8;
                     if (scr_size >= 32)
-                      LABEL_318:
+                      SET_CLEAR_BORDERS:
                     clear_borders = -1;
                     else
                       scr_size = 32;
                   }
                 }
-              } else if (v1 < 0x4C) {
-                if (v1 >= 0x3D) {
-                  if (v1 <= 0x3D) {
-                  LABEL_291:
+              } else if (uiKeyCode < 0x4C) {
+                if (uiKeyCode >= 0x3D) {
+                  if (uiKeyCode <= 0x3D) {                             // '+' key (0x3D) - Increase screen size
+                  INCREASE_SCREEN_SIZE:
                     if (replaytype != 2) {
                       if (game_req) {
                         if (pausewindow == 3 && graphic_mode == 2) {
                           if (SVGA_ON) {
-                            LODWORD(a1) = req_size + 16;
-                            req_size = a1;
-                            if ((int)a1 > 128)
+                            req_size += 16;
+                            if (req_size > 128)
                               req_size = 128;
                             if (req_size == 128)
                               replaypanel = -1;
                           } else {
-                            LODWORD(a1) = req_size + 8;
-                            req_size = a1;
-                            if ((int)a1 > 64)
+                            req_size += 8;
+                            if (req_size > 64)
                               req_size = 64;
                             if (req_size == 64)
                               replaypanel = -1;
@@ -2576,37 +2545,35 @@ void game_keys()
                           replaypanel = -1;
                       }
                     }
-                  } else if (v1 == 68) {
-                    if (keys_variable_5) {
-                      HIDWORD(a1) = replaytype;
+                  } else if (uiKeyCode == 68) {
+                    if (keys[56]) {
                       controlicon = 9;
                       if (replaytype == 2)
                         filingmenu = 3;
                     }
                   }
                 }
-              } else if (v1 <= 0x4C) {
-                if (keys_variable_5) {
-                  a1 = (unsigned int)replaytype | 0x900000000LL;
+              } else if (uiKeyCode <= 0x4C) {
+                if (keys[56]) {
                   controlicon = 9;
                   if (replaytype == 2)
                     filingmenu = 1;
                 }
-              } else if (v1 >= 0x53) {
-                if (v1 <= 0x53) {
-                  if (keys_variable_5) {
+              } else if (uiKeyCode >= 0x53) {
+                if (uiKeyCode <= 0x53) {
+                  if (keys[56]) {
                     controlicon = 9;
                     if (replaytype == 2)
                       filingmenu = 2;
                   }
-                } else if (v1 == 95) {
-                  goto LABEL_313;
+                } else if (uiKeyCode == 95) {
+                  goto DECREASE_SCREEN_SIZE;
                 }
               }
             }
-            if (v1 < 0x1B)
+            if (uiKeyCode < 0x1B)
               break;
-            if (v1 <= 0x1B) {
+            if (uiKeyCode <= 0x1B) {                                   // Escape key - Exit pause menus
               if (game_req && pausewindow) {
                 if (pausewindow == 1 || pausewindow == 2)
                   remove_uncalibrated();
@@ -2615,56 +2582,52 @@ void game_keys()
                 filingmenu = 0;
                 lastfile = 0;
               } else if (!network_on || replaytype == 2) {
-              LABEL_194:
+              REQUEST_PAUSE:
                 pause_request = -1;
               } else if (active_nodes == network_on) {
                 if (I_Would_Like_To_Quit == -1) {
                   if (Quit_Count <= 0)
                     I_Would_Like_To_Quit = 0;
                 } else {
-                  LODWORD(a1) = 18;
                   I_Would_Like_To_Quit = -1;
                   Quit_Count = 18;
                 }
               }
-            } else if (v1 >= 0x20) {
-              if (v1 <= 0x20) {
+            } else if (uiKeyCode >= 0x20) {
+              if (uiKeyCode <= 0x20) {
                 if (replaytype == 2) {
-                  HIDWORD(a1) = 9;
                   replaypanel = replaypanel == 0;
                   controlicon = 9;
                   rotpoint = currentreplayframe;
                 }
-              } else if (v1 == 43) {
-                goto LABEL_291;
+              } else if (uiKeyCode == 43) {
+                goto INCREASE_SCREEN_SIZE;
               }
             }
           }
-        } while (v1 != 13);
-        LODWORD(a1) = game_req;
+        } while (uiKeyCode != 13);
         if (!game_req)
           break;
         switch (pausewindow) {
           case 0:
             switch (req_edit) {
               case 0:
-                goto LABEL_194;
+                goto REQUEST_PAUSE;
               case 1:
                 paused = 0;
                 racing = 0;
                 gave_up = -1;
                 scr_size = req_size;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 2:
                 sound_edit = 0;
                 pausewindow = 4;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 3:
-                LODWORD(a1) = 1;
                 calibrate_select = 0;
                 calibrate_mode = 0;
                 pausewindow = 1;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 4:
                 pausewindow = 2;
                 Joy1used = 0;
@@ -2673,24 +2636,23 @@ void game_keys()
                 define_mode = 0;
                 control_select = 0;
                 control_edit = -1;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 5:
-                HIDWORD(a1) = 3;
                 graphic_mode = 0;
                 pausewindow = 3;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 6:
                 trying_to_exit = -1;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               default:
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
             }
           case 1:
             if (calibrate_select) {
               if (calibrate_select == 1) {
-                v6 = calibrate_mode != 0;
+                bToggleState = calibrate_mode != 0;
                 calibrate_mode = calibrate_mode == 0;
-                if (v6)
+                if (bToggleState)
                   remove_uncalibrated();
                 else
                   check_joystickpresence();
@@ -2709,37 +2671,32 @@ void game_keys()
                 control_edit = 0;
                 disable_keyboard();
                 controlrelease = -1;
-                qmemcpy(oldkeys, userkey, 0xCu);
-                qmemcpy(&oldkeys[12], &userkey[12], 2u);
-                HIDWORD(a1) = &userkey[14];
-                LODWORD(a1) = oldkeys;
+                memcpy(oldkeys, userkey, 0xCu);
+                memcpy(&oldkeys[12], &userkey[12], 2u);
               } else if (control_select == 2) {
                 define_mode = -1;
                 control_edit = 6;
                 disable_keyboard();
                 controlrelease = -1;
-                qmemcpy(oldkeys, userkey, 0xCu);
-                qmemcpy(&oldkeys[12], &userkey[12], 2u);
-                HIDWORD(a1) = &userkey[14];
-                LODWORD(a1) = oldkeys;
+                memcpy(oldkeys, userkey, 0xCu);
+                memcpy(&oldkeys[12], &userkey[12], 2u);
               }
             } else {
-            LABEL_212:
+            EXIT_PAUSE_MENU:
               pausewindow = 0;
             }
             break;
           case 3:
             switch (graphic_mode) {
               case 0:
-                goto LABEL_212;
+                goto EXIT_PAUSE_MENU;
               case 1:
                 if (svga_possible && !no_mem || SVGA_ON) {
-                  v7 = SVGA_ON == 0;
-                  SVGA_ON = v7;
-                  init_screen(v7, 0, 2);
+                  SVGA_ON = SVGA_ON == 0;
+                  init_screen();
                   req_size = scr_size;
                 }
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 2:
                 if (replaytype != 2) {
                   if (SVGA_ON) {
@@ -2756,7 +2713,7 @@ void game_keys()
                       replaypanel = -1;
                   }
                 }
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 3:
                 if (view_limit) {
                   view_limit = 0;
@@ -2765,117 +2722,129 @@ void game_keys()
                 } else {
                   view_limit = 24;
                 }
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 4:
-                if ((textures_off & 0x20) != 0) {
-                  v8 = textures_off;
-                  LOBYTE(v8) = textures_off ^ 0x20;
-                  textures_off = ((unsigned int)&loc_3FFFC + 4) | v8;
-                } else if ((((unsigned int)&loc_3FFFC + 4) & textures_off) != 0) {
-                  textures_off ^= (unsigned int)&loc_3FFFC + 4;
-                } else {
-                  HIDWORD(a1) = textures_off | 0x20;
-                  textures_off |= 0x20u;
+                // 0x20 = TEX_OFF_PANEL_OFF
+                if ((textures_off & TEX_OFF_PANEL_OFF) != 0)// Panel textures toggle: 0x20=TEX_OFF_PANEL_OFF, 0x40000=TEX_OFF_PANEL_RESTRICTED
+                {
+                  //uiTextureFlags1 = textures_off;
+                  //LOBYTE(uiTextureFlags1) = textures_off ^ 0x20;
+                  //textures_off = uiTextureFlags1 | 0x40000;
+                  textures_off ^= TEX_OFF_PANEL_OFF;
+                  textures_off |= TEX_OFF_PANEL_RESTRICTED;
                 }
-                goto LABEL_2;
+                // 0x40000 = TEX_OFF_PANEL_RESTRICTED
+                else if ((textures_off & TEX_OFF_PANEL_RESTRICTED) != 0) {
+                  textures_off ^= TEX_OFF_PANEL_RESTRICTED;
+                } else {
+                  textures_off |= TEX_OFF_PANEL_OFF;
+                }
+                goto PROCESS_NEXT_KEY;
               case 5:
-                LODWORD(a1) = textures_off ^ 8;
-                textures_off ^= 8u;
-                goto LABEL_2;
+                // 0x8 = TEX_OFF_CLOUDS
+                textures_off ^= TEX_OFF_CLOUDS;             // Toggle clouds textures (0x8 = TEX_OFF_CLOUDS)
+                goto PROCESS_NEXT_KEY;
               case 6:
-                HIDWORD(a1) = textures_off ^ 0x100;
-                textures_off ^= 0x100u;
-                goto LABEL_2;
+                // 0x100 = TEX_OFF_SHADOWS
+                textures_off ^= TEX_OFF_SHADOWS;         // Toggle shadows (0x100 = TEX_OFF_SHADOWS)
+                goto PROCESS_NEXT_KEY;
               case 7:
-                textures_off ^= 2u;
-                goto LABEL_2;
+                // 0x2 = TEX_OFF_ROAD_TEXTURES
+                textures_off ^= TEX_OFF_ROAD_TEXTURES;
+                goto PROCESS_NEXT_KEY;
               case 8:
-                v9 = textures_off;
-                LOBYTE(v9) = textures_off ^ 0x80;
-                textures_off = v9;
-                goto LABEL_2;
+                // 0x80 = TEX_OFF_BUILDING_TEXTURES
+                //uiTextureFlags2 = textures_off;
+                //LOBYTE(uiTextureFlags2) = textures_off ^ 0x80;
+                //textures_off = uiTextureFlags2;
+                textures_off ^= TEX_OFF_BUILDING_TEXTURES;
+                goto PROCESS_NEXT_KEY;
               case 9:
-                LODWORD(a1) = textures_off ^ 1;
-                textures_off ^= 1u;
-                goto LABEL_2;
+                // 0x1 = TEX_OFF_GROUND_TEXTURES
+                textures_off ^= TEX_OFF_GROUND_TEXTURES;
+                goto PROCESS_NEXT_KEY;
               case 10:
-                HIDWORD(a1) = textures_off ^ 4;
-                textures_off ^= 4u;
-                goto LABEL_2;
+                // 0x4 = TEX_OFF_WALL_TEXTURES
+                textures_off ^= TEX_OFF_WALL_TEXTURES;
+                goto PROCESS_NEXT_KEY;
               case 11:
-                v10 = textures_off;
-                LOBYTE(v10) = textures_off ^ 0x40;
-                textures_off = v10;
-                goto LABEL_2;
+                //uiTextureFlags3 = textures_off;
+                //// 0x40 = TEX_OFF_CAR_TEXTURES
+                //LOBYTE(uiTextureFlags3) = textures_off ^ 0x40;
+                //textures_off = uiTextureFlags3;
+                textures_off ^= TEX_OFF_CAR_TEXTURES;
+                goto PROCESS_NEXT_KEY;
               case 12:
-                v11 = textures_off;
-                LOBYTE(v11) = textures_off ^ 0x10;
-                textures_off = v11;
-                goto LABEL_2;
+                //uiTextureFlags4 = textures_off;
+                //// 0x10 = TEX_OFF_HORIZON
+                //LOBYTE(uiTextureFlags4) = textures_off ^ 0x10;
+                //textures_off = uiTextureFlags4;
+                textures_off ^= TEX_OFF_HORIZON;
+                goto PROCESS_NEXT_KEY;
               case 13:
-                LODWORD(a1) = textures_off ^ 0x800;
-                textures_off ^= 0x800u;
-                goto LABEL_2;
+                // 0x800 = TEX_OFF_GLASS_WALLS
+                textures_off ^= TEX_OFF_GLASS_WALLS;
+                goto PROCESS_NEXT_KEY;
               case 14:
-                HIDWORD(a1) = textures_off ^ 0x200;
-                textures_off ^= 0x200u;
-                goto LABEL_2;
+                // 0x200 = TEX_OFF_BUILDINGS
+                textures_off ^= TEX_OFF_BUILDINGS;
+                goto PROCESS_NEXT_KEY;
               case 15:
                 if (++names_on > 2)
                   names_on = 0;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 16:
-                textures_off ^= 0x80000u;
-                goto LABEL_2;
+                // 0x80000 = TEX_OFF_PERSPECTIVE_CORRECTION
+                textures_off ^= TEX_OFF_PERSPECTIVE_CORRECTION;
+                goto PROCESS_NEXT_KEY;
               default:
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
             }
           case 4:
             switch (sound_edit) {
               case 0:
-                goto LABEL_212;
+                goto EXIT_PAUSE_MENU;
               case 5:
                 allengines = allengines == 0;
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 6:
-                LODWORD(a1) = SoundCard;
                 if (SoundCard) {
-                  v6 = soundon != 0;
+                  bToggleState = soundon != 0;
                   soundon = soundon == 0;
-                  if (!v6)
+                  if (!bToggleState)
                     loadsamples();
                 } else {
                   soundon = 0;
                 }
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               case 7:
-                if (MusicCard || (v2 = MusicCD) != 0) {
-                  v12 = musicon == 0;
-                  musicon = v12;
-                  reinitmusic(v12, 0, 2, v2);
+                if (MusicCard || MusicCD) {
+                  musicon = musicon == 0;
+                  reinitmusic();
                 } else {
                   musicon = 0;
                 }
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
               default:
-                goto LABEL_2;
+                goto PROCESS_NEXT_KEY;
             }
           default:
-            goto LABEL_2;
+            goto PROCESS_NEXT_KEY;
         }
       }
-    } while (replaytype != 2 || game_req == replaypanel && controlicon != 9 || !ricon_variable_2[2 * controlicon]);
+    } while (replaytype != 2 || game_req == replaypanel && controlicon != 9 || !ricon[controlicon].pFunc);
     if ((unsigned int)controlicon < 0xE) {
-    LABEL_273:
-      ((void (*)(void))ricon_variable_2[2 * controlicon])();
+    EXECUTE_REPLAY_FN:
+      //TODO
+      ((void (*)(void))ricon[controlicon].pFunc)();
     } else if ((unsigned int)controlicon <= 0xE) {
       viewminus(0);
     } else {
       if (controlicon != 15)
-        goto LABEL_273;
+        goto EXECUTE_REPLAY_FN;
       viewplus(0);
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
