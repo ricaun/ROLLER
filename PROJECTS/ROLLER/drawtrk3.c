@@ -4853,14 +4853,8 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
       // Additional subdivision checks based on polygon screen size
       if (!divtype && !flatpol) {
         // Calculate perimeter in screen space to determine if polygon is large enough to subdivide
-        polyxsize = abs(iScreenY3 - iScreenY2)
-          + abs(iScreenY0 - iScreenY1)
-          + abs(iScreenX3 - iScreenX2)
-          + abs(iScreenX0 - iScreenX1);
-        polyysize = abs(iScreenY1 - iScreenY2)
-          + abs(iScreenY0 - iScreenY3)
-          + abs(iScreenX1 - iScreenX2)
-          + abs(iScreenX0 - iScreenX3);
+        polyxsize = abs(iScreenY3 - iScreenY2) + abs(iScreenY0 - iScreenY1) + abs(iScreenX3 - iScreenX2) + abs(iScreenX0 - iScreenX1);
+        polyysize = abs(iScreenY1 - iScreenY2) + abs(iScreenY0 - iScreenY3) + abs(iScreenX1 - iScreenX2) + abs(iScreenX0 - iScreenX3);
         if (polyxsize > small_poly && iTexWid > min_sub_size)
           ++divtype;                            // Subdivide horizontally if pol is large enough
         if (polyysize > small_poly && iTexHgt > min_sub_size)
@@ -4913,12 +4907,18 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
               if ((subpoly->iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)// SURFACE_FLAG_APPLY_TEXTURE
               {
                 // Render textured pol with car texture
-                // TODO
+                //TODO is this correct?
+                POLYTEX(
+                  cartex_vga[car_texmap[subpolytype - 3]],
+                  subptr,
+                  subpoly,
+                  car_texmap[subpolytype - 3],
+                  gfx_size);
                 //POLYTEX(
-                //  (int)*(&horizon_vga + car_draw_order_variable_3[subpolytype]),// offset into car_texmap
+                //  (&horizon_vga)[*(&car_draw_order[15].iChunkIdx + subpolytype)],// offset into car_texmap
                 //  subptr,
                 //  subpoly,
-                //  car_draw_order_variable_3[subpolytype],// offset into car_texmap
+                //  *(&car_draw_order[15].iChunkIdx + subpolytype),// offset into car_texmap
                 //  gfx_size);
                 goto LABEL_115;
               }
@@ -4929,34 +4929,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             LABEL_115:
                           // Debug: draw pol outline if showsub is enabled
               if (showsub) {
-                compout(
-                  subptr,
-                  subpoly->vertices[0].x,
-                  subpoly->vertices[0].y,
-                  subpoly->vertices[1].x,
-                  subpoly->vertices[1].y,
-                  0x9Fu);                       // 0x9F is light blue in PALETTE.PAL
-                compout(
-                  subptr,
-                  subpoly->vertices[1].x,
-                  subpoly->vertices[1].y,
-                  subpoly->vertices[2].x,
-                  subpoly->vertices[2].y,
-                  0x9Fu);
-                compout(
-                  subptr,
-                  subpoly->vertices[2].x,
-                  subpoly->vertices[2].y,
-                  subpoly->vertices[3].x,
-                  subpoly->vertices[3].y,
-                  0x9Fu);
-                compout(
-                  subptr,
-                  subpoly->vertices[0].x,
-                  subpoly->vertices[0].y,
-                  subpoly->vertices[1].x,
-                  subpoly->vertices[1].y,
-                  0x9Fu);
+                compout(subptr, subpoly->vertices[0].x, subpoly->vertices[0].y, subpoly->vertices[1].x, subpoly->vertices[1].y, 0x9Fu);// 0x9F is light blue in PALETTE.PAL
+                compout(subptr, subpoly->vertices[1].x, subpoly->vertices[1].y, subpoly->vertices[2].x, subpoly->vertices[2].y, 0x9Fu);
+                compout(subptr, subpoly->vertices[2].x, subpoly->vertices[2].y, subpoly->vertices[3].x, subpoly->vertices[3].y, 0x9Fu);
+                compout(subptr, subpoly->vertices[0].x, subpoly->vertices[0].y, subpoly->vertices[1].x, subpoly->vertices[1].y, 0x9Fu);
               }
               return;
             }
@@ -4972,8 +4948,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
               goto LABEL_111;
             if ((pPolyParams->iSurfaceType & SURFACE_FLAG_APPLY_TEXTURE) != 0)// SURFACE_FLAG_APPLY_TEXTURE
             {
-              //TODO
-              //POLYTEX(building_vga, subptr, pPolyParamsLocal, 17, gfx_size);
+              POLYTEX(building_vga, subptr, pPolyParamsLocal, 17, gfx_size);
               goto LABEL_115;
             }
           LABEL_106:
@@ -4981,8 +4956,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             goto LABEL_107;
           }
           // Default texture rendering
-          //TODO
-          //POLYTEX((int)texture_vga, subptr, pPolyParamsLocal, 0, gfx_size);
+          POLYTEX(texture_vga, subptr, pPolyParamsLocal, 0, gfx_size);
           goto LABEL_115;
         case 1:                                 // Horiz subdivision only
           // Calculate midpoint between verts 0 and 1, and 2 and 3
@@ -5001,10 +4975,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ = 1.0 / fY_mid01;
             dScreenScale = (double)scr_size;
             dProjX = (dViewDist * fX_mid01 * dInvZ + (double)xbase) * dScreenScale * 0.015625;
-            dProjX = round(dProjX); //_CHP
+            //_CHP();                             // round(dProjX)
             iScreenX_mid12 = (int)dProjX;
             dProjY = dScreenScale * (199.0 - dInvZ * (dViewDist * fMidZ_quad) - (double)ybase) * 0.015625;
-            dProjY = round(dProjY); //_CHP
+            //_CHP();                             // round(dProjY)
             iScreenX_subdiv1 = (int)dProjY;
           }
 
@@ -5028,10 +5002,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_1 = 1.0 / fZ_mid12;
             dScreenScale_1 = (double)scr_size;
             dProjX_1 = (dViewDist_1 * fX_mid12 * dInvZ_1 + (double)xbase) * dScreenScale_1 * 0.015625;
-            dProjX_1 = round(dProjX_1); //_CHP
+            //_CHP();                             // round(dProjX_1)
             iScreenX_mid23 = (int)dProjX_1;
             dProjY_1 = dScreenScale_1 * (199.0 - dInvZ_1 * (dViewDist_1 * fY_mid12) - (double)ybase) * 0.015625;
-            dProjY_1 = round(dProjY_1); //_CHP
+            //_CHP();                             // round(dProjY_1)
             iScreenY_mid12 = (int)dProjY_1;
           }
 
@@ -5141,10 +5115,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_2 = 1.0 / fZ_mid12_1;
             dScreenScale_2 = (double)scr_size;
             dProjX_2 = (dViewDist_2 * fX_mid12_1 * dInvZ_2 + (double)xbase) * dScreenScale_2 * 0.015625;
-            dProjX_2 = round(dProjX_2); //_CHP
+            //_CHP();                             // round(dProjX_2)
             iScreenX_mid12_1 = (int)dProjX_2;
             dProjY_2 = dScreenScale_2 * (199.0 - dInvZ_2 * (dViewDist_2 * fY_mid12_1) - (double)ybase) * 0.015625;
-            dProjY_2 = round(dProjY_2); //_CHP
+            //_CHP();                             // round(dProjY_2)
             iScreenY_mid12_1 = (int)dProjY_2;
           }
 
@@ -5166,10 +5140,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_3 = 1.0 / fZ_mid30;
             dScreenScale_3 = (double)scr_size;
             dProjX_3 = (dViewDist_3 * fX_mid30 * dInvZ_3 + (double)xbase) * dScreenScale_3 * 0.015625;
-            dProjX_3 = round(dProjX_3); //_CHP
+            //_CHP();                             // round(dProjX_3)
             iScreenX_mid30 = (int)dProjX_3;
             dProjY_3 = dScreenScale_3 * (199.0 - dInvZ_3 * (dViewDist_3 * fY_mid30) - (double)ybase) * 0.015625;
-            dProjY_3 = round(dProjY_3); //_CHP
+            //_CHP();                             // round(dProjY_3)
             iScreenY_mid30 = (int)dProjY_3;
           }
 
@@ -5276,10 +5250,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_4 = 1.0 / fY_mid01;
             dScreenScale_4 = (double)scr_size;
             dProjX_4 = (dViewDist_4 * fX_mid01 * dInvZ_4 + (double)xbase) * dScreenScale_4 * 0.015625;
-            dProjX_4 = round(dProjX_4); //_CHP
+            //_CHP();                             // round(dProjX_4)
             iScreenX_mid01 = (int)dProjX_4;
             dProjY_4 = dScreenScale_4 * (199.0 - dInvZ_4 * (dViewDist_4 * fMidZ_quad) - (double)ybase) * 0.015625;
-            dProjY_4 = round(dProjY_4); //_CHP
+            //_CHP();                             // round(dProjY_4)
             iScreenY_mid01 = (int)dProjY_4;
           }
 
@@ -5301,10 +5275,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_5 = 1.0 / fZ_mid12_2;
             dScreenScale_5 = (double)scr_size;
             dProjX_5 = (dViewDist_5 * fX_mid12_2 * dInvZ_5 + (double)xbase) * dScreenScale_5 * 0.015625;
-            dProjX_5 = round(dProjX_5); //_CHP
+            //_CHP();                             // round(dProjX_5)
             iScreenX_mid12_2 = (int)dProjX_5;
             dProjY_5 = dScreenScale_5 * (199.0 - dInvZ_5 * (dViewDist_5 * fY_mid12_2) - (double)ybase) * 0.015625;
-            dProjY_5 = round(dProjY_5); //_CHP
+            //_CHP();                             // round(dProjY_5)
             iScreenY_mid23 = (int)dProjY_5;
           }
 
@@ -5326,10 +5300,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_6 = 1.0 / fZ_mid23;
             dScreenScale_6 = (double)scr_size;
             dProjX_6 = (dViewDist_6 * fX_mid23 * dInvZ_6 + (double)xbase) * dScreenScale_6 * 0.015625;
-            dProjX_6 = round(dProjX_6); //_CHP
+            //_CHP();                             // round(dProjX_6)
             iScreenX_mid23_1 = (int)dProjX_6;
             dProjY_6 = dScreenScale_6 * (199.0 - dInvZ_6 * (dViewDist_6 * fY_mid23) - (double)ybase) * 0.015625;
-            dProjY_6 = round(dProjY_6); //_CHP
+            //_CHP();                             // round(dProjY_6)
             iScreenY_mid30_1 = (int)dProjY_6;
           }
 
@@ -5351,10 +5325,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_7 = 1.0 / fZ_mid30_1;
             dScreenScale_7 = (double)scr_size;
             dProjX_7 = (dViewDist_7 * fX_mid30_1 * dInvZ_7 + (double)xbase) * dScreenScale_7 * 0.015625;
-            dProjX_7 = round(dProjX_7); //_CHP
+            //_CHP();                             // round(dProjX_7)
             iScreenX_mid30_1 = (int)dProjX_7;
             dProjY_7 = dScreenScale_7 * (199.0 - dInvZ_7 * (dViewDist_7 * fY_mid30_1) - (double)ybase) * 0.015625;
-            dProjY_7 = round(dProjY_7); //_CHP
+            //_CHP();                             // round(dProjY_7)
             iScreenY_mid30_2 = (int)dProjY_7;
           }
 
@@ -5376,10 +5350,10 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
             dInvZ_8 = 1.0 / fZ_center;
             dScreenScale_8 = (double)scr_size;
             dProjX_8 = (dViewDist_8 * fX_center * dInvZ_8 + (double)xbase) * dScreenScale_8 * 0.015625;
-            dProjX_8 = round(dProjX_8); //_CHP
+            //_CHP();                             // round(dProjX_8)
             iScreenX_center = (int)dProjX_8;
             dProjY_8 = dScreenScale_8 * (199.0 - dInvZ_8 * (dViewDist_8 * fY_center) - (double)ybase) * 0.015625;
-            dProjY_8 = round(dProjY_8); //_CHP
+            //_CHP();                             // round(dProjY_8)
             iScreenY_center = (int)dProjY_8;
           }
 
