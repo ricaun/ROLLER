@@ -465,7 +465,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   //int iGroundSectionOffset2; // eax
   int iTrackLoopCounter; // ecx
   int iCurrentSect; // esi
-  int iSectionOffset; // edx
+  //int iSectionOffset; // edx
   int iOFloorType; // edx
   bool bFloorVisible; // eax
   int iCurrentFloorType; // ebx
@@ -1430,12 +1430,14 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
       iNextSectionIndex += TRAK_LEN;
     if (iNextSectionIndex >= TRAK_LEN)
       iNextSectionIndex -= TRAK_LEN;
-    iSectionOffset = iNextSectionIndex;
+    //iSectionOffset = iNextSectionIndex;
     NextSect[iCurrentSect] = iNextSectionIndex;
-    iSectionOffset <<= 7;
+    //iSectionOffset <<= 7;
     pScreenCoord_1 = &TrackScreenXYZ[iCurrentSect];
-    pNextGroundScreen = (tTrackScreenXYZ *)((char *)GroundScreenXYZ + iSectionOffset);
-    pScreenCoord = (tTrackScreenXYZ *)((char *)TrackScreenXYZ + iSectionOffset);
+    pNextGroundScreen = &GroundScreenXYZ[iNextSectionIndex];
+    pScreenCoord = &TrackScreenXYZ[iNextSectionIndex];
+    //pNextGroundScreen = (tTrackScreenXYZ *)((char *)GroundScreenXYZ + iSectionOffset);
+    //pScreenCoord = (tTrackScreenXYZ *)((char *)TrackScreenXYZ + iSectionOffset);
     iOFloorType = GroundColour[iCurrentSect][GROUND_COLOUR_OFLOOR];// Check if ground floor is visible and banks are enabled
     pCurrentGroundScreen = &GroundScreenXYZ[iCurrentSect];
     bFloorVisible = iOFloorType != -1 && GroundColour[iNextSectionIndex][GROUND_COLOUR_OFLOOR] != -1 && Banks_On;
