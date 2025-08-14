@@ -1887,9 +1887,9 @@ void play_game(int iTrack)
   network_limit = 4320;                         // Disable interrupts and setup network timing arrays
   iNetTimeItr = 0;
   do {
-    iNetTimeItr_1 = (__int16)iNetTimeItr++;     // Initialize network timing array with current frame count
+    iNetTimeItr_1 = (int16)iNetTimeItr++;     // Initialize network timing array with current frame count
     net_time[iNetTimeItr_1] = frames;
-  } while ((__int16)iNetTimeItr < 16);
+  } while ((int16)iNetTimeItr < 16);
   network_timeout = frames;
   network_error = 0;
   network_sync_error = 0;

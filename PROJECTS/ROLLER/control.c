@@ -4486,7 +4486,7 @@ void putflat(tCar *pCar)
   iRollFinal = (int)dRollResult;
   if (iStunned)                               // Apply stunned car effects - add roll offset and height adjustment
   {
-    (int16)(iRollFinal) = iRollFinal + 0x2000;
+    iRollFinal = (int16)(iRollFinal) + 0x2000;
     pCar->pos.fZ = CarBox.hitboxAy[pCar->byCarDesignIdx][4].fZ + pCar->pos.fZ;
   }
   pCar->nRoll = (int16)iRollFinal & 0x3FFF;            // Set final roll angle with 14-bit mask
