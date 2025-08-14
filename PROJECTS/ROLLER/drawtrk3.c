@@ -1138,7 +1138,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
       dScreenY1 = dInvZ1 * (dViewDistance1 * fWorldY) + (double)ybase;
       //_CHP();
       yp = (int)dScreenY1;
-      pCurrentTrackScreenXYZ->screenPtAy[1].screen.x = xp >> 6;
+      pCurrentTrackScreenXYZ->screenPtAy[1].screen.x = xp * scr_size >> 6;
       //pCurrentTrackScreenXYZ->screenPtAy[1].screen.x = iScreenX1 >> 6;
       iScreenY1 = scr_size * (199 - yp);
       pCurrentTrackScreenXYZ->screenPtAy[1].projected.fZ = (float)iProjectedZ;
@@ -1166,7 +1166,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
       dScreenY2 = dInvZ2 * (dViewDistance2 * fWorldY) + (double)ybase;
       //_CHP();
       yp = (int)dScreenY2;
-      pCurrentTrackScreenXYZ->screenPtAy[0].screen.x = xp >> 6;
+      pCurrentTrackScreenXYZ->screenPtAy[0].screen.x = xp * scr_size >> 6;
       //pCurrentTrackScreenXYZ->screenPtAy[0].screen.x = iScreenX2 >> 6;
       iScreenY2 = scr_size * (199 - yp);
       pCurrentTrackScreenXYZ->screenPtAy[0].projected.fZ = (float)iProjectedZ;
@@ -1195,7 +1195,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
       dScreenY3 = dInvZ3 * (dViewDistance3 * fWorldY) + (double)ybase;
       //_CHP();
       yp = (int)dScreenY3;
-      pCurrentTrackScreenXYZ->screenPtAy[2].screen.x = xp >> 6;
+      pCurrentTrackScreenXYZ->screenPtAy[2].screen.x = xp * scr_size >> 6;
       //pCurrentTrackScreenXYZ->screenPtAy[2].screen.x = iScreenX3 >> 6;
       iScreenY3 = scr_size * (199 - yp);
       pCurrentTrackScreenXYZ->screenPtAy[2].projected.fZ = (float)iProjectedZ;
@@ -1225,7 +1225,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
       iScrSize = scr_size;
       //_CHP();
       yp = (int)dScreenY4;
-      pCurrentTrackScreenXYZ->screenPtAy[3].screen.x = xp >> 6;
+      pCurrentTrackScreenXYZ->screenPtAy[3].screen.x = xp * scr_size >> 6;
       //pCurrentTrackScreenXYZ->screenPtAy[3].screen.x = iScreenX4 >> 6;
       pCurrentTrackScreenXYZ->screenPtAy[3].screen.y = (iScrSize * (199 - yp)) >> 6;
       pCurrentTrackScreenXYZ->screenPtAy[3].projected.fX = fWorldX;
@@ -1256,7 +1256,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
         dLeftWallScreenY = dLeftWallInvZ * (dLeftWallViewDist * fLeftWallCameraY) + (double)ybase;
         //_CHP();
         yp = (int)dLeftWallScreenY;
-        pCurrentTrackScreenXYZ->screenPtAy[4].screen.x = xp >> 6;
+        pCurrentTrackScreenXYZ->screenPtAy[4].screen.x = xp * scr_size >> 6;
         //pCurrentTrackScreenXYZ->screenPtAy[4].screen.x = iLeftWallScreenX >> 6;
         iLeftWallScreenY = scr_size * (199 - yp);
         pCurrentTrackScreenXYZ->screenPtAy[4].projected.fZ = (float)iLeftWallProjectedZ;
@@ -1302,7 +1302,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
         iRightWallScrSize = scr_size;
         //_CHP();
         yp = (int)dRightWallScreenY;
-        pCurrentTrackScreenXYZ->screenPtAy[5].screen.x = xp >> 6;
+        pCurrentTrackScreenXYZ->screenPtAy[5].screen.x = xp * scr_size >> 6;
         //pCurrentTrackScreenXYZ->screenPtAy[5].screen.x = iRightWallScreenX >> 6;
         iRightWallScreenY = iRightWallScrSize * (199 - yp);
         pCurrentTrackScreenXYZ->screenPtAy[5].projected.fZ = (float)iRightWallProjectedZ;
@@ -1364,7 +1364,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
               dGroundScreenY = dGroundInvZ * (dGroundViewDist * fGroundCameraY) + (double)ybase;
               //_CHP();
               yp = (int)dGroundScreenY;
-              pScreenPoint->screen.x = xp >> 6;
+              pScreenPoint->screen.x = xp * scr_size >> 6;
               //pScreenPoint->screen.x = iGroundScreenX >> 6;
               iGroundScreenY = scr_size * (199 - yp);
               pScreenPoint->projected.fZ = (float)iGroundProjectedZ;
@@ -4385,7 +4385,7 @@ LABEL_393:
           iRenderingIndex1 = scr_size;
           //_CHP();
           yp = (int)dProjectionDepth33;
-          LightXYZ[7].screen.x = xp >> 6;
+          LightXYZ[7].screen.x = xp * scr_size >> 6;
           //LightXYZ[7].screen.x = iRenderingIndex2 >> 6;
           LightXYZ[7].screen.y = (iRenderingIndex1 * (199 - (int)dProjectionDepth33)) >> 6;
           LightXYZ[7].projected.fX = fCameraTransformZ1;
