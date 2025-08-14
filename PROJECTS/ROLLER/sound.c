@@ -75,7 +75,6 @@ int bitaccept = 0;          //000A4A40
 uint8 *frontendspeechptr = NULL;//000A4A44
 int frontendspeechhandle = -1;  //000A4A48
 int holdmusic = 0;          //000A4A4C
-int start_cd;               //0013FA9C 
 uint8 unmangleinbuf[1024];  //00149EF0
 uint8 *musicbuffer;         //0014EBF8
 int lastvolume[16];         //001603F8
