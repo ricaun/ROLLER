@@ -659,7 +659,7 @@ void DrawCars(int iCarIdx, int iViewMode)
       if (iVisibilityFlag && (pCar->byLives & 0x80u) == 0) {
         iRoll = (pCar->iRollDynamicOffset + pCar->nRoll) & 0x3FFF;// Calculate car rotation matrix from yaw, pitch, roll
         iYaw = pCar->nYaw;
-        iPitch = ((unsigned __int16)pCar->iPitchDynamicOffset + pCar->nPitch) & 0x3FFF;
+        iPitch = ((uint16)pCar->iPitchDynamicOffset + pCar->nPitch) & 0x3FFF;
         fTransformM00 = tcos[iYaw] * tcos[iPitch];// Build 3x3 rotation matrix for car orientation
         fTransformM10 = tsin[iYaw] * tcos[iPitch];
         fTransformM20 = tsin[iPitch];

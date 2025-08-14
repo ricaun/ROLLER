@@ -564,7 +564,7 @@ void doexit()
   }
   close_network();
   SaveRecords();
-  fre(&mirbuf);
+  fre((void**)&mirbuf);
   for (int i = 0; i < 16; ++i) {
     fre((void**)&rev_vga[i]);
     fre((void**)&cartex_vga[i]);
