@@ -289,6 +289,7 @@ extern int gave_up;
 extern int champ_size;
 extern int send_finished;
 extern int game_frame;
+extern int warp_angle;
 extern int game_track;
 extern int prev_track;
 extern int view0_cnt;

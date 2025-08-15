@@ -235,6 +235,7 @@ int gave_up;                //0013FB34
 int champ_size;             //0013FB38
 int send_finished;          //0013FB40
 int game_frame;             //0013FB44
+int warp_angle;             //0013FB4C
 int game_track;             //0013FB50
 int prev_track;             //0013FB54
 int view0_cnt;              //0013FB58

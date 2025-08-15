@@ -68,9 +68,9 @@ typedef struct
   int iUnk36_2;
   int iRollCameraOffset;
   int iUnk37;
-  int iUnk38_1;
-  int iUnk38_2;
-  int iUnk38_3;
+  int iRollMotion;
+  int iPitchMotion;
+  int iYawMotion;
   int iUnk38_4;
   float fUnk39;
   uint8 byDebugDamage;
@@ -137,9 +137,8 @@ typedef struct
 
 typedef struct
 {
-  int16 nPolygonLink;
-  int16 padding;
-  int32 iPolygonIndex;
+  int iPolygonLink;
+  int iPolygonIndex;
   float fZDepth;
 } tCarZOrderEntry;
 
@@ -184,12 +183,12 @@ typedef struct
 //-------------------------------------------------------------------------------------------------
 
 extern int numcars;
+extern int team_col[16];
 extern char default_names[16][9];
 extern int16 ViewType[2];
-extern tPolyParams CarPol;
-extern float CarBaseX;
-extern float CarBaseY;
-extern float CarDiag;
+extern tVec3 carworld[4];
+extern tVec3 carpoint[4];
+extern tVec3 carlocal[4];
 extern float roadheight[4];
 extern tCarPt CarPt[128];
 extern tCarZOrderEntry CarZOrder[MAX_TRACK_CHUNKS];
@@ -198,6 +197,7 @@ extern int car_texmap[16];
 extern tCarBox CarBox;
 extern tCar Car[16];
 extern int car_persps[128];
+extern tCarPt SmokePt[2][64];
 extern int car_texs_loaded[16];
 extern tCarSpray CarSpray[18][32];
 extern char driver_names[16][9];
@@ -206,7 +206,11 @@ extern tSLight SLight[2][3];
 extern int finished_car[16];
 extern int grid[16];
 extern int cars_drawn;
+extern tPolyParams CarPol;
+extern float CarBaseX;
+extern float CarBaseY;
 extern int LoadCarTextures;
+extern float CarDiag;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -215,7 +219,7 @@ void CalcCarSizes();
 void InitCars();
 void placecars();
 void DrawCars(int iCarIdx, int iViewMode);
-void DisplayCar(int a1, uint8 *a2, float a3);
+void DisplayCar(int iCarIndex, uint8 *pScreenBuffer, float fDistanceToCar);
 int carZcmp(const void *pCar1, const void *pCar2);
 
 //-------------------------------------------------------------------------------------------------

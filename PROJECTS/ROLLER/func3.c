@@ -2548,7 +2548,7 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
 
         // Store pol data for depth sorting
         CarZOrder[uiZOrderOffset_3 / sizeof(tCarZOrderEntry)].iPolygonIndex = iPolIdx_1;
-        CarZOrder[uiZOrderOffset / sizeof(tCarZOrderEntry)].nPolygonLink = pPols->nNextPolIdx;
+        CarZOrder[uiZOrderOffset / sizeof(tCarZOrderEntry)].iPolygonLink = pPols->nNextPolIdx;
 
         // Calculate max z val for depth sorting
         if ((pPols->uiTex & SURFACE_FLAG_ANMS_LIVERY) == 0)
