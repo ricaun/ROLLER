@@ -124,7 +124,7 @@ typedef unsigned short     WORD;
 typedef int32 fixed16_16;
 #define TO_FIXED(x) ((fixed16_16)((x) * 65536.0f))
 #define FROM_FIXED(x) ((float)(x) / 65536.0f)
-#define GET_HIWORD(x) (((x) >> 16) & 0xFFFF)
+#define GET_HIWORD(x) (((x) >> 16))
 #define SET_HIWORD(lval, rval) (lval = (lval & 0x0000FFFF) | ((uint32)(rval) << 16))
 #define GET_LOWORD(x) ((x) & 0xFFFF)
 #define SET_LOWORD(lval, rval) (lval = (lval & 0xFFFF0000) | ((rval) & 0x0000FFFF))
