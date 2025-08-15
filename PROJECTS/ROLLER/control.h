@@ -4,6 +4,7 @@
 #include "types.h"
 #include "engines.h"
 #include "car.h"
+#include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
 extern float levels[7];
@@ -72,7 +73,7 @@ void changeline(int a1);
 unsigned int driverange(int a1, float *a2, float *a3);
 int updatesmokeandflames(int a1, unsigned int a2, int a3, unsigned int a4);
 void dospray(int64 a1, int a2);
-int calculateseparatedcoordinatesystem(int a1, int a2);
+void calculateseparatedcoordinatesystem(int iChunk, tData *pChunkData);
 int *findnearsection(int a1, int *a2);
 void dozoomstuff(int a1);
 int findcardistance(int a1, float a2);

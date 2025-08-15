@@ -1,7 +1,6 @@
 #include "control.h"
 #include "view.h"
 #include "loadtrak.h"
-#include "3d.h"
 #include <math.h>
 //-------------------------------------------------------------------------------------------------
 
@@ -7486,48 +7485,39 @@ void dospray(int64 a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 //00036280
-int calculateseparatedcoordinatesystem(int a1, int a2)
+void calculateseparatedcoordinatesystem(int iChunk, tData *pChunkData)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v2; // ecx
-  int v4; // eax
-  float *v5; // ebx
-  double v6; // st5
-  double v7; // st6
-  int result; // eax
-  float v9; // [esp+0h] [ebp-28h]
-  float v10; // [esp+4h] [ebp-24h]
+  int iNextChunk; // ecx
+  int iCurrentChunk; // eax
+  tData *pLocalData; // ebx
+  double dInverseTrackLength; // st5
+  double dCenterDeltaY; // st6
+  float fTangentX; // [esp+0h] [ebp-28h]
+  float fTangentY; // [esp+4h] [ebp-24h]
 
-  v2 = a1 + 1;
-  if (a1 + 1 >= TRAK_LEN)
-    v2 = 0;
-  v4 = 9 * a1;
-  v5 = (float *)((char *)&localdata + 128 * a1);
-  v6 = 1.0 / (v5[12] * control_c_variable_212);
-  v9 = ((TrakPt_variable_3[18 * v2] + TrakPt_variable_6[18 * v2]) * control_c_variable_211
-      - (TrakPt_variable_3[2 * v4] + TrakPt_variable_6[2 * v4]) * control_c_variable_211)
-    * v6;
-  v7 = (TrakPt_variable_4[18 * v2] + TrakPt_variable_7[18 * v2]) * control_c_variable_211
-    - (TrakPt_variable_4[2 * v4] + TrakPt_variable_7[2 * v4]) * control_c_variable_211;
-  v10 = v6 * v7;
-  *(float *)(a2 + 4) = -(v6 * v7);
-  *(_DWORD *)(a2 + 8) = 0;
-  *(_DWORD *)(a2 + 20) = 0;
-  *(_DWORD *)(a2 + 24) = 0;
-  *(_DWORD *)(a2 + 28) = 0;
-  *(_DWORD *)(a2 + 32) = 1065353216;
-  *(float *)a2 = v9;
-  *(float *)(a2 + 12) = v10;
-  *(float *)(a2 + 16) = v9;
-  *(float *)(a2 + 36) = v5[9];
-  *(float *)(a2 + 40) = v5[10];
-  *(float *)(a2 + 44) = v5[11];
-  *(float *)(a2 + 48) = v5[12];
-  result = *((_DWORD *)v5 + 13);
-  *(_DWORD *)(a2 + 52) = result;
-  return result;*/
+  iNextChunk = iChunk + 1;                      // Calculate next chunk index
+  if (iChunk + 1 >= TRAK_LEN)                 // Wrap around if we've reached the end of the track
+    iNextChunk = 0;
+  iCurrentChunk = iChunk;
+  pLocalData = &localdata[iChunk];              // Get pointer to local data for current chunk
+  dInverseTrackLength = 1.0 / (pLocalData->fTrackHalfLength * 2.0);// Calculate inverse track length for normalization
+  fTangentX = ((TrakPt[iNextChunk].pointAy[2].fX + TrakPt[iNextChunk].pointAy[3].fX) * 0.5f - (TrakPt[iCurrentChunk].pointAy[2].fX + TrakPt[iCurrentChunk].pointAy[3].fX) * 0.5f)
+    * (float)dInverseTrackLength;              // Calculate X component of track tangent vector (normalized)
+  dCenterDeltaY = (TrakPt[iNextChunk].pointAy[2].fY + TrakPt[iNextChunk].pointAy[3].fY) * 0.5
+    - (TrakPt[iCurrentChunk].pointAy[2].fY + TrakPt[iCurrentChunk].pointAy[3].fY) * 0.5;// Calculate Y difference between track centers
+  fTangentY = (float)(dInverseTrackLength * dCenterDeltaY);
+  pChunkData->pointAy[0].fY = (float)(-(dInverseTrackLength * dCenterDeltaY));// Set up local coordinate system - pointAy[0] is right vector
+  pChunkData->pointAy[0].fZ = 0.0;
+  pChunkData->pointAy[1].fZ = 0.0;
+  pChunkData->pointAy[2].fX = 0.0;              // Set up local coordinate system - pointAy[2] is up vector (0,0,1)
+  pChunkData->pointAy[2].fY = 0.0;
+  pChunkData->pointAy[2].fZ = 1.0;
+  pChunkData->pointAy[0].fX = fTangentX;        // Set up local coordinate system - pointAy[1] is forward vector
+  pChunkData->pointAy[1].fX = fTangentY;
+  pChunkData->pointAy[1].fY = fTangentX;
+  pChunkData->pointAy[3] = pLocalData->pointAy[3];// Copy track position and dimensions from local data
+  pChunkData->fTrackHalfLength = pLocalData->fTrackHalfLength;
+  pChunkData->fTrackHalfWidth = pLocalData->fTrackHalfWidth;
 }
 
 //-------------------------------------------------------------------------------------------------
