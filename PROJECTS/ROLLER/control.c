@@ -986,115 +986,121 @@ void control()
 
 //-------------------------------------------------------------------------------------------------
 //0002AEC0
-double calc_revs(tRev *pRevs, int iGear, float fChg)
+double calc_revs(tRevCurve *pRevs, int iGear, float fChg)
 {
-  tRev *pRev; // eax
-  double d2; // st7
-  double d3; // st3
-  float d1; // [esp+18h] [ebp-30h]
-  float fRev4; // [esp+2Ch] [ebp-1Ch]
-  float fRev5; // [esp+34h] [ebp-14h]
-  float fRev7; // [esp+38h] [ebp-10h]
-  float fResult; // [esp+3Ch] [ebp-Ch]
-  float fRev3; // [esp+40h] [ebp-8h]
+  tRevCurve *pCurrentGearCurve; // eax
+  double dDelta2; // st7
+  double dDelta3; // st3
+  float fInterpCoeffA; // [esp+8h] [ebp-40h]
+  float fDelta1; // [esp+18h] [ebp-30h]
+  float fPower; // [esp+2Ch] [ebp-1Ch]
+  float fRevPoint2; // [esp+34h] [ebp-14h]
+  float fRevPoint3; // [esp+38h] [ebp-10h]
+  float fCalculatedResult; // [esp+3Ch] [ebp-Ch]
+  float fRPM; // [esp+40h] [ebp-8h]
 
-  pRev = &pRevs[iGear];
-  fRev3 = pRev->fRev3;
-  fRev5 = pRev->fRev5;
-  fRev7 = pRev->fRev7;
-  fRev4 = pRev->fRev4;
-  if (fChg < 0.0 || fChg >= (double)fRev3) {
-    if (fChg < (double)fRev3 || fChg >= (double)fRev7) {
-      fResult = 1.0;
+  pCurrentGearCurve = &pRevs[iGear];            // Get pointer to RPM/power curve for specified gear
+  fRPM = pCurrentGearCurve->points[1].fRPM;     // Load RPM and power values from curve points 1, 2, 3
+  fRevPoint2 = pCurrentGearCurve->points[2].fRPM;
+  fRevPoint3 = pCurrentGearCurve->points[3].fRPM;
+  fPower = pCurrentGearCurve->points[1].fPower;
+  if (fChg < 0.0 || fChg >= (double)fRPM)     // Low RPM range: quadratic interpolation between points 0-1
+  {                                             // Mid RPM range: quadratic interpolation between points 1-3
+    if (fChg < (double)fRPM || fChg >= (double)fRevPoint3) {
+      fCalculatedResult = 1.0;                  // High RPM range: return maximum value
     } else {
-      d1 = fChg - fRev3;
-      d2 = fChg - fRev5;
-      d3 = fChg - fRev7;
-      fResult = (float)d3 * d1 * pRev->fRev6 / ((fRev5 - fRev3) * (fRev5 - fRev7))
-        + (float)d2 * (float)d3 * fRev4 / ((fRev3 - fRev5) * (fRev3 - fRev7))
-        + (float)d2 * d1 * pRev->fRev8 / ((fRev7 - fRev3) * (fRev7 - fRev5));
+      fDelta1 = fChg - fRPM;                    // Calculate delta values for quadratic interpolation
+      dDelta2 = fChg - fRevPoint2;
+      dDelta3 = fChg - fRevPoint3;
+      fInterpCoeffA = (float)(dDelta2 * dDelta3 * fPower / ((fRPM - fRevPoint2) * (fRPM - fRevPoint3)));// Calculate first interpolation coefficient
+      fCalculatedResult = (float)(dDelta3 * fDelta1 * pCurrentGearCurve->points[2].fPower / ((fRevPoint2 - fRPM) * (fRevPoint2 - fRevPoint3))
+        + fInterpCoeffA
+        + dDelta2 * fDelta1 * pCurrentGearCurve->points[3].fPower / ((fRevPoint3 - fRPM) * (fRevPoint3 - fRevPoint2)));// Complete quadratic interpolation using all three points
     }
-  } else
-  {
-    fResult = (fChg - fRev3) * fChg * pRev->fRev2 / ((pRev->fRev1 - fRev3) * pRev->fRev1)
-      + (fChg - pRev->fRev1) * fChg * fRev4 / (fRev3 * (fRev3 - pRev->fRev1));
+  } else {
+    fCalculatedResult = (fChg - fRPM) * fChg * pCurrentGearCurve->points[0].fPower / ((pCurrentGearCurve->points[0].fRPM - fRPM) * pCurrentGearCurve->points[0].fRPM)
+      + (fChg - pCurrentGearCurve->points[0].fRPM) * fChg * fPower / (fRPM * (fRPM - pCurrentGearCurve->points[0].fRPM));// Calculate interpolated value using quadratic formula for low range
   }
 
   // clamp result to between 0.0 and 1.0
-  if (fResult < 0.0)
-    fResult = 0.0;
-  if (fResult > 1.0)
+  if (fCalculatedResult < 0.0)                // Clamp result to valid range [0.0, 1.0]
+    fCalculatedResult = 0.0;
+  if (fCalculatedResult > 1.0)
     return 1.0;
-  return fResult;
+  return fCalculatedResult;
 }
 
 //-------------------------------------------------------------------------------------------------
 //0002B030
-double calc_pow(int iCarDesignIdx, int iGearAyMax, float a3)
+double calc_pow(int iCarDesignIdx, int iCurrentGear, float fSpeedRatio)
 {
-  return 0.0;/*
-    tRev *pRevs; // eax
-    double v6; // st5
-    double v7; // st4
-    double v8; // st6
-    double v9; // st7
-    double v10; // st5
-    double v11; // st3
-    double v12; // rtt
-    float v14; // [esp+0h] [ebp-4Ch]
-    float v15; // [esp+Ch] [ebp-40h]
-    float v16; // [esp+20h] [ebp-2Ch]
-    float f2; // [esp+24h] [ebp-28h]
-    float f6; // [esp+28h] [ebp-24h]
-    float f8; // [esp+2Ch] [ebp-20h]
-    float f1; // [esp+30h] [ebp-1Ch]
-    float f4; // [esp+34h] [ebp-18h]
-    float v22; // [esp+38h] [ebp-14h]
-    float f5; // [esp+3Ch] [ebp-10h]
-    float f7; // [esp+40h] [ebp-Ch]
-    float f3; // [esp+44h] [ebp-8h]
+  tRevCurve *pfRevData; // eax
+  double dLowInterp1; // st5
+  double dLowInterp2; // st4
+  double dLowCoeffA; // st6
+  double dLowCoeffB; // st7
+  double dHighInterp1; // st5
+  double dHighInterp2; // st3
+  double dHighCoeffB; // rtt
+  float fHighCoeffA; // [esp+0h] [ebp-4Ch]
+  float fHighDenominator; // [esp+Ch] [ebp-40h]
+  float fHighInterp3; // [esp+20h] [ebp-2Ch]
+  float fRevPoint1; // [esp+24h] [ebp-28h]
+  float fPowerPoint3; // [esp+28h] [ebp-24h]
+  float fPowerPoint4; // [esp+2Ch] [ebp-20h]
+  float fRevPoint0; // [esp+30h] [ebp-1Ch]
+  float fPowerPoint2; // [esp+34h] [ebp-18h]
+  float fCalculatedPower; // [esp+38h] [ebp-14h]
+  float fRevPoint3; // [esp+3Ch] [ebp-10h]
+  float fRevPoint4; // [esp+40h] [ebp-Ch]
+  float fRevPoint2; // [esp+44h] [ebp-8h]
 
-    pRevs = CarEngines.engines[iCarDesignIdx].pRevs;
-    f1 = pRevs[iGearAyMax].f1;
-    f3 = pRevs[iGearAyMax].f3;
-    f5 = pRevs[iGearAyMax].f5;
-    f7 = pRevs[iGearAyMax].f7;
-    f2 = pRevs[iGearAyMax].f2;
-    f4 = pRevs[iGearAyMax].f4;
-    f6 = pRevs[iGearAyMax].f6;
-    f8 = pRevs[iGearAyMax].f8;
-    if (a3 < 0.0 || a3 >= (double)f4) {
-      if (a3 < (double)f4 || a3 >= (double)f8) {
-        v22 = pRevs[iGearAyMax].f7;
-      } else {
-        v15 = (f7 - f3) * (f7 - f5);
-        v10 = 1.0 / ((f3 - f5) * (f3 - f7));
-        v11 = 1.0 / ((f5 - f3) * (f5 - f7));
-        v16 = 1.0 / v15;
-        v14 = f4 * v10 + f6 * v11 + f8 * v16;
-        v12 = (f5 + f7) * -f4 * v10 - (f3 + f7) * f6 * v11 - (f3 + f5) * f8 * v16;
-        v22 = (sqrt(
-          v12 * v12
-          - (v10 * (f4 * f5 * f7) + v11 * (f7 * (f6 * f3)) + f5 * (f3 * f8) * v16 - a3)
-          * (v14
-             * control_c_variable_16))
-             - v12)
-          / (v14
-           * control_c_variable_17);
-      }
+  pfRevData = CarEngines.engines[iCarDesignIdx].pRevs;// Get pointer to RPM/power curve data for this car and gear
+  fRevPoint0 = pfRevData[iCurrentGear].points[0].fRPM;// Load 4 RPM points and 4 power values for power curve interpolation
+  fRevPoint2 = pfRevData[iCurrentGear].points[1].fRPM;
+  fRevPoint3 = pfRevData[iCurrentGear].points[2].fRPM;
+  fRevPoint4 = pfRevData[iCurrentGear].points[3].fRPM;
+  fRevPoint1 = pfRevData[iCurrentGear].points[0].fPower;
+  fPowerPoint2 = pfRevData[iCurrentGear].points[1].fPower;
+  fPowerPoint3 = pfRevData[iCurrentGear].points[2].fPower;
+  fPowerPoint4 = pfRevData[iCurrentGear].points[3].fPower;
+  if (fSpeedRatio < 0.0 || fSpeedRatio >= (double)fPowerPoint2)// Low RPM range: quadratic interpolation between points 0-2
+  {                                             // Mid RPM range: quadratic interpolation between points 2-4
+    if (fSpeedRatio < (double)fPowerPoint2 || fSpeedRatio >= (double)fPowerPoint4) {
+      fCalculatedPower = pfRevData[iCurrentGear].points[3].fRPM;// High RPM range: use maximum power value
     } else {
-      v6 = 1.0 / ((f1 - f3) * f1);
-      v7 = 1.0 / ((f3 - f1) * f3);
-      v8 = f2 * v6 + f4 * v7;
-      v9 = -(v6 * (f3 * f2)) - v7 * (f1 * f4);
-      v22 = (sqrt(v9 * v9 - -a3 * (v8 * control_c_variable_16)) - v9) / (v8 * control_c_variable_17);
+      fHighDenominator = (fRevPoint4 - fRevPoint2) * (fRevPoint4 - fRevPoint3);// Calculate quadratic interpolation coefficients for mid RPM
+      dHighInterp1 = 1.0 / ((fRevPoint2 - fRevPoint3) * (fRevPoint2 - fRevPoint4));
+      dHighInterp2 = 1.0 / ((fRevPoint3 - fRevPoint2) * (fRevPoint3 - fRevPoint4));
+      fHighInterp3 = 1.0f / fHighDenominator;
+      fHighCoeffA = (float)(fPowerPoint2 * dHighInterp1 + fPowerPoint3 * dHighInterp2 + fPowerPoint4 * fHighInterp3);
+      dHighCoeffB = (fRevPoint3 + fRevPoint4) * -fPowerPoint2 * dHighInterp1
+        - (fRevPoint2 + fRevPoint4) * fPowerPoint3 * dHighInterp2
+        - (fRevPoint2 + fRevPoint3) * fPowerPoint4 * fHighInterp3;
+      fCalculatedPower = (float)((sqrt(
+        dHighCoeffB * dHighCoeffB
+        - (dHighInterp1 * (fPowerPoint2 * fRevPoint3 * fRevPoint4)
+           + dHighInterp2 * (fRevPoint4 * (fPowerPoint3 * fRevPoint2))
+           + fRevPoint3 * (fRevPoint2 * fPowerPoint4) * fHighInterp3
+           - fSpeedRatio)
+        * (fHighCoeffA
+           * 4.0))
+                        - dHighCoeffB)
+        / (fHighCoeffA
+         * 2.0));                 // Solve complex quadratic equation for mid-range power
     }
-    if (v22 < 0.0)
-      v22 = 0.0;
-    if (v22 > (double)control_c_variable_18)
-      return 1024.0;
-    return v22;
-  }*/
+  } else {
+    dLowInterp1 = 1.0 / ((fRevPoint0 - fRevPoint2) * fRevPoint0);// Calculate quadratic interpolation coefficients for low RPM
+    dLowInterp2 = 1.0 / ((fRevPoint2 - fRevPoint0) * fRevPoint2);
+    dLowCoeffA = fRevPoint1 * dLowInterp1 + fPowerPoint2 * dLowInterp2;
+    dLowCoeffB = -(dLowInterp1 * (fRevPoint2 * fRevPoint1)) - dLowInterp2 * (fRevPoint0 * fPowerPoint2);
+    fCalculatedPower = (float)((sqrt(dLowCoeffB * dLowCoeffB - -fSpeedRatio * (dLowCoeffA * 4.0)) - dLowCoeffB) / (dLowCoeffA * 2.0));// Solve quadratic equation using quadratic formula
+  }
+  if (fCalculatedPower < 0.0)                 // Clamp power output to valid range [0, 1024]
+    fCalculatedPower = 0.0;
+  if (fCalculatedPower > 1024.0)
+    return 1024.0;
+  return fCalculatedPower;
 }
 
 //-------------------------------------------------------------------------------------------------

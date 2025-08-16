@@ -6,22 +6,23 @@
 
 typedef struct
 {
-  float fRev1;
-  float fRev2;
-  float fRev3;
-  float fRev4;
-  float fRev5;
-  float fRev6;
-  float fRev7;
-  float fRev8;
-} tRev;
+  float fRPM;
+  float fPower;
+} tRevCurvePoint;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  tRevCurvePoint points[4];
+} tRevCurve;
 
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
 {
   int iNumGears;
-  tRev *pRevs;
+  tRevCurve *pRevs;
   float *pSpds;                         ///< maximum speed at each gear
   int iUnk2;
   int *pChgs;
@@ -50,7 +51,6 @@ typedef struct
   float fUnk25;
 } tCarEngine;
 
-
 //-------------------------------------------------------------------------------------------------
 
 typedef struct
@@ -60,39 +60,39 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
-extern tRev AUTO_A_revs[];
+extern tRevCurve AUTO_A_revs[];
 extern float AUTO_A_spds[];
 extern int AUTO_A_chgs[];
 
-extern tRev DESILVA_revs[];
+extern tRevCurve DESILVA_revs[];
 extern float DESILVA_spds[];
 extern int DESILVA_chgs[];
 
-extern tRev PULSE_E_revs[];
+extern tRevCurve PULSE_E_revs[];
 extern float PULSE_E_spds[];
 extern int PULSE_E_chgs[];
 
-extern tRev GLOBAL_revs[];
+extern tRevCurve GLOBAL_revs[];
 extern float GLOBAL_spds[];
 extern int GLOBAL_chgs[];
 
-extern tRev MILLION_revs[];
+extern tRevCurve MILLION_revs[];
 extern float MILLION_spds[];
 extern int MILLION_chgs[];
 
-extern tRev MISSION_revs[];
+extern tRevCurve MISSION_revs[];
 extern float MISSION_spds[];
 extern int MISSION_chgs[];
 
-extern tRev ZIZIN_revs[];
+extern tRevCurve ZIZIN_revs[];
 extern float ZIZIN_spds[];
 extern int ZIZIN_chgs[];
 
-extern tRev REISE_W_revs[];
+extern tRevCurve REISE_W_revs[];
 extern float REISE_W_spds[];
 extern int REISE_W_chgs[];
 
-extern tRev fast_revs[];
+extern tRevCurve fast_revs[];
 extern float fast_spds[];
 extern int fast_chgs[];
 
