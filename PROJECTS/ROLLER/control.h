@@ -43,7 +43,7 @@ void control();
 double calc_revs(tRevCurve *pRevs, int iGear, float fChg);
 double calc_pow(int iCarDesignIdx, int iCurrentGear, float fRPMRatio);
 void Accelerate(float *a1);
-int Decelerate(int a1);
+void Decelerate(tCar *pCar);
 int FreeWheel(int a1);
 void SetEngine(tCar *pCar, float fThrottle);
 double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignIdx);

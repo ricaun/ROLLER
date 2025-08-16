@@ -24,7 +24,7 @@ typedef struct
   int iNumGears;
   tRevCurve *pRevs;
   float *pSpds;                         ///< maximum speed at each gear
-  int iUnk2;
+  float fDragCoefficient;
   int *pChgs;
   int iUnk3;
   float fUnk4;
@@ -32,10 +32,10 @@ typedef struct
   int iUnk6;
   int iUnk7;
   int iUnk8;
-  int iUnk9;
-  int iUnk10;
-  int iUnk11;
-  int iUnk12;
+  int iPitchDecayRate;
+  int iMinPitchOffset;
+  int iNoseUpRecoveryRate;
+  int iNoseDownRecoveryRate;
   int iUnk13;
   int iUnk14;
   int iUnk15;
