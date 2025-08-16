@@ -451,12 +451,12 @@ void placecars()
       {
         iViewCarIdx = ViewType[0];
         pEngine = &CarEngines.engines[Car[iViewCarIdx].byCarDesignIdx];// Get engine data for player car
-        Car[iViewCarIdx].fCameraDistance = 1.0; // Set camera distance for player
+        Car[iViewCarIdx].fRPMRatio = 1.0;
         byGearAyMax = (uint8)(pEngine->iNumGears) - 1;// Set maximum gear for this car
         Car[iViewCarIdx].byGearAyMax = byGearAyMax;
         Car[iViewCarIdx].fFinalSpeed = pEngine->pSpds[byGearAyMax];// Set max speed from engine data
         Car[iViewCarIdx].fBaseSpeed = Car[iViewCarIdx].fFinalSpeed;
-        dPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fCameraDistance);// Calculate power for this car configuration
+        dPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fRPMRatio);// Calculate power for this car configuration
         Car[iViewCarIdx].fSpeedOverflow = 0;
         Car[iViewCarIdx].byUnk58 = -1;
         Car[iViewCarIdx].byUnk61 = 36;

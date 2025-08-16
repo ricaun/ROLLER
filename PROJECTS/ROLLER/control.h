@@ -37,16 +37,16 @@ extern char RecordNames[25][9];
 //-------------------------------------------------------------------------------------------------
 
 void humancar(int a1);
-void GoUpGear(int a1);
-void GoDownGear(int a1, int a2);
+void GoUpGear(tCar *pCar);
+void GoDownGear(tCar *pCar, int iUseAutoLogic);
 void control();
 double calc_revs(tRevCurve *pRevs, int iGear, float fChg);
-double calc_pow(int iCarDesignIdx, int iCurrentGear, float fSpeedRatio);
+double calc_pow(int iCarDesignIdx, int iCurrentGear, float fRPMRatio);
 void Accelerate(float *a1);
 int Decelerate(int a1);
 int FreeWheel(int a1);
 void SetEngine(tCar *pCar, float fThrottle);
-double change_gear(int a1, int a2, int a3, int a4);
+double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignIdx);
 void updatecar2(int a1, int a2, int a3);
 int16 check_crossed_line(int a1);
 char checkplacement(int a1);

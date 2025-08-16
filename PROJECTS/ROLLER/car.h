@@ -54,7 +54,7 @@ typedef struct
   int iUnk25_2;
   float fBaseSpeed;
   float fSpeedOverflow;
-  float fCameraDistance;
+  float fRPMRatio;
   float fPower;
   uint8 byGearAyMax;
   char byLap;

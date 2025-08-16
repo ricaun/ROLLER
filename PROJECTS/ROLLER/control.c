@@ -1,6 +1,7 @@
 #include "control.h"
 #include "view.h"
 #include "loadtrak.h"
+#include "sound.h"
 #include <math.h>
 #include <float.h>
 //-------------------------------------------------------------------------------------------------
@@ -364,127 +365,138 @@ void humancar(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //0002A060
-void GoUpGear(int a1)
+void GoUpGear(tCar *pCar)
 {
-  (void)(a1);
-  /*
-  int *v2; // edi
-  int v3; // ecx
-  int v4; // ecx
-  float *v5; // edi
-  double v6; // st7
-  float v7; // [esp+0h] [ebp-2Ch]
-  float v8; // [esp+4h] [ebp-28h]
-  float v9; // [esp+8h] [ebp-24h]
-  float v10; // [esp+Ch] [ebp-20h]
-  float v11; // [esp+10h] [ebp-1Ch]
+  int iCarDesignIdx; // esi
+  tCarEngine *pEngineData; // edi
+  int byGearAyMax; // ecx
+  int iTargetGear; // ecx
+  float *pSpds; // edi
+  float fNewPowerForward; // [esp+0h] [ebp-2Ch]
+  float fNewPowerReverse; // [esp+0h] [ebp-2Ch]
+  float fMinShiftSpeed; // [esp+4h] [ebp-28h]
+  float fAdjustedSpeed; // [esp+8h] [ebp-24h]
+  float fHealthFactor; // [esp+Ch] [ebp-20h]
+  float fRPMRatio; // [esp+10h] [ebp-1Ch]
 
-  v2 = &CarEngines[28 * *(unsigned __int8 *)(a1 + 102)];
-  v3 = *(char *)(a1 + 128);
-  if (v3 < *v2 - 1) {
-    v10 = (*(float *)(a1 + 28) + control_c_variable_2) * control_c_variable_3;
-    v4 = v3 + 1;
-    if (v10 > 1.0)
-      v10 = 1.0;
-    v8 = -1.0;
-    v9 = fabs(*(float *)(a1 + 24)) / v10;
-    if (human_control[*(_DWORD *)(a1 + 32)] != 2 && v4 > 0)
-      v8 = *(float *)(v2[2] + 4 * v4 - 4) * control_c_variable_4;
-    if (v9 >= (double)v8) {
-      v5 = (float *)v2[2];
-      if (v4 < 0) {
-        v11 = v9 / *v5;
-        v6 = 1.0;
-        if (v11 > 1.0)
-          v11 = 1.0;
+  iCarDesignIdx = pCar->byCarDesignIdx;         // Get car design index and engine data
+  pEngineData = &CarEngines.engines[iCarDesignIdx];
+  byGearAyMax = (char)pCar->byGearAyMax;
+  if (byGearAyMax < pEngineData->iNumGears - 1)// Check if car can upshift (not already in top gear)
+  {
+    fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car damage, capped at 1.0
+    iTargetGear = byGearAyMax + 1;
+    if (fHealthFactor > 1.0)
+      fHealthFactor = 1.0;
+    fMinShiftSpeed = -1.0;                      // Initialize minimum shift speed to -1 (no restriction)
+    fAdjustedSpeed = (float)(fabs(pCar->fFinalSpeed) / fHealthFactor);// Calculate current speed adjusted by health factor
+    if (human_control[pCar->iDriverIdx] != 2 && iTargetGear > 0)// For AI drivers, set minimum speed for upshift (50% of current gear max speed)
+      fMinShiftSpeed = pEngineData->pSpds[iTargetGear - 1] * 0.5f;
+    if (fAdjustedSpeed >= (double)fMinShiftSpeed)// Check if car is fast enough to upshift
+    {
+      pSpds = pEngineData->pSpds;
+      if (iTargetGear < 0)                    // Handle reverse gear upshift (gear < 0)
+      {
+        fRPMRatio = fAdjustedSpeed / *pSpds;
+        if (fRPMRatio > 1.0)
+          fRPMRatio = 1.0;
       } else {
-        v11 = v9 / v5[v4];
-        v6 = 1.0;
-        if (v11 > 1.0)
-          v11 = 1.0;
+        fRPMRatio = fAdjustedSpeed / pSpds[iTargetGear];// Calculate RPM ratio for target gear
+        if (fRPMRatio > 1.0)
+          fRPMRatio = 1.0;
       }
-      *(float *)(a1 + 120) = v11;
-      if ((__int16)player1_car == *(_DWORD *)(a1 + 32) && !DriveView[0])
-        sfxsample(5, 12000, a1);
-      if (player2_car == *(_DWORD *)(a1 + 32) && !DriveView_variable_1)
-        sfxsample(5, 12000, a1);
-      calc_pow(v11);
-      v7 = v6;
-      if (v4 < 0) {
-        *(_DWORD *)(a1 + 112) = 0;
-        *(_BYTE *)(a1 + 128) = v4;
-        *(float *)(a1 + 124) = v7;
+      pCar->fRPMRatio = fRPMRatio;
+      if (player1_car == pCar->iDriverIdx && !DriveView[0])// Play gear shift sound for human players (not in cockpit view)
+        sfxsample(SOUND_SAMPLE_GRSHIFT, 12000);                    // SOUND_SAMPLE_GRSHIFT
+      if (player2_car == pCar->iDriverIdx && !DriveView[1])
+        sfxsample(SOUND_SAMPLE_GRSHIFT, 12000);                    // SOUND_SAMPLE_GRSHIFT
+      if (iTargetGear < 0)                    // Handle upshift to reverse gear (set gear 0)
+      {
+        fNewPowerReverse = (float)calc_pow(iCarDesignIdx, 0, fRPMRatio);
+        pCar->fBaseSpeed = 0.0;
+        pCar->byGearAyMax = iTargetGear;
+        pCar->fPower = fNewPowerReverse;
       } else {
-        *(_BYTE *)(a1 + 128) = v4;
-        *(float *)(a1 + 124) = v7;
-        *(float *)(a1 + 112) = v5[v4] * v11 * v10;
+        fNewPowerForward = (float)calc_pow(iCarDesignIdx, iTargetGear, fRPMRatio);// Handle normal forward gear upshift
+        pCar->byGearAyMax = iTargetGear;
+        pCar->fPower = fNewPowerForward;
+        pCar->fBaseSpeed = pSpds[iTargetGear] * fRPMRatio * fHealthFactor;
       }
-      *(float *)(a1 + 116) = *(float *)(a1 + 24) - *(float *)(a1 + 112);
+      pCar->fSpeedOverflow = pCar->fFinalSpeed - pCar->fBaseSpeed;// Update speed overflow (difference between current and base speed)
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //0002A200
-void GoDownGear(int a1, int a2)
+void GoDownGear(tCar *pCar, int iUseAutoLogic)
 {
-  (void)(a1); (void)(a2);
-  /*
-  int *v4; // edi
-  int v5; // eax
-  int v6; // eax
-  int v7; // edx
-  int v8; // eax
-  int v9; // ebx
-  double v10; // st7
-  float *v11; // ecx
-  double v12; // st7
-  float v13; // [esp+4h] [ebp-24h]
-  float v14; // [esp+8h] [ebp-20h]
-  float v15; // [esp+Ch] [ebp-1Ch]
-  int v16; // [esp+10h] [ebp-18h]
+  int iCarDesignIdx; // ecx
+  tCarEngine *pEngineData; // edi
+  int iGearAyMax; // eax
+  int iTargetGear; // eax
+  int iGearForCalc; // edx
+  int iCurrentGear; // eax
+  tCar *pCarCopy; // ebx
+  double dBaseSpeed; // st7
+  float *pSpds; // ecx
+  double dMaxSpeed; // st7
+  float fRPMRatio; // [esp+0h] [ebp-28h]
+  float fDownshiftThreshold; // [esp+4h] [ebp-24h]
+  float fHealthFactor; // [esp+8h] [ebp-20h]
+  float fCalculatedPower; // [esp+Ch] [ebp-1Ch]
+  int iTargetGearIdx; // [esp+10h] [ebp-18h]
 
-  v14 = (*(float *)(a1 + 28) + control_c_variable_5) * control_c_variable_6;
-  v4 = &CarEngines[28 * *(unsigned __int8 *)(a1 + 102)];
-  if (v14 > 1.0)
-    v14 = 1.0;
-  v5 = *(char *)(a1 + 128);
-  if (v5 > -2) {
-    v6 = v5 - 1;
-    v16 = v6;
-    if (v6 < 0) {
-      v8 = 1;
-      v9 = a1;
-      v7 = 0;
+  fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car damage
+  iCarDesignIdx = pCar->byCarDesignIdx;        // Get car design index and engine data
+  pEngineData = &CarEngines.engines[iCarDesignIdx];
+  if (fHealthFactor > 1.0)
+    fHealthFactor = 1.0;
+  iGearAyMax = (char)pCar->byGearAyMax;
+  if (iGearAyMax > -2)                       // Check if car can downshift (not already in lowest gear -2)
+  {
+    iTargetGear = iGearAyMax - 1;              // Calculate target gear (current gear - 1)
+    iTargetGearIdx = iTargetGear;
+    if (iTargetGear < 0)                      // Handle reverse gear downshift (target < 0)
+    {
+      iCurrentGear = 1;
+      pCarCopy = pCar;
+      iGearForCalc = 0;
     } else {
-      v7 = v6;
-      v8 = v6 + 1;
-      v9 = a1;
+      iGearForCalc = iTargetGear;               // Handle forward gear downshift
+      iCurrentGear = iTargetGear + 1;
+      pCarCopy = pCar;
     }
-    v15 = change_gear(v8, v7, v9);
-    v13 = 1000.0;
-    if (human_control[*(_DWORD *)(a1 + 32)] != 2 && a2)
-      v13 = (double)*(int *)(v4[4] + 8 * v16) * control_c_variable_7;
-    if (v15 < (double)v13) {
-      *(float *)(a1 + 124) = v15;
-      *(_BYTE *)(a1 + 128) = v16;
-      if (v16 == -1) {
-        v10 = *(float *)(a1 + 112);
-        *(_DWORD *)(a1 + 112) = 0;
+    fCalculatedPower = (float)change_gear(iCurrentGear, iGearForCalc, pCarCopy, iCarDesignIdx);// Calculate power output for target gear using change_gear function
+    fDownshiftThreshold = 1000.0;               // Set downshift threshold: high value for human, gear change value * 1.2 for AI
+    if (human_control[pCar->iDriverIdx] != 2 && iUseAutoLogic)
+      fDownshiftThreshold = pEngineData->pChgs[2 * iTargetGearIdx] * 1.2f;
+    if (fCalculatedPower < (double)fDownshiftThreshold)// Check if calculated power is below downshift threshold
+    {
+      pCar->fPower = fCalculatedPower;
+      pCar->byGearAyMax = iTargetGearIdx;
+      if (iTargetGearIdx == -1)               // Handle downshift to reverse gear (-1): zero base speed
+      {
+        dBaseSpeed = pCar->fBaseSpeed;
+        pCar->fBaseSpeed = 0.0;
       } else {
-        v11 = (float *)v4[2];
-        calc_revs(v15);
-        *(float *)(a1 + 120) = v15;
-        if (v16 >= 0)
-          v12 = v11[v16];
-        else
-          v12 = -*v11;
-        *(float *)(a1 + 112) = v12 * v15 * v14;
-        v10 = *(float *)(a1 + 24) - *(float *)(a1 + 112);
+        pSpds = pEngineData->pSpds;
+        if (iTargetGearIdx >= 0)              // Handle forward gear downshift: calculate RPM ratio and speeds
+        {
+          fRPMRatio = (float)calc_revs(pEngineData->pRevs, iTargetGearIdx, fCalculatedPower);// Forward gear: use target gear curve data and positive max speed
+          pCar->fRPMRatio = fRPMRatio;
+          dMaxSpeed = pSpds[iTargetGearIdx];
+        } else {
+          fRPMRatio = (float)calc_revs(pEngineData->pRevs, 0, fCalculatedPower);// Reverse gear: use gear 0 curve data, negative max speed
+          pCar->fRPMRatio = fRPMRatio;
+          dMaxSpeed = -*pSpds;
+        }
+        pCar->fBaseSpeed = (float)dMaxSpeed * fRPMRatio * fHealthFactor;// Calculate new base speed: max speed * RPM ratio * health factor
+        dBaseSpeed = pCar->fFinalSpeed - pCar->fBaseSpeed;// Update speed overflow (difference between final and base speed)
       }
-      *(float *)(a1 + 116) = v10;
+      pCar->fSpeedOverflow = (float)dBaseSpeed;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1032,7 +1044,7 @@ double calc_revs(tRevCurve *pRevs, int iGear, float fChg)
 
 //-------------------------------------------------------------------------------------------------
 //0002B030
-double calc_pow(int iCarDesignIdx, int iCurrentGear, float fSpeedRatio)
+double calc_pow(int iCarDesignIdx, int iCurrentGear, float fRPMRatio)
 {
   tRevCurve *pfRevData; // eax
   double dLowInterp1; // st5
@@ -1064,9 +1076,9 @@ double calc_pow(int iCarDesignIdx, int iCurrentGear, float fSpeedRatio)
   fPowerPoint2 = pfRevData[iCurrentGear].points[1].fPower;
   fPowerPoint3 = pfRevData[iCurrentGear].points[2].fPower;
   fPowerPoint4 = pfRevData[iCurrentGear].points[3].fPower;
-  if (fSpeedRatio < 0.0 || fSpeedRatio >= (double)fPowerPoint2)// Low RPM range: quadratic interpolation between points 0-2
+  if (fRPMRatio < 0.0 || fRPMRatio >= (double)fPowerPoint2)// Low RPM range: quadratic interpolation between points 0-2
   {                                             // Mid RPM range: quadratic interpolation between points 2-4
-    if (fSpeedRatio < (double)fPowerPoint2 || fSpeedRatio >= (double)fPowerPoint4) {
+    if (fRPMRatio < (double)fPowerPoint2 || fRPMRatio >= (double)fPowerPoint4) {
       fCalculatedPower = pfRevData[iCurrentGear].points[3].fRPM;// High RPM range: use maximum power value
     } else {
       fHighDenominator = (fRevPoint4 - fRevPoint2) * (fRevPoint4 - fRevPoint3);// Calculate quadratic interpolation coefficients for mid RPM
@@ -1082,7 +1094,7 @@ double calc_pow(int iCarDesignIdx, int iCurrentGear, float fSpeedRatio)
         - (dHighInterp1 * (fPowerPoint2 * fRevPoint3 * fRevPoint4)
            + dHighInterp2 * (fRevPoint4 * (fPowerPoint3 * fRevPoint2))
            + fRevPoint3 * (fRevPoint2 * fPowerPoint4) * fHighInterp3
-           - fSpeedRatio)
+           - fRPMRatio)
         * (fHighCoeffA
            * 4.0))
                         - dHighCoeffB)
@@ -1094,7 +1106,7 @@ double calc_pow(int iCarDesignIdx, int iCurrentGear, float fSpeedRatio)
     dLowInterp2 = 1.0 / ((fRevPoint2 - fRevPoint0) * fRevPoint2);
     dLowCoeffA = fRevPoint1 * dLowInterp1 + fPowerPoint2 * dLowInterp2;
     dLowCoeffB = -(dLowInterp1 * (fRevPoint2 * fRevPoint1)) - dLowInterp2 * (fRevPoint0 * fPowerPoint2);
-    fCalculatedPower = (float)((sqrt(dLowCoeffB * dLowCoeffB - -fSpeedRatio * (dLowCoeffA * 4.0)) - dLowCoeffB) / (dLowCoeffA * 2.0));// Solve quadratic equation using quadratic formula
+    fCalculatedPower = (float)((sqrt(dLowCoeffB * dLowCoeffB - -fRPMRatio * (dLowCoeffA * 4.0)) - dLowCoeffB) / (dLowCoeffA * 2.0));// Solve quadratic equation using quadratic formula
   }
   if (fCalculatedPower < 0.0)                 // Clamp power output to valid range [0, 1024]
     fCalculatedPower = 0.0;
@@ -1689,7 +1701,7 @@ void SetEngine(tCar *pCar, float fThrottle)
       }
     }
     pCar->fPower = fCurrentPower;
-    pCar->fCameraDistance = fSpeedRatio;
+    pCar->fRPMRatio = fSpeedRatio;
     dFinalSpeed = fSpeedRatio * pfSpeedsArray[iCurrentGear] * fHealthFactor;
     pCar->fBaseSpeed = (float)dFinalSpeed;
     pCar->byGearAyMax = iCurrentGear;
@@ -1711,12 +1723,12 @@ void SetEngine(tCar *pCar, float fThrottle)
     }
     pCar->fBaseSpeed = -fReverseSpeed;
     dCalculatedPower = calc_pow(byCarDesignIdx, 0, fReverseRatio);
-    pCar->fCameraDistance = fReverseRatio;
+    pCar->fRPMRatio = fReverseRatio;
     pCar->fPower = (float)dCalculatedPower;
   } else {
     pCar->byGearAyMax = 0;                      // Neutral/idle - zero all engine output values
     pCar->fPower = 0.0;
-    pCar->fCameraDistance = 0.0;
+    pCar->fRPMRatio = 0.0;
     pCar->fBaseSpeed = 0.0;
     pCar->fSpeedOverflow = 0.0;
     pCar->fFinalSpeed = 0.0;
@@ -1726,31 +1738,28 @@ void SetEngine(tCar *pCar, float fThrottle)
 
 //-------------------------------------------------------------------------------------------------
 //0002C420
-double change_gear(int a1, int a2, int a3, int a4)
+double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignIdx)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0.0;
-  /*
-  float v5; // [esp+4h] [ebp-18h]
-  float v6; // [esp+8h] [ebp-14h]
-  float v7; // [esp+Ch] [ebp-10h]
-  float v8; // [esp+10h] [ebp-Ch]
+  float fCalculatedPower; // [esp+4h] [ebp-18h]
+  float fAdjustedSpeed; // [esp+8h] [ebp-14h]
+  float fHealthFactor; // [esp+Ch] [ebp-10h]
+  float fSpeedRatio; // [esp+10h] [ebp-Ch]
 
-  v7 = (*(float *)(a3 + 28) + control_c_variable_56) * control_c_variable_57;
-  if (v7 > 1.0)
-    v7 = 1.0;
-  v6 = fabs(*(float *)(a3 + 24)) / v7;
-  if (a2 < 0)
-    a2 = 0;
-  v8 = v6 / *((float *)*(&CarEngines_variable_2 + 28 * a4) + a2);
-  if (v8 > 1.0)
-    v8 = 1.0;
-  v5 = calc_pow(a4, a2, v8);
-  if ((__int16)player1_car == *(_DWORD *)(a3 + 32) && !DriveView[0])
-    sfxsample(5, 12000, a3);
-  if (player2_car == *(_DWORD *)(a3 + 32) && !DriveView[0])
-    sfxsample(5, 12000, a3);
-  return v5;*/
+  fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car damage, capped at 1.0
+  if (fHealthFactor > 1.0)
+    fHealthFactor = 1.0;
+  fAdjustedSpeed = (float)fabs(pCar->fFinalSpeed) / fHealthFactor;// Get current speed adjusted by health factor (damaged cars perform worse)
+  if (iNextGear < 0)                          // Clamp negative gear to 0 for power curve lookup (reverse uses gear 0 data)
+    iNextGear = 0;
+  fSpeedRatio = fAdjustedSpeed / CarEngines.engines[iCarDesignIdx].pSpds[iNextGear];// Calculate speed ratio: current speed vs max speed for target gear
+  if (fSpeedRatio > 1.0)                      // Clamp speed ratio to 1.0 (can't exceed gear's max RPM)
+    fSpeedRatio = 1.0;
+  fCalculatedPower = (float)calc_pow(iCarDesignIdx, iNextGear, fSpeedRatio);// Calculate power output for target gear at current speed ratio
+  if (player1_car == pCar->iDriverIdx && !DriveView[0])// Play gear shift sound for human players (not in cockpit view)
+    sfxsample(SOUND_SAMPLE_GRSHIFT, 12000);                        // SOUND_SAMPLE_GRSHIFT
+  if (player2_car == pCar->iDriverIdx && !DriveView[0])
+    sfxsample(SOUND_SAMPLE_GRSHIFT, 12000);                        // SOUND_SAMPLE_GRSHIFT
+  return fCalculatedPower;                      // Return calculated power for the gear change
 }
 
 //-------------------------------------------------------------------------------------------------

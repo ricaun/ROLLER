@@ -559,7 +559,7 @@ void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
   char *szSpeedUnit; // edx
   int8 byGearAyMax; // dh
   uint8 *byRPMBarPtr; // ecx
-  double dCameraDist; // st7
+  double dRPMRatio; // st7
   int i; // esi
   int iRPMBarIdx; // edx
   uint8 *byRPMBarFillPtr; // eax
@@ -733,10 +733,10 @@ void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
     mini_prt_string(rev_vga[0], buffer, winw - 8, winh - 16);
     mini_prt_string(rev_vga[0], "R", winw - 30, winh - 24);
     byRPMBarPtr = &byScreenPtr[winw - 24 + winw * (winh - 24)];
-    dCameraDist = Car[iCarIndex_1].fCameraDistance * 21.0;// Calculate RPM bar length from camera distance
+    dRPMRatio = Car[iCarIndex_1].fRPMRatio * 21.0;// Calculate RPM bar length from camera distance
     //_CHP();
-    v126 = (int)dCameraDist;
-    if ((int)dCameraDist > 20)
+    v126 = (int)dRPMRatio;
+    if ((int)dRPMRatio > 20)
       v126 = 20;
     for (i = 0; i < 7; ++i) {
       if (i && i != 6) {
@@ -1555,7 +1555,7 @@ void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
 {
   int iScreenSize; // esi
   int iViewType; // ecx
-  double dZoomThreshold; // st7
+  double dRPMBar; // st7
   uint8 *pbySourceData; // edx
   double dDamage; // st7
   int iScreenSizeTemp; // esi
@@ -1569,16 +1569,16 @@ void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
   int iRowScaleAccum; // [esp+Ch] [ebp-2Ch]
   int iHeight; // [esp+10h] [ebp-28h]
   int i; // [esp+14h] [ebp-24h]
-  int iZoomThreshold; // [esp+18h] [ebp-20h]
+  int iRPMBar; // [esp+18h] [ebp-20h]
   int iDamage; // [esp+1Ch] [ebp-1Ch]
   uint8 *pbyDestPixel; // [esp+20h] [ebp-18h]
   uint8 byCurrentPixel; // [esp+24h] [ebp-14h]
 
   iScreenSize = scr_size;                       // Get current screen/sprite scaling size
   iViewType = ViewType[iCarIdx];                // Get view type for the specified car
-  dZoomThreshold = Car[iViewType].fCameraDistance * 48.0;// Calculate zoom threshold based on camera distance * 48.0
+  dRPMBar = Car[iViewType].fRPMRatio * 48.0;
   //_CHP();
-  iZoomThreshold = (int)dZoomThreshold;
+  iRPMBar = (int)dRPMBar;
   iWidth = pBlockHeader->iWidth;                // Extract sprite dimensions from sprite data header
   iHeight = pBlockHeader->iHeight;
   iRowScaleAccum = iScreenSize;
@@ -1606,7 +1606,7 @@ void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
               *pDest = byPixel;
             else
               *pDest = 0x7B;                    // Use default damaged color if damage too low (0x7B is grey)
-          } else if (byPixel > iZoomThreshold)  // For non-damage pixels, check zoom threshold
+          } else if (byPixel > iRPMBar)  // For non-damage pixels, check zoom threshold
           {
             *pDest = 0xED;                      // 0xED = dark blue in PALETTE.PAL
           } else {
@@ -1634,7 +1634,7 @@ void print_damage(uint8 *pDest, tBlockHeader *pBlockHeader, int iCarIdx)
               *pDest = byCurrentPixel;
             else
               *pDest = 0x7B;                    // 0x7B = grey
-          } else if (byCurrentPixel > iZoomThreshold) {
+          } else if (byCurrentPixel > iRPMBar) {
             *pDest = 0xED;                      // 0xED = dark blue
           } else {
             *pDest = 0xF3;                      // 0xF3 = blue
