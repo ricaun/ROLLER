@@ -722,9 +722,9 @@ void DrawCars(int iCarIdx, int iViewMode)
       }
       iNumCars = numcars;
 
-      // car_draw_order[iCarDrawIdx].iCarIdx = v22;
-      // iCarDrawIdx++;
-      CarZOrder[++iCarDrawIdx + 499].iPolygonIndex = iCarIterator;// references car_draw_order
+      car_draw_order[iCarDrawIdx].iCarIdx = iCarIterator;
+      iCarDrawIdx++;
+      //CarZOrder[++iCarDrawIdx + 499].iPolygonIndex = iCarIterator;// references car_draw_order
       ++pCar;
       ++iCarIterator;
     } while (iCarIterator < iNumCars);
