@@ -711,11 +711,11 @@ void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
     }
     if ((textures_off & TEX_OFF_KMH) != 0)          // TEX_OFF_KMH
     {
-      sprintf(buffer, "%3.0f", (double)fabs(Car[iCarIndex_1].fMaxSpeed * 15.0 * 0.041666668));// Display speed in km/h (convert from internal units)
+      sprintf(buffer, "%3.0f", (double)fabs(Car[iCarIndex_1].fFinalSpeed * 15.0 * 0.041666668));// Display speed in km/h (convert from internal units)
       mini_prt_string(rev_vga[0], buffer, winw - 34, winh - 8);
       szSpeedUnit = szKmh;
     } else {
-      sprintf(buffer, "%3.0f", (double)fabs(Car[iCarIndex_1].fMaxSpeed * 0.3333333333333333));// Display speed in mph (convert from internal units)
+      sprintf(buffer, "%3.0f", (double)fabs(Car[iCarIndex_1].fFinalSpeed * 0.3333333333333333));// Display speed in mph (convert from internal units)
       mini_prt_string(rev_vga[0], buffer, winw - 34, winh - 8);
       szSpeedUnit = szMph;
     }
@@ -890,9 +890,9 @@ void test_panel(uint8 *pScrBuf, int iPlayerCarIdx)
     pDigitBlockHdr = rev_vga[2];
     pSpeedDigitBlockHdr = rev_vga[2];
     if ((textures_off & TEX_OFF_KMH) != 0)          // TEX_OFF_KMH
-      dSpeedometer = fabs(Car[iCarIndex_1].fMaxSpeed * 0.33333334) * 15.0 * 0.125;// Calculate speedometer value (km/h with additional scaling factor)
+      dSpeedometer = fabs(Car[iCarIndex_1].fFinalSpeed * 0.33333334) * 15.0 * 0.125;// Calculate speedometer value (km/h with additional scaling factor)
     else
-      dSpeedometer = fabs(Car[iCarIndex_1].fMaxSpeed * 0.33333334);// Calculate speedometer value (mph)
+      dSpeedometer = fabs(Car[iCarIndex_1].fFinalSpeed * 0.33333334);// Calculate speedometer value (mph)
     //_CHP();
     iSpeedometerValue = (int)dSpeedometer;
     iSpeedDisplayValue = (int)dSpeedometer;
@@ -4731,7 +4731,7 @@ void do_blip(int iCarIdx)
     iDamage = 14;
 
   // Only proceed if car has valid max speed
-  if (fabs(Car[ViewType[iCarIdx]].fMaxSpeed) > FLT_EPSILON)
+  if (fabs(Car[ViewType[iCarIdx]].fFinalSpeed) > FLT_EPSILON)
   //if ((LODWORD(Car[ViewType[iCarIdx]].fMaxSpeed) & 0x7FFFFFFF) != 0)
     lastblip[iCarIdx] = iDamage;
 

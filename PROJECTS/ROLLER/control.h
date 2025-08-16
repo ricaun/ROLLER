@@ -45,7 +45,7 @@ double calc_pow(int iCarDesignIdx, int iGearAyMax, float a3);
 void Accelerate(float *a1);
 int Decelerate(int a1);
 int FreeWheel(int a1);
-void SetEngine(int a1, float a2);
+void SetEngine(tCar *pCar, float fThrottle);
 double change_gear(int a1, int a2, int a3, int a4);
 void updatecar2(int a1, int a2, int a3);
 int16 check_crossed_line(int a1);

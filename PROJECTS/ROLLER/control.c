@@ -2,6 +2,7 @@
 #include "view.h"
 #include "loadtrak.h"
 #include <math.h>
+#include <float.h>
 //-------------------------------------------------------------------------------------------------
 
 float levels[7] = { 100.0, 97.0, 94.0, 90.0, 85.0, 80.0, -1.0 }; //000A4290
@@ -1607,110 +1608,114 @@ int FreeWheel(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //0002C1A0
-void SetEngine(int a1, float a2)
+void SetEngine(tCar *pCar, float fThrottle)
 {
-  (void)(a1); (void)(a2);
-  /*
-  int v6; // edi
-  float *v7; // edx
-  int v8; // ecx
-  double v9; // st7
-  double v10; // st7
-  int v11; // ebx
-  int v12; // ecx
-  float *v13; // esi
-  double v14; // st7
-  float v15; // [esp+0h] [ebp-44h]
-  float *v16; // [esp+4h] [ebp-40h]
-  float v17; // [esp+8h] [ebp-3Ch]
-  float v18; // [esp+Ch] [ebp-38h]
-  int v19; // [esp+10h] [ebp-34h]
-  int *v20; // [esp+14h] [ebp-30h]
-  int v21; // [esp+18h] [ebp-2Ch]
-  float v22; // [esp+1Ch] [ebp-28h]
-  float v23; // [esp+20h] [ebp-24h]
-  float v24; // [esp+24h] [ebp-20h]
-  int v25; // [esp+28h] [ebp-1Ch]
+  int byCarDesignIdx; // edi
+  float *pSpds; // edx
+  int iNumGears; // ecx
+  double dThrottleRatio; // st7
+  double dCalculatedPower; // st7
+  int iCurrentGear; // ebx
+  int iGearTableIdx; // ecx
+  float *pfCurrentGearSpd; // esi
+  double dFinalSpeed; // st7
+  float fReverseRatio; // [esp+0h] [ebp-44h]
+  float *pfSpeedsArray; // [esp+4h] [ebp-40h]
+  float fReverseSpeed; // [esp+8h] [ebp-3Ch]
+  float fHealthFactor; // [esp+Ch] [ebp-38h]
+  int iMaxGearIdx; // [esp+10h] [ebp-34h]
+  tCarEngine *pEngineData; // [esp+14h] [ebp-30h]
+  float fGearShiftFlag; // [esp+18h] [ebp-2Ch]
+  float fCurrentPower; // [esp+1Ch] [ebp-28h]
+  float fAdjustedThrottle; // [esp+20h] [ebp-24h]
+  float fSpeedRatio; // [esp+24h] [ebp-20h]
+  float fLoopExitFlag; // [esp+28h] [ebp-1Ch]
 
-  v18 = (*(float *)(a1 + 28) + control_c_variable_51) * control_c_variable_52;
-  if (v18 > 1.0)
-    v18 = 1.0;
-  v6 = *(unsigned __int8 *)(a1 + 102);
-  *(_DWORD *)(a1 + 116) = 0;
-  v20 = &CarEngines[28 * v6];
-  v7 = (float *)v20[2];
-  v8 = *v20;
-  v16 = v7;
-  if (a2 >= (double)control_c_variable_53) {
-    v11 = 0;
-    v25 = 0;
-    v23 = a2 / v18;
+  fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car health, capped at 1.0
+  if (fHealthFactor > 1.0)
+    fHealthFactor = 1.0;
+  byCarDesignIdx = pCar->byCarDesignIdx;
+  pCar->fSpeedOverflow = 0.0;
+  pEngineData = &CarEngines.engines[byCarDesignIdx];// Get engine data for this car design
+  pSpds = pEngineData->pSpds;
+  iNumGears = pEngineData->iNumGears;
+  pfSpeedsArray = pSpds;
+  if (fThrottle >= 0.5)                       // Forward throttle - calculate gear and power
+  {
+    iCurrentGear = 0;
+    fLoopExitFlag = 0.0;
+    fAdjustedThrottle = fThrottle / fHealthFactor;// Adjust throttle by health factor
     do {
-      if (v23 > (double)*v7) {
-        ++v11;
-        ++v7;
-        if (v11 != v8)
+      if (fAdjustedThrottle > (double)*pSpds) {
+        ++iCurrentGear;
+        ++pSpds;
+        if (iCurrentGear != iNumGears)
           continue;
       }
-      v25 = -1082130432;
-    } while ((v25 & 0x7FFFFFFF) == 0);
-    if (v11 < v8) {
-      v24 = v23 / *v7;
+      fLoopExitFlag = -1.0;
+    } while (fabs(fLoopExitFlag) > FLT_EPSILON);// Find appropriate gear for current throttle
+    //} while ((LODWORD(fLoopExitFlag) & 0x7FFFFFFF) == 0);// Find appropriate gear for current throttle
+    if (iCurrentGear < iNumGears) {
+      fSpeedRatio = fAdjustedThrottle / *pSpds;
     } else {
-      v11 = v8 - 1;
-      v23 = v16[v8 - 1];
-      v24 = 1.0;
+      iCurrentGear = iNumGears - 1;
+      fAdjustedThrottle = pfSpeedsArray[iNumGears - 1];
+      fSpeedRatio = 1.0;
     }
-    v21 = 0;
-    v19 = v8 - 1;
-    v12 = 8 * v11;
-    v13 = &v16[v11];
-    v22 = calc_pow(v6, v11, v24);
-    while (v11 < v19) {
-      if ((v21 & 0x7FFFFFFF) != 0)
+    fGearShiftFlag = 0.0;
+    iMaxGearIdx = iNumGears - 1;
+    iGearTableIdx = 2 * iCurrentGear;
+    pfCurrentGearSpd = &pfSpeedsArray[iCurrentGear];
+    fCurrentPower = (float)calc_pow(byCarDesignIdx, iCurrentGear, fSpeedRatio);// Calculate power for current gear/throttle
+    while (iCurrentGear < iMaxGearIdx)        // Check if car can upshift to higher gears
+    {
+      //if ((LODWORD(fGearShiftFlag) & 0x7FFFFFFF) != 0)
+      if (fabs(fGearShiftFlag) > FLT_EPSILON)
         break;
-      if ((double)*(int *)(v12 + v20[4]) * control_c_variable_55 >= v22) {
-        v21 = -1082130432;
+      if ((double)pEngineData->pChgs[iGearTableIdx] * 1.2 >= fCurrentPower) {
+        fGearShiftFlag = -1.0;
       } else {
-        v24 = v23 / v13[1];
-        v12 += 8;
-        ++v11;
-        ++v13;
-        v22 = calc_pow(v6, v11, v24);
+        fSpeedRatio = fAdjustedThrottle / pfCurrentGearSpd[1];
+        iGearTableIdx += 2;
+        ++iCurrentGear;
+        ++pfCurrentGearSpd;
+        fCurrentPower = (float)calc_pow(byCarDesignIdx, iCurrentGear, fSpeedRatio);
       }
     }
-    *(float *)(a1 + 124) = v22;
-    *(float *)(a1 + 120) = v24;
-    v14 = v24 * v16[v11] * v18;
-    *(float *)(a1 + 112) = v14;
-    *(_BYTE *)(a1 + 128) = v11;
-    *(float *)(a1 + 116) = a2 - v14;
-  } else if (fabs(a2) >= control_c_variable_54) {
-    *(_BYTE *)(a1 + 128) = -2;
-    v17 = *v7 * v18;
-    HIBYTE(a2) ^= 0x80u;
-    if (a2 <= (double)v17) {
-      v9 = a2 / v17;
-      *(_DWORD *)(a1 + 116) = 0;
-      v17 = a2;
-      v15 = v9;
+    pCar->fPower = fCurrentPower;
+    pCar->fCameraDistance = fSpeedRatio;
+    dFinalSpeed = fSpeedRatio * pfSpeedsArray[iCurrentGear] * fHealthFactor;
+    pCar->fBaseSpeed = (float)dFinalSpeed;
+    pCar->byGearAyMax = iCurrentGear;
+    pCar->fSpeedOverflow = fThrottle - (float)dFinalSpeed;
+  } else if (fabs(fThrottle) >= 0.5)            // Reverse throttle - calculate reverse power and speed
+  {
+    pCar->byGearAyMax = -2;
+    fReverseSpeed = *pSpds * fHealthFactor;
+    fThrottle = -fThrottle;
+    //HIBYTE(fThrottle) ^= 0x80u;
+    if (fThrottle <= (double)fReverseSpeed) {
+      dThrottleRatio = fThrottle / fReverseSpeed;
+      pCar->fSpeedOverflow = 0.0;
+      fReverseSpeed = fThrottle;
+      fReverseRatio = (float)dThrottleRatio;
     } else {
-      v15 = 1.0;
-      *(float *)(a1 + 116) = v17 - a2;
+      fReverseRatio = 1.0;
+      pCar->fSpeedOverflow = fReverseSpeed - fThrottle;
     }
-    *(float *)(a1 + 112) = -v17;
-    v10 = calc_pow(v6, 0, v15);
-    *(float *)(a1 + 120) = v15;
-    *(float *)(a1 + 124) = v10;
+    pCar->fBaseSpeed = -fReverseSpeed;
+    dCalculatedPower = calc_pow(byCarDesignIdx, 0, fReverseRatio);
+    pCar->fCameraDistance = fReverseRatio;
+    pCar->fPower = (float)dCalculatedPower;
   } else {
-    *(_BYTE *)(a1 + 128) = 0;
-    *(_DWORD *)(a1 + 124) = 0;
-    *(_DWORD *)(a1 + 120) = 0;
-    *(_DWORD *)(a1 + 112) = 0;
-    *(_DWORD *)(a1 + 116) = 0;
-    *(_DWORD *)(a1 + 24) = 0;
+    pCar->byGearAyMax = 0;                      // Neutral/idle - zero all engine output values
+    pCar->fPower = 0.0;
+    pCar->fCameraDistance = 0.0;
+    pCar->fBaseSpeed = 0.0;
+    pCar->fSpeedOverflow = 0.0;
+    pCar->fFinalSpeed = 0.0;
   }
-  *(float *)(a1 + 24) = *(float *)(a1 + 112) + *(float *)(a1 + 116);*/
+  pCar->fFinalSpeed = pCar->fBaseSpeed + pCar->fSpeedOverflow;// Final speed = base speed + speed overflow
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4395,7 +4400,7 @@ void putflat(tCar *pCar)
     //if ((((HIDWORD(llSurfaceType3) ^ (unsigned int)llSurfaceType3) - HIDWORD(llSurfaceType3)) & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
       iPitchInt = 0;
   } else {                                             // Steep downhill: zero pitch if car is fast and AI state allows
-    if (iPitch < -512 && pCar->fMaxSpeed > 50.0 && (TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x80000) != 0)
+    if (iPitch < -512 && pCar->fFinalSpeed > 50.0 && (TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x80000) != 0)
       iPitchInt = 0;
 
     if ((TrakColour[nCurrChunk][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0)
@@ -4403,7 +4408,7 @@ void putflat(tCar *pCar)
     //if ((((HIDWORD(llSurfaceType1) ^ (unsigned int)llSurfaceType1) - HIDWORD(llSurfaceType1)) & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
       iPitchInt = 0;
 
-    if (pCar->fMaxSpeed > 50.0) {
+    if (pCar->fFinalSpeed > 50.0) {
 
       if ((TrakColour[iNextChunkIdx][pCar->iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0)
       //llSurfaceType2 = TrakColour[iNextChunkIdx][pCar->iLaneType];// Check next chunk surface type for fast cars

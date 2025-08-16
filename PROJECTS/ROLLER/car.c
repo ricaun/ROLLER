@@ -381,7 +381,7 @@ void placecars()
       Car[iCarIdx2].fBestLapTime = 9999.9902f;   // Initialize best lap time to maximum value
       Car[iCarIdx2].nRoll = 0;                  // Initialize car orientation angles
       Car[iCarIdx2].nYaw = 0;
-      Car[iCarIdx2].fMaxSpeed = 0.0f;
+      Car[iCarIdx2].fFinalSpeed = 0.0f;
       Car[iCarIdx2].byGearAyMax = -1;
       iChampMode = champ_mode;                  // Set starting track chunk based on championship mode
       Car[iCarIdx2].nPitch = 0;
@@ -440,9 +440,9 @@ void placecars()
         Car[iDriverIdx].pos.fX = 0.0f * pTrackData->fY + 0.0f * pTrackData->fX + 0.0f * pTrackData->fZ - pTrackData[3].fX;// Transform and set position using track transformation matrix
         Car[iDriverIdx].pos.fY = 0.0f * pTrackData[1].fX + 0.0f * pTrackData[1].fY + 0.0f * pTrackData[1].fZ - pTrackData[3].fY;
         dZCmp = 0.0 * pTrackData[2].fX + 0.0 * pTrackData[2].fY + 0.0 * pTrackData[2].fZ - pTrackData[3].fZ + 1000.0;// Calculate Z position with offset
-        Car[iDriverIdx].fMaxSpeed = 0.0;
+        Car[iDriverIdx].fFinalSpeed = 0.0;
         //LOWORD(pTrackData) = Car[iDriverIdx].nCurrChunk;
-        Car[iDriverIdx].iUnk27 = 0;
+        Car[iDriverIdx].fSpeedOverflow = 0;
         Car[iDriverIdx].nChunk2 = Car[iDriverIdx].nCurrChunk;// (__int16)pTrackData;
         Car[iDriverIdx].nCurrChunk = -1;        // Set chunk to -1 (disabled car)
         Car[iDriverIdx].pos.fZ = (float)dZCmp;
@@ -454,10 +454,10 @@ void placecars()
         Car[iViewCarIdx].fCameraDistance = 1.0; // Set camera distance for player
         byGearAyMax = (uint8)(pEngine->iNumGears) - 1;// Set maximum gear for this car
         Car[iViewCarIdx].byGearAyMax = byGearAyMax;
-        Car[iViewCarIdx].fMaxSpeed = pEngine->pSpds[byGearAyMax];// Set max speed from engine data
-        Car[iViewCarIdx].fMaxSpeed2 = Car[iViewCarIdx].fMaxSpeed;
+        Car[iViewCarIdx].fFinalSpeed = pEngine->pSpds[byGearAyMax];// Set max speed from engine data
+        Car[iViewCarIdx].fBaseSpeed = Car[iViewCarIdx].fFinalSpeed;
         dPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fCameraDistance);// Calculate power for this car configuration
-        Car[iViewCarIdx].iUnk27 = 0;
+        Car[iViewCarIdx].fSpeedOverflow = 0;
         Car[iViewCarIdx].byUnk58 = -1;
         Car[iViewCarIdx].byUnk61 = 36;
         Car[iViewCarIdx].fPower = (float)dPower;

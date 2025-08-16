@@ -28,7 +28,7 @@ typedef struct
   int16 nPitch;
   int16 nYaw;
   int16 nPadding1;
-  float fMaxSpeed;
+  float fFinalSpeed;
   float fHealth;
   int iDriverIdx;
   int iUnk6;
@@ -52,8 +52,8 @@ typedef struct
   uint8 byPadding5;
   int16 nUnk25;
   int iUnk25_2;
-  float fMaxSpeed2;
-  int iUnk27;
+  float fBaseSpeed;
+  float fSpeedOverflow;
   float fCameraDistance;
   float fPower;
   uint8 byGearAyMax;
@@ -109,7 +109,7 @@ typedef struct
   int16 nUnk71;
   int iUnk72;
   float fUnk73;
-  int iUnk73_2;
+  float fUnk73_2;
   int iUnk74;
   uint8 byUnk75;
   uint8 byUnk76;
