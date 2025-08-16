@@ -1612,6 +1612,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
     if (pScreenCoord_1->iClipCount != 99 && pScreenCoord->iClipCount != 99) {
       if (Walls_On) {
         iRoofTypeCheck = TrakColour[iCurrentSect][TRAK_COLOUR_ROOF];
+        //TODO look at this line
         if (iRoofTypeCheck != -1 && TrakColour[iCurrentSect][TRAK_COLOUR_LEFT_WALL] && TrakColour[iCurrentSect][TRAK_COLOUR_RIGHT_WALL]) {
         //if (iRoofTypeCheck != -1 && iLeftWallFlags && iRightWallFlags) {
           if (iRoofTypeCheck < 0) {
