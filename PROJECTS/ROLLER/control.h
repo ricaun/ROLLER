@@ -31,6 +31,7 @@ extern int Destroyed;
 extern int ahead_sect;
 extern int ahead_time;
 extern int Fatality;
+extern int cheat_control;
 extern int fudge_wait;
 extern char RecordNames[25][9];
 
@@ -42,7 +43,7 @@ void GoDownGear(tCar *pCar, int iUseAutoLogic);
 void control();
 double calc_revs(tRevCurve *pRevs, int iGear, float fChg);
 double calc_pow(int iCarDesignIdx, int iCurrentGear, float fRPMRatio);
-void Accelerate(float *a1);
+void Accelerate(tCar *pCar);
 void Decelerate(tCar *pCar);
 int FreeWheel(int a1);
 void SetEngine(tCar *pCar, float fThrottle);

@@ -616,7 +616,7 @@ void initpits()
 
 //-------------------------------------------------------------------------------------------------
 //000377D0
-void dodamage(int a1, float a2)
+void dodamage(tCar *a1, float a2)
 {
   /*
   int *v6; // edi

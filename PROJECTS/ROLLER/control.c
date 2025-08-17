@@ -2,6 +2,7 @@
 #include "view.h"
 #include "loadtrak.h"
 #include "sound.h"
+#include "function.h"
 #include <math.h>
 #include <float.h>
 //-------------------------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ int Destroyed;                    //00149D8C
 int ahead_sect;                   //00149D94
 int ahead_time;                   //00149D98
 int Fatality;                     //00149DB0
+int cheat_control;                //00149DB8
 int fudge_wait;                   //00149DC4
 char RecordNames[25][9];          //00149DC8
 
@@ -1117,224 +1119,219 @@ double calc_pow(int iCarDesignIdx, int iCurrentGear, float fRPMRatio)
 
 //-------------------------------------------------------------------------------------------------
 //0002B260
-void Accelerate(float *a1)
-{
-  (void)(a1);
-  /*
-  int v2; // ebp
-  int *v3; // edi
-  int v4; // eax
-  double v5; // st7
-  int v6; // eax
-  float *v7; // edx
-  int *v8; // ebx
-  int v9; // ebx
-  double v10; // st7
-  double v11; // st7
-  double v12; // st7
-  int v13; // ebp
-  int v14; // eax
-  int v15; // eax
-  int v16; // edx
-  int v17; // edx
-  __int16 v18; // fps
-  double v19; // st7
-  _BOOL1 v20; // c0
-  char v21; // c2
-  _BOOL1 v22; // c3
-  int v23; // eax
-  double v24; // st7
-  int v25; // ecx
-  int v26; // ebp
-  double v27; // [esp+8h] [ebp-78h]
-  float v28; // [esp+28h] [ebp-58h]
-  float v29; // [esp+2Ch] [ebp-54h]
-  float v30; // [esp+30h] [ebp-50h]
-  float v31; // [esp+34h] [ebp-4Ch]
-  float v32; // [esp+38h] [ebp-48h]
-  float v33; // [esp+3Ch] [ebp-44h]
-  int v34; // [esp+40h] [ebp-40h]
-  float *v35; // [esp+44h] [ebp-3Ch]
-  float v36; // [esp+48h] [ebp-38h]
-  float v37; // [esp+4Ch] [ebp-34h]
-  float v38; // [esp+50h] [ebp-30h]
-  float v39; // [esp+50h] [ebp-30h]
-  float v40; // [esp+54h] [ebp-2Ch]
-  float v41; // [esp+58h] [ebp-28h]
-  float v42; // [esp+5Ch] [ebp-24h]
-  int v43; // [esp+60h] [ebp-20h]
-  int v44; // [esp+64h] [ebp-1Ch]
+void Accelerate(tCar *pCar)
+{                                               // Set car complexity factor: 2.0 for advanced cars, 1.0 for simple cars
+  int iCarDesignIdx; // ebp
+  tCarEngine *pEngineData; // edi
+  int nCurrChunk; // eax
+  int iNextChunk; // eax
+  tData *pTrackData; // edx
+  tTrackInfo *pTrackInfo; // ebx
+  int iDriverIdx; // ebx
+  double dDownshiftPower; // st7
+  double dUpshiftPower; // st7
+  double dCalculatedRPMRatio; // st7
+  int iPitchDelta; // ebp
+  int iMaxPitchOffset_1; // eax
+  int iPitchDynamicOffset; // eax
+  int iMaxPitchOffset; // edx
+  int iOldPitchOffset; // eax
+  double dPitchDecay; // st6
+  int iPitchDeltaNormal; // ecx
+  int iMaxPitchNormal; // ebp
+  double dMaxRPMChange; // [esp+8h] [ebp-78h]
+  float fUpshiftSpeed; // [esp+28h] [ebp-58h]
+  float fNegHealthFactor; // [esp+2Ch] [ebp-54h]
+  float fTrackHalfWidth; // [esp+30h] [ebp-50h]
+  float fDownshiftThreshold; // [esp+34h] [ebp-4Ch]
+  float fAdjustedGravity; // [esp+38h] [ebp-48h]
+  float fPitchDecayAmount; // [esp+3Ch] [ebp-44h]
+  int iGearChanged; // [esp+40h] [ebp-40h]
+  float *pSpds; // [esp+44h] [ebp-3Ch]
+  float fCarComplexityFactor; // [esp+48h] [ebp-38h]
+  float fGravityFactor; // [esp+4Ch] [ebp-34h]
+  float fNewRPMRatio; // [esp+50h] [ebp-30h]
+  float fCalculatedBaseSpeed; // [esp+50h] [ebp-30h]
+  float fRPMRatioChange; // [esp+54h] [ebp-2Ch]
+  float fHealthFactor; // [esp+58h] [ebp-28h]
+  float fPower; // [esp+5Ch] [ebp-24h]
+  int iGearAyMax; // [esp+60h] [ebp-20h]
+  int iChunkIdx; // [esp+64h] [ebp-1Ch]
 
-  if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-    v36 = 2.0;
+  // TEX_OFF_ADVANCED_CARS
+  if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
+    fCarComplexityFactor = 2.0;
   else
-    v36 = 1.0;
-  *(_BYTE *)(a1 + 241) = -1;
-  v34 = 0;
-  if (*(_BYTE *)(a1 + 240) && !*(_BYTE *)(a1 + 243)) {
-    v41 = (*(float *)(a1 + 28) + control_c_variable_19) * control_c_variable_20;
-    v2 = *(unsigned __int8 *)(a1 + 102);
-    *(_DWORD *)(a1 + 288) = 10;
-    v3 = &CarEngines[28 * v2];
-    if (v41 > 1.0)
-      v41 = 1.0;
-    v42 = *(float *)(a1 + 124);
-    v43 = *(char *)(a1 + 128);
-    if (*(float *)(a1 + 120) >= 1.0) {
-      *(_DWORD *)(a1 + 296) = 1065353216;
-      if (*v3 - 1 > v43 && v43 >= 0 || v43 == -2 && *(float *)(a1 + 24) > 0.0)
-        dodamage(0.02);
+    fCarComplexityFactor = 1.0;
+  pCar->byAccelerating = -1;                    // Initialize acceleration state and gear change flag
+  iGearChanged = 0;
+  if (pCar->byThrottlePressed && !pCar->byUnk61)// Check if car can accelerate (throttle pressed and not crashed)
+  {
+    fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car damage, capped at 1.0
+    iCarDesignIdx = pCar->byCarDesignIdx;
+    pCar->iEngineState = 10;
+    pEngineData = &CarEngines.engines[iCarDesignIdx];
+    if (fHealthFactor > 1.0)
+      fHealthFactor = 1.0;
+    fPower = pCar->fPower;
+    iGearAyMax = (char)pCar->byGearAyMax;
+    if (pCar->fRPMRatio >= 1.0)               // Check for redline condition (RPM ratio >= 1.0)
+    {
+      pCar->fWheelSpinFactor = 1.0;             // Redline: limit acceleration and apply engine damage for over-revving
+      if (pEngineData->iNumGears - 1 > iGearAyMax && iGearAyMax >= 0 || iGearAyMax == -2 && pCar->fFinalSpeed > 0.0)
+        dodamage(pCar, 0.02f);
     } else {
-      v4 = *(__int16 *)(a1 + 12);
-      if (v4 == -1) {
-        v5 = v42 + control_c_variable_25;
-        *(_DWORD *)(a1 + 296) = 1101004800;
-        v42 = v5;
+      nCurrChunk = pCar->nCurrChunk;
+      if (nCurrChunk == -1)                   // Off-track: apply high acceleration bonus and reduced wheel spin
+      {
+        pCar->fWheelSpinFactor = 20.0f;
+        fPower = fPower + 32.0f;
       } else {
-        v6 = v4 + 1;
-        if (v6 == TRAK_LEN)
-          v6 ^= TRAK_LEN;
-        v44 = *(__int16 *)(a1 + 12);
-        v7 = (float *)((char *)&localdata + 128 * v44);
-        v30 = ((*(float *)a1 + v7[12]) * *(float *)&localdata_variable_5[32 * v6]
-             - (*(float *)a1 - v7[12]) * *(float *)&localdata_variable_5[32 * v44])
-          / (v7[12]
-           * control_c_variable_21);
-        v8 = &TrackInfo[9 * v44];
-        if (*(float *)(a1 + 4) <= (double)v30) {
-          if (-v30 <= *(float *)(a1 + 4))
-            v32 = v7[20];
+        iNextChunk = nCurrChunk + 1;            // On-track: calculate track physics effects (banking, gravity)
+        if (iNextChunk == TRAK_LEN)
+          iNextChunk ^= TRAK_LEN;
+        iChunkIdx = pCar->nCurrChunk;
+        pTrackData = &localdata[iChunkIdx];
+        fTrackHalfWidth = ((pCar->pos.fX + pTrackData->fTrackHalfLength) * localdata[iNextChunk].fTrackHalfWidth
+                         - (pCar->pos.fX - pTrackData->fTrackHalfLength) * localdata[iChunkIdx].fTrackHalfWidth)
+          / (pTrackData->fTrackHalfLength
+           * 2.0f);                // Calculate interpolated track half-width at car position
+        pTrackInfo = &TrackInfo[iChunkIdx];
+        if (pCar->pos.fY <= (double)fTrackHalfWidth)// Select banking angle based on car position (left/right/center of track)
+        {
+          if (-fTrackHalfWidth <= pCar->pos.fY)
+            fAdjustedGravity = pTrackData->gravity.fY;
           else
-            v32 = v7[20] * tcos[v8[5] & 0x3FFF] - v7[21] * tsin[v8[5] & 0x3FFF];
+            fAdjustedGravity = pTrackData->gravity.fY * tcos[pTrackInfo->iRightBankAngle & 0x3FFF] - pTrackData->gravity.fZ * tsin[pTrackInfo->iRightBankAngle & 0x3FFF];
         } else {
-          v32 = v7[20] * tcos[v8[4] & 0x3FFF] + v7[21] * tsin[v8[4] & 0x3FFF];
+          fAdjustedGravity = pTrackData->gravity.fY * tcos[pTrackInfo->iLeftBankAngle & 0x3FFF] + pTrackData->gravity.fZ * tsin[pTrackInfo->iLeftBankAngle & 0x3FFF];
         }
-        v37 = (v7[19] * tcos[*(__int16 *)(a1 + 20)] + v32 * tsin[*(__int16 *)(a1 + 20)]) * control_c_variable_21;
-        v29 = -v41;
-        if (v37 < (double)v29)
-          v37 = -v41;
-        v9 = *(_DWORD *)(a1 + 32);
-        if ((__int16)player1_car == v9 || player2_car == v9)
-          *(float *)(a1 + 296) = (v37 + 1.0) * control_c_variable_22;
+        fGravityFactor = (pTrackData->gravity.fX * tcos[pCar->nYaw] + fAdjustedGravity * tsin[pCar->nYaw]) * 2.0f;// Calculate gravity factor based on track inclination and car orientation
+        fNegHealthFactor = -fHealthFactor;
+        if (fGravityFactor < (double)fNegHealthFactor)
+          fGravityFactor = -fHealthFactor;
+        iDriverIdx = pCar->iDriverIdx;
+        if (player1_car == iDriverIdx || player2_car == iDriverIdx)// Apply different wheel spin factors for human vs AI players
+          pCar->fWheelSpinFactor = (fGravityFactor + 1.0f) * 6.0f;
         else
-          *(_DWORD *)(a1 + 296) = 1065353216;
-        if (cheat_control && v2 == 9) {
-          v42 = v42 + control_c_variable_25;
-        } else if (v43 == -1) {
-          v42 = v36 * control_c_variable_21 + v42;
-        } else if (*(float *)(a1 + 232) >= (double)control_c_variable_23 || human_control[*(_DWORD *)(a1 + 32)]) {
-          v42 = (v41 + v36 + v37) * control_c_variable_24 + v42;
+          pCar->fWheelSpinFactor = 1.0;
+        if (cheat_control && iCarDesignIdx == 9)// Special acceleration bonuses: cheat mode, neutral gear, or race position
+        {
+          fPower = fPower + 32.0f;
+        } else if (iGearAyMax == -1) {
+          fPower = fCarComplexityFactor * 2.0f + fPower;
+        } else if (pCar->fTotalRaceTime >= 20.0f || human_control[pCar->iDriverIdx]) {
+          fPower = (fHealthFactor + fCarComplexityFactor + fGravityFactor) * 0.5f + fPower;
         } else {
-          v42 = (v41 + v36 + v37) / (double)(*(unsigned __int8 *)(a1 + 130) / 15 + 1) + v42;
+          fPower = (fHealthFactor + fCarComplexityFactor + fGravityFactor) / (float)(pCar->byRacePosition / 15 + 1) + fPower;
         }
       }
     }
-    if (v42 >= (double)control_c_variable_26)
-      v42 = 1023.0;
-    v35 = (float *)v3[2];
-    if (v43 <= 0)
-      v31 = 0.0;
+    if (fPower >= 1024.0f)                     // Clamp power output to maximum value (1023)
+      fPower = 1023.0f;
+    pSpds = pEngineData->pSpds;
+    if (iGearAyMax <= 0)
+      fDownshiftThreshold = 0.0f;
     else
-      v31 = v35[v43 - 1] * control_c_variable_24;
-    if (fabs(*(float *)(a1 + 24) / v41) < v31 && human_control[*(_DWORD *)(a1 + 32)] != 2 && v43 > 0) {
-      v10 = change_gear(v43, v43 - 1, a1);
-      --v43;
-      v34 = -1;
-      v42 = v10;
-      *(_BYTE *)(a1 + 128) = v43;
+      fDownshiftThreshold = pSpds[iGearAyMax - 1] * 0.5f;
+    if (fabs(pCar->fFinalSpeed / fHealthFactor) < fDownshiftThreshold && human_control[pCar->iDriverIdx] != 2 && iGearAyMax > 0)// Auto downshift: check if speed is too low for current gear
+    {
+      dDownshiftPower = change_gear(iGearAyMax, iGearAyMax - 1, pCar, iCarDesignIdx);
+      --iGearAyMax;
+      iGearChanged = -1;
+      fPower = (float)dDownshiftPower;
+      pCar->byGearAyMax = iGearAyMax;
     }
-    if (*v3 - 1 > v43
-      && v43 >= 0
-      && human_control[*(_DWORD *)(a1 + 32)] != 2
-      && v42 > (double)*(int *)(8 * v43 + v3[4]) * control_c_variable_27
-      && *(float *)(a1 + 120) >= (double)eng_chg_revs[12 * v2 + 2 * v43]) {
-      v28 = *(float *)(a1 + 120) * v35[v43] * v41 * control_c_variable_28;
-      if (*(float *)(a1 + 24) >= (double)v28) {
-        v11 = change_gear(v43, v43 + 1, a1);
-        *(_BYTE *)(a1 + 128) = ++v43;
-        v42 = v11;
-        v34 = -1;
+    if (pEngineData->iNumGears - 1 > iGearAyMax
+      && iGearAyMax >= 0
+      && human_control[pCar->iDriverIdx] != 2
+      && fPower > (double)pEngineData->pChgs[2 * iGearAyMax] * 1.2
+      && pCar->fRPMRatio >= (double)eng_chg_revs[12 * iCarDesignIdx + 2 * iGearAyMax])// Auto upshift: check power, RPM, and speed thresholds
+    {
+      fUpshiftSpeed = pCar->fRPMRatio * pSpds[iGearAyMax] * fHealthFactor * 0.5f;
+      if (pCar->fFinalSpeed >= (double)fUpshiftSpeed) {
+        dUpshiftPower = change_gear(iGearAyMax, iGearAyMax + 1, pCar, iCarDesignIdx);
+        pCar->byGearAyMax = ++iGearAyMax;
+        fPower = (float)dUpshiftPower;
+        iGearChanged = -1;
       }
     }
-    *(float *)(a1 + 124) = v42;
-    if (v43 < 0)
-      v12 = calc_revs(v3[1], 0, v42);
+    pCar->fPower = fPower;                      // Calculate new RPM ratio using calc_revs function
+    if (iGearAyMax < 0)
+      dCalculatedRPMRatio = calc_revs(pEngineData->pRevs, 0, fPower);
     else
-      v12 = calc_revs(v3[1], v43, v42);
-    v38 = v12;
-    v40 = v38 - *(float *)(a1 + 120);
-    if (*(__int16 *)(a1 + 12) != -1 && v2 != 9 && v43 != -1) {
-      if (v40 <= 0.0) {
-        if (v40 < control_c_variable_29)
-          v40 = -0.029999999;
-      } else if (v37 <= 0.0) {
-        if (v40 > v36 * control_c_variable_30)
-          v40 = 0.029999999;
+      dCalculatedRPMRatio = calc_revs(pEngineData->pRevs, iGearAyMax, fPower);
+    fNewRPMRatio = (float)dCalculatedRPMRatio;
+    fRPMRatioChange = fNewRPMRatio - pCar->fRPMRatio;
+    if (pCar->nCurrChunk != -1 && iCarDesignIdx != 9 && iGearAyMax != -1)// Limit RPM ratio changes to realistic values when on track
+    {
+      if (fRPMRatioChange <= 0.0f) {
+        if (fRPMRatioChange < -0.03f)
+          fRPMRatioChange = -0.029999999f;
+      } else if (fGravityFactor <= 0.0) {
+        if (fRPMRatioChange > fCarComplexityFactor * 0.03f)
+          fRPMRatioChange = 0.029999999f;
       } else {
-        v27 = v36 * control_c_variable_30 + v37 * control_c_variable_31;
-        if (v40 > v27)
-          v40 = v27;
+        dMaxRPMChange = fCarComplexityFactor * 0.03f + fGravityFactor * 0.02f;
+        if (fRPMRatioChange > dMaxRPMChange)
+          fRPMRatioChange = (float)dMaxRPMChange;
       }
     }
-    *(float *)(a1 + 120) = *(float *)(a1 + 120) + v40;
-    if (v43 == -1) {
-      *(_DWORD *)(a1 + 112) = 0;
-    } else if (v43 < 0) {
-      *(float *)(a1 + 112) = -(*v35 * v38 * v41);
+    pCar->fRPMRatio = pCar->fRPMRatio + fRPMRatioChange;
+    if (iGearAyMax == -1)                     // Calculate base speed for different gear types
+    {
+      pCar->fBaseSpeed = 0.0;
+    } else if (iGearAyMax < 0) {
+      pCar->fBaseSpeed = -(*pSpds * fNewRPMRatio * fHealthFactor);
     } else {
-      v39 = v35[v43] * v38 * v41;
-      *(float *)(a1 + 112) = v39;
+      fCalculatedBaseSpeed = pSpds[iGearAyMax] * fNewRPMRatio * fHealthFactor;
+      pCar->fBaseSpeed = fCalculatedBaseSpeed;
     }
-    if (v43 < 0 && !race_started[0])
-      *(_DWORD *)(a1 + 116) = 0;
-    if (v34)
-      *(float *)(a1 + 116) = *(float *)(a1 + 24) - *(float *)(a1 + 112);
-    if (*(char *)(a1 + 128) != -1) {
-      if (v2 == 9) {
-        if (cheat_control && *(float *)(a1 + 120) < 1.0) {
-          v13 = 32 * v3[9] + *(_DWORD *)(a1 + 132);
-          *(_DWORD *)(a1 + 132) = v13;
-          v14 = v3[10];
-          if (12 * v14 < v13)
-            *(_DWORD *)(a1 + 132) = 12 * v14;
+    if (iGearAyMax < 0 && !race_started)      // Reset speed overflow in reverse before race starts
+      pCar->fSpeedOverflow = 0.0;
+    if (iGearChanged)                         // Update speed overflow when gear changes occur
+      pCar->fSpeedOverflow = pCar->fFinalSpeed - pCar->fBaseSpeed;
+    if ((char)pCar->byGearAyMax != -1)        // Update car pitch dynamics based on acceleration
+    {
+      if (iCarDesignIdx == 9) {                                         // Special pitch handling for cheat mode (car design 9)
+        if (cheat_control && pCar->fRPMRatio < 1.0) {
+          iPitchDelta = 32 * pEngineData->iPitchAccelRate + pCar->iPitchDynamicOffset;
+          pCar->iPitchDynamicOffset = iPitchDelta;
+          iMaxPitchOffset_1 = pEngineData->iMaxPitchOffset;
+          if (12 * iMaxPitchOffset_1 < iPitchDelta)
+            pCar->iPitchDynamicOffset = 12 * iMaxPitchOffset_1;
         } else {
-          v15 = *(_DWORD *)(a1 + 132);
-          v16 = v3[10];
-          if (v15 > v16) {
-            v33 = (float)(v15 - v16);
-            v23 = v3[9];
-            v17 = 48 * v23;
-            v19 = (double)(48 * v23);
-            v20 = v19 < v33;
-            v21 = 0;
-            v22 = v19 == v33;
-            LOWORD(v23) = v18;
-            if (v19 < v33) {
-              *(_DWORD *)(a1 + 144) = 0;
-              *(_DWORD *)(a1 + 152) = 0;
-              *(_DWORD *)(a1 + 156) = 0;
-              v23 = *(_DWORD *)(a1 + 132);
-              *(_DWORD *)(a1 + 132) = 0;
-              *(_DWORD *)(a1 + 148) = v23;
-              v33 = 0.0;
-              *(_DWORD *)(a1 + 140) = v23;
+          iPitchDynamicOffset = pCar->iPitchDynamicOffset;
+          iMaxPitchOffset = pEngineData->iMaxPitchOffset;
+          if (iPitchDynamicOffset > iMaxPitchOffset) {
+            fPitchDecayAmount = (float)(iPitchDynamicOffset - iMaxPitchOffset);
+            if ((double)(48 * pEngineData->iPitchAccelRate) < fPitchDecayAmount)// Handle extreme pitch: reset camera offsets and apply damage
+            {
+              pCar->iUnk35_3 = 0;
+              pCar->iUnk36_2 = 0;
+              pCar->iRollCameraOffset = 0;
+              iOldPitchOffset = pCar->iPitchDynamicOffset;
+              pCar->iPitchDynamicOffset = 0;
+              pCar->iPitchCameraOffset = iOldPitchOffset;
+              fPitchDecayAmount = 0.0;
+              pCar->iPitchBackup = iOldPitchOffset;
             }
-            v24 = (double)*(int *)(a1 + 132) - v33;
-            _CHP(v23, v17);
-            *(_DWORD *)(a1 + 132) = (int)v24;
+            dPitchDecay = (double)pCar->iPitchDynamicOffset - fPitchDecayAmount;
+            //_CHP();
+            pCar->iPitchDynamicOffset = (int)dPitchDecay;
           } else {
-            *(_DWORD *)(a1 + 132) += v3[9];
+            pCar->iPitchDynamicOffset += pEngineData->iPitchAccelRate;
           }
         }
       } else {
-        v25 = v3[9] + *(_DWORD *)(a1 + 132);
-        *(_DWORD *)(a1 + 132) = v25;
-        v26 = v3[10];
-        if (v25 > v26)
-          *(_DWORD *)(a1 + 132) = v26;
+        iPitchDeltaNormal = pEngineData->iPitchAccelRate + pCar->iPitchDynamicOffset;// Normal cars: increase pitch with acceleration, clamp to max
+        pCar->iPitchDynamicOffset = iPitchDeltaNormal;
+        iMaxPitchNormal = pEngineData->iMaxPitchOffset;
+        if (iPitchDeltaNormal > iMaxPitchNormal)
+          pCar->iPitchDynamicOffset = iMaxPitchNormal;
       }
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1370,8 +1367,8 @@ void Decelerate(tCar *pCar)
   float fNewBaseSpeed; // [esp+40h] [ebp-1Ch]
   float fNewSpeedOverflow; // [esp+40h] [ebp-1Ch]
 
-  pCar->byUnk59 = 0;                            // Initialize car status flags for deceleration
-  pCar->iUnk72 = 6;
+  pCar->byAccelerating = 0;                            // Initialize car status flags for deceleration
+  pCar->iEngineState = 6;
   fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car damage, capped at 1.0
   iCarDesignIdx = pCar->byCarDesignIdx;
   pEngineData = &CarEngines.engines[iCarDesignIdx];

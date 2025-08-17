@@ -30,8 +30,8 @@ typedef struct
   float fUnk4;
   float fUnk5;
   int iUnk6;
-  int iUnk7;
-  int iUnk8;
+  int iPitchAccelRate;
+  int iMaxPitchOffset;
   int iPitchDecayRate;
   int iMinPitchOffset;
   int iNoseUpRecoveryRate;

@@ -415,11 +415,11 @@ void placecars()
       Car[iDriverIdx].iUnk69 = 0;
       Car[iDriverIdx].byRacePosition = iCarCounter;// Set race position and other race parameters
       Car[iDriverIdx].nChangeMateCooldown = 1080;
-      Car[iDriverIdx].byUnk58 = 0;
+      Car[iDriverIdx].byThrottlePressed = 0;
       uiOrderOffset = uiGridOffset;
       Car[iDriverIdx].byLives = 3;
       *(int *)((char *)carorder + uiOrderOffset) = iDriverIdx;// Add car to race order array
-      Car[iDriverIdx].byUnk59 = 0;              // Initialize various car flags and counters
+      Car[iDriverIdx].byAccelerating = 0;              // Initialize various car flags and counters
       Car[iDriverIdx].byUnk61 = 0;
       Car[iDriverIdx].byUnk60 = 0;
       Car[iDriverIdx].byUnk62[0] = 0;
@@ -458,7 +458,7 @@ void placecars()
         Car[iViewCarIdx].fBaseSpeed = Car[iViewCarIdx].fFinalSpeed;
         dPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fRPMRatio);// Calculate power for this car configuration
         Car[iViewCarIdx].fSpeedOverflow = 0;
-        Car[iViewCarIdx].byUnk58 = -1;
+        Car[iViewCarIdx].byThrottlePressed = -1;
         Car[iViewCarIdx].byUnk61 = 36;
         Car[iViewCarIdx].fPower = (float)dPower;
       }

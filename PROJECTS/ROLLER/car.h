@@ -62,7 +62,7 @@ typedef struct
   uint8 byStatusFlags;
   int iPitchDynamicOffset;
   int iRollDynamicOffset;
-  int iUnk35_2;
+  int iPitchBackup;
   int iUnk35_3;
   int iPitchCameraOffset;
   int iUnk36_2;
@@ -91,8 +91,8 @@ typedef struct
   float fTotalRaceTime;
   int16 nTargetChunk;
   int16 nChangeMateCooldown;
-  uint8 byUnk58;
-  uint8 byUnk59;
+  uint8 byThrottlePressed;
+  uint8 byAccelerating;
   uint8 byUnk60;
   uint8 byUnk61;
   uint8 byUnk62[28];
@@ -107,9 +107,9 @@ typedef struct
   int iUnk69;
   int16 nUnk70;
   int16 nUnk71;
-  int iUnk72;
+  int iEngineState;
   float fUnk73;
-  float fUnk73_2;
+  float fWheelSpinFactor;
   int iUnk74;
   uint8 byUnk75;
   uint8 byUnk76;
