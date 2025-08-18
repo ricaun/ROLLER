@@ -3859,16 +3859,14 @@ LABEL_113:
 //00030200
 void testteaminit(tCar *pCar)
 {
-  /*
-  int result; // eax
+  int iViewType; // eax
 
   if ((ViewType[0] & 1) != 0)
-    result = ViewType[0] - 1;
+    iViewType = ViewType[0] - 1;
   else
-    result = ViewType[0] + 1;
-  if (result == *(_DWORD *)(a1 + 32))
-    return initcarview(-result - 1, 0);
-  return result;*/
+    iViewType = ViewType[0] + 1;
+  if (iViewType == pCar->iDriverIdx)
+    initcarview(-iViewType - 1, 0);
 }
 
 //-------------------------------------------------------------------------------------------------

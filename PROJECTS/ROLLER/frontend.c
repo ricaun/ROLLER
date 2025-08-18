@@ -3282,15 +3282,15 @@ void select_configure()
         }
 
         // Validate input type compatibility for throttle controls
-
-        if ( iFoundKey != -1
-                  && (control_edit == 1 || control_edit == 7)
-                  && (userkey[control_edit] <= 0x83u && iFoundKey > 131 || userkey[control_edit] > 0x83u && iFoundKey <= 131) ) {
-        //if (iFoundKey != -1
-        //  && (control_edit == 1 || control_edit == 7)
-        //  && (*((_BYTE *)&keyname[139] + control_edit + 3) <= 0x83u && iFoundKey > 131 || *((_BYTE *)&keyname[139] + control_edit + 3) > 0x83u && iFoundKey <= 131)) {
-          iFoundKey = -1;                       // reject incompatible input type
-        }
+        //TODO
+        //if ( iFoundKey != -1
+        //          && (control_edit == 1 || control_edit == 7)
+        //          && (userkey[control_edit] <= 0x83u && iFoundKey > 131 || userkey[control_edit] > 0x83u && iFoundKey <= 131) ) {
+        ////if (iFoundKey != -1
+        ////  && (control_edit == 1 || control_edit == 7)
+        ////  && (*((_BYTE *)&keyname[139] + control_edit + 3) <= 0x83u && iFoundKey > 131 || *((_BYTE *)&keyname[139] + control_edit + 3) > 0x83u && iFoundKey <= 131)) {
+        //  iFoundKey = -1;                       // reject incompatible input type
+        //}
 
         if (iFoundKey == -1)
           goto CHECK_CONTROL_INPUT;
