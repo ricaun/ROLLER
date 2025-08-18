@@ -2274,7 +2274,7 @@ void prt_letter(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPo
   iSavedScrSize = scr_size;                     // Save current screen scaling factor
   if (iFontType)                              // Check font type selection: a5 != 0 uses ascii_conv3, a5 == 0 uses font6
   {
-    iCharIndex = (uint8)ascii_conv3[(int8)byChar];// Use alternate font (ascii_conv3) with no Y offset
+    iCharIndex = (uint8)ascii_conv3[(uint8)byChar];// Use alternate font (ascii_conv3) with no Y offset
     iYOffset = 0;
   } else {
     iCharIndex = (int8)font6_ascii[(uint8)byChar];// Use default font6 with Y offset from font6_offsets table
