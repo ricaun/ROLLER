@@ -31,7 +31,7 @@ typedef struct
   float fFinalSpeed;
   float fHealth;
   int iDriverIdx;
-  int iUnk6;
+  float fHorizontalSpeed;
   tVec3 direction;
   tVec3 pos2;
   int nYaw3;
@@ -46,7 +46,7 @@ typedef struct
   int16 nDeathTimer;
   uint8 byCarDesignIdx;
   uint8 byLives;
-  uint8 byUnk24;
+  uint8 byLapNumber;
   uint8 byPadding5;
   int16 nExplosionSoundTimer;
   int iUnk25_2;
@@ -65,7 +65,7 @@ typedef struct
   int iPitchCameraOffset;
   int iUnk36_2;
   int iRollCameraOffset;
-  int iUnk37;
+  int iAICurrentLine;
   int iRollMotion;
   int iPitchMotion;
   int iYawMotion;
@@ -75,10 +75,10 @@ typedef struct
   uint8 byAttacker;
   uint8 byKills;
   uint8 byUnk43;
-  int iUnk44;
-  int iUnk45;
-  int iUnk46;
-  int iUnk47;
+  int iRevengeMode;
+  int iSelectedStrategy;
+  int iAITargetLine;
+  int iRollMomentum;
   int iStunned;
   int iAITargetCar;
   int iLaneType;

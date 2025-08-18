@@ -7,8 +7,18 @@
 #include "3d.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int strategyAy[5];
+  float floatUnkAy[5];
+} tCarStrategy;
+
+//-------------------------------------------------------------------------------------------------
+
 extern float levels[7];
+extern int flipst[6];
 extern int level;
+extern tCarStrategy CarStrategy[16];
 extern int carorder[16];
 extern int stops[10];
 extern float trial_times[96];
@@ -68,13 +78,13 @@ double interpolatesteer(float a1, float a2, float a3, int a4, int a5);
 double avoid(int a1, int a2, float a3, int a4, float a5, float a6, void *a7);
 double block(int a1, float a2, int a3, float a4, float a5);
 void autocar2(tCar *pCar);
-void changestrategy(int a1);
+void changestrategy(tCar *pCar);
 int getangle(float fX, float fY);
 void landontrack(int a1);
-int16 converttoair(int a1, int a2, int a3, int a4);
+void converttoair(tCar *pCar);
 void ordercars();
-void changeline(int a1);
-unsigned int driverange(int a1, float *a2, float *a3);
+void changeline(tCar *pCar);
+void driverange(tCar *pCar, float *pfLeftLimit, float *pfRightLimit);
 void updatesmokeandflames(tCar *pCar);
 void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray);
 void calculateseparatedcoordinatesystem(int iChunk, tData *pChunkData);

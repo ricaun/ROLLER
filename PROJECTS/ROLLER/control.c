@@ -15,7 +15,27 @@
 //-------------------------------------------------------------------------------------------------
 
 float levels[7] = { 100.0, 97.0, 94.0, 90.0, 85.0, 80.0, -1.0 }; //000A4290
+int flipst[6] = { 0, 20, 40, 60, 80, 100 }; //000A42C4
 int level = 3;                    //000A42DC
+tCarStrategy CarStrategy[16] =    //000A42E8
+{
+  { { 20, 40, 40, 0, 2 },   { 2.5f, 1.0f, 3.0f, 1.0f, 5000.0f } },
+  { { 50, 30, 10, 10, 0 },  { 4.0f, 1.0f, 2.8f, 1.0f, 5000.0f } },
+  { { 70, 20, 5, 5, 0 },    { 2.0f, 1.0f, 1.6f, 1.6f, 5000.0f } },
+  { { 90, 5, 0, 5, 0 },     { 1.4f, 1.0f, 4.0f, 3.0f, 5000.0f } },
+  { { 10, 50, 35, 5, 2 },   { 1.4f, 1.0f, 3.0999999f, 1.0f, 9000.0f } },
+  { { 30, 45, 5, 20, 0 },   { 2.0f, 1.0f, 2.0f, 1.0f, 9000.0f } },
+  { { 10, 20, 70, 0, 4 },   { 2.0f, 2.0f, 4.3000002f, 1.0f, 8000.0f } },
+  { { 30, 30, 5, 35, 2 },   { 2.5f, 1.2f, 2.8f, 1.0f, 8000.0f } },
+  { { 25, 25, 25, 25, 40 }, { 3.0f, 2.0f, 3.0f, 2.0f, 5000.0f } },
+  { { 20, 70, 5, 5, 0 },    { 1.4f, 1.0f, 2.0f, 1.0f, 5000.0f } },
+  { { 70, 5, 5, 20, 0 },    { 2.0f, 1.0f, 4.0f, 1.4f, 5000.0f } },
+  { { 15, 75, 5, 5, 0 },    { 1.4f, 1.0f, 3.4000001f, 1.0f, 5000.0f } },
+  { { 70, 20, 10, 0, 0 },   { 3.0f, 1.0f, 4.0f, 1.0f, 11000.0f } },
+  { { 85, 5, 5, 5, 0 },     { 3.0f, 1.0f, 4.0f, 1.4f, 11000.0f } },
+  { { 20, 60, 5, 15, 0 },   { 4.0f, 1.2f, 4.0f, 1.4f, 9000.0f } },
+  { { 20, 40, 0, 40, 1 },   { 3.0f, 2.0f, 3.4000001f, 1.0f, 9000.0f } }
+};
 int carorder[16];                 //00149790
 int stops[10];                    //001497D0
 float trial_times[96];            //001497F8
@@ -259,7 +279,7 @@ void humancar(int iCarIdx)
         sfxsample(iSoundEffect3, 0x8000);
         goto SET_TELEPORT_COOLDOWN;
       }
-      Car[iTeleportTargetIdx].iUnk6 = 0;
+      Car[iTeleportTargetIdx].fHorizontalSpeed = 0;
       nChunk2 = Car[iTeleportTargetIdx].nChunk2;
       Car[iTeleportTargetIdx].iSteeringInput = 0;
       nPitch = Car[iTeleportTargetIdx].nPitch;
@@ -277,7 +297,7 @@ void humancar(int iCarIdx)
       fLocalY = posAy[1].fY * Car[iTeleportTarget].pos.fY + posAy[1].fX * Car[iTeleportTarget].pos.fX + posAy[1].fZ * Car[iTeleportTarget].pos.fZ - posAy[3].fY;
       dLocalZ = posAy[2].fY * Car[iTeleportTarget].pos.fY + posAy[2].fX * Car[iTeleportTarget].pos.fX + posAy[2].fZ * Car[iTeleportTarget].pos.fZ - posAy[3].fZ;
       Car[iTeleportTarget].pos.fX = fLocalX;
-      Car[iTeleportTarget].iUnk47 = 0;
+      Car[iTeleportTarget].iRollMomentum = 0;
       Car[iTeleportTarget].direction.fX = 0.0;
       Car[iTeleportTarget].direction.fY = 0.0;
       Car[iTeleportTarget].iControlType = 0;
@@ -5466,135 +5486,111 @@ LABEL_24:
 
 //-------------------------------------------------------------------------------------------------
 //00032BF0
-void changestrategy(int a1)
+void changestrategy(tCar *pCar)
 {
-  (void)(a1);
-  /*
-  int v2; // eax
-  char *v3; // ecx
-  __int16 v4; // fps
-  double v5; // st7
-  int v6; // edi
-  _BOOL1 v7; // c0
-  char v8; // c2
-  _BOOL1 v9; // c3
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // ebx
-  int v14; // edx
-  int v15; // ebp
-  int v16; // eax
-  int v17; // eax
-  int v18; // eax
-  unsigned int v19; // ebx
-  int v20; // ebx
-  int v21; // eax
-  unsigned __int8 v22; // dl
-  int v23; // eax
-  unsigned __int8 v24; // bl
+  tCarStrategy *pStrategyData; // ecx
+  int v3; // edi
+  int iRandStrategy; // eax
+  int iRandProbability; // eax
+  int iSelectedStrategy; // ebx
+  int iProbabilityRemaining; // edx
+  int *piStrategyIterator; // eax
+  int iCurrentProbability; // ebp
+  int iRandFlip; // eax
+  int iRandRevenge; // eax
+  unsigned int uiRacePosition; // ebx
+  int iRevengeProbability; // ebx
+  int iRandRevengeCheck; // eax
+  uint8 byCarDesignIdx; // dl
+  int iRandRevengeAlt; // eax
+  uint8 byCarDesignCopy; // bl
 
-  v2 = 40 * *(_DWORD *)(a1 + 32);
-  v3 = (char *)&CarStrategy + v2;
-  if (*(_WORD *)(a1 + 238))
+  pStrategyData = &CarStrategy[pCar->iDriverIdx];// Get strategy data for this driver (40 bytes per driver)
+  if (pCar->nChangeMateCooldown)              // Skip strategy change if cooldown timer active
     return;
-  v5 = *(float *)(a1 + 232);
-  v6 = *(_DWORD *)(a1 + 192);
-  v7 = v5 < control_c_variable_171;
-  v8 = 0;
-  v9 = v5 == control_c_variable_171;
-  LOWORD(v2) = v4;
-  if (v5 > control_c_variable_171) {
-    v10 = rand(v2);
-    v11 = (800 * v10 - (__CFSHL__((800 * v10) >> 31, 15) + ((800 * v10) >> 31 << 15))) >> 15;
-    if (v11 == 100) {
-      v12 = rand(100);
-      v13 = 0;
-      v14 = (100 * v12 - (__CFSHL__((100 * v12) >> 31, 15) + ((100 * v12) >> 31 << 15))) >> 15;
-      v11 = (int)v3;
-      if (v14 >= *(_DWORD *)v3) {
-        do {
-          v15 = *(_DWORD *)v11;
-          v11 += 4;
-          v14 -= v15;
-          ++v13;
-        } while (v14 >= *(_DWORD *)v11);
+  v3 = pCar->iSelectedStrategy;
+  if (pCar->fTotalRaceTime > 40.0)            // Only allow strategy changes after 40 seconds of race time
+  {
+    iRandStrategy = rand();
+    if ((800 * iRandStrategy) >> 15 == 100)// 1 in 100 chance (800 modulo to get 0-99, check for 100)
+    {
+      iRandProbability = rand();
+      iSelectedStrategy = 0;
+      iProbabilityRemaining = (100 * iRandProbability) >> 15;// Select strategy based on probability table (0-99 random)
+      for (piStrategyIterator = (int *)pStrategyData; iProbabilityRemaining >= *piStrategyIterator; ++iSelectedStrategy) {
+        iCurrentProbability = *piStrategyIterator++;
+        iProbabilityRemaining -= iCurrentProbability;
       }
-      if (*(_BYTE *)(a1 + 130) < 4u && v13 == 2)
-        v13 = 1;
-      *(_DWORD *)(a1 + 192) = v13;
-      if (v13) {
-        v16 = rand(v11);
-        v11 = (100 * v16 - (__CFSHL__((100 * v16) >> 31, 15) + ((100 * v16) >> 31 << 15))) >> 15;
-        if (v11 < flipst[level])
-          *(_DWORD *)(a1 + 192) = 0;
+      if (pCar->byRacePosition < 4u && iSelectedStrategy == 2)// Front runners (positions 0-3) cannot use strategy 2, downgrade to 1
+        iSelectedStrategy = 1;
+      pCar->iSelectedStrategy = iSelectedStrategy;
+      if (iSelectedStrategy) {
+        iRandFlip = rand();
+        if ((100 * iRandFlip) >> 15 < flipst[level])// Chance to flip aggressive strategy back to normal based on level
+          pCar->iSelectedStrategy = 0;
       }
-      if ((cheat_mode & 2) != 0)
-        *(_DWORD *)(a1 + 192) = 0;
+      // CHEAT_MODE_DEATH_MODE
+      if ((cheat_mode & CHEAT_MODE_DEATH_MODE) != 0)              // Death mode forces normal strategy (no aggression)
+        pCar->iSelectedStrategy = 0;
     }
-    v17 = rand(v11);
-    if ((720 * v17 - (__CFSHL__((720 * v17) >> 31, 15) + ((720 * v17) >> 31 << 15))) >> 15 != 250)
-      goto LABEL_39;
-    v18 = cheat_mode;
-    if ((cheat_mode & 2) != 0 || level < 4) {
-      v19 = *(unsigned __int8 *)(a1 + 130);
-      if (v19 >= 7) {
-        if ((cheat_mode & 2) != 0) {
-          v20 = 50 * v19 - 250;
-        } else {
-          v18 = (int)(*((_DWORD *)v3 + 4) * (v19 - level)) / 2;
-          v20 = v18 + v19 - level;
-        }
+    iRandRevenge = rand();
+    if ((720 * iRandRevenge) >> 15 != 250)
+      goto LABEL_39;                            // 1 in 250 chance for revenge mode consideration (720 modulo)
+    // CHEAT_MODE_DEATH_MODE
+    if ((cheat_mode & CHEAT_MODE_DEATH_MODE) != 0 || level < 4) {
+      uiRacePosition = pCar->byRacePosition;
+      if (uiRacePosition >= 7) {
+        // CHEAT_MODE_DEATH_MODE
+        if ((cheat_mode & CHEAT_MODE_DEATH_MODE) != 0)
+          iRevengeProbability = 50 * uiRacePosition - 250;// Death mode: simple position-based revenge (50 * pos - 250)
+        else
+          iRevengeProbability = (int)(pStrategyData->strategyAy[4] * (uiRacePosition - level)) / 2 + uiRacePosition - level;// Normal mode: complex revenge based on strategy data and position
       } else {
-        v20 = -1;
+        iRevengeProbability = -1;
       }
-      v21 = rand(v18);
-      if ((1000 * v21 - (__CFSHL__((1000 * v21) >> 31, 15) + ((1000 * v21) >> 31 << 15))) >> 15 < v20) {
-        if (player_type != 2
-          && (cheat_mode & 0x4000) == 0
-          && !*(_DWORD *)(a1 + 188)
-          && *(_BYTE *)(a1 + 102) == Car_variable_22[308 * (__int16)player1_car]) {
-          v22 = *(_BYTE *)(a1 + 102);
-          if (v22 <= 7u) {
-            speechsample(v22 + 71, 20000, 18, (__int16)player1_car + 17664);
-            speechsample(69, 20000, 0, (__int16)player1_car);
+      iRandRevengeCheck = rand();
+      if ((1000 * iRandRevengeCheck) >> 15 < iRevengeProbability) {                                         // Trigger revenge speech if same car design as player (not in clones mode)
+        // CHEAT_MODE_CLONES
+        if (player_type != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && !pCar->iRevengeMode && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx) {
+          byCarDesignIdx = pCar->byCarDesignIdx;
+          if (byCarDesignIdx <= 7u) {
+            speechsample(byCarDesignIdx + 71, 20000, 18, player1_car + 17664);
+            speechsample(SOUND_SAMPLE_REVERST, 20000, 0, player1_car);// SOUND_SAMPLE_REVERST
           }
         }
-        *(_DWORD *)(a1 + 188) = -1;
+        pCar->iRevengeMode = -1;                // Activate revenge mode (-1)
         goto LABEL_39;
       }
     } else {
-      v23 = rand(cheat_mode);
-      if ((1000 * v23 - (__CFSHL__((1000 * v23) >> 31, 15) + ((1000 * v23) >> 31 << 15))) >> 15 < *((_DWORD *)v3 + 4)) {
-        if (player_type != 2
-          && (cheat_mode & 0x4000) == 0
-          && !*(_DWORD *)(a1 + 188)
-          && *(_BYTE *)(a1 + 102) == Car_variable_22[308 * (__int16)player1_car]
-          && *(_BYTE *)(a1 + 102) <= 7u) {
-          speechsample(*(unsigned __int8 *)(a1 + 102) + 71, 20000, 18, (__int16)player1_car + 17664);
-          speechsample(69, 20000, 0, (__int16)player1_car);
+      iRandRevengeAlt = rand();
+      if ((1000 * iRandRevengeAlt) >> 15 < pStrategyData->strategyAy[4])// Advanced levels (4+): use strategy data for revenge probability
+      {
+        // CHEAT_MODE_CLONES
+        if (player_type != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && !pCar->iRevengeMode && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx && pCar->byCarDesignIdx <= 7u) {
+          speechsample(pCar->byCarDesignIdx + 71, 20000, 18, player1_car + 17664);
+          speechsample(SOUND_SAMPLE_REVERST, 20000, 0, player1_car);// SOUND_SAMPLE_REVERST
         }
-        *(_DWORD *)(a1 + 188) = -1;
+        pCar->iRevengeMode = -1;
         goto LABEL_39;
       }
     }
-    *(_DWORD *)(a1 + 188) = 0;
+    pCar->iRevengeMode = 0;
   LABEL_39:
-    if (winner_mode)
-      *(_DWORD *)(a1 + 188) = 0;
+    if (winner_mode)                          // Winner mode disables revenge/aggression
+      pCar->iRevengeMode = 0;
   }
-  if (v6 != *(_DWORD *)(a1 + 192)) {
-    if (player_type != 2
-      && (cheat_mode & 0x4000) == 0
-      && *(_BYTE *)(a1 + 102) == Car_variable_22[308 * (__int16)player1_car]) {
-      v24 = *(_BYTE *)(a1 + 102);
-      if (v24 <= 7u) {
-        speechsample(v24 + 71, 20000, 18, ((*(_DWORD *)(a1 + 192) + 61) << 8) + (__int16)player1_car);
-        speechsample(*(_DWORD *)(a1 + 192) + 61, 20000, 0, (__int16)player1_car);
+  if (v3 != pCar->iSelectedStrategy)          // If strategy changed, play speech and set cooldown timer
+  {
+    // CHEAT_MODE_CLONES
+    if (player_type != 2 && (cheat_mode & 0x4000) == 0 && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx) {
+      byCarDesignCopy = pCar->byCarDesignIdx;
+      if (byCarDesignCopy <= 7u) {
+        speechsample(byCarDesignCopy + 71, 20000, 18, ((pCar->iSelectedStrategy + 61) << 8) + player1_car);
+        speechsample(pCar->iSelectedStrategy + 61, 20000, 0, player1_car);
       }
     }
-    *(_WORD *)(a1 + 238) = 1080;
-  }*/
+    pCar->nChangeMateCooldown = 1080;           // Set 1080 frame cooldown (18 seconds at 60 FPS)
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -6549,279 +6545,262 @@ void landontrack(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //00034CF0
-int16 converttoair(int a1, int a2, int a3, int a4)
+void converttoair(tCar *pCar)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4);
-  return 0;
-  /*
-  int v5; // eax
-  int v6; // eax
-  double v7; // st7
-  int v8; // edi
-  float *v9; // edi
-  double v10; // st7
-  double v11; // st7
-  __int16 result; // ax
-  int v13; // [esp+0h] [ebp-30h] BYREF
-  int v14; // [esp+4h] [ebp-2Ch] BYREF
-  float v15; // [esp+8h] [ebp-28h]
-  float v16; // [esp+Ch] [ebp-24h]
-  int v17; // [esp+10h] [ebp-20h] BYREF
-  int v18; // [esp+14h] [ebp-1Ch] BYREF
-  float v19; // [esp+18h] [ebp-18h]
-  int v20; // [esp+28h] [ebp-8h]
+  int iCurrChunk; // eax
+  double dRollSpeedCalc; // st7
+  int iChunkBackup; // edi
+  tData *pData; // edi
+  double dFinalSpeed; // st7
+  double dHorizontalSpeed; // st7
+  int16 nTempChunk; // ax
+  int iWorldPitch; // [esp+0h] [ebp-30h] BYREF
+  int iWorldYaw1; // [esp+4h] [ebp-2Ch] BYREF
+  float fWorldZ; // [esp+8h] [ebp-28h]
+  float fWorldX; // [esp+Ch] [ebp-24h]
+  int iWorldRoll; // [esp+10h] [ebp-20h] BYREF
+  int iWorldYaw2; // [esp+14h] [ebp-1Ch] BYREF
+  float fWorldY; // [esp+18h] [ebp-18h]
 
-  v20 = a4;
-  *(_DWORD *)(a1 + 72) = 0;
-  v5 = *(__int16 *)(a1 + 12);
-  if (v5 == -1)
-    v5 = *(__int16 *)(a1 + 14);
-  *(_DWORD *)(a1 + 216) = v5;
-  if (v5 < 0)
-    v5 += TRAK_LEN;
-  v6 = v5 << 7;
-  v7 = (double)*(int *)((char *)&localdata + v6 + 64) * *(float *)(a1 + 24) * control_c_variable_187
-    + (double)*(int *)(a1 + 200);
-  _CHP(v6, a2);
-  *(_DWORD *)(a1 + 200) = (int)v7;
-  v8 = *(__int16 *)(a1 + 12);
-  getworldangles(&v14, &v13, &v17);
-  getworldangles(&v18, &v13, &v17);
-  *(_WORD *)(a1 + 20) = v18;
-  *(_DWORD *)(a1 + 64) = v18;
-  *(_WORD *)(a1 + 18) = v13;
-  v9 = (float *)((char *)&localdata + 128 * v8);
-  *(_WORD *)(a1 + 16) = v17;
-  v16 = v9[1] * *(float *)(a1 + 4) + *v9 * *(float *)a1 + v9[2] * *(float *)(a1 + 8) - v9[9];
-  v19 = v9[4] * *(float *)(a1 + 4) + v9[3] * *(float *)a1 + v9[5] * *(float *)(a1 + 8) - v9[10];
-  v15 = v9[7] * *(float *)(a1 + 4) + v9[6] * *(float *)a1 + v9[8] * *(float *)(a1 + 8) - v9[11];
-  v10 = *(float *)(a1 + 24);
-  *(float *)a1 = v16;
-  *(float *)(a1 + 4) = v19;
-  *(float *)(a1 + 8) = v15;
-  *(float *)(a1 + 40) = v10 * tcos[v14] * tcos[v13];
-  *(float *)(a1 + 44) = *(float *)(a1 + 24) * tsin[v14] * tcos[v13];
-  *(float *)(a1 + 48) = *(float *)(a1 + 24) * tsin[v13];
-  v11 = *(float *)(a1 + 24) * tcos[v13];
-  *(_DWORD *)(a1 + 116) = 0;
-  result = *(_WORD *)(a1 + 12);
-  *(_WORD *)(a1 + 12) = -1;
-  *(_WORD *)(a1 + 14) = result;
-  *(float *)(a1 + 36) = v11;
-  return result;*/
+  pCar->iControlType = 0;                       // Set car to airborne control mode (0)
+  iCurrChunk = pCar->nCurrChunk;
+  if (iCurrChunk == -1)                       // Use backup chunk if current chunk is invalid (-1)
+    iCurrChunk = pCar->nChunk2;
+  pCar->iLastValidChunk = iCurrChunk;
+  if (iCurrChunk < 0)
+    iCurrChunk += TRAK_LEN;
+  dRollSpeedCalc = (double)localdata[iCurrChunk].iRoll * pCar->fFinalSpeed * 0.0013888889 + (double)pCar->iRollMomentum;// Calculate banking/roll effect based on speed (0.0013888889 = 1/720)
+  //_CHP();
+  pCar->iRollMomentum = (int)dRollSpeedCalc;
+  iChunkBackup = pCar->nCurrChunk;
+  getworldangles(pCar->nYaw3, pCar->nPitch, pCar->nRoll, pCar->nChunk2, &iWorldYaw1, &iWorldPitch, &iWorldRoll);// Convert car yaw3/pitch/roll to world angles using current chunk
+  getworldangles(pCar->nYaw, pCar->nPitch, pCar->nRoll, pCar->nChunk2, &iWorldYaw2, &iWorldPitch, &iWorldRoll);// Convert car yaw/pitch/roll to world angles
+  pCar->nYaw = iWorldYaw2;
+  pCar->nYaw3 = iWorldYaw2;
+  pCar->nPitch = iWorldPitch;
+  pData = &localdata[iChunkBackup];
+  pCar->nRoll = iWorldRoll;
+  fWorldX = pData->pointAy[0].fY * pCar->pos.fY + pData->pointAy[0].fX * pCar->pos.fX + pData->pointAy[0].fZ * pCar->pos.fZ - pData->pointAy[3].fX;// Transform car position from chunk-relative to world coordinates
+  fWorldY = pData->pointAy[1].fY * pCar->pos.fY + pData->pointAy[1].fX * pCar->pos.fX + pData->pointAy[1].fZ * pCar->pos.fZ - pData->pointAy[3].fY;
+  fWorldZ = pData->pointAy[2].fY * pCar->pos.fY + pData->pointAy[2].fX * pCar->pos.fX + pData->pointAy[2].fZ * pCar->pos.fZ - pData->pointAy[3].fZ;
+  dFinalSpeed = pCar->fFinalSpeed;
+  pCar->pos.fX = fWorldX;
+  pCar->pos.fY = fWorldY;
+  pCar->pos.fZ = fWorldZ;
+  pCar->direction.fX = (float)(dFinalSpeed * tcos[iWorldYaw1] * tcos[iWorldPitch]);// Calculate 3D velocity vector from speed and world angles
+  pCar->direction.fY = pCar->fFinalSpeed * tsin[iWorldYaw1] * tcos[iWorldPitch];
+  pCar->direction.fZ = pCar->fFinalSpeed * tsin[iWorldPitch];
+  dHorizontalSpeed = pCar->fFinalSpeed * tcos[iWorldPitch];
+  pCar->fSpeedOverflow = 0.0;                   // Reset speed overflow and prepare for airborne physics
+  nTempChunk = pCar->nCurrChunk;
+  pCar->nCurrChunk = -1;                        // Set car as airborne (-1) and backup original chunk position
+  pCar->nChunk2 = nTempChunk;
+  pCar->fHorizontalSpeed = (float)dHorizontalSpeed;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00034EA0
 void ordercars()
 {
-  /*
-  int v0; // edi
-  unsigned int v1; // edx
-  int v2; // esi
-  float *v3; // ebx
-  float *v4; // eax
-  char v5; // cl
-  char v6; // ch
-  int v7; // eax
-  __int16 v8; // cx
-  int v9; // ebx
-  int v10; // eax
-  int v11; // [esp+0h] [ebp-18h]
-  int v12; // [esp+0h] [ebp-18h]
+  int iTotalCars; // edi
+  unsigned int uiSortIndex; // edx
+  int iSortLimit; // esi
+  tCar *pCurrentCar; // ebx
+  tCar *pNextCar; // eax
+  int8 byLapNumber; // cl
+  int8 byCurrentProgress; // ch
+  int iTempCarIndex; // eax
+  int16 nCurrChunk; // cx
+  int iSwapCarIndex; // ebx
+  int iCarIndex; // eax
+  int iSortCounter; // [esp+0h] [ebp-18h]
+  int byPosition; // [esp+0h] [ebp-18h]
 
-  v0 = numcars;
-  v1 = 0;
-  v2 = 4 * (numcars - 1);
-  v11 = 0;
-  if (v2 > 0) {
+  iTotalCars = numcars;                         // Bubble sort implementation to order cars by race position
+  uiSortIndex = 0;
+  iSortLimit = 4 * (numcars - 1);               // Set up loop limit for bubble sort (numcars-1) iterations
+  iSortCounter = 0;
+  if (iSortLimit > 0) {
     do {
-      v3 = &Car[77 * carorder[v1 / 4]];
-      if (!finished_car[*((_DWORD *)v3 + 8)]) {
-        v4 = &Car[77 * carorder_variable_1[v1 / 4]];
-        if (*((__int16 *)v3 + 6) != -1 && *((__int16 *)v4 + 6) != -1 && !finished_car[*((_DWORD *)v4 + 8)]) {
-          v5 = *((_BYTE *)v4 + 104);
-          v6 = *((_BYTE *)v3 + 104);
-          if (v5 <= v6) {
-            if (v5 == v6) {
-              v8 = *((_WORD *)v4 + 6);
-              if (v8 > *((__int16 *)v3 + 6) || v8 == *((_WORD *)v3 + 6) && *v4 > (double)*v3) {
-                v9 = carorder[v1 / 4];
-                carorder[v1 / 4] = carorder_variable_1[v1 / 4];
-                carorder_variable_1[v1 / 4] = v9;
+      pCurrentCar = &Car[carorder[uiSortIndex / 4]];// Get current car from sorted order array
+      if (!finished_car[pCurrentCar->iDriverIdx])// Skip comparison if current car has finished the race
+      {
+        pNextCar = &Car[carorder[uiSortIndex / 4 + 1]];// Get next car in order for comparison
+        if (pCurrentCar->nCurrChunk != -1 && pNextCar->nCurrChunk != -1 && !finished_car[pNextCar->iDriverIdx])// Only compare active cars that are on track and not finished
+        {
+          byLapNumber = pNextCar->byLapNumber;
+          byCurrentProgress = pCurrentCar->byLapNumber;
+          if (byLapNumber <= byCurrentProgress)// Compare race progress (byUnk24 - likely lap/sector progress)
+          {                                     // If same progress, compare by track position (chunk and X coordinate)
+            if (byLapNumber == byCurrentProgress) {
+              nCurrChunk = pNextCar->nCurrChunk;
+              if (nCurrChunk > pCurrentCar->nCurrChunk || nCurrChunk == pCurrentCar->nCurrChunk && pNextCar->pos.fX > (double)pCurrentCar->pos.fX) {
+                iSwapCarIndex = carorder[uiSortIndex / 4];// Swap car positions: next car is ahead by position
+                carorder[uiSortIndex / 4] = carorder[uiSortIndex / 4 + 1];
+                carorder[uiSortIndex / 4 + 1] = iSwapCarIndex;
               }
             }
           } else {
-            v7 = carorder[v1 / 4];
-            carorder[v1 / 4] = carorder_variable_1[v1 / 4];
-            carorder_variable_1[v1 / 4] = v7;
+            iTempCarIndex = carorder[uiSortIndex / 4];// Swap car positions: next car is ahead in progress
+            carorder[uiSortIndex / 4] = carorder[uiSortIndex / 4 + 1];
+            carorder[uiSortIndex / 4 + 1] = iTempCarIndex;
           }
         }
       }
-      v1 += 4;
-      ++v11;
-    } while ((int)v1 < v2);
+      uiSortIndex += 4;
+      ++iSortCounter;
+    } while ((int)uiSortIndex < iSortLimit);
   }
-  v12 = 0;
-  if (v0 > 0) {
-    v10 = 0;
+  byPosition = 0;                               // Assign race positions based on sorted order (0=1st, 1=2nd, etc.)
+  if (iTotalCars > 0) {
+    iCarIndex = 0;
     do
-      Car_variable_32[308 * carorder[v10++]] = v12++;
-    while (v0 > v12);
+      Car[carorder[iCarIndex++]].byRacePosition = byPosition++;
+    while (iTotalCars > byPosition);
   }
-  numcars = v0;*/
+  numcars = iTotalCars;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00034FC0
-void changeline(int a1)
+void changeline(tCar *pCar)
 {
-  (void)(a1);
-  /*
-  int v2; // eax
-  char *v3; // ecx
-  int v4; // eax
-  __int16 v5; // fps
-  double v6; // st7
-  _BOOL1 v7; // c0
-  char v8; // c2
-  _BOOL1 v9; // c3
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // ebp
-  int v14; // edx
-  int v15; // eax
-  int v16; // eax
+  int iCurrChunk; // eax
+  tData *pData; // ecx
+  int iRandValue; // eax
+  int iRandForPos; // eax
+  int iTargetLine; // ebp
+  int iChangeSuccess; // edx
+  int iPrevTargetLine; // eax
+  int iRandNewLine; // eax
 
-  v2 = *(__int16 *)(a1 + 12);
-  v3 = (char *)&localdata + 128 * v2;
-  if (*(_DWORD *)(a1 + 196) == -1) {
-    v4 = 3 * v2;
-    if ((TrakColour_variable_5[4 * v4] & 0x100) != 0) {
-      if (*(_DWORD *)(a1 + 208) != -1) {
-        v6 = *(float *)(a1 + 28);
-        v7 = v6 < control_c_variable_188;
-        v8 = 0;
-        v9 = v6 == control_c_variable_188;
-        LOWORD(v4) = v5;
-        if (v6 < control_c_variable_188) {
-          *(_DWORD *)(a1 + 196) = 0;
-          goto LABEL_13;
-        }
+  iCurrChunk = pCar->nCurrChunk;
+  pData = &localdata[iCurrChunk];
+  if (pCar->iAITargetLine == -1)              // Check if car needs to select a new AI driving line
+  {                                             // Check if center line marker is disabled (bit 24)
+    if ((TrakColour[iCurrChunk][1] & 0x1000000) == 0) {                                           // Cars in 6th place or lower have reduced aggression
+      if (pCar->byRacePosition >= 6u) {
+        iRandForPos = rand();
+        if ((720 * iRandForPos) >> 15 != 100)
+          goto LABEL_13;                        // 1 in 100 chance for line change when in poor position
+        goto LABEL_7;
       }
-      if (!*(_DWORD *)(a1 + 160)) {
-        if (*(_BYTE *)(a1 + 130) >= 6u) {
-          v10 = rand(v4);
-          *(_DWORD *)(a1 + 196) = (v10 - (__CFSHL__(v10 >> 31, 13) + (v10 >> 31 << 13))) >> 13;
-          goto LABEL_13;
-        }
-      LABEL_12:
-        *(_DWORD *)(a1 + 196) = 3;
+    LABEL_12:
+      pCar->iAITargetLine = 3;                  // Set target line to 3 (conservative choice for front runners)
+      goto LABEL_13;
+    }
+    if (pCar->iAITargetCar != -1 && pCar->fHealth < 60.0)// If targeting another car and low health, stay defensive
+    {
+      pCar->iAITargetLine = 0;
+      goto LABEL_13;
+    }
+    if (!pCar->iAICurrentLine)                // Check if car is not currently on an AI line
+    {
+      if (pCar->byRacePosition >= 6u) {
+      LABEL_7:
+        iRandValue = rand();                    // Select random AI line (0-7 modulo operation)
+        pCar->iAITargetLine = (iRandValue) >> 13;
+        goto LABEL_13;
       }
-    } else {
-      if (*(_BYTE *)(a1 + 130) < 6u)
-        goto LABEL_12;
-      v11 = rand(v4);
-      if ((720 * v11 - (__CFSHL__((720 * v11) >> 31, 15) + ((720 * v11) >> 31 << 15))) >> 15 == 100) {
-        v12 = rand(100);
-        *(_DWORD *)(a1 + 196) = (v12 - (__CFSHL__(v12 >> 31, 13) + (v12 >> 31 << 13))) >> 13;
-      }
+      goto LABEL_12;
     }
   }
 LABEL_13:
-  v13 = *(_DWORD *)(a1 + 196);
-  v14 = 0;
-  if (v13 != -1 && linevalid(*(float *)(a1 + 4), *(float *)&v3[4 * v13 + 96])) {
-    v15 = *(_DWORD *)(a1 + 196);
-    *(_DWORD *)(a1 + 196) = -1;
-    v14 = -1;
-    *(_DWORD *)(a1 + 160) = v15;
+  iTargetLine = pCar->iAITargetLine;
+  iChangeSuccess = 0;
+  if (iTargetLine != -1 && linevalid(pCar->nCurrChunk, pCar->pos.fY, *(&pData->fAILine1 + iTargetLine)))// Check if target line is valid at current position
+  {
+    iPrevTargetLine = pCar->iAITargetLine;
+    pCar->iAITargetLine = -1;                   // Successfully switch to target line, clear target
+    iChangeSuccess = -1;
+    pCar->iAICurrentLine = iPrevTargetLine;
   }
-  if (!v14 && !linevalid(*(float *)(a1 + 4), *(float *)&v3[4 * *(_DWORD *)(a1 + 160) + 96])) {
-    v16 = rand(0);
-    *(_DWORD *)(a1 + 196) = (v16 - (__CFSHL__(v16 >> 31, 13) + (v16 >> 31 << 13))) >> 13;
-  }*/
+  if (!iChangeSuccess && !linevalid(pCar->nCurrChunk, pCar->pos.fY, *(&pData->fAILine1 + pCar->iAICurrentLine)))// If current line invalid and no change made, pick new random line
+  {
+    iRandNewLine = rand();
+    pCar->iAITargetLine = (iRandNewLine) >> 13;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //00035130
-unsigned int driverange(int a1, float *a2, float *a3)
+void driverange(tCar *pCar, float *pfLeftLimit, float *pfRightLimit)
 {
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v6; // eax
-  int *v7; // esi
-  int v8; // edx
-  float *v9; // ebx
-  int v10; // eax
-  unsigned int result; // eax
-  double v12; // st7
-  double v13; // st7
-  unsigned int v14; // [esp+0h] [ebp-28h]
-  unsigned int v15; // [esp+4h] [ebp-24h]
-  unsigned int v16; // [esp+8h] [ebp-20h]
-  int v17; // [esp+Ch] [ebp-1Ch]
-  int v18; // [esp+10h] [ebp-18h]
+  int iCurrChunk; // eax
+  tTrackInfo *pTrackInfo; // esi
+  int iLeftSurfaceType; // edx
+  tData *pTrackData; // ebx
+  int iRightSurfaceType; // eax
+  unsigned int iLaneType; // eax
+  double dTrackHalfWidth; // st7
+  double dLeftBoundary; // st7
+  unsigned int uiLeftLaneMarker; // [esp+0h] [ebp-28h]
+  unsigned int uiRightLaneMarker; // [esp+4h] [ebp-24h]
+  unsigned int uiCenterLaneMarker; // [esp+8h] [ebp-20h]
+  int iRightSurfaceFlag; // [esp+Ch] [ebp-1Ch]
+  int iLeftSurfaceFlag; // [esp+10h] [ebp-18h]
 
-  v6 = *(__int16 *)(a1 + 12);
-  v7 = &TrackInfo[9 * v6];
-  v8 = v7[6];
-  v9 = (float *)((char *)&localdata + 128 * v6);
-  if (v8 == 5 || v8 == 6 || v8 == 9)
-    v18 = -1;
+  iCurrChunk = pCar->nCurrChunk;
+  pTrackInfo = &TrackInfo[iCurrChunk];
+  iLeftSurfaceType = pTrackInfo->iLeftSurfaceType;
+  pTrackData = &localdata[iCurrChunk];
+  if (iLeftSurfaceType == 5 || iLeftSurfaceType == 6 || iLeftSurfaceType == 9)// Check if left surface is wall/barrier (types 5,6,9)
+    iLeftSurfaceFlag = -1;
   else
-    v18 = 0;
-  v10 = v7[7];
-  if (v10 == 5 || v10 == 6 || v10 == 9)
-    v17 = -1;
+    iLeftSurfaceFlag = 0;
+  iRightSurfaceType = pTrackInfo->iRightSurfaceType;
+  if (iRightSurfaceType == 5 || iRightSurfaceType == 6 || iRightSurfaceType == 9)// Check if right surface is wall/barrier (types 5,6,9)
+    iRightSurfaceFlag = -1;
   else
-    v17 = 0;
-  v14 = abs32(*((_DWORD *)&TrakColour + 6 * *(__int16 *)(a1 + 12))) & 0x20000;
-  v16 = abs32(*((_DWORD *)&TrakColour_variable_3 + 6 * *(__int16 *)(a1 + 12))) & 0x20000;
-  v15 = abs32(*((_DWORD *)&TrakColour_variable_7 + 6 * *(__int16 *)(a1 + 12))) & 0x20000;
-  result = *(_DWORD *)(a1 + 212);
-  if (!result) {
-    *a2 = v9[13] + *(float *)v7 - *(float *)(a1 + 84);
-    if (v18 || v16) {
-      *a3 = v9[13] + *(float *)(a1 + 84);
-      return result;
+    iRightSurfaceFlag = 0;
+  uiLeftLaneMarker = abs(TrakColour[pCar->nCurrChunk][0]) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
+  uiCenterLaneMarker = abs(TrakColour[pCar->nCurrChunk][1]) & 0x20000;
+  uiRightLaneMarker = abs(TrakColour[pCar->nCurrChunk][2]) & 0x20000;
+  iLaneType = pCar->iLaneType;
+  if (!iLaneType)                             // Lane type 0: Full track width driving (normal racing)
+  {
+    *pfLeftLimit = pTrackData->fTrackHalfWidth + pTrackInfo->fLShoulderWidth - pCar->fCarHalfWidth;// Set left boundary: track edge + left shoulder - car width
+    if (iLeftSurfaceFlag || uiCenterLaneMarker)// If left wall/barrier or center lane marker, limit right boundary
+    {
+      *pfRightLimit = pTrackData->fTrackHalfWidth + pCar->fCarHalfWidth;
+      return;
     }
-    if (v17 || v15) {
-      *a3 = *(float *)(a1 + 84) - v9[13];
-      return result;
+    if (iRightSurfaceFlag || uiRightLaneMarker) {
+      *pfRightLimit = pCar->fCarHalfWidth - pTrackData->fTrackHalfWidth;
+      return;
     }
-    goto LABEL_21;
+    goto LABEL_21;                              // If right wall/barrier or right lane marker, limit left boundary
   }
-  if (result <= 1) {
-    if (v18 || v14)
-      v12 = v9[13];
+  if (iLaneType <= 1)                         // Lane type 1: Left lane driving only
+  {                                             // Left lane: adjust left boundary based on wall/lane marker
+    if (iLeftSurfaceFlag || uiLeftLaneMarker)
+      dTrackHalfWidth = pTrackData->fTrackHalfWidth;
     else
-      v12 = v9[13] + *(float *)v7;
-    *a2 = v12 - *(float *)(a1 + 84);
-    if (v17 || v15) {
-      *a3 = *(float *)(a1 + 84) - v9[13];
-      return result;
+      dTrackHalfWidth = pTrackData->fTrackHalfWidth + pTrackInfo->fLShoulderWidth;
+    *pfLeftLimit = (float)(dTrackHalfWidth - pCar->fCarHalfWidth);
+    if (iRightSurfaceFlag || uiRightLaneMarker) {
+      *pfRightLimit = pCar->fCarHalfWidth - pTrackData->fTrackHalfWidth;
+      return;
     }
   LABEL_21:
-    *a3 = -v9[13] - *((float *)v7 + 2) + *(float *)(a1 + 84);
-    return result;
+    *pfRightLimit = -pTrackData->fTrackHalfWidth - pTrackInfo->fRShoulderWidth + pCar->fCarHalfWidth;// Default right boundary: track edge + right shoulder - car width
+    return;
   }
-  if (result == 2) {
-    *a3 = -v9[13] - *((float *)v7 + 2) + *(float *)(a1 + 84);
-    if (v17 || v16) {
-      v13 = -v9[13];
+  if (iLaneType == 2)                         // Lane type 2: Right lane driving only
+  {
+    *pfRightLimit = -pTrackData->fTrackHalfWidth - pTrackInfo->fRShoulderWidth + pCar->fCarHalfWidth;// Right lane: set right boundary to track edge + shoulder
+    if (iRightSurfaceFlag || uiCenterLaneMarker)// If right wall/barrier or center marker, use track center as left boundary
+    {
+      dLeftBoundary = -pTrackData->fTrackHalfWidth;
     } else {
-      if (v18 || v14) {
-        *a2 = v9[13] - *(float *)(a1 + 84);
-        return result;
+      if (iLeftSurfaceFlag || uiLeftLaneMarker) {
+        *pfLeftLimit = pTrackData->fTrackHalfWidth - pCar->fCarHalfWidth;
+        return;
       }
-      v13 = v9[13] + *(float *)v7;
+      dLeftBoundary = pTrackData->fTrackHalfWidth + pTrackInfo->fLShoulderWidth;
     }
-    *a2 = v13 - *(float *)(a1 + 84);
+    *pfLeftLimit = (float)(dLeftBoundary - pCar->fCarHalfWidth);
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
