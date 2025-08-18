@@ -1899,6 +1899,7 @@ void play_game(int iTrack)
   //_enable();
   while (racing || lastsample > 0)            // Main game loop - continues while racing or sound samples playing
   {                                             // Stop all sound samples if requested
+    UpdateSDL();
     if (dostopsamps) {
       stopallsamples();
       dostopsamps = 0;

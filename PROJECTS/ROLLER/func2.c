@@ -1208,16 +1208,20 @@ void ZoomString(const char *szStr, const char *mappingTable, tBlockHeader *pBloc
       else
         zoom_y = 63;                            // Set zoom Y to 63 for external views normal zoom
     }
-    for (iTotalWidth = 0; *szStr; iTotalWidth = (int)dNewTextWidth)// Calculate total text width for centering
+
+    char *szCurrentChar = (char *)szStr;
+    for (iTotalWidth = 0; *szCurrentChar; iTotalWidth = (int)dNewTextWidth)// Calculate total text width for centering
     {
-      iCharIndex = (uint8)mappingTable[*(uint8 *)szStr];// Get font index for current character
+      iCharIndex = (uint8)mappingTable[*(uint8 *)szCurrentChar];// Get font index for current character
       if (iCharIndex == 255)                  // Check if character is invalid (255 = space)
         dCharWidth = 512.0;                     // Use fixed 512.0 width for space character
       else
         dCharWidth = (double)((pBlockHeader[iCharIndex].iWidth + 1) << 6);// Get character width from font data, add 1 pixel spacing
       dNewTextWidth = dCharWidth / game_scale[iPlayerIdx] + (double)iTotalWidth;// Scale character width and accumulate total
       //_CHP();
+      ++szCurrentChar;
     }
+
     if (iTotalWidth <= 310)                   // Check if total width fits within 310 pixels
     {
       fZoomFactor = game_scale[iPlayerIdx];     // Use normal game scale factor
