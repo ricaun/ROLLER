@@ -5489,7 +5489,7 @@ LABEL_24:
 void changestrategy(tCar *pCar)
 {
   tCarStrategy *pStrategyData; // ecx
-  int v3; // edi
+  int iOldStrategy; // edi
   int iRandStrategy; // eax
   int iRandProbability; // eax
   int iSelectedStrategy; // ebx
@@ -5508,7 +5508,7 @@ void changestrategy(tCar *pCar)
   pStrategyData = &CarStrategy[pCar->iDriverIdx];// Get strategy data for this driver (40 bytes per driver)
   if (pCar->nChangeMateCooldown)              // Skip strategy change if cooldown timer active
     return;
-  v3 = pCar->iSelectedStrategy;
+  iOldStrategy = pCar->iSelectedStrategy;
   if (pCar->fTotalRaceTime > 40.0)            // Only allow strategy changes after 40 seconds of race time
   {
     iRandStrategy = rand();
@@ -5579,7 +5579,7 @@ void changestrategy(tCar *pCar)
     if (winner_mode)                          // Winner mode disables revenge/aggression
       pCar->iRevengeMode = 0;
   }
-  if (v3 != pCar->iSelectedStrategy)          // If strategy changed, play speech and set cooldown timer
+  if (iOldStrategy != pCar->iSelectedStrategy)          // If strategy changed, play speech and set cooldown timer
   {
     // CHEAT_MODE_CLONES
     if (player_type != 2 && (cheat_mode & 0x4000) == 0 && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx) {
