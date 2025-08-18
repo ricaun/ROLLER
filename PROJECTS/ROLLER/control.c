@@ -7856,43 +7856,42 @@ void dozoomstuff(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //00036B10
-int findcardistance(int a1, float a2)
+int findcardistance(int iCarIdx, float fMaxDistance)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v5; // esi
-  int v6; // ebx
-  unsigned int v7; // edx
-  double v8; // st7
-  double v9; // st7
-  float v11; // [esp+4h] [ebp-24h]
-  float v12; // [esp+8h] [ebp-20h]
-  float v13; // [esp+Ch] [ebp-1Ch]
+  int iClosestCarIdx; // esi
+  int iCarCounter; // ebx
+  int iCurrentCarIdx; // edx
+  double dCurrentCarPos; // st7
+  double dDistance; // st7
+  float fReferenceCarPos; // [esp+4h] [ebp-24h]
+  float fClosestDistance; // [esp+8h] [ebp-20h]
+  float fAdjustedCarPos; // [esp+Ch] [ebp-1Ch]
 
-  v5 = -1;
-  v6 = 0;
-  v11 = (double)(averagesectionlen * Car_variable_3[154 * a1]) + Car[77 * a1];
-  if (numcars > 0) {
-    v7 = 0;
-    do {
-      if (v6 != a1 && Car_variable_23[v7] > 0 && Car_variable_17[v7 / 4] == 3 && !Car_variable_48[v7 / 4]) {
-        v8 = (double)(averagesectionlen * Car_variable_3[v7 / 2]) + Car[v7 / 4];
-        v13 = v8;
-        if (v8 < v11)
-          v13 = (double)totaltrackdistance + v13;
-        v9 = v13 - v11;
-        if (v9 < a2) {
-          v5 = v6;
-          v12 = v9;
-          a2 = v12;
+  iClosestCarIdx = -1;                          // Initialize closest car index to -1 (no car found)
+  iCarCounter = 0;                              // Initialize car counter for iteration
+  fReferenceCarPos = (float)((double)(averagesectionlen * Car[iCarIdx].nCurrChunk) + Car[iCarIdx].pos.fX);// Calculate absolute track position of reference car
+  if (numcars > 0)                            // Check if there are cars to iterate through
+  {
+    iCurrentCarIdx = 0;
+    do {                                           // Skip self, dead cars, non-AI cars, and stunned cars
+      if (iCarCounter != iCarIdx && (char)Car[iCurrentCarIdx].byLives > 0 && Car[iCurrentCarIdx].iControlType == 3 && !Car[iCurrentCarIdx].iStunned) {
+        dCurrentCarPos = (double)(averagesectionlen * Car[iCurrentCarIdx].nCurrChunk) + Car[iCurrentCarIdx].pos.fX;// Calculate absolute track position of current car
+        fAdjustedCarPos = (float)dCurrentCarPos;
+        if (dCurrentCarPos < fReferenceCarPos)
+          fAdjustedCarPos = (float)((double)totaltrackdistance + fAdjustedCarPos);// Handle track wrapping - add total track distance if car is behind
+        dDistance = fAdjustedCarPos - fReferenceCarPos;// Calculate distance from reference car to current car
+        if (dDistance < fMaxDistance)         // If this car is closer than current closest, update closest car
+        {
+          iClosestCarIdx = iCarCounter;
+          fClosestDistance = (float)dDistance;
+          fMaxDistance = fClosestDistance;
         }
       }
-      ++v6;
-      v7 += 308;
-    } while (v6 < numcars);
+      ++iCarCounter;
+      ++iCurrentCarIdx;
+    } while (iCarCounter < numcars);
   }
-  return v5;*/
+  return iClosestCarIdx;                        // Return index of closest car ahead, or -1 if none found
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ void dospray(int64 a1, int a2);
 void calculateseparatedcoordinatesystem(int iChunk, tData *pChunkData);
 int *findnearsection(int a1, int *a2);
 void dozoomstuff(int a1);
-int findcardistance(int a1, float a2);
+int findcardistance(int iCarIdx, float fMaxDistance);
 
 //-------------------------------------------------------------------------------------------------
 #endif
