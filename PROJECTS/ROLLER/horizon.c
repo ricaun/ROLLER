@@ -315,8 +315,11 @@ void initclouds()
       iAngle1 = ((iAngle1Calc & 0x8000) >> 15) + 520;  // Will be either 520 or 521
       //iAngle1 = ((iAngle1Calc - (__CFSHL__(iAngle1Calc >> 31, 15) + (iAngle1Calc >> 31 << 15))) >> 15) + 520;
       iRandVal2 = rand();                       // Generate random angle2 (phi) for spherical coordinates
+      
+      //TODO look at this
       iAngle2 = (iRandVal2 >> 1) & 1;  // Will be 0 or 1
       //iAngle2 = ((iRandVal2 << 14) - (__CFSHL__(iRandVal2 << 14 >> 31, 15) + (iRandVal2 << 14 >> 31 << 15))) >> 15;
+      
       fCos1Cos2 = tcos[iAngle2] * tcos[iAngle1];// Calculate rotation matrix elements using trigonometric tables
       fSin1Cos2 = tsin[iAngle2] * tcos[iAngle1];
       fNegSin1 = -tsin[iAngle2];
@@ -365,7 +368,7 @@ void initclouds()
       cloud[iCloudIdx].world.fY = 0.0f * fCos1 + fBaseY + 0.0f * fRotComp2;// World Y coordinate: final cloud position after transformation
       cloud[iCloudIdx].world.fZ = fBaseZ + 0.0f * fCos2;// World Z coordinate: final cloud position after transformation
       iRandColorBase = rand();                  // Generate random cloud color/texture index
-      iColorIndex = 0; //TODO look at this more
+      iColorIndex = (5 * iRandColorBase) >> 15;
       //iColorIndex = (5 * iRandColorBase - (__CFSHL__((5 * iRandColorBase) >> 31, 15) + ((5 * iRandColorBase) >> 31 << 15))) >> 15;
       cloud[iCloudIdx].iSurfaceType = iColorIndex;
       cloud[iCloudIdx].iSurfaceType = iColorIndex + 0x508;

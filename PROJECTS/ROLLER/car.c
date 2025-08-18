@@ -407,7 +407,8 @@ void placecars()
       Car[iDriverIdx].fHealth = 100.0f;
       Car[iDriverIdx].nTargetChunk = -1;
       Car[iDriverIdx].nUnk70 = -1;
-      Car[iDriverIdx].iUnk37 = (iRandomVal % 8192) / 8192;
+      Car[iDriverIdx].iUnk37 = iRandomVal >> 13;
+      //Car[iDriverIdx].iUnk37 = (iRandomVal % 8192) / 8192;
       //Car[iDriverIdx].iUnk37 = (iRandomVal - (__CFSHL__(iRandomVal >> 31, 13) + (iRandomVal >> 31 << 13))) >> 13;
       Car[iDriverIdx].iStunned = 0;
       Car[iDriverIdx].iPitchDynamicOffset = 0;
@@ -1019,7 +1020,7 @@ void DisplayCar(int iCarIndex, uint8 *pScreenBuffer, float fDistanceToCar)
   float fSmoke2ViewX; // [esp+1B4h] [ebp-E4h]
   float fSmokeViewX; // [esp+1B8h] [ebp-E0h]
   float fModelViewX; // [esp+1BCh] [ebp-DCh]
-  float fState; // [esp+1C0h] [ebp-D8h]
+  float fPosZ; // [esp+1C0h] [ebp-D8h]
   float fPosY; // [esp+1C4h] [ebp-D4h]
   float fPosX; // [esp+1C8h] [ebp-D0h]
   float fNameTagWorldZ; // [esp+1CCh] [ebp-CCh]
@@ -1708,13 +1709,13 @@ LABEL_117:
     iSmokeZOrderIdx = iVisiblePolygons;
     do {                                           // Process and render car smoke/spray particle effects
       if (pSmokeSpray->iLifeTime > 0) {
-        fPosX = pSmokeSpray->fPosX;
-        fPosY = pSmokeSpray->fPosY;
-        fState = pSmokeSpray->fState;
-        SmokePt[0][iSmokeIndex].world.fX = fPosX * fRotMat00 + fPosY * fRotMat10 + fState * fRotMat20 + fCarPosX;
-        SmokePt[0][iSmokeIndex].world.fY = fPosX * fRotMat01 + fPosY * fRotMat12 + fState * fRotMat11 + fCarPosY;
+        fPosX = pSmokeSpray->position.fX;
+        fPosY = pSmokeSpray->position.fY;
+        fPosZ = pSmokeSpray->position.fZ;
+        SmokePt[0][iSmokeIndex].world.fX = fPosX * fRotMat00 + fPosY * fRotMat10 + fPosZ * fRotMat20 + fCarPosX;
+        SmokePt[0][iSmokeIndex].world.fY = fPosX * fRotMat01 + fPosY * fRotMat12 + fPosZ * fRotMat11 + fCarPosY;
         iSmokeChunkIdx = iCurrChunk;
-        SmokePt[0][iSmokeIndex].world.fZ = fPosX * fRotMat02 + fPosY * fRotMat21 + fState * fRotMat22Copy + fCarPosZ;
+        SmokePt[0][iSmokeIndex].world.fZ = fPosX * fRotMat02 + fPosY * fRotMat21 + fPosZ * fRotMat22Copy + fCarPosZ;
         if (iSmokeChunkIdx != -1) {
           dSmokeChunkTransY = pTrackChunkPtr[1];
           fSmokeWorldX = SmokePt[0][iSmokeIndex].world.fX;
@@ -1754,13 +1755,13 @@ LABEL_117:
         SmokePt[0][iSmokeIndex].view.fY = fSmokeViewY;
         SmokePt[0][iSmokeIndex].view.fZ = fSmokeCameraZCopy;
         if ((uint8)(pSmokeSpray->iType) == 1) {
-          fPosX = fPosX + pSmokeSpray->fVelX;
-          fPosY = fPosY + pSmokeSpray->fVelY;
-          fState = fState + pSmokeSpray->fUnk5;
-          SmokePt[1][iSmokeIndex].world.fX = fPosX * fRotMat00 + fPosY * fRotMat10 + fState * fRotMat20 + fCarPosX;
-          SmokePt[1][iSmokeIndex].world.fY = fPosX * fRotMat01 + fPosY * fRotMat12 + fState * fRotMat11 + fCarPosY;
+          fPosX = fPosX + pSmokeSpray->velocity.fX;
+          fPosY = fPosY + pSmokeSpray->velocity.fY;
+          fPosZ = fPosZ + pSmokeSpray->velocity.fZ;
+          SmokePt[1][iSmokeIndex].world.fX = fPosX * fRotMat00 + fPosY * fRotMat10 + fPosZ * fRotMat20 + fCarPosX;
+          SmokePt[1][iSmokeIndex].world.fY = fPosX * fRotMat01 + fPosY * fRotMat12 + fPosZ * fRotMat11 + fCarPosY;
           iSmokeChunkIdx2 = iCurrChunk;
-          SmokePt[1][iSmokeIndex].world.fZ = fPosX * fRotMat02 + fPosY * fRotMat21 + fState * fRotMat22Copy + fCarPosZ;
+          SmokePt[1][iSmokeIndex].world.fZ = fPosX * fRotMat02 + fPosY * fRotMat21 + fPosZ * fRotMat22Copy + fCarPosZ;
           if (iSmokeChunkIdx2 != -1) {
             dSmoke2ChunkTransY = pTrackChunkPtr[1];
             fSmokeWorldX = SmokePt[1][iSmokeIndex].world.fX;

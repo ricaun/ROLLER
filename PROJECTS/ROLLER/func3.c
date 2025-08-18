@@ -4111,7 +4111,7 @@ void EndChampSequence()
     setpal(round_pals[iImageIndex]);            // Set palette for current championship image
     memset(scrbuf, 0, 0x3E800u);                // Clear screen buffer (320x200 = 0x3E800 bytes)
     iRandomValue = rand();                      // Generate random position for image display
-    iRandomYPosition = 300 * ((5 * iRandomValue) % 32768) / 32768;
+    iRandomYPosition = 300 * ((5 * iRandomValue) >> 15);
     //iRandomYPosition = 300 * ((5 * iRandomValue - (__CFSHL__((5 * iRandomValue) >> 31, 15) + ((5 * iRandomValue) >> 31 << 15))) >> 15);// Calculate random Y position using complex modulo arithmetic
     display_block(scrbuf, front_vga[0], 0, iRandomYPosition / 4, 0, -1);
     //display_block(scrbuf, front_vga[0], 0, (iRandomYPosition - (__CFSHL__(iRandomYPosition >> 31, 2) + 4 * (iRandomYPosition >> 31))) >> 2, 0, -1);// Display championship image at random Y position, centered horizontally

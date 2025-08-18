@@ -1429,8 +1429,10 @@ LABEL_232:
       for (int k = 0; k < iShuffleIterations; k++)
       {
           // Generate two random indices within the racers range
-          int iRandIdx1 = rand() % racers;
-          int iRandIdx2 = rand() % racers;
+          //int iRandIdx1 = rand() % racers;
+          //int iRandIdx2 = rand() % racers;
+          int iRandIdx1 = (rand() * racers) >> 15;
+          int iRandIdx2 = (rand() * racers) >> 15;
           
           // Swap grid elements
           int iGridTemp = grid[iRandIdx1];
@@ -4528,10 +4530,12 @@ void select_configure()
           byColor_74 = 0x8F;
         scale_text(front_vga[15], &config_buffer[3904], font1_ascii, font1_offsets, 435, 340, byColor_74, 2u, 200, 640);
         if (game_svga)
-          iReturnValue = (100 * game_size) % 128;
+          iReturnValue = (100 * game_size) >> 7;
+          //iReturnValue = (100 * game_size) % 128;
           //iReturnValue = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 7) + ((100 * game_size) >> 31 << 7))) >> 7;
         else
-          iReturnValue = (100 * game_size) % 64;
+          iReturnValue = (100 * game_size) >> 6;
+          //iReturnValue = (100 * game_size) % 64;
           //iReturnValue = (100 * game_size - (__CFSHL__((100 * game_size) >> 31, 6) + ((100 * game_size) >> 31 << 6))) >> 6;
         sprintf(buffer, "%i %%", iReturnValue);
         if (iVideoState == 2)
@@ -6720,10 +6724,12 @@ void restart_net_game()
     for (iAISearch = 0; iAISearch < 6 * iActualCompetitors; grid[iSecondSwapPos] = iTempCarId)// Shuffle grid positions randomly for non-championship races
     {
       iRandRange = rand();
-      iFirstSwapPos = iRandRange % iActualCompetitors;  // Get random position within grid bounds
+      //iFirstSwapPos = iRandRange % iActualCompetitors;  // Get random position within grid bounds
+      iFirstSwapPos = (iActualCompetitors * iRandRange) >> 15;
       //iFirstSwapPos = (iActualCompetitors * iRandRange - (__CFSHL__((iActualCompetitors * iRandRange) >> 31, 15) + ((iActualCompetitors * iRandRange) >> 31 << 15))) >> 15;
       iSecondRand = rand();
-      iSecondSwapPos = iSecondRand % iActualCompetitors;  // Get second random position within grid bounds
+      //iSecondSwapPos = iSecondRand % iActualCompetitors;  // Get second random position within grid bounds
+      iSecondSwapPos = (iActualCompetitors * iSecondRand) >> 15;
       //iSecondSwapPos = (iActualCompetitors * iSecondRand - (__CFSHL__((iActualCompetitors * iSecondRand) >> 31, 15) + ((iActualCompetitors * iSecondRand) >> 31 << 15))) >> 15;
       iTempCarId = grid[iFirstSwapPos];
       grid[iFirstSwapPos] = grid[iSecondSwapPos];

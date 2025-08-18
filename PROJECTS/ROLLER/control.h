@@ -75,11 +75,11 @@ int16 converttoair(int a1, int a2, int a3, int a4);
 void ordercars();
 void changeline(int a1);
 unsigned int driverange(int a1, float *a2, float *a3);
-int updatesmokeandflames(int a1, unsigned int a2, int a3, unsigned int a4);
-void dospray(int64 a1, int a2);
+void updatesmokeandflames(tCar *pCar);
+void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray);
 void calculateseparatedcoordinatesystem(int iChunk, tData *pChunkData);
-int *findnearsection(int a1, int *a2);
-void dozoomstuff(int a1);
+void findnearsection(tCar *pCar, int *piNearestChunk);
+void dozoomstuff(int iPlayerIdx);
 int findcardistance(int iCarIdx, float fMaxDistance);
 
 //-------------------------------------------------------------------------------------------------

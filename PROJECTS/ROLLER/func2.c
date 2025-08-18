@@ -468,16 +468,16 @@ void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx)
     while (1) {                                           // Check if particle is alive (lifetime > 0)
       if (pCarSpray->iLifeTime > 0) {                                         // Particle type 1 = smoke trail
         if ((uint8)pCarSpray->iType == 1) {
-          dPosX = pCarSpray->fPosX;             // Get particle X position
+          dPosX = pCarSpray->position.fX;             // Get particle X position
           //_CHP();
           iPosX = (int)dPosX;
-          dPosY = pCarSpray->fPosY;             // Get particle Y position
+          dPosY = pCarSpray->position.fY;             // Get particle Y position
           //_CHP();
           iPosY = (int)dPosY;
-          dCalcX = (double)iPosX + pCarSpray->fVelX;// Calculate screen X with velocity offset
+          dCalcX = (double)iPosX + pCarSpray->velocity.fX;// Calculate screen X with velocity offset
           //_CHP();
           iScreenX1 = (int)dCalcX;
-          dCalcY = (double)iPosY - pCarSpray->fVelY;// Calculate screen Y with velocity offset (subtract for screen coords)
+          dCalcY = (double)iPosY - pCarSpray->velocity.fY;// Calculate screen Y with velocity offset (subtract for screen coords)
           //_CHP();
           iScreenY1 = (int)dCalcY;
           dSize = pCarSpray->fSize;             // Get particle size for polygon rendering
@@ -506,10 +506,10 @@ void draw_smoke(uint8 *pScrBuf, int iPlayerCarIdx)
             goto NEXT_PARTICLE;
           }
         } else {
-          dPosX2 = pCarSpray->fPosX;            // Particle type 2 = firework particle
+          dPosX2 = pCarSpray->position.fX;            // Particle type 2 = firework particle
           //_CHP();
           iScreenX2 = (int)dPosX2;
-          dPosY2 = pCarSpray->fPosY;
+          dPosY2 = pCarSpray->position.fY;
           //_CHP();
           iScreenY2 = (int)dPosY2;
           dSize2 = pCarSpray->fSize;

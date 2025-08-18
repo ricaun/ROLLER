@@ -644,10 +644,10 @@ void firework_screen()
         do {
           if ((uint8)pCarSpray->iType) {
             // Convert floating point positions to screen coordinates
-            fPosX = pCarSpray->fPosX;
+            fPosX = pCarSpray->position.fX;
             //_CHP();
             iScreenX = (int)fPosX;
-            fPosY = pCarSpray->fPosY;
+            fPosY = pCarSpray->position.fY;
             //_CHP();
             iScreenY2 = (int)fPosY;
 
@@ -664,14 +664,15 @@ void firework_screen()
         for (i = 0; i < 32; ++i) {
           // Only draw particles that are still alive (lifetime > 0)
           if (pCarSpray->iLifeTime > 0) {
-            fRandomOffset = pCarSpray->fPosX;
+            fRandomOffset = pCarSpray->position.fX;
             //_CHP();
             iScreenX2 = (int)fRandomOffset;
-            fTempY = pCarSpray->fPosY;
+            fTempY = pCarSpray->position.fY;
             //_CHP();
             iScreenY = (int)fTempY;
             iRandValue = rand();                // Generate random color variation for firework sparkle effect
-            iColorOffset = (16 * iRandValue) % 32768 / 15;
+            iColorOffset = (16 * iRandValue) >> 15;
+            //iColorOffset = (16 * iRandValue) % 32768 / 15;
             //iColorOffset = (16 * iRandValue - (__CFSHL__((16 * iRandValue) >> 31, 15) + ((16 * iRandValue) >> 31 << 15))) >> 15;
             byFinalOffset = iColorOffset - 4;   // Calculate color offset (-4 to +11 range) with minimum of 0
             if (iColorOffset - 4 < 0)

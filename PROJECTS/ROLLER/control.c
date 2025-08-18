@@ -170,7 +170,7 @@ void humancar(int iCarIdx)
         iTargetCar2 = iTargetCar1;
         Car[iTargetCar2].fPower = 0.0;
         iPlayerIdx = iCarIdx_1;
-        Car[iTargetCar2].nUnk21 = 18;
+        Car[iTargetCar2].nDeathTimer = 18;
         --Car[iPlayerIdx].byCheatAmmo;
         goto SET_DAMAGE_COOLDOWN;
       }
@@ -263,7 +263,7 @@ void humancar(int iCarIdx)
       nChunk2 = Car[iTeleportTargetIdx].nChunk2;
       Car[iTeleportTargetIdx].iSteeringInput = 0;
       nPitch = Car[iTeleportTargetIdx].nPitch;
-      Car[iTeleportTargetIdx].fUnk9 = 128.0f;
+      Car[iTeleportTargetIdx].direction.fZ = 128.0f;
       nCurrChunk = Car[iTeleportTargetIdx].nCurrChunk;
       getworldangles(Car[iTeleportTargetIdx].nYaw3, nPitch, Car[iTeleportTargetIdx].nRoll, nChunk2, &iAzimuth, &iElevation, &iBank);// Swap car positions and orientations using world angle transformations
       getworldangles(Car[iTeleportTarget].nYaw, Car[iTeleportTarget].nPitch, Car[iTeleportTarget].nRoll, Car[iTeleportTarget].nChunk2, &iAzi2, &iElevation, &iBank);
@@ -278,8 +278,8 @@ void humancar(int iCarIdx)
       dLocalZ = posAy[2].fY * Car[iTeleportTarget].pos.fY + posAy[2].fX * Car[iTeleportTarget].pos.fX + posAy[2].fZ * Car[iTeleportTarget].pos.fZ - posAy[3].fZ;
       Car[iTeleportTarget].pos.fX = fLocalX;
       Car[iTeleportTarget].iUnk47 = 0;
-      Car[iTeleportTarget].iUnk7 = 0;
-      Car[iTeleportTarget].iUnk8 = 0;
+      Car[iTeleportTarget].direction.fX = 0.0;
+      Car[iTeleportTarget].direction.fY = 0.0;
       Car[iTeleportTarget].iControlType = 0;
       Car[iTeleportTarget].fFinalSpeed = 0.0;
       Car[iTeleportTarget].fBaseSpeed = 0.0;
@@ -289,7 +289,7 @@ void humancar(int iCarIdx)
       fChunkValue = fLocalY;
       Car[iTeleportTarget].fPower = 0.0;
       Car[iTeleportTarget].pos.fY = fChunkValue;
-      Car[iTeleportTarget].nUnk21 = 18;
+      Car[iTeleportTarget].nDeathTimer = 18;
       Car[iTeleportTarget].pos.fZ = fLocalZ;
       //LOWORD(fChunkValue) = Car[iTeleportTarget].nCurrChunk;
       int16 nTemp = Car[iTeleportTarget].nCurrChunk;
@@ -731,12 +731,12 @@ void control()
           Car[iCarStructIdx].byAccelerating = 0;
           if ((byStatusFlags & 4) != 0 || !Car[iCarStructIdx].byLives) {
             //if ((LODWORD(Car[iCarStructIdx].fFinalSpeed) & 0x7FFFFFFF) == 0 || Car[iCarStructIdx].nUnk21 < 126) {
-            if (fabs(Car[iCarStructIdx].fFinalSpeed) > FLT_EPSILON || Car[iCarStructIdx].nUnk21 < 126) {
-              nTimerValue = Car[iCarStructIdx].nUnk25 - 1;
-              --Car[iCarStructIdx].nUnk21;
-              Car[iCarStructIdx].nUnk25 = nTimerValue;
+            if (fabs(Car[iCarStructIdx].fFinalSpeed) > FLT_EPSILON || Car[iCarStructIdx].nDeathTimer < 126) {
+              nTimerValue = Car[iCarStructIdx].nExplosionSoundTimer - 1;
+              --Car[iCarStructIdx].nDeathTimer;
+              Car[iCarStructIdx].nExplosionSoundTimer = nTimerValue;
             }
-            if (Car[iCarStructIdx].nUnk21 < 0)
+            if (Car[iCarStructIdx].nDeathTimer < 0)
               Car[iCarStructIdx].byStatusFlags |= 2u;
           }
           if ((Car[iCarStructIdx].byLives & 0x80u) == 0) {                                     // Process car controls: human player or AI based on control type
@@ -4300,14 +4300,13 @@ double getgroundz(float a1, float a2, int iChunkIdx)
 
 //-------------------------------------------------------------------------------------------------
 //00030B80
-double getroadz(float a1, float a2, int iChunkIdx)
+double getroadz(float fX, float fY, int iChunkIdx)
 {
-  return 0.0;/*
-  double v7; // st7
+  double dBankAngleIndex; // st7
 
-  v7 = (double)SLODWORD(localdata[iChunkIdx].fUnk23) * a1 / (localdata[iChunkIdx].fUnk13 * control_c_variable_129);
-  _CHP();
-  return -a2 * ptan[(int)v7 & 0x3FFF];*/
+  dBankAngleIndex = (double)localdata[iChunkIdx].iBankDelta * fX / (localdata[iChunkIdx].fTrackHalfLength * 2.0);// Calculate banking angle index based on X position and track banking
+  //_CHP();
+  return -fY * ptan[(int)dBankAngleIndex & 0x3FFF];// Apply banking effect: negative Y times tangent of banking angle
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -6827,659 +6826,518 @@ unsigned int driverange(int a1, float *a2, float *a3)
 
 //-------------------------------------------------------------------------------------------------
 //00035330
-int updatesmokeandflames(int a1, unsigned int a2, int a3, unsigned int a4)
+void updatesmokeandflames(tCar *pCar)
 {
-  return 0;/*
-  int v4; // ecx
-  int v5; // esi
-  __int64 v7; // [esp-Ch] [ebp-10h]
-  __int64 v8; // [esp-Ch] [ebp-10h]
-  int v10; // [esp-4h] [ebp-8h]
+  int iCinematicMode; // edx
+  int iRandSeed; // esi
 
-  v7 = __PAIR64__(a2, a4);
-  v4 = a1;
-  if (player_type != 2)
-    a1 = ViewType[0];
-  v5 = rand(a1);
-  dospray(v7, a3);
+  if (player_type != 2 && ViewType[0] == pCar->iDriverIdx && (!SelectedView[0] || SelectedView[0] == 2 || SelectedView[0] == 7))
+    iCinematicMode = -1;
+  else
+    iCinematicMode = 0;
+  iRandSeed = rand();
+  dospray(pCar, iCinematicMode, CarSpray[pCar->iDriverIdx]);
   if (player_type == 2) {
-    if (ViewType[0] == *(_DWORD *)(v4 + 32))
-      dospray(v8, v10);
-    if (ViewType_variable_1 == *(_DWORD *)(v4 + 32))
-      dospray(v8, v10);
+    if (ViewType[0] == pCar->iDriverIdx)
+      dospray(pCar, -1, CarSpray[16]);
+    if (ViewType[1] == pCar->iDriverIdx)
+      dospray(pCar, -1, CarSpray[17]);
   }
-  return srand(v5);*/
+  srand(iRandSeed);
 }
 
 //-------------------------------------------------------------------------------------------------
 //000353F0
-void dospray(int64 a1, int a2)
+void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
 {
-  (void)(a1); (void)(a2);
-  /*
-  __int64 v2; // kr00_8
-  int v4; // ebp
-  __int16 v5; // fps
-  _BOOL1 v6; // c0
-  char v7; // c2
-  _BOOL1 v8; // c3
-  __int16 v9; // fps
-  double v10; // st7
-  _BOOL1 v11; // c0
-  char v12; // c2
-  _BOOL1 v13; // c3
-  int v14; // eax
-  int v15; // eax
-  int v16; // eax
-  int v17; // eax
-  int v18; // eax
-  int v19; // eax
-  int v20; // eax
-  int v21; // eax
-  int v22; // eax
-  int v23; // eax
-  int v24; // eax
-  int v25; // eax
-  int v26; // eax
-  int v27; // eax
-  int v28; // eax
-  int v29; // ebx
-  int v30; // ebx
-  int v31; // eax
-  int v32; // eax
-  int v33; // eax
-  int v34; // eax
-  int v35; // edx
-  int v36; // eax
-  int v37; // eax
-  int v38; // eax
-  int v39; // eax
-  int v40; // eax
-  int v41; // eax
-  int v42; // eax
-  int v43; // eax
-  int v44; // eax
-  int v45; // eax
-  int v46; // eax
-  int v47; // eax
-  int v48; // eax
-  int v49; // eax
+  int iCarDesignIdx; // edx
+  int iSprayIdx; // ebp
+  uint8 byType; // al
+  int iRandomValue1; // eax
+  char byLifeTime; // ah
+  int iRandomValue2; // eax
+  int iRandomValue3; // eax
+  int iRandomValue4; // eax
+  int iRandomVelY1; // eax
+  int iRandomSize1; // eax
+  int iRandomSize2; // eax
+  int iRandomVelY2; // eax
+  int iRandomSize3; // eax
+  int iRandomVel1; // eax
+  int iRandomVel2; // eax
+  int iRandomLifetime1; // eax
+  int iRandomColor1; // eax
+  int iRandomColor2; // eax
+  int iColorValue; // ebx
+  int iTimer; // ebx
+  int iRandomSize4; // eax
+  int iRandomSize5; // eax
+  int iRandomVelY3; // eax
+  int iRandomVelX1; // edx
+  int iRandomVelY4; // eax
+  int iRandomVelY5; // eax
+  int iRandomSize6; // eax
+  int iRandomVelX2; // eax
+  int iRandomVelY6; // eax
+  int iRandomUnk5_1; // eax
+  int iRandomVelY7; // eax
+  int iRandomUnk5_2; // eax
+  int iRandomVelX3; // eax
+  int iRandomVelY8; // eax
+  int iRandomUnk5_3; // eax
+  int iCalculatedUnk5; // eax
+  int iLifetimeDecrement; // eax
+  unsigned int uiColor; // eax
+  int iColorCycle; // eax
+  int iColor; // edx
+  int iRandomSizeGrow1; // eax
+  int iSizeGrowCalc1; // eax
+  int iRandomSizeShrink1; // eax
+  int iSizeShrinkCalc1; // eax
   int v50; // eax
-  int v51; // eax
-  int v52; // eax
-  unsigned int v53; // eax
-  int v54; // eax
-  int v55; // edx
-  int v56; // eax
-  int v57; // eax
-  char v58; // fps^1
-  _BOOL1 v59; // c0
-  char v60; // c2
-  _BOOL1 v61; // c3
-  __int16 v62; // fps
-  _BOOL1 v63; // c0
-  char v64; // c2
-  _BOOL1 v65; // c3
-  __int16 v66; // fps
-  double v67; // st7
-  _BOOL1 v68; // c0
-  char v69; // c2
-  _BOOL1 v70; // c3
-  __int16 v71; // fps
-  _BOOL1 v72; // c0
-  char v73; // c2
-  _BOOL1 v74; // c3
-  int v75; // eax
-  int v76; // eax
-  int v77; // ebx
-  int v78; // eax
-  int v79; // eax
-  int v80; // eax
-  int v81; // eax
-  int v82; // eax
-  float *v83; // eax
-  int v84; // ebx
-  int v85; // eax
-  int v86; // eax
-  int v87; // eax
-  int v88; // eax
-  __int16 v89; // fps
-  _BOOL1 v90; // c0
-  char v91; // c2
-  _BOOL1 v92; // c3
-  int v93; // eax
-  int v94; // eax
-  float *v95; // eax
-  int v96; // eax
-  int v97; // eax
-  int v98; // eax
-  int v99; // eax
-  int v100; // eax
-  int v101; // eax
-  int v102; // eax
-  int v103; // eax
-  int v104; // eax
-  int v105; // eax
-  __int64 v106; // rax
-  double v107; // st7
-  int v108; // eax
-  int v109; // eax
-  int v110; // eax
-  int v111; // eax
-  int v112; // edx
-  int v113; // eax
-  int v114; // eax
-  int v115; // eax
-  __int16 v116; // fps
-  _BOOL1 v117; // c0
-  char v118; // c2
-  _BOOL1 v119; // c3
-  int v120; // eax
-  double v121; // st7
-  __int16 v122; // fps
-  _BOOL1 v123; // c0
-  char v124; // c2
-  _BOOL1 v125; // c3
-  double v126; // st7
-  double v127; // [esp+0h] [ebp-3Ch]
-  float v128; // [esp+Ch] [ebp-30h]
-  float v129; // [esp+10h] [ebp-2Ch]
-  float v130; // [esp+14h] [ebp-28h]
-  float v131; // [esp+18h] [ebp-24h]
-  int v132; // [esp+1Ch] [ebp-20h]
-  int v133; // [esp+20h] [ebp-1Ch]
-  float v134; // [esp+24h] [ebp-18h]
-  int v135; // [esp+28h] [ebp-14h]
-  int v136; // [esp+28h] [ebp-14h]
-  int v137; // [esp+28h] [ebp-14h]
-  int v138; // [esp+28h] [ebp-14h]
-  int v139; // [esp+28h] [ebp-14h]
-  int v140; // [esp+28h] [ebp-14h]
-  int v141; // [esp+28h] [ebp-14h]
-  int v142; // [esp+28h] [ebp-14h]
-  int v143; // [esp+28h] [ebp-14h]
-  int v144; // [esp+28h] [ebp-14h]
-  int v145; // [esp+28h] [ebp-14h]
-  int v146; // [esp+28h] [ebp-14h]
-  int v147; // [esp+28h] [ebp-14h]
+  int iRandomLifetime2; // eax
+  int iRandomPlacement1; // eax
+  int iPlacementIdx; // ebx
+  int iRandomPosX1; // eax
+  int iRandomPosY1; // eax
+  int iRandomPosY2; // eax
+  int iRandomPlacement2; // eax
+  tVec3 *pCoordinates1; // eax
+  int iPlacementIdx2; // ebx
+  int iRandomPlacement3; // eax
+  int iRandomPosX2; // eax
+  int iRandomPosY3; // eax
+  int iRandomPlacement4; // eax
+  int iRandomPlacement5; // eax
+  tVec3 *pCoordinates2; // eax
+  int iRandomVelY9; // eax
+  int iVelYCalc1; // eax
+  int iRandomVelX4; // eax
+  double dLifetimeCalc1; // st7
+  int iRandomVelX5; // eax
+  int iRandomVelY10; // eax
+  int iVelYCalc2; // eax
+  int iVelYBase; // edx
+  int iRandomVelY11; // eax
+  int iRandomUnk5_4; // eax
+  int iRandomSize7; // eax
+  double dLifetimeCalc2; // st7
+  double dLifetimeCalc3; // st7
+  float fHealthMultiplier1; // [esp+Ch] [ebp-30h]
+  float fHealthMultiplier2; // [esp+10h] [ebp-2Ch]
+  float fHealthMultiplier3; // [esp+14h] [ebp-28h]
+  float fHealthMultiplier4; // [esp+18h] [ebp-24h]
+  int iStoredCarDesignIdx; // [esp+1Ch] [ebp-20h]
+  int *pPlaces; // [esp+20h] [ebp-1Ch]
+  float fHealthFactor; // [esp+24h] [ebp-18h]
+  int iTempVelocity; // [esp+28h] [ebp-14h]
+  int iTempPosX; // [esp+28h] [ebp-14h]
+  int iTempPosX2; // [esp+28h] [ebp-14h]
+  int iTempRandomValue; // [esp+28h] [ebp-14h]
+  int iTempVelX; // [esp+28h] [ebp-14h]
+  int iTempVelY; // [esp+28h] [ebp-14h]
 
-  v2 = a1;
-  v134 = (*(float *)(a1 + 28) + control_c_variable_189) * control_c_variable_190;
-  HIDWORD(a1) = *(unsigned __int8 *)(a1 + 102);
-  v133 = CarDesigns_variable_6[7 * HIDWORD(a1)];
-  if (v134 > 1.0)
-    v134 = 1.0;
-  v131 = v134 * control_c_variable_191;
-  v128 = v134 * control_c_variable_192;
-  v130 = v134 * control_c_variable_193;
-  LODWORD(a1) = 28 * HIDWORD(a1);
-  v4 = 0;
-  v132 = 28 * HIDWORD(a1);
-  v129 = v134 * control_c_variable_194;
+  fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0.0-1.0) based on car damage
+  iCarDesignIdx = pCar->byCarDesignIdx;
+  pPlaces = CarDesigns[iCarDesignIdx].pPlaces;  // Get car design data for spray particle placement points
+  if (fHealthFactor > 1.0)
+    fHealthFactor = 1.0;
+  iSprayIdx = 0;
+  iStoredCarDesignIdx = iCarDesignIdx;
   do {
-    LOBYTE(a1) = *(_BYTE *)(a2 + 40);
-    if ((_BYTE)a1) {
-      if ((unsigned __int8)a1 <= 1u) {
-        v27 = rand(a1);
-        v28 = (4 * v27 - (__CFSHL__((4 * v27) >> 31, 15) + ((4 * v27) >> 31 << 15))) >> 15;
-        v29 = v28 + 4;
-        BYTE1(v29) = ((unsigned __int16)(v28 + 4) >> 8) | 5;
-        *(_DWORD *)(a2 + 36) = v29;
-        v30 = *(_DWORD *)(a2 + 32);
-        if (HIDWORD(v2)) {
-          v31 = rand(v28);
-          v32 = (((60 * v31 - (__CFSHL__((60 * v31) >> 31, 15) + ((60 * v31) >> 31 << 15))) >> 15) + 20) * scr_size;
-          v33 = (v32 - (__CFSHL__(v32 >> 31, 6) + (v32 >> 31 << 6))) >> 6;
-          *(float *)(a2 + 24) = (float)v33;
-          v34 = rand(v33);
-          if (v30 == 1)
-            v35 = (((50 * v34 - (__CFSHL__((50 * v34) >> 31, 15) + ((50 * v34) >> 31 << 15))) >> 15) + 40) * scr_size;
+    byType = pCarSpray->iType;
+    if (byType) {                                           // Spray type 1: Active damage/smoke particles
+      if (byType <= 1u) {
+        iRandomColor1 = rand();                 // Generate random color values for active smoke particles
+        iRandomColor2 = (4 * iRandomColor1) >> 15;   // same as (4 * iRandomColor1) / 32768
+        //iRandomColor2 = (4 * iRandomColor1 - (__CFSHL__((4 * iRandomColor1) >> 31, 15) + ((4 * iRandomColor1) >> 31 << 15))) >> 15;
+        iColorValue = iRandomColor2 + 4;
+        uint8 byColorComponent = ((iRandomColor2 + 4) >> 8) | 5;
+        iColorValue = (iColorValue & 0xFFFF00FF) | (byColorComponent << 8);
+        //BYTE1(iColorValue) = ((uint16)(iRandomColor2 + 4) >> 8) | 5;
+        pCarSpray->iColor = iColorValue;
+        iTimer = pCarSpray->iTimer;
+        if (iCinematicMode)                   // Different particle behavior for menu/replay mode vs gameplay
+        {
+          iRandomSize4 = rand();
+          iRandomSize5 = (((60 * iRandomSize4) >> 15) + 20) * scr_size;
+          //iRandomSize5 = (((60 * iRandomSize4 - (__CFSHL__((60 * iRandomSize4) >> 31, 15) + ((60 * iRandomSize4) >> 31 << 15))) >> 15) + 20) * scr_size;
+          pCarSpray->fSize = (float)(iRandomSize5 >> 6);
+          //pCarSpray->fSize = (float)((iRandomSize5 - (__CFSHL__(iRandomSize5 >> 31, 6) + (iRandomSize5 >> 31 << 6))) >> 6);
+          iRandomVelY3 = rand();
+          if (iTimer == 1)
+            iRandomVelX1 = (((50 * iRandomVelY3) >> 15) + 40) * scr_size;
+            //iRandomVelX1 = (((50 * iRandomVelY3 - (__CFSHL__((50 * iRandomVelY3) >> 31, 15) + ((50 * iRandomVelY3) >> 31 << 15))) >> 15) + 40) * scr_size;
           else
-            v35 = scr_size * (-40 - ((50 * v34 - (__CFSHL__((50 * v34) >> 31, 15) + ((50 * v34) >> 31 << 15))) >> 15));
-          v136 = (v35 - (__CFSHL__(v35 >> 31, 6) + (v35 >> 31 << 6))) >> 6;
-          *(float *)(a2 + 12) = (float)v136;
-          v36 = rand(v136);
-          v37 = (((100 * v36 - (__CFSHL__((100 * v36) >> 31, 15) + ((100 * v36) >> 31 << 15))) >> 15) + 40) * scr_size;
-          v137 = (v37 - (__CFSHL__(v37 >> 31, 6) + (v37 >> 31 << 6))) >> 6;
-          *(float *)(a2 + 16) = (float)v137;
-          rand(v137);
+            iRandomVelX1 = scr_size * (-40 - ((50 * iRandomVelY3) >> 15));
+            //iRandomVelX1 = scr_size * (-40 - ((50 * iRandomVelY3 - (__CFSHL__((50 * iRandomVelY3) >> 31, 15) + ((50 * iRandomVelY3) >> 31 << 15))) >> 15));
+          pCarSpray->velocity.fX = (float)(iRandomVelX1 >> 6);
+          //pCarSpray->velocity.fX = (float)((iRandomVelX1 - (__CFSHL__(iRandomVelX1 >> 31, 6) + (iRandomVelX1 >> 31 << 6))) >> 6);
+          iRandomVelY4 = rand();
+          iRandomVelY5 = (((100 * iRandomVelY4) >> 15) + 40) * scr_size;
+          //iRandomVelY5 = (((100 * iRandomVelY4 - (__CFSHL__((100 * iRandomVelY4) >> 31, 15) + ((100 * iRandomVelY4) >> 31 << 15))) >> 15) + 40) * scr_size;
+          pCarSpray->velocity.fY = (float)(iRandomVelY5 >> 6);
+          //pCarSpray->velocity.fY = (float)((iRandomVelY5 - (__CFSHL__(iRandomVelY5 >> 31, 6) + (iRandomVelY5 >> 31 << 6))) >> 6);
+          rand();
         } else {
-          v38 = rand(v28);
-          v39 = ((100 * v38 - (__CFSHL__((100 * v38) >> 31, 15) + ((100 * v38) >> 31 << 15))) >> 15) + 100;
-          *(float *)(a2 + 24) = (float)v39;
-          if (v30) {
-            v48 = rand(v39);
-            if (v30 == 1) {
-              v44 = (300 * v48 - (__CFSHL__((300 * v48) >> 31, 15) + ((300 * v48) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 12) = (float)(-100 - v44);
-              v45 = rand(v44);
-              v46 = (200 * v45 - (__CFSHL__((200 * v45) >> 31, 15) + ((200 * v45) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 16) = (float)(-100 - v46);
-              v47 = rand(v46);
-              v52 = ((200 * v47 - (__CFSHL__((200 * v47) >> 31, 15) + ((200 * v47) >> 31 << 15))) >> 15) + 200;
+          iRandomSize6 = rand();                // Generate larger particle sizes and velocities for normal gameplay mode
+          pCarSpray->fSize = (float)(((100 * iRandomSize6) >> 15) + 100);
+          //pCarSpray->fSize = (float)(((100 * iRandomSize6 - (__CFSHL__((100 * iRandomSize6) >> 31, 15) + ((100 * iRandomSize6) >> 31 << 15))) >> 15) + 100);
+          if (iTimer) {
+            iRandomVelX3 = rand();
+            if (iTimer == 1) {
+              pCarSpray->velocity.fX = (float)(-100 - ((300 * iRandomVelX3) >> 15));
+              //pCarSpray->velocity.fX = (float)(-100 - ((300 * iRandomVelX3 - (__CFSHL__((300 * iRandomVelX3) >> 31, 15) + ((300 * iRandomVelX3) >> 31 << 15))) >> 15));
+              iRandomVelY7 = rand();
+              pCarSpray->velocity.fY = (float)(-100 - ((200 * iRandomVelY7) >> 15));
+              //pCarSpray->velocity.fY = (float)(-100 - ((200 * iRandomVelY7 - (__CFSHL__((200 * iRandomVelY7) >> 31, 15) + ((200 * iRandomVelY7) >> 31 << 15))) >> 15));
+              iRandomUnk5_2 = rand();
+              iCalculatedUnk5 = ((200 * iRandomUnk5_2) >> 15) + 200;
+              //iCalculatedUnk5 = ((200 * iRandomUnk5_2 - (__CFSHL__((200 * iRandomUnk5_2) >> 31, 15) + ((200 * iRandomUnk5_2) >> 31 << 15))) >> 15) + 200;
             } else {
-              v49 = (150 * v48 - (__CFSHL__((150 * v48) >> 31, 15) + ((150 * v48) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 12) = (float)(-105 - v49);
-              v50 = rand(v49);
-              v139 = ((400 * v50 - (__CFSHL__((400 * v50) >> 31, 15) + ((400 * v50) >> 31 << 15))) >> 15) - 200;
-              *(float *)(a2 + 16) = (float)v139;
-              v51 = rand(v139);
-              v52 = ((30 * v51 - (__CFSHL__((30 * v51) >> 31, 15) + ((30 * v51) >> 31 << 15))) >> 15) - 20;
+              pCarSpray->velocity.fX = (float)(-105 - ((150 * iRandomVelX3) >> 15));
+              //pCarSpray->velocity.fX = (float)(-105 - ((150 * iRandomVelX3 - (__CFSHL__((150 * iRandomVelX3) >> 31, 15) + ((150 * iRandomVelX3) >> 31 << 15))) >> 15));
+              iRandomVelY8 = rand();
+              pCarSpray->velocity.fY = (float)((400 * iRandomVelY7) >> 15);
+              //pCarSpray->velocity.fY = (float)(((400 * iRandomVelY8 - (__CFSHL__((400 * iRandomVelY8) >> 31, 15) + ((400 * iRandomVelY8) >> 31 << 15))) >> 15) - 200);
+              iRandomUnk5_3 = rand();
+              iCalculatedUnk5 = ((30 * iRandomUnk5_3) >> 15) - 20;
+              //iCalculatedUnk5 = ((30 * iRandomUnk5_3 - (__CFSHL__((30 * iRandomUnk5_3) >> 31, 15) + ((30 * iRandomUnk5_3) >> 31 << 15))) >> 15) - 20;
             }
           } else {
-            v40 = rand(v39);
-            v41 = (300 * v40 - (__CFSHL__((300 * v40) >> 31, 15) + ((300 * v40) >> 31 << 15))) >> 15;
-            *(float *)(a2 + 12) = (float)(-100 - v41);
-            v42 = rand(v41);
-            v138 = ((200 * v42 - (__CFSHL__((200 * v42) >> 31, 15) + ((200 * v42) >> 31 << 15))) >> 15) + 100;
-            *(float *)(a2 + 16) = (float)v138;
-            v43 = rand(v138);
-            v52 = ((200 * v43 - (__CFSHL__((200 * v43) >> 31, 15) + ((200 * v43) >> 31 << 15))) >> 15) + 200;
+            iRandomVelX2 = rand();
+            pCarSpray->velocity.fX = (float)(-100 - ((300 * iRandomVelX2) >> 15));
+            //pCarSpray->velocity.fX = (float)(-100 - ((300 * iRandomVelX2 - (__CFSHL__((300 * iRandomVelX2) >> 31, 15) + ((300 * iRandomVelX2) >> 31 << 15))) >> 15));
+            iRandomVelY6 = rand();
+            pCarSpray->velocity.fY = (float)(((200 * iRandomVelY6) >> 15) + 100);
+            //pCarSpray->velocity.fY = (float)(((200 * iRandomVelY6 - (__CFSHL__((200 * iRandomVelY6) >> 31, 15) + ((200 * iRandomVelY6) >> 31 << 15))) >> 15) + 100);
+            iRandomUnk5_1 = rand();
+            iCalculatedUnk5 = ((200 * iRandomUnk5_1) >> 15) + 200;
+            //iCalculatedUnk5 = ((200 * iRandomUnk5_1 - (__CFSHL__((200 * iRandomUnk5_1) >> 31, 15) + ((200 * iRandomUnk5_1) >> 31 << 15))) >> 15) + 200;
           }
-          *(float *)(a2 + 20) = (float)v52;
+          pCarSpray->velocity.fZ = (float)iCalculatedUnk5;
         }
-        LODWORD(a1) = *(_DWORD *)(a2 + 28) - 1;
-        *(_DWORD *)(a2 + 28) = a1;
-        if ((int)a1 < 0) {
-          *(_BYTE *)(a2 + 40) = 0;
-          *(_DWORD *)(a2 + 32) = -1;
+        iLifetimeDecrement = pCarSpray->iLifeTime - 1;
+        pCarSpray->iLifeTime = iLifetimeDecrement;
+        if (iLifetimeDecrement < 0) {
+          pCarSpray->iType = pCarSpray->iType & 0xFFFFFF00;  // Clear lowest byte only
+          //LOBYTE(pCarSpray->iType) = 0;
+          pCarSpray->iTimer = -1;
         }
-      } else if ((_BYTE)a1 == 2) {
-        v6 = *(float *)(v2 + 28) > 0.0;
-        v7 = 0;
-        v8 = 0.0 == *(float *)(v2 + 28);
-        LOWORD(a1) = v5;
-        if (*(float *)(v2 + 28) <= 0.0) {
-          if (*(int *)(a2 + 28) <= 0) {
-            if (*(__int16 *)(v2 + 106) < 0) {
+      } else if (byType == 2)                   // Spray type 2: Death/explosion particles
+      {
+        if (pCar->fHealth <= 0.0) {                                       // Car is dead - generate explosion/death particles
+          if (pCarSpray->iLifeTime <= 0) {
+            if (pCar->nExplosionSoundTimer < 0) {
               if (replaytype != 2)
-                LODWORD(a1) = sfxpend(6, *(_DWORD *)(v2 + 32), 0x8000);
-              LODWORD(a1) = rand(a1);
-              LODWORD(a1) = ((int)(4 * a1 - (__CFSHL__((4 * (int)a1) >> 31, 15) + ((4 * (int)a1) >> 31 << 15))) >> 15)
-                + 4;
-              *(_WORD *)(v2 + 106) = a1;
+                sfxpend(SOUND_SAMPLE_EXPLO, pCar->iDriverIdx, 0x8000);// SOUND_SAMPLE_EXPLO
+              iRandomValue3 = rand();
+              pCar->nExplosionSoundTimer = ((4 * iRandomValue3) >> 15) + 4;
+              //pCar->nExplosionSoundTimer = ((4 * iRandomValue3 - (__CFSHL__((4 * iRandomValue3) >> 31, 15) + ((4 * iRandomValue3) >> 31 << 15))) >> 15) + 4;
             }
-            *(_DWORD *)a2 = 0;
-            *(_DWORD *)(a2 + 4) = 0;
-            *(_DWORD *)(a2 + 8) = 0;
-            v14 = rand(a1);
-            if ((v4 & 7) != 0) {
-              v20 = (100 * v14 - (__CFSHL__((100 * v14) >> 31, 15) + ((100 * v14) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 12) = (float)(50 - v20);
-              v21 = rand(v20);
-              v22 = (60 * v21 - (__CFSHL__((60 * v21) >> 31, 15) + ((60 * v21) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 16) = (float)(30 - v22);
-              v23 = rand(v22);
-              v19 = (((v23 << 6) - (__CFSHL__(v23 << 6 >> 31, 15) + (v23 << 6 >> 31 << 15))) >> 15) + 128;
+            pCarSpray->position.fX = 0.0;
+            pCarSpray->position.fY = 0.0;
+            pCarSpray->position.fZ = 0.0;
+            iRandomValue4 = rand();
+            if ((iSprayIdx & 7) != 0) {
+              pCarSpray->velocity.fX = (float)(50 - ((100 * iRandomValue4) >> 15));
+              //pCarSpray->velocity.fX = (float)(50 - ((100 * iRandomValue4 - (__CFSHL__((100 * iRandomValue4) >> 31, 15) + ((100 * iRandomValue4) >> 31 << 15))) >> 15));
+              iRandomVelY2 = rand();
+              pCarSpray->velocity.fY = (float)(30 - ((60 * iRandomVelY2) >> 15));
+              iRandomSize3 = rand();
+              iRandomSize2 = (((iRandomSize3 << 6)) >> 15) + 128;
             } else {
-              v15 = (40 * v14 - (__CFSHL__((40 * v14) >> 31, 15) + ((40 * v14) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 12) = (float)(20 - v15);
-              v16 = rand(v15);
-              v17 = (20 * v16 - (__CFSHL__((20 * v16) >> 31, 15) + ((20 * v16) >> 31 << 15))) >> 15;
-              *(float *)(a2 + 16) = (float)(10 - v17);
-              v18 = rand(v17);
-              v19 = ((320 * v18 - (__CFSHL__((320 * v18) >> 31, 15) + ((320 * v18) >> 31 << 15))) >> 15) + 320;
+              pCarSpray->velocity.fX = (float)(20 - ((40 * iRandomValue4) >> 15));
+              iRandomVelY1 = rand();
+              pCarSpray->velocity.fY = (float)(10 - ((20 * iRandomVelY1) >> 15));
+              iRandomSize1 = rand();
+              iRandomSize2 = ((320 * iRandomSize1) >> 15) + 320;
             }
-            *(float *)(a2 + 24) = (float)v19;
-            if (*(_DWORD *)(v2 + 204)) {
-              v24 = rand(v19);
-              v25 = (25 * v24 - (__CFSHL__((25 * v24) >> 31, 15) + ((25 * v24) >> 31 << 15))) >> 15;
-              v135 = -5 - v25;
+            pCarSpray->fSize = (float)iRandomSize2;
+            if (pCar->iStunned) {
+              iRandomVel1 = rand();
+              iTempVelocity = -5 - ((25 * iRandomVel1) >> 15);
             } else {
-              v26 = rand(v19);
-              v25 = ((25 * v26 - (__CFSHL__((25 * v26) >> 31, 15) + ((25 * v26) >> 31 << 15))) >> 15) + 5;
-              v135 = v25;
+              iRandomVel2 = rand();
+              iTempVelocity = ((25 * iRandomVel2) >> 15) + 5;
             }
-            *(float *)(a2 + 20) = (float)v135;
-            *(_DWORD *)(a2 + 36) = 9485;
-            LODWORD(a1) = rand(v25);
-            LODWORD(a1) = ((((_DWORD)a1 << 6)
-                            - (__CFSHL__((int)((_DWORD)a1 << 6) >> 31, 15)
-                               + ((int)((_DWORD)a1 << 6) >> 31 << 15))) >> 15)
-              + 32;
-            *(_DWORD *)(a2 + 28) = a1;
+            pCarSpray->velocity.fZ = (float)iTempVelocity;
+            pCarSpray->iColor = 9485;
+            iRandomLifetime1 = rand();
+            pCarSpray->iLifeTime = (((iRandomLifetime1 << 6)) >> 15) + 32;
           } else {
-            if (*(float *)a2 * *(float *)a2 + *(float *)(a2 + 4) + *(float *)(a2 + 4) < control_c_variable_201
-              && *(float *)(a2 + 8) < (double)control_c_variable_202) {
-              v10 = *(float *)(a2 + 8);
-              v11 = v10 < control_c_variable_203;
-              v12 = 0;
-              v13 = v10 == control_c_variable_203;
-              LOWORD(a1) = v9;
-              if (v10 > control_c_variable_203) {
-                LODWORD(a1) = rand(a1);
-                LODWORD(a1) = ((int)(12 * a1 - (__CFSHL__((12 * (int)a1) >> 31, 15) + ((12 * (int)a1) >> 31 << 15))) >> 15)
-                  + 4;
-                *(float *)(a2 + 24) = (double)(int)a1 + *(float *)(a2 + 24);
-                *(float *)a2 = *(float *)(a2 + 12) + *(float *)a2;
-                *(float *)(a2 + 4) = *(float *)(a2 + 16) + *(float *)(a2 + 4);
-                if (*(float *)(a2 + 8) < (double)control_c_variable_202
-                  && *(float *)(a2 + 8) > (double)control_c_variable_203) {
-                  *(float *)(a2 + 8) = *(float *)(a2 + 20) + *(float *)(a2 + 8);
-                }
-              }
+            if (pCarSpray->position.fX * pCarSpray->position.fX + pCarSpray->position.fY + pCarSpray->position.fY < 1125000.0
+              && pCarSpray->position.fZ < 450.0
+              && pCarSpray->position.fZ > -100.0) {
+              iRandomValue1 = rand();
+              pCarSpray->fSize = (float)(((12 * iRandomValue1) >> 15) + 4)
+                + pCarSpray->fSize;
+              pCarSpray->position.fX = pCarSpray->velocity.fX + pCarSpray->position.fX;
+              pCarSpray->position.fY = pCarSpray->velocity.fY + pCarSpray->position.fY;
+              if (pCarSpray->position.fZ < 450.0 && pCarSpray->position.fZ > -100.0)
+                pCarSpray->position.fZ = pCarSpray->velocity.fZ + pCarSpray->position.fZ;
             }
-            -- * (_DWORD *)(a2 + 28);
-            BYTE1(a1) = *(_BYTE *)(a2 + 28);
-            *(_DWORD *)(a2 + 32) = 0;
-            if ((a1 & 0x700) == 0) {
-              LODWORD(a1) = (unsigned __int8)(*(_BYTE *)(a2 + 36) + 1);
-              ++*(_DWORD *)(a2 + 36);
-              if ((int)a1 > 20)
-                *(_DWORD *)(a2 + 36) = 9490;
+            --pCarSpray->iLifeTime;
+            byLifeTime = pCarSpray->iLifeTime;
+            pCarSpray->iTimer = 0;
+            if ((byLifeTime & 7) == 0) {
+              iRandomValue2 = (uint8)(pCarSpray->iColor) + 1;
+              ++pCarSpray->iColor;
+              if (iRandomValue2 > 20)
+                pCarSpray->iColor = 9490;
             }
           }
         } else {
-          *(_DWORD *)(a2 + 28) = -1;
-          *(_BYTE *)(a2 + 40) = 0;
-          *(_DWORD *)(a2 + 36) = 9494;
+          pCarSpray->iLifeTime = -1;
+          pCarSpray->iType = pCarSpray->iType & 0xFFFFFF00;  // Clear lowest byte only
+          //LOBYTE(pCarSpray->iType) = 0;
+          pCarSpray->iColor = 0x2516;
         }
       }
-      goto LABEL_136;
+      goto NEXT_PARTICLE;
     }
-    if (*(int *)(a2 + 28) <= 0) {
-      v59 = *(float *)(v2 + 28) > 0.0;
-      v60 = 0;
-      v61 = 0.0 == *(float *)(v2 + 28);
-      BYTE1(a1) = v58;
-      if (*(float *)(v2 + 28) > 0.0) {
-        LODWORD(a1) = *(_DWORD *)(a2 + 32);
-        if ((int)a1 <= 0) {
-          v63 = v134 > 1.0;
-          v64 = 0;
-          v65 = 1.0 == v134;
-          LOWORD(a1) = v62;
-          if (v134 >= 1.0) {
-            *(_DWORD *)(a2 + 36) = 1302;
-          } else {
-            LODWORD(a1) = rand(a1);
-            v67 = (double)(int)a1 * v134;
-            v68 = v67 < control_c_variable_204;
-            v69 = 0;
-            v70 = v67 == control_c_variable_204;
-            LOWORD(a1) = v66;
-            if (v67 < control_c_variable_204) {
-              v72 = v134 < control_c_variable_205;
-              v73 = 0;
-              v74 = v134 == control_c_variable_205;
-              LOWORD(a1) = v71;
-              if (v134 < control_c_variable_205) {
-                *(_BYTE *)(a2 + 40) = 1;
-                LODWORD(a1) = rand(a1);
-                LODWORD(a1) = ((int)(16 * a1 - (__CFSHL__((16 * (int)a1) >> 31, 15) + ((16 * (int)a1) >> 31 << 15))) >> 15)
-                  + 8;
-                *(_DWORD *)(a2 + 28) = a1;
-                if (v133 == -1) {
-                  *(_DWORD *)a2 = 0;
-                  *(_DWORD *)(a2 + 4) = 0;
-                  *(_DWORD *)(a2 + 8) = 0;
-                  *(_DWORD *)(a2 + 32) = -1;
+    if (pCarSpray->iLifeTime <= 0)            // Spray type 0: Initialize new particles based on car health
+    {
+      if (pCar->fHealth > 0.0) {
+        v50 = pCarSpray->iTimer;
+        if (v50 <= 0) {
+          if (fHealthFactor >= 1.0) {
+            pCarSpray->iColor = 1302;
+          } else {                                     // Generate damage particles based on health factor - more damage = more particles
+            if ((double)rand() * fHealthFactor < 8192.0 && fHealthFactor < 0.66) {
+              pCarSpray->iType = (pCarSpray->iType & 0xFFFFFF00) | 1;
+              //LOBYTE(pCarSpray->iType) = 1;
+              iRandomLifetime2 = rand();
+              pCarSpray->iLifeTime = ((16 * iRandomLifetime2) >> 15) + 8;
+              if (pPlaces == (int *)-1) {
+                pCarSpray->position.fX = 0.0;
+                pCarSpray->position.fY = 0.0;
+                pCarSpray->position.fZ = 0.0;
+                pCarSpray->iTimer = -1;
+              } else {
+                if (iCinematicMode) {
+                  iRandomPlacement1 = rand();
+                  iPlacementIdx = (2 * iRandomPlacement1) >> 15;
+                  if (iPlacementIdx == 2)
+                    iPlacementIdx = 1;
+                  iRandomPosX1 = rand();
+                  if (iPlacementIdx == 1)
+                    iTempPosX = winw / 2 + ((iRandomPosX1 * scr_size) >> 15);
+                  else
+                    iTempPosX = winw / 2 - ((iRandomPosX1 * scr_size) >> 15);
+                  pCarSpray->position.fX = (float)iTempPosX;
+                  iRandomPosY1 = rand();
+                  pCarSpray->position.fY = (float)(((iRandomPosY1 * scr_size) >> 16)
+                                                 + winh);
                 } else {
-                  if (HIDWORD(v2)) {
-                    v75 = rand(a1);
-                    v76 = (2 * v75 - (__CFSHL__((2 * v75) >> 31, 15) + ((2 * v75) >> 31 << 15))) >> 15;
-                    v77 = v76;
-                    if (v76 == 2)
-                      v77 = 1;
-                    v78 = rand(v76);
-                    if (v77 == 1) {
-                      v140 = (v78 * scr_size - (__CFSHL__((v78 * scr_size) >> 31, 15) + ((v78 * scr_size) >> 31 << 15))) >> 15;
-                      v79 = winw / 2;
-                      v141 = winw / 2 + v140;
-                    } else {
-                      v79 = winw / 2
-                        - ((v78 * scr_size - (__CFSHL__((v78 * scr_size) >> 31, 15) + ((v78 * scr_size) >> 31 << 15))) >> 15);
-                      v141 = v79;
-                    }
-                    *(float *)a2 = (float)v141;
-                    LODWORD(a1) = rand(v79);
-                    LODWORD(a1) = (int)(a1 * scr_size
-                                      - (__CFSHL__(((int)a1 * scr_size) >> 31, 16)
-                                         + (((int)a1 * scr_size) >> 31 << 16))) >> 16;
-                    *(float *)(a2 + 4) = (float)(a1 + winh);
+                  iRandomPosY2 = rand();
+                  pCarSpray->position.fY = (float)(((32 * iRandomPosY2) >> 15) + winh);
+                  iRandomPlacement2 = rand();
+                  iPlacementIdx = (4 * iRandomPlacement2) >> 15;
+                  if (iPlacementIdx == 4)
+                    iPlacementIdx = 3;
+                  pCoordinates1 = &CarDesigns[iStoredCarDesignIdx].pCoords[pPlaces[iPlacementIdx]];// Select random attachment point from car design for particle placement
+                  // CHEAT_MODE_TINY_CARS
+                  if ((cheat_mode & CHEAT_MODE_TINY_CARS) == 0)// Handle CHEAT_MODE_TINY_CARS - scale particle positions accordingly
+                  {
+                    pCarSpray->position.fX = pCoordinates1->fX;
+                    pCarSpray->position.fY = pCoordinates1->fY;
+                    pCarSpray->position.fZ = pCoordinates1->fZ;
                   } else {
-                    v80 = rand(a1);
-                    v81 = (32 * v80 - (__CFSHL__((32 * v80) >> 31, 15) + ((32 * v80) >> 31 << 15))) >> 15;
-                    *(float *)(a2 + 4) = (float)(v81 + winh);
-                    v82 = rand(v81);
-                    v77 = (4 * v82 - (__CFSHL__((4 * v82) >> 31, 15) + ((4 * v82) >> 31 << 15))) >> 15;
-                    if (v77 == 4)
-                      v77 = 3;
-                    v83 = (float *)(*(char **)((char *)&CarDesigns_variable_3 + v132) + 12 * *(_DWORD *)(v133 + 4 * v77));
-                    if ((cheat_mode & 0x8000) == 0) {
-                      *(float *)a2 = *v83;
-                      *(float *)(a2 + 4) = v83[1];
-                      *(float *)(a2 + 8) = v83[2];
-                    } else {
-                      *(float *)a2 = *v83 * control_c_variable_195;
-                      *(float *)(a2 + 4) = v83[1] * control_c_variable_195;
-                      *(float *)(a2 + 8) = v83[2] * control_c_variable_196;
-                    }
-                    LODWORD(a1) = rand(v83);
+                    pCarSpray->position.fX = pCoordinates1->fX * 0.25f;
+                    pCarSpray->position.fY = pCoordinates1->fY * 0.25f;
+                    pCarSpray->position.fZ = pCoordinates1->fZ * 0.5f;
                   }
-                  *(_DWORD *)(a2 + 32) = v77;
+                  rand();
                 }
+                pCarSpray->iTimer = iPlacementIdx;
               }
             }
-            if (*(_BYTE *)(a2 + 40) != 1) {
-              v84 = v133;
-              if (v133 == -1) {
-                *(_DWORD *)a2 = 0;
-                *(_DWORD *)(a2 + 4) = 0;
-                *(_DWORD *)(a2 + 8) = 0;
-              } else if (HIDWORD(v2)) {
-                v85 = rand(a1);
-                v86 = (2 * v85 - (__CFSHL__((2 * v85) >> 31, 15) + ((2 * v85) >> 31 << 15))) >> 15;
-                v84 = v86;
-                if (v86 == 2)
-                  v84 = 1;
-                v87 = rand(v86);
-                if (v84 == 1) {
-                  v142 = (v87 * scr_size - (__CFSHL__((v87 * scr_size) >> 31, 15) + ((v87 * scr_size) >> 31 << 15))) >> 15;
-                  v88 = winw / 2;
-                  v143 = winw / 2 + v142;
+            if ((uint8)(pCarSpray->iType) != 1) {
+              //TODO look at this
+              iPlacementIdx2 = 0;
+              //iPlacementIdx2 = (int)pPlaces;
+              if (pPlaces == (int *)-1) {
+                pCarSpray->position.fX = 0.0;
+                pCarSpray->position.fY = 0.0;
+                pCarSpray->position.fZ = 0.0;
+              } else if (iCinematicMode) {
+                iRandomPlacement3 = rand();
+                iPlacementIdx2 = (2 * iRandomPlacement3) >> 15;
+                if (iPlacementIdx2 == 2)
+                  iPlacementIdx2 = 1;
+                iRandomPosX2 = rand();
+                if (iPlacementIdx2 == 1)
+                  iTempPosX2 = winw / 2 + ((iRandomPosX2 * scr_size) >> 15);
+                else
+                  iTempPosX2 = winw / 2 - ((iRandomPosX2 * scr_size) >> 15);
+                pCarSpray->position.fX = (float)iTempPosX2;
+                iRandomPosY3 = rand();
+                pCarSpray->position.fY = (float)(((iRandomPosY3 * scr_size) >> 16)
+                                               + winh);
+              } else {                                 // Health-based placement logic: high health uses fewer placements
+                if (fHealthFactor >= 0.75) {
+                  iRandomPlacement5 = rand();
+                  iPlacementIdx2 = (2 * iRandomPlacement5) >> 15;
+                  if (iPlacementIdx2 == 2)
+                    iPlacementIdx2 = 1;
                 } else {
-                  v88 = winw / 2
-                    - ((v87 * scr_size - (__CFSHL__((v87 * scr_size) >> 31, 15) + ((v87 * scr_size) >> 31 << 15))) >> 15);
-                  v143 = v88;
+                  iRandomPlacement4 = rand();
+                  iPlacementIdx2 = (4 * iRandomPlacement4) >> 15;
+                  if (iPlacementIdx2 == 4)
+                    iPlacementIdx2 = 3;
                 }
-                *(float *)a2 = (float)v143;
-                LODWORD(a1) = rand(v88);
-                LODWORD(a1) = (int)(a1 * scr_size
-                                  - (__CFSHL__(((int)a1 * scr_size) >> 31, 16)
-                                     + (((int)a1 * scr_size) >> 31 << 16))) >> 16;
-                *(float *)(a2 + 4) = (float)(a1 + winh);
-              } else {
-                v90 = v134 < (double)control_c_variable_206;
-                v91 = 0;
-                v92 = v134 == control_c_variable_206;
-                LOWORD(a1) = v89;
-                if (v134 >= (double)control_c_variable_206) {
-                  v94 = rand(a1);
-                  v84 = (2 * v94 - (__CFSHL__((2 * v94) >> 31, 15) + ((2 * v94) >> 31 << 15))) >> 15;
-                  if (v84 == 2)
-                    v84 = 1;
-                } else {
-                  v93 = rand(a1);
-                  v84 = (4 * v93 - (__CFSHL__((4 * v93) >> 31, 15) + ((4 * v93) >> 31 << 15))) >> 15;
-                  if (v84 == 4)
-                    v84 = 3;
-                }
-                v95 = (float *)(*(char **)((char *)&CarDesigns_variable_3 + v132) + 12 * *(_DWORD *)(v133 + 4 * v84));
+                pCoordinates2 = &CarDesigns[iStoredCarDesignIdx].pCoords[pPlaces[iPlacementIdx2]];
+                // CHEAT_MODE_TINY_CARS
                 if ((cheat_mode & 0x8000) == 0) {
-                  *(float *)a2 = *v95;
-                  *(float *)(a2 + 4) = v95[1];
-                  *(float *)(a2 + 8) = v95[2];
+                  pCarSpray->position.fX = pCoordinates2->fX;
+                  pCarSpray->position.fY = pCoordinates2->fY;
+                  pCarSpray->position.fZ = pCoordinates2->fZ;
                 } else {
-                  *(float *)a2 = *v95 * control_c_variable_195;
-                  *(float *)(a2 + 4) = v95[1] * control_c_variable_195;
-                  *(float *)(a2 + 8) = v95[2] * control_c_variable_196;
+                  pCarSpray->position.fX = pCoordinates2->fX * 0.25f;
+                  pCarSpray->position.fY = pCoordinates2->fY * 0.25f;
+                  pCarSpray->position.fZ = pCoordinates2->fZ * 0.5f;
                 }
-                v96 = rand(v95);
-                LODWORD(a1) = rand(v96);
+                rand();
+                rand();
               }
-              v144 = rand(a1);
-              *(_DWORD *)(a2 + 36) = 1302;
-              v97 = ((24 * v144 - (__CFSHL__((24 * v144) >> 31, 15) + ((24 * v144) >> 31 << 15))) >> 15) + 24;
-              *(_DWORD *)(a2 + 28) = v97;
-              v98 = rand(v97);
-              if (v98 < 0x4000)
-                *(_BYTE *)(a2 + 37) |= 0x10u;
-              v99 = rand(v98);
-              if (v99 < 0x4000)
-                *(_BYTE *)(a2 + 38) |= 4u;
-              if (HIDWORD(v2)) {
-                v100 = rand(v99);
-                v101 = (-2 - ((6 * v100 - (__CFSHL__((6 * v100) >> 31, 15) + ((6 * v100) >> 31 << 15))) >> 15))
-                  * scr_size;
-                v102 = (v101 - (__CFSHL__(v101 >> 31, 6) + (v101 >> 31 << 6))) >> 6;
-                *(float *)(a2 + 16) = (float)v102;
-                v103 = rand(v102);
-                if (v84 == 1) {
-                  v104 = ((3 * v103 - (__CFSHL__((3 * v103) >> 31, 15) + ((3 * v103) >> 31 << 15))) >> 15) + 3;
-                  v145 = v104;
-                } else {
-                  v104 = (3 * v103 - (__CFSHL__((3 * v103) >> 31, 15) + ((3 * v103) >> 31 << 15))) >> 15;
-                  v145 = -3 - v104;
-                }
-                *(float *)(a2 + 12) = (float)v145;
-                v127 = (1.0 - v134) * control_c_variable_198 + control_c_variable_198;
-                v105 = rand(v104);
-                *(float *)(a2 + 24) = ((double)v105 * v127 * control_c_variable_199 + control_c_variable_198)
-                  * (double)scr_size
-                  * control_c_variable_200;
-                v106 = rand(v105);
-                v107 = (double)(int)v106 * v131 * control_c_variable_197 + control_c_variable_194;
-                _CHP(v106, HIDWORD(v106));
-                *(_DWORD *)(a2 + 32) = (int)v107;
-                a1 = rand(v106);
+              iTempRandomValue = rand();
+              pCarSpray->iColor = 1302;
+              pCarSpray->iLifeTime = ((24 * iTempRandomValue) >> 15) + 24;
+              if (rand() < 0x4000)
+                pCarSpray->iColor |= 0x1000u;
+                //BYTE1(pCarSpray->iColor) |= 0x10u;
+              if (rand() < 0x4000)
+                pCarSpray->iColor |= 40000u;
+                //BYTE2(pCarSpray->iColor) |= 4u;
+              if (iCinematicMode) {
+                iRandomVelY9 = rand();          // Calculate menu/replay mode velocities with screen scaling
+                iVelYCalc1 = (-2 - ((6 * iRandomVelY9) >> 15)) * scr_size;
+                pCarSpray->velocity.fY = (float)((iVelYCalc1) >> 6);
+                iRandomVelX4 = rand();
+                if (iPlacementIdx2 == 1)
+                  iTempVelX = ((3 * iRandomVelX4) >> 15) + 3;
+                else
+                  iTempVelX = -3 - ((3 * iRandomVelX4) >> 15);
+                pCarSpray->velocity.fX = (float)iTempVelX;
+                pCarSpray->fSize = (float)(((double)rand() * ((1.0 - fHealthFactor) * 32.0 + 32.0) * 0.000030517578125 + 32.0) * (double)scr_size * 0.015625);
+                fHealthMultiplier4 = fHealthFactor * 512.0f;
+                dLifetimeCalc1 = (double)rand() * fHealthMultiplier4 * 0.000030517578 + 64.0;
+                //_CHP();
+                pCarSpray->iTimer = (int)dLifetimeCalc1;
+                rand();
               } else {
-                v108 = rand(v99);
-                v109 = (20 * v108 - (__CFSHL__((20 * v108) >> 31, 15) + ((20 * v108) >> 31 << 15))) >> 15;
-                *(float *)(a2 + 12) = (float)(-15 - v109);
-                if (v84) {
-                  v110 = rand(v109);
-                  if (v84 == 1) {
-                    v111 = (15 * v110 - (__CFSHL__((15 * v110) >> 31, 15) + ((15 * v110) >> 31 << 15))) >> 15;
-                    v112 = -5;
+                iRandomVelX5 = rand();          // Calculate gameplay mode velocities based on placement position
+                pCarSpray->velocity.fX = (float)(-15 - ((20 * iRandomVelX5) >> 15));
+                if (iPlacementIdx2) {
+                  iRandomVelY10 = rand();
+                  if (iPlacementIdx2 == 1) {
+                    iVelYCalc2 = (15 * iRandomVelY10) >> 15;
+                    iVelYBase = -5;
                   } else {
-                    v111 = (40 * v110 - (__CFSHL__((40 * v110) >> 31, 15) + ((40 * v110) >> 31 << 15))) >> 15;
-                    v112 = 20;
+                    iVelYCalc2 = (40 * iRandomVelY10) >> 15;
+                    iVelYBase = 20;
                   }
-                  v146 = v112 - v111;
+                  iTempVelY = iVelYBase - iVelYCalc2;
                 } else {
-                  v113 = rand(v109);
-                  v111 = ((15 * v113 - (__CFSHL__((15 * v113) >> 31, 15) + ((15 * v113) >> 31 << 15))) >> 15) + 5;
-                  v146 = v111;
+                  iRandomVelY11 = rand();
+                  iTempVelY = ((15 * iRandomVelY11) >> 15) + 5;
                 }
-                *(float *)(a2 + 16) = (float)v146;
-                v114 = rand(v111);
-                v147 = (10 * v114 - (__CFSHL__((10 * v114) >> 31, 15) + ((10 * v114) >> 31 << 15))) >> 15;
-                *(float *)(a2 + 20) = (float)v147;
-                v115 = rand(v147);
-                v120 = ((10 * v115 - (__CFSHL__((10 * v115) >> 31, 15) + ((10 * v115) >> 31 << 15))) >> 15) + 10;
-                *(float *)(a2 + 24) = (float)v120;
-                v117 = v134 < control_c_variable_207;
-                v118 = 0;
-                v119 = v134 == control_c_variable_207;
-                LOWORD(v120) = v116;
-                if (v134 <= control_c_variable_207) {
-                  v123 = *(float *)(v2 + 28) > 0.0;
-                  v124 = 0;
-                  v125 = 0.0 == *(float *)(v2 + 28);
-                  LOWORD(v120) = v122;
-                  if (*(float *)(v2 + 28) <= 0.0) {
-                    a1 = rand(v120);
-                    v126 = (double)(int)a1 * v129 * control_c_variable_197 + control_c_variable_208;
+                pCarSpray->velocity.fY = (float)iTempVelY;
+                iRandomUnk5_4 = rand();
+                pCarSpray->velocity.fZ = (float)((10 * iRandomUnk5_4) >> 15);
+                iRandomSize7 = rand();
+                pCarSpray->fSize = (float)(((10 * iRandomSize7) >> 15) + 10);
+                if (fHealthFactor <= 0.6) {
+                  if (pCar->fHealth <= 0.0) {
+                    fHealthMultiplier2 = fHealthFactor * 64.0f;
+                    dLifetimeCalc3 = (double)rand() * fHealthMultiplier2 * 0.000030517578 + 18.0;
                   } else {
-                    a1 = rand(v120);
-                    v126 = (double)(int)a1 * v130 * control_c_variable_197 + control_c_variable_209;
+                    fHealthMultiplier3 = fHealthFactor * 256.0f;
+                    dLifetimeCalc3 = (double)rand() * fHealthMultiplier3 * 0.000030517578 + 24.0;
                   }
-                  _CHP(a1, HIDWORD(a1));
-                  *(_DWORD *)(a2 + 32) = (int)v126;
+                  //_CHP();
+                  pCarSpray->iTimer = (int)dLifetimeCalc3;
                 } else {
-                  a1 = rand(v120);
-                  v121 = (double)(int)a1 * v128 * control_c_variable_197 + control_c_variable_210;
-                  _CHP(a1, HIDWORD(a1));
-                  *(_DWORD *)(a2 + 32) = (int)v121;
+                  fHealthMultiplier1 = fHealthFactor * 1024.0f;
+                  dLifetimeCalc2 = (double)rand() * fHealthMultiplier1 * 0.000030517578 + 36.0;
+                  //_CHP();
+                  pCarSpray->iTimer = (int)dLifetimeCalc2;
                 }
               }
             }
           }
         } else {
-          *(_DWORD *)(a2 + 36) = 1302;
-          *(_DWORD *)(a2 + 32) = a1 - 1;
+          pCarSpray->iColor = 1302;
+          pCarSpray->iTimer = v50 - 1;
         }
-      } else if (*(__int16 *)(v2 + 100) <= 108) {
-        *(_DWORD *)(a2 + 28) = -1;
-        *(_DWORD *)(a2 + 32) = -1;
-        *(_BYTE *)(a2 + 40) = 2;
-        *(_WORD *)(v2 + 106) = -1;
+      } else if (pCar->nDeathTimer <= 108) {
+        pCarSpray->iLifeTime = -1;
+        pCarSpray->iTimer = -1;
+        pCarSpray->iType = (pCarSpray->iType & 0xFFFFFF00) | 2;
+        //LOBYTE(pCarSpray->iType) = 2;
+        pCar->nExplosionSoundTimer = -1;
       }
-      goto LABEL_136;
+      goto NEXT_PARTICLE;
     }
-    if ((*(_BYTE *)(a2 + 28) & 3) == 0) {
-      v53 = (unsigned __int8)*(_DWORD *)(a2 + 36);
-      if (v53 < 0x15) {
-        if (!(unsigned __int8)*(_DWORD *)(a2 + 36)) {
-          v54 = 21;
-          goto LABEL_57;
+    if ((pCarSpray->iLifeTime & 3) == 0)      // Animate particle colors by cycling through color palette every 4 frames
+    {
+      uiColor = (unsigned __int8)pCarSpray->iColor;
+      if (uiColor < 0x15) {
+        if (!(unsigned __int8)pCarSpray->iColor) {
+          iColorCycle = 21;
+          goto SET_COLOR_CYCLE;
         }
-      } else if (v53 > 0x15) {
-        if (v53 <= 0x16) {
-          v54 = 23;
+      } else if (uiColor > 0x15) {
+        if (uiColor <= 0x16) {
+          iColorCycle = 23;
         } else {
-          if (v53 != 23)
-            goto LABEL_56;
-          v54 = 0;
+          if (uiColor != 23)
+            goto DEFAULT_COLOR_CYCLE;
+          iColorCycle = 0;
         }
-      LABEL_57:
-        v55 = *(_DWORD *)(a2 + 36);
-        LOBYTE(v55) = 0;
-        *(_DWORD *)(a2 + 36) = v54 | v55;
-        v56 = rand(v54);
-        if (v56 < 0x4000)
-          *(_BYTE *)(a2 + 37) ^= 0x10u;
-        if ((int)rand(v56) < 0x4000)
-          *(_BYTE *)(a2 + 38) ^= 4u;
-        goto LABEL_61;
+      SET_COLOR_CYCLE:
+        iColor = pCarSpray->iColor;
+        iColor = iColor & 0xFFFFFF00;  // Clear lowest byte only
+        //LOBYTE(iColor) = 0;
+        pCarSpray->iColor = iColorCycle | iColor;
+        if (rand() < 0x4000)
+          pCarSpray->iColor ^= 0x1000u;
+          //BYTE1(pCarSpray->iColor) ^= 0x10u;
+        if (rand() < 0x4000)
+          pCarSpray->iColor ^= 40000u;
+          //BYTE2(pCarSpray->iColor) ^= 4u;
+        goto CONTINUE_COLOR_ANIMATION;
       }
-    LABEL_56:
-      v54 = 22;
-      goto LABEL_57;
+    DEFAULT_COLOR_CYCLE:
+      iColorCycle = 22;
+      goto SET_COLOR_CYCLE;
     }
-  LABEL_61:
-    v57 = (unsigned __int8)*(_DWORD *)(a2 + 36);
-    if ((unsigned __int8)*(_DWORD *)(a2 + 36) && (unsigned __int8)*(_DWORD *)(a2 + 36) < 0x15u
-      || (unsigned __int8)*(_DWORD *)(a2 + 36) > 0x17u) {
-      *(_DWORD *)(a2 + 36) = 1302;
-    }
-    *(float *)a2 = *(float *)(a2 + 12) + *(float *)a2;
-    *(float *)(a2 + 4) = *(float *)(a2 + 16) + *(float *)(a2 + 4);
-    *(float *)(a2 + 8) = *(float *)(a2 + 20) + *(float *)(a2 + 8);
-    if (HIDWORD(v2)) {
-      a1 = rand(v57);
-    } else {
-      if (*(int *)(a2 + 28) <= 8) {
-        LODWORD(a1) = rand(v57);
-        LODWORD(a1) = (((int)(24 * a1 - (__CFSHL__((24 * (int)a1) >> 31, 15) + ((24 * (int)a1) >> 31 << 15))) >> 15) + 10)
-          * scr_size;
-        LODWORD(a1) = (int)(a1 - (__CFSHL__((int)a1 >> 31, 6) + ((int)a1 >> 31 << 6))) >> 6;
-        *(float *)(a2 + 24) = *(float *)(a2 + 24) - (double)(int)a1;
-        --*(_DWORD *)(a2 + 28);
-        goto LABEL_136;
+  CONTINUE_COLOR_ANIMATION:
+    if ((uint8)pCarSpray->iColor && (uint8)pCarSpray->iColor < 0x15u || (uint8)pCarSpray->iColor > 0x17u)
+      pCarSpray->iColor = 1302;
+    pCarSpray->position.fX = pCarSpray->velocity.fX + pCarSpray->position.fX;// Update particle physics: position += velocity, apply gravity/forces
+    pCarSpray->position.fY = pCarSpray->velocity.fY + pCarSpray->position.fY;
+    pCarSpray->position.fZ = pCarSpray->velocity.fZ + pCarSpray->position.fZ;
+    if (iCinematicMode) {
+      rand();
+    } else {                                           // Fade out particles: reduce size as they near end of lifetime
+      if (pCarSpray->iLifeTime <= 8) {
+        iRandomSizeShrink1 = rand();
+        iSizeShrinkCalc1 = (((24 * iRandomSizeShrink1) >> 15) + 10) * scr_size;
+        pCarSpray->fSize = pCarSpray->fSize - (float)((iSizeShrinkCalc1) >> 6);
+        --pCarSpray->iLifeTime;
+        goto NEXT_PARTICLE;
       }
-      LODWORD(a1) = rand(v57);
-      LODWORD(a1) = (((int)(8 * a1 - (__CFSHL__((8 * (int)a1) >> 31, 15) + ((8 * (int)a1) >> 31 << 15))) >> 15) + 8)
-        * scr_size;
-      LODWORD(a1) = (int)(a1 - (__CFSHL__((int)a1 >> 31, 6) + ((int)a1 >> 31 << 6))) >> 6;
-      *(float *)(a2 + 24) = (double)(int)a1 + *(float *)(a2 + 24);
+      iRandomSizeGrow1 = rand();
+      iSizeGrowCalc1 = (((8 * iRandomSizeGrow1) >> 15) + 8) * scr_size;
+      pCarSpray->fSize = (float)((iSizeGrowCalc1) >> 6) + pCarSpray->fSize;
     }
-    -- * (_DWORD *)(a2 + 28);
-  LABEL_136:
-    ++v4;
-    a2 += 44;
-  } while (v4 < 32);*/
+    --pCarSpray->iLifeTime;
+  NEXT_PARTICLE:
+    ++iSprayIdx;
+    ++pCarSpray;
+  } while (iSprayIdx < 32);                     // Main loop: process all 32 spray particles for this car
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -7521,337 +7379,348 @@ void calculateseparatedcoordinatesystem(int iChunk, tData *pChunkData)
 
 //-------------------------------------------------------------------------------------------------
 //00036390
-int *findnearsection(int a1, int *a2)
+void findnearsection(tCar *pCar, int *piNearestChunk)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v2; // ecx
-  int v3; // edi
-  int v4; // edx
-  float *v5; // esi
-  int v6; // ebp
-  long double v7; // st7
-  long double v8; // st6
-  long double v9; // st5
-  long double v10; // st4
-  long double v11; // rt0
-  long double v12; // st4
-  int v13; // edx
-  float *v14; // esi
-  int v15; // ebp
-  long double v16; // st7
-  long double v17; // st6
-  long double v18; // st5
-  long double v19; // st4
-  long double v20; // rt2
-  long double v21; // st4
-  int v22; // ebp
-  int v23; // edx
-  float *v24; // esi
-  int v25; // ebp
-  long double v26; // st7
-  long double v27; // st6
-  long double v28; // st5
-  long double v29; // st4
-  long double v30; // rt0
-  long double v31; // st4
-  int v32; // ebp
-  float *v33; // esi
-  int v34; // edx
-  int v35; // ebp
-  long double v36; // st7
-  long double v37; // st6
-  long double v38; // st5
-  long double v39; // st4
-  long double v40; // rt2
-  long double v41; // st4
-  int *result; // eax
-  __int16 *v44; // [esp+10h] [ebp-6Ch]
-  int v45; // [esp+14h] [ebp-68h]
-  int v46; // [esp+18h] [ebp-64h]
-  int v47; // [esp+1Ch] [ebp-60h]
-  int v48; // [esp+20h] [ebp-5Ch]
-  float v49; // [esp+24h] [ebp-58h]
-  float v50; // [esp+28h] [ebp-54h]
-  float v51; // [esp+2Ch] [ebp-50h]
-  float v52; // [esp+30h] [ebp-4Ch]
-  float v53; // [esp+34h] [ebp-48h]
-  float v54; // [esp+38h] [ebp-44h]
-  float v55; // [esp+3Ch] [ebp-40h]
-  float v56; // [esp+40h] [ebp-3Ch]
-  float v57; // [esp+44h] [ebp-38h]
-  float v58; // [esp+48h] [ebp-34h]
-  float v59; // [esp+4Ch] [ebp-30h]
-  float v60; // [esp+50h] [ebp-2Ch]
-  float v61; // [esp+54h] [ebp-28h]
-  float v62; // [esp+58h] [ebp-24h]
-  float v63; // [esp+5Ch] [ebp-20h]
-  float v64; // [esp+5Ch] [ebp-20h]
-  int v65; // [esp+60h] [ebp-1Ch]
-  float v66; // [esp+64h] [ebp-18h]
-  float v67; // [esp+64h] [ebp-18h]
+  int iTrakLen; // ecx
+  int iNearestChunk; // edi
+  int iForwardChunkIdx; // edx
+  tData *pForwardData; // esi
+  int iForwardGroundIdx; // ebp
+  double dForwardCarX; // st7
+  double dForwardCarY; // st6
+  double dForwardAbsY; // st5
+  double dForwardCarZ; // st4
+  double dForwardAbsZ; // rt0
+  double dForwardAbsX; // st4
+  int iBackwardChunkIdx; // edx
+  tData *pBackwardData; // esi
+  int iBackwardGroundIdx; // ebp
+  double dBackwardCarX; // st7
+  double dBackwardCarY; // st6
+  double dBackwardAbsY; // st5
+  double dBackwardCarZ; // st4
+  double dBackwardAbsZ; // rt2
+  double dBackwardAbsX; // st4
+  int iForwardExtraStart; // ebp
+  int iForwardExtraIdx; // edx
+  tData *pForwardExtraData; // esi
+  int iForwardExtraGroundIdx; // ebp
+  double dForwardExtraCarX; // st7
+  double dForwardExtraCarY; // st6
+  double dForwardExtraAbsY; // st5
+  double dForwardExtraCarZ; // st4
+  double dForwardExtraAbsZ; // rt0
+  double dForwardExtraAbsX; // st4
+  int iBackwardExtraStart; // ebp
+  tData *pBackwardExtraData; // esi
+  int iBackwardExtraIdx; // edx
+  int iBackwardExtraGroundIdx; // ebp
+  double dBackwardExtraCarX; // st7
+  double dBackwardExtraCarY; // st6
+  double dBackwardExtraAbsY; // st5
+  double dBackwardExtraCarZ; // st4
+  double dBackwardExtraAbsZ; // rt2
+  double dBackwardExtraAbsX; // st4
+  tTrakView *pTrakView; // [esp+10h] [ebp-6Ch]
+  int iLastValidChunk; // [esp+14h] [ebp-68h]
+  int iBackwardMainEnd; // [esp+18h] [ebp-64h]
+  int iBackwardExtraEnd; // [esp+1Ch] [ebp-60h]
+  int iForwardMainEnd; // [esp+20h] [ebp-5Ch]
+  float fBackwardDotProduct; // [esp+24h] [ebp-58h]
+  float fForwardExtraDotProduct; // [esp+28h] [ebp-54h]
+  float fBackwardExtraDotProduct; // [esp+2Ch] [ebp-50h]
+  float fForwardDotProduct; // [esp+30h] [ebp-4Ch]
+  float fBackwardExtraPosition; // [esp+34h] [ebp-48h]
+  float fForwardExtraPosition; // [esp+38h] [ebp-44h]
+  float fBackwardPosition; // [esp+3Ch] [ebp-40h]
+  float fForwardPosition; // [esp+40h] [ebp-3Ch]
+  float fForwardExtraDistance; // [esp+44h] [ebp-38h]
+  float fForwardDistance; // [esp+48h] [ebp-34h]
+  float fBackwardExtraDistance; // [esp+4Ch] [ebp-30h]
+  float fBackwardDistance; // [esp+50h] [ebp-2Ch]
+  float fMinCurrentDistance; // [esp+54h] [ebp-28h]
+  float fMinValidDistance; // [esp+58h] [ebp-24h]
+  float fTempCarX; // [esp+5Ch] [ebp-20h]
+  float fTempCarX2; // [esp+5Ch] [ebp-20h]
+  int iForwardExtraEnd; // [esp+60h] [ebp-1Ch]
+  float fTempCarX3; // [esp+64h] [ebp-18h]
+  float fTempCarX4; // [esp+64h] [ebp-18h]
 
-  v2 = TRAK_LEN;
-  v62 = 1.0e10;
-  v61 = 1.0e10;
-  v45 = *(_DWORD *)(a1 + 216);
-  v3 = -1;
-  v44 = &TrakView[4 * v45];
-  v48 = *((unsigned __int8 *)v44 + 2) + v45;
-  v4 = v45;
-  v5 = (float *)((char *)&localdata + 128 * v45);
-  if (v45 < v48) {
-    v6 = 5 * v45;
+  iTrakLen = TRAK_LEN;                          // Store track length and initialize minimum distance trackers
+  fMinValidDistance = 1.0e10;
+  fMinCurrentDistance = 1.0e10;
+  iLastValidChunk = pCar->iLastValidChunk;      // Get car's last known valid track chunk and setup search parameters
+  iNearestChunk = -1;
+  pTrakView = &TrakView[iLastValidChunk];
+  iForwardMainEnd = pTrakView->byForwardMainChunks + iLastValidChunk;
+  iForwardChunkIdx = iLastValidChunk;
+  pForwardData = &localdata[iLastValidChunk];
+  if (iLastValidChunk < iForwardMainEnd)      // Search forward main chunks for nearest track section
+  {
+    iForwardGroundIdx = iLastValidChunk;
     do {
-      v7 = *(float *)a1 + v5[9];
-      v66 = v7;
-      v8 = *(float *)(a1 + 4) + v5[10];
-      v9 = fabs(v8);
-      v10 = *(float *)(a1 + 8) + v5[11];
-      v52 = v5[2] * *(float *)(a1 + 40) + v5[5] * *(float *)(a1 + 44) + v5[8] * *(float *)(a1 + 48);
-      v11 = fabs(v10);
-      v56 = v8 * v5[5] + v5[2] * v66 + v10 * v5[8];
-      v12 = fabs(v7);
-      v58 = sqrt(v12 * v12 + v9 * v9 + v11 * v11) - v5[12];
-      if ((v56 >= (double)control_c_variable_214 || GroundColour_variable_4[v6] >= 0) && v58 < (double)v62) {
-        v62 = v58;
-        if (v4 < v2) {
-          if (v4 >= 0)
-            *(_DWORD *)(a1 + 216) = v4;
+      dForwardCarX = pCar->pos.fX + pForwardData->pointAy[3].fX;// Calculate car position relative to current track chunk
+      fTempCarX3 = (float)dForwardCarX;
+      dForwardCarY = pCar->pos.fY + pForwardData->pointAy[3].fY;
+      dForwardAbsY = fabs(dForwardCarY);
+      dForwardCarZ = pCar->pos.fZ + pForwardData->pointAy[3].fZ;
+      fForwardDotProduct = pForwardData->pointAy[0].fZ * pCar->direction.fX
+        + pForwardData->pointAy[1].fZ * pCar->direction.fY
+        + pForwardData->pointAy[2].fZ * pCar->direction.fZ;
+      dForwardAbsZ = fabs(dForwardCarZ);
+      fForwardPosition = (float)(dForwardCarY * pForwardData->pointAy[1].fZ + pForwardData->pointAy[0].fZ * fTempCarX3 + dForwardCarZ * pForwardData->pointAy[2].fZ);
+      dForwardAbsX = fabs(dForwardCarX);
+      fForwardDistance = (float)sqrt(dForwardAbsX * dForwardAbsX + dForwardAbsY * dForwardAbsY + dForwardAbsZ * dForwardAbsZ) - pForwardData->fTrackHalfLength;// Calculate 3D distance from car to track centerline
+      if ((fForwardPosition >= -400.0 || GroundColour[iForwardGroundIdx][2] >= 0) && fForwardDistance < (double)fMinValidDistance)// Check position validity and update closest valid chunk if closer
+      {
+        fMinValidDistance = fForwardDistance;
+        if (iForwardChunkIdx < iTrakLen) {
+          if (iForwardChunkIdx >= 0)
+            pCar->iLastValidChunk = iForwardChunkIdx;
           else
-            *(_DWORD *)(a1 + 216) = v2 + v4;
+            pCar->iLastValidChunk = iTrakLen + iForwardChunkIdx;
         } else {
-          *(_DWORD *)(a1 + 216) = v4 - v2;
+          pCar->iLastValidChunk = iForwardChunkIdx - iTrakLen;
         }
       }
-      if ((v52 * control_c_variable_213 + control_c_variable_215 <= v56 || GroundColour_variable_4[v6] >= 0)
-        && v58 < (double)v61) {
-        v61 = v58;
-        if (v4 < v2) {
-          if (v4 >= 0)
-            v3 = v4;
+      if ((fForwardDotProduct * 4.0 + -500.0 <= fForwardPosition || GroundColour[iForwardGroundIdx][2] >= 0) && fForwardDistance < (double)fMinCurrentDistance)// Check forward position and update nearest current chunk if closer
+      {
+        fMinCurrentDistance = fForwardDistance;
+        if (iForwardChunkIdx < iTrakLen) {
+          if (iForwardChunkIdx >= 0)
+            iNearestChunk = iForwardChunkIdx;
           else
-            v3 = v4 + v2;
+            iNearestChunk = iForwardChunkIdx + iTrakLen;
         } else {
-          v3 = v4 - v2;
+          iNearestChunk = iForwardChunkIdx - iTrakLen;
         }
       }
-      if (v4 == v2 - 1)
-        v5 = (float *)&localdata;
+      if (iForwardChunkIdx == iTrakLen - 1)   // Handle track wrapping: loop back to start when reaching end
+        pForwardData = localdata;
       else
-        v5 += 32;
-      ++v4;
-      v6 += 5;
-    } while (v4 < v48);
+        ++pForwardData;
+      ++iForwardChunkIdx;
+      ++iForwardGroundIdx;
+    } while (iForwardChunkIdx < iForwardMainEnd);
   }
-  v46 = v45 - *((unsigned __int8 *)v44 + 6);
-  v13 = v45;
-  v14 = (float *)((char *)&localdata + 128 * v45);
-  if (v45 > v46) {
-    v15 = 5 * v45;
+  iBackwardMainEnd = iLastValidChunk - pTrakView->byBackwardMainChunks;
+  iBackwardChunkIdx = iLastValidChunk;
+  pBackwardData = &localdata[iLastValidChunk];
+  if (iLastValidChunk > iBackwardMainEnd)     // Search backward main chunks for nearest track section
+  {
+    iBackwardGroundIdx = iLastValidChunk;
     do {
-      v16 = *(float *)a1 + v14[9];
-      v63 = v16;
-      v17 = *(float *)(a1 + 4) + v14[10];
-      v18 = fabs(v17);
-      v19 = *(float *)(a1 + 8) + v14[11];
-      v49 = v14[2] * *(float *)(a1 + 40) + v14[5] * *(float *)(a1 + 44) + v14[8] * *(float *)(a1 + 48);
-      v20 = fabs(v19);
-      v55 = v17 * v14[5] + v14[2] * v63 + v19 * v14[8];
-      v21 = fabs(v16);
-      v60 = sqrt(v21 * v21 + v18 * v18 + v20 * v20) - v14[12];
-      if ((v55 >= (double)control_c_variable_214 || GroundColour_variable_4[v15] >= 0) && v60 < (double)v62) {
-        v62 = v60;
-        if (v13 < v2) {
-          if (v13 >= 0)
-            *(_DWORD *)(a1 + 216) = v13;
+      dBackwardCarX = pCar->pos.fX + pBackwardData->pointAy[3].fX;
+      fTempCarX = (float)dBackwardCarX;
+      dBackwardCarY = pCar->pos.fY + pBackwardData->pointAy[3].fY;
+      dBackwardAbsY = fabs(dBackwardCarY);
+      dBackwardCarZ = pCar->pos.fZ + pBackwardData->pointAy[3].fZ;
+      fBackwardDotProduct = pBackwardData->pointAy[0].fZ * pCar->direction.fX
+        + pBackwardData->pointAy[1].fZ * pCar->direction.fY
+        + pBackwardData->pointAy[2].fZ * pCar->direction.fZ;
+      dBackwardAbsZ = fabs(dBackwardCarZ);
+      fBackwardPosition = (float)(dBackwardCarY * pBackwardData->pointAy[1].fZ + pBackwardData->pointAy[0].fZ * fTempCarX + dBackwardCarZ * pBackwardData->pointAy[2].fZ);
+      dBackwardAbsX = fabs(dBackwardCarX);
+      fBackwardDistance = (float)sqrt(dBackwardAbsX * dBackwardAbsX + dBackwardAbsY * dBackwardAbsY + dBackwardAbsZ * dBackwardAbsZ) - pBackwardData->fTrackHalfLength;
+      if ((fBackwardPosition >= -400.0 || GroundColour[iBackwardGroundIdx][2] >= 0) && fBackwardDistance < (double)fMinValidDistance) {
+        fMinValidDistance = fBackwardDistance;
+        if (iBackwardChunkIdx < iTrakLen) {
+          if (iBackwardChunkIdx >= 0)
+            pCar->iLastValidChunk = iBackwardChunkIdx;
           else
-            *(_DWORD *)(a1 + 216) = v2 + v13;
+            pCar->iLastValidChunk = iTrakLen + iBackwardChunkIdx;
         } else {
-          *(_DWORD *)(a1 + 216) = v13 - v2;
+          pCar->iLastValidChunk = iBackwardChunkIdx - iTrakLen;
         }
       }
-      if ((v49 * control_c_variable_213 + control_c_variable_215 <= v55 || GroundColour_variable_4[v15] >= 0)
-        && v60 < (double)v61) {
-        v61 = v60;
-        if (v13 < v2) {
-          if (v13 >= 0)
-            v3 = v13;
+      if ((fBackwardDotProduct * 4.0 + -500.0 <= fBackwardPosition || GroundColour[iBackwardGroundIdx][2] >= 0) && fBackwardDistance < (double)fMinCurrentDistance) {
+        fMinCurrentDistance = fBackwardDistance;
+        if (iBackwardChunkIdx < iTrakLen) {
+          if (iBackwardChunkIdx >= 0)
+            iNearestChunk = iBackwardChunkIdx;
           else
-            v3 = v13 + v2;
+            iNearestChunk = iBackwardChunkIdx + iTrakLen;
         } else {
-          v3 = v13 - v2;
+          iNearestChunk = iBackwardChunkIdx - iTrakLen;
         }
       }
-      if (v13)
-        v14 -= 32;
+      if (iBackwardChunkIdx)                  // Handle track wrapping: loop to end when reaching start
+        --pBackwardData;
       else
-        v14 = (float *)((char *)&localdata + 128 * v2 - 128);
-      --v13;
-      v15 -= 5;
-    } while (v13 > v46);
+        pBackwardData = &localdata[iTrakLen - 1];
+      --iBackwardChunkIdx;
+      --iBackwardGroundIdx;
+    } while (iBackwardChunkIdx > iBackwardMainEnd);
   }
-  if ((TrakColour_variable_4[24 * v45] & 2) == 0) {
-    v22 = *v44;
-    v65 = *((unsigned __int8 *)v44 + 3) + v22;
-    v23 = v22;
-    v24 = (float *)((char *)&localdata + 128 * v22);
-    if (v22 < v65) {
-      v25 = 5 * v22;
+  if ((TrakColour[iLastValidChunk][1] & 0x200) == 0)// Check if not on special track section - if so, search extra chunks
+  {
+    iForwardExtraStart = pTrakView->nForwardExtraStart;
+    iForwardExtraEnd = pTrakView->byForwardExtraChunks + iForwardExtraStart;
+    iForwardExtraIdx = iForwardExtraStart;
+    pForwardExtraData = &localdata[iForwardExtraStart];
+    if (iForwardExtraStart < iForwardExtraEnd)// Search forward extra chunks for nearest track section
+    {
+      iForwardExtraGroundIdx = iForwardExtraStart;
       do {
-        v26 = *(float *)a1 + v24[9];
-        v64 = v26;
-        v27 = *(float *)(a1 + 4) + v24[10];
-        v28 = fabs(v27);
-        v29 = *(float *)(a1 + 8) + v24[11];
-        v50 = v24[2] * *(float *)(a1 + 40) + v24[5] * *(float *)(a1 + 44) + v24[8] * *(float *)(a1 + 48);
-        v30 = fabs(v29);
-        v54 = v27 * v24[5] + v24[2] * v64 + v29 * v24[8];
-        v31 = fabs(v26);
-        v57 = sqrt(v31 * v31 + v28 * v28 + v30 * v30) - v24[12];
-        if ((v54 >= (double)control_c_variable_214 || GroundColour_variable_4[v25] >= 0) && v57 < (double)v62) {
-          v62 = v57;
-          if (v23 < v2) {
-            if (v23 >= 0)
-              *(_DWORD *)(a1 + 216) = v23;
+        dForwardExtraCarX = pCar->pos.fX + pForwardExtraData->pointAy[3].fX;
+        fTempCarX2 = (float)dForwardExtraCarX;
+        dForwardExtraCarY = pCar->pos.fY + pForwardExtraData->pointAy[3].fY;
+        dForwardExtraAbsY = fabs(dForwardExtraCarY);
+        dForwardExtraCarZ = pCar->pos.fZ + pForwardExtraData->pointAy[3].fZ;
+        fForwardExtraDotProduct = pForwardExtraData->pointAy[0].fZ * pCar->direction.fX
+          + pForwardExtraData->pointAy[1].fZ * pCar->direction.fY
+          + pForwardExtraData->pointAy[2].fZ * pCar->direction.fZ;
+        dForwardExtraAbsZ = fabs(dForwardExtraCarZ);
+        fForwardExtraPosition = (float)(dForwardExtraCarY * pForwardExtraData->pointAy[1].fZ
+          + pForwardExtraData->pointAy[0].fZ * fTempCarX2
+          + dForwardExtraCarZ * pForwardExtraData->pointAy[2].fZ);
+        dForwardExtraAbsX = fabs(dForwardExtraCarX);
+        fForwardExtraDistance = (float)sqrt(dForwardExtraAbsX * dForwardExtraAbsX + dForwardExtraAbsY * dForwardExtraAbsY + dForwardExtraAbsZ * dForwardExtraAbsZ)
+          - pForwardExtraData->fTrackHalfLength;
+        if ((fForwardExtraPosition >= -400.0 || GroundColour[iForwardExtraGroundIdx][2] >= 0) && fForwardExtraDistance < (double)fMinValidDistance) {
+          fMinValidDistance = fForwardExtraDistance;
+          if (iForwardExtraIdx < iTrakLen) {
+            if (iForwardExtraIdx >= 0)
+              pCar->iLastValidChunk = iForwardExtraIdx;
             else
-              *(_DWORD *)(a1 + 216) = v2 + v23;
+              pCar->iLastValidChunk = iTrakLen + iForwardExtraIdx;
           } else {
-            *(_DWORD *)(a1 + 216) = v23 - v2;
+            pCar->iLastValidChunk = iForwardExtraIdx - iTrakLen;
           }
         }
-        if ((v50 * control_c_variable_213 + control_c_variable_215 <= v54 || GroundColour_variable_4[v25] >= 0)
-          && v57 < (double)v61) {
-          v61 = v57;
-          if (v23 < v2) {
-            if (v23 >= 0)
-              v3 = v23;
+        if ((fForwardExtraDotProduct * 4.0 + -500.0 <= fForwardExtraPosition || GroundColour[iForwardExtraGroundIdx][2] >= 0)
+          && fForwardExtraDistance < (double)fMinCurrentDistance) {
+          fMinCurrentDistance = fForwardExtraDistance;
+          if (iForwardExtraIdx < iTrakLen) {
+            if (iForwardExtraIdx >= 0)
+              iNearestChunk = iForwardExtraIdx;
             else
-              v3 = v23 + v2;
+              iNearestChunk = iForwardExtraIdx + iTrakLen;
           } else {
-            v3 = v23 - v2;
+            iNearestChunk = iForwardExtraIdx - iTrakLen;
           }
         }
-        if (v23 == v2 - 1)
-          v24 = (float *)&localdata;
+        if (iForwardExtraIdx == iTrakLen - 1)
+          pForwardExtraData = localdata;
         else
-          v24 += 32;
-        ++v23;
-        v25 += 5;
-      } while (v23 < v65);
+          ++pForwardExtraData;
+        ++iForwardExtraIdx;
+        ++iForwardExtraGroundIdx;
+      } while (iForwardExtraIdx < iForwardExtraEnd);
     }
-    v32 = v44[2];
-    v47 = v32 - *((unsigned __int8 *)v44 + 7);
-    v33 = (float *)((char *)&localdata + 128 * v32);
-    v34 = v32;
-    if (v32 > v47) {
-      v35 = 5 * v32;
+    iBackwardExtraStart = pTrakView->nBackwardExtraStart;
+    iBackwardExtraEnd = iBackwardExtraStart - pTrakView->byBackwardExtraChunks;
+    pBackwardExtraData = &localdata[iBackwardExtraStart];
+    iBackwardExtraIdx = iBackwardExtraStart;
+    if (iBackwardExtraStart > iBackwardExtraEnd)// Search backward extra chunks for nearest track section
+    {
+      iBackwardExtraGroundIdx = iBackwardExtraStart;
       do {
-        v36 = *(float *)a1 + v33[9];
-        v67 = v36;
-        v37 = *(float *)(a1 + 4) + v33[10];
-        v38 = fabs(v37);
-        v39 = *(float *)(a1 + 8) + v33[11];
-        v51 = v33[2] * *(float *)(a1 + 40) + v33[5] * *(float *)(a1 + 44) + v33[8] * *(float *)(a1 + 48);
-        v40 = fabs(v39);
-        v53 = v37 * v33[5] + v33[2] * v67 + v39 * v33[8];
-        v41 = fabs(v36);
-        v59 = sqrt(v41 * v41 + v38 * v38 + v40 * v40) - v33[12];
-        if ((v53 >= (double)control_c_variable_214 || GroundColour_variable_4[v35] >= 0) && v59 < (double)v62) {
-          v62 = v59;
-          if (v34 < v2) {
-            if (v34 >= 0)
-              *(_DWORD *)(a1 + 216) = v34;
+        dBackwardExtraCarX = pCar->pos.fX + pBackwardExtraData->pointAy[3].fX;
+        fTempCarX4 = (float)dBackwardExtraCarX;
+        dBackwardExtraCarY = pCar->pos.fY + pBackwardExtraData->pointAy[3].fY;
+        dBackwardExtraAbsY = fabs(dBackwardExtraCarY);
+        dBackwardExtraCarZ = pCar->pos.fZ + pBackwardExtraData->pointAy[3].fZ;
+        fBackwardExtraDotProduct = pBackwardExtraData->pointAy[0].fZ * pCar->direction.fX
+          + pBackwardExtraData->pointAy[1].fZ * pCar->direction.fY
+          + pBackwardExtraData->pointAy[2].fZ * pCar->direction.fZ;
+        dBackwardExtraAbsZ = fabs(dBackwardExtraCarZ);
+        fBackwardExtraPosition = (float)(dBackwardExtraCarY * pBackwardExtraData->pointAy[1].fZ
+          + pBackwardExtraData->pointAy[0].fZ * fTempCarX4
+          + dBackwardExtraCarZ * pBackwardExtraData->pointAy[2].fZ);
+        dBackwardExtraAbsX = fabs(dBackwardExtraCarX);
+        fBackwardExtraDistance = (float)sqrt(dBackwardExtraAbsX * dBackwardExtraAbsX + dBackwardExtraAbsY * dBackwardExtraAbsY + dBackwardExtraAbsZ * dBackwardExtraAbsZ)
+          - pBackwardExtraData->fTrackHalfLength;
+        if ((fBackwardExtraPosition >= -400.0 || GroundColour[iBackwardExtraGroundIdx][2] >= 0) && fBackwardExtraDistance < (double)fMinValidDistance) {
+          fMinValidDistance = fBackwardExtraDistance;
+          if (iBackwardExtraIdx < iTrakLen) {
+            if (iBackwardExtraIdx >= 0)
+              pCar->iLastValidChunk = iBackwardExtraIdx;
             else
-              *(_DWORD *)(a1 + 216) = v2 + v34;
+              pCar->iLastValidChunk = iTrakLen + iBackwardExtraIdx;
           } else {
-            *(_DWORD *)(a1 + 216) = v34 - v2;
+            pCar->iLastValidChunk = iBackwardExtraIdx - iTrakLen;
           }
         }
-        if ((v51 * control_c_variable_213 + control_c_variable_215 <= v53 || GroundColour_variable_4[v35] >= 0)
-          && v59 < (double)v61) {
-          v61 = v59;
-          if (v34 < v2) {
-            if (v34 >= 0)
-              v3 = v34;
+        if ((fBackwardExtraDotProduct * 4.0 + -500.0 <= fBackwardExtraPosition || GroundColour[iBackwardExtraGroundIdx][2] >= 0)
+          && fBackwardExtraDistance < (double)fMinCurrentDistance) {
+          fMinCurrentDistance = fBackwardExtraDistance;
+          if (iBackwardExtraIdx < iTrakLen) {
+            if (iBackwardExtraIdx >= 0)
+              iNearestChunk = iBackwardExtraIdx;
             else
-              v3 = v34 + v2;
+              iNearestChunk = iBackwardExtraIdx + iTrakLen;
           } else {
-            v3 = v34 - v2;
+            iNearestChunk = iBackwardExtraIdx - iTrakLen;
           }
         }
-        if (v34)
-          v33 -= 32;
+        if (iBackwardExtraIdx)
+          --pBackwardExtraData;
         else
-          v33 = (float *)((char *)&localdata + 128 * v2 - 128);
-        --v34;
-        v35 -= 5;
-      } while (v34 > v47);
+          pBackwardExtraData = &localdata[iTrakLen - 1];
+        --iBackwardExtraIdx;
+        --iBackwardExtraGroundIdx;
+      } while (iBackwardExtraIdx > iBackwardExtraEnd);
     }
   }
-  result = a2;
-  *a2 = v3;
-  TRAK_LEN = v2;
-  return result;*/
+  *piNearestChunk = iNearestChunk;              // Return index of nearest track chunk found
+  TRAK_LEN = iTrakLen;
 }
 
 //-------------------------------------------------------------------------------------------------
 //000369C0
-void dozoomstuff(int a1)
+void dozoomstuff(int iPlayerIdx)
 {
-  (void)(a1);
-  /*
-  int v1; // ebx
-  int v3; // eax
-  int v4; // esi
-  double v5; // st7
-  int v6; // edx
-  double v7; // st7
-  int v8; // edx
+  int iPrevChampMode; // ebx
+  int iPlayerIdx_1; // eax
+  int iZoomCountdown; // esi
+  double dZoomInScale; // st7
+  int iPlayerIdx2; // edx
+  double dZoomOutScale; // st7
+  int iPlayerIdx3; // edx
 
-  v1 = champ_mode;
-  if (champ_mode >= 16)
+  iPrevChampMode = champ_mode;                  // Store current championship mode state
+  if (champ_mode >= 16)                       // Decrement champ counter if in championship mode
     --champ_count;
-  v3 = a1;
-  v4 = game_count[a1];
-  if (v4 <= 0) {
-    if (v4 >= 0) {
+  iPlayerIdx_1 = iPlayerIdx;
+  iZoomCountdown = game_count[iPlayerIdx];      // Get zoom countdown timer for this player
+  if (iZoomCountdown <= 0) {
+    if (iZoomCountdown >= 0) {
       if (champ_mode)
-        v7 = *(float *)&game_scale[a1] * control_c_variable_217;
+        dZoomOutScale = game_scale[iPlayerIdx] * 0.5;// Zoom out phase: apply zoom factor based on championship vs regular mode
       else
-        v7 = *(float *)&game_scale[a1] * control_c_variable_216;
-      *(float *)&game_scale[a1] = v7;
-      v8 = a1;
-      if (*(float *)&game_scale[v8] < (double)control_c_variable_218) {
-        game_scale[v8] = 1115684864;
-        if (v1) {
-          game_count[v8] = 36;
-          champ_mode = v1;
+        dZoomOutScale = game_scale[iPlayerIdx] * 0.7692307692307693;
+      game_scale[iPlayerIdx] = (float)dZoomOutScale;
+      iPlayerIdx3 = iPlayerIdx;
+      if (game_scale[iPlayerIdx3] < 64.0)     // Check if zoom has reached minimum scale limit
+      {
+        game_scale[iPlayerIdx3] = 64.0;         // Clamp to minimum zoom (64.0) and set appropriate countdown timer
+        if (iPrevChampMode) {
+          game_count[iPlayerIdx3] = 36;
+          champ_mode = iPrevChampMode;
           return;
         }
-        game_count[v8] = 72;
+        game_count[iPlayerIdx3] = 72;
       }
-    } else if (v4 > -2) {
-      v5 = champ_mode
-        ? *(float *)&game_scale[a1] * control_c_variable_220
-        : *(float *)&game_scale[a1] * control_c_variable_219;
-      *(float *)&game_scale[a1] = v5;
-      v6 = a1;
-      if (*(float *)&game_scale[v6] > (double)control_c_variable_221) {
-        game_scale[v6] = 1191182336;
-        game_count[v6] = -2;
-        sub_on[v6] = 0;
-        champ_mode = v1;
+    } else if (iZoomCountdown > -2) {
+      dZoomInScale = champ_mode ? game_scale[iPlayerIdx] * 2.0 : game_scale[iPlayerIdx] * 1.3;
+      game_scale[iPlayerIdx] = (float)dZoomInScale;
+      iPlayerIdx2 = iPlayerIdx;
+      if (game_scale[iPlayerIdx2] > 32768.0)  // Check if zoom has reached maximum scale limit
+      {
+        game_scale[iPlayerIdx2] = 32768.0;      // Clamp to maximum zoom and disable further zooming
+        game_count[iPlayerIdx2] = -2;
+        sub_on[iPlayerIdx2] = 0;
+        champ_mode = iPrevChampMode;
         return;
       }
     }
   } else {
-    game_count[v3] = v4 - 1;
-    if (v4 == 1 && game_scale[v3] == 1115684864)
-      game_count[v3] = -1;
+    game_count[iPlayerIdx_1] = iZoomCountdown - 1;// Countdown is positive - decrement timer
+    if (iZoomCountdown == 1 && game_scale[iPlayerIdx_1] == 64.0)// Special case: if countdown reaches 1 and scale is at minimum (64.0), start zoom in
+      game_count[iPlayerIdx_1] = -1;
   }
-  champ_mode = v1;*/
+  champ_mode = iPrevChampMode;                  // Restore championship mode state
 }
 
 //-------------------------------------------------------------------------------------------------

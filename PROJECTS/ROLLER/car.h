@@ -32,9 +32,7 @@ typedef struct
   float fHealth;
   int iDriverIdx;
   int iUnk6;
-  int iUnk7;
-  int iUnk8;
-  float fUnk9;
+  tVec3 direction;
   tVec3 pos2;
   int nYaw3;
   int iJumpMomentum;
@@ -45,12 +43,12 @@ typedef struct
   int iPadding3;
   int iUnk20;
   int iUnk20_2;
-  int16 nUnk21;
+  int16 nDeathTimer;
   uint8 byCarDesignIdx;
   uint8 byLives;
   uint8 byUnk24;
   uint8 byPadding5;
-  int16 nUnk25;
+  int16 nExplosionSoundTimer;
   int iUnk25_2;
   float fBaseSpeed;
   float fSpeedOverflow;
@@ -146,15 +144,11 @@ typedef struct
 
 typedef struct
 {
-  float fPosX;
-  float fPosY;
-  float fState;
-  float fVelX;
-  float fVelY;
-  float fUnk5;
+  tVec3 position;
+  tVec3 velocity;
   float fSize;
   int iLifeTime;
-  float fTimer;
+  int iTimer;
   int iColor;
   int iType;
 } tCarSpray;
