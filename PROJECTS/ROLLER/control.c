@@ -4,6 +4,11 @@
 #include "sound.h"
 #include "function.h"
 #include "transfrm.h"
+#include "moving.h"
+#include "network.h"
+#include "func2.h"
+#include "replay.h"
+#include "colision.h"
 #include <math.h>
 #include <float.h>
 //-------------------------------------------------------------------------------------------------
@@ -25,13 +30,16 @@ int numstops;                     //00149C48
 int JAYmin;                       //00149C4C
 int JAXmin;                       //00149C50
 int race_started;                 //00149C54
+int updates;                      //00149C58
 float RecordLaps[25];             //00149C5C
 int RecordCars[25];               //00149CC0
 int RecordKills[25];              //00149D24
 int Destroyed;                    //00149D8C
+int nearcarcheck;                 //00149D90
 int ahead_sect;                   //00149D94
 int ahead_time;                   //00149D98
 int Fatality;                     //00149DB0
+int Fatality_Count;               //00149DB4
 int cheat_control;                //00149DB8
 int fudge_wait;                   //00149DC4
 char RecordNames[25][9];          //00149DC8
@@ -516,110 +524,80 @@ void GoDownGear(tCar *pCar, int iUseAutoLogic)
 //0002A350
 void control()
 {
-  /*
-  __int64 v0; // rax
-  int v1; // ebx
-  int v2; // edi
-  int v3; // esi
-  unsigned int v4; // ecx
-  double v5; // st7
-  int v6; // ebx
-  int v7; // eax
-  int v8; // ecx
-  int v9; // edx
-  int v10; // edx
-  int v11; // eax
+  int iChecksum; // ebx
+  int iCarCounter; // edi
+  int iCompetitorIdx; // esi
+  int iCarIdx; // ecx
+  double dHealth; // st7
+  //int iCarArraySize; // ebx
+  //int iByteOffset; // eax
+  //int iStructOffset; // ecx
+  //int iDataValue; // edx
+  int iFatalityCounter; // edx
+  int iCar; // ecx
+  int iCar_1; // eax
+  int iCarArrayIdx; // ebx
+  int iCarStructIdx; // edx
+  int iCarLoopIdx; // ecx
+  uint8 byStatusFlags; // ah
+  int16 nTimerValue; // ax
+  int iUpdateCarIdx; // ecx
+  int iCarUpdateIdx; // edx
+  uint8 byUnk43; // bh
   int i; // ecx
-  int v13; // eax
-  int v14; // eax
-  float v15; // eax
-  int v16; // ebx
-  unsigned int v17; // edx
-  int v18; // ecx
-  char v19; // ah
-  __int16 v20; // ax
-  int v21; // ecx
-  int v22; // edx
-  char v23; // bh
-  __int16 v24; // fps
-  _BOOL1 v25; // c0
-  char v26; // c2
-  _BOOL1 v27; // c3
+  unsigned int uiSLightOffset; // edx
+  float fLightSpeed; // esi
+  double dLightPosX; // st7
+  double dLightPosY; // st7
+  double dLightPosZ; // st7
+  double dLightSpeedZ; // st7
+  int iCrossLineIdx; // ebx
+  tCar *pCarPtr; // edx
+  int iMotionCarIdx; // ecx
+  tCar *pCurrentCar; // ebx
+  tCar *pMotionCar; // edx
+  double dDamageFactor; // st7
+  double dRollMotionCalc; // st7
+  double dPitchMotionCalc; // st7
+  double dYawMotionCalc; // st7
+  int iNumCarsTemp; // edi
   int j; // ecx
-  unsigned int v29; // edx
-  float v30; // esi
-  __int16 v31; // fps
-  _BOOL1 v32; // c0
-  char v33; // c2
-  _BOOL1 v34; // c3
-  double v35; // st7
-  __int16 v36; // fps
-  _BOOL1 v37; // c0
-  char v38; // c2
-  _BOOL1 v39; // c3
-  double v40; // st7
-  __int16 v41; // fps
-  _BOOL1 v42; // c0
-  char v43; // c2
-  _BOOL1 v44; // c3
-  double v45; // st7
-  double v46; // st7
-  __int16 v47; // fps
-  _BOOL1 v48; // c0
-  char v49; // c2
-  _BOOL1 v50; // c3
-  int v51; // ebx
-  float *v52; // edx
-  int v53; // ecx
-  float *v54; // ebx
-  double v55; // st7
-  __int64 v56; // rax
-  double v57; // st7
-  double v58; // st7
-  __int64 v59; // rax
-  double v60; // st7
-  double v61; // st7
-  __int64 v62; // rax
-  double v63; // st7
-  double v64; // st7
-  int v65; // edi
-  int k; // ecx
-  int v67; // eax
-  int v68; // eax
-  int v69; // ecx
-  int v70; // edx
-  int v71; // ebx
-  int v72; // edx
-  int v73; // ebx
-  int v74; // edx
-  int v75; // ebx
-  int v76; // ecx
-  int v77; // edx
-  int v78; // ebx
-  char v79; // ah
-  char v80; // al
-  _DWORD v81[17]; // [esp+0h] [ebp-9Ch]
-  long double v82; // [esp+44h] [ebp-58h]
-  long double v83; // [esp+4Ch] [ebp-50h]
-  long double v84; // [esp+54h] [ebp-48h]
-  float v85; // [esp+5Ch] [ebp-40h]
-  float v86; // [esp+60h] [ebp-3Ch]
-  float v87; // [esp+64h] [ebp-38h]
-  float v88; // [esp+68h] [ebp-34h]
-  float v89; // [esp+6Ch] [ebp-30h]
-  float v90; // [esp+70h] [ebp-2Ch]
-  float v91; // [esp+74h] [ebp-28h]
-  float v92; // [esp+78h] [ebp-24h]
-  float v93; // [esp+7Ch] [ebp-20h]
-  float v94; // [esp+80h] [ebp-1Ch]
+  char bySampleValue; // ah
+  int iNetworkArraySize; // ecx
+  int iCarOffset; // edx
+  int iMasterCarIdx; // ebx
+  int iMasterByteIdx; // edx
+  int iSlaveByteIdx; // ebx
+  int iSlaveCarIdx; // edx
+  int iRacingByteIdx; // ebx
+  int iFinalArraySize; // ecx
+  int iFinalCarIdx; // edx
+  int iFinalByteIdx; // ebx
+  int8 byUnk68; // ah
+  uint8 byNewValue; // al
+  int aiCarStates[17]; // [esp+0h] [ebp-9Ch]
+  double dLightDistanceX; // [esp+44h] [ebp-58h]
+  double dLightDistanceY; // [esp+4Ch] [ebp-50h]
+  double dLightDistanceZ; // [esp+54h] [ebp-48h]
+  float fLightDeltaZ; // [esp+5Ch] [ebp-40h]
+  float fX; // [esp+60h] [ebp-3Ch]
+  float fLightDeltaX; // [esp+64h] [ebp-38h]
+  float fDamageMultiplier; // [esp+68h] [ebp-34h]
+  float fHealthFactor; // [esp+6Ch] [ebp-30h]
+  float fHealthValue; // [esp+70h] [ebp-2Ch]
+  int iRandomValue; // [esp+74h] [ebp-28h]
+  float fZ; // [esp+78h] [ebp-24h]
+  float fY; // [esp+7Ch] [ebp-20h]
+  float fLightDeltaY; // [esp+80h] [ebp-1Ch]
 
-  updates[0] = 0;
+  updates = 0;                                  // Initialize update counter and handle replay mode
   if (replaytype == 2)
     readptr = -10000;
   if (readptr == writeptr)
-    analysespeechsamples(readptr);
-  while (readptr != writeptr) {
-    HIDWORD(v0) = --view1_cnt;
+    analysespeechsamples();
+  while (readptr != writeptr)                 // Main game update loop - process each frame while data available
+  {
+    --view1_cnt;                                // Update frame counters and warp animation angle
     --view0_cnt;
     --Quit_Count;
     warp_angle = (warp_angle + 512) & 0x3FFF;
@@ -627,386 +605,378 @@ void control()
       racing = master ^ wConsoleNode;
     ++game_frame;
     --countdown;
-    if (network_on && replaytype != 2 && write_check >= 0) {
-      LODWORD(v0) = numcars;
-      v1 = 0;
-      v2 = 0;
+    if (network_on && replaytype != 2 && write_check >= 0)// Network synchronization: calculate checksums for car state validation
+    {
+      iChecksum = 0;
+      iCarCounter = 0;
       if (numcars > 0) {
-        v3 = 0;
-        v4 = 0;
+        iCompetitorIdx = 0;
+        iCarIdx = 0;
         do {
-          if (!non_competitors[v3]) {
-            v5 = Car_variable_9[v4 / 4];
-            _CHP(v0, HIDWORD(v0));
-            LODWORD(v90) = (int)v5;
-            v0 = Car_variable_3[v4 / 2];
-            v1 += abs16(Car_variable_3[v4 / 2])
-              + LODWORD(Car[v4 / 4 + 2])
-              + LODWORD(Car[v4 / 4 + 1])
-              + LODWORD(Car[v4 / 4])
-              + abs8(Car_variable_23[v4])
-              + abs32((int)v5);
+          if (!non_competitors[iCompetitorIdx]) {
+            dHealth = Car[iCarIdx].fHealth;
+            //_CHP();
+            //LODWORD(fHealthValue) = (int)dHealth;
+            //iChecksum += abs16(Car[iCarIdx].nCurrChunk)
+            //  + LODWORD(Car[iCarIdx].pos.fZ)
+            //  + LODWORD(Car[iCarIdx].pos.fY)
+            //  + LODWORD(Car[iCarIdx].pos.fX)
+            //  + abs8(Car[iCarIdx].byLives)
+            //  + abs32((int)dHealth);
+            // Calculate network synchronization checksum from car state data
+            iChecksum += abs(Car[iCarIdx].nCurrChunk)
+              + *(int *)&Car[iCarIdx].pos.fX    // Float bit pattern as int
+              + *(int *)&Car[iCarIdx].pos.fY
+              + *(int *)&Car[iCarIdx].pos.fZ
+              + abs(Car[iCarIdx].byLives)
+              + abs((int)dHealth);
           }
-          LODWORD(v0) = numcars;
-          ++v3;
-          ++v2;
-          v4 += 308;
-        } while (v2 < numcars);
+          ++iCompetitorIdx;
+          ++iCarCounter;
+          ++iCarIdx;
+        } while (iCarCounter < numcars);
       }
-      player_checks[16 * write_check + (__int16)player1_car] = v1 & 0x3F;
-      write_check = ((_WORD)write_check + 1) & 0x1FF;
+      player_checks[write_check][player1_car] = iChecksum & 0x3F;
+      write_check = ((int16)write_check + 1) & 0x1FF;
     }
-    if (numcars > 0) {
-      v6 = 4 * numcars;
-      v7 = 0;
-      v8 = 0;
-      do {
-        v8 += 77;
-        v7 += 4;
-        v9 = CarBox_variable_30[v8 * 4];
-        CarBox_variable_32[v8] = 1065353216;
-        v81[v7 / 4u] = v9;
-      } while (v7 < v6);
+
+    if (numcars > 0)
+    {
+      for (int i = 0; i < numcars; i++)
+      {
+        // Initialize wheel spin factor to 1.0
+        Car[i].fWheelSpinFactor = 1.0;
+
+        // Store byUnk68 value in car states array
+        aiCarStates[i] = Car[i].byUnk68;
+      }
     }
+    //if (numcars > 0)                          // Initialize car state array and copy car data for processing
+    //{
+    //  iCarArraySize = 4 * numcars;
+    //  iByteOffset = 0;
+    //  iStructOffset = 0;
+    //  do {
+    //    iStructOffset += sizeof(tCar);
+    //    iByteOffset += 4;
+    //    iDataValue = *((char *)&CarBox.hitboxAy[15][5].fY + iStructOffset + 2);// references adjacent data Car
+    //    *(float *)((char *)&CarBox.hitboxAy[15][7].fX + iStructOffset) = 1.0;// references adjacent data Car
+    //    aiCarStates[iByteOffset / 4u] = iDataValue;
+    //  } while (iByteOffset < iCarArraySize);
+    //}
+
     if (!paused)
-      ++updates[0];
-    v10 = Fatality_Count;
+      ++updates;
+    iFatalityCounter = Fatality_Count;          // Handle fatality timer and camera zoom effects
     if (Fatality_Count > 0) {
       --Fatality_Count;
-      if (v10 == 1)
+      if (iFatalityCounter == 1)
         Fatality = -1;
     }
     dozoomstuff(0);
     if (player_type == 2)
       dozoomstuff(1);
-    if (readptr >= 0) {
-      for (i = 0; i < numcars; ++i) {
-        if (game_frame == 145 && Car_variable_30[308 * i] < 0) {
-          Car_variable_30[308 * i] = 0;
-          race_started[0] = -1;
-          Car_variable_29[77 * i] = 0;
+    if (readptr >= 0) {                                           // Process each car: handle race start, player controls, and network events
+      for (iCar = 0; iCar < numcars; ++iCar) {                                         // Race start condition: clear high bit from gear and enable racing
+        if (game_frame == 145 && (Car[iCar].byGearAyMax & 0x80u) != 0) {
+          Car[iCar].byGearAyMax = 0;
+          race_started = -1;
+          Car[iCar].fPower = 0.0;
         }
-        v11 = 4 * i;
-        if (human_control[i]) {
-          if ((*((_BYTE *)&copy_multiple[16 * readptr] + v11 + 3) & 0x10) != 0) {
-            v13 = 308 * i;
-            Car_variable_30[v13] = -1;
-            *(int *)((char *)Car_variable_29 + v13) = 0;
-            *(float *)((char *)Car_variable_28 + v13) = 0.0;
-            *(int *)((char *)Car_variable_26 + v13) = 0;
-            *(int *)((char *)Car_variable_27 + v13) = 0;
-            *(float *)((char *)Car_variable_8 + v13) = 0.0;
-            if (fudge_wait < 0) {
-              v13 = ((_WORD)readptr + 1) & 0x1FF;
-              fudge_wait = v13;
-            }
-            stopallsamples(v13);
+        if (human_control[iCar]) {                                       // Network sync request: reset car to neutral state
+          if ((copy_multiple[readptr][iCar].uiFullData & 0x10000000) != 0) {
+            iCar_1 = iCar;
+            Car[iCar_1].byGearAyMax = -1;
+            Car[iCar_1].fPower = 0.0;
+            Car[iCar_1].fRPMRatio = 0.0;
+            Car[iCar_1].fBaseSpeed = 0.0;
+            Car[iCar_1].fSpeedOverflow = 0.0;
+            Car[iCar_1].fFinalSpeed = 0.0;
+            if (fudge_wait < 0)
+              fudge_wait = ((int16)readptr + 1) & 0x1FF;
+            stopallsamples();
           }
-          v11 = readptr << 6;
-          if ((copy_multiple[16 * readptr + i] & 0x4000000) != 0) {
+          if ((copy_multiple[readptr][iCar].uiFullData & 0x4000000) != 0)// Network player quit: cleanup and handle disconnection
+          {
             memset(player_checks, -1, sizeof(player_checks));
             read_check = 0;
             write_check = 0;
             --players;
-            if (finished_car[i])
+            if (finished_car[iCar])
               --human_finishers;
-            v14 = (__int16)player1_car;
-            if ((__int16)player1_car == i) {
+            if (player1_car == iCar) {
               net_quit = -1;
             } else {
-              start_zoom(language_buffer_variable_59, 0);
-              LOBYTE(v14) = subzoom(&driver_names[9 * i]);
+              start_zoom(&language_buffer[3776], 0);
+              subzoom(driver_names[iCar]);
             }
-            human_control[i] = 0;
-            v11 = initnearcars(v14);
+            human_control[iCar] = 0;
+            initnearcars();
           }
         }
       }
     }
-    if (replaytype == 2)
-      v11 = DoReplayData(v11);
-    v15 = COERCE_FLOAT(updatestunts(v11));
+    if (replaytype == 2)                      // Handle replay data and update stunt system
+      DoReplayData();
+    updatestunts();
     if (replaytype != 2) {
-      v15 = COERCE_FLOAT(memset(newrepsample, 0, 16));
-      v16 = 0;
+      memset(newrepsample, 0, sizeof(newrepsample));// Process car controls and AI for non-replay mode
+      iCarArrayIdx = 0;
       if (numcars > 0) {
-        v17 = 0;
-        v18 = 0;
+        iCarStructIdx = 0;
+        iCarLoopIdx = 0;
         do {
-          v19 = Car_variable_33[v17];
-          Car_variable_59[v17] = 0;
-          if ((v19 & 4) != 0 || !Car_variable_23[v17]) {
-            if ((LODWORD(Car_variable_8[v17 / 4]) & 0x7FFFFFFF) == 0 || Car_variable_21[v17 / 2] < 126) {
-              v20 = Car_variable_25[v17 / 2] - 1;
-              --Car_variable_21[v17 / 2];
-              Car_variable_25[v17 / 2] = v20;
+          byStatusFlags = Car[iCarStructIdx].byStatusFlags;// Check car status and handle death/damage states
+          Car[iCarStructIdx].byAccelerating = 0;
+          if ((byStatusFlags & 4) != 0 || !Car[iCarStructIdx].byLives) {
+            //if ((LODWORD(Car[iCarStructIdx].fFinalSpeed) & 0x7FFFFFFF) == 0 || Car[iCarStructIdx].nUnk21 < 126) {
+            if (fabs(Car[iCarStructIdx].fFinalSpeed) > FLT_EPSILON || Car[iCarStructIdx].nUnk21 < 126) {
+              nTimerValue = Car[iCarStructIdx].nUnk25 - 1;
+              --Car[iCarStructIdx].nUnk21;
+              Car[iCarStructIdx].nUnk25 = nTimerValue;
             }
-            if (Car_variable_21[v17 / 2] < 0)
-              Car_variable_33[v17] |= 2u;
+            if (Car[iCarStructIdx].nUnk21 < 0)
+              Car[iCarStructIdx].byStatusFlags |= 2u;
           }
-          if (Car_variable_23[v17] >= 0) {
-            if (human_control[v18]) {
-              if (Car_variable_17[v17 / 4] != 2 && !Car_variable_48[v17 / 4])
-                humancar(v16);
-            } else if (Car_variable_17[v17 / 4] == 3 && !Car_variable_48[v17 / 4]) {
-              autocar2(&Car[v17 / 4]);
+          if ((Car[iCarStructIdx].byLives & 0x80u) == 0) {                                     // Process car controls: human player or AI based on control type
+            if (human_control[iCarLoopIdx]) {
+              if (Car[iCarStructIdx].iControlType != 2 && !Car[iCarStructIdx].iStunned)
+                humancar(iCarArrayIdx);
+            } else if (Car[iCarStructIdx].iControlType == 3 && !Car[iCarStructIdx].iStunned) {
+              autocar2(&Car[iCarStructIdx]);
             }
           }
-          v15 = *(float *)&numcars;
-          v17 += 308;
-          ++v16;
-          ++v18;
-        } while (v16 < numcars);
+          ++iCarStructIdx;
+          ++iCarArrayIdx;
+          ++iCarLoopIdx;
+        } while (iCarArrayIdx < numcars);
       }
-      v21 = 0;
+      iUpdateCarIdx = 0;                        // Update car physics and damage over time effects
       if (numcars > 0) {
-        v22 = 0;
+        iCarUpdateIdx = 0;
         do {
-          if (Car_variable_23[v22 * 4] >= 0) {
+          if ((Car[iCarUpdateIdx].byLives & 0x80u) == 0) {
             if (fudge_wait < 0)
-              v15 = COERCE_FLOAT(updatecar2(&Car[v22]));
-            v23 = Car_variable_43[v22 * 4];
-            if (v23) {
-              v25 = Car_variable_9[v22] > 0.0;
-              v26 = 0;
-              v27 = 0.0 == Car_variable_9[v22];
-              LOWORD(v15) = v24;
-              if (Car_variable_9[v22] > 0.0) {
-                LOBYTE(v15) = v23 - 1;
-                Car_variable_43[v22 * 4] = v23 - 1;
-              }
-            }
+              updatecar2(&Car[iCarUpdateIdx], iCarUpdateIdx * 308, iCarArrayIdx, iUpdateCarIdx);
+            byUnk43 = Car[iCarUpdateIdx].byUnk43;
+            if (byUnk43 && Car[iCarUpdateIdx].fHealth > 0.0)
+              Car[iCarUpdateIdx].byUnk43 = byUnk43 - 1;
           }
-          ++v21;
-          v22 += 77;
-        } while (v21 < numcars);
+          iCarArrayIdx = numcars;
+          ++iUpdateCarIdx;
+          ++iCarUpdateIdx;
+        } while (iUpdateCarIdx < numcars);
       }
-      if (countdown > -72 && replaytype != 2) {
-        for (j = 0; j < local_players; ++j) {
-          v29 = 144 * j;
+      if (countdown > -72 && replaytype != 2) // Update dynamic lighting effects for local players
+      {
+        for (i = 0; i < local_players; ++i) {
+          uiSLightOffset = 0x90 * i;
           do {
-            v87 = SLight_variable_3[v29 / 4] - SLight[v29 / 4];
-            LODWORD(v15) = (SLight_variable_9[v29 / 4] + 128) & 0x3FFF;
-            v30 = v87;
-            *(float *)&SLight_variable_9[v29 / 4] = v15;
-            if ((LODWORD(v30) & 0x7FFFFFFF) != 0) {
-              v15 = *(float *)&SLight_variable_6[v29 / 4];
-              v86 = v15;
-              v82 = fabs(v87);
-              if (v15 > v82)
-                v86 = v82;
-              v32 = v87 > 0.0;
-              v33 = 0;
-              v34 = 0.0 == v87;
-              LOWORD(v15) = v31;
-              if (v87 <= 0.0)
-                v35 = SLight[v29 / 4] - v86;
+            fLightDeltaX = SLight[0][uiSLightOffset / 0x30].targetPos.fX - SLight[0][uiSLightOffset / 0x30].currentPos.fX;// Animate lights toward target positions with speed limiting
+            fLightSpeed = fLightDeltaX;
+            SLight[0][uiSLightOffset / 0x30].uiRotation = (SLight[0][uiSLightOffset / 0x30].uiRotation + 128) & 0x3FFF;
+            //if ((LODWORD(fLightSpeed) & 0x7FFFFFFF) != 0) {
+            if (fabs(fLightSpeed) > FLT_EPSILON) {
+              fX = SLight[0][uiSLightOffset / 0x30].speed.fX;
+              dLightDistanceX = fabs(fLightDeltaX);
+              if (fX > dLightDistanceX)
+                fX = (float)dLightDistanceX;
+              if (fLightDeltaX <= 0.0)
+                dLightPosX = SLight[0][uiSLightOffset / 0x30].currentPos.fX - fX;
               else
-                v35 = SLight[v29 / 4] + v86;
-              SLight[v29 / 4] = v35;
+                dLightPosX = SLight[0][uiSLightOffset / 0x30].currentPos.fX + fX;
+              SLight[0][uiSLightOffset / 0x30].currentPos.fX = (float)dLightPosX;
             }
-            v94 = SLight_variable_4[v29 / 4] - SLight_variable_1[v29 / 4];
-            if ((LODWORD(v94) & 0x7FFFFFFF) != 0) {
-              v15 = *(float *)&SLight_variable_7[v29 / 4];
-              v93 = v15;
-              v83 = fabs(v94);
-              if (v15 > v83)
-                v93 = v83;
-              v37 = v94 > 0.0;
-              v38 = 0;
-              v39 = 0.0 == v94;
-              LOWORD(v15) = v36;
-              if (v94 <= 0.0)
-                v40 = SLight_variable_1[v29 / 4] - v93;
+            fLightDeltaY = SLight[0][uiSLightOffset / 0x30].targetPos.fY - SLight[0][uiSLightOffset / 0x30].currentPos.fY;
+            //if ((LODWORD(fLightDeltaY) & 0x7FFFFFFF) != 0) {
+            if (fabs(fLightDeltaY) > FLT_EPSILON) {
+              fY = SLight[0][uiSLightOffset / 0x30].speed.fY;
+              dLightDistanceY = fabs(fLightDeltaY);
+              if (fY > dLightDistanceY)
+                fY = (float)dLightDistanceY;
+              if (fLightDeltaY <= 0.0)
+                dLightPosY = SLight[0][uiSLightOffset / 0x30].currentPos.fY - fY;
               else
-                v40 = SLight_variable_1[v29 / 4] + v93;
-              SLight_variable_1[v29 / 4] = v40;
+                dLightPosY = SLight[0][uiSLightOffset / 0x30].currentPos.fY + fY;
+              SLight[0][uiSLightOffset / 0x30].currentPos.fY = (float)dLightPosY;
             }
-            v85 = SLight_variable_5[v29 / 4] - SLight_variable_2[v29 / 4];
-            if ((LODWORD(v85) & 0x7FFFFFFF) != 0) {
-              v15 = *(float *)&SLight_variable_8[v29 / 4];
-              v92 = v15;
-              v84 = fabs(v85);
-              if (v15 > v84)
-                v92 = v84;
-              v42 = v85 > 0.0;
-              v43 = 0;
-              v44 = 0.0 == v85;
-              LOWORD(v15) = v41;
-              if (v85 <= 0.0)
-                v45 = SLight_variable_2[v29 / 4] - v92;
+            fLightDeltaZ = SLight[0][uiSLightOffset / 0x30].targetPos.fZ - SLight[0][uiSLightOffset / 0x30].currentPos.fZ;
+            //if ((LODWORD(fLightDeltaZ) & 0x7FFFFFFF) != 0) {
+            if (fabs(fLightDeltaZ) > FLT_EPSILON) {
+              fZ = SLight[0][uiSLightOffset / 0x30].speed.fZ;
+              dLightDistanceZ = fabs(fLightDeltaZ);
+              if (fZ > dLightDistanceZ)
+                fZ = (float)dLightDistanceZ;
+              if (fLightDeltaZ <= 0.0)
+                dLightPosZ = SLight[0][uiSLightOffset / 0x30].currentPos.fZ - fZ;
               else
-                v45 = SLight_variable_2[v29 / 4] + v92;
-              SLight_variable_2[v29 / 4] = v45;
+                dLightPosZ = SLight[0][uiSLightOffset / 0x30].currentPos.fZ + fZ;
+              SLight[0][uiSLightOffset / 0x30].currentPos.fZ = (float)dLightPosZ;
               if (countdown < 126) {
-                v46 = *(float *)&SLight_variable_8[v29 / 4] + control_c_variable_9;
-                *(float *)&SLight_variable_8[v29 / 4] = v46;
-                v48 = v46 < control_c_variable_10;
-                v49 = 0;
-                v50 = v46 == control_c_variable_10;
-                LOWORD(v15) = v47;
-                if (v46 < control_c_variable_10)
-                  SLight_variable_8[v29 / 4] = 1101004800;
+                dLightSpeedZ = SLight[0][uiSLightOffset / 0x30].speed.fZ + -2.5;
+                SLight[0][uiSLightOffset / 0x30].speed.fZ = (float)dLightSpeedZ;
+                if (dLightSpeedZ < 20.0)
+                  SLight[0][uiSLightOffset / 0x30].speed.fZ = 20.0;
               }
             }
-            v29 += 48;
-          } while (v29 != 144 * j + 144);
+            uiSLightOffset += 48;
+          } while (uiSLightOffset != 0x90 * i + 144);
         }
       }
-      if (fudge_wait < 0)
-        v15 = COERCE_FLOAT(testcollisions(LODWORD(v15)));
-      v51 = 0;
+      if (fudge_wait < 0)                     // Test collisions and check lap line crossings
+        testcollisions();
+      iCrossLineIdx = 0;
       if (numcars > 0) {
-        v52 = Car;
+        pCarPtr = Car;
         do {
           if (fudge_wait < 0)
-            v15 = COERCE_FLOAT(check_crossed_line(v52));
-          ++v51;
-          v52 += 77;
-        } while (v51 < numcars);
+            check_crossed_line(pCarPtr);
+          ++iCrossLineIdx;
+          ++pCarPtr;
+        } while (iCrossLineIdx < numcars);
       }
     }
     if (replaytype == 1 && fudge_wait < 0)
-      v15 = COERCE_FLOAT(DoReplayData(LODWORD(v15)));
-    if (replaytype != 2 || newreplayframe) {
-      v53 = 0;
+      DoReplayData();
+    if (replaytype != 2 || newreplayframe)    // Calculate car motion effects based on health and speed
+    {
+      iMotionCarIdx = 0;
       if (numcars > 0) {
-        v54 = Car;
+        pCurrentCar = Car;
         do {
-          v89 = (v54[7] + control_c_variable_13) * control_c_variable_8;
-          if (v89 > 1.0)
-            v89 = 1.0;
-          v55 = control_c_variable_12 - control_c_variable_11 * v89;
-          v88 = v55;
-          v90 = v55 * v54[6];
-          v56 = rand();
-          LODWORD(v91) = v56 - 0x4000;
-          v57 = (double)((int)v56 - 0x4000) * v90;
-          LODWORD(v56) = 112 * *(unsigned __int8 *)(HIDWORD(v56) + 102);
-          v58 = v57 / (double)*(int *)((char *)&CarEngines_variable_7 + v56);
-          _CHP(v56, HIDWORD(v56));
-          *(_DWORD *)(HIDWORD(v56) + 164) = (int)v58;
-          v90 = v88 * *(float *)(HIDWORD(v56) + 24);
-          v59 = rand();
-          LODWORD(v91) = v59 - 0x4000;
-          v60 = (double)((int)v59 - 0x4000) * v90;
-          LODWORD(v59) = 112 * *(unsigned __int8 *)(HIDWORD(v59) + 102);
-          v61 = v60 / (double)*(int *)((char *)&CarEngines_variable_7 + v59);
-          _CHP(v59, HIDWORD(v59));
-          *(_DWORD *)(HIDWORD(v59) + 168) = (int)v61;
-          v91 = v88 * *(float *)(HIDWORD(v59) + 24);
-          v62 = rand();
-          LODWORD(v90) = v62 - 0x4000;
-          v63 = (double)((int)v62 - 0x4000) * v91;
-          LODWORD(v62) = 112 * *(unsigned __int8 *)(HIDWORD(v62) + 102);
-          v64 = v63 / (double)*(int *)((char *)&CarEngines_variable_7 + v62);
-          _CHP(v62, HIDWORD(v62));
-          v54 += 77;
-          ++v53;
-          v65 = numcars;
-          *(_DWORD *)(HIDWORD(v62) + 172) = (int)v64;
-        } while (v53 < v65);
+          fHealthFactor = (pCurrentCar->fHealth + 34.0f) * 0.01f;// Apply random motion effects: more damage = more erratic movement
+          pMotionCar = pCurrentCar;
+          if (fHealthFactor > 1.0)
+            fHealthFactor = 1.0;
+          dDamageFactor = 8.0 - 7.0 * fHealthFactor;
+          fDamageMultiplier = (float)dDamageFactor;
+          fHealthValue = (float)dDamageFactor * pCurrentCar->fFinalSpeed;
+          iRandomValue = rand() - 0x4000;
+          dRollMotionCalc = (double)iRandomValue * fHealthValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
+          //_CHP();
+          pCurrentCar->iRollMotion = (int)dRollMotionCalc;
+          fHealthValue = fDamageMultiplier * pCurrentCar->fFinalSpeed;
+          iRandomValue = rand() - 0x4000;
+          dPitchMotionCalc = (double)iRandomValue * fHealthValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
+          //_CHP();
+
+          pCurrentCar->iPitchMotion = (int)dPitchMotionCalc;
+          fHealthValue = fDamageMultiplier * pCurrentCar->fFinalSpeed;
+          iRandomValue = rand() - 0x4000;
+          dYawMotionCalc = (double)iRandomValue * fHealthValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
+          //*(float *)&iRandomValue = fDamageMultiplier * pCurrentCar->fFinalSpeed;
+          //LODWORD(fHealthValue) = rand() - 0x4000;
+          //dYawMotionCalc = (double)SLODWORD(fHealthValue) * *(float *)&iRandomValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
+          //_CHP();
+          ++pCurrentCar;
+          ++iMotionCarIdx;
+          iNumCarsTemp = numcars;
+          pMotionCar->iYawMotion = (int)dYawMotionCalc;
+        } while (iMotionCarIdx < iNumCarsTemp);
       }
     }
-    if (replaytype == 2 && replayspeed == 256) {
-      for (k = 0; k < numcars; ++k) {
-        BYTE1(v15) = newrepsample[k];
-        if (BYTE1(v15)) {
-          if (repsample[k] < 0 && SBYTE1(v15) > 0)
-            v15 = COERCE_FLOAT(sfxpend(SBYTE1(v15) - 1, k, (unsigned __int8)repvolume[k] << 8));
-          if (repsample[k] > 0 && newrepsample[k] < 0)
-            v15 = COERCE_FLOAT(sfxpend(-newrepsample[k] - 1, k, (unsigned __int8)repvolume[k] << 8));
-          LOBYTE(v15) = newrepsample[k];
-          repsample[k] = LOBYTE(v15);
+    if (replaytype == 2 && replayspeed == 256)// Handle replay sound effects synchronization
+    {
+      for (j = 0; j < numcars; ++j) {
+        bySampleValue = newrepsample[j];
+        if (bySampleValue) {
+          if (repsample[j] < 0 && bySampleValue > 0)
+            sfxpend(bySampleValue - 1, j, (uint8)repvolume[j] << 8);
+          if (repsample[j] > 0 && newrepsample[j] < 0)
+            sfxpend(-newrepsample[j] - 1, j, (uint8)repvolume[j] << 8);
+          repsample[j] = newrepsample[j];
         }
       }
     }
-    v67 = analysespeechsamples(LODWORD(v15));
-    v68 = ordercars(v67);
+    analysespeechsamples();                     // Finalize frame: analyze speech, order cars, handle audio
+    ordercars();
     if (replaytype != 2) {
       if (paused) {
-        stopallsamples(v68);
+        stopallsamples();
         delaywrite = delayread + 6;
       } else if (player_type == 2) {
-        enginesounds2(ViewType[0], ViewType_variable_1);
+        enginesounds2(ViewType[0], ViewType[1]);
       } else {
         enginesounds(ViewType[0]);
       }
     }
-    if (!intro && human_finishers >= players && (disable_messages || network_on)) {
-      v69 = 4 * numcars;
-      v70 = network_on;
+    if (!intro && human_finishers >= players && (disable_messages || network_on))// Check race completion conditions and network state
+    {
+      iNetworkArraySize = 4 * numcars;
+      iCarOffset = network_on;
       if (network_on) {
         if (wConsoleNode == master) {
-          send_finished = -1;
+          send_finished = -1;                   // Network master: check if any human players still racing
           if (numcars > 0) {
-            v71 = 0;
-            v72 = 0;
+            iMasterCarIdx = 0;
+            iMasterByteIdx = 0;
             do {
-              if (Car_variable_23[v71 * 4] >= 0 && Car_variable_8[v71] > 0.0 && human_control[v72 / 4u])
+              if ((Car[iMasterCarIdx].byLives & 0x80u) == 0 && Car[iMasterCarIdx].fFinalSpeed > 0.0 && human_control[iMasterByteIdx / 4u])
                 send_finished = 0;
-              v72 += 4;
-              v71 += 77;
-            } while (v72 < v69);
+              iMasterByteIdx += 4;
+              ++iMasterCarIdx;
+            } while (iMasterByteIdx < iNetworkArraySize);
           }
         } else {
-          v73 = 0;
+          iSlaveByteIdx = 0;                    // Network slave: determine local racing state
           racing = 0;
           if (numcars > 0) {
-            v74 = 0;
+            iSlaveCarIdx = 0;
             do {
-              if (Car_variable_23[v74 * 4] >= 0 && Car_variable_8[v74] > 0.0 && human_control[v73 / 4u])
+              if ((Car[iSlaveCarIdx].byLives & 0x80u) == 0 && Car[iSlaveCarIdx].fFinalSpeed > 0.0 && human_control[iSlaveByteIdx / 4u])
                 racing = -1;
-              v73 += 4;
-              v74 += 77;
-            } while (v73 < v69);
+              iSlaveByteIdx += 4;
+              ++iSlaveCarIdx;
+            } while (iSlaveByteIdx < iNetworkArraySize);
           }
         }
-      } else if (lastsample < -72) {
+      } else if (lastsample < -72)              // Single player: check if any human players still racing
+      {
         racing = network_on;
         if (numcars > 0) {
-          v75 = 0;
+          iRacingByteIdx = 0;
           do {
-            if (Car_variable_23[v70] >= 0 && *(float *)((char *)Car_variable_8 + v70) > 0.0 && human_control[v75 / 4u])
+            if (*((char *)&Car[0].byLives + iCarOffset) >= 0 && *(float *)((char *)&Car[0].fFinalSpeed + iCarOffset) > 0.0 && human_control[iRacingByteIdx / 4u])
               racing = -1;
-            v75 += 4;
-            v70 += 308;
-          } while (v75 < v69);
+            iRacingByteIdx += 4;
+            iCarOffset += sizeof(tCar);
+          } while (iRacingByteIdx < iNetworkArraySize);
         }
       }
     }
-    if (++nearcarcheck == 4)
+    if (++nearcarcheck == 4)                  // Update near car checking counter and advance frame pointer
       nearcarcheck = 0;
     if (replaytype == 2)
       readptr = writeptr;
     else
-      readptr = ((_WORD)readptr + 1) & 0x1FF;
+      readptr = ((int16)readptr + 1) & 0x1FF;
   }
-  if (replaytype != 2 && numcars > 0) {
-    v76 = 4 * numcars;
-    v77 = 0;
-    v78 = 0;
+  if (replaytype != 2 && numcars > 0)         // Final processing: handle special car state changes for active cars
+  {
+    iFinalArraySize = 4 * numcars;
+    iFinalCarIdx = 0;
+    iFinalByteIdx = 0;
     while (1) {
-      if (Car_variable_8[v77] <= (double)control_c_variable_14 || Car_variable_8[v77] >= (double)control_c_variable_15)
-        goto LABEL_185;
-      v79 = Car_variable_68[v77 * 4];
-      if (v79 > 1)
+      if (Car[iFinalCarIdx].fFinalSpeed <= 36.0 || Car[iFinalCarIdx].fFinalSpeed >= 100.0)
+        goto LABEL_185;                         // Toggle special car state (byUnk68) based on speed and current state
+      byUnk68 = Car[iFinalCarIdx].byUnk68;
+      if (byUnk68 > 1)
         break;
-      if (v79 == v81[v78 / 4u + 1]) {
-        v80 = Car_variable_68[v77 * 4] ^ 1;
+      if (byUnk68 == aiCarStates[iFinalByteIdx / 4u + 1]) {
+        byNewValue = Car[iFinalCarIdx].byUnk68 ^ 1;
         goto LABEL_184;
       }
     LABEL_185:
-      v78 += 4;
-      v77 += 77;
-      if (v78 >= v76)
+      iFinalByteIdx += 4;
+      ++iFinalCarIdx;
+      if (iFinalByteIdx >= iFinalArraySize)
         return;
     }
-    v80 = 0;
+    byNewValue = 0;
   LABEL_184:
-    Car_variable_68[v77 * 4] = v80;
+    Car[iFinalCarIdx].byUnk68 = byNewValue;
     goto LABEL_185;
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1776,9 +1746,8 @@ double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignId
 
 //-------------------------------------------------------------------------------------------------
 //0002C5A0
-void updatecar2(int a1, int a2, int a3)
+void updatecar2(tCar *pCar, int a2, int a3, int a4)
 {
-  (void)(a1); (void)(a2); (void)(a3);
   /*
   int v4; // edi
   int v5; // ecx
@@ -3179,7 +3148,7 @@ LABEL_502:
 
 //-------------------------------------------------------------------------------------------------
 //0002F040
-int16 check_crossed_line(int a1)
+int16 check_crossed_line(tCar *a1)
 {
   (void)(a1);
   return 0;
@@ -4916,9 +4885,8 @@ double block(int a1, float a2, int a3, float a4, float a5)
 
 //-------------------------------------------------------------------------------------------------
 //00031BA0
-void autocar2(int a1)
+void autocar2(tCar *pCar)
 {
-  (void)(a1);
   /*
   float *v2; // ebp
   int v3; // ebx

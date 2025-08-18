@@ -128,6 +128,7 @@ int disabled[4096];       //00189BD8
 char temp_names[16][9];   //0018DBD8
 char newrepsample[16];    //0018DC68
 char repsample[16];       //0018DC78
+char repvolume[16];       //0018DC88
 int oldtrack;             //0018EE30
 int oldtextures;          //0018EE34
 FILE *replayfile;         //0018EE3C
@@ -137,6 +138,7 @@ int replayframes;         //0018EE48
 int currentreplayframe;   //0018EE54
 int lastreplayframe;      //0018EE58
 int introfiles;           //0018EE70
+int newreplayframe;       //0018EE5C
 int replayselect;         //0018EE60
 int slowing;              //0018EE64
 int rewinding;            //0018EE68
@@ -618,7 +620,7 @@ void stopreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00064880
-int DoReplayData(int a1, int a2, int a3, int a4)
+int DoReplayData()
 {
   return 0; /*
   int result; // eax

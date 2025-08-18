@@ -29,7 +29,7 @@ typedef struct
   int iUnk3;
   float fUnk4;
   float fUnk5;
-  int iUnk6;
+  int iStabilityFactor;
   int iPitchAccelRate;
   int iMaxPitchOffset;
   int iPitchDecayRate;
