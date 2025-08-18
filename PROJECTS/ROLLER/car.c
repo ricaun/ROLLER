@@ -430,7 +430,7 @@ void placecars()
       Car[iDriverIdx].byCheatAmmo = 8;          // Set cheat ammo count
       Car[iDriverIdx].nUnk71 = 0;
       iCarIdx4 = non_competitors[iDriverIdx];   // Check if this is a non-competitor car
-      Car[iDriverIdx].byUnk67 = 0;
+      Car[iDriverIdx].byCheatCooldown = 0;
       if (iCarIdx4)                           // Handle non-competitor cars (spectators/disabled)
       {
         Car[iDriverIdx].byLives = -1;           // Non-competitors have unlimited lives (-1)

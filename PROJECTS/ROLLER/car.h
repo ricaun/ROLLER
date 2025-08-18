@@ -37,9 +37,9 @@ typedef struct
   float fUnk9;
   tVec3 pos2;
   int nYaw3;
-  int iUnk10;
+  int iJumpMomentum;
   int iControlType;
-  int iUnk18;
+  int iSteeringInput;
   int iUnk18_2;
   float fCarHalfWidth;
   int iPadding3;
@@ -74,7 +74,7 @@ typedef struct
   int iUnk38_4;
   float fUnk39;
   uint8 byDebugDamage;
-  uint8 byUnk41;
+  uint8 byAttacker;
   uint8 byKills;
   uint8 byUnk43;
   int iUnk44;
@@ -101,7 +101,7 @@ typedef struct
   uint8 byUnk65;
   uint8 byPadding14;
   uint8 byCheatAmmo;
-  uint8 byUnk67;
+  uint8 byCheatCooldown;
   uint8 byUnk68;
   uint8 byPadding15;
   int iUnk69;

@@ -37,7 +37,7 @@ extern char RecordNames[25][9];
 
 //-------------------------------------------------------------------------------------------------
 
-void humancar(int a1);
+void humancar(int iCarIdx);
 void GoUpGear(tCar *pCar);
 void GoDownGear(tCar *pCar, int iUseAutoLogic);
 void control();

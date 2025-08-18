@@ -3,6 +3,7 @@
 #include "loadtrak.h"
 #include "sound.h"
 #include "function.h"
+#include "transfrm.h"
 #include <math.h>
 #include <float.h>
 //-------------------------------------------------------------------------------------------------
@@ -37,332 +38,342 @@ char RecordNames[25][9];          //00149DC8
 
 //-------------------------------------------------------------------------------------------------
 //00029640
-void humancar(int a1)
-{/*
-  int v1; // ebp
-  int v2; // ebx
-  int v3; // eax
-  int v4; // edi
-  __int16 v5; // ax
-  int v6; // esi
-  int v7; // edx
-  int v8; // ecx
-  unsigned int v9; // eax
-  int v10; // eax
-  int v11; // edx
-  int v12; // ecx
-  int v13; // esi
-  int v14; // ecx
-  char v15; // ch
-  int v16; // eax
-  int v17; // eax
-  int v18; // edx
-  unsigned int v19; // edx
-  int v20; // eax
-  int v21; // eax
-  int v22; // eax
-  unsigned int v23; // eax
-  int v24; // ecx
-  double v25; // st7
-  char v26; // cl
-  int v27; // eax
-  int v28; // eax
-  unsigned int v29; // esi
-  int v30; // edi
-  int v31; // ebx
-  float *v32; // edi
-  double v33; // st7
-  float v34; // eax
-  int v35; // eax
-  float *v36; // eax
-  int v38; // [esp+0h] [ebp-40h] BYREF
-  char v39[4]; // [esp+4h] [ebp-3Ch] BYREF
-  int v40; // [esp+8h] [ebp-38h] BYREF
-  float v41; // [esp+Ch] [ebp-34h]
-  int v42; // [esp+10h] [ebp-30h] BYREF
-  float v43; // [esp+14h] [ebp-2Ch]
-  float v44; // [esp+18h] [ebp-28h]
-  int v45; // [esp+1Ch] [ebp-24h]
-  int v46; // [esp+20h] [ebp-20h]
-  int v47; // [esp+24h] [ebp-1Ch]
+void humancar(int iCarIdx)
+{
+  int iTrakLen; // ebp
+  int iInput; // eax
+  int iSteeringInput; // edi
+  uint16 unFlags; // ax
+  int byCarDesignIdx; // esi
+  int iFinisherCount; // edx
+  int iCarIndex1; // ecx
+  int iCarIndex2; // eax
+  uint8 byCheatAmmo_1; // bl
+  int iCurrentChunk; // eax
+  int iColorIndex; // edx
+  int iTrackColor1; // ecx
+  int iTrackColor2; // esi
+  int iTrackColor3; // ecx
+  uint8 byNewCheatAmmo; // ch
+  uint8 byCheatAmmo; // bh
+  int iSoundEffect1; // eax
+  int iTargetCarIdx; // eax
+  int iTargetCar1; // edx
+  int iTargetCar2; // edx
+  int iPlayerIdx; // eax
+  uint8 byCheatAmmo_2; // bh
+  int iSoundEffect2; // eax
+  int iJumpTargetIdx; // eax
+  int iJumpTarget; // ebx
+  int iJumpTargetCar; // eax
+  int iTargetCarDesign; // ecx
+  double dNewZ; // st7
+  uint8 byCheatAmmo_3; // cl
+  int iSoundEffect3; // eax
+  int iTeleportTargetIdx; // eax
+  int iTeleportTarget; // esi
+  int nChunk2; // ecx
+  int nPitch; // edx
+  int nCurrChunk; // edi
+  tVec3 *posAy; // edi
+  double dLocalZ; // st7
+  float fChunkValue; // eax
+  int iPlayerIdx2; // eax
+  tCar *pCar; // eax
+  int iElevation; // [esp+0h] [ebp-40h] BYREF
+  int iAzimuth; // [esp+4h] [ebp-3Ch] BYREF
+  int iBank; // [esp+8h] [ebp-38h] BYREF
+  float fLocalZ; // [esp+Ch] [ebp-34h]
+  int iAzi2; // [esp+10h] [ebp-30h] BYREF
+  float fLocalX; // [esp+14h] [ebp-2Ch]
+  float fLocalY; // [esp+18h] [ebp-28h]
+  int iTeleportTargetIndex; // [esp+1Ch] [ebp-24h]
+  int iCarIdx_1; // [esp+20h] [ebp-20h]
+  int iControlFlags; // [esp+24h] [ebp-1Ch]
 
-  v1 = TRAK_LEN;
-  v46 = a1;
-  v2 = a1;
-  v3 = SLOWORD(copy_multiple[16 * readptr + a1]);
-  v4 = (v3 - (__CFSHL__(v3 >> 31, 8) + (v3 >> 31 << 8))) >> 8;
-  v5 = HIWORD(copy_multiple[16 * readptr + v46]);
-  v6 = (unsigned __int8)Car_variable_22[308 * v46];
-  LOWORD(v47) = v5;
-  if (v6 < 8) {
-    v2 = 0;
+  iTrakLen = TRAK_LEN;                          // Initialize track length and player index
+  iCarIdx_1 = iCarIdx;
+  iInput = (int16)copy_multiple[readptr][iCarIdx].data.unInput;// Extract steering input and control flags from player input data
+  iSteeringInput = iInput / 256;
+  //iSteeringInput = (unInput - (__CFSHL__(unInput >> 31, 8) + (unInput >> 31 << 8))) >> 8;
+  unFlags = copy_multiple[readptr][iCarIdx_1].data.unFlags;
+  byCarDesignIdx = Car[iCarIdx_1].byCarDesignIdx;
+  iControlFlags = unFlags;
+  //LOWORD(iControlFlags) = unFlags;
+  if (byCarDesignIdx < 8)                     // Enable cheat mode for special car designs (8-12), disable for normal cars
     cheat_control = 0;
-  } else {
-    cheat_control = v5 & 0x20;
-  }
-  if (finished_car[v46] || racers - 1 == finishers && Car_variable_31[308 * v46] < NoOfLaps && competitors > 1)
-    LOWORD(v47) = 2;
-  if (racers - 1 == finishers
-    && Car_variable_31[308 * v46] < NoOfLaps
-    && (LODWORD(Car_variable_8[77 * v46]) & 0x7FFFFFFF) == 0
-    && competitors > 1) {
-    if ((__int16)player1_car == v46 || player2_car == v46) {
-      if (Car_variable_23[308 * v46] > 0)
-        speechsample(24, 0x8000, 18, v46);
-      v2 = 18;
-      speechsample(30, 0x8000, 18, v46);
+  else
+    cheat_control = unFlags & 0x20;
+  if (finished_car[iCarIdx_1] || racers - 1 == finishers && Car[iCarIdx_1].byLap < NoOfLaps && competitors > 1)// Force brake mode if car finished or race is over for this player
+    iControlFlags = 2;
+    //LOWORD(iControlFlags) = 2;
+  //if (racers - 1 == finishers && Car[iCarIdx_1].byLap < NoOfLaps && (LODWORD(Car[iCarIdx_1].fFinalSpeed) & 0x7FFFFFFF) == 0 && competitors > 1)// Handle race finish condition: play finish sounds and mark player as finished
+  if (racers - 1 == finishers && Car[iCarIdx_1].byLap < NoOfLaps && fabs(Car[iCarIdx_1].fFinalSpeed) > FLT_EPSILON && competitors > 1)// Handle race finish condition: play finish sounds and mark player as finished
+  {
+    if (player1_car == iCarIdx_1 || player2_car == iCarIdx_1) {
+      if ((char)Car[iCarIdx_1].byLives > 0)
+        speechsample(SOUND_SAMPLE_RUBBISH, 0x8000, 18, iCarIdx_1);// SOUND_SAMPLE_RUBBISH
+      speechsample(SOUND_SAMPLE_RACEOVER, 0x8000, 18, iCarIdx_1);  // SOUND_SAMPLE_RACEOVER
     }
-    v1 = TRAK_LEN;
-    v7 = human_finishers;
-    finished_car[v46] = -1;
-    human_finishers = v7 + 1;
+    iTrakLen = TRAK_LEN;
+    iFinisherCount = human_finishers;
+    finished_car[iCarIdx_1] = -1;
+    human_finishers = iFinisherCount + 1;
     ++finishers;
   }
-  if (Car_variable_9[77 * v46] <= 0.0) {
-    v2 = 0;
-    LOWORD(v47) = 0;
-  }
-  v8 = v46;
-  v9 = 308 * v46;
-  Car_variable_18[77 * v46] = v4;
+  if (Car[iCarIdx_1].fHealth <= 0.0)          // Disable controls if car health is zero or below
+    iControlFlags = 0;
+    //LOWORD(unControlFlags) = 0;
+  iCarIndex1 = iCarIdx_1;
+  iCarIndex2 = iCarIdx_1;
+  Car[iCarIdx_1].iSteeringInput = iSteeringInput;// Store steering input and handle cheat power activation
   if (!cheat_control)
-    goto LABEL_94;
-  switch (v6) {
-    case 8:
-      if (Car_variable_67[308 * v8])
-        goto LABEL_94;
-      BYTE1(v2) = Car_variable_66[308 * v8];
-      TRAK_LEN = v1;
-      if (!BYTE1(v2)) {
-        if (!cheatsampleok(v8))
-          goto LABEL_55;
-        v16 = 82;
-        goto LABEL_54;
+    goto PROCESS_VEHICLE_CONTROLS;
+  switch (byCarDesignIdx) {
+    case 8:                                     // SUICYCO (explode opponent)
+      if (Car[iCarIndex1].byCheatCooldown)    // Car type 8: finds nearest car and applies massive damage
+        goto PROCESS_VEHICLE_CONTROLS;
+      byCheatAmmo = Car[iCarIndex1].byCheatAmmo;
+      TRAK_LEN = iTrakLen;
+      if (!byCheatAmmo) {
+        if (!cheatsampleok(iCarIndex1))
+          goto SET_DAMAGE_COOLDOWN;
+        iSoundEffect1 = SOUND_SAMPLE_BLOP;
+        goto PLAY_DAMAGE_SOUND;
       }
-      if (Car_variable_3[154 * v8] == -1) {
-        if (!cheatsampleok(v8))
-          goto LABEL_55;
-        v16 = 79;
-        goto LABEL_54;
+      if (Car[iCarIndex1].nCurrChunk == -1) {
+        if (!cheatsampleok(iCarIndex1))
+          goto SET_DAMAGE_COOLDOWN;
+        iSoundEffect1 = SOUND_SAMPLE_BRP;
+        goto PLAY_DAMAGE_SOUND;
       }
-      v17 = findcardistance(8000.0);
-      v18 = v17;
-      if (v17 >= 0 && Car_variable_3[154 * v17] != -1 && Car_variable_22[308 * v17] != 13) {
-        Car_variable_41[308 * v17] = v46;
-        Car_variable_43[308 * v17] = -40;
-        dodamage(200.0);
-        Car_variable_8[77 * v18] = 0.0;
-        Car_variable_30[308 * v18] = 0;
-        Car_variable_26[77 * v18] = 0;
-        Car_variable_27[77 * v18] = 0;
-        Car_variable_28[77 * v18] = 0.0;
-        v19 = 154 * v18;
-        Car_variable_29[v19 / 2] = 0;
-        v20 = 308 * v46;
-        Car_variable_21[v19] = 18;
-        --Car_variable_66[v20];
-        goto LABEL_55;
+      iTargetCarIdx = findcardistance(iCarIndex1, 8000.0);// Find target car within range (8000 units)
+      iTargetCar1 = iTargetCarIdx;
+      if (iTargetCarIdx >= 0 && Car[iTargetCarIdx].nCurrChunk != -1 && Car[iTargetCarIdx].byCarDesignIdx != 13) {
+        Car[iTargetCarIdx].byAttacker = iCarIdx_1;// Apply damage: 200 damage, stop target car, consume ammo
+        Car[iTargetCarIdx].byUnk43 = -40;
+        dodamage(&Car[iTargetCarIdx], 200.0);
+        Car[iTargetCar1].fFinalSpeed = 0.0;
+        Car[iTargetCar1].byGearAyMax = 0;
+        Car[iTargetCar1].fBaseSpeed = 0.0;
+        Car[iTargetCar1].fSpeedOverflow = 0.0;
+        Car[iTargetCar1].fRPMRatio = 0.0;
+        iTargetCar2 = iTargetCar1;
+        Car[iTargetCar2].fPower = 0.0;
+        iPlayerIdx = iCarIdx_1;
+        Car[iTargetCar2].nUnk21 = 18;
+        --Car[iPlayerIdx].byCheatAmmo;
+        goto SET_DAMAGE_COOLDOWN;
       }
-      if (cheatsampleok(v46)) {
-        v16 = 79;
-      LABEL_54:
-        sfxsample(v16, 0x8000, v2);
+      if (cheatsampleok(iCarIdx_1)) {
+        iSoundEffect1 = SOUND_SAMPLE_BRP;
+      PLAY_DAMAGE_SOUND:
+        sfxsample(iSoundEffect1, 0x8000);
       }
-    LABEL_55:
-      v1 = TRAK_LEN;
-      Car_variable_67[308 * v46] = 36;
-      goto LABEL_94;
-    case 9:
-      LOBYTE(v47) = v47 | 1;
-      goto LABEL_94;
-    case 10:
-      if (Car_variable_67[v9])
-        goto LABEL_94;
-      BYTE1(v2) = Car_variable_66[v9];
-      TRAK_LEN = v1;
-      if (!BYTE1(v2)) {
-        if (!cheatsampleok(v8))
-          goto LABEL_74;
-        v21 = 82;
-        goto LABEL_73;
+    SET_DAMAGE_COOLDOWN:
+      iTrakLen = TRAK_LEN;
+      Car[iCarIdx_1].byCheatCooldown = 36;      // Set cheat power cooldown (36 frames) after use
+      goto PROCESS_VEHICLE_CONTROLS;
+    case 9:                                     // MAYTE (top speed)
+      iControlFlags = iControlFlags | 1;
+      //LOBYTE(unControlFlags) = unControlFlags | 1;
+      goto PROCESS_VEHICLE_CONTROLS;
+    case 10:                                    // 2X4B523P (flip opponent)
+      if (Car[iCarIndex2].byCheatCooldown)
+        goto PROCESS_VEHICLE_CONTROLS;
+      byCheatAmmo_2 = Car[iCarIndex2].byCheatAmmo;
+      TRAK_LEN = iTrakLen;
+      if (!byCheatAmmo_2) {
+        if (!cheatsampleok(iCarIndex1))
+          goto SET_JUMP_COOLDOWN;
+        iSoundEffect2 = SOUND_SAMPLE_BLOP;                     // SOUND_SAMPLE_BLOP
+        goto PLAY_JUMP_SOUND;
       }
-      if (Car_variable_3[v9 / 2] == -1) {
-        if (!cheatsampleok(v8))
-          goto LABEL_74;
+      if (Car[iCarIndex2].nCurrChunk == -1) {
+        if (!cheatsampleok(iCarIndex1))
+          goto SET_JUMP_COOLDOWN;
       } else {
-        v22 = findcardistance(16000.0);
-        v2 = v22;
-        if (v22 >= 0) {
-          v23 = 308 * v22;
-          if (Car_variable_3[v23 / 2] != -1 && Car_variable_22[v23] != 13) {
-            v24 = (unsigned __int8)Car_variable_22[v23];
-            Car_variable_5[v23 / 2] = 0x2000;
-            v25 = *(float *)&CarBox_variable_14[24 * v24] + Car_variable_2[v23 / 4];
-            Car_variable_48[v23 / 4] = -1;
-            Car_variable_18[v23 / 4] = 0;
-            Car_variable_16[v23 / 4] = 2048;
-            Car_variable_2[v23 / 4] = v25;
-            if (cheatsampleok(v46))
-              sfxsample(81, 0x8000, v2);
-            if (cheatsampleok(v2))
-              sfxsample(81, 0x8000, v2);
-            --Car_variable_66[308 * v46];
-          LABEL_74:
-            v1 = TRAK_LEN;
-            Car_variable_67[308 * v46] = 36;
-            goto LABEL_94;
+        iJumpTargetIdx = findcardistance(iCarIndex1, 16000.0);// Find target car within jump range (16000 units)
+        iJumpTarget = iJumpTargetIdx;
+        if (iJumpTargetIdx >= 0) {
+          iJumpTargetCar = iJumpTargetIdx;
+          if (Car[iJumpTargetCar].nCurrChunk != -1 && Car[iJumpTargetCar].byCarDesignIdx != 13) {
+            iTargetCarDesign = Car[iJumpTargetCar].byCarDesignIdx;// Apply jump effect: launch target car into air with roll and Z-offset
+            Car[iJumpTargetCar].nRoll = 0x2000;
+            dNewZ = CarBox.hitboxAy[iTargetCarDesign][4].fZ + Car[iJumpTargetCar].pos.fZ;
+            Car[iJumpTargetCar].iStunned = -1;
+            Car[iJumpTargetCar].iSteeringInput = 0;
+            Car[iJumpTargetCar].iJumpMomentum = 2048;
+            Car[iJumpTargetCar].pos.fZ = (float)dNewZ;
+            if (cheatsampleok(iCarIdx_1))
+              sfxsample(SOUND_SAMPLE_BOING, 0x8000);            // SOUND_SAMPLE_BOING
+            if (cheatsampleok(iJumpTarget))
+              sfxsample(SOUND_SAMPLE_BOING, 0x8000);            // SOUND_SAMPLE_BOING
+            --Car[iCarIdx_1].byCheatAmmo;
+          SET_JUMP_COOLDOWN:
+            iTrakLen = TRAK_LEN;
+            Car[iCarIdx_1].byCheatCooldown = 36;
+            goto PROCESS_VEHICLE_CONTROLS;
           }
         }
-        if (!cheatsampleok(v46))
-          goto LABEL_74;
+        if (!cheatsampleok(iCarIdx_1))
+          goto SET_JUMP_COOLDOWN;
       }
-      v21 = 79;
-    LABEL_73:
-      sfxsample(v21, 0x8000, v2);
-      goto LABEL_74;
-    case 11:
-      if (Car_variable_67[v9])
-        goto LABEL_94;
-      v26 = Car_variable_66[v9];
-      TRAK_LEN = v1;
-      if (!v26) {
-        if (!cheatsampleok(v46))
-          goto LABEL_93;
-        v27 = 82;
-        goto LABEL_92;
+      iSoundEffect2 = SOUND_SAMPLE_BRP;                       // SOUND_SAMPLE_BRP
+    PLAY_JUMP_SOUND:
+      sfxsample(iSoundEffect2, 0x8000);
+      goto SET_JUMP_COOLDOWN;
+    case 11:                                    // TINKLE (swap places with opponent)
+      if (Car[iCarIndex2].byCheatCooldown)
+        goto PROCESS_VEHICLE_CONTROLS;
+      byCheatAmmo_3 = Car[iCarIndex2].byCheatAmmo;
+      TRAK_LEN = iTrakLen;
+      if (!byCheatAmmo_3) {
+        if (!cheatsampleok(iCarIdx_1))
+          goto SET_TELEPORT_COOLDOWN;
+        iSoundEffect3 = SOUND_SAMPLE_BLOP;
+        goto PLAY_TELEPORT_SOUND;
       }
-      if (Car_variable_3[v9 / 2] == -1) {
-        if (!cheatsampleok(v46))
-          goto LABEL_93;
-        goto LABEL_91;
+      if (Car[iCarIndex2].nCurrChunk == -1) {
+        if (!cheatsampleok(iCarIdx_1))
+          goto SET_TELEPORT_COOLDOWN;
+        goto PLAY_TELEPORT_FAIL_SOUND;
       }
-      v28 = findcardistance(16000.0);
-      v45 = v28;
-      if (v28 < 0 || (v29 = 308 * v28, Car_variable_3[154 * v28] == -1) || Car_variable_22[308 * v28] == 13) {
-        if (!cheatsampleok(v46))
-          goto LABEL_93;
-      LABEL_91:
-        v27 = 79;
-      LABEL_92:
-        sfxsample(v27, 0x8000, v2);
-        goto LABEL_93;
+      iTeleportTargetIdx = findcardistance(iCarIdx_1, 16000.0);// Find target car for teleport swap (16000 units)
+      iTeleportTargetIndex = iTeleportTargetIdx;
+      if (iTeleportTargetIdx < 0 || (iTeleportTarget = iTeleportTargetIdx, Car[iTeleportTargetIdx].nCurrChunk == -1) || Car[iTeleportTargetIdx].byCarDesignIdx == 13) {
+        if (!cheatsampleok(iCarIdx_1))
+          goto SET_TELEPORT_COOLDOWN;
+      PLAY_TELEPORT_FAIL_SOUND:
+        iSoundEffect3 = SOUND_SAMPLE_BRP;//SOUND_SAMPLE_BRP
+      PLAY_TELEPORT_SOUND:
+        sfxsample(iSoundEffect3, 0x8000);
+        goto SET_TELEPORT_COOLDOWN;
       }
-      Car_variable_11[77 * v28] = 0;
-      Car_variable_18[77 * v28] = 0;
-      Car_variable_14[77 * v28] = 1124073472;
-      v30 = Car_variable_3[154 * v28];
-      getworldangles(v39, &v38, &v40);
-      v31 = Car_variable_5[v29 / 2];
-      getworldangles(&v42, &v38, &v40);
-      Car_variable_2[v29 / 4] = Car_variable_2[v29 / 4] + control_c_variable_1;
-      Car_variable_7[v29 / 2] = v42;
-      Car_variable_15[v29 / 4] = v42;
-      Car_variable_6[v29 / 2] = v38;
-      v32 = (float *)((char *)&localdata + 128 * v30);
-      Car_variable_5[v29 / 2] = v40;
-      v43 = v32[1] * Car_variable_1[v29 / 4] + *v32 * Car[v29 / 4] + v32[2] * Car_variable_2[v29 / 4] - v32[9];
-      v44 = v32[4] * Car_variable_1[v29 / 4] + v32[3] * Car[v29 / 4] + v32[5] * Car_variable_2[v29 / 4] - v32[10];
-      v33 = v32[7] * Car_variable_1[v29 / 4] + v32[6] * Car[v29 / 4] + v32[8] * Car_variable_2[v29 / 4] - v32[11];
-      Car[v29 / 4] = v43;
-      Car_variable_47[v29 / 4] = 0;
-      Car_variable_12[v29 / 4] = 0;
-      Car_variable_13[v29 / 4] = 0;
-      Car_variable_17[v29 / 4] = 0;
-      Car_variable_8[v29 / 4] = 0.0;
-      Car_variable_26[v29 / 4] = 0;
-      Car_variable_27[v29 / 4] = 0;
-      v41 = v33;
-      Car_variable_28[v29 / 4] = 0.0;
-      v34 = v44;
-      Car_variable_29[v29 / 4] = 0;
-      Car_variable_1[v29 / 4] = v34;
-      Car_variable_21[v29 / 2] = 18;
-      Car_variable_2[v29 / 4] = v41;
-      LOWORD(v34) = Car_variable_3[v29 / 2];
-      Car_variable_4[v29 / 2] = LOWORD(v34);
-      Car_variable_51[v29 / 4] = SLOWORD(v34);
-      Car_variable_41[v29] = v46;
-      Car_variable_30[v29] = 0;
-      Car_variable_43[v29] = -40;
-      v35 = v46;
-      Car_variable_3[v29 / 2] = -1;
-      if (cheatsampleok(v35))
-        sfxsample(80, 0x8000, v31);
-      if (cheatsampleok(v45))
-        sfxsample(80, 0x8000, v31);
-      --Car_variable_66[308 * v46];
-    LABEL_93:
-      v1 = TRAK_LEN;
-      Car_variable_67[308 * v46] = 36;
-    LABEL_94:
-      TRAK_LEN = v1;
-      if (race_started[0]) {
-        if ((v47 & 4) != 0)
-          GoUpGear(&Car[77 * v46]);
-        if ((v47 & 8) != 0)
-          GoDownGear(&Car[77 * v46], v47 & 1);
-        if (player_type != 2) {
-          if ((v47 & 0x40) != 0)
-            changemateto(v46, 0);
-          if ((v47 & 0x80u) != 0)
-            changemateto(v46, 1);
-          if ((v47 & 0x100) != 0)
-            changemateto(v46, 2);
-          if ((v47 & 0x200) != 0)
-            changemateto(v46, 3);
+      Car[iTeleportTargetIdx].iUnk6 = 0;
+      nChunk2 = Car[iTeleportTargetIdx].nChunk2;
+      Car[iTeleportTargetIdx].iSteeringInput = 0;
+      nPitch = Car[iTeleportTargetIdx].nPitch;
+      Car[iTeleportTargetIdx].fUnk9 = 128.0f;
+      nCurrChunk = Car[iTeleportTargetIdx].nCurrChunk;
+      getworldangles(Car[iTeleportTargetIdx].nYaw3, nPitch, Car[iTeleportTargetIdx].nRoll, nChunk2, &iAzimuth, &iElevation, &iBank);// Swap car positions and orientations using world angle transformations
+      getworldangles(Car[iTeleportTarget].nYaw, Car[iTeleportTarget].nPitch, Car[iTeleportTarget].nRoll, Car[iTeleportTarget].nChunk2, &iAzi2, &iElevation, &iBank);
+      Car[iTeleportTarget].pos.fZ = Car[iTeleportTarget].pos.fZ + 64.0f;
+      Car[iTeleportTarget].nYaw = iAzi2;
+      Car[iTeleportTarget].nYaw3 = iAzi2;
+      Car[iTeleportTarget].nPitch = iElevation;
+      posAy = localdata[nCurrChunk].pointAy;
+      Car[iTeleportTarget].nRoll = iBank;
+      fLocalX = posAy->fY * Car[iTeleportTarget].pos.fY + posAy->fX * Car[iTeleportTarget].pos.fX + posAy->fZ * Car[iTeleportTarget].pos.fZ - posAy[3].fX;
+      fLocalY = posAy[1].fY * Car[iTeleportTarget].pos.fY + posAy[1].fX * Car[iTeleportTarget].pos.fX + posAy[1].fZ * Car[iTeleportTarget].pos.fZ - posAy[3].fY;
+      dLocalZ = posAy[2].fY * Car[iTeleportTarget].pos.fY + posAy[2].fX * Car[iTeleportTarget].pos.fX + posAy[2].fZ * Car[iTeleportTarget].pos.fZ - posAy[3].fZ;
+      Car[iTeleportTarget].pos.fX = fLocalX;
+      Car[iTeleportTarget].iUnk47 = 0;
+      Car[iTeleportTarget].iUnk7 = 0;
+      Car[iTeleportTarget].iUnk8 = 0;
+      Car[iTeleportTarget].iControlType = 0;
+      Car[iTeleportTarget].fFinalSpeed = 0.0;
+      Car[iTeleportTarget].fBaseSpeed = 0.0;
+      Car[iTeleportTarget].fSpeedOverflow = 0.0;
+      fLocalZ = (float)dLocalZ;
+      Car[iTeleportTarget].fRPMRatio = 0.0;
+      fChunkValue = fLocalY;
+      Car[iTeleportTarget].fPower = 0.0;
+      Car[iTeleportTarget].pos.fY = fChunkValue;
+      Car[iTeleportTarget].nUnk21 = 18;
+      Car[iTeleportTarget].pos.fZ = fLocalZ;
+      //LOWORD(fChunkValue) = Car[iTeleportTarget].nCurrChunk;
+      int16 nTemp = Car[iTeleportTarget].nCurrChunk;
+      Car[iTeleportTarget].nChunk2 = nTemp; //LOWORD(fChunkValue);
+      Car[iTeleportTarget].iLastValidChunk = nTemp;// SLOWORD(fChunkValue);
+      Car[iTeleportTarget].byAttacker = iCarIdx_1;
+      Car[iTeleportTarget].byGearAyMax = 0;
+      Car[iTeleportTarget].byUnk43 = -40;
+      iPlayerIdx2 = iCarIdx_1;
+      Car[iTeleportTarget].nCurrChunk = -1;
+      if (cheatsampleok(iPlayerIdx2))
+        sfxsample(SOUND_SAMPLE_UP, 0x8000);                  // SOUND_SAMPLE_UP
+      if (cheatsampleok(iTeleportTargetIndex))
+        sfxsample(SOUND_SAMPLE_UP, 0x8000);                  // SOUND_SAMPLE_UP
+      --Car[iCarIdx_1].byCheatAmmo;
+    SET_TELEPORT_COOLDOWN:
+      iTrakLen = TRAK_LEN;
+      Car[iCarIdx_1].byCheatCooldown = 36;
+    PROCESS_VEHICLE_CONTROLS:
+      TRAK_LEN = iTrakLen;
+      if (race_started)                       // Process main vehicle controls: gear changes, material selection, throttle/brake
+      {                                         // Handle gear shift controls if race has started
+        if ((iControlFlags & 4) != 0)
+          GoUpGear(&Car[iCarIdx_1]);
+        if ((iControlFlags & 8) != 0)
+          GoDownGear(&Car[iCarIdx_1], iControlFlags & 1);
+        if (player_type != 2)                 // Handle material selection controls (paint job changes)
+        {
+          if ((iControlFlags & 0x40) != 0)
+            changemateto(iCarIdx_1, 0);
+          if ((iControlFlags & 0x80u) != 0)
+            changemateto(iCarIdx_1, 1);
+          if ((iControlFlags & 0x100) != 0)
+            changemateto(iCarIdx_1, 2);
+          if ((iControlFlags & 0x200) != 0)
+            changemateto(iCarIdx_1, 3);
         }
       }
-      v36 = &Car[77 * v46];
-      if ((v47 & 2) != 0)
-        return Decelerate(v36);
-      if ((v47 & 1) != 0)
-        return Accelerate(v36);
-      return FreeWheel(v36);
-    case 12:
-      if (!Car_variable_67[v9]) {
-        LOBYTE(v2) = Car_variable_66[v9];
-        TRAK_LEN = v1;
-        if ((_BYTE)v2) {
-          v10 = Car_variable_3[v9 / 2];
-          if (v10 != -1) {
-            v11 = -12;
+      pCar = &Car[iCarIdx_1];                   // Apply vehicle physics based on throttle/brake input
+      if ((iControlFlags & 2) != 0)          // Check control flags: bit 2=brake, bit 1=accelerate, else=freewheel
+      {
+        Decelerate(pCar);
+      } else if ((iControlFlags & 1) != 0) {
+        Accelerate(pCar);
+      } else {
+        FreeWheel(pCar);
+      }
+      return;
+    case 12:                                    // LOVEBUN (formula car)
+      if (!Car[iCarIndex2].byCheatCooldown) {
+        byCheatAmmo_1 = Car[iCarIndex2].byCheatAmmo;
+        TRAK_LEN = iTrakLen;
+        if (byCheatAmmo_1) {
+          iCurrentChunk = Car[iCarIndex2].nCurrChunk;
+          if (iCurrentChunk != -1) {
+            iColorIndex = -12;                  // Modify track surface in 16-chunk range around car position
             do {
-              if ((TrakColour_variable_5[12 * v10] & 0x840) == 0) {
-                v12 = *((_DWORD *)&TrakColour_variable_3 + 6 * v10);
-                LOWORD(v12) = v12 & 0xFE00;
-                *((_DWORD *)&TrakColour_variable_3 + 6 * v10) = (159 - (v11 & 7)) | v12;
-                localdata_variable_12[32 * v10] = 12;
+              if ((TrakColour[iCurrentChunk][1] & 0x8400000) == 0) {
+                iTrackColor1 = TrakColour[iCurrentChunk][1];
+                SET_LOWORD(iTrackColor1, iTrackColor1 & 0xFE00);
+                TrakColour[iCurrentChunk][1] = (159 - (iColorIndex & 7)) | iTrackColor1;
+                localdata[iCurrentChunk].iCenterGrip = 12;
               }
-              if ((TrakColour_variable_1[12 * v10] & 0x840) == 0) {
-                v13 = *((_DWORD *)&TrakColour + 6 * v10);
-                LOWORD(v13) = v13 & 0xFE00;
-                *((_DWORD *)&TrakColour + 6 * v10) = v13 | (159 - (v11 & 7));
-                localdata_variable_13[32 * v10] = 12;
+              if ((TrakColour[iCurrentChunk][0] & 0x8400000) == 0) {
+                iTrackColor2 = TrakColour[iCurrentChunk][0];
+                SET_LOWORD(iTrackColor2, iTrackColor2 & 0xFE00);
+                TrakColour[iCurrentChunk][0] = iTrackColor2 | (159 - (iColorIndex & 7));
+                localdata[iCurrentChunk].iLeftShoulderGrip = 12;
               }
-              if ((TrakColour_variable_8[12 * v10] & 0x840) == 0) {
-                v14 = *((_DWORD *)&TrakColour_variable_3 + 6 * v10);
-                LOWORD(v14) = v14 & 0xFE00;
-                *((_DWORD *)&TrakColour_variable_7 + 6 * v10) = (159 - (v11 & 7)) | v14;
-                localdata_variable_14[32 * v10] = 12;
+              if ((TrakColour[iCurrentChunk][2] & 0x8400000) == 0) {
+                iTrackColor3 = TrakColour[iCurrentChunk][1];
+                SET_LOWORD(iTrackColor3, iTrackColor3 & 0xFE00);
+                TrakColour[iCurrentChunk][2] = (159 - (iColorIndex & 7)) | iTrackColor3;
+                localdata[iCurrentChunk].iRightShoulderGrip = 12;
               }
-              if (++v10 >= v1)
-                v10 = 0;
-              ++v11;
-            } while (v11 < 4);
-            v15 = Car_variable_66[308 * v46] - 1;
-            TRAK_LEN = v1;
-            Car_variable_66[308 * v46] = v15;
+              if (++iCurrentChunk >= iTrakLen)
+                iCurrentChunk = 0;
+              ++iColorIndex;
+            } while (iColorIndex < 4);
+            byNewCheatAmmo = Car[iCarIdx_1].byCheatAmmo - 1;
+            TRAK_LEN = iTrakLen;
+            Car[iCarIdx_1].byCheatAmmo = byNewCheatAmmo;
           }
-        } else if (cheatsampleok(v8)) {
-          sfxsample(82, 0x8000, v2);
+        } else if (cheatsampleok(iCarIndex1)) {
+          sfxsample(SOUND_SAMPLE_BLOP, 0x8000);                // SOUND_SAMPLE_BLOP
         }
-        v1 = TRAK_LEN;
-        Car_variable_67[308 * v46] = 36;
+        iTrakLen = TRAK_LEN;
+        Car[iCarIdx_1].byCheatCooldown = 36;
       }
-      goto LABEL_94;
+      goto PROCESS_VEHICLE_CONTROLS;
     default:
-      goto LABEL_94;
-  }*/
+      goto PROCESS_VEHICLE_CONTROLS;            // Cheat power switch: handle different special car abilities
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
