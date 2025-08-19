@@ -395,7 +395,7 @@ void placecars()
       Car[iCarIdx3].nChunk2 = Car[iDriverIdx].nCurrChunk;
       Car[iCarIdx3].iUnk20 = -1;
       Car[iCarIdx3].byLap = 0;
-      Car[iCarIdx3].byUnk76 = 0;
+      Car[iCarIdx3].byLappedStatus = 0;
       Car[iCarIdx3].byLapNumber = 0;
       Car[iCarIdx3].fUnk39 = CarEngines.engines[Car[iDriverIdx].byCarDesignIdx].fUnk24;
       Car[iCarIdx3].iControlType = 3;
@@ -406,7 +406,7 @@ void placecars()
       Car[iDriverIdx].iAITargetCar = -1;
       Car[iDriverIdx].fHealth = 100.0f;
       Car[iDriverIdx].nTargetChunk = -1;
-      Car[iDriverIdx].nUnk70 = -1;
+      Car[iDriverIdx].nLastCommentaryChunk = -1;
       Car[iDriverIdx].iAICurrentLine = iRandomVal >> 13;
       //Car[iDriverIdx].iUnk37 = (iRandomVal % 8192) / 8192;
       //Car[iDriverIdx].iUnk37 = (iRandomVal - (__CFSHL__(iRandomVal >> 31, 13) + (iRandomVal >> 31 << 13))) >> 13;
@@ -421,15 +421,15 @@ void placecars()
       Car[iDriverIdx].byLives = 3;
       *(int *)((char *)carorder + uiOrderOffset) = iDriverIdx;// Add car to race order array
       Car[iDriverIdx].byAccelerating = 0;              // Initialize various car flags and counters
-      Car[iDriverIdx].byUnk61 = 0;
+      Car[iDriverIdx].byEngineStartTimer = 0;
       Car[iDriverIdx].byUnk60 = 0;
-      Car[iDriverIdx].iUnk62_1 = 0;
+      Car[iDriverIdx].byPitLaneActiveFlag = 0;
       Car[iDriverIdx].bySfxCooldown = 0;
       Car[iDriverIdx].byCollisionTimer = 0;
       Car[iDriverIdx].byUnk64 = 0;
       Car[iDriverIdx].byUnk65 = 0;
       Car[iDriverIdx].byCheatAmmo = 8;          // Set cheat ammo count
-      Car[iDriverIdx].nUnk71 = 0;
+      Car[iDriverIdx].nReverseWarnCooldown = 0;
       iCarIdx4 = non_competitors[iDriverIdx];   // Check if this is a non-competitor car
       Car[iDriverIdx].byCheatCooldown = 0;
       if (iCarIdx4)                           // Handle non-competitor cars (spectators/disabled)
@@ -460,7 +460,7 @@ void placecars()
         dPower = calc_pow(Car[iViewCarIdx].byCarDesignIdx, (char)Car[iViewCarIdx].byGearAyMax, Car[iViewCarIdx].fRPMRatio);// Calculate power for this car configuration
         Car[iViewCarIdx].fSpeedOverflow = 0;
         Car[iViewCarIdx].byThrottlePressed = -1;
-        Car[iViewCarIdx].byUnk61 = 36;
+        Car[iViewCarIdx].byEngineStartTimer = 36;
         Car[iViewCarIdx].fPower = (float)dPower;
       }
       nCurrChunk = Car[iDriverIdx].nCurrChunk;  // Position cars on track based on available lanes
@@ -1896,7 +1896,7 @@ LABEL_117:
             if (byTextureIndex >= 4)
               uiTextureSurface = pAnimation->framesAy[iAnimationOffset / 4u];
             else
-              uiTextureSurface = pAnimation->framesAy[(char)pCar->byUnk68];
+              uiTextureSurface = pAnimation->framesAy[(char)pCar->byWheelAnimationFrame];
           }
           // SURFACE_FLAG_BACK
           if ((uiTextureSurface & SURFACE_FLAG_BACK) != 0)

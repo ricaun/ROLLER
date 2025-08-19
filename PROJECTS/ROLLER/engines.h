@@ -26,9 +26,9 @@ typedef struct
   float *pSpds;                         ///< maximum speed at each gear
   float fDragCoefficient;
   int *pChgs;
-  int iUnk3;
-  float fUnk4;
-  float fUnk5;
+  int iOscillationFreq;
+  float fOscillationMax;
+  float fOscillationMin;
   int iStabilityFactor;
   int iPitchAccelRate;
   int iMaxPitchOffset;
@@ -36,17 +36,17 @@ typedef struct
   int iMinPitchOffset;
   int iNoseUpRecoveryRate;
   int iNoseDownRecoveryRate;
-  int iUnk13;
-  int iUnk14;
-  int iUnk15;
+  int iRollResponseRate;
+  int iMaxRollOffset;
+  int iRollCenteringRate;
   int iMaxTurnRate;
   int iTurnDecayRate;
   int iUnk18;
   int iWheelCenteringRate;
-  int iUnk20;
+  int iSteeringSpeedLimit;
   int iSteeringSensitivity;
-  float fUnk22;
-  float fUnk23;
+  float fGripBonus;
+  float fMaxGripLimit;
   float fUnk24;
   float fUnk25;
 } tCarEngine;

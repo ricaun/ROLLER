@@ -850,7 +850,7 @@ void dodamage(tCar *a1, float a2)
 
 //-------------------------------------------------------------------------------------------------
 //00037F00
-void doviewtend(int a1, int a2, int a3)
+void doviewtend(tCar *pCar, int a2, int a3)
 {/*
   int v5; // edx
   unsigned int v6; // eax
@@ -1185,7 +1185,7 @@ bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
 
 //-------------------------------------------------------------------------------------------------
 //00038640
-void analysefalloff(int a1)
+void analysefalloff(tCar *pCar)
 {
   /*
   int v2; // ecx

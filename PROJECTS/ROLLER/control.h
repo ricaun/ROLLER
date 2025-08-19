@@ -62,7 +62,7 @@ void Decelerate(tCar *pCar);
 void FreeWheel(tCar *pCar);
 void SetEngine(tCar *pCar, float fThrottle);
 double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignIdx);
-void updatecar2(tCar *pCar, int a2, int a3, int a4);
+void updatecar2(tCar *pCar);
 void check_crossed_line(tCar *pCar);
 void checkplacement(tCar *pCar);
 void testteaminit(tCar *pCar);

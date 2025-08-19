@@ -18,10 +18,10 @@ int calculate_aheadbehindtime(int a1, float *a2, float *a3);
 int initnearcars();
 void initpits();
 void dodamage(tCar *a1, float a2);
-void doviewtend(int a1, int a2, int a3);
+void doviewtend(tCar *pCar, int a2, int a3);
 int changemateto(int result, int a2);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
-void analysefalloff(int a1);
+void analysefalloff(tCar *pCar);
 int showmap(uint8 *a1, int a2);
 int firework_display();
 

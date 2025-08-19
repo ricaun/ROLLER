@@ -141,7 +141,7 @@ void humancar(int iCarIdx)
     iControlFlags = 2;
     //LOWORD(iControlFlags) = 2;
   //if (racers - 1 == finishers && Car[iCarIdx_1].byLap < NoOfLaps && (LODWORD(Car[iCarIdx_1].fFinalSpeed) & 0x7FFFFFFF) == 0 && competitors > 1)// Handle race finish condition: play finish sounds and mark player as finished
-  if (racers - 1 == finishers && Car[iCarIdx_1].byLap < NoOfLaps && fabs(Car[iCarIdx_1].fFinalSpeed) > FLT_EPSILON && competitors > 1)// Handle race finish condition: play finish sounds and mark player as finished
+  if (racers - 1 == finishers && Car[iCarIdx_1].byLap < NoOfLaps && fabs(Car[iCarIdx_1].fFinalSpeed) == 0 && competitors > 1)// Handle race finish condition: play finish sounds and mark player as finished
   {
     if (player1_car == iCarIdx_1 || player2_car == iCarIdx_1) {
       if ((char)Car[iCarIdx_1].byLives > 0)
@@ -673,7 +673,7 @@ void control()
         Car[i].fWheelSpinFactor = 1.0;
 
         // Store byUnk68 value in car states array
-        aiCarStates[i] = Car[i].byUnk68;
+        aiCarStates[i] = Car[i].byWheelAnimationFrame;
       }
     }
     //if (numcars > 0)                          // Initialize car state array and copy car data for processing
@@ -755,7 +755,7 @@ void control()
           Car[iCarStructIdx].byAccelerating = 0;
           if ((byStatusFlags & 4) != 0 || !Car[iCarStructIdx].byLives) {
             //if ((LODWORD(Car[iCarStructIdx].fFinalSpeed) & 0x7FFFFFFF) == 0 || Car[iCarStructIdx].nUnk21 < 126) {
-            if (fabs(Car[iCarStructIdx].fFinalSpeed) > FLT_EPSILON || Car[iCarStructIdx].nDeathTimer < 126) {
+            if (fabs(Car[iCarStructIdx].fFinalSpeed) == 0 || Car[iCarStructIdx].nDeathTimer < 126) {
               nTimerValue = Car[iCarStructIdx].nExplosionSoundTimer - 1;
               --Car[iCarStructIdx].nDeathTimer;
               Car[iCarStructIdx].nExplosionSoundTimer = nTimerValue;
@@ -782,7 +782,7 @@ void control()
         do {
           if ((Car[iCarUpdateIdx].byLives & 0x80u) == 0) {
             if (fudge_wait < 0)
-              updatecar2(&Car[iCarUpdateIdx], iCarUpdateIdx * 308, iCarArrayIdx, iUpdateCarIdx);
+              updatecar2(&Car[iCarUpdateIdx]);
             byUnk43 = Car[iCarUpdateIdx].byUnk43;
             if (byUnk43 && Car[iCarUpdateIdx].fHealth > 0.0)
               Car[iCarUpdateIdx].byUnk43 = byUnk43 - 1;
@@ -984,11 +984,11 @@ void control()
     while (1) {
       if (Car[iFinalCarIdx].fFinalSpeed <= 36.0 || Car[iFinalCarIdx].fFinalSpeed >= 100.0)
         goto LABEL_185;                         // Toggle special car state (byUnk68) based on speed and current state
-      byUnk68 = Car[iFinalCarIdx].byUnk68;
+      byUnk68 = Car[iFinalCarIdx].byWheelAnimationFrame;
       if (byUnk68 > 1)
         break;
       if (byUnk68 == aiCarStates[iFinalByteIdx / 4u + 1]) {
-        byNewValue = Car[iFinalCarIdx].byUnk68 ^ 1;
+        byNewValue = Car[iFinalCarIdx].byWheelAnimationFrame ^ 1;
         goto LABEL_184;
       }
     LABEL_185:
@@ -999,7 +999,7 @@ void control()
     }
     byNewValue = 0;
   LABEL_184:
-    Car[iFinalCarIdx].byUnk68 = byNewValue;
+    Car[iFinalCarIdx].byWheelAnimationFrame = byNewValue;
     goto LABEL_185;
   }
 }
@@ -1171,7 +1171,7 @@ void Accelerate(tCar *pCar)
     fCarComplexityFactor = 1.0;
   pCar->byAccelerating = -1;                    // Initialize acceleration state and gear change flag
   iGearChanged = 0;
-  if (pCar->byThrottlePressed && !pCar->byUnk61)// Check if car can accelerate (throttle pressed and not crashed)
+  if (pCar->byThrottlePressed && !pCar->byEngineStartTimer)// Check if car can accelerate (throttle pressed and not crashed)
   {
     fHealthFactor = (pCar->fHealth + 34.0f) * 0.01f;// Calculate health factor (0-1) based on car damage, capped at 1.0
     iCarDesignIdx = pCar->byCarDesignIdx;
@@ -1313,8 +1313,8 @@ void Accelerate(tCar *pCar)
             fPitchDecayAmount = (float)(iPitchDynamicOffset - iMaxPitchOffset);
             if ((double)(48 * pEngineData->iPitchAccelRate) < fPitchDecayAmount)// Handle extreme pitch: reset camera offsets and apply damage
             {
-              pCar->iUnk35_3 = 0;
-              pCar->iUnk36_2 = 0;
+              pCar->iCameraOscillationPhase = 0;
+              pCar->iRollDampingMomentum = 0;
               pCar->iRollCameraOffset = 0;
               iOldPitchOffset = pCar->iPitchDynamicOffset;
               pCar->iPitchDynamicOffset = 0;
@@ -1678,7 +1678,7 @@ void SetEngine(tCar *pCar, float fThrottle)
           continue;
       }
       fLoopExitFlag = -1.0;
-    } while (fabs(fLoopExitFlag) > FLT_EPSILON);// Find appropriate gear for current throttle
+    } while (fabs(fLoopExitFlag) == 0);// Find appropriate gear for current throttle
     //} while ((LODWORD(fLoopExitFlag) & 0x7FFFFFFF) == 0);// Find appropriate gear for current throttle
     if (iCurrentGear < iNumGears) {
       fSpeedRatio = fAdjustedThrottle / *pSpds;
@@ -1771,1012 +1771,956 @@ double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignId
 
 //-------------------------------------------------------------------------------------------------
 //0002C5A0
-void updatecar2(tCar *pCar, int a2, int a3, int a4)
+void updatecar2(tCar *pCar)
 {
-  /*
-  int v4; // edi
-  int v5; // ecx
-  int v6; // edx
-  int v7; // eax
-  int v8; // eax
-  int v9; // ecx
-  int v10; // eax
-  int v11; // ecx
-  int v12; // ecx
-  int v13; // eax
-  int v14; // ecx
-  int v15; // eax
-  int v16; // ebp
-  int v17; // edx
-  int v18; // edx
-  int v19; // edx
-  char v20; // cl
-  char v21; // al
-  char v22; // dl
-  int v23; // eax
-  double v24; // st7
-  int v25; // eax
-  int v26; // ebp
-  __int16 v27; // dx
-  int v28; // ecx
-  int v29; // ebp
-  int v30; // ebx
-  int v31; // edi
-  int v32; // eax
-  __int16 v33; // di
-  double v34; // st7
-  __int64 v35; // rax
-  double v36; // st7
-  double v37; // st6
-  double v38; // st7
-  double v39; // st6
-  double v40; // st7
-  int v41; // edx
-  double v42; // st7
-  int v43; // eax
-  long double v44; // st7
-  long double v45; // st7
-  int v46; // edx
-  int v47; // ebx
-  int *v48; // eax
-  int v49; // eax
-  int v50; // ebp
-  int *v51; // eax
-  int v52; // eax
-  int v53; // ebp
-  int v54; // eax
-  int v55; // edx
-  int v56; // ecx
-  int *v57; // eax
-  int v58; // eax
-  int v59; // ebp
-  int *v60; // edx
-  int v61; // ebx
-  int v62; // ebp
-  int v63; // eax
-  int v64; // edx
-  int v65; // eax
-  int v66; // edi
-  int v67; // edx
-  unsigned int v68; // eax
-  float *v69; // ecx
-  int v70; // ebx
-  int v71; // edx
-  double v72; // st7
-  double v73; // st5
-  double v74; // st6
-  int v75; // eax
-  double v76; // st7
-  double v77; // st7
-  int v78; // eax
-  int v79; // edx
-  double v80; // st7
-  double v81; // st7
-  int v82; // eax
-  _BOOL1 v83; // zf
-  int v84; // edx
-  int v85; // eax
-  int v86; // ebp
-  int v87; // ecx
-  int v88; // edx
-  int v89; // edx
-  int v90; // ecx
-  int v91; // eax
-  double v92; // st7
-  int v93; // eax
-  int v94; // ecx
-  int v95; // edx
-  double v96; // st7
-  char v97; // bl
-  int v98; // edx
-  int v99; // ebx
-  double v100; // st7
-  float *v101; // edx
-  int *v102; // edi
-  int v103; // eax
-  int v104; // ebp
-  double v105; // st7
-  double v106; // st7
-  double v107; // st7
-  double v108; // st7
-  int v109; // eax
-  double v110; // st7
-  double v111; // st7
-  __int64 v112; // rax
-  int v113; // ebx
-  __int16 v114; // fps
-  double v115; // st7
-  _BOOL1 v116; // c0
-  char v117; // c2
-  _BOOL1 v118; // c3
-  double v119; // st7
-  double v120; // st7
-  int v121; // eax
-  float *v122; // eax
-  double v123; // st7
-  int v124; // eax
-  int v125; // ebx
-  unsigned int v126; // ecx
-  int v127; // edx
-  double v128; // st7
-  double v129; // st7
-  int v130; // edx
-  __int64 v131; // rax
-  int v132; // eax
-  long double v133; // st7
-  double v134; // st7
-  __int16 v135; // fps
-  double v136; // st7
-  _BOOL1 v137; // c0
-  char v138; // c2
-  _BOOL1 v139; // c3
-  __int64 v140; // rax
-  double v141; // st7
-  __int16 v142; // fps
-  _BOOL1 v143; // c0
-  char v144; // c2
-  _BOOL1 v145; // c3
-  int v146; // eax
-  int v147; // eax
-  __int64 v148; // rax
-  int v149; // ebx
-  int v150; // eax
-  int v151; // ebp
-  __int16 v152; // fps
-  double v153; // st7
-  _BOOL1 v154; // c0
-  char v155; // c2
-  _BOOL1 v156; // c3
-  double v157; // st7
-  __int16 v158; // fps
-  _BOOL1 v159; // c0
-  char v160; // c2
-  _BOOL1 v161; // c3
-  __int16 v162; // ax
-  __int16 v163; // cx
-  double v164; // st7
-  int v165; // ebp
-  int v166; // eax
-  double v167; // st7
-  int v168; // eax
-  __int16 v169; // ax
-  int v170; // ecx
-  int v171; // ebx
-  __int16 v172; // dx
-  int v173; // eax
-  double v174; // st7
-  double v175; // st5
-  double v176; // rtt
-  int v177; // ebx
-  int v178; // ecx
-  double v179; // st7
-  int v180; // ecx
-  int v181; // ebx
-  double v182; // st7
-  double v183; // st7
-  double v184; // st7
-  double v185; // st5
-  double v186; // st6
-  float v187; // edx
-  long double v188; // st7
-  int v189; // eax
-  int v190; // ebx
-  int v191; // eax
-  float v192; // [esp+0h] [ebp-190h]
-  float v193; // [esp+4h] [ebp-18Ch] BYREF
-  float v194; // [esp+8h] [ebp-188h]
-  float v195; // [esp+Ch] [ebp-184h]
-  float v196; // [esp+10h] [ebp-180h]
-  float v197; // [esp+14h] [ebp-17Ch]
-  float v198; // [esp+18h] [ebp-178h]
-  float v199; // [esp+1Ch] [ebp-174h]
-  float v200; // [esp+20h] [ebp-170h]
-  float v201; // [esp+24h] [ebp-16Ch]
-  float v202; // [esp+28h] [ebp-168h]
-  float v203; // [esp+2Ch] [ebp-164h]
-  float v204; // [esp+30h] [ebp-160h]
-  int v205; // [esp+8Ch] [ebp-104h]
-  char v206[4]; // [esp+90h] [ebp-100h] BYREF
-  int v207; // [esp+94h] [ebp-FCh]
-  int v208; // [esp+98h] [ebp-F8h]
-  int v209; // [esp+9Ch] [ebp-F4h]
-  float v210; // [esp+A0h] [ebp-F0h]
-  int v211; // [esp+A4h] [ebp-ECh]
-  float v212; // [esp+A8h] [ebp-E8h]
-  float v213; // [esp+ACh] [ebp-E4h]
-  float v214; // [esp+B0h] [ebp-E0h]
-  float v215; // [esp+B4h] [ebp-DCh]
-  float v216; // [esp+B8h] [ebp-D8h]
-  float v217; // [esp+BCh] [ebp-D4h]
-  int v218; // [esp+C0h] [ebp-D0h]
-  float v219; // [esp+C4h] [ebp-CCh]
-  float v220; // [esp+C8h] [ebp-C8h]
-  float v221; // [esp+CCh] [ebp-C4h]
-  float v222; // [esp+D0h] [ebp-C0h]
-  int v223; // [esp+D4h] [ebp-BCh]
-  int v224; // [esp+D8h] [ebp-B8h]
-  float v225; // [esp+DCh] [ebp-B4h]
-  int v226; // [esp+E0h] [ebp-B0h]
-  int v227; // [esp+E4h] [ebp-ACh]
-  int v228; // [esp+E8h] [ebp-A8h]
-  int v229; // [esp+ECh] [ebp-A4h]
-  float v230; // [esp+F0h] [ebp-A0h]
-  float v231; // [esp+F4h] [ebp-9Ch]
-  float v232; // [esp+F8h] [ebp-98h]
-  float v233; // [esp+FCh] [ebp-94h]
-  float v234; // [esp+100h] [ebp-90h]
-  float v235; // [esp+104h] [ebp-8Ch]
-  float v236; // [esp+108h] [ebp-88h]
-  int v237; // [esp+10Ch] [ebp-84h]
-  float v238; // [esp+110h] [ebp-80h]
-  float v239; // [esp+114h] [ebp-7Ch]
-  float v240; // [esp+118h] [ebp-78h]
-  float v241; // [esp+11Ch] [ebp-74h]
-  float v242; // [esp+120h] [ebp-70h]
-  float v243; // [esp+124h] [ebp-6Ch]
-  float v244; // [esp+128h] [ebp-68h]
-  float v245; // [esp+12Ch] [ebp-64h]
-  float v246; // [esp+130h] [ebp-60h]
-  float v247; // [esp+134h] [ebp-5Ch]
-  float v248; // [esp+138h] [ebp-58h]
-  int v249; // [esp+13Ch] [ebp-54h]
-  int v250; // [esp+140h] [ebp-50h]
-  float v251; // [esp+144h] [ebp-4Ch]
-  int v252; // [esp+148h] [ebp-48h]
-  int v253; // [esp+14Ch] [ebp-44h]
-  int v254; // [esp+150h] [ebp-40h]
-  float v255; // [esp+154h] [ebp-3Ch]
-  int *v256; // [esp+158h] [ebp-38h]
-  int v257; // [esp+15Ch] [ebp-34h]
-  float v258; // [esp+160h] [ebp-30h]
-  float v259; // [esp+164h] [ebp-2Ch]
-  float v260; // [esp+168h] [ebp-28h]
-  float v261; // [esp+16Ch] [ebp-24h]
-  float v262; // [esp+170h] [ebp-20h]
-  int v263; // [esp+174h] [ebp-1Ch]
+  int iLeaderCarIdx; // edi
+  int iLeaderProgress; // ecx
+  int iCarLoopIdx; // edx
+  int iCarArrayIdx; // eax
+  int iLastValidChunk; // ebx
+  int iLeaderChunk; // eax
+  int iLeaderProgressTotal; // ecx
+  int iPlayerProgress; // eax
+  int iPlayer1Car; // ecx
+  int iCurrentDriverIdx; // ebx
+  int iPlayer2Car; // ecx
+  int iSoundSampleId; // eax
+  int iPlayerCarCheck; // ecx
+  int iDriverIdx; // eax
+  int iThisDriverIdx; // ebp
+  int iPitLaneFlag; // edx
+  int iCurrentChunk; // edx
+  int iPrevChunk; // edx
+  uint8 byEngineStartTimer; // cl
+  uint8 bySfxCooldown; // al
+  uint8 byCollisionTimer; // dl
+  uint8 byCheatCooldown; // bl
+  int iRandomValue; // eax
+  double dWheelSpinAccumulator; // st7
+  int iRandomValue2; // eax
+  int iOscillationValue; // ebp
+  int16 ReverseWarnCooldown; // dx
+  int iCurrentYaw3; // ecx
+  int iSpeechDriverIdx; // ebp
+  int iYaw3Value; // ebx
+  int iAudioDriverIdx; // edi
+  int iAudioSample; // eax
+  int16 nChangeMateCooldown; // di
+  double dOscillationFactor; // st7
+  int iControlType; // eax
+  double dPitchBackupCalc; // st7
+  double dTempPitchCalc; // st6
+  double dCosineValue; // st7
+  double dRollCalc; // st6
+  int iControlTypeCheck; // edx
+  double dBaseSpeed; // st7
+  int iChunkCheck; // eax
+  double dNewSpeed; // st7
+  double dAbsoluteSpeed; // st7
+  int iSteeringInput; // edx
+  int iRollDynamicTemp; // ebx
+  tCarEngine *pEngineTemp; // eax
+  int iEngineCalc; // eax
+  int iRollTemp; // ebp
+  tCarEngine *pEngineTemp2; // eax
+  int iEngineCalc2; // eax
+  int iRollDynamicOffset; // ebp
+  int iEngineParam; // eax
+  int iOffsetCalc; // edx
+  int iSteeringCalc; // ecx
+  tCarEngine *pEngineTemp3; // eax
+  int iEngineCalc3; // eax
+  int iSteeringCalc2; // ebp
+  tCarEngine *pEngineTemp4; // edx
+  int iUnk14; // ebx
+  int iRollDynamicCheck; // ebp
+  int iRollCenteringRate; // eax
+  int iOffsetCalc2; // edx
+  int iViewType; // eax
+  int iViewDriverIdx; // edi
+  unsigned int iControlTypeLocal; // eax
+  float *pLocalData; // ecx
+  int iChunkCurrent; // ebx
+  int iChunkNext; // edx
+  double dPositionCalc; // st7
+  double dTrackPosCalc; // st5
+  double dInterpolationFactor; // st6
+  int iSurfaceType; // eax
+  //__int16 v75; // fps
+  double fBankingCalc1; // st6
+  double fBankingCalc2; // st7
+  double dLeftBankAngle; // st7
+  double fRightBankCalc; // st7
+  //__int16 v83; // fps
+  double fRightBankCalc2; // st6
+  double dRightBankAngle; // st7
+  bool bZeroFlag; // zf
+  int iTrackColorFlag; // edx
+  int iPlayer1CarIdx; // eax
+  int iCurrentDriverIdx2; // ebp
+  int iSpeechDriverIdx2; // ecx
+  int iCurrentChunk2; // edx
+  int iLoopCounter; // edx
+  int iNumCarsLocal; // ecx
+  int iArrayIndex; // eax
+  double dHealthIncrease; // st7
+  int iPlayer1Check; // eax
+  int iDriverForHealth; // ecx
+  int iCenterGrip; // edx
+  double dSurfaceValue; // st7
+  uint8 byStatusFlags; // bl
+  int iGripIndex; // edx
+  int iChunkIdx; // ebx
+  double fY; // st7
+  tVec3 *pPointAy; // edx
+  tTrackInfo *pTrackInfo; // edi
+  int iCurrentYaw; // eax
+  float fRPMRatio; // ebp
+  double dSpeedOverflowCalc1; // st7
+  double dSpeedOverflowCalc2; // st7
+  double dSpeedOverflowCalc3; // st7
+  double dSpeedOverflowCalc4; // st7
+  double dSteeringSpeedCalc; // st7
+  double iUnk20; // st7
+  int iYawForCarBase; // ebx
+  double dCurrentSpeed; // st7
+  double dMovementSpeed; // st7
+  int iYaw3ForMovement; // eax
+  tData *pChunkData; // eax
+  double dPositionY; // st7
+  int iChunkForColor; // eax
+  int iTrackColorValue; // ebx
+  unsigned int uiJumpFlag; // ecx
+  int iCollisionFlag; // edx
+  double dLeftWallCheck; // st7
+  double dLeftWallCheck2; // st7
+  int iLaneTypeCheck; // edx
+  //__int64 llTrackColorData; // rax
+  int iYawDifferenceCalc; // eax
+  double dSpeedAbs; // st7
+  double dGripCalculation; // st7
+  int iHumanControlIdx; // eax
+  //int iInput; // eax
+  //__int64 llInputCheck; // rax
+  int iCurrentYawForInput; // eax
+  int iYaw3ForInput; // ebp
+  int16 nYawAdjusted; // ax
+  int16 nTargetChunk; // cx
+  double dDirectionZ; // st7
+  float fHorizontalSpeedLocal; // ebp
+  int iPitchAngle; // eax
+  //__int16 v144; // fps
+  double dAtanResult; // st7
+  int16 nRollAdjusted; // ax
+  int iYaw3Current; // ecx
+  int iYawDelta; // ebx
+  int16 nTargetChunkLocal; // dx
+  int iYaw3ForType2; // eax
+  double dCoordY; // st7
+  double dCoordX; // st5
+  double dCoordZ; // rtt
+  int iChunkPlus2; // ebx
+  int iChunkPlus3; // ecx
+  double dGroundHeightForward; // st7
+  int iChunkMinus1; // ecx
+  int iChunkMinus2; // ebx
+  double dGroundHeightBackward; // st7
+  double dBoundaryLimit; // st7
+  double dTransformedY; // st7
+  double dTransformedX; // st5
+  double dTransformedZ; // st6
+  float fCurrentSpeedFloat; // edx
+  double dFallDamage; // st7
+  int iGroundChunk; // eax
+  int iPitch; // ebx
+  int iRoll; // eax
+  float fDamageAmount; // [esp+0h] [ebp-190h]
+  tData coordinateSystemData; // [esp+4h] [ebp-18Ch] BYREF
+  int iRightBankAngle; // [esp+8Ch] [ebp-104h]
+  int iNearestChunk; // [esp+90h] [ebp-100h] BYREF
+  float fLeftShoulderTrackWidth; // [esp+94h] [ebp-FCh]
+  float fCurrentTrackHalfWidth; // [esp+98h] [ebp-F8h]
+  float fCameraOscillationRange; // [esp+9Ch] [ebp-F4h]
+  float fTempFloat1; // [esp+A0h] [ebp-F0h]
+  float fDirectionZ; // [esp+A4h] [ebp-ECh]
+  float fBankingForceX; // [esp+A8h] [ebp-E8h]
+  float fCameraOscillationBase; // [esp+ACh] [ebp-E4h]
+  float fHorizontalSpeedCopy; // [esp+B0h] [ebp-E0h]
+  float fNegativeYawLimit; // [esp+B4h] [ebp-DCh]
+  float fNegativeYawLimitHuman; // [esp+B8h] [ebp-D8h]
+  float fLeftTrackBoundary; // [esp+BCh] [ebp-D4h]
+  int iLeaderValidationFlag; // [esp+C0h] [ebp-D0h]
+  float fRightCarPosY; // [esp+C4h] [ebp-CCh]
+  float fRightTrackBoundary; // [esp+C8h] [ebp-C8h]
+  float fSpeedLimited; // [esp+CCh] [ebp-C4h]
+  float fTrackPointY; // [esp+D0h] [ebp-C0h]
+  float fTrackBankingY; // [esp+D4h] [ebp-BCh]
+  float fCarPosZ; // [esp+D8h] [ebp-B8h]
+  float fGroundBoundaryY; // [esp+DCh] [ebp-B4h]
+  float fCarBaseYProjected; // [esp+E0h] [ebp-B0h]
+  float fTrackBankingX; // [esp+E4h] [ebp-ACh]
+  float fCarBaseXProjected; // [esp+E8h] [ebp-A8h]
+  int iYaw3; // [esp+ECh] [ebp-A4h]
+  float fGroundAverageZ1; // [esp+F0h] [ebp-A0h]
+  float fCoordTransformX; // [esp+F4h] [ebp-9Ch]
+  float fCoordTransformZ; // [esp+F8h] [ebp-98h]
+  float fBankingForceY; // [esp+FCh] [ebp-94h]
+  float fSurfaceGripBase; // [esp+100h] [ebp-90h]
+  float fLeftShoulderBoundary; // [esp+104h] [ebp-8Ch]
+  float fZ; // [esp+108h] [ebp-88h]
+  int byCarTypeIndex; // [esp+10Ch] [ebp-84h]
+  float fCurrentSpeedAbs; // [esp+110h] [ebp-80h]
+  float fSpeedChangeRate; // [esp+114h] [ebp-7Ch]
+  float fTempGrip; // [esp+118h] [ebp-78h]
+  float fSurfaceGripValue; // [esp+11Ch] [ebp-74h]
+  float fCurrentGripMultiplier; // [esp+120h] [ebp-70h]
+  float fFinalSpeedThisFrame; // [esp+124h] [ebp-6Ch]
+  float fRightShoulderBoundary; // [esp+128h] [ebp-68h]
+  float fHealthAdjustment; // [esp+12Ch] [ebp-64h]
+  float fMaxGripLimit_1; // [esp+130h] [ebp-60h]
+  float fCoordTransformY; // [esp+134h] [ebp-5Ch]
+  float fSpeedScaled; // [esp+138h] [ebp-58h]
+  int iJumpMomentum; // [esp+13Ch] [ebp-54h]
+  int iSteeringInputProcessed; // [esp+140h] [ebp-50h]
+  float fCarPosZBackup; // [esp+144h] [ebp-4Ch]
+  int iHumanYawDiff; // [esp+148h] [ebp-48h]
+  int nCurrentChunk; // [esp+14Ch] [ebp-44h]
+  int iYawDifference; // [esp+150h] [ebp-40h]
+  float fMaxGripLimit; // [esp+154h] [ebp-3Ch]
+  tCarEngine *pCarEngine; // [esp+158h] [ebp-38h]
+  int iYawCurrent; // [esp+15Ch] [ebp-34h]
+  float fAbsoluteSpeed; // [esp+160h] [ebp-30h]
+  float fSpeedOverflow; // [esp+164h] [ebp-2Ch]
+  float fCarHalfWidthProjected; // [esp+168h] [ebp-28h]
+  float fTrackCenterLine; // [esp+16Ch] [ebp-24h]
+  float fAnimationSpeed; // [esp+170h] [ebp-20h]
+  float fHorizontalSpeed; // [esp+174h] [ebp-1Ch]
 
-  v237 = *(unsigned __int8 *)(a1 + 102);
-  v229 = *(_DWORD *)(a1 + 64);
-  v249 = *(_DWORD *)(a1 + 68);
-  v257 = *(__int16 *)(a1 + 20);
-  v253 = *(__int16 *)(a1 + 12);
-  v256 = &CarEngines[28 * v237];
-  if (*(_DWORD *)(a1 + 72) != 3)
-    goto LABEL_45;
-  BYTE1(a3) = -1;
-  v4 = 0;
-  v5 = 0;
-  v6 = 0;
-  v218 = -1;
-  if (numcars > 0) {
-    v7 = 0;
+  byCarTypeIndex = pCar->byCarDesignIdx;
+  iYaw3 = pCar->nYaw3;
+  iJumpMomentum = pCar->iJumpMomentum;
+  iYawCurrent = pCar->nYaw;
+  nCurrentChunk = pCar->nCurrChunk;
+  pCarEngine = &CarEngines.engines[byCarTypeIndex];// Get car engine data based on car design index
+  if (pCar->iControlType != 3)
+    goto LABEL_45;                              // AI Control Type - Find leader car for lap/unlap detection
+  iLeaderCarIdx = 0;
+  iLeaderProgress = 0;
+  iCarLoopIdx = 0;
+  iLeaderValidationFlag = -1;
+  if (numcars > 0)                            // Loop through all cars to find race leader
+  {
+    iCarArrayIdx = 0;
     while (1) {
-      a3 = Car_variable_51[v7];
-      if (a3 < 3 || TRAK_LEN - 4 < a3)
+      iLastValidChunk = Car[iCarArrayIdx].iLastValidChunk;
+      if (iLastValidChunk < 3 || TRAK_LEN - 4 < iLastValidChunk)
         break;
-      if (Car_variable_51[v7] + TRAK_LEN * Car_variable_24[v7 * 4] > v5) {
-        v4 = v6;
-        v5 = Car_variable_51[v7] + TRAK_LEN * Car_variable_24[v7 * 4];
+      if (Car[iCarArrayIdx].iLastValidChunk + TRAK_LEN * (char)Car[iCarArrayIdx].byLapNumber > iLeaderProgress)// Calculate total progress: chunk + lap * track_length
+      {
+        iLeaderCarIdx = iCarLoopIdx;
+        iLeaderProgress = Car[iCarArrayIdx].iLastValidChunk + TRAK_LEN * (char)Car[iCarArrayIdx].byLapNumber;
       }
-      BYTE1(a3) = BYTE1(numcars);
-      ++v6;
-      v7 += 77;
-      if (v6 >= numcars)
+      ++iCarLoopIdx;
+      ++iCarArrayIdx;
+      if (iCarLoopIdx >= numcars)
         goto LABEL_10;
     }
-    v218 = 0;
+    iLeaderValidationFlag = 0;
   }
 LABEL_10:
-  if (v4 != *(_DWORD *)(a1 + 32) && Car_variable_17[77 * v4] == 3 && Car_variable_23[308 * v4] > 0 && v218) {
-    a3 = *(__int16 *)(a1 + 12) + TRAK_LEN * *(char *)(a1 + 104);
-    v8 = Car_variable_3[154 * v4] == -1 ? Car_variable_51[77 * v4] : Car_variable_3[154 * v4];
-    v9 = TRAK_LEN * Car_variable_24[308 * v4] + v8;
+  if (iLeaderCarIdx != pCar->iDriverIdx && Car[iLeaderCarIdx].iControlType == 3 && (char)Car[iLeaderCarIdx].byLives > 0 && iLeaderValidationFlag) {
+    iLeaderChunk = Car[iLeaderCarIdx].nCurrChunk == -1 ? Car[iLeaderCarIdx].iLastValidChunk : Car[iLeaderCarIdx].nCurrChunk;
+    iLeaderProgressTotal = TRAK_LEN * (char)Car[iLeaderCarIdx].byLapNumber + iLeaderChunk;
     if (lastsample < -18) {
-      v10 = TRAK_LEN + a3;
-      if (*(_BYTE *)(a1 + 305)) {
-        if (v9 >= v10 - 1)
+      iPlayerProgress = TRAK_LEN + pCar->nCurrChunk + TRAK_LEN * (char)pCar->byLapNumber;
+      if (pCar->byLappedStatus) {
+        if (iLeaderProgressTotal >= iPlayerProgress - 1)
           goto LABEL_30;
-        v14 = (__int16)player1_car;
-        v15 = *(_DWORD *)(a1 + 32);
-        *(_BYTE *)(a1 + 305) = 0;
-        if (v14 == v15) {
-          BYTE1(a3) = 0;
-          speechsample(52, 0x8000, 18, v14);
-        }
-        v12 = player2_car;
-        if (player2_car != *(_DWORD *)(a1 + 32))
+        iPlayerCarCheck = player1_car;
+        iDriverIdx = pCar->iDriverIdx;
+        pCar->byLappedStatus = 0;
+        if (iPlayerCarCheck == iDriverIdx)
+          speechsample(SOUND_SAMPLE_UNLAPPED, 0x8000, 18, iPlayerCarCheck);// Play "unlapped" sound sample (52)
+        iPlayer2Car = player2_car;
+        if (player2_car != pCar->iDriverIdx)
           goto LABEL_30;
-        v13 = 52;
+        iSoundSampleId = SOUND_SAMPLE_UNLAPPED;                    // SOUND_SAMPLE_UNLAPPED
       } else {
-        if (v9 <= v10 + 1)
+        if (iLeaderProgressTotal <= iPlayerProgress + 1)
           goto LABEL_30;
-        v11 = (__int16)player1_car;
-        a3 = *(_DWORD *)(a1 + 32);
-        *(_BYTE *)(a1 + 305) = -1;
-        if (v11 == a3) {
-          BYTE1(a3) = 0;
-          speechsample(51, 0x8000, 18, v11);
-        }
-        v12 = player2_car;
-        if (player2_car != *(_DWORD *)(a1 + 32))
+        iPlayer1Car = player1_car;
+        iCurrentDriverIdx = pCar->iDriverIdx;
+        pCar->byLappedStatus = -1;
+        if (iPlayer1Car == iCurrentDriverIdx)
+          speechsample(SOUND_SAMPLE_LAPPED, 0x8000, 18, iPlayer1Car);// Play "lapped" sound sample (51)
+        iPlayer2Car = player2_car;
+        if (player2_car != pCar->iDriverIdx)
           goto LABEL_30;
-        v13 = 51;
+        iSoundSampleId = SOUND_SAMPLE_LAPPED;                    // SOUND_SAMPLE_LAPPED
       }
-      BYTE1(a3) = 0;
-      speechsample(v13, 0x8000, 18, v12);
+      speechsample(iSoundSampleId, 0x8000, 18, iPlayer2Car);
     }
   }
 LABEL_30:
-  v16 = *(_DWORD *)(a1 + 32);
-  if ((__int16)player1_car == v16 || player2_car == v16) {
-    BYTE1(a3) = BYTE1(NoOfLaps);
-    v17 = 0;
-    if (*(char *)(a1 + 104) == NoOfLaps) {
-      a3 = TRAK_LEN - *(__int16 *)(a1 + 12);
-      if (a3 < 200)
-        v17 = -1;
-    }
+  iThisDriverIdx = pCar->iDriverIdx;
+  if (player1_car == iThisDriverIdx || player2_car == iThisDriverIdx) {
+    iPitLaneFlag = 0;
+    if ((char)pCar->byLapNumber == NoOfLaps && TRAK_LEN - pCar->nCurrChunk < 200)
+      iPitLaneFlag = -1;
     if (death_race)
-      v17 = -1;
-    if (*(float *)(a1 + 28) < (double)control_c_variable_58 && !v17) {
-      v18 = *(__int16 *)(a1 + 12);
-      if (v18 != -1) {
-        v19 = v18 - 1;
-        if (v19 < 0)
-          v19 = TRAK_LEN - 1;
-        a3 = *(__int16 *)(a1 + 12);
-        if ((TrakColour_variable_5[12 * a3] & 0x100) != 0 && (TrakColour_variable_5[12 * v19] & 0x100) == 0) {
-          BYTE1(a3) = 0;
-          speechonly(46, 0x8000, 18, *(_DWORD *)(a1 + 32));
-        }
+      iPitLaneFlag = -1;
+    if (pCar->fHealth < 50.0 && !iPitLaneFlag) {
+      iCurrentChunk = pCar->nCurrChunk;
+      if (iCurrentChunk != -1) {
+        iPrevChunk = iCurrentChunk - 1;
+        if (iPrevChunk < 0)
+          iPrevChunk = TRAK_LEN - 1;
+        if ((TrakColour[pCar->nCurrChunk][1] & 0x1000000) != 0 && (TrakColour[iPrevChunk][1] & 0x1000000) == 0)
+          speechonly(SOUND_SAMPLE_PITIN, 0x8000, 18, pCar->iDriverIdx);// Play "pit in" sound sample (46) when entering pit lane
       }
     }
   }
 LABEL_45:
-  v20 = *(_BYTE *)(a1 + 243);
-  if (v20)
-    *(_BYTE *)(a1 + 243) = v20 - 1;
-  v21 = *(_BYTE *)(a1 + 306);
-  if (v21)
-    *(_BYTE *)(a1 + 306) = v21 - 1;
-  v22 = *(_BYTE *)(a1 + 272);
-  if (v22)
-    *(_BYTE *)(a1 + 272) = v22 - 1;
-  LOBYTE(a3) = *(_BYTE *)(a1 + 277);
-  if ((_BYTE)a3) {
-    BYTE1(a3) = a3 - 1;
-    *(_BYTE *)(a1 + 277) = a3 - 1;
-  }
-  if (*(_BYTE *)(a1 + 240)
-    && !*(_BYTE *)(a1 + 243)
-    && (*(_DWORD *)(a1 + 120) & 0x7FFFFFFF) == 0
-    && !*(_BYTE *)(a1 + 241)) {
-    *(_BYTE *)(a1 + 240) = 0;
-  }
-  if (!*(_BYTE *)(a1 + 240) && !*(_BYTE *)(a1 + 243) && *(_BYTE *)(a1 + 241) && *(_DWORD *)(a1 + 72) == 3) {
-    *(float *)&v263 = *(float *)(a1 + 28) * control_c_variable_59 * control_c_variable_60;
-    v23 = rand();
-    v209 = (20 * v23 - (__CFSHL__((20 * v23) >> 31, 15) + ((20 * v23) >> 31 << 15))) >> 15;
-    if (*(float *)&v263 + control_c_variable_61 <= (double)v209 && false_starts) {
-      if ((__int16)player1_car == *(_DWORD *)(a1 + 32))
-        sfxsample(29, 0x8000, (_WORD)a3);
-      if (player2_car == *(_DWORD *)(a1 + 32))
-        sfxsample(29, 0x8000, (_WORD)a3);
-      *(_BYTE *)(a1 + 243) = 72;
+  byEngineStartTimer = pCar->byEngineStartTimer;// Update various car timers - collision, cheat cooldown, etc.
+  if (byEngineStartTimer)
+    pCar->byEngineStartTimer = byEngineStartTimer - 1;
+  bySfxCooldown = pCar->bySfxCooldown;
+  if (bySfxCooldown)
+    pCar->bySfxCooldown = bySfxCooldown - 1;
+  byCollisionTimer = pCar->byCollisionTimer;
+  if (byCollisionTimer)
+    pCar->byCollisionTimer = byCollisionTimer - 1;
+  byCheatCooldown = pCar->byCheatCooldown;
+  if (byCheatCooldown)
+    pCar->byCheatCooldown = byCheatCooldown - 1;
+  //if (pCar->byThrottlePressed && !pCar->byEngineStartTimer && (LODWORD(pCar->fRPMRatio) & 0x7FFFFFFF) == 0 && !pCar->byAccelerating)
+  if (pCar->byThrottlePressed && !pCar->byEngineStartTimer && fabs(pCar->fRPMRatio) == 0 && !pCar->byAccelerating)
+    pCar->byThrottlePressed = 0;
+  if (!pCar->byThrottlePressed && !pCar->byEngineStartTimer && pCar->byAccelerating && pCar->iControlType == 3)// False start detection and engine start logic for AI cars
+  {
+    fHorizontalSpeed = pCar->fHealth * 9.0f * 0.0099999998f;
+    iRandomValue = rand();
+    int iTemp = (20 * iRandomValue) >> 15;
+    //LODWORD(fCameraOscillationRange) = (20 * iRandomValue) >> 15;
+    if (fHorizontalSpeed + 10.0 <= (double)iTemp && false_starts) {
+      if (player1_car == pCar->iDriverIdx)
+        sfxsample(29, 0x8000);                  // SOUND_SAMPLE_FALSE - play false start sound for player 1
+      if (player2_car == pCar->iDriverIdx)
+        sfxsample(29, 0x8000);                  // SOUND_SAMPLE_FALSE
+      pCar->byEngineStartTimer = 72;
     } else {
-      if ((__int16)player1_car == *(_DWORD *)(a1 + 32))
-        sfxsample(28, 0x8000, (_WORD)a3);
-      if (player2_car == *(_DWORD *)(a1 + 32))
-        sfxsample(28, 0x8000, (_WORD)a3);
-      *(_BYTE *)(a1 + 240) = -1;
-      *(_BYTE *)(a1 + 243) = 36;
+      if (player1_car == pCar->iDriverIdx)
+        sfxsample(28, 0x8000);                  // SOUND_SAMPLE_ESTART - play engine start sound for player 1
+      if (player2_car == pCar->iDriverIdx)
+        sfxsample(28, 0x8000);                  // SOUND_SAMPLE_ESTART
+      pCar->byThrottlePressed = -1;
+      pCar->byEngineStartTimer = 36;
     }
   }
-  if (*(float *)(a1 + 120) < 1.0) {
-    *(_DWORD *)(a1 + 292) = 0;
+  if (pCar->fRPMRatio < 1.0) {
+    pCar->fWheelSpinAccumulation = 0.0;
   } else {
-    v24 = *(float *)(a1 + 296) + *(float *)(a1 + 292);
-    *(float *)(a1 + 292) = v24;
-    if (v24 < control_c_variable_62)
-      *(_DWORD *)(a1 + 292) = -998637568;
+    dWheelSpinAccumulator = pCar->fWheelSpinFactor + pCar->fWheelSpinAccumulation;
+    pCar->fWheelSpinAccumulation = (float)dWheelSpinAccumulator;
+    if (dWheelSpinAccumulator < -1000.0)
+      pCar->fWheelSpinAccumulation = -1000.0;
   }
-  v25 = rand();
-  v26 = ((v25 - (__CFSHL__(v25 >> 31, 13) + (v25 >> 31 << 13))) >> 13) + 512 + *(_DWORD *)(a1 + 300);
-  *(_DWORD *)(a1 + 300) = v26;
-  if (v26 >= 0x4000)
-    *(_DWORD *)(a1 + 300) = v26 - 0x4000;
-  v27 = *(_WORD *)(a1 + 286);
-  if (v27 > 0)
-    *(_WORD *)(a1 + 286) = v27 - 1;
-  if (*(float *)(a1 + 24) >= (double)control_c_variable_63 && v253 >= 0) {
-    v28 = *(_DWORD *)(a1 + 64);
-    if (v28 > 4096 && v28 < 12288 && !*(_WORD *)(a1 + 286)) {
-      v29 = *(_DWORD *)(a1 + 32);
-      if ((__int16)player1_car == v29 || player2_car == v29)
-        speechsample(26, 0x8000, 18, *(_DWORD *)(a1 + 32));
-      *(_WORD *)(a1 + 286) = 360;
+  iRandomValue2 = rand();
+  iOscillationValue = ((iRandomValue2) >> 13) + 512 + pCar->iEngineVibrateOffset;
+  pCar->iEngineVibrateOffset = iOscillationValue;
+  if (iOscillationValue >= 0x4000)
+    pCar->iEngineVibrateOffset = iOscillationValue - 0x4000;
+  ReverseWarnCooldown = pCar->nReverseWarnCooldown;
+  if (ReverseWarnCooldown > 0)
+    pCar->nReverseWarnCooldown = ReverseWarnCooldown - 1;
+  if (pCar->fFinalSpeed >= 200.0 && nCurrentChunk >= 0) {
+    iCurrentYaw3 = pCar->nYaw3;
+    if (iCurrentYaw3 > 4096 && iCurrentYaw3 < 12288 && !pCar->nReverseWarnCooldown) {
+      iSpeechDriverIdx = pCar->iDriverIdx;
+      if (player1_car == iSpeechDriverIdx || player2_car == iSpeechDriverIdx)
+        speechsample(26, 0x8000, 18, pCar->iDriverIdx);// SOUND_SAMPLE_REVERSE - warn player about driving in reverse at high speed
+      pCar->nReverseWarnCooldown = 360;
     }
   }
-  v30 = *(_DWORD *)(a1 + 64);
-  if (v30 <= 4096 || v30 >= 12288 && *(float *)(a1 + 24) > 0.0)
-    *(_WORD *)(a1 + 286) = 180;
-  v31 = *(_DWORD *)(a1 + 32);
-  if (((__int16)player1_car == v31 || player2_car == v31)
-    && (v253 >= 0 && *(int *)(a1 + 64) < 4096 || *(int *)(a1 + 64) > 12288)) {
-    if ((double)samplespeed[v253] <= *(float *)(a1 + 24)) {
-      v32 = samplemax[v253];
-    } else if (*(float *)(a1 + 24) <= (double)control_c_variable_64) {
-      v32 = 0;
+  iYaw3Value = pCar->nYaw3;
+  if (iYaw3Value <= 4096 || iYaw3Value >= 12288 && pCar->fFinalSpeed > 0.0)
+    pCar->nReverseWarnCooldown = 180;
+  iAudioDriverIdx = pCar->iDriverIdx;
+  if ((player1_car == iAudioDriverIdx || player2_car == iAudioDriverIdx) && (nCurrentChunk >= 0 && pCar->nYaw3 < 4096 || pCar->nYaw3 > 12288)) {
+    if ((double)samplespeed[nCurrentChunk] <= pCar->fFinalSpeed) {
+      iAudioSample = samplemax[nCurrentChunk];
+    } else if (pCar->fFinalSpeed <= 80.0) {
+      iAudioSample = 0;
     } else {
-      v32 = samplemin[v253];
+      iAudioSample = samplemin[nCurrentChunk];
     }
-    if (v32) {
-      if (*(__int16 *)(a1 + 284) != v253) {
-        speechonly(v32 - 1, 0x8000, 18, *(_DWORD *)(a1 + 32));
-        *(_WORD *)(a1 + 284) = v253;
+    if (iAudioSample) {
+      if (pCar->nLastCommentaryChunk != nCurrentChunk) {
+        speechonly(iAudioSample - 1, 0x8000, 18, pCar->iDriverIdx);
+        pCar->nLastCommentaryChunk = nCurrentChunk;
       }
     } else {
-      *(_WORD *)(a1 + 284) = -1;
+      pCar->nLastCommentaryChunk = -1;
     }
   }
-  v33 = *(_WORD *)(a1 + 238);
-  if (v33)
-    *(_WORD *)(a1 + 238) = v33 - 1;
-  v245 = (*(float *)(a1 + 28) + control_c_variable_65) * control_c_variable_66;
-  if (v245 > 1.0)
-    v245 = 1.0;
-  *(float *)&v209 = CarEngines_variable_5[28 * v237] - CarEngines_variable_6[28 * v237];
-  v35 = *(int *)(a1 + 140);
-  *(float *)&v263 = COERCE_FLOAT(abs32(*(_DWORD *)(a1 + 140)));
-  v34 = (double)v263 * *(float *)&v209 * control_c_variable_67 + CarEngines_variable_6[28 * v237];
-  v210 = tcos[((unsigned __int16)CarEngines_variable_4[28 * v237] * (unsigned __int16)*(_DWORD *)(a1 + 144)) & 0x3FFF];
-  LODWORD(v35) = *(_DWORD *)(a1 + 72);
-  v213 = v34;
-  if ((_DWORD)v35 == 2)
-    v36 = (double)*(int *)(a1 + 140) * control_c_variable_68;
+  nChangeMateCooldown = pCar->nChangeMateCooldown;
+  if (nChangeMateCooldown)
+    pCar->nChangeMateCooldown = nChangeMateCooldown - 1;
+  fHealthAdjustment = (pCar->fHealth + 34.0f) * 0.01f;
+  if (fHealthAdjustment > 1.0)
+    fHealthAdjustment = 1.0;
+  fCameraOscillationRange = CarEngines.engines[byCarTypeIndex].fOscillationMax - CarEngines.engines[byCarTypeIndex].fOscillationMin;// Calculate camera pitch and roll offsets based on car engine oscillation
+  //fHorizontalSpeed = COERCE_FLOAT(abs(pCar->iPitchBackup));
+  //dOscillationFactor = (double)SLODWORD(fHorizontalSpeed) * fCameraOscillationRange * 0.00024414062 + CarEngines.engines[byCarTypeIndex].fOscillationMin;
+  dOscillationFactor = (double)abs(pCar->iPitchBackup) * fCameraOscillationRange * 0.00024414062 + CarEngines.engines[byCarTypeIndex].fOscillationMin;
+  fTempFloat1 = tcos[((uint16)CarEngines.engines[byCarTypeIndex].iOscillationFreq * (uint16)pCar->iCameraOscillationPhase) & 0x3FFF];
+  iControlType = pCar->iControlType;
+  fCameraOscillationBase = (float)dOscillationFactor;
+  if (iControlType == 2)
+    dPitchBackupCalc = (double)pCar->iPitchBackup * 0.9;
   else
-    v36 = (double)*(int *)(a1 + 140) * v213;
-  _CHP(v35, HIDWORD(v35));
-  *(_DWORD *)(a1 + 140) = (int)v36;
-  v37 = v36;
-  v38 = v210;
-  _CHP(v35, HIDWORD(v35));
-  *(_DWORD *)(a1 + 148) = (int)(v37 * v210);
-  v39 = (double)*(int *)(a1 + 152) * control_c_variable_68;
-  _CHP(v35, HIDWORD(v35));
-  *(_DWORD *)(a1 + 152) = (int)v39;
-  v40 = v38 * v39;
-  _CHP(v35, HIDWORD(v35));
-  *(_DWORD *)(a1 + 156) = (int)v40;
-  v41 = *(_DWORD *)(a1 + 72);
-  if (v41 == 3 || v41 == 2)
-    ++*(_DWORD *)(a1 + 144);
-  v42 = *(float *)(a1 + 112);
-  v259 = *(float *)(a1 + 116);
-  v43 = *(__int16 *)(a1 + 12);
-  v239 = v42 + v259 - *(float *)(a1 + 24);
-  if (v43 != -1 && *(_BYTE *)(a1 + 102) != 9) {
-    if (v239 <= (double)control_c_variable_69) {
-      if (v239 < (double)control_c_variable_70)
-        v239 = -6.0;
+    dPitchBackupCalc = (double)pCar->iPitchBackup * fCameraOscillationBase;
+  //_CHP();
+  pCar->iPitchBackup = (int)dPitchBackupCalc;
+  dTempPitchCalc = dPitchBackupCalc;
+  dCosineValue = fTempFloat1;
+  //_CHP();
+  pCar->iPitchCameraOffset = (int)(dTempPitchCalc * fTempFloat1);
+  dRollCalc = (double)pCar->iRollDampingMomentum * 0.9;
+  //_CHP();
+  pCar->iRollDampingMomentum = (int)dRollCalc;
+  //_CHP();
+  pCar->iRollCameraOffset = (int)(dCosineValue * dRollCalc);
+  iControlTypeCheck = pCar->iControlType;
+  if (iControlTypeCheck == 3 || iControlTypeCheck == 2)
+    ++pCar->iCameraOscillationPhase;
+  dBaseSpeed = pCar->fBaseSpeed;
+  fSpeedOverflow = pCar->fSpeedOverflow;
+  iChunkCheck = pCar->nCurrChunk;
+  fSpeedChangeRate = (float)dBaseSpeed + fSpeedOverflow - pCar->fFinalSpeed;
+  if (iChunkCheck != -1 && pCar->byCarDesignIdx != 9)// Speed change rate limiting - prevent unrealistic acceleration/deceleration
+  {
+    if (fSpeedChangeRate <= 2.0) {
+      if (fSpeedChangeRate < -6.0)
+        fSpeedChangeRate = -6.0;
     } else {
-      v239 = 2.0;
+      fSpeedChangeRate = 2.0;
     }
   }
-  v44 = *(float *)(a1 + 24) + v239;
-  v258 = v44;
-  if (fabs(v44) < control_c_variable_71) {
-    v258 = 0.0;
-    v259 = 0.0;
+  dNewSpeed = pCar->fFinalSpeed + fSpeedChangeRate;
+  fAbsoluteSpeed = (float)dNewSpeed;
+  if (fabs(dNewSpeed) < 0.1) {
+    fAbsoluteSpeed = 0.0;
+    fSpeedOverflow = 0.0;
   }
-  v45 = v258;
-  *(float *)(a1 + 24) = v258;
-  v258 = fabs(v45);
-  updatesmokeandflames(a1);
-  if (v258 > 0.0) {
-    if (v258 >= (double)control_c_variable_72) {
-      *(_BYTE *)(a1 + 278) = 4;
+  dAbsoluteSpeed = fAbsoluteSpeed;
+  pCar->fFinalSpeed = fAbsoluteSpeed;
+  fAbsoluteSpeed = (float)fabs(dAbsoluteSpeed);
+  updatesmokeandflames(pCar);
+  if (fAbsoluteSpeed > 0.0) {
+    if (fAbsoluteSpeed >= 300.0) {
+      pCar->byWheelAnimationFrame = 4;
     } else {
-      v262 = *(float *)(a1 + 108) - v258;
-      if (v262 < 0.0)
-        ++*(_BYTE *)(a1 + 278);
-      if (v258 >= (double)control_c_variable_73) {
-        while (v262 < 0.0)
-          v262 = v262 + control_c_variable_72;
-        if (*(char *)(a1 + 278) > 3)
-          *(_BYTE *)(a1 + 278) = 2;
+      fAnimationSpeed = pCar->fLastAnimationSpeed - fAbsoluteSpeed;
+      if (fAnimationSpeed < 0.0)
+        ++pCar->byWheelAnimationFrame;
+      if (fAbsoluteSpeed >= 100.0) {
+        while (fAnimationSpeed < 0.0)
+          fAnimationSpeed = fAnimationSpeed + 300.0f;
+        if ((char)pCar->byWheelAnimationFrame > 3)
+          pCar->byWheelAnimationFrame = 2;
       } else {
-        while (v262 < 0.0)
-          v262 = v262 + control_c_variable_58;
-        if (*(char *)(a1 + 278) > 1)
-          *(_BYTE *)(a1 + 278) = 0;
+        while (fAnimationSpeed < 0.0)
+          fAnimationSpeed = fAnimationSpeed + 50.0f;
+        if ((char)pCar->byWheelAnimationFrame > 1)
+          pCar->byWheelAnimationFrame = 0;
       }
-      *(float *)(a1 + 108) = v262;
+      pCar->fLastAnimationSpeed = fAnimationSpeed;
     }
   }
-  if (v253 != -1)
-    *(_WORD *)(a1 + 14) = v253;
-  if (v253 != -1)
-    *(_DWORD *)(a1 + 216) = v253;
-  v46 = *(_DWORD *)(a1 + 76);
-  if ((double)v256[22] > v258)
-    v46 = 0;
-  if ((cheat_mode & 0x8000u) != 0) {
-    if (v46 < 0) {
-      v47 = *(_DWORD *)(a1 + 136) - 8 * v256[15];
-      v48 = v256;
-      *(_DWORD *)(a1 + 136) = v47;
-      v49 = -8 * v48[16];
-      if (v49 > v47)
-        *(_DWORD *)(a1 + 136) = v49;
+  if (nCurrentChunk != -1)
+    pCar->nChunk2 = nCurrentChunk;
+  if (nCurrentChunk != -1)
+    pCar->iLastValidChunk = nCurrentChunk;
+  iSteeringInput = pCar->iSteeringInput;
+  if ((double)pCarEngine->iSteeringSpeedLimit > fAbsoluteSpeed)
+    iSteeringInput = 0;
+  // CHEAT_MODE_TINY_CARS
+  if ((cheat_mode & CHEAT_MODE_TINY_CARS) != 0)            // CHEAT_MODE_TINY_CARS - modified steering response
+  {
+    if (iSteeringInput < 0) {
+      iRollDynamicTemp = pCar->iRollDynamicOffset - 8 * pCarEngine->iRollResponseRate;
+      pEngineTemp = pCarEngine;
+      pCar->iRollDynamicOffset = iRollDynamicTemp;
+      iEngineCalc = -8 * pEngineTemp->iMaxRollOffset;
+      if (iEngineCalc > iRollDynamicTemp)
+        pCar->iRollDynamicOffset = iEngineCalc;
       goto LABEL_171;
     }
-    if (v46 > 0) {
-      v50 = 8 * v256[15] + *(_DWORD *)(a1 + 136);
-      v51 = v256;
-      *(_DWORD *)(a1 + 136) = v50;
-      v52 = 8 * v51[16];
-      if (v52 < v50)
-        *(_DWORD *)(a1 + 136) = v52;
+    if (iSteeringInput > 0) {
+      iRollTemp = 8 * pCarEngine->iRollResponseRate + pCar->iRollDynamicOffset;
+      pEngineTemp2 = pCarEngine;
+      pCar->iRollDynamicOffset = iRollTemp;
+      iEngineCalc2 = 8 * pEngineTemp2->iMaxRollOffset;
+      if (iEngineCalc2 < iRollTemp)
+        pCar->iRollDynamicOffset = iEngineCalc2;
       goto LABEL_171;
     }
-    v53 = *(_DWORD *)(a1 + 136);
-    if (v53 <= 0) {
-      v55 = 4 * v256[17] + v53;
-      *(_DWORD *)(a1 + 136) = v55;
-      if (v55 <= 0)
+    iRollDynamicOffset = pCar->iRollDynamicOffset;
+    if (iRollDynamicOffset <= 0) {
+      iOffsetCalc = 4 * pCarEngine->iRollCenteringRate + iRollDynamicOffset;
+      pCar->iRollDynamicOffset = iOffsetCalc;
+      if (iOffsetCalc <= 0)
         goto LABEL_171;
     } else {
-      v54 = 4 * v256[17];
-      *(_DWORD *)(a1 + 136) = v53 - v54;
-      if (v53 - v54 >= 0)
+      iEngineParam = 4 * pCarEngine->iRollCenteringRate;
+      pCar->iRollDynamicOffset = iRollDynamicOffset - iEngineParam;
+      if (iRollDynamicOffset - iEngineParam >= 0)
         goto LABEL_171;
     }
   LABEL_170:
-    *(_DWORD *)(a1 + 136) = 0;
+    pCar->iRollDynamicOffset = 0;
     goto LABEL_171;
   }
-  if (v46 <= 0) {
-    if (v46 >= 0) {
-      v62 = *(_DWORD *)(a1 + 136);
-      if (v62 <= 0) {
-        v64 = v256[17] + v62;
-        *(_DWORD *)(a1 + 136) = v64;
-        if (v64 <= 0)
+  if (iSteeringInput <= 0) {
+    if (iSteeringInput >= 0) {
+      iRollDynamicCheck = pCar->iRollDynamicOffset;
+      if (iRollDynamicCheck <= 0) {
+        iOffsetCalc2 = pCarEngine->iRollCenteringRate + iRollDynamicCheck;
+        pCar->iRollDynamicOffset = iOffsetCalc2;
+        if (iOffsetCalc2 <= 0)
           goto LABEL_171;
       } else {
-        v63 = v256[17];
-        *(_DWORD *)(a1 + 136) = v62 - v63;
-        if (v62 - v63 >= 0)
+        iRollCenteringRate = pCarEngine->iRollCenteringRate;
+        pCar->iRollDynamicOffset = iRollDynamicCheck - iRollCenteringRate;
+        if (iRollDynamicCheck - iRollCenteringRate >= 0)
           goto LABEL_171;
       }
       goto LABEL_170;
     }
-    v59 = v256[15] + *(_DWORD *)(a1 + 136);
-    v60 = v256;
-    *(_DWORD *)(a1 + 136) = v59;
-    v61 = v60[16];
-    if (v59 > v61)
-      *(_DWORD *)(a1 + 136) = v61;
+    iSteeringCalc2 = pCarEngine->iRollResponseRate + pCar->iRollDynamicOffset;
+    pEngineTemp4 = pCarEngine;
+    pCar->iRollDynamicOffset = iSteeringCalc2;
+    iUnk14 = pEngineTemp4->iMaxRollOffset;
+    if (iSteeringCalc2 > iUnk14)
+      pCar->iRollDynamicOffset = iUnk14;
   } else {
-    v56 = *(_DWORD *)(a1 + 136) - v256[15];
-    v57 = v256;
-    *(_DWORD *)(a1 + 136) = v56;
-    v58 = -v57[16];
-    if (v58 > v56)
-      *(_DWORD *)(a1 + 136) = v58;
+    iSteeringCalc = pCar->iRollDynamicOffset - pCarEngine->iRollResponseRate;
+    pEngineTemp3 = pCarEngine;
+    pCar->iRollDynamicOffset = iSteeringCalc;
+    iEngineCalc3 = -pEngineTemp3->iMaxRollOffset;
+    if (iEngineCalc3 > iSteeringCalc)
+      pCar->iRollDynamicOffset = iEngineCalc3;
   }
 LABEL_171:
-  *(_DWORD *)(a1 + 52) = *(_DWORD *)a1;
-  *(_DWORD *)(a1 + 56) = *(_DWORD *)(a1 + 4);
-  v65 = ViewType[0];
-  v66 = *(_DWORD *)(a1 + 32);
-  *(float *)(a1 + 60) = *(float *)(a1 + 8);
-  if (v65 == v66)
-    doviewtend(a1, 1, 0);
-  if (ViewType_variable_1 == *(_DWORD *)(a1 + 32))
-    doviewtend(a1, 1, 1);
-  v67 = *(__int16 *)(a1 + 12);
-  v68 = *(_DWORD *)(a1 + 72);
-  v69 = (float *)((char *)&localdata + 128 * v67);
-  if (v68 < 2) {
-    if (!v68) {
-      *(float *)(a1 + 48) = *(float *)(a1 + 48) + control_c_variable_78;
-      *(float *)a1 = *(float *)(a1 + 40) + *(float *)a1;
-      *(float *)(a1 + 4) = *(float *)(a1 + 44) + *(float *)(a1 + 4);
-      v164 = *(float *)(a1 + 48) + *(float *)(a1 + 8);
-      v263 = *(int *)(a1 + 36);
-      v224 = *(_DWORD *)(a1 + 48);
-      v214 = *(float *)&v263;
-      v165 = v263;
-      v211 = v224;
-      *(float *)(a1 + 8) = v164;
-      if ((v165 & 0x7FFFFFFF) != 0 || (v224 & 0x7FFFFFFF) != 0) {
-        IF_DATAN2(v214);
-        v167 = v214 * control_c_variable_74 / control_c_variable_75;
-        _CHP(v168, v67);
-        v263 = (int)v167;
-        v166 = (int)v167 & 0x3FFF;
+  pCar->pos2.fX = pCar->pos.fX;
+  pCar->pos2.fY = pCar->pos.fY;
+  iViewType = ViewType[0];
+  iViewDriverIdx = pCar->iDriverIdx;
+  pCar->pos2.fZ = pCar->pos.fZ;
+  if (iViewType == iViewDriverIdx)
+    doviewtend(pCar, 1, 0);
+  if (ViewType[1] == pCar->iDriverIdx)
+    doviewtend(pCar, 1, 1);
+  iControlTypeLocal = pCar->iControlType;       // Branch on car control type: 0=Free Movement, 1=?, 2=Ground, 3=AI/Player
+  pLocalData = (float *)&localdata[pCar->nCurrChunk];
+  if (iControlTypeLocal < 2) {
+    if (!iControlTypeLocal) {
+      pCar->direction.fZ = pCar->direction.fZ + -3.0f;// Free movement physics - direct position and direction updates
+      pCar->pos.fX = pCar->direction.fX + pCar->pos.fX;
+      pCar->pos.fY = pCar->direction.fY + pCar->pos.fY;
+      dDirectionZ = pCar->direction.fZ + pCar->pos.fZ;
+      fHorizontalSpeed = pCar->fHorizontalSpeed;
+      fCarPosZ = pCar->direction.fZ;
+      fHorizontalSpeedCopy = fHorizontalSpeed;
+      fHorizontalSpeedLocal = fHorizontalSpeed;
+      fDirectionZ = fCarPosZ;
+      pCar->pos.fZ = (float)dDirectionZ;
+      //if ((LODWORD(fHorizontalSpeedLocal) & 0x7FFFFFFF) != 0 || (LODWORD(fCarPosZ) & 0x7FFFFFFF) != 0) {
+      if (fabs(fHorizontalSpeedLocal) > FLT_EPSILON || fabs(fCarPosZ) > FLT_EPSILON) {
+        dAtanResult = atan2(fDirectionZ, fHorizontalSpeedCopy) * 16384.0 / 6.28318530718;
+        //_CHP();
+        //LODWORD(fHorizontalSpeed) = (int)dAtanResult;
+        iPitchAngle = (int)dAtanResult & 0x3FFF;
       } else {
-        LOWORD(v166) = 0;
+        iPitchAngle = 0;
+        //LOWORD(iPitchAngle) = 0;
       }
-      *(_WORD *)(a1 + 18) = v166;
-      v169 = *(_WORD *)(a1 + 200) + *(_WORD *)(a1 + 16);
-      HIBYTE(v169) &= 0x3Fu;
-      v170 = *(_DWORD *)(a1 + 64);
-      *(_WORD *)(a1 + 16) = v169;
-      v171 = ((_WORD)v170 - *(_WORD *)(a1 + 20)) & 0x3FFF;
-      v257 = *(__int16 *)(a1 + 20);
-      if ((unsigned int)v171 > 0x2000)
-        v171 -= 0x4000;
-      if ((int)abs32(v171) > 400) {
-        if (v171 <= 0)
-          v257 -= 400;
+      pCar->nPitch = iPitchAngle;
+      nRollAdjusted = (int16)(pCar->iRollMomentum) + pCar->nRoll;
+      nRollAdjusted &= 0x3FFFu;
+      //HIBYTE(nRollAdjusted) &= 0x3Fu;
+      iYaw3Current = pCar->nYaw3;
+      pCar->nRoll = nRollAdjusted;
+      iYawDelta = ((int16)iYaw3Current - pCar->nYaw) & 0x3FFF;
+      iYawCurrent = pCar->nYaw;
+      if ((unsigned int)iYawDelta > 0x2000)
+        iYawDelta -= 0x4000;
+      if ((int)abs(iYawDelta) > 400) {
+        if (iYawDelta <= 0)
+          iYawCurrent -= 400;
         else
-          v257 += 400;
-        v257 &= 0x3FFFu;
+          iYawCurrent += 400;
+        iYawCurrent &= 0x3FFFu;
       } else {
-        v257 = v170;
+        iYawCurrent = iYaw3Current;
       }
-      *(_WORD *)(a1 + 20) = v257;
-      landontrack(a1);
-      if ((*(_DWORD *)(a1 + 28) & 0x7FFFFFFF) == 0 && *(__int16 *)(a1 + 100) < -90)
+      pCar->nYaw = iYawCurrent;
+      landontrack(pCar);
+      //if ((LODWORD(pCar->fHealth) & 0x7FFFFFFF) == 0 && pCar->nDeathTimer < -90)
+      if (fabs(pCar->fHealth) == 0 && pCar->nDeathTimer < -90)
         goto LABEL_501;
     }
     goto LABEL_502;
   }
-  if (v68 > 2) {
-    if (v68 != 3)
+  if (iControlTypeLocal > 2) {
+    if (iControlTypeLocal != 3)
       goto LABEL_502;
-    if ((TrakColour_variable_5[12 * v67] & 0x100) == 0)
-      *(_BYTE *)(a1 + 244) = 0;
-    v70 = *(__int16 *)(a1 + 12);
-    v71 = v70 + 1;
-    if (v70 + 1 == TRAK_LEN)
-      v71 ^= TRAK_LEN;
-    v72 = *(float *)a1 + v69[12];
-    v208 = localdata_variable_5[32 * v70];
-    v207 = localdata_variable_5[32 * v71];
-    v73 = *(float *)a1 - v69[12];
-    v74 = 1.0 / (v69[12] * control_c_variable_69);
-    v261 = (v72 * *(float *)&v207 - v73 * *(float *)&v208) * v74;
-    v208 = TrackInfo[9 * v70];
-    v207 = TrackInfo[9 * v71];
-    v235 = (v72 * *(float *)&v207 - v73 * *(float *)&v208) * v74;
-    v207 = TrackInfo_variable_2[9 * v71];
-    v208 = TrackInfo_variable_2[9 * v70];
+    if ((TrakColour[pCar->nCurrChunk][1] & 0x1000000) == 0)
+      pCar->byPitLaneActiveFlag = 0;
+    iChunkCurrent = pCar->nCurrChunk;
+    iChunkNext = iChunkCurrent + 1;             // Track surface calculations - determine track width and banking angles
+    if (iChunkCurrent + 1 == TRAK_LEN)
+      iChunkNext ^= TRAK_LEN;
+    dPositionCalc = pCar->pos.fX + pLocalData[12];
+    fCurrentTrackHalfWidth = localdata[iChunkCurrent].fTrackHalfWidth;
+    fLeftShoulderTrackWidth = localdata[iChunkNext].fTrackHalfWidth;
+    dTrackPosCalc = pCar->pos.fX - pLocalData[12];
+    dInterpolationFactor = 1.0 / (pLocalData[12] * 2.0);
+    fTrackCenterLine = (float)((dPositionCalc * fLeftShoulderTrackWidth - dTrackPosCalc * fCurrentTrackHalfWidth) * dInterpolationFactor);
+    fCurrentTrackHalfWidth = TrackInfo[iChunkCurrent].fLShoulderWidth;
+    fLeftShoulderTrackWidth = TrackInfo[iChunkNext].fLShoulderWidth;
+    fLeftShoulderBoundary = (float)((dPositionCalc * fLeftShoulderTrackWidth - dTrackPosCalc * fCurrentTrackHalfWidth) * dInterpolationFactor);
+    fLeftShoulderTrackWidth = TrackInfo[iChunkNext].fRShoulderWidth;
+    fCurrentTrackHalfWidth = TrackInfo[iChunkCurrent].fRShoulderWidth;
     leftang = 0;
     rightang = 0;
-    v75 = TrackInfo_variable_6[9 * v70] - 1;
-    v244 = (v72 * *(float *)&v207 - v73 * *(float *)&v208) * v74;
-    switch (v75) {
+    iSurfaceType = TrackInfo[iChunkCurrent].iLeftSurfaceType - 1;
+    fRightShoulderBoundary = (float)((dPositionCalc * fLeftShoulderTrackWidth - dTrackPosCalc * fCurrentTrackHalfWidth) * dInterpolationFactor);
+    switch (iSurfaceType) {
       case 0:
       case 2:
       case 3:
       case 6:
       case 7:
-        v76 = v69[12] * control_c_variable_69;
+        fBankingCalc1 = TrackInfo[iChunkNext].fLShoulderWidth
+          + localdata[iChunkNext].fTrackHalfWidth
+          - (TrackInfo[iChunkCurrent].fLShoulderWidth
+           + localdata[iChunkCurrent].fTrackHalfWidth);
+        fBankingCalc2 = pLocalData[12] * 2.0;
         goto LABEL_188;
       case 4:
       case 5:
       case 8:
-        v76 = v69[12] * control_c_variable_69;
-        v208 = localdata_variable_5[32 * v70];
-        v207 = localdata_variable_5[32 * v71];
+        fBankingCalc2 = pLocalData[12] * 2.0;
+        fCurrentTrackHalfWidth = localdata[iChunkCurrent].fTrackHalfWidth;
+        fLeftShoulderTrackWidth = localdata[iChunkNext].fTrackHalfWidth;
+        fBankingCalc1 = fLeftShoulderTrackWidth - fCurrentTrackHalfWidth;
       LABEL_188:
-        IF_DATAN2(v76);
-        v77 = v76 * control_c_variable_74 / control_c_variable_75;
-        _CHP(v78, v71);
-        v209 = (int)v77;
-        leftang = (int)v77 & 0x3FFF;
+        dLeftBankAngle = atan2(fBankingCalc1, fBankingCalc2) * 16384.0 / 6.28318530718;
+        //_CHP();
+        //LODWORD(fCameraOscillationRange) = (int)dLeftBankAngle;
+        leftang = (int)dLeftBankAngle & 0x3FFF;
         break;
       default:
         break;
     }
-    switch (TrackInfo_variable_7[9 * v70]) {
+    switch (TrackInfo[iChunkCurrent].iRightSurfaceType) {
       case 1:
       case 3:
       case 4:
       case 7:
       case 8:
-        v79 = v71 << 7;
-        v80 = v69[12] * control_c_variable_69;
+        fRightBankCalc = pLocalData[12] * 2.0;
+        fRightBankCalc2 = TrackInfo[iChunkCurrent].fRShoulderWidth
+          + localdata[iChunkCurrent].fTrackHalfWidth
+          - (TrackInfo[iChunkNext].fRShoulderWidth
+           + localdata[iChunkNext].fTrackHalfWidth);
         goto LABEL_192;
       case 5:
       case 6:
       case 9:
-        v80 = v69[12] * control_c_variable_69;
-        v208 = localdata_variable_5[32 * v70];
-        v79 = v71 << 7;
-        v207 = *(int *)((char *)localdata_variable_5 + v79);
+        fRightBankCalc = pLocalData[12] * 2.0;
+        fCurrentTrackHalfWidth = localdata[iChunkCurrent].fTrackHalfWidth;
+        fLeftShoulderTrackWidth = localdata[iChunkNext].fTrackHalfWidth;
+        fRightBankCalc2 = fCurrentTrackHalfWidth - fLeftShoulderTrackWidth;
       LABEL_192:
-        IF_DATAN2(v80);
-        v81 = v80 * control_c_variable_74 / control_c_variable_75;
-        _CHP(v82, v79);
-        v205 = (int)v81;
-        rightang = (int)v81 & 0x3FFF;
+        dRightBankAngle = atan2(fRightBankCalc2, fRightBankCalc) * 16384.0 / 6.28318530718;
+        //_CHP();
+        iRightBankAngle = (int)dRightBankAngle;
+        rightang = (int)dRightBankAngle & 0x3FFF;
         break;
       default:
         break;
     }
-    if (*(float *)(a1 + 4) <= (double)v261) {
-      if (-v261 <= *(float *)(a1 + 4))
-        *(_DWORD *)(a1 + 212) = 1;
+    if (pCar->pos.fY <= (double)fTrackCenterLine) {
+      if (-fTrackCenterLine <= pCar->pos.fY)
+        pCar->iLaneType = 1;
       else
-        *(_DWORD *)(a1 + 212) = 2;
+        pCar->iLaneType = 2;
     } else {
-      *(_DWORD *)(a1 + 212) = 0;
+      pCar->iLaneType = 0;
     }
-    if (finished_car[*(_DWORD *)(a1 + 32)] || death_race) {
-      v84 = 0;
-      v83 = 1;
+    if (finished_car[pCar->iDriverIdx] || death_race) {
+      iTrackColorFlag = 0;
+      bZeroFlag = 1;
     } else {
-      v84 = *((_DWORD *)&TrakColour + 6 * *(__int16 *)(a1 + 12) + *(_DWORD *)(a1 + 212)) & 0x2000000;
-      v83 = v84 == 0;
+      iTrackColorFlag = TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x2000000;
+      bZeroFlag = iTrackColorFlag == 0;
     }
-    if (v83)
-      Car_variable_33[0] &= ~8u;
-    if ((LODWORD(v258) & 0x7FFFFFFF) != 0)
-      *(_BYTE *)(a1 + 304) = 0;
-    if ((LODWORD(v258) & 0x7FFFFFFF) != 0 || !v84 || (*(_BYTE *)(a1 + 131) & 4) != 0) {
-      *(_BYTE *)(a1 + 184) = 0;
+    if (bZeroFlag)
+      Car[0].byStatusFlags &= ~8u;
+    //if ((LODWORD(fAbsoluteSpeed) & 0x7FFFFFFF) != 0)
+    if (fabs(fAbsoluteSpeed) > FLT_EPSILON)
+      pCar->byRepairSpeechPlayed = 0;
+    //if ((LODWORD(fAbsoluteSpeed) & 0x7FFFFFFF) != 0 || !iTrackColorFlag || (pCar->byStatusFlags & 4) != 0) {
+    if (fabs(fAbsoluteSpeed) > FLT_EPSILON || !iTrackColorFlag || (pCar->byStatusFlags & 4) != 0) {
+      pCar->byDebugDamage = 0;
     } else {
-      v85 = (__int16)player1_car;
-      v86 = *(_DWORD *)(a1 + 32);
-      *(_BYTE *)(a1 + 276) = 8;
-      if ((v85 == v86 || player2_car == v86)
-        && !*(_BYTE *)(a1 + 304)
-        && *(float *)(a1 + 28) < (double)control_c_variable_73) {
-        v87 = *(_DWORD *)(a1 + 32);
-        *(_BYTE *)(a1 + 304) = -1;
-        speechonly(41, 0x8000, 18, v87);
+      iPlayer1CarIdx = player1_car;
+      iCurrentDriverIdx2 = pCar->iDriverIdx;
+      pCar->byCheatAmmo = 8;
+      if ((iPlayer1CarIdx == iCurrentDriverIdx2 || player2_car == iCurrentDriverIdx2) && !pCar->byRepairSpeechPlayed && pCar->fHealth < 100.0) {
+        iSpeechDriverIdx2 = pCar->iDriverIdx;
+        pCar->byRepairSpeechPlayed = -1;
+        speechonly(SOUND_SAMPLE_MENDING, 0x8000, 18, iSpeechDriverIdx2);// SOUND_SAMPLE_MENDING - play repair sound when health is low
       }
-      *(_BYTE *)(a1 + 184) = -1;
-      v88 = *(__int16 *)(a1 + 12);
-      *(_BYTE *)(a1 + 131) |= 8u;
-      if ((TrakColour_variable_5[12 * v88] & 0x400) != 0) {
-        v89 = 0;
+      pCar->byDebugDamage = -1;
+      iCurrentChunk2 = pCar->nCurrChunk;
+      pCar->byStatusFlags |= 8u;
+      if ((TrakColour[iCurrentChunk2][1] & 0x4000000) != 0)// Handle special pit lane targeting for AI cars on repair strips
+      {
+        iLoopCounter = 0;
         if (numcars > 0) {
-          v90 = numcars;
-          v91 = 0;
+          iNumCarsLocal = numcars;
+          iArrayIndex = 0;
           do {
-            if (v89 != *(_DWORD *)(a1 + 32) && *(__int16 *)(a1 + 12) == Car_variable_49[v91])
-              Car_variable_49[v91] = -1;
-            ++v89;
-            v91 += 77;
-          } while (v89 < v90);
+            if (iLoopCounter != pCar->iDriverIdx && pCar->nCurrChunk == Car[iArrayIndex].iAITargetCar)
+              Car[iArrayIndex].iAITargetCar = -1;
+            ++iLoopCounter;
+            ++iArrayIndex;
+          } while (iLoopCounter < iNumCarsLocal);
         }
-        *(_DWORD *)(a1 + 208) = *(__int16 *)(a1 + 12);
+        pCar->iAITargetCar = pCar->nCurrChunk;
       }
-      v92 = *(float *)(a1 + 28) + control_c_variable_79;
-      *(float *)(a1 + 28) = v92;
-      if (v92 >= control_c_variable_73) {
-        v93 = (__int16)player1_car;
-        v94 = *(_DWORD *)(a1 + 32);
-        *(_DWORD *)(a1 + 28) = 1120403456;
-        if ((v93 == v94 || player2_car == v94) && *(_BYTE *)(a1 + 304)) {
-          speechonly(42, 0x8000, 18, *(_DWORD *)(a1 + 32));
-          *(_BYTE *)(a1 + 304) = 0;
+      dHealthIncrease = pCar->fHealth + 0.5;
+      pCar->fHealth = (float)dHealthIncrease;
+      if (dHealthIncrease >= 100.0) {
+        iPlayer1Check = player1_car;
+        iDriverForHealth = pCar->iDriverIdx;
+        pCar->fHealth = 100.0;
+        if ((iPlayer1Check == iDriverForHealth || player2_car == iDriverForHealth) && pCar->byRepairSpeechPlayed) {
+          speechonly(SOUND_SAMPLE_FIXED, 0x8000, 18, pCar->iDriverIdx);// SOUND_SAMPLE_FIXED - play repair complete sound when health reaches 100%
+          pCar->byRepairSpeechPlayed = 0;
         }
-        *(_BYTE *)(a1 + 184) = 0;
-        *(_BYTE *)(a1 + 131) = 0;
+        pCar->byDebugDamage = 0;
+        pCar->byStatusFlags = 0;
       }
     }
-    v95 = localdata_variable_12[32 * *(__int16 *)(a1 + 12)];
-    if (*(float *)(a1 + 4) > (double)v261)
-      v95 = localdata_variable_13[32 * *(__int16 *)(a1 + 12)];
-    if (-v261 > *(float *)(a1 + 4))
-      v95 = localdata_variable_14[32 * *(__int16 *)(a1 + 12)];
-    if ((cheat_mode & 0x400) != 0)
-      v95 = 10;
-    v96 = (double)surface_variable_1[4 * v95];
-    v241 = *(float *)&surface[4 * v95];
-    v97 = *(_BYTE *)(a1 + 131);
-    v242 = (v96 + CarEngines_variable_8[28 * v237]) / (control_c_variable_81 - v245 * control_c_variable_80);
-    if ((v97 & 4) != 0)
-      v246 = 10.0;
+    iCenterGrip = localdata[pCar->nCurrChunk].iCenterGrip;// Calculate grip values based on car position (center track vs shoulders)
+    if (pCar->pos.fY > (double)fTrackCenterLine)
+      iCenterGrip = localdata[pCar->nCurrChunk].iLeftShoulderGrip;
+    if (-fTrackCenterLine > pCar->pos.fY)
+      iCenterGrip = localdata[pCar->nCurrChunk].iRightShoulderGrip;
+    // CHEAT_MODE_ICY_ROAD
+    if ((cheat_mode & CHEAT_MODE_ICY_ROAD) != 0)            // CHEAT_MODE grip hack - force maximum grip value of 10
+      iCenterGrip = 10;
+    dSurfaceValue = (double)surface[iCenterGrip].iGripModifier;
+    fSurfaceGripValue = surface[iCenterGrip].fBaseGrip;
+    byStatusFlags = pCar->byStatusFlags;
+    fCurrentGripMultiplier = (float)((dSurfaceValue + CarEngines.engines[byCarTypeIndex].fGripBonus) / (2.5 - fHealthAdjustment * 1.5));
+    if ((byStatusFlags & 4) != 0)
+      fMaxGripLimit_1 = 10.0;
     else
-      v246 = *(float *)&CarEngines_variable_9[28 * v237];
-    if (v242 > (double)v246)
-      v242 = v246;
-    if (v242 < 0.0)
-      v242 = 0.0;
-    v98 = 4 * v95;
-    v234 = surface_variable_2[v98] * v245;
-    v240 = ((double)surface_variable_3[v98] + CarEngines_variable_8[28 * v237])
-      / (control_c_variable_81 - v245 * control_c_variable_80);
-    v246 = v246 * control_c_variable_82;
-    if (v240 > (double)v246)
-      v240 = v246;
-    if (v240 < 0.0)
-      v240 = 0.0;
-    v99 = *(__int16 *)(a1 + 12);
-    v100 = *(float *)(a1 + 4);
-    v101 = (float *)((char *)&localdata + 128 * v99);
-    v102 = &TrackInfo[9 * v99];
-    v222 = v101[19];
-    if (v100 <= v261) {
-      if (-v261 <= *(float *)(a1 + 4))
-        v236 = v101[20];
+      fMaxGripLimit_1 = CarEngines.engines[byCarTypeIndex].fMaxGripLimit;
+    if (fCurrentGripMultiplier > (double)fMaxGripLimit_1)
+      fCurrentGripMultiplier = fMaxGripLimit_1;
+    if (fCurrentGripMultiplier < 0.0)
+      fCurrentGripMultiplier = 0.0;
+    iGripIndex = iCenterGrip;
+    fSurfaceGripBase = surface[iGripIndex].fGripMultiplier * fHealthAdjustment;
+    fTempGrip = (float)(((double)surface[iGripIndex].iSecondaryGrip + CarEngines.engines[byCarTypeIndex].fGripBonus) / (2.5 - fHealthAdjustment * 1.5));
+    fMaxGripLimit_1 = fMaxGripLimit_1 * 0.5f;
+    if (fTempGrip > (double)fMaxGripLimit_1)
+      fTempGrip = fMaxGripLimit_1;
+    if (fTempGrip < 0.0)
+      fTempGrip = 0.0;
+    iChunkIdx = pCar->nCurrChunk;
+    fY = pCar->pos.fY;
+    pPointAy = localdata[iChunkIdx].pointAy;
+    pTrackInfo = &TrackInfo[iChunkIdx];
+    fTrackPointY = pPointAy[6].fY;
+    if (fY <= fTrackCenterLine) {
+      if (-fTrackCenterLine <= pCar->pos.fY)
+        fZ = pPointAy[6].fZ;
       else
-        v236 = v101[20] * tcos[v102[5] & 0x3FFF] - v101[21] * tsin[v102[5] & 0x3FFF];
+        fZ = pPointAy[6].fZ * tcos[pTrackInfo->iRightBankAngle & 0x3FFF] - pPointAy[7].fX * tsin[pTrackInfo->iRightBankAngle & 0x3FFF];
     } else {
-      v236 = v101[20] * tcos[v102[4] & 0x3FFF] + v101[21] * tsin[v102[4] & 0x3FFF];
+      fZ = pPointAy[6].fZ * tcos[pTrackInfo->iLeftBankAngle & 0x3FFF] + pPointAy[7].fX * tsin[pTrackInfo->iLeftBankAngle & 0x3FFF];
     }
-    v103 = *(__int16 *)(a1 + 20);
-    v233 = v222 * tcos[v103] + v236 * tsin[v103];
-    v212 = -v222 * tsin[v103] + v236 * tcos[v103];
-    v104 = *(_DWORD *)(a1 + 120);
-    v248 = v258 * control_c_variable_83;
-    if (v104 != 1065353216 || *(char *)(a1 + 128) == -1) {
-      if ((LODWORD(v233) & 0x7FFFFFFF) == 0) {
-        if (v259 >= 0.0) {
-          if (v259 > 0.0) {
-            v108 = v259 + control_c_variable_84;
-            v259 = v108;
-            if (v108 <= control_c_variable_71)
-              v259 = 0.0;
+    iCurrentYaw = pCar->nYaw;
+    fBankingForceY = fTrackPointY * tcos[iCurrentYaw] + fZ * tsin[iCurrentYaw];
+    fBankingForceX = -fTrackPointY * tsin[iCurrentYaw] + fZ * tcos[iCurrentYaw];
+    fRPMRatio = pCar->fRPMRatio;                // Physics calculations - banking effects on car movement
+    fSpeedScaled = fAbsoluteSpeed * 0.015f;
+    if (fRPMRatio != 1.0 || (char)pCar->byGearAyMax == -1) {
+      //if ((LODWORD(fBankingForceY) & 0x7FFFFFFF) == 0) {
+      if (fabs(fBankingForceY) == 0) {
+        if (fSpeedOverflow >= 0.0) {
+          if (fSpeedOverflow > 0.0) {
+            dSpeedOverflowCalc4 = fSpeedOverflow + -1.0;
+            fSpeedOverflow = (float)dSpeedOverflowCalc4;
+            if (dSpeedOverflowCalc4 <= 0.1)
+              fSpeedOverflow = 0.0;
           }
         } else {
-          v107 = v259 + 1.0;
-          v259 = v107;
-          if (v107 >= control_c_variable_85)
-            v259 = 0.0;
+          dSpeedOverflowCalc3 = fSpeedOverflow + 1.0;
+          fSpeedOverflow = (float)dSpeedOverflowCalc3;
+          if (dSpeedOverflowCalc3 >= -0.1)
+            fSpeedOverflow = 0.0;
         }
       }
-    } else if (v259 >= 0.0) {
-      if (v259 > 0.0) {
-        v106 = v259 + control_c_variable_84;
-        v259 = v106;
-        if (v106 <= control_c_variable_71)
-          v259 = 0.0;
+    } else if (fSpeedOverflow >= 0.0) {
+      if (fSpeedOverflow > 0.0) {
+        dSpeedOverflowCalc2 = fSpeedOverflow + -1.0;
+        fSpeedOverflow = (float)dSpeedOverflowCalc2;
+        if (dSpeedOverflowCalc2 <= 0.1)
+          fSpeedOverflow = 0.0;
       }
     } else {
-      v105 = v259 + 1.0;
-      v259 = v105;
-      if (v105 >= control_c_variable_85)
-        v259 = 0.0;
+      dSpeedOverflowCalc1 = fSpeedOverflow + 1.0;
+      fSpeedOverflow = (float)dSpeedOverflowCalc1;
+      if (dSpeedOverflowCalc1 >= -0.1)
+        fSpeedOverflow = 0.0;
     }
-    *(float *)(a1 + 116) = v259;
-    v250 = *(_DWORD *)(a1 + 76);
-    if (!v250)
+    pCar->fSpeedOverflow = fSpeedOverflow;
+    iSteeringInputProcessed = pCar->iSteeringInput;// Process steering input and apply speed-based steering modifiers
+    if (!iSteeringInputProcessed)
       goto LABEL_272;
-    if (*(float *)(a1 + 24) < 0.0) {
-      v109 = v250;
-      v209 = -v250;
-      v110 = (control_c_variable_87 - v258 * control_c_variable_86) * (double)-v250 * control_c_variable_88;
+    if (pCar->fFinalSpeed < 0.0) {
+      //LODWORD(fCameraOscillationRange) = -iSteeringInputProcessed;
+      dSteeringSpeedCalc = (4500.0 - fAbsoluteSpeed * 23.0) * (double)-iSteeringInputProcessed * 0.00039999999;
     } else {
-      if (v258 >= (double)control_c_variable_89) {
+      if (fAbsoluteSpeed >= 360.0) {
       LABEL_272:
-        v111 = (double)v256[22];
-        v250 += *(_DWORD *)(a1 + 80);
-        if (v111 > v258)
-          v250 = 0;
-        v257 = ((unsigned __int16)*(_DWORD *)(a1 + 68) + (_WORD)v250 + (_WORD)v257) & 0x3FFF;
-        *(_WORD *)(a1 + 20) = v257;
-        v112 = v249;
-        if ((int)abs32(v249) > 50) {
-          if (v249 <= 0)
-            v249 += 50;
+        iUnk20 = (double)pCarEngine->iSteeringSpeedLimit;
+        iSteeringInputProcessed += pCar->iBankingSteerOffset;
+        if (iUnk20 > fAbsoluteSpeed)
+          iSteeringInputProcessed = 0;
+        iYawCurrent = ((uint16)pCar->iJumpMomentum + (int16)iSteeringInputProcessed + (int16)iYawCurrent) & 0x3FFF;
+        pCar->nYaw = iYawCurrent;
+        if ((int)abs(iJumpMomentum) > 50) {
+          if (iJumpMomentum <= 0)
+            iJumpMomentum += 50;
           else
-            v249 -= 50;
+            iJumpMomentum -= 50;
         } else {
-          HIDWORD(v112) = 0;
-          v249 = 0;
+          iJumpMomentum = 0;
         }
-        v113 = v257;
-        *(_DWORD *)(a1 + 68) = v249;
-        if (v113 < 4096 || v113 >= 12288)
-          v226 = CarBaseY;
+        iYawForCarBase = iYawCurrent;
+        pCar->iJumpMomentum = iJumpMomentum;
+        if (iYawForCarBase < 4096 || iYawForCarBase >= 12288)
+          fCarBaseYProjected = CarBaseY;
         else
-          *(float *)&v226 = -*(float *)&CarBaseY;
-        if (v257 >= 0x2000)
-          v223 = CarBaseX;
+          fCarBaseYProjected = -CarBaseY;
+        if (iYawCurrent >= 0x2000)
+          fTrackBankingY = CarBaseX;
         else
-          *(float *)&v223 = -*(float *)&CarBaseX;
-        v260 = *(float *)&v226 * tcos[v257] - *(float *)&v223 * tsin[v257];
-        if ((((_WORD)v257 + 4096) & 0x3FFFu) < 0x1000 || (((_WORD)v257 + 4096) & 0x3FFFu) >= 0x3000) {
-          HIDWORD(v112) = CarBaseY;
-          v227 = CarBaseY;
+          fTrackBankingY = -CarBaseX;
+        fCarHalfWidthProjected = fCarBaseYProjected * tcos[iYawCurrent] - fTrackBankingY * tsin[iYawCurrent];
+        if ((((int16)iYawCurrent + 4096) & 0x3FFFu) < 0x1000 || (((int16)iYawCurrent + 4096) & 0x3FFFu) >= 0x3000)
+          fTrackBankingX = CarBaseY;
+        else
+          fTrackBankingX = -CarBaseY;
+        if ((((int16)iYawCurrent + 4096) & 0x3FFFu) >= 0x2000)
+          fCarBaseXProjected = CarBaseX;
+        else
+          fCarBaseXProjected = -CarBaseX;
+        pCar->fCarWidthBankingProjection = fTrackBankingX * tcos[((int16)iYawCurrent + 4096) & 0x3FFF] - fCarBaseXProjected * tsin[((int16)iYawCurrent + 4096) & 0x3FFF];
+        dCurrentSpeed = fAbsoluteSpeed;
+        pCar->fCarHalfWidth = fCarHalfWidthProjected;
+        fSpeedLimited = fAbsoluteSpeed;
+        if (dCurrentSpeed > 100.0)
+          fSpeedLimited = 100.0;
+        //_CHP();
+        pCar->iBankingSteerOffset = (int)(fSpeedLimited * fBankingForceX * 0.16666667);
+        if (pCar->iBankingSteerOffset > 16)
+          pCar->iBankingSteerOffset = 16;
+        if (pCar->iBankingSteerOffset < -16)
+          pCar->iBankingSteerOffset = -16;
+        if (race_started && !pCar->byDebugDamage)// Update car position and handle track collision detection
+        {
+          if ((fBankingForceY > 0.0 || fAbsoluteSpeed > 2.0) && pCar->fHealth > 0.0)
+            pCar->fSpeedOverflow = fBankingForceY * 0.125f + pCar->fSpeedOverflow;
         } else {
-          *(float *)&v227 = -*(float *)&CarBaseY;
+          pCar->fSpeedOverflow = 0.0;
         }
-        if ((((_WORD)v257 + 4096) & 0x3FFFu) >= 0x2000) {
-          HIDWORD(v112) = CarBaseX;
-          v228 = CarBaseX;
-        } else {
-          *(float *)&v228 = -*(float *)&CarBaseX;
-        }
-        *(float *)(a1 + 88) = *(float *)&v227 * tcos[((_WORD)v257 + 4096) & 0x3FFF]
-          - *(float *)&v228 * tsin[((_WORD)v257 + 4096) & 0x3FFF];
-        v115 = v258;
-        *(float *)(a1 + 84) = v260;
-        WORD1(v112) = HIWORD(v258);
-        v221 = v258;
-        v116 = v115 < control_c_variable_73;
-        v117 = 0;
-        v118 = v115 == control_c_variable_73;
-        LOWORD(v112) = v114;
-        if (v115 > control_c_variable_73)
-          v221 = 100.0;
-        v119 = v221 * v212 * control_c_variable_91;
-        _CHP(v112, HIDWORD(v112));
-        *(_DWORD *)(a1 + 80) = (int)v119;
-        if (*(int *)(a1 + 80) > 16)
-          *(_DWORD *)(a1 + 80) = 16;
-        if (*(int *)(a1 + 80) < -16)
-          *(_DWORD *)(a1 + 80) = -16;
-        if (race_started[0] && !*(_BYTE *)(a1 + 184)) {
-          if ((v233 > 0.0 || v258 > (double)control_c_variable_69) && *(float *)(a1 + 28) > 0.0)
-            *(float *)(a1 + 116) = v233 * control_c_variable_92 + *(float *)(a1 + 116);
-        } else {
-          *(_DWORD *)(a1 + 116) = 0;
-        }
-        v243 = *(float *)(a1 + 24);
-        if (v243 < 1.0 && *(char *)(a1 + 128) >= 0 && *(float *)(a1 + 124) > 0.0)
-          v243 = 1.0;
-        v120 = v243;
-        v121 = v229;
-        *(float *)a1 = v243 * tcos[v229] + *(float *)a1;
-        *(float *)(a1 + 4) = v120 * tsin[v121] + *(float *)(a1 + 4);
-        if (v120 < control_c_variable_63)
-          *(float *)(a1 + 8) = v243 * tsin[*(__int16 *)(a1 + 18)] + *(float *)(a1 + 8);
-        v122 = (float *)((char *)&localdata + 128 * *(__int16 *)(a1 + 12));
-        *(float *)(a1 + 8) = v122[21] + *(float *)(a1 + 8);
-        if (fabs(*(float *)a1) > v122[12])
-          scansection(a1);
-        v123 = *(float *)(a1 + 4);
-        v124 = *(__int16 *)(a1 + 12);
-        v253 = v124;
-        if (v123 <= v261) {
-          if (-v261 <= *(float *)(a1 + 4))
-            v125 = *((_DWORD *)&TrakColour_variable_3 + 6 * v124);
+        fFinalSpeedThisFrame = pCar->fFinalSpeed;
+        if (fFinalSpeedThisFrame < 1.0 && (pCar->byGearAyMax & 0x80u) == 0 && pCar->fPower > 0.0)
+          fFinalSpeedThisFrame = 1.0;
+        dMovementSpeed = fFinalSpeedThisFrame;
+        iYaw3ForMovement = iYaw3;
+        pCar->pos.fX = fFinalSpeedThisFrame * tcos[iYaw3] + pCar->pos.fX;
+        pCar->pos.fY = (float)dMovementSpeed * tsin[iYaw3ForMovement] + pCar->pos.fY;
+        if (dMovementSpeed < 200.0)
+          pCar->pos.fZ = fFinalSpeedThisFrame * tsin[pCar->nPitch] + pCar->pos.fZ;
+        pChunkData = &localdata[pCar->nCurrChunk];
+        pCar->pos.fZ = pChunkData->gravity.fZ + pCar->pos.fZ;
+        if (fabs(pCar->pos.fX) > pChunkData->fTrackHalfLength)
+          scansection(pCar);
+        dPositionY = pCar->pos.fY;
+        iChunkForColor = pCar->nCurrChunk;
+        nCurrentChunk = iChunkForColor;
+        if (dPositionY <= fTrackCenterLine) {
+          if (-fTrackCenterLine <= pCar->pos.fY)
+            iTrackColorValue = TrakColour[iChunkForColor][1];
           else
-            v125 = *((_DWORD *)&TrakColour_variable_7 + 6 * v124);
+            iTrackColorValue = TrakColour[iChunkForColor][2];
         } else {
-          v125 = *((_DWORD *)&TrakColour + 6 * v124);
+          iTrackColorValue = TrakColour[iChunkForColor][0];
         }
-        v126 = abs32(v125) & 0x80000;
-        if (*(float *)(a1 + 24) < 0.0)
-          v126 = 0;
-        if ((v125 & 0x8000) != 0 && *(float *)(a1 + 24) > (double)control_c_variable_93)
-          v126 = 0;
-        v127 = 0;
-        if ((TrakColour_variable_5[12 * *(__int16 *)(a1 + 12)] & 0x40) != 0 && v261 >= fabs(*(float *)(a1 + 4)) - v260) {
-          if (*(float *)(a1 + 4) < 0.0) {
-            *(float *)(a1 + 4) = -v261 - v260;
-            hitleft(a1, 12, 1, v126);
+        uiJumpFlag = abs(iTrackColorValue) & SURFACE_FLAG_NON_MAGNETIC;
+        if (pCar->fFinalSpeed < 0.0)
+          uiJumpFlag = 0;
+        if ((iTrackColorValue & SURFACE_FLAG_ANMS_LIVERY) != 0 && pCar->fFinalSpeed > 240.0)
+          uiJumpFlag = 0;
+        iCollisionFlag = 0;
+        if ((TrakColour[pCar->nCurrChunk][1] & SURFACE_FLAG_WALL_22) != 0 && fTrackCenterLine >= fabs(pCar->pos.fY) - fCarHalfWidthProjected) {
+          if (pCar->pos.fY < 0.0) {
+            pCar->pos.fY = -fTrackCenterLine - fCarHalfWidthProjected;
+            hitleft(pCar, 12, 1);
           } else {
-            *(float *)(a1 + 4) = v261 + v260;
-            hitright(a1, 12, 0, v126);
+            pCar->pos.fY = fTrackCenterLine + fCarHalfWidthProjected;
+            hitright(pCar, 12, 0);
           }
-          v127 = -1;
+          iCollisionFlag = -1;
         }
-        if ((TrakColour_variable_1[12 * *(__int16 *)(a1 + 12)] & 0x40) != 0 && *(float *)(a1 + 4) + v260 >= v261) {
-          *(float *)(a1 + 4) = v261 - v260;
-          hitleft(a1, 12, 0, v126);
-          v127 = -1;
+        if ((TrakColour[pCar->nCurrChunk][0] & SURFACE_FLAG_WALL_22) != 0 && pCar->pos.fY + fCarHalfWidthProjected >= fTrackCenterLine) {
+          pCar->pos.fY = fTrackCenterLine - fCarHalfWidthProjected;
+          hitleft(pCar, 12, 0);
+          iCollisionFlag = -1;
         }
-        if ((TrakColour_variable_8[12 * *(__int16 *)(a1 + 12)] & 0x40) != 0 && -v261 >= *(float *)(a1 + 4) - v260) {
-          *(float *)(a1 + 4) = v260 - v261;
-          hitright(a1, 12, 1, v126);
-          v127 = -1;
+        if ((TrakColour[pCar->nCurrChunk][2] & SURFACE_FLAG_WALL_22) != 0 && -fTrackCenterLine >= pCar->pos.fY - fCarHalfWidthProjected) {
+          pCar->pos.fY = fCarHalfWidthProjected - fTrackCenterLine;
+          hitright(pCar, 12, 1);
+          iCollisionFlag = -1;
         }
-        if (!v127) {
-          v251 = *(float *)(a1 + 8);
-          if (*(_DWORD *)(a1 + 204)) {
-            LOBYTE(v127) = *(_BYTE *)(a1 + 102);
-            v251 = v251 - *(float *)&CarBox_variable_14[24 * v127];
+        if (!iCollisionFlag) {
+          fCarPosZBackup = pCar->pos.fZ;
+          if (pCar->iStunned) {
+            iCollisionFlag = pCar->byCarDesignIdx;
+            //LOBYTE(iCollisionFlag) = pCar->byCarDesignIdx;
+            fCarPosZBackup = fCarPosZBackup - CarBox.hitboxAy[iCollisionFlag][4].fZ;
           }
-          if (*(float *)(a1 + 4) > 0.0) {
-            switch (v102[6]) {
+          if (pCar->pos.fY > 0.0) {
+            switch (pTrackInfo->iLeftSurfaceType) {
               case 0:
               case 2:
-                if (v261 + v235 >= *(float *)(a1 + 4) - v260 * control_c_variable_82) {
-                  if (!v126)
+                if (fTrackCenterLine + fLeftShoulderBoundary >= pCar->pos.fY - fCarHalfWidthProjected * 0.5) {
+                  if (!uiJumpFlag)
                     goto LABEL_344;
-                  *(float *)&v209 = v251 - v248;
-                  if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) >= *(float *)&v209)
+                  fCameraOscillationRange = fCarPosZBackup - fSpeedScaled;
+                  if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) >= fCameraOscillationRange)
                     goto LABEL_344;
                 }
                 goto LABEL_403;
@@ -2785,70 +2729,70 @@ LABEL_171:
               case 4:
               case 7:
               case 8:
-                v128 = *(float *)(a1 + 4) + v260;
-                v217 = v261 + v235;
-                if (v128 > v217) {
-                  *(float *)(a1 + 4) = v217 - v260;
-                  hitleft(a1, 12, 0, v126);
+                dLeftWallCheck = pCar->pos.fY + fCarHalfWidthProjected;
+                fLeftTrackBoundary = fTrackCenterLine + fLeftShoulderBoundary;
+                if (dLeftWallCheck > fLeftTrackBoundary) {
+                  pCar->pos.fY = fLeftTrackBoundary - fCarHalfWidthProjected;
+                  hitleft(pCar, 12, 0);
                   goto LABEL_404;
                 }
-                if (v126) {
-                  *(float *)&v263 = v251 - v248;
-                  if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) < *(float *)&v263)
+                if (uiJumpFlag) {
+                  fHorizontalSpeed = fCarPosZBackup - fSpeedScaled;
+                  if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) < fHorizontalSpeed)
                     goto LABEL_403;
                 }
                 goto LABEL_344;
               case 5:
-                v129 = *(float *)(a1 + 4) + v260;
-                v220 = v261 + v235;
-                if (v129 > v220) {
-                  *(float *)(a1 + 4) = v220 - v260;
-                  hitleft(a1, 12, 0, v126);
+                dLeftWallCheck2 = pCar->pos.fY + fCarHalfWidthProjected;
+                fRightTrackBoundary = fTrackCenterLine + fLeftShoulderBoundary;
+                if (dLeftWallCheck2 > fRightTrackBoundary) {
+                  pCar->pos.fY = fRightTrackBoundary - fCarHalfWidthProjected;
+                  hitleft(pCar, 12, 0);
                 }
-                if (*(float *)(a1 + 4) + v260 > v261 && *(_DWORD *)(a1 + 212)) {
-                  *(float *)(a1 + 4) = v261 - v260;
-                  hitleft(a1, 12, 0, v126);
+                if (pCar->pos.fY + fCarHalfWidthProjected > fTrackCenterLine && pCar->iLaneType) {
+                  pCar->pos.fY = fTrackCenterLine - fCarHalfWidthProjected;
+                  hitleft(pCar, 12, 0);
                 }
-                if (*(float *)(a1 + 4) - v260 < v261 && !*(_DWORD *)(a1 + 212)) {
-                  *(float *)(a1 + 4) = v261 + v260;
-                  hitright(a1, 12, 0, v126);
+                if (pCar->pos.fY - fCarHalfWidthProjected < fTrackCenterLine && !pCar->iLaneType) {
+                  pCar->pos.fY = fTrackCenterLine + fCarHalfWidthProjected;
+                  hitright(pCar, 12, 0);
                 }
-                if (v126) {
-                  *(float *)&v263 = v251 - v248;
-                  if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) < *(float *)&v263)
+                if (uiJumpFlag) {
+                  fHorizontalSpeed = fCarPosZBackup - fSpeedScaled;
+                  if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) < fHorizontalSpeed)
                     goto LABEL_403;
                 }
                 goto LABEL_344;
               case 6:
               case 9:
-                if (v261 + v235 < *(float *)(a1 + 4) - v260 * control_c_variable_82)
+                if (fTrackCenterLine + fLeftShoulderBoundary < pCar->pos.fY - fCarHalfWidthProjected * 0.5)
                   goto LABEL_403;
-                if (v260 > fabs(*(float *)(a1 + 4) - v261) && *(float *)(a1 + 4) + v260 > v261 && *(_DWORD *)(a1 + 212)) {
-                  *(float *)(a1 + 4) = v261 - v260;
-                  hitleft(a1, 12, 0, v126);
+                if (fCarHalfWidthProjected > fabs(pCar->pos.fY - fTrackCenterLine) && pCar->pos.fY + fCarHalfWidthProjected > fTrackCenterLine && pCar->iLaneType) {
+                  pCar->pos.fY = fTrackCenterLine - fCarHalfWidthProjected;
+                  hitleft(pCar, 12, 0);
                 }
-                if (*(float *)(a1 + 4) - v260 < v261 && !*(_DWORD *)(a1 + 212)) {
-                  *(float *)(a1 + 4) = v261 + v260;
-                  hitright(a1, 12, 0, v126);
+                if (pCar->pos.fY - fCarHalfWidthProjected < fTrackCenterLine && !pCar->iLaneType) {
+                  pCar->pos.fY = fTrackCenterLine + fCarHalfWidthProjected;
+                  hitright(pCar, 12, 0);
                 }
-                if (v126) {
-                  *(float *)&v209 = v251 - v248;
-                  if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) < *(float *)&v209)
+                if (uiJumpFlag) {
+                  fCameraOscillationRange = fCarPosZBackup - fSpeedScaled;
+                  if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) < fCameraOscillationRange)
                     goto LABEL_403;
                 }
                 goto LABEL_344;
               default:
-                goto LABEL_404;
+                goto LABEL_404;                 // Handle left track surface types - walls, ramps, barriers, etc.
             }
           }
-          switch (v102[7]) {
+          switch (pTrackInfo->iRightSurfaceType) {
             case 0:
             case 2:
-              if (v261 + v244 >= -*(float *)(a1 + 4) - v260 * control_c_variable_82) {
-                if (!v126)
+              if (fTrackCenterLine + fRightShoulderBoundary >= -pCar->pos.fY - fCarHalfWidthProjected * 0.5) {
+                if (!uiJumpFlag)
                   goto LABEL_344;
-                *(float *)&v209 = v251 - v248;
-                if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) >= *(float *)&v209)
+                fCameraOscillationRange = fCarPosZBackup - fSpeedScaled;
+                if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) >= fCameraOscillationRange)
                   goto LABEL_344;
               }
               goto LABEL_403;
@@ -2857,318 +2801,299 @@ LABEL_171:
             case 4:
             case 7:
             case 8:
-              if (v261 + v244 >= v260 - *(float *)(a1 + 4)) {
-                if (v126
-                  && (*(float *)&v263 = v251 - v248,
-                      getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) < *(float *)&v263)) {
-                LABEL_403:
-                  converttoair(a1);
-                } else {
-                LABEL_344:
-                  putflat(a1);
-                }
+              if (fTrackCenterLine + fRightShoulderBoundary >= fCarHalfWidthProjected - pCar->pos.fY) {
+                if (uiJumpFlag && (fHorizontalSpeed = fCarPosZBackup - fSpeedScaled, getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) < fHorizontalSpeed))
+                  LABEL_403:
+                converttoair(pCar);
+                else
+                  LABEL_344:
+                putflat(pCar);
               } else {
-                *(float *)(a1 + 4) = -v261 - v244 + v260;
-                hitright(a1, 12, 1, v126);
+                pCar->pos.fY = -fTrackCenterLine - fRightShoulderBoundary + fCarHalfWidthProjected;
+                hitright(pCar, 12, 1);
               }
               break;
             case 5:
-              if (v261 + v244 < v260 - *(float *)(a1 + 4)) {
-                *(float *)(a1 + 4) = -v261 - v244 + v260;
-                hitright(a1, 12, 1, v126);
+              if (fTrackCenterLine + fRightShoulderBoundary < fCarHalfWidthProjected - pCar->pos.fY) {
+                pCar->pos.fY = -fTrackCenterLine - fRightShoulderBoundary + fCarHalfWidthProjected;
+                hitright(pCar, 12, 1);
               }
-              if (v260 - *(float *)(a1 + 4) > v261 && *(_DWORD *)(a1 + 212) != 2) {
-                *(float *)(a1 + 4) = v260 - v261;
-                hitright(a1, 12, 1, v126);
+              if (fCarHalfWidthProjected - pCar->pos.fY > fTrackCenterLine && pCar->iLaneType != 2) {
+                pCar->pos.fY = fCarHalfWidthProjected - fTrackCenterLine;
+                hitright(pCar, 12, 1);
               }
-              if (-*(float *)(a1 + 4) - v260 < v261 && *(_DWORD *)(a1 + 212) == 2) {
-                *(float *)(a1 + 4) = -v261 - v260;
-                hitleft(a1, 12, 1, v126);
+              if (-pCar->pos.fY - fCarHalfWidthProjected < fTrackCenterLine && pCar->iLaneType == 2) {
+                pCar->pos.fY = -fTrackCenterLine - fCarHalfWidthProjected;
+                hitleft(pCar, 12, 1);
               }
-              if (v126) {
-                *(float *)&v263 = v251 - v248;
-                if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) < *(float *)&v263)
+              if (uiJumpFlag) {
+                fHorizontalSpeed = fCarPosZBackup - fSpeedScaled;
+                if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) < fHorizontalSpeed)
                   goto LABEL_403;
               }
               goto LABEL_344;
             case 6:
             case 9:
-              v219 = -*(float *)(a1 + 4);
-              if (v261 + v244 < v219 - v260 * control_c_variable_82)
+              fRightCarPosY = -pCar->pos.fY;
+              if (fTrackCenterLine + fRightShoulderBoundary < fRightCarPosY - fCarHalfWidthProjected * 0.5)
                 goto LABEL_403;
-              if (v260 > fabs(v219 - v261) && v260 - *(float *)(a1 + 4) > v261 && *(_DWORD *)(a1 + 212) != 2) {
-                *(float *)(a1 + 4) = v260 - v261;
-                hitright(a1, 12, 1, v126);
+              if (fCarHalfWidthProjected > fabs(fRightCarPosY - fTrackCenterLine) && fCarHalfWidthProjected - pCar->pos.fY > fTrackCenterLine && pCar->iLaneType != 2) {
+                pCar->pos.fY = fCarHalfWidthProjected - fTrackCenterLine;
+                hitright(pCar, 12, 1);
               }
-              if (-*(float *)(a1 + 4) - v260 < v261 && *(_DWORD *)(a1 + 212) == 2) {
-                *(float *)(a1 + 4) = -v261 - v260;
-                hitleft(a1, 12, 1, v126);
+              if (-pCar->pos.fY - fCarHalfWidthProjected < fTrackCenterLine && pCar->iLaneType == 2) {
+                pCar->pos.fY = -fTrackCenterLine - fCarHalfWidthProjected;
+                hitleft(pCar, 12, 1);
               }
-              if (v126) {
-                *(float *)&v263 = v251 - v248;
-                if (getgroundz(*(__int16 *)(a1 + 12), *(float *)a1, *(float *)(a1 + 4), *(__int16 *)(a1 + 12)) < *(float *)&v263)
+              if (uiJumpFlag) {
+                fHorizontalSpeed = fCarPosZBackup - fSpeedScaled;
+                if (getgroundz(pCar->pos.fX, pCar->pos.fY, pCar->nCurrChunk) < fHorizontalSpeed)
                   goto LABEL_403;
               }
               goto LABEL_344;
             default:
-              break;
+              break;                            // Handle right track surface types - walls, ramps, barriers, etc.
           }
         }
       LABEL_404:
-        if (*(_DWORD *)(a1 + 72) == 3
-          && *((float *)&localdata + 32 * *(__int16 *)(a1 + 12) + 12) * control_c_variable_69 > *(float *)&CarBaseX) {
-          if (*(float *)(a1 + 4) <= (double)v261) {
-            if (-v261 <= *(float *)(a1 + 4))
-              v130 = 1;
+        if (pCar->iControlType == 3 && localdata[pCar->nCurrChunk].fTrackHalfLength * 2.0 > CarBaseX) {
+          if (pCar->pos.fY <= (double)fTrackCenterLine) {
+            if (-fTrackCenterLine <= pCar->pos.fY)
+              iLaneTypeCheck = 1;
             else
-              v130 = 2;
+              iLaneTypeCheck = 2;
           } else {
-            v130 = 0;
+            iLaneTypeCheck = 0;
           }
-          v131 = *((int *)&TrakColour + 6 * *(__int16 *)(a1 + 12) + v130);
-          if ((((HIDWORD(v131) ^ (unsigned int)v131) - HIDWORD(v131)) & 0x20000) != 0)
-            converttoair(a1);
+          //llTrackColorData = TrakColour[pCar->nCurrChunk][iLaneTypeCheck];
+          //if ((((HIDWORD(llTrackColorData) ^ (unsigned int)llTrackColorData) - HIDWORD(llTrackColorData)) & 0x20000) != 0)
+          if ((TrakColour[pCar->nCurrChunk][iLaneTypeCheck] & SURFACE_FLAG_SKIP_RENDER) != 0)
+            converttoair(pCar);
           else
-            analysefalloff(a1);
+            analysefalloff(pCar);
         }
-        if (*(_DWORD *)(a1 + 72) == 3) {
-          v132 = *(__int16 *)(a1 + 20) - *(_DWORD *)(a1 + 64);
-          v254 = v132 + (v132 < 0 ? 0x4000 : 0);
-          if (v254 > 0x2000)
-            v254 -= 0x4000;
-          v133 = fabs(*(float *)(a1 + 24));
-          v238 = v133;
-          if (v133 <= v241) {
-            v255 = v245 * control_c_variable_63;
-            v134 = (v242 - v255) / v241 * v238 + v255;
+        if (pCar->iControlType == 3) {
+          iYawDifferenceCalc = pCar->nYaw - pCar->nYaw3;
+          iYawDifference = iYawDifferenceCalc + (iYawDifferenceCalc < 0 ? 0x4000 : 0);
+          if (iYawDifference > 0x2000)
+            iYawDifference -= 0x4000;
+          dSpeedAbs = fabs(pCar->fFinalSpeed);
+          fCurrentSpeedAbs = (float)dSpeedAbs;
+          if (dSpeedAbs <= fSurfaceGripValue) {
+            fMaxGripLimit = fHealthAdjustment * 200.0f;
+            dGripCalculation = (fCurrentGripMultiplier - fMaxGripLimit) / fSurfaceGripValue * fCurrentSpeedAbs + fMaxGripLimit;
           } else {
-            v134 = (v238 - v234) / (v241 - v234) * v242 + (v238 - v241) / (v234 - v241) * v240;
+            dGripCalculation = (fCurrentSpeedAbs - fSurfaceGripBase) / (fSurfaceGripValue - fSurfaceGripBase) * fCurrentGripMultiplier
+              + (fCurrentSpeedAbs - fSurfaceGripValue) / (fSurfaceGripBase - fSurfaceGripValue) * fTempGrip;
           }
-          v255 = v134;
-          v140 = v254;
-          LODWORD(v140) = abs32(v254);
-          v255 = (tsin[(_DWORD)v140] * control_c_variable_94 + 1.0) * v255;
-          v136 = (double)v254;
-          v137 = v136 < v255;
-          v138 = 0;
-          v139 = v136 == v255;
-          LOWORD(v140) = v135;
-          if (v136 > v255) {
-            _CHP(v140, HIDWORD(v140));
-            v254 = (int)v255;
+          fMaxGripLimit = (float)dGripCalculation;
+          fMaxGripLimit = (tsin[abs(iYawDifference)] * 4.0f + 1.0f) * fMaxGripLimit;
+          if ((double)iYawDifference > fMaxGripLimit) {
+            //_CHP();
+            iYawDifference = (int)fMaxGripLimit;
           }
-          v141 = (double)v254;
-          v215 = -v255;
-          v143 = v141 < v215;
-          v144 = 0;
-          v145 = v141 == v215;
-          LOWORD(v140) = v142;
-          if (v141 < v215) {
-            _CHP(v140, HIDWORD(v140));
-            v254 = (int)v215;
+          fNegativeYawLimit = -fMaxGripLimit;
+          if ((double)iYawDifference < fNegativeYawLimit) {
+            //_CHP();
+            iYawDifference = (int)fNegativeYawLimit;
           }
-          if (!*(_DWORD *)(a1 + 204)) {
-            HIDWORD(v140) = v254;
-            *(_DWORD *)(a1 + 64) = ((_WORD)v254 + (unsigned __int16)*(_DWORD *)(a1 + 64)) & 0x3FFF;
-          }
-          v146 = *(_DWORD *)(a1 + 32);
-          if (human_control[v146]) {
-            if (!v249) {
-              if (!*(_DWORD *)(a1 + 76)
-                || (v147 = SLOWORD(copy_multiple[16 * (((_WORD)readptr - 1) & 0x1FF) + v146]),
-                    v148 = (v147 - (__CFSHL__(v147 >> 31, 8) + (v147 >> 31 << 8))) >> 8,
-                    v149 = (HIDWORD(v148) ^ v148) - HIDWORD(v148),
-                    v140 = *(int *)(a1 + 76),
-                    (int)(v149 - abs32(*(_DWORD *)(a1 + 76))) < 0)) {
-                v150 = *(__int16 *)(a1 + 20);
-                v151 = *(_DWORD *)(a1 + 64);
-                if (v150 != v151) {
-                  LODWORD(v140) = v150 - v151;
-                  v252 = v140 + ((int)v140 < 0 ? 0x4000 : 0);
-                  if (v252 > 0x2000)
-                    v252 -= 0x4000;
-                  v153 = (double)v252;
-                  v154 = v153 < v255;
-                  v155 = 0;
-                  v156 = v153 == v255;
-                  LOWORD(v140) = v152;
-                  if (v153 > v255) {
-                    _CHP(v140, HIDWORD(v140));
-                    v252 = (int)v255;
+          if (!pCar->iStunned)
+            pCar->nYaw3 = ((int16)iYawDifference + (uint16)pCar->nYaw3) & 0x3FFF;
+          iHumanControlIdx = pCar->iDriverIdx;
+          if (human_control[iHumanControlIdx]) {
+            if (!iJumpMomentum) {
+              //if (!pCar->iSteeringInput
+              //  || (iInput = (int16)copy_multiple[((int16)readptr - 1) & 0x1FF][iHumanControlIdx].data.unInput,
+              //      llInputCheck = (iInput) >> 8,
+              //      (int)((HIDWORD(llInputCheck) ^ llInputCheck) - HIDWORD(llInputCheck) - abs32(pCar->iSteeringInput)) < 0)) {
+              //TODO check this
+              if (!pCar->iSteeringInput || abs((copy_multiple[((int16)readptr - 1) & 0x1FF][iHumanControlIdx].data.unInput) >> 8) < abs(pCar->iSteeringInput)) {
+                iCurrentYawForInput = pCar->nYaw;
+                iYaw3ForInput = pCar->nYaw3;
+                if (iCurrentYawForInput != iYaw3ForInput) {
+                  iHumanYawDiff = iCurrentYawForInput - iYaw3ForInput + (iCurrentYawForInput - iYaw3ForInput < 0 ? 0x4000 : 0);
+                  if (iHumanYawDiff > 0x2000)
+                    iHumanYawDiff -= 0x4000;
+                  if ((double)iHumanYawDiff > fMaxGripLimit) {
+                    //_CHP();
+                    iHumanYawDiff = (int)fMaxGripLimit;
                   }
-                  v157 = (double)v252;
-                  v216 = -v255;
-                  v159 = v157 < v216;
-                  v160 = 0;
-                  v161 = v157 == v216;
-                  LOWORD(v140) = v158;
-                  if (v157 < v216) {
-                    _CHP(v140, HIDWORD(v140));
-                    v252 = (int)v216;
+                  fNegativeYawLimitHuman = -fMaxGripLimit;
+                  if ((double)iHumanYawDiff < fNegativeYawLimitHuman) {
+                    //_CHP();
+                    iHumanYawDiff = (int)fNegativeYawLimitHuman;
                   }
-                  v162 = *(_WORD *)(a1 + 20) - v252;
-                  HIBYTE(v162) &= 0x3Fu;
-                  *(_WORD *)(a1 + 20) = v162;
+                  nYawAdjusted = pCar->nYaw - iHumanYawDiff;
+                  nYawAdjusted &= 0x3FFF;
+                  //HIBYTE(nYawAdjusted) &= 0x3Fu;
+                  pCar->nYaw = nYawAdjusted;
                 }
               }
             }
           }
         }
-        if (*(_DWORD *)(a1 + 204) && *(_DWORD *)(a1 + 72) == 3 || (*(_BYTE *)(a1 + 131) & 4) != 0) {
-          *(float *)(a1 + 24) = *(float *)(a1 + 24) + control_c_variable_95;
-          if (*(float *)(a1 + 24) < 0.0)
-            *(_DWORD *)(a1 + 24) = 0;
-          if (*(__int16 *)(a1 + 236) == -1 && (*(_DWORD *)(a1 + 24) & 0x7FFFFFFF) == 0)
-            *(_WORD *)(a1 + 236) = 72;
-          SetEngine(a1, *(float *)(a1 + 24));
-          if (((*(_DWORD *)(a1 + 24) & 0x7FFFFFFF) == 0
-               || (*(_DWORD *)(a1 + 28) & 0x7FFFFFFF) == 0 && *(__int16 *)(a1 + 100) < -54)
-            && !*(_DWORD *)(a1 + 148)
-            && !*(_DWORD *)(a1 + 156)
-            && !*(_WORD *)(a1 + 236)) {
-            checkplacement(a1);
+        if (pCar->iStunned && pCar->iControlType == 3 || (pCar->byStatusFlags & 4) != 0)// Apply speed reduction when car is stunned or has damage status
+        {
+          pCar->fFinalSpeed = pCar->fFinalSpeed + -2.0f;
+          if (pCar->fFinalSpeed < 0.0)
+            pCar->fFinalSpeed = 0.0;
+          //if (pCar->nTargetChunk == -1 && (LODWORD(pCar->fFinalSpeed) & 0x7FFFFFFF) == 0)
+          if (pCar->nTargetChunk == -1 && fabs(pCar->fFinalSpeed) == 0)
+            pCar->nTargetChunk = 72;
+          SetEngine(pCar, pCar->fFinalSpeed);
+          //if (((LODWORD(pCar->fFinalSpeed) & 0x7FFFFFFF) == 0 || (LODWORD(pCar->fHealth) & 0x7FFFFFFF) == 0 && pCar->nDeathTimer < -54)
+          if ((fabs(pCar->fFinalSpeed) == 0 || fabs(pCar->fHealth) == 0 && pCar->nDeathTimer < -54)
+            && !pCar->iPitchCameraOffset
+            && !pCar->iRollCameraOffset
+            && !pCar->nTargetChunk) {
+            checkplacement(pCar);
           }
         }
-        v163 = *(_WORD *)(a1 + 236);
-        if (v163 > 0)
-          *(_WORD *)(a1 + 236) = v163 - 1;
+        nTargetChunk = pCar->nTargetChunk;
+        if (nTargetChunk > 0)
+          pCar->nTargetChunk = nTargetChunk - 1;
         goto LABEL_502;
       }
-      v101 = (float *)v250;
-      v109 = 6 * v250;
-      v209 = 6 * v250;
-      v110 = (double)(6 * v250) * (control_c_variable_89 - v258) * control_c_variable_90 + (double)v250;
+      //LODWORD(fCameraOscillationRange) = 6 * iSteeringInputProcessed;
+      dSteeringSpeedCalc = (double)(6 * iSteeringInputProcessed) * (360.0 - fAbsoluteSpeed) * 0.00027777778 + (double)iSteeringInputProcessed;
     }
-    _CHP(v109, v101);
-    v250 = (int)v110;
+    //_CHP();
+    iSteeringInputProcessed = (int)dSteeringSpeedCalc;
     goto LABEL_272;
   }
-  if (*(__int16 *)(a1 + 236) == -1 && (LODWORD(v258) & 0x7FFFFFFF) == 0)
-    *(_WORD *)(a1 + 236) = 144;
-  v172 = *(_WORD *)(a1 + 236);
-  if (v172 > 0)
-    *(_WORD *)(a1 + 236) = v172 - 1;
-  v173 = v229;
-  *(float *)a1 = *(float *)(a1 + 24) * tcos[v229] + *(float *)a1;
-  *(float *)(a1 + 4) = *(float *)(a1 + 24) * tsin[v173] + *(float *)(a1 + 4);
-  calculateseparatedcoordinatesystem(*(_DWORD *)(a1 + 216), &v193);
-  v174 = *(float *)(a1 + 4) + v203;
-  v175 = *(float *)a1 + v202;
-  v176 = *(float *)(a1 + 8) + v204;
-  v231 = v196 * v174 + v193 * v175 + v199 * v176;
-  v247 = v197 * v174 + v194 * v175 + v200 * v176;
-  v177 = *(_DWORD *)(a1 + 216) + 2;
-  v178 = *(_DWORD *)(a1 + 216) + 3;
-  v232 = v174 * v198 + v175 * v195 + v176 * v201;
-  if (v178 >= TRAK_LEN)
-    v178 -= TRAK_LEN;
-  if (v177 >= TRAK_LEN)
-    v177 -= TRAK_LEN;
-  v179 = (GroundPt_variable_4[18 * v177]
-        + GroundPt_variable_5[18 * v177]
-        + GroundPt_variable_4[18 * v178]
-        + GroundPt_variable_5[18 * v178])
-    * control_c_variable_76;
-  _CHP(9 * v178, &v193);
-  if (v179 > GroundLevel[v177] + control_c_variable_77)
-    *(_DWORD *)(a1 + 24) = 0;
-  v180 = *(_DWORD *)(a1 + 216) - 1;
-  v181 = *(_DWORD *)(a1 + 216) - 2;
-  if (v180 < 0)
-    v180 += TRAK_LEN;
-  if (v181 < 0)
-    v181 += TRAK_LEN;
-  v182 = (GroundPt_variable_4[18 * v181]
-        + GroundPt_variable_5[18 * v181]
-        + GroundPt_variable_4[18 * v180]
-        + GroundPt_variable_5[18 * v180])
-    * control_c_variable_76;
-  _CHP(9 * v180, &v193);
-  if (v182 > GroundLevel[v181] + control_c_variable_77)
-    *(_DWORD *)(a1 + 24) = 0;
-  if (v247 <= 0.0) {
-    v230 = (GroundPt[18 * *(_DWORD *)(a1 + 216) + 10] + v203) * v197
-      + (GroundPt[18 * *(_DWORD *)(a1 + 216) + 9] + v202) * v194
-      + (GroundPt[18 * *(_DWORD *)(a1 + 216) + 11] + v204) * v200;
-    if (v247 - *(float *)&CarBaseX >= v230)
+  //if (pCar->nTargetChunk == -1 && (LODWORD(fAbsoluteSpeed) & 0x7FFFFFFF) == 0)
+  if (pCar->nTargetChunk == -1 && fabs(fAbsoluteSpeed) == 0)
+    pCar->nTargetChunk = 144;
+  nTargetChunkLocal = pCar->nTargetChunk;
+  if (nTargetChunkLocal > 0)
+    pCar->nTargetChunk = nTargetChunkLocal - 1;
+  iYaw3ForType2 = iYaw3;
+  pCar->pos.fX = pCar->fFinalSpeed * tcos[iYaw3] + pCar->pos.fX;
+  pCar->pos.fY = pCar->fFinalSpeed * tsin[iYaw3ForType2] + pCar->pos.fY;
+  calculateseparatedcoordinatesystem(pCar->iLastValidChunk, &coordinateSystemData);// Transform car coordinates to track coordinate system
+  dCoordY = pCar->pos.fY + coordinateSystemData.pointAy[3].fY;
+  dCoordX = pCar->pos.fX + coordinateSystemData.pointAy[3].fX;
+  dCoordZ = pCar->pos.fZ + coordinateSystemData.pointAy[3].fZ;
+  fCoordTransformX = (float)(coordinateSystemData.pointAy[1].fX * dCoordY + coordinateSystemData.pointAy[0].fX * dCoordX + coordinateSystemData.pointAy[2].fX * dCoordZ);
+  fCoordTransformY = (float)(coordinateSystemData.pointAy[1].fY * dCoordY + coordinateSystemData.pointAy[0].fY * dCoordX + coordinateSystemData.pointAy[2].fY * dCoordZ);
+  iChunkPlus2 = pCar->iLastValidChunk + 2;
+  iChunkPlus3 = pCar->iLastValidChunk + 3;
+  fCoordTransformZ = (float)(dCoordY * coordinateSystemData.pointAy[1].fZ + dCoordX * coordinateSystemData.pointAy[0].fZ + dCoordZ * coordinateSystemData.pointAy[2].fZ);
+  if (iChunkPlus3 >= TRAK_LEN)
+    iChunkPlus3 -= TRAK_LEN;
+  if (iChunkPlus2 >= TRAK_LEN)
+    iChunkPlus2 -= TRAK_LEN;
+  dGroundHeightForward = (GroundPt[iChunkPlus2].pointAy[2].fZ + GroundPt[iChunkPlus2].pointAy[3].fZ + GroundPt[iChunkPlus3].pointAy[2].fZ + GroundPt[iChunkPlus3].pointAy[3].fZ)
+    * 0.25;                  // Check ground height ahead to prevent impossible jumps
+  //_CHP();
+  if (dGroundHeightForward > GroundLevel[iChunkPlus2] + 20.0)
+    pCar->fFinalSpeed = 0.0;
+  iChunkMinus1 = pCar->iLastValidChunk - 1;
+  iChunkMinus2 = pCar->iLastValidChunk - 2;
+  if (iChunkMinus1 < 0)
+    iChunkMinus1 += TRAK_LEN;
+  if (iChunkMinus2 < 0)
+    iChunkMinus2 += TRAK_LEN;
+  dGroundHeightBackward = (GroundPt[iChunkMinus2].pointAy[2].fZ
+                         + GroundPt[iChunkMinus2].pointAy[3].fZ
+                         + GroundPt[iChunkMinus1].pointAy[2].fZ
+                         + GroundPt[iChunkMinus1].pointAy[3].fZ)
+    * 0.25;
+  //_CHP();
+  if (dGroundHeightBackward > GroundLevel[iChunkMinus2] + 20.0)
+    pCar->fFinalSpeed = 0.0;
+  if (fCoordTransformY <= 0.0) {
+    fGroundAverageZ1 = (GroundPt[pCar->iLastValidChunk].pointAy[3].fY + coordinateSystemData.pointAy[3].fY) * coordinateSystemData.pointAy[1].fY
+      + (GroundPt[pCar->iLastValidChunk].pointAy[3].fX + coordinateSystemData.pointAy[3].fX) * coordinateSystemData.pointAy[0].fY
+      + (GroundPt[pCar->iLastValidChunk].pointAy[3].fZ + coordinateSystemData.pointAy[3].fZ) * coordinateSystemData.pointAy[2].fY;// Calculate track boundary limits for airborne cars
+    if (fCoordTransformY - CarBaseX >= fGroundAverageZ1)
       goto LABEL_493;
-    v183 = v230 + *(float *)&CarBaseX;
+    dBoundaryLimit = fGroundAverageZ1 + CarBaseX;
   } else {
-    v225 = (GroundPt[18 * *(_DWORD *)(a1 + 216) + 7] + v203) * v197
-      + (GroundPt[18 * *(_DWORD *)(a1 + 216) + 6] + v202) * v194
-      + (GroundPt[18 * *(_DWORD *)(a1 + 216) + 8] + v204) * v200;
-    if (v247 + *(float *)&CarBaseX <= v225)
+    fGroundBoundaryY = (GroundPt[pCar->iLastValidChunk].pointAy[2].fY + coordinateSystemData.pointAy[3].fY) * coordinateSystemData.pointAy[1].fY
+      + (GroundPt[pCar->iLastValidChunk].pointAy[2].fX + coordinateSystemData.pointAy[3].fX) * coordinateSystemData.pointAy[0].fY
+      + (GroundPt[pCar->iLastValidChunk].pointAy[2].fZ + coordinateSystemData.pointAy[3].fZ) * coordinateSystemData.pointAy[2].fY;
+    if (fCoordTransformY + CarBaseX <= fGroundBoundaryY)
       goto LABEL_493;
-    v183 = v225 - *(float *)&CarBaseX;
+    dBoundaryLimit = fGroundBoundaryY - CarBaseX;
   }
-  *(_DWORD *)(a1 + 24) = 0;
-  v247 = v183;
+  pCar->fFinalSpeed = 0.0;
+  fCoordTransformY = (float)dBoundaryLimit;
 LABEL_493:
-  v184 = v247;
-  v185 = v231;
-  v186 = v232;
-  *(float *)a1 = v194 * v247 + v193 * v231 + v195 * v232 - v202;
-  *(float *)(a1 + 4) = v196 * v185 + v197 * v184 + v198 * v186 - v203;
-  *(float *)(a1 + 8) = v184 * v200 + v185 * v199 + v186 * v201 - v204;
-  findnearsection(a1, v206);
-  *(float *)(a1 + 24) = *(float *)(a1 + 24) + control_c_variable_70;
-  if (*(float *)(a1 + 24) < 0.0)
-    *(_DWORD *)(a1 + 24) = 0;
-  v187 = v258;
-  SetEngine(a1, *(float *)(a1 + 24));
-  if (((LODWORD(v187) & 0x7FFFFFFF) == 0 || (*(_DWORD *)(a1 + 28) & 0x7FFFFFFF) == 0 && *(__int16 *)(a1 + 100) < -54)
-    && !*(_DWORD *)(a1 + 148)
-    && !*(_DWORD *)(a1 + 156)
-    && !*(_WORD *)(a1 + 236)) {
+  dTransformedY = fCoordTransformY;
+  dTransformedX = fCoordTransformX;
+  dTransformedZ = fCoordTransformZ;
+  pCar->pos.fX = (float)(coordinateSystemData.pointAy[0].fY * fCoordTransformY
+    + coordinateSystemData.pointAy[0].fX * fCoordTransformX
+    + coordinateSystemData.pointAy[0].fZ * fCoordTransformZ
+    - coordinateSystemData.pointAy[3].fX);
+  pCar->pos.fY = (float)(coordinateSystemData.pointAy[1].fX * dTransformedX
+    + coordinateSystemData.pointAy[1].fY * dTransformedY
+    + coordinateSystemData.pointAy[1].fZ * dTransformedZ
+    - coordinateSystemData.pointAy[3].fY);
+  pCar->pos.fZ = (float)(dTransformedY * coordinateSystemData.pointAy[2].fY
+    + dTransformedX * coordinateSystemData.pointAy[2].fX
+    + dTransformedZ * coordinateSystemData.pointAy[2].fZ
+    - coordinateSystemData.pointAy[3].fZ);
+  findnearsection(pCar, &iNearestChunk);
+  pCar->fFinalSpeed = pCar->fFinalSpeed + -6.0f;
+  if (pCar->fFinalSpeed < 0.0)
+    pCar->fFinalSpeed = 0.0;
+  fCurrentSpeedFloat = fAbsoluteSpeed;
+  SetEngine(pCar, pCar->fFinalSpeed);
+  //if (((LODWORD(fCurrentSpeedFloat) & 0x7FFFFFFF) == 0 || (LODWORD(pCar->fHealth) & 0x7FFFFFFF) == 0 && pCar->nDeathTimer < -54)
+  if ((fabs(fCurrentSpeedFloat) == 0 || fabs(pCar->fHealth) == 0 && pCar->nDeathTimer < -54)
+    && !pCar->iPitchCameraOffset
+    && !pCar->iRollCameraOffset
+    && !pCar->nTargetChunk) {
   LABEL_501:
-    checkplacement(a1);
+    checkplacement(pCar);
   }
 LABEL_502:
-  if (!*(_DWORD *)(a1 + 72)
-    && *(float *)(a1 + 8) < (double)GroundLevel[*(_DWORD *)(a1 + 216)]
-    && *(char *)(a1 + 103) > 0) {
+  if (!pCar->iControlType && pCar->pos.fZ < (double)GroundLevel[pCar->iLastValidChunk] && (char)pCar->byLives > 0) {                                             // Handle fall damage and car landing after being airborne
     if (death_race)
-      v188 = fabs(*(float *)(a1 + 48)) * control_c_variable_96 * control_c_variable_97;
+      dFallDamage = fabs(pCar->direction.fZ) * 0.05 * 4.0;
     else
-      v188 = fabs(*(float *)(a1 + 48)) * control_c_variable_96;
-    v192 = v188;
-    dodamage(v192);
-    v189 = *(_DWORD *)(a1 + 216);
-    *(_DWORD *)(a1 + 72) = 2;
-    *(float *)(a1 + 8) = GroundLevel[v189];
-    sfxpend(2, *(_DWORD *)(a1 + 32), 0x8000);
-    v190 = *(__int16 *)(a1 + 18);
-    v191 = *(__int16 *)(a1 + 16);
-    *(_DWORD *)(a1 + 64) = *(__int16 *)(a1 + 20);
-    if (v191 < 4096 || v191 > 12288) {
-      *(_WORD *)(a1 + 16) = 0;
-      *(_DWORD *)(a1 + 204) = 0;
+      dFallDamage = fabs(pCar->direction.fZ) * 0.05;
+    fDamageAmount = (float)dFallDamage;
+    dodamage(pCar, fDamageAmount);
+    iGroundChunk = pCar->iLastValidChunk;
+    pCar->iControlType = 2;
+    pCar->pos.fZ = GroundLevel[iGroundChunk];
+    sfxpend(2, pCar->iDriverIdx, 0x8000);
+    iPitch = pCar->nPitch;
+    iRoll = pCar->nRoll;
+    pCar->nYaw3 = pCar->nYaw;
+    if (iRoll < 4096 || iRoll > 12288) {
+      pCar->nRoll = 0;
+      pCar->iStunned = 0;
     } else {
-      *(_DWORD *)(a1 + 204) = -1;
-      *(_DWORD *)(a1 + 76) = 0;
-      *(_WORD *)(a1 + 16) = 0x2000;
-      v191 = v191 - 0x2000 + (v191 - 0x2000 < 0 ? 0x4000 : 0);
-      *(float *)(a1 + 8) = *(float *)&CarBox_variable_14[24 * *(unsigned __int8 *)(a1 + 102)] + *(float *)(a1 + 8);
+      pCar->iStunned = -1;
+      pCar->iSteeringInput = 0;
+      pCar->nRoll = 0x2000;
+      iRoll = iRoll - 0x2000 + (iRoll - 0x2000 < 0 ? 0x4000 : 0);
+      pCar->pos.fZ = CarBox.hitboxAy[pCar->byCarDesignIdx][4].fZ + pCar->pos.fZ;
     }
-    if (v190 > 0x2000)
-      v190 -= 0x4000;
-    *(_DWORD *)(a1 + 144) = 0;
-    *(_DWORD *)(a1 + 140) = v190;
-    *(_DWORD *)(a1 + 148) = v190;
-    if (v191 > 0x2000)
-      v191 -= 0x4000;
-    *(_WORD *)(a1 + 18) = 0;
-    *(_DWORD *)(a1 + 152) = v191;
-    *(_DWORD *)(a1 + 156) = v191;
+    if (iPitch > 0x2000)
+      iPitch -= 0x4000;
+    pCar->iCameraOscillationPhase = 0;
+    pCar->iPitchBackup = iPitch;
+    pCar->iPitchCameraOffset = iPitch;
+    if (iRoll > 0x2000)
+      iRoll -= 0x4000;
+    pCar->nPitch = 0;
+    pCar->iRollDampingMomentum = iRoll;
+    pCar->iRollCameraOffset = iRoll;
   }
-  if (!finished_car[*(_DWORD *)(a1 + 32)] && *(float *)(a1 + 220) < (double)control_c_variable_98) {
-    if (race_started[0]) {
-      *(float *)(a1 + 220) = *(float *)(a1 + 220) + control_c_variable_99;
-      *(float *)(a1 + 232) = *(float *)(a1 + 232) + control_c_variable_99;
-      if (*(float *)(a1 + 220) > (double)control_c_variable_94 || *(char *)(a1 + 129) <= 1)
-        *(_DWORD *)(a1 + 228) = *(_DWORD *)(a1 + 220);
+  if (!finished_car[pCar->iDriverIdx] && pCar->fRunningLapTime < 1000.0)// Update lap timing - running lap time and total race time
+  {
+    if (race_started) {
+      pCar->fRunningLapTime = pCar->fRunningLapTime + 0.02777777777777778f;
+      pCar->fTotalRaceTime = pCar->fTotalRaceTime + 0.02777777777777778f;
+      if (pCar->fRunningLapTime > 4.0 || pCar->byLap <= 1)
+        pCar->fPreviousLapTime = pCar->fRunningLapTime;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3276,7 +3201,7 @@ void check_crossed_line(tCar *pCar)
                                    Car[iTargetCar].byGearAyMax,
                                    Car[iTargetCar].fRPMRatio);
                     Car[iTargetCar].fSpeedOverflow = 0.0;
-                    Car[iTargetCar].byUnk61 = 36;
+                    Car[iTargetCar].byEngineStartTimer = 36;
                     Car[iTargetCar].byThrottlePressed = -1;
                     Car[iTargetCar].fPower = (float)dPowerCalc;
                   }
@@ -3573,7 +3498,7 @@ void checkplacement(tCar *pCar)
   if (iNewChunk == -1)
     iNewChunk = 0;
   //if ((LODWORD(pCar->fHealth) & 0x7FFFFFFF) == 0 && !numstops)// Reset health to 100 if car has zero health and not at a stop
-  if (fabs(pCar->fHealth) > FLT_EPSILON && !numstops)// Reset health to 100 if car has zero health and not at a stop
+  if (fabs(pCar->fHealth) == 0 && !numstops)// Reset health to 100 if car has zero health and not at a stop
     pCar->fHealth = 100.0;
   //if ((LODWORD(pCar->fHealth) & 0x7FFFFFFF) != 0)// Handle placement for cars with health (alive cars)
   if (fabs(pCar->fHealth) > FLT_EPSILON)// Handle placement for cars with health (alive cars)
@@ -3819,9 +3744,9 @@ LABEL_113:
     pCar->iBobMode = 0;
     pCar->iStunned = 0;
     pCar->iPitchBackup = 0;
-    pCar->iUnk35_3 = 0;
+    pCar->iCameraOscillationPhase = 0;
     pCar->iPitchCameraOffset = 0;
-    pCar->iUnk36_2 = 0;
+    pCar->iRollDampingMomentum = 0;
     pCar->iRollCameraOffset = 0;
     pCar->iPitchDynamicOffset = 0;
     pCar->iRollDynamicOffset = 0;
@@ -3833,11 +3758,11 @@ LABEL_113:
     pCar->fSpeedOverflow = 0.0;
     pCar->fBaseSpeed = 0.0;
     pCar->byGearAyMax = 0;
-    pCar->nUnk71 = 0;
+    pCar->nReverseWarnCooldown = 0;
     pCar->nTargetChunk = -1;
     pCar->byThrottlePressed = 0;
     pCar->byAccelerating = 0;
-    pCar->byUnk61 = 0;
+    pCar->byEngineStartTimer = 0;
     pCar->nCurrChunk = iNewChunk;
     pCar->iLastValidChunk = iNewChunk;
     pCar->nChunk2 = iNewChunk;
@@ -3864,7 +3789,7 @@ LABEL_113:
     }
     initcarview(iViewType, iPlayerNum);
   LABEL_126:
-    pCar->nUnk70 = -1;
+    pCar->nLastCommentaryChunk = -1;
     pCar->byStatusFlags = 0;
     pCar->bySfxCooldown = 0;
     byUnk64 = pCar->byUnk64;
@@ -6021,7 +5946,7 @@ void landontrack(tCar *pCar)
           if (iElevation > 0x2000)
             iElevation -= 0x4000;
           iElevationAdjusted = iElevation;
-          pCar->iUnk35_3 = 0;
+          pCar->iCameraOscillationPhase = 0;
           pCar->iPitchBackup = iElevationAdjusted;
           pCar->iPitchCameraOffset = iElevation;
           if (iBank > 0x2000)
@@ -6030,7 +5955,7 @@ void landontrack(tCar *pCar)
           fHeightDiffCalc = (float)dHeightDiff;
           iBankValue = iBank;
           pCar->iControlType = 3;
-          pCar->iUnk36_2 = iBankValue;
+          pCar->iRollDampingMomentum = iBankValue;
           pCar->iRollCameraOffset = iBankValue;
           iStunned = pCar->iStunned;
           fVolumeCalc = (float)(dHeightDiff * 32768.0 * 0.025);

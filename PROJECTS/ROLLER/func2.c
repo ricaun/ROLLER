@@ -4730,7 +4730,7 @@ void do_blip(int iCarIdx)
   //_CHP();
   iDamage = (int)dDamage;
 
-  if (fabs(Car[ViewType[iCarIdx]].fHealth) > FLT_EPSILON)
+  if (fabs(Car[ViewType[iCarIdx]].fHealth) == 0)
   //if ((*(_DWORD *)((_BYTE *)&Car[0].fDamage + iCarOffset) & 0x7FFFFFFF) == 0)
     iDamage = 14;
 

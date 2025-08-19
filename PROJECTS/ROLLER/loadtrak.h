@@ -39,6 +39,17 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  float fBaseGrip;
+  int iGripModifier;
+  float fGripMultiplier;
+  int iSecondaryGrip;
+} tSurface;
+
+//-------------------------------------------------------------------------------------------------
+
+extern tSurface surface[14];
 extern uint8 TrackSelect;
 extern char *delims;
 extern char *names[25];
