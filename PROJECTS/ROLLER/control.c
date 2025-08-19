@@ -9,6 +9,7 @@
 #include "func2.h"
 #include "replay.h"
 #include "colision.h"
+#include "frontend.h"
 #include <math.h>
 #include <float.h>
 #include <string.h>
@@ -63,6 +64,8 @@ int ahead_time;                   //00149D98
 int Fatality;                     //00149DB0
 int Fatality_Count;               //00149DB4
 int cheat_control;                //00149DB8
+int rightang;                     //00149DBC
+int leftang;                      //00149DC0
 int fudge_wait;                   //00149DC4
 char RecordNames[25][9];          //00149DC8
 
@@ -3905,391 +3908,330 @@ void doteaminit()
 
 //-------------------------------------------------------------------------------------------------
 //00030260
-int16 hitleft(int a1, int a2, int a3)
-{
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // ecx
-  __int16 v4; // fps
-  double v5; // st7
-  _BOOL1 v6; // c0
-  char v7; // c2
-  _BOOL1 v8; // c3
-  double v9; // st7
-  int v10; // eax
-  int v11; // eax
-  __int16 v12; // fps
-  _BOOL1 v13; // c0
-  char v14; // c2
-  _BOOL1 v15; // c3
-  double v16; // st7
-  int v17; // eax
-  double v18; // st7
-  __int64 v19; // rax
-  double v20; // st7
-  double v21; // st6
-  int v22; // eax
-  int v23; // eax
-  double v24; // st7
-  long double v25; // st7
-  int v26; // eax
-  double v27; // st7
-  int v28; // eax
-  int v29; // edx
-  int v30; // eax
-  __int16 v31; // ax
-  __int16 result; // ax
-  float v33; // [esp+0h] [ebp-44h]
-  float v34; // [esp+0h] [ebp-44h]
-  float v35; // [esp+4h] [ebp-40h]
-  float v36; // [esp+18h] [ebp-2Ch]
-  int v37; // [esp+1Ch] [ebp-28h]
-  float v38; // [esp+20h] [ebp-24h]
-  float v39; // [esp+24h] [ebp-20h]
-  float v40; // [esp+28h] [ebp-1Ch]
-  float v41; // [esp+2Ch] [ebp-18h]
-  float v42; // [esp+30h] [ebp-14h]
-  float v43; // [esp+34h] [ebp-10h]
-  float v44; // [esp+34h] [ebp-10h]
+void hitleft(tCar *pCar, int iSampleIdx, int iIsRightSide)
+{                                               // Calculate maximum yaw change based on speed (capped at 500.0)
+  double dSpeedScale; // st7
+  int iYaw3; // eax
+  int iCollisionAngle; // eax
+  double dDamageAmount; // st7
+  double dVelX; // st7
+  double dVelY; // st6
+  int iAngleIdx; // eax
+  int iNewYaw; // eax
+  //int16 nFpuTemp1; // fps
+  double dAngleCalc; // st7
+  double dFinalSpeed; // st7
+  int iReverseYaw; // eax
+  //int16 nFpuTemp2; // fps
+  double dReverseAngle; // st7
+  int iYawDiff; // edx
+  int iConstrainedYaw; // eax
+  int16 nNewYawValue; // ax
+  float fDamageFloat; // [esp+0h] [ebp-44h]
+  float fFinalSpeed; // [esp+0h] [ebp-44h]
+  float fNegVelX; // [esp+4h] [ebp-40h]
+  float fNegVelY; // [esp+18h] [ebp-2Ch]
+  int iMaxYawChange; // [esp+1Ch] [ebp-28h]
+  float fVelX; // [esp+20h] [ebp-24h]
+  float fTangentialVel; // [esp+24h] [ebp-20h]
+  float fVelY; // [esp+28h] [ebp-1Ch]
+  float fFinalVelX; // [esp+2Ch] [ebp-18h]
+  float fFinalVelY; // [esp+30h] [ebp-14h]
+  float fPerpVel; // [esp+34h] [ebp-10h]
+  float fNegPerpVel; // [esp+34h] [ebp-10h]
 
-  v3 = a1;
-  v5 = *(float *)(a1 + 24);
-  v6 = v5 < control_c_variable_104;
-  v7 = 0;
-  v8 = v5 == control_c_variable_104;
-  LOWORD(a1) = v4;
-  if (v5 >= control_c_variable_104) {
-    v37 = 512;
+  if (pCar->fFinalSpeed >= 500.0) {
+    iMaxYawChange = 512;
   } else {
-    v9 = *(float *)(v3 + 24) * control_c_variable_105 * control_c_variable_106;
-    _CHP(a1, a2);
-    v37 = (int)v9;
+    dSpeedScale = pCar->fFinalSpeed * 512.0 * 0.0020000001;
+    //_CHP();
+    iMaxYawChange = (int)dSpeedScale;
   }
-  v10 = *(_DWORD *)(v3 + 64);
-  v38 = tcos[v10] * *(float *)(v3 + 24);
-  v40 = tsin[v10] * *(float *)(v3 + 24);
-  if (a3)
-    v11 = rightang;
+  iYaw3 = pCar->nYaw3;
+  fVelX = tcos[iYaw3] * pCar->fFinalSpeed;      // Calculate velocity components from car's current speed and direction
+  fVelY = tsin[iYaw3] * pCar->fFinalSpeed;
+  if (iIsRightSide)                           // Select collision angle based on left/right side (a3 parameter)
+    iCollisionAngle = rightang;
   else
-    v11 = leftang;
-  v39 = v38 * tcos[v11] + v40 * tsin[v11];
-  v43 = -v38 * tsin[v11] + v40 * tcos[v11];
-  if (!*(_BYTE *)(v3 + 272)) {
-    v13 = v43 > 0.0;
-    v14 = 0;
-    v15 = 0.0 == v43;
-    LOWORD(v11) = v12;
-    if (v43 > 0.0) {
-      v16 = v40 * control_c_variable_107 * control_c_variable_108;
-      _CHP(v11, a2);
-      v17 = a2;
-      a2 = *(_DWORD *)(v3 + 32);
-      sfxpend(v17, a2, (int)v16);
+    iCollisionAngle = leftang;
+  fTangentialVel = fVelX * tcos[iCollisionAngle] + fVelY * tsin[iCollisionAngle];// Transform velocity vector to collision surface coordinate system
+  fPerpVel = -fVelX * tsin[iCollisionAngle] + fVelY * tcos[iCollisionAngle];
+  if (!pCar->byCollisionTimer)                // Check if car is not already in collision state (byUnk63 flag)
+  {                                             // If velocity into wall is positive, play collision sound and calculate damage
+    if (fPerpVel > 0.0) {
+      //_CHP();
+      sfxpend(iSampleIdx, pCar->iDriverIdx, (int)(fVelY * 32768.0 * 0.0049999999));
       if (death_race)
-        v18 = v40 * control_c_variable_109 * control_c_variable_110;
+        dDamageAmount = fVelY * 0.006 * 4.0;
       else
-        v18 = v40 * control_c_variable_109;
-      v33 = v18;
-      v11 = dodamage(v33);
+        dDamageAmount = fVelY * 0.006;
+      fDamageFloat = (float)dDamageAmount;
+      dodamage(pCar, fDamageFloat);
     }
-    v43 = v43 * control_c_variable_111;
-    v39 = v39 * control_c_variable_112;
+    fPerpVel = fPerpVel * -0.6f;                 // Apply collision physics - reverse perpendicular velocity with damping
+    fTangentialVel = fTangentialVel * 0.8f;
   }
-  _CHP(v11, a2);
-  v19 = (int)v43;
-  v44 = (float)-abs32((int)v43);
-  v20 = v39;
-  v21 = v39;
-  if (a3)
-    v22 = rightang;
+  //_CHP();
+  fNegPerpVel = (float)-abs((int)fPerpVel);
+  dVelX = fTangentialVel;                                  // Transform velocity back to world coordinates after collision response
+  dVelY = fTangentialVel;
+  if (iIsRightSide)
+    iAngleIdx = rightang;
   else
-    v22 = leftang;
-  v41 = v21 * tcos[v22] - v44 * tsin[v22];
-  v42 = v20 * tsin[v22] + v44 * tcos[v22];
-  if (*(float *)(v3 + 28) <= 0.0 && v42 == control_c_variable_113) {
-    *(_DWORD *)(v3 + 24) = 0;
-  } else {
-    if (*(float *)(v3 + 24) < 0.0) {
-      v35 = -v41;
-      if ((LODWORD(v35) & 0x7FFFFFFF) != 0 || (v36 = -v42, (LODWORD(v36) & 0x7FFFFFFF) != 0)) {
-        IF_DATAN2(v35);
-        v27 = v35 * control_c_variable_114 / control_c_variable_115;
-        _CHP(v28, LODWORD(v35));
-        v26 = (int)v27 & 0x3FFF;
+    iAngleIdx = leftang;
+  fFinalVelX = (float)dVelY * tcos[iAngleIdx] - fNegPerpVel * tsin[iAngleIdx];
+  fFinalVelY = (float)dVelX * tsin[iAngleIdx] + fNegPerpVel * tcos[iAngleIdx];
+  if (pCar->fHealth <= 0.0 && fFinalVelY == -40.0)// Special case - if car is dead and velocity is exactly -40, stop completely
+  {
+    pCar->fFinalSpeed = 0.0;
+  } else {                                             // Handle reverse motion - calculate new direction and speed
+    if (pCar->fFinalSpeed < 0.0) {
+      fNegVelX = -fFinalVelX;
+      if (fabs(fNegVelX) > FLT_EPSILON || fabs(-fFinalVelY)) {
+      //if ((LODWORD(fNegVelX) & 0x7FFFFFFF) != 0 || fabs(-fFinalVelY)) {
+        fNegVelY = -fFinalVelY;
+        dReverseAngle = atan2(fNegVelY, fNegVelX) * 16384.0 / 6.28318530718;
+        //dReverseAngle = IF_DATAN2(nFpuTemp2, fNegVelY, fNegVelX) * 16384.0 / 6.28318530718;
+        //_CHP();
+        iReverseYaw = (int)dReverseAngle & 0x3FFF;
       } else {
-        v26 = 0;
+        iReverseYaw = 0;
       }
-      *(_DWORD *)(v3 + 64) = v26;
-      v25 = -sqrt(v41 * v41 + v42 * v42);
-    } else {
-      if (fabs(v21 * tcos[v22] - v44 * tsin[v22]) || fabs(v20 * tsin[v22] + v44 * tcos[v22])) {
-        IF_DATAN2(v41);
-        v24 = v41 * control_c_variable_114 / control_c_variable_115;
-        _CHP(v19, HIDWORD(v19));
-        v23 = (int)v24 & 0x3FFF;
+      pCar->nYaw3 = iReverseYaw;
+      dFinalSpeed = -sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
+    } else {                                           // Handle forward motion - calculate new direction and speed
+      if (fabs(dVelY * tcos[iAngleIdx] - fNegPerpVel * tsin[iAngleIdx]) || fabs(dVelX * tsin[iAngleIdx] + fNegPerpVel * tcos[iAngleIdx])) {
+        dAngleCalc = atan2(fFinalVelY, fFinalVelX) * 16384.0 / 6.28318530718;
+        //dAngleCalc = IF_DATAN2(nFpuTemp1, fFinalVelY, fFinalVelX) * 16384.0 / 6.28318530718;
+        //_CHP();
+        iNewYaw = (int)dAngleCalc & 0x3FFF;
       } else {
-        v23 = 0;
+        iNewYaw = 0;
       }
-      *(_DWORD *)(v3 + 64) = v23;
-      v25 = sqrt(v41 * v41 + v42 * v42);
+      pCar->nYaw3 = iNewYaw;
+      dFinalSpeed = sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
     }
-    *(float *)(v3 + 24) = v25;
+    pCar->fFinalSpeed = (float)dFinalSpeed;
   }
-  v29 = *(_DWORD *)(v3 + 64) - *(__int16 *)(v3 + 20);
-  v30 = v29 + (v29 < 0 ? 0x4000 : 0);
-  if (v30 > 0x2000)
-    v30 -= 0x4000;
-  if (v30 > v37)
-    v30 = v37;
-  if (v30 < -v37)
-    v30 = -v37;
-  v34 = *(float *)(v3 + 24);
-  v31 = *(_WORD *)(v3 + 20) + v30;
-  HIBYTE(v31) &= 0x3Fu;
-  *(_WORD *)(v3 + 20) = v31;
-  SetEngine(v3, v34);
-  *(_DWORD *)(v3 + 76) = 0;
-  result = putflat(v3);
-  *(_BYTE *)(v3 + 272) = 18;
-  return result;*/
+  iYawDiff = pCar->nYaw3 - pCar->nYaw;          // Apply yaw constraints - limit how fast car can turn based on speed
+  iConstrainedYaw = iYawDiff + (iYawDiff < 0 ? 0x4000 : 0);
+  if (iConstrainedYaw > 0x2000)
+    iConstrainedYaw -= 0x4000;
+  if (iConstrainedYaw > iMaxYawChange)
+    iConstrainedYaw = iMaxYawChange;
+  if (iConstrainedYaw < -iMaxYawChange)
+    iConstrainedYaw = -iMaxYawChange;
+  fFinalSpeed = pCar->fFinalSpeed;
+  nNewYawValue = pCar->nYaw + iConstrainedYaw;
+  nNewYawValue &= 0x3FFF;
+  //HIBYTE(nNewYawValue) &= 0x3Fu;
+  pCar->nYaw = nNewYawValue;
+  SetEngine(pCar, fFinalSpeed);                 // Apply final changes - update engine, reset steering, flatten car, set collision timer
+  pCar->iSteeringInput = 0;
+  putflat(pCar);
+  pCar->byCollisionTimer = 18;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00030590
-int16 hitright(int a1, int a2, int a3)
-{
-  (void)(a1); (void)(a2); (void)(a3);
-  return 0;
-  /*
-  int v3; // ecx
-  __int16 v4; // fps
-  double v5; // st7
-  _BOOL1 v6; // c0
-  char v7; // c2
-  _BOOL1 v8; // c3
-  double v9; // st7
-  int v10; // eax
-  int v11; // eax
-  __int16 v12; // fps
-  _BOOL1 v13; // c0
-  char v14; // c2
-  _BOOL1 v15; // c3
-  double v16; // st7
-  double v17; // st7
-  int v18; // eax
-  double v19; // st7
-  __int64 v20; // rax
-  double v21; // st7
-  double v22; // st6
-  int v23; // eax
-  int v24; // eax
-  double v25; // st7
-  long double v26; // st7
-  int v27; // eax
-  double v28; // st7
-  int v29; // edx
-  int v30; // eax
-  __int16 v31; // ax
-  __int16 result; // ax
-  float v33; // [esp+0h] [ebp-4Ch]
-  float v34; // [esp+4h] [ebp-48h]
-  float v35; // [esp+18h] [ebp-34h]
-  float v36; // [esp+1Ch] [ebp-30h]
-  int v37; // [esp+20h] [ebp-2Ch]
-  float v38; // [esp+24h] [ebp-28h]
-  float v39; // [esp+28h] [ebp-24h]
-  float v40; // [esp+2Ch] [ebp-20h]
-  float v41; // [esp+30h] [ebp-1Ch]
-  float v42; // [esp+34h] [ebp-18h]
-  float v43; // [esp+34h] [ebp-18h]
-  float v44; // [esp+38h] [ebp-14h]
+void hitright(tCar *pCar, int iSampleIdx, int iIsRightSide)
+{                                               // Calculate maximum yaw change based on speed (capped at 500.0)
+  double dSpeedScale; // st7
+  int iYaw3; // eax
+  int iCollisionAngle; // eax
+  double dAbsVelY; // st7
+  double dDamageAmount; // st7
+  double dVelX; // st7
+  double dVelY; // st6
+  int iAngleIdx; // eax
+  int iNewYaw; // eax
+  //int16 nFpuTemp1; // fps
+  double dAngleCalc; // st7
+  double dFinalSpeed; // st7
+  int iReverseYaw; // eax
+  //int16 nFpuTemp2; // fps
+  double dReverseAngle; // st7
+  int iYawDiff; // edx
+  int iConstrainedYaw; // eax
+  int16 nNewYawValue; // ax
+  float fDamageFloat; // [esp+0h] [ebp-4Ch]
+  float fNegVelX; // [esp+4h] [ebp-48h]
+  float fNegVelY; // [esp+18h] [ebp-34h]
+  float fAbsVelYFloat; // [esp+1Ch] [ebp-30h]
+  int iMaxYawChange; // [esp+20h] [ebp-2Ch]
+  float fVelX; // [esp+24h] [ebp-28h]
+  float fVelY; // [esp+28h] [ebp-24h]
+  float fTangentialVel; // [esp+2Ch] [ebp-20h]
+  float fFinalVelX; // [esp+30h] [ebp-1Ch]
+  float fPerpVel; // [esp+34h] [ebp-18h]
+  float fAbsPerpVel; // [esp+34h] [ebp-18h]
+  float fFinalVelY; // [esp+38h] [ebp-14h]
 
-  v3 = a1;
-  v5 = *(float *)(a1 + 24);
-  v6 = v5 < control_c_variable_116;
-  v7 = 0;
-  v8 = v5 == control_c_variable_116;
-  LOWORD(a1) = v4;
-  if (v5 >= control_c_variable_116) {
-    v37 = 512;
+  if (pCar->fFinalSpeed >= 500.0) {
+    iMaxYawChange = 512;
   } else {
-    v9 = *(float *)(v3 + 24) * control_c_variable_117 * control_c_variable_118;
-    _CHP(a1, a2);
-    v37 = (int)v9;
+    dSpeedScale = pCar->fFinalSpeed * 512.0 * 0.0020000001;
+    //_CHP();
+    iMaxYawChange = (int)dSpeedScale;
   }
-  v10 = *(_DWORD *)(v3 + 64);
-  v38 = tcos[v10] * *(float *)(v3 + 24);
-  v39 = tsin[v10] * *(float *)(v3 + 24);
-  if (a3)
-    v11 = rightang;
+  iYaw3 = pCar->nYaw3;
+  fVelX = tcos[iYaw3] * pCar->fFinalSpeed;      // Calculate velocity components from car's current speed and direction
+  fVelY = tsin[iYaw3] * pCar->fFinalSpeed;
+  if (iIsRightSide)                           // Select collision angle based on left/right side (iIsRightSide parameter)
+    iCollisionAngle = rightang;
   else
-    v11 = leftang;
-  v40 = v38 * tcos[v11] + v39 * tsin[v11];
-  v42 = -v38 * tsin[v11] + v39 * tcos[v11];
-  if (!*(_BYTE *)(v3 + 272)) {
-    v13 = v39 > 0.0;
-    v14 = 0;
-    v15 = 0.0 == v39;
-    LOWORD(v11) = v12;
-    if (v39 < 0.0) {
-      v16 = -v39;
-      v36 = v16;
-      v17 = v16 * control_c_variable_119 * control_c_variable_120;
-      _CHP(v11, a2);
-      v18 = a2;
-      a2 = *(_DWORD *)(v3 + 32);
-      sfxpend(v18, a2, (int)v17);
+    iCollisionAngle = leftang;
+  fTangentialVel = fVelX * tcos[iCollisionAngle] + fVelY * tsin[iCollisionAngle];// Transform velocity vector to collision surface coordinate system
+  fPerpVel = -fVelX * tsin[iCollisionAngle] + fVelY * tcos[iCollisionAngle];
+  if (!pCar->byCollisionTimer)                // Check if car is not already in collision state (byCollisionTimer)
+  {                                             // If velocity into wall is negative, play collision sound and calculate damage
+    if (fVelY < 0.0) {
+      dAbsVelY = -fVelY;
+      fAbsVelYFloat = (float)dAbsVelY;
+      //_CHP();
+      sfxpend(iSampleIdx, pCar->iDriverIdx, (int)(dAbsVelY * 32768.0 * 0.0049999999));
       if (death_race)
-        v19 = v36 * control_c_variable_121 * control_c_variable_122;
+        dDamageAmount = fAbsVelYFloat * 0.006 * 4.0;
       else
-        v19 = v36 * control_c_variable_121;
-      v33 = v19;
-      v11 = dodamage(v33);
+        dDamageAmount = fAbsVelYFloat * 0.006;
+      fDamageFloat = (float)dDamageAmount;
+      dodamage(pCar, fDamageFloat);
     }
-    v42 = v42 * control_c_variable_123;
-    v40 = v40 * control_c_variable_124;
+    fPerpVel = fPerpVel * -0.6f;                 // Apply collision physics - reverse perpendicular velocity with damping
+    fTangentialVel = fTangentialVel * 0.8f;
   }
-  _CHP(v11, a2);
-  v20 = (int)v42;
-  v43 = (float)(int)abs32((int)v42);
-  v21 = v40;
-  v22 = v40;
-  if (a3)
-    v23 = rightang;
+  //_CHP();
+  fAbsPerpVel = (float)(int)abs((int)fPerpVel);
+  dVelX = fTangentialVel;                       // Transform velocity back to world coordinates after collision response
+  dVelY = fTangentialVel;
+  if (iIsRightSide)
+    iAngleIdx = rightang;
   else
-    v23 = leftang;
-  v41 = v22 * tcos[v23] - v43 * tsin[v23];
-  v44 = v21 * tsin[v23] + v43 * tcos[v23];
-  if (*(float *)(v3 + 28) <= 0.0 && v44 == control_c_variable_125) {
-    *(_DWORD *)(v3 + 24) = 0;
-  } else {
-    if (*(float *)(v3 + 24) < 0.0) {
-      v34 = -v41;
-      if ((LODWORD(v34) & 0x7FFFFFFF) != 0 || (v35 = -v44, (LODWORD(v35) & 0x7FFFFFFF) != 0)) {
-        IF_DATAN2(v34);
-        v28 = v34 * control_c_variable_126 / control_c_variable_127;
-        _CHP(v20, HIDWORD(v20));
-        v27 = (int)v28 & 0x3FFF;
+    iAngleIdx = leftang;
+  fFinalVelX = (float)dVelY * tcos[iAngleIdx] - fAbsPerpVel * tsin[iAngleIdx];
+  fFinalVelY = (float)dVelX * tsin[iAngleIdx] + fAbsPerpVel * tcos[iAngleIdx];
+  if (pCar->fHealth <= 0.0 && fFinalVelY == 40.0)// Special case - if car is dead and velocity is exactly 40, stop completely
+  {
+    pCar->fFinalSpeed = 0.0;
+  } else {                                             // Handle reverse motion - calculate new direction and speed
+    if (pCar->fFinalSpeed < 0.0) {
+      fNegVelX = -fFinalVelX;
+      if (fabs(fNegVelX) > FLT_EPSILON || fabs(-fFinalVelY)) {
+      //if ((LODWORD(fNegVelX) & 0x7FFFFFFF) != 0 || fabs(-fFinalVelY)) {
+        fNegVelY = -fFinalVelY;
+        dReverseAngle = atan2(fNegVelY, fNegVelX) * 16384.0 / 6.28318530718;
+        //_CHP();
+        iReverseYaw = (int)dReverseAngle & 0x3FFF;
       } else {
-        v27 = 0;
+        iReverseYaw = 0;
       }
-      *(_DWORD *)(v3 + 64) = v27;
-      v26 = -sqrt(v41 * v41 + v44 * v44);
-    } else {
-      if (fabs(v22 * tcos[v23] - v43 * tsin[v23]) || fabs(v21 * tsin[v23] + v43 * tcos[v23])) {
-        IF_DATAN2(v41);
-        v25 = v41 * control_c_variable_126 / control_c_variable_127;
-        _CHP(v20, HIDWORD(v20));
-        v24 = (int)v25 & 0x3FFF;
+      pCar->nYaw3 = iReverseYaw;
+      dFinalSpeed = -sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
+    } else {                                           // Handle forward motion - calculate new direction and speed
+      if (fabs(dVelY * tcos[iAngleIdx] - fAbsPerpVel * tsin[iAngleIdx]) || fabs(dVelX * tsin[iAngleIdx] + fAbsPerpVel * tcos[iAngleIdx])) {
+        dAngleCalc = atan2(fFinalVelY, fFinalVelX) * 16384.0 / 6.28318530718;
+        //_CHP();
+        iNewYaw = (int)dAngleCalc & 0x3FFF;
       } else {
-        v24 = 0;
+        iNewYaw = 0;
       }
-      *(_DWORD *)(v3 + 64) = v24;
-      v26 = sqrt(v41 * v41 + v44 * v44);
+      pCar->nYaw3 = iNewYaw;
+      dFinalSpeed = sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
     }
-    *(float *)(v3 + 24) = v26;
+    pCar->fFinalSpeed = (float)dFinalSpeed;
   }
-  if (!*(_BYTE *)(v3 + 272)) {
-    v29 = *(_DWORD *)(v3 + 64) - *(__int16 *)(v3 + 20);
-    v30 = v29 + (v29 < 0 ? 0x4000 : 0);
-    if (v30 > 0x2000)
-      v30 -= 0x4000;
-    if (v30 > v37)
-      v30 = v37;
-    if (v30 < -v37)
-      v30 = -v37;
-    v31 = *(_WORD *)(v3 + 20) + v30;
-    HIBYTE(v31) &= 0x3Fu;
-    *(_WORD *)(v3 + 20) = v31;
+  if (!pCar->byCollisionTimer) {
+    iYawDiff = pCar->nYaw3 - pCar->nYaw;        // Apply yaw constraints only if not in collision state
+    iConstrainedYaw = iYawDiff + (iYawDiff < 0 ? 0x4000 : 0);
+    if (iConstrainedYaw > 0x2000)
+      iConstrainedYaw -= 0x4000;
+    if (iConstrainedYaw > iMaxYawChange)
+      iConstrainedYaw = iMaxYawChange;
+    if (iConstrainedYaw < -iMaxYawChange)
+      iConstrainedYaw = -iMaxYawChange;
+    nNewYawValue = pCar->nYaw + iConstrainedYaw;
+    nNewYawValue &= 0x3FFFu;
+    //HIBYTE(nNewYawValue) &= 0x3Fu;
+    pCar->nYaw = nNewYawValue;
   }
-  SetEngine(v3, *(float *)(v3 + 24));
-  *(_DWORD *)(v3 + 76) = 0;
-  result = putflat(v3);
-  *(_BYTE *)(v3 + 272) = 18;
-  return result;*/
+  SetEngine(pCar, pCar->fFinalSpeed);           // Apply final changes - update engine, reset steering, flatten car, set collision timer
+  pCar->iSteeringInput = 0;
+  putflat(pCar);
+  pCar->byCollisionTimer = 18;
 }
 
 //-------------------------------------------------------------------------------------------------
 //000308D0
-int scansection(tCar *pCar)
+void scansection(tCar *pCar)
 {
-  return 0;/*
-  int v1; // edi
+  int iTrackLen; // edi
   int iChunkIdx; // ebx
   tData *pData; // edx
-  int v5; // ecx
-  double v6; // st7
-  double v7; // st5
-  double v8; // rt0
-  double v9; // st7
-  double v10; // st5
-  double v11; // rt1
-  int result; // eax
-  float v13; // [esp+4h] [ebp-30h]
-  float v14; // [esp+8h] [ebp-2Ch]
-  float v15; // [esp+Ch] [ebp-28h]
+  int iDirection; // ecx
+  double dTempY; // st7
+  double dTempX; // st5
+  double dTempZ; // rt0
+  double dTempY2; // st7
+  double dTempX2; // st5
+  double dTempZ2; // rt1
+  int iTempYaw; // eax
+  float fTransformedX; // [esp+4h] [ebp-30h]
+  float fTransformedY; // [esp+8h] [ebp-2Ch]
+  float fTransformedZ; // [esp+Ch] [ebp-28h]
   float fZ; // [esp+10h] [ebp-24h]
   float fY; // [esp+14h] [ebp-20h]
   float fX; // [esp+18h] [ebp-1Ch]
 
-  v1 = TRAK_LEN;
+  iTrackLen = TRAK_LEN;
   fX = pCar->pos.fX;
   fY = pCar->pos.fY;
   iChunkIdx = pCar->nCurrChunk;
   fZ = pCar->pos.fZ;
   pData = &localdata[iChunkIdx];
-  v13 = pData->pointAy[0].fY * fY
-    + pData->pointAy[0].fX * pCar->pos.fX
-    + pData->pointAy[0].fZ * fZ
-    - pData->pointAy[3].fX;
-  v14 = pData->pointAy[1].fY * fY
-    + pData->pointAy[1].fX * pCar->pos.fX
-    + pData->pointAy[1].fZ * fZ
-    - pData->pointAy[3].fY;
-  v15 = pData->pointAy[2].fY * fY
-    + pData->pointAy[2].fX * pCar->pos.fX
-    + pData->pointAy[2].fZ * fZ
-    - pData->pointAy[3].fZ;
-  v5 = 0;
-  if (pCar->pos.fX < (double)pData->fUnk13) {
+  fTransformedX = pData->pointAy[0].fY * fY + pData->pointAy[0].fX * pCar->pos.fX + pData->pointAy[0].fZ * fZ - pData->pointAy[3].fX;// Transform car position relative to current track chunk coordinate system
+  fTransformedY = pData->pointAy[1].fY * fY + pData->pointAy[1].fX * pCar->pos.fX + pData->pointAy[1].fZ * fZ - pData->pointAy[3].fY;
+  fTransformedZ = pData->pointAy[2].fY * fY + pData->pointAy[2].fX * pCar->pos.fX + pData->pointAy[2].fZ * fZ - pData->pointAy[3].fZ;
+  iDirection = 0;
+  if (pCar->pos.fX < (double)pData->fTrackHalfLength)// If car is behind track half-length, scan backwards through chunks
+  {
     do {
       if (--iChunkIdx == -1)
         iChunkIdx = TRAK_LEN - 1;
       pData = &localdata[iChunkIdx];
-      v6 = v14 + pData->pointAy[3].fY;
-      v7 = v13 + pData->pointAy[3].fX;
-      v8 = v15 + pData->pointAy[3].fZ;
-      fX = pData->pointAy[1].fX * v6 + pData->pointAy[0].fX * v7 + pData->pointAy[2].fX * v8;
-      fY = pData->pointAy[0].fY * v7 + pData->pointAy[1].fY * v6 + pData->pointAy[2].fY * v8;
-      fZ = v6 * pData->pointAy[1].fZ + v7 * pData->pointAy[0].fZ + v8 * pData->pointAy[2].fZ;
-      v5 -= pData->iUnk16;
-    } while (fX < (double)pData->fUnk13);
+      dTempY = fTransformedY + pData->pointAy[3].fY;
+      dTempX = fTransformedX + pData->pointAy[3].fX;
+      dTempZ = fTransformedZ + pData->pointAy[3].fZ;
+      fX = (float)(pData->pointAy[1].fX * dTempY + pData->pointAy[0].fX * dTempX + pData->pointAy[2].fX * dTempZ);// Apply inverse transformation to get position in new chunk's coordinate system
+      fY = (float)(pData->pointAy[0].fY * dTempX + pData->pointAy[1].fY * dTempY + pData->pointAy[2].fY * dTempZ);
+      fZ = (float)(dTempY * pData->pointAy[1].fZ + dTempX * pData->pointAy[0].fZ + dTempZ * pData->pointAy[2].fZ);
+      iDirection -= pData->iYaw;
+    } while (fX < (double)pData->fTrackHalfLength);
   }
-  while (fX > (double)pData->fUnk13) {
+  while (fX > (double)pData->fTrackHalfLength)// If car is ahead of track half-length, scan forwards through chunks
+  {
     ++iChunkIdx;
-    v5 += pData->iUnk16;
+    iDirection += pData->iYaw;
     if (iChunkIdx == TRAK_LEN)
       iChunkIdx ^= TRAK_LEN;
     pData = &localdata[iChunkIdx];
-    v9 = v14 + pData->pointAy[3].fY;
-    v10 = v13 + pData->pointAy[3].fX;
-    v11 = v15 + pData->pointAy[3].fZ;
-    fX = pData->pointAy[1].fX * v9 + pData->pointAy[0].fX * v10 + pData->pointAy[2].fX * v11;
-    fY = pData->pointAy[0].fY * v10 + pData->pointAy[1].fY * v9 + pData->pointAy[2].fY * v11;
-    fZ = v9 * pData->pointAy[1].fZ + v10 * pData->pointAy[0].fZ + v11 * pData->pointAy[2].fZ;
+    dTempY2 = fTransformedY + pData->pointAy[3].fY;
+    dTempX2 = fTransformedX + pData->pointAy[3].fX;
+    dTempZ2 = fTransformedZ + pData->pointAy[3].fZ;
+    fX = (float)(pData->pointAy[1].fX * dTempY2 + pData->pointAy[0].fX * dTempX2 + pData->pointAy[2].fX * dTempZ2);
+    fY = (float)(pData->pointAy[0].fY * dTempX2 + pData->pointAy[1].fY * dTempY2 + pData->pointAy[2].fY * dTempZ2);
+    fZ = (float)(dTempY2 * pData->pointAy[1].fZ + dTempX2 * pData->pointAy[0].fZ + dTempZ2 * pData->pointAy[2].fZ);
   }
-  pCar->pos.fX = fX;
+  pCar->pos.fX = fX;                            // Store final transformed position and updated chunk/yaw back to car
   pCar->pos.fY = fY;
   pCar->pos.fZ = fZ;
-  pCar->nDirection -= v5;
-  HIBYTE(pCar->nDirection) &= 0x3Fu;
-  result = pCar->iAngleIdx15 - v5;
+  pCar->nYaw -= iDirection;
+  pCar->nYaw &= 0x3FFF;
+  //HIBYTE(pCar->nYaw) &= 0x3Fu;                  // Mask yaw values to keep them within valid ranges (14-bit values)
+  iTempYaw = pCar->nYaw3 - iDirection;
   pCar->nCurrChunk = iChunkIdx;
-  pCar->iAngleIdx15 = result;
-  pCar->iAngleIdx15 = result & 0x3FFF;
-  TRAK_LEN = v1;
-  return result;*/
+  pCar->nYaw3 = iTempYaw;
+  pCar->nYaw3 = iTempYaw & 0x3FFF;
+  TRAK_LEN = iTrackLen;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -15,6 +15,7 @@ typedef struct
 
 extern int false_starts;
 extern float TrackZs[25];
+extern int death_race;
 extern int head_x;
 extern int head_y;
 extern char network_messages[5][14];

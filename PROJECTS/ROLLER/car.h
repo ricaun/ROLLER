@@ -100,7 +100,7 @@ typedef struct
   float fRightTargetTime;
   float fTargetX;
   float fTargetY;
-  uint8 byUnk63;
+  uint8 byCollisionTimer;
   uint8 byUnk64;
   uint8 byUnk65;
   uint8 byPadding14;

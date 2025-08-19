@@ -50,6 +50,7 @@ float TrackZs[25] =       //000A4A54
   800000.0, 800000.0, 800000.0, 400000.0, 500000.0,
   400000.0, 400000.0, 500000.0, 500000.0, 400000.0
 };
+int death_race = 0;       //000A4ABC
 int head_x = 186;         //000A4AC0
 int head_y = 8;           //000A4AC4
 char network_messages[5][14] = { //000A4AC8
