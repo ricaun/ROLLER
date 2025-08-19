@@ -4771,57 +4771,67 @@ double interpolatesteer(float fSteeringInput, float fSaturationThreshold, float 
 
 //-------------------------------------------------------------------------------------------------
 //000318F0
-double avoid(int a1, int a2, float a3, int a4, float a5, float a6, void *a7)
+double avoid(
+        int iCurrentCarIdx,
+        int iTargetCarIdx,
+        float fSteeringInput,
+        float fMaxOutput,
+        float fSaturationThreshold,
+        float fDeadzoneThreshold,
+        int *piOvertakeFlag)
 {
-  return 0.0;/*
-  int v10; // eax
-  double v11; // st7
-  int v13; // [esp+0h] [ebp-30h] BYREF
-  int v14; // [esp+4h] [ebp-2Ch] BYREF
-  float v15; // [esp+8h] [ebp-28h]
-  float v16; // [esp+Ch] [ebp-24h]
-  int v17; // [esp+10h] [ebp-20h]
-  int v18; // [esp+14h] [ebp-1Ch]
+  int iDriverOffset; // eax
+  double dTargetY; // st7
+  float fMinRange; // [esp+0h] [ebp-30h] BYREF
+  float fMaxRange; // [esp+4h] [ebp-2Ch] BYREF
+  float fCenterRange; // [esp+8h] [ebp-28h]
+  float fTargetY; // [esp+Ch] [ebp-24h]
+  float fLowerBound; // [esp+10h] [ebp-20h]
+  float fUpperBound; // [esp+14h] [ebp-1Ch]
 
-  *a7 = 0;
-  if (a2 != -1 && a3 < fabs(a5)) {
-    *(float *)&v18 = CarBaseY + Car[a2].fUnk19 + control_c_variable_145 + Car[a2].pos.fY;
-    *(float *)&v17 = -CarBaseY - Car[a2].fUnk19 + control_c_variable_146 + Car[a2].pos.fY;
-    if (*(float *)&a4 < (double)*(float *)&v18 && *(float *)&a4 >(double) * (float *)&v17) {
-      driverange((int)&Car[a2], (float *)&v13, (float *)&v14);
-      v10 = a1 + Car[a2].iUnk10;
-      v15 = (*(float *)&v13 + *(float *)&v14) * control_c_variable_147;
-      if ((v10 & 1) != 0)
-        v11 = Car[a2].pos.fY + control_c_variable_149;
+  *piOvertakeFlag = 0;                          // Initialize collision flag to no collision
+  if (iTargetCarIdx != -1 && fSteeringInput < fabs(fSaturationThreshold))// Check if target car exists and steering input is within saturation threshold
+  {
+    fUpperBound = CarBaseY + Car[iTargetCarIdx].fCarHalfWidth + 200.0f + Car[iTargetCarIdx].pos.fY;// Calculate upper avoidance boundary (car position + half width + safety margin)
+    fLowerBound = -CarBaseY - Car[iTargetCarIdx].fCarHalfWidth + -200.0f + Car[iTargetCarIdx].pos.fY;// Calculate lower avoidance boundary (car position - half width - safety margin)
+    if (fMaxOutput < (double)fUpperBound && fMaxOutput >(double)fLowerBound)// Check if our car Y position is within avoidance zone
+    {
+      driverange(&Car[iTargetCarIdx], &fMinRange, &fMaxRange);// Get driving range boundaries for target car
+      iDriverOffset = iCurrentCarIdx + Car[iTargetCarIdx].iDriverIdx;// Calculate combined driver index for avoidance direction
+      fCenterRange = (fMinRange + fMaxRange) * 0.5f;// Calculate center of driving range
+      if ((iDriverOffset & 1) != 0)           // Choose avoidance direction based on driver index parity
+        dTargetY = Car[iTargetCarIdx].pos.fY + -100.0;// Odd driver index: avoid by going down (-100 offset)
       else
-        v11 = Car[a2].pos.fY + control_c_variable_148;
-      v16 = v11;
-      if (v16 <= (double)v15) {
-        if (*(float *)&v18 > (double)*(float *)&v13) {
-          v18 = v13;
-          if (a3 > 0.0
-            && Car[a1].fMaxSpeed > (double)control_c_variable_150
-            && Car[a1].fMaxSpeed > Car[a2].fMaxSpeed * tcos[Car[a2].iAngleIdx15] + control_c_variable_151) {
-            *a7 = -1;
+        dTargetY = Car[iTargetCarIdx].pos.fY + 100.0;// Even driver index: avoid by going up (+100 offset)
+      fTargetY = (float)dTargetY;
+      if (fTargetY <= (double)fCenterRange) {                                         // Adjust upper boundary to minimum range if needed
+        if (fUpperBound > (double)fMinRange) {
+          fUpperBound = fMinRange;
+          if (fSteeringInput > 0.0
+            && Car[iCurrentCarIdx].fFinalSpeed > 80.0
+            && Car[iCurrentCarIdx].fFinalSpeed > Car[iTargetCarIdx].fFinalSpeed * tcos[Car[iTargetCarIdx].nYaw3] + 120.0)// Check for aggressive overtaking conditions (speed advantage)
+          {
+            *piOvertakeFlag = -1;
           }
         }
-        if (*(float *)&a4 <= (double)*(float *)&v18)
-          return (float)interpolatesteer(a3, a5, a6, a4, v18);
-      } else {
-        if (*(float *)&v17 < (double)*(float *)&v14) {
-          v17 = v14;
-          if (a3 > 0.0
-            && Car[a1].fMaxSpeed > (double)control_c_variable_150
-            && Car[a1].fMaxSpeed > Car[a2].fMaxSpeed * tcos[Car[a2].iAngleIdx15] + control_c_variable_151) {
-            *a7 = -1;
+        if (fMaxOutput <= (double)fUpperBound)
+          return (float)interpolatesteer(fSteeringInput, fSaturationThreshold, fDeadzoneThreshold, fMaxOutput, fUpperBound);// Return interpolated steering to avoid upper boundary
+      } else {                                         // Adjust lower boundary to maximum range if needed
+        if (fLowerBound < (double)fMaxRange) {
+          fLowerBound = fMaxRange;
+          if (fSteeringInput > 0.0
+            && Car[iCurrentCarIdx].fFinalSpeed > 80.0
+            && Car[iCurrentCarIdx].fFinalSpeed > Car[iTargetCarIdx].fFinalSpeed * tcos[Car[iTargetCarIdx].nYaw3] + 120.0)// Check for aggressive overtaking conditions (speed advantage)
+          {
+            *piOvertakeFlag = -1;
           }
         }
-        if (*(float *)&a4 >= (double)*(float *)&v17)
-          return (float)interpolatesteer(a3, a5, a6, a4, v17);
+        if (fMaxOutput >= (double)fLowerBound)
+          return (float)interpolatesteer(fSteeringInput, fSaturationThreshold, fDeadzoneThreshold, fMaxOutput, fLowerBound);// Return interpolated steering to avoid lower boundary
       }
     }
   }
-  return *(float *)&a4;*/
+  return fMaxOutput;                            // No avoidance needed, return original steering value
 }
 
 //-------------------------------------------------------------------------------------------------

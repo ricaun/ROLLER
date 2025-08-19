@@ -76,7 +76,7 @@ void putflat(tCar *pCar);
 void findnearcars(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRightCarIdx, float *pfRightTime, float *pfTargetX, float *pfTargetY);
 void findnearcarsforce(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRightCarIdx, float *pfRightTime, float *pfTargetX, float *pfTargetY);
 double interpolatesteer(float fSteeringInput, float fSaturationThreshold, float fDeadzoneThreshold, float fMaxOutput, float fMinOutput);
-double avoid(int a1, int a2, float a3, int a4, float a5, float a6, void *a7);
+double avoid(int iCurrentCarIdx, int iTargetCarIdx, float fSteeringInput, float fMaxOutput, float fSaturationThreshold, float fDeadzoneThreshold, int *piOvertakeFlag);
 double block(int iCarIdx, float fSteeringInput, float fMaxOutput, float fSaturationThreshold, float fDeadzoneThreshold);
 void autocar2(tCar *pCar);
 void changestrategy(tCar *pCar);
