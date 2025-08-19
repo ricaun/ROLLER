@@ -15,27 +15,28 @@
 #include <string.h>
 //-------------------------------------------------------------------------------------------------
 
-float levels[7] = { 100.0, 97.0, 94.0, 90.0, 85.0, 80.0, -1.0 }; //000A4290
+float levels[7] = { 100.0f, 97.0f, 94.0f, 90.0f, 85.0f, 80.0f, -1.0f }; //000A4290
+float mineff[6] = { 1.0f, 0.95999998f, 0.92000002f, 0.88f, 0.83999997f, 0.80000001f }; //000A42AC
 int flipst[6] = { 0, 20, 40, 60, 80, 100 }; //000A42C4
 int level = 3;                    //000A42DC
 tCarStrategy CarStrategy[16] =    //000A42E8
 {
-  { { 20, 40, 40, 0, 2 },   { 2.5f, 1.0f, 3.0f, 1.0f, 5000.0f } },
-  { { 50, 30, 10, 10, 0 },  { 4.0f, 1.0f, 2.8f, 1.0f, 5000.0f } },
-  { { 70, 20, 5, 5, 0 },    { 2.0f, 1.0f, 1.6f, 1.6f, 5000.0f } },
-  { { 90, 5, 0, 5, 0 },     { 1.4f, 1.0f, 4.0f, 3.0f, 5000.0f } },
-  { { 10, 50, 35, 5, 2 },   { 1.4f, 1.0f, 3.0999999f, 1.0f, 9000.0f } },
-  { { 30, 45, 5, 20, 0 },   { 2.0f, 1.0f, 2.0f, 1.0f, 9000.0f } },
-  { { 10, 20, 70, 0, 4 },   { 2.0f, 2.0f, 4.3000002f, 1.0f, 8000.0f } },
-  { { 30, 30, 5, 35, 2 },   { 2.5f, 1.2f, 2.8f, 1.0f, 8000.0f } },
-  { { 25, 25, 25, 25, 40 }, { 3.0f, 2.0f, 3.0f, 2.0f, 5000.0f } },
-  { { 20, 70, 5, 5, 0 },    { 1.4f, 1.0f, 2.0f, 1.0f, 5000.0f } },
-  { { 70, 5, 5, 20, 0 },    { 2.0f, 1.0f, 4.0f, 1.4f, 5000.0f } },
-  { { 15, 75, 5, 5, 0 },    { 1.4f, 1.0f, 3.4000001f, 1.0f, 5000.0f } },
-  { { 70, 20, 10, 0, 0 },   { 3.0f, 1.0f, 4.0f, 1.0f, 11000.0f } },
-  { { 85, 5, 5, 5, 0 },     { 3.0f, 1.0f, 4.0f, 1.4f, 11000.0f } },
-  { { 20, 60, 5, 15, 0 },   { 4.0f, 1.2f, 4.0f, 1.4f, 9000.0f } },
-  { { 20, 40, 0, 40, 1 },   { 3.0f, 2.0f, 3.4000001f, 1.0f, 9000.0f } }
+  { { 20, 40, 40, 0, 2 },   2.5f, 1.0f, 3.0f, 1.0f, 5000.0f },
+  { { 50, 30, 10, 10, 0 },  4.0f, 1.0f, 2.8f, 1.0f, 5000.0f },
+  { { 70, 20, 5, 5, 0 },    2.0f, 1.0f, 1.6f, 1.6f, 5000.0f },
+  { { 90, 5, 0, 5, 0 },     1.4f, 1.0f, 4.0f, 3.0f, 5000.0f },
+  { { 10, 50, 35, 5, 2 },   1.4f, 1.0f, 3.0999999f, 1.0f, 9000.0f },
+  { { 30, 45, 5, 20, 0 },   2.0f, 1.0f, 2.0f, 1.0f, 9000.0f },
+  { { 10, 20, 70, 0, 4 },   2.0f, 2.0f, 4.3000002f, 1.0f, 8000.0f },
+  { { 30, 30, 5, 35, 2 },   2.5f, 1.2f, 2.8f, 1.0f, 8000.0f },
+  { { 25, 25, 25, 25, 40 }, 3.0f, 2.0f, 3.0f, 2.0f, 5000.0f },
+  { { 20, 70, 5, 5, 0 },    1.4f, 1.0f, 2.0f, 1.0f, 5000.0f },
+  { { 70, 5, 5, 20, 0 },    2.0f, 1.0f, 4.0f, 1.4f, 5000.0f },
+  { { 15, 75, 5, 5, 0 },    1.4f, 1.0f, 3.4000001f, 1.0f, 5000.0f },
+  { { 70, 20, 10, 0, 0 },   3.0f, 1.0f, 4.0f, 1.0f, 11000.0f },
+  { { 85, 5, 5, 5, 0 },     3.0f, 1.0f, 4.0f, 1.4f, 11000.0f },
+  { { 20, 60, 5, 15, 0 },   4.0f, 1.2f, 4.0f, 1.4f, 9000.0f },
+  { { 20, 40, 0, 40, 1 },   3.0f, 2.0f, 3.4000001f, 1.0f, 9000.0f }
 };
 int nearcall[4][4];               //00149750
 int carorder[16];                 //00149790
@@ -3750,7 +3751,7 @@ LABEL_113:
     pCar->iRollCameraOffset = 0;
     pCar->iPitchDynamicOffset = 0;
     pCar->iRollDynamicOffset = 0;
-    pCar->iUnk38_4 = 0;
+    pCar->iAIUpdateTimer = 0;
     pCar->iAITargetCar = -1;
     pCar->fFinalSpeed = 0.0;
     pCar->fPower = 0.0;
@@ -4491,7 +4492,7 @@ void findnearcarsforce(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *pi
   float fAdjustedDistance; // [esp+60h] [ebp-10h]
 
   iTrakLen = TRAK_LEN;
-  fStrategyValue = CarStrategy[pCar->iDriverIdx].floatUnkAy[4];// Get AI strategy value for car avoidance distance
+  fStrategyValue = CarStrategy[pCar->iDriverIdx].fAvoidDistance;// Get AI strategy value for car avoidance distance
   dAbsSpeed = fabs(pCar->fFinalSpeed);          // Calculate absolute speed for distance scaling
   if (dAbsSpeed < 450.0) {
     fSpeedForCalc = (float)dAbsSpeed;
@@ -4768,583 +4769,463 @@ double block(int iCarIdx, float fSteeringInput, float fMaxOutput, float fSaturat
 //00031BA0
 void autocar2(tCar *pCar)
 {
-  /*
-  float *v2; // ebp
-  int v3; // ebx
-  double v4; // st7
-  int v5; // edx
-  __int16 v6; // fps
-  double v7; // st7
-  _BOOL1 v8; // c0
-  char v9; // c2
-  _BOOL1 v10; // c3
-  int v11; // eax
-  int v12; // edi
-  int v13; // eax
-  int v14; // edx
-  int v15; // ebx
-  int v16; // ecx
-  int v17; // eax
-  double v18; // st7
-  double v19; // st7
-  int v20; // eax
-  int v21; // eax
-  __int16 v22; // fps
-  double v23; // st7
-  _BOOL1 v24; // c0
-  char v25; // c2
-  _BOOL1 v26; // c3
-  double v27; // st7
-  __int16 v28; // fps
-  _BOOL1 v29; // c0
-  char v30; // c2
-  _BOOL1 v31; // c3
-  int v32; // eax
-  __int16 v33; // fps
-  _BOOL1 v34; // c0
-  char v35; // c2
-  _BOOL1 v36; // c3
-  double v37; // st7
-  int v38; // edi
-  int v39; // edx
-  int v40; // eax
-  __int16 v41; // fps
-  _BOOL1 v42; // c0
-  char v43; // c2
-  _BOOL1 v44; // c3
-  double v45; // st7
-  double v46; // st7
-  int v47; // eax
-  unsigned __int8 v48; // bl
-  int v49; // ebx
-  int v50; // edx
-  int v51; // eax
-  int v52; // ebx
-  int v53; // eax
-  int v54; // eax
-  int v55; // eax
-  int v56; // eax
-  double v57; // st7
-  int v58; // eax
-  float v59; // eax
-  int v60; // eax
-  double v61; // st7
-  long double v62; // st7
-  int v63; // eax
-  __int16 v64; // fps
-  _BOOL1 v65; // c0
-  char v66; // c2
-  _BOOL1 v67; // c3
-  double v68; // st7
-  int v69; // eax
-  double v70; // st7
-  double v71; // st7
-  double v72; // st7
-  int v73; // eax
-  int v74; // eax
-  int v75; // eax
-  double v76; // [esp+0h] [ebp-ACh]
-  float v77; // [esp+8h] [ebp-A4h] BYREF
-  float v78; // [esp+Ch] [ebp-A0h] BYREF
-  int v79; // [esp+10h] [ebp-9Ch] BYREF
-  int v80; // [esp+14h] [ebp-98h] BYREF
-  int v81; // [esp+18h] [ebp-94h] BYREF
-  float v82; // [esp+1Ch] [ebp-90h] BYREF
-  int v83; // [esp+20h] [ebp-8Ch] BYREF
-  int v84; // [esp+24h] [ebp-88h]
-  float v85; // [esp+28h] [ebp-84h]
-  float v86; // [esp+2Ch] [ebp-80h]
-  float v87; // [esp+30h] [ebp-7Ch]
-  float v88; // [esp+34h] [ebp-78h]
-  float v89; // [esp+38h] [ebp-74h]
-  float v90; // [esp+3Ch] [ebp-70h]
-  float v91; // [esp+40h] [ebp-6Ch]
-  float v92; // [esp+44h] [ebp-68h]
-  float v93; // [esp+48h] [ebp-64h]
-  float v94; // [esp+4Ch] [ebp-60h]
-  float v95; // [esp+50h] [ebp-5Ch]
-  float v96; // [esp+54h] [ebp-58h]
-  float v97; // [esp+58h] [ebp-54h]
-  float v98; // [esp+5Ch] [ebp-50h]
-  float v99; // [esp+60h] [ebp-4Ch]
-  float v100; // [esp+64h] [ebp-48h]
-  int v101; // [esp+68h] [ebp-44h]
-  int v102; // [esp+6Ch] [ebp-40h]
-  int v103; // [esp+70h] [ebp-3Ch]
-  float v104; // [esp+74h] [ebp-38h]
-  int *v105; // [esp+78h] [ebp-34h]
-  int v106; // [esp+7Ch] [ebp-30h]
-  int v107; // [esp+80h] [ebp-2Ch]
-  float v108; // [esp+84h] [ebp-28h]
-  int v109; // [esp+88h] [ebp-24h]
-  int v110; // [esp+8Ch] [ebp-20h]
-  int v111; // [esp+90h] [ebp-1Ch]
+  tCarStrategy *pStrategy; // ebp
+  int iCountdown; // ebx
+  int iCurrChunk; // edx
+  double dAIMaxSpeed; // st7
+  int iHumanBestPosition; // edi
+  int iCarIdx; // eax
+  int iLoopIdx; // edx
+  int iCarArrayIdx; // ebx
+  int byRacePosition; // ecx
+  int iPositionDifference; // eax
+  double dSpeedAdjustment; // st7
+  double dSpeedReduction; // st7
+  int iCurrentPosition; // eax
+  double dReducedSpeed; // st7
+  double dSpeedDifference; // st7
+  int iSelectedStrategy; // edi
+  double dTargetReducedSpeed; // st7
+  double dSpeedDelta; // st7
+  uint8 byCurrentRacePos; // bl
+  int iCurrentChunk; // ebx
+  int iRandomPitStop; // eax
+  int iPitStopTaken; // ebx
+  int iCarLoopIdx; // eax
+  int iChunkForPitStop; // eax
+  int iPrevChunk; // eax
+  int iPlayerType; // eax
+  double dAvoidanceY; // st7
+  int iAITargetCar; // eax
+  float fInterpolatedY; // eax
+  int iTargetAngle; // eax
+  double dAvoidanceResult; // st7
+  double dYPositionDiff; // st7
+  double dTargetCarSpeed; // st7
+  double dSpeedDiffCalc; // st7
+  //__int16 nFPUStatus; // fps
+  double dCalculatedAngle; // st7
+  int iSteeringSensitivity; // eax
+  int iRandomValue; // eax
+  double fRPMRatio; // [esp+0h] [ebp-ACh]
+  float fRightTime; // [esp+8h] [ebp-A4h] BYREF
+  float fLeftTime; // [esp+Ch] [ebp-A0h] BYREF
+  int iLeftCarIdx; // [esp+10h] [ebp-9Ch] BYREF
+  float fTargetY; // [esp+14h] [ebp-98h] BYREF
+  int iRightCarIdx; // [esp+18h] [ebp-94h] BYREF
+  float fTargetX; // [esp+1Ch] [ebp-90h] BYREF
+  int iActionFlag; // [esp+20h] [ebp-8Ch] BYREF
+  float fDeltaX; // [esp+24h] [ebp-88h]
+  float fDeltaXCopy; // [esp+28h] [ebp-84h]
+  float fDragCoefficient; // [esp+2Ch] [ebp-80h]
+  float fStrategyParam1; // [esp+30h] [ebp-7Ch]
+  float fDeltaYCopy; // [esp+34h] [ebp-78h]
+  float fSteerSensitivity; // [esp+38h] [ebp-74h]
+  float fStrategyA1; // [esp+3Ch] [ebp-70h]
+  float fSteerSensitivity_1; // [esp+40h] [ebp-6Ch]
+  float fStrategyA0_3; // [esp+44h] [ebp-68h]
+  float fTrackDistance; // [esp+48h] [ebp-64h]
+  float fStrategyParam2; // [esp+4Ch] [ebp-60h]
+  float fCalculatedY; // [esp+50h] [ebp-5Ch]
+  float fLeftInterpolated; // [esp+54h] [ebp-58h]
+  float fDeltaY; // [esp+58h] [ebp-54h]
+  float fRightInterpolated; // [esp+5Ch] [ebp-50h]
+  float fDefensiveY; // [esp+60h] [ebp-4Ch]
+  float fForwardSpeed; // [esp+64h] [ebp-48h]
+  int iAccelerationControl; // [esp+68h] [ebp-44h]
+  int iPitZoneFlag; // [esp+6Ch] [ebp-40h]
+  int iLastLapFlag; // [esp+70h] [ebp-3Ch]
+  float fMaxEngineSpeed; // [esp+74h] [ebp-38h]
+  tCarEngine *pEngine; // [esp+78h] [ebp-34h]
+  int iDistanceToTarget; // [esp+7Ch] [ebp-30h]
+  int iAITargetSpeed; // [esp+80h] [ebp-2Ch]
+  float fTargetSteerY; // [esp+84h] [ebp-28h]
+  int iPitStopTarget; // [esp+88h] [ebp-24h]
+  int iAIThrottleControl; // [esp+8Ch] [ebp-20h]
+  int iHumanCarIdx; // [esp+90h] [ebp-1Ch]
 
-  v83 = 0;
-  v105 = &CarEngines[28 * *(unsigned __int8 *)(a1 + 102)];
-  v2 = (float *)((char *)&CarStrategy + 40 * *(_DWORD *)(a1 + 32));
-  v86 = *((float *)v105 + 3);
-  v3 = *(_DWORD *)(a1 + 176) - 1;
-  v104 = *(float *)(4 * *v105 + v105[2] - 4);
-  *(_DWORD *)(a1 + 176) = v3;
-  if (v3 >= 0)
+  iActionFlag = 0;
+  pEngine = &CarEngines.engines[pCar->byCarDesignIdx];// Initialize car engine and strategy pointers
+  pStrategy = &CarStrategy[pCar->iDriverIdx];
+  fDragCoefficient = pEngine->fDragCoefficient;
+  iCountdown = pCar->iAIUpdateTimer - 1;
+  fMaxEngineSpeed = pEngine->pSpds[pEngine->iNumGears - 1];
+  pCar->iAIUpdateTimer = iCountdown;
+  if (iCountdown >= 0)
     return;
-  changestrategy(a1);
-  changeline(a1);
-  v5 = *(__int16 *)(a1 + 12);
-  v4 = localdata_variable_15[32 * v5];
-  _CHP(v5 << 7, v5);
-  LOBYTE(v5) = HIBYTE(TrakColour_variable_5[12 * v5]);
-  v107 = (int)v4;
-  if ((v5 & 0x10) == 0) {
+  changestrategy(pCar);
+  changeline(pCar);
+  iCurrChunk = pCar->nCurrChunk;
+  dAIMaxSpeed = localdata[iCurrChunk].fAIMaxSpeed;// Calculate AI maximum speed based on track chunk
+  //_CHP();
+  //LOBYTE(iCurrChunk) = HIBYTE(TrakColour[iCurrChunk][1]);
+  iAITargetSpeed = (int)dAIMaxSpeed;
+  if ((TrakColour[iCurrChunk][1] & 0x10000000) == 0) {
+  //if ((iCurrChunk & 0x10) == 0) {
     if (!winner_mode) {
-      HIWORD(v11) = HIWORD(level);
-      v104 = v104 * levels[level] * control_c_variable_152;
-      v7 = (double)v107;
-      v8 = v7 < v104;
-      v9 = 0;
-      v10 = v7 == v104;
-      LOWORD(v11) = v6;
-      if (v7 > v104) {
-        _CHP(v11, v5);
-        v107 = (int)v104;
+      fMaxEngineSpeed = fMaxEngineSpeed * levels[level] * 0.01f;// Apply difficulty level scaling to AI maximum speed
+      if ((double)iAITargetSpeed > fMaxEngineSpeed) {
+        //_CHP();
+        iAITargetSpeed = (int)fMaxEngineSpeed;
       }
     }
-    v84 = 2 * *(unsigned __int8 *)(a1 + 130);
-    v12 = 1000;
-    if (*(float *)(a1 + 232) <= control_c_variable_153 - (double)v84)
+    //LODWORD(fDeltaX) = 2 * pCar->byRacePosition;
+    iHumanBestPosition = 1000;
+    if (pCar->fTotalRaceTime <= 80.0 - (double)(2 * pCar->byRacePosition))
+    //if (pCar->fTotalRaceTime <= 80.0 - (double)SLODWORD(fDeltaX))
       goto LABEL_18;
-    v111 = -1;
-    v13 = 0;
-    if (numcars > 0) {
-      v14 = 0;
-      v15 = 0;
+    iHumanCarIdx = -1;
+    iCarIdx = 0;
+    if (numcars > 0)                          // Find human player with best race position for AI targeting
+    {
+      iLoopIdx = 0;
+      iCarArrayIdx = 0;
       do {
-        if (human_control[v14]) {
-          v16 = (unsigned __int8)Car_variable_32[v15];
-          if (v16 < v12) {
-            v111 = v13;
-            v12 = v16;
+        if (human_control[iLoopIdx]) {
+          byRacePosition = Car[iCarArrayIdx].byRacePosition;
+          if (byRacePosition < iHumanBestPosition) {
+            iHumanCarIdx = iCarIdx;
+            iHumanBestPosition = byRacePosition;
           }
         }
-        ++v14;
-        ++v13;
-        v15 += 308;
-      } while (v13 < numcars);
+        ++iLoopIdx;
+        ++iCarIdx;
+        ++iCarArrayIdx;
+      } while (iCarIdx < numcars);
     }
-    v17 = *(char *)(a1 + 104) * TRAK_LEN
-      + *(__int16 *)(a1 + 12)
-      - (TRAK_LEN * Car_variable_24[308 * v111]
-       + Car_variable_3[154 * v111]);
-    v5 = 4 * level;
-    if (v17 < 80) {
-      if (v17 <= 20) {
+    iPositionDifference = (char)pCar->byLapNumber * TRAK_LEN + pCar->nCurrChunk - (TRAK_LEN * (char)Car[iHumanCarIdx].byLapNumber + Car[iHumanCarIdx].nCurrChunk);// Calculate position difference between AI car and leading human player
+    if (iPositionDifference < 80) {
+      if (iPositionDifference <= 20) {                                         // Special logic for car design 13 (boss car) - reduce speed when near human player
       LABEL_18:
-        if (*(_BYTE *)(a1 + 102) == 13) {
-          v20 = *(unsigned __int8 *)(a1 + 130);
-          if (v20 < v12) {
-            v21 = v20 + 4;
-            if (v21 >= v12) {
-              v5 = 308 * v111;
-              v23 = Car_variable_8[77 * v111];
-              v24 = v23 < control_c_variable_155;
-              v25 = 0;
-              v26 = v23 == control_c_variable_155;
-              LOWORD(v21) = v22;
-              if (v23 <= control_c_variable_155) {
-                v27 = Car_variable_8[77 * v111] + control_c_variable_156;
-                _CHP(v21, v5);
-                v107 = (int)v27;
-              } else {
-                v107 = 100;
-              }
+        if (pCar->byCarDesignIdx == 13) {
+          iCurrentPosition = pCar->byRacePosition;
+          if (iCurrentPosition < iHumanBestPosition && iCurrentPosition + 4 >= iHumanBestPosition) {
+            if (Car[iHumanCarIdx].fFinalSpeed <= 200.0) {
+              dReducedSpeed = Car[iHumanCarIdx].fFinalSpeed + -20.0;
+              //_CHP();
+              iAITargetSpeed = (int)dReducedSpeed;
+            } else {
+              iAITargetSpeed = 100;
             }
           }
         }
         goto LABEL_24;
       }
-      v84 = v17 - 20;
-      v19 = (double)(v17 - 20) * mineff[level];
-      v17 -= 80;
-      v84 = v17;
-      v18 = ((double)v17 - v19) * control_c_variable_154 * (double)v107;
+      //LODWORD(fDeltaX) = iPositionDifference - 20;
+      dSpeedReduction = (double)(iPositionDifference - 20) * mineff[level];
+      //LODWORD(fDeltaX) = iPositionDifference - 80;
+      dSpeedAdjustment = ((double)(iPositionDifference - 80) - dSpeedReduction) * -0.016666668 * (double)iAITargetSpeed;
     } else {
-      v18 = (double)v107 * mineff[level];
+      dSpeedAdjustment = (double)iAITargetSpeed * mineff[level];
     }
-    _CHP(v17, v5);
-    v107 = (int)v18;
+    //_CHP();
+    iAITargetSpeed = (int)dSpeedAdjustment;
     goto LABEL_18;
   }
 LABEL_24:
-  if (*(_DWORD *)(a1 + 188)) {
-    v32 = *(__int16 *)(a1 + 20);
-    v34 = tcos[v32] > 0.0;
-    v35 = 0;
-    v36 = 0.0 == tcos[v32];
-    LOWORD(v32) = v33;
-    if (v34)
+  if (pCar->iBobMode) {
+    if (tcos[pCar->nYaw] > 0.0)
       LABEL_28:
-    v107 = 25;
-  } else {
-    v32 = *(__int16 *)(a1 + 20);
-    v29 = tcos[v32] > 0.0;
-    v30 = 0;
-    v31 = 0.0 == tcos[v32];
-    LOWORD(v32) = v28;
-    if (!v29 && !v31)
-      goto LABEL_28;
+    iAITargetSpeed = 25;
+  } else if (tcos[pCar->nYaw] < 0.0) {
+    goto LABEL_28;
   }
-  v37 = (double)v107 - *(float *)(a1 + 24);
-  _CHP(v32, v5);
-  v110 = (int)v37;
-  v101 = (int)v37;
-  findnearcars((float *)a1, (float *)&v79, &v78, (float *)&v81, &v77, &v82, &v80);
-  v38 = *(_DWORD *)(a1 + 192);
-  if (*(float *)(a1 + 28) >= (double)control_c_variable_157) {
-    if (v81 == -1 || v77 < 0.0) {
-      if (v79 != -1 && v78 >= 0.0) {
-        if (Car_variable_9[77 * v79] < (double)control_c_variable_158 && !finished_car[v79])
-          v38 = Car_variable_9[77 * v79] > 0.0
-          && ((unsigned __int8)v81 & (*(_DWORD *)(a1 + 32) == 65534) & 0xFE) == 0
-          && *(float *)(a1 + 28) >= (double)control_c_variable_159;
-        if (human_control[v79] && ((cheat_mode & 2) != 0 || *(_BYTE *)(a1 + 102) == 13)) {
-          v39 = 308 * v79;
-          if (Car_variable_9[77 * v79] > 0.0) {
-            HIWORD(v40) = HIWORD(v79);
-            if (!finished_car[v79]) {
-              v38 = 1;
-              if (*(_BYTE *)(a1 + 102) == 13) {
-                v42 = v78 < (double)control_c_variable_160;
-                v43 = 0;
-                v44 = v78 == control_c_variable_160;
-                LOWORD(v40) = v41;
-                if (v78 < (double)control_c_variable_160) {
-                  v45 = Car_variable_8[77 * v79] + control_c_variable_156;
-                  _CHP(v40, v39);
-                  v107 = (int)v45;
-                  v46 = v45 - *(float *)(a1 + 24);
-                  _CHP(v47, v39);
-                  v101 = (int)v46;
-                }
-              }
-            }
+  dSpeedDifference = (double)iAITargetSpeed - pCar->fFinalSpeed;
+  //_CHP();
+  iAIThrottleControl = (int)dSpeedDifference;
+  iAccelerationControl = (int)dSpeedDifference;
+  findnearcars(pCar, &iLeftCarIdx, &fLeftTime, &iRightCarIdx, &fRightTime, &fTargetX, &fTargetY);// Find nearby cars for collision avoidance and targeting
+  iSelectedStrategy = pCar->iSelectedStrategy;
+  if (pCar->fHealth >= 30.0)                  // AI strategy selection based on car health and nearby cars
+  {
+    if (iRightCarIdx == -1 || fRightTime < 0.0) {
+      if (iLeftCarIdx != -1 && fLeftTime >= 0.0) {
+        if (Car[iLeftCarIdx].fHealth < 25.0 && !finished_car[iLeftCarIdx])
+          iSelectedStrategy = Car[iLeftCarIdx].fHealth > 0.0 && ((unsigned __int8)iRightCarIdx & (pCar->iDriverIdx == 65534) & 0xFE) == 0 && pCar->fHealth >= 40.0;
+        if (human_control[iLeftCarIdx] && ((cheat_mode & 2) != 0 || pCar->byCarDesignIdx == 13) && Car[iLeftCarIdx].fHealth > 0.0 && !finished_car[iLeftCarIdx]) {
+          iSelectedStrategy = 1;
+          if (pCar->byCarDesignIdx == 13 && fLeftTime < 3.0) {
+            dTargetReducedSpeed = Car[iLeftCarIdx].fFinalSpeed + -20.0;
+            //_CHP();
+            iAITargetSpeed = (int)dTargetReducedSpeed;
+            dSpeedDelta = dTargetReducedSpeed - pCar->fFinalSpeed;
+            //_CHP();
+            iAccelerationControl = (int)dSpeedDelta;
           }
         }
       }
     } else {
-      if (Car_variable_9[77 * v81] < (double)control_c_variable_158 && !finished_car[v81]) {
-        if (Car_variable_9[77 * v81] <= 0.0
-          || ((unsigned __int8)v81 & (*(_DWORD *)(a1 + 32) == 65534) & 0xFE) != 0
-          || *(float *)(a1 + 28) < (double)control_c_variable_159) {
-          v38 = 0;
-        } else {
-          v38 = 3;
-        }
+      if (Car[iRightCarIdx].fHealth < 25.0 && !finished_car[iRightCarIdx]) {
+        if (Car[iRightCarIdx].fHealth <= 0.0 || ((unsigned __int8)iRightCarIdx & (pCar->iDriverIdx == 65534) & 0xFE) != 0 || pCar->fHealth < 40.0)
+          iSelectedStrategy = 0;
+        else
+          iSelectedStrategy = 3;
       }
-      if (human_control[v81]
-        && ((cheat_mode & 2) != 0 || *(_BYTE *)(a1 + 102) == 13)
-        && Car_variable_9[77 * v81] > 0.0
-        && !finished_car[v81]) {
-        v38 = 3;
-        v101 = 1;
+      if (human_control[iRightCarIdx] && ((cheat_mode & 2) != 0 || pCar->byCarDesignIdx == 13) && Car[iRightCarIdx].fHealth > 0.0 && !finished_car[iRightCarIdx]) {
+        iSelectedStrategy = 3;
+        iAccelerationControl = 1;
       }
     }
   } else {
-    *(_DWORD *)(a1 + 192) = 0;
+    pCar->iSelectedStrategy = 0;
   }
-  if (v81 != -1 && v38 == 3 && Car_variable_40[308 * v81])
-    v38 = 0;
-  if (v79 != -1 && Car_variable_40[308 * v79] && v38 <= 3)
-    v38 = 0;
-  if (v79 != -1
-    && *(_BYTE *)(a1 + 130) < 4u
-    && *(unsigned __int8 *)(a1 + 130) - (unsigned __int8)Car_variable_32[308 * v79] > 2
-    && !human_control[v79]) {
-    v38 = 0;
+  if (iRightCarIdx != -1 && iSelectedStrategy == 3 && Car[iRightCarIdx].byDebugDamage)
+    iSelectedStrategy = 0;
+  if (iLeftCarIdx != -1 && Car[iLeftCarIdx].byDebugDamage && iSelectedStrategy <= 3)
+    iSelectedStrategy = 0;
+  if (iLeftCarIdx != -1 && pCar->byRacePosition < 4u && pCar->byRacePosition - Car[iLeftCarIdx].byRacePosition > 2 && !human_control[iLeftCarIdx])
+    iSelectedStrategy = 0;
+  if (iRightCarIdx != -1) {
+    byCurrentRacePos = pCar->byRacePosition;
+    if (byCurrentRacePos < 4u && byCurrentRacePos - Car[iLeftCarIdx].byRacePosition > 2 && !human_control[iLeftCarIdx])
+      iSelectedStrategy = 0;
   }
-  if (v81 != -1) {
-    v48 = *(_BYTE *)(a1 + 130);
-    if (v48 < 4u && v48 - (unsigned __int8)Car_variable_32[308 * v79] > 2 && !human_control[v79])
-      v38 = 0;
-  }
-  if (SLOBYTE(TrakColour_variable_5[12 * *(__int16 *)(a1 + 12)]) >= 0)
-    v110 = v101;
+  if ((TrakColour[pCar->nCurrChunk][1] & 0x800000) == 0)// Check if car is in pit zone (track color flag 0x800000)
+    iAIThrottleControl = iAccelerationControl;
   else
-    v38 = 4;
+    iSelectedStrategy = 4;
   if (winner_mode)
-    v38 = 4;
-  v49 = *(__int16 *)(a1 + 12);
-  v102 = *((_DWORD *)&TrakColour_variable_3 + 6 * v49) & 0x1000000;
-  v50 = NoOfLaps;
-  v103 = 0;
-  if (*(char *)(a1 + 104) == NoOfLaps && TRAK_LEN - v49 < 200)
-    v103 = -1;
+    iSelectedStrategy = 4;
+  iCurrentChunk = pCar->nCurrChunk;
+  iPitZoneFlag = TrakColour[iCurrentChunk][1] & 0x1000000;
+  iLastLapFlag = 0;
+  if ((char)pCar->byLapNumber == NoOfLaps && TRAK_LEN - iCurrentChunk < 200)
+    iLastLapFlag = -1;
   if (death_race) {
-    v50 = 0;
-    v103 = -1;
-    v102 = 0;
+    iLastLapFlag = -1;
+    iPitZoneFlag = 0;
   }
-  if (!v102 || *(float *)(a1 + 28) >= (double)control_c_variable_161 || v103) {
-    *(_DWORD *)(a1 + 208) = -1;
-  } else if (*(_DWORD *)(a1 + 208) == -1) {
-    v51 = rand();
-    v52 = 0;
-    v50 = numcars;
-    v109 = stops[(v51 * numstops - (__CFSHL__((v51 * numstops) >> 31, 15) + ((v51 * numstops) >> 31 << 15))) >> 15];
+  if (!iPitZoneFlag || pCar->fHealth >= 60.0 || iLastLapFlag) {
+    pCar->iAITargetCar = -1;
+  } else if (pCar->iAITargetCar == -1) {
+    iRandomPitStop = rand();                    // Select random pit stop target for AI car
+    iPitStopTaken = 0;
+    iPitStopTarget = stops[(iRandomPitStop * numstops) >> 15];
     if (numcars > 0) {
-      v53 = 0;
-      v50 = 308 * numcars;
+      iCarLoopIdx = 0;
       do {
-        if (Car_variable_49[v53 / 4u] == v109)
-          v52 = -1;
-        v53 += 308;
-      } while (v53 < v50);
+        if (Car[iCarLoopIdx].iAITargetCar == iPitStopTarget)
+          iPitStopTaken = -1;
+        ++iCarLoopIdx;
+      } while (iCarLoopIdx < numcars);
     }
-    if (!v52)
-      *(_DWORD *)(a1 + 208) = v109;
+    if (!iPitStopTaken)
+      pCar->iAITargetCar = iPitStopTarget;
   }
-  if (v102 && !*(_DWORD *)(a1 + 160) && !v103) {
-    v38 = *(float *)(a1 + 28) >= (double)control_c_variable_161 ? 0 : 5;
-    if (*(float *)(a1 + 28) < (double)control_c_variable_162)
-      v38 = 5;
+  if (iPitZoneFlag && !pCar->iAICurrentLine && !iLastLapFlag) {
+    iSelectedStrategy = pCar->fHealth >= 60.0 ? 0 : 5;
+    if (pCar->fHealth < 90.0)                 // Force pit stop strategy (5) if health is low and in pit zone
+      iSelectedStrategy = 5;
   }
-  if (*(_BYTE *)(a1 + 184))
-    v38 = 5;
-  if (v38 == 5) {
-    v54 = *(__int16 *)(a1 + 12);
-    if (v54 != -1) {
-      if (v102) {
-        v55 = v54 - 1;
-        if (v55 < 0)
-          v55 = TRAK_LEN - 1;
-        if (!*(_BYTE *)(a1 + 244)) {
-          v50 = v55;
-          if ((TrakColour_variable_5[12 * v55] & 0x100) == 0) {
-            *(_BYTE *)(a1 + 244) = -1;
-            v56 = player_type;
-            *(_WORD *)(a1 + 238) = 1080;
-            if (v56 != 2) {
-              v50 = cheat_mode;
-              if ((cheat_mode & 0x4000) == 0 && (__int16)player1_car != *(_DWORD *)(a1 + 32)) {
-                v50 = 308 * (__int16)player1_car;
-                if (*(_BYTE *)(a1 + 102) == Car_variable_22[v50] && *(_BYTE *)(a1 + 102) <= 7u) {
-                  v50 = readsample;
-                  if (readsample == writesample && lastsample < -18) {
-                    speechsample(*(unsigned __int8 *)(a1 + 102) + 71, 20000, 18, (__int16)player1_car + 17920);
-                    v50 = 20000;
-                    speechsample(70, 20000, 0, (__int16)player1_car);
-                  }
-                }
-              }
-            }
+  if (pCar->byDebugDamage)
+    iSelectedStrategy = 5;
+  if (iSelectedStrategy == 5) {
+    iChunkForPitStop = pCar->nCurrChunk;
+    if (iChunkForPitStop != -1) {
+      if (iPitZoneFlag) {
+        iPrevChunk = iChunkForPitStop - 1;
+        if (iPrevChunk < 0)
+          iPrevChunk = TRAK_LEN - 1;
+        if (!pCar->byPitLaneActiveFlag && (TrakColour[iPrevChunk][1] & 0x1000000) == 0) {
+          pCar->byPitLaneActiveFlag = -1;
+          iPlayerType = player_type;
+          pCar->nChangeMateCooldown = 1080;
+          if (iPlayerType != 2
+            && (cheat_mode & 0x4000) == 0
+            && player1_car != pCar->iDriverIdx
+            && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx
+            && pCar->byCarDesignIdx <= 7u
+            && readsample == writesample
+            && lastsample < -18) {
+            speechsample(pCar->byCarDesignIdx + 71, 20000, 18, player1_car + 17920);
+            speechsample(SOUND_SAMPLE_TPITS, 20000, 0, player1_car);// SOUND_SAMPLE_TPITS
           }
         }
       }
     }
   }
-  switch (v38) {
+  switch (iSelectedStrategy) {
     case 0:
-      if (v81 != -1 && v77 >= 0.0)
+      if (iRightCarIdx != -1 && fRightTime >= 0.0)
         goto LABEL_175;
-      if (v79 != *(_DWORD *)(a1 + 92))
+      if (iLeftCarIdx != pCar->iTrackedCarIdx)
         goto LABEL_154;
       goto LABEL_178;
     case 1:
-      if (v81 != -1 && v77 >= 0.0)
+      if (iRightCarIdx != -1 && fRightTime >= 0.0)
         goto LABEL_175;
-      if (v79 == *(_DWORD *)(a1 + 92) && v78 < 0.0)
+      if (iLeftCarIdx == pCar->iTrackedCarIdx && fLeftTime < 0.0)
         goto LABEL_178;
-      LOBYTE(v50) = *(_BYTE *)(a1 + 102);
-      if ((_BYTE)v50 == Car_variable_22[308 * v79])
+      if (pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx)
         goto LABEL_154;
-      *(_DWORD *)(a1 + 92) = -1;
-      v87 = v2[5];
-      v94 = v2[6];
-      if (v79 == -1)
-        v95 = *(float *)&v80;
+      pCar->iTrackedCarIdx = -1;
+      fStrategyParam1 = pStrategy->fSteerSensitivity;
+      fStrategyParam2 = pStrategy->fSteerDamping;
+      if (iLeftCarIdx == -1)
+        fCalculatedY = fTargetY;
       else
-        v95 = interpolatesteer(v78, v87, v94, v80, LODWORD(Car_variable_1[77 * v79]));
-      v59 = v95;
+        fCalculatedY = (float)interpolatesteer(fLeftTime, fStrategyParam1, fStrategyParam2, fTargetY, Car[iLeftCarIdx].pos.fY);
+      fInterpolatedY = fCalculatedY;
       goto LABEL_156;
     case 2:
-      if (v81 == -1 || v77 < 0.0) {
-        if (v79 == *(_DWORD *)(a1 + 92) && v78 < 0.0) {
+      if (iRightCarIdx == -1 || fRightTime < 0.0) {
+        if (iLeftCarIdx == pCar->iTrackedCarIdx && fLeftTime < 0.0) {
         LABEL_178:
-          v50 = v79;
-          v108 = avoid(*(_DWORD *)(a1 + 32), v79, v78, v80, v2[7], v2[8], &v83);
+          fTargetSteerY = (float)avoid(pCar->iDriverIdx, iLeftCarIdx, fLeftTime, fTargetY, pStrategy->fAvoidSensitivity, pStrategy->fAvoidReaction, &iActionFlag);
         } else {
-          LOBYTE(v50) = *(_BYTE *)(a1 + 102);
-          if ((_BYTE)v50 == Car_variable_22[308 * v79]) {
+          if (pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx) {
           LABEL_154:
-            *(_DWORD *)(a1 + 92) = -1;
+            pCar->iTrackedCarIdx = -1;
             goto LABEL_155;
           }
-          *(_DWORD *)(a1 + 92) = -1;
-          v92 = v2[5];
-          v90 = v2[6];
-          if (v79 == -1)
-            v99 = *(float *)&v80;
+          pCar->iTrackedCarIdx = -1;
+          fStrategyA0_3 = pStrategy->fSteerSensitivity;
+          fStrategyA1 = pStrategy->fSteerDamping;
+          if (iLeftCarIdx == -1)
+            fDefensiveY = fTargetY;
           else
-            v99 = interpolatesteer(v78, v92, v90, v80, LODWORD(Car_variable_1[77 * v79]));
-          v50 = 308 * v79;
-          v62 = *(float *)(a1 + 4) - Car_variable_1[77 * v79];
-          HIWORD(v63) = HIWORD(v99);
-          v108 = v99;
-          if (*(float *)&CarBaseY * control_c_variable_163 + control_c_variable_165 > fabs(v62)) {
-            v65 = v78 > 0.0;
-            v66 = 0;
-            v67 = 0.0 == v78;
-            LOWORD(v63) = v64;
-            if (v78 > 0.0) {
-              v68 = Car_variable_8[77 * v79] * control_c_variable_166;
-              _CHP(v63, v50);
-              v110 = (int)v68;
-              if ((int)v68 < 80)
-                v110 = 80;
-              v69 = v110;
-              if (v110 > v107)
-                v110 = v107;
-              v70 = (double)v110 - *(float *)(a1 + 24);
-              _CHP(v69, v50);
-              v110 = (int)v70;
-            }
+            fDefensiveY = (float)interpolatesteer(fLeftTime, fStrategyA0_3, fStrategyA1, fTargetY, Car[iLeftCarIdx].pos.fY);
+          dYPositionDiff = pCar->pos.fY - Car[iLeftCarIdx].pos.fY;
+          fTargetSteerY = fDefensiveY;
+          if (CarBaseY * 2.0 + -200.0 > fabs(dYPositionDiff) && fLeftTime > 0.0) {
+            dTargetCarSpeed = Car[iLeftCarIdx].fFinalSpeed * 0.2;
+            //_CHP();
+            iAIThrottleControl = (int)dTargetCarSpeed;
+            if ((int)dTargetCarSpeed < 80)
+              iAIThrottleControl = 80;
+            if (iAIThrottleControl > iAITargetSpeed)
+              iAIThrottleControl = iAITargetSpeed;
+            dSpeedDiffCalc = (double)iAIThrottleControl - pCar->fFinalSpeed;
+            //_CHP();
+            iAIThrottleControl = (int)dSpeedDiffCalc;
           }
         }
       } else {
       LABEL_175:
-        v50 = v81;
-        v61 = avoid(*(_DWORD *)(a1 + 32), v81, v77, v80, v2[7], v2[8], &v83);
-        *(_DWORD *)(a1 + 92) = v81;
-        v108 = v61;
+        dAvoidanceResult = avoid(pCar->iDriverIdx, iRightCarIdx, fRightTime, fTargetY, pStrategy->fAvoidSensitivity, pStrategy->fAvoidReaction, &iActionFlag);
+        pCar->iTrackedCarIdx = iRightCarIdx;
+        fTargetSteerY = (float)dAvoidanceResult;
       }
       break;
     case 3:
-      *(_DWORD *)(a1 + 92) = -1;
-      if (v81 == -1
-        || v77 < 0.0
-        || v77 >(double)v78 && v78 >= 0.0
-        || (LOBYTE(v50) = *(_BYTE *)(a1 + 102), (_BYTE)v50 == Car_variable_22[308 * v81])) {
-        if (v79 == -1
-          || v78 < 0.0
-          || v78 >(double)v77 && v77 >= 0.0
-          || (LOBYTE(v50) = *(_BYTE *)(a1 + 102), (_BYTE)v50 == Car_variable_22[308 * v79])) {
+      pCar->iTrackedCarIdx = -1;
+      if (iRightCarIdx == -1 || fRightTime < 0.0 || fRightTime >(double)fLeftTime && fLeftTime >= 0.0 || pCar->byCarDesignIdx == Car[iRightCarIdx].byCarDesignIdx) {
+        if (iLeftCarIdx == -1 || fLeftTime < 0.0 || fLeftTime >(double)fRightTime && fRightTime >= 0.0 || pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx) {
         LABEL_155:
-          v59 = *(float *)&v80;
+          fInterpolatedY = fTargetY;
         } else {
-          v89 = v2[5];
-          v50 = *((_DWORD *)v2 + 6);
-          v96 = interpolatesteer(v78, v89, *(float *)&v50, v80, LODWORD(Car_variable_1[77 * v79]));
-          v59 = v96;
+          fSteerSensitivity = pStrategy->fSteerSensitivity;
+          fLeftInterpolated = (float)interpolatesteer(fLeftTime, fSteerSensitivity, pStrategy->fSteerDamping, fTargetY, Car[iLeftCarIdx].pos.fY);
+          fInterpolatedY = fLeftInterpolated;
         }
       LABEL_156:
-        v108 = v59;
+        fTargetSteerY = fInterpolatedY;
       } else {
-        v91 = v2[5];
-        v50 = *((_DWORD *)v2 + 6);
-        v98 = interpolatesteer(v77, v91, *(float *)&v50, v80, LODWORD(Car_variable_1[77 * v81]));
-        v108 = v98;
-        v110 = 1;
+        fSteerSensitivity_1 = pStrategy->fSteerSensitivity;
+        fRightInterpolated = (float)interpolatesteer(fRightTime, fSteerSensitivity_1, pStrategy->fSteerDamping, fTargetY, Car[iRightCarIdx].pos.fY);
+        fTargetSteerY = fRightInterpolated;
+        iAIThrottleControl = 1;
       }
       break;
     case 4:
-      v108 = *(float *)&v80;
-      *(_DWORD *)(a1 + 92) = -1;
+      fTargetSteerY = fTargetY;
+      pCar->iTrackedCarIdx = -1;
       break;
     case 5:
-      if (v81 == -1 || v77 < 0.0) {
-        if (v79 == *(_DWORD *)(a1 + 92)) {
-          v108 = avoid(*(_DWORD *)(a1 + 32), v79, v78, v80, v2[7], v2[8], &v83);
+      if (iRightCarIdx == -1 || fRightTime < 0.0) {
+        if (iLeftCarIdx == pCar->iTrackedCarIdx) {
+          fTargetSteerY = (float)avoid(pCar->iDriverIdx, iLeftCarIdx, fLeftTime, fTargetY, pStrategy->fAvoidSensitivity, pStrategy->fAvoidReaction, &iActionFlag);
         } else {
-          *(_DWORD *)(a1 + 92) = -1;
-          v108 = *(float *)&v80;
+          pCar->iTrackedCarIdx = -1;
+          fTargetSteerY = fTargetY;
         }
       } else {
-        v57 = avoid(*(_DWORD *)(a1 + 32), v81, v77, v80, v2[7], v2[8], &v83);
-        *(_DWORD *)(a1 + 92) = v81;
-        v108 = v57;
+        dAvoidanceY = avoid(pCar->iDriverIdx, iRightCarIdx, fRightTime, fTargetY, pStrategy->fAvoidSensitivity, pStrategy->fAvoidReaction, &iActionFlag);
+        pCar->iTrackedCarIdx = iRightCarIdx;
+        fTargetSteerY = (float)dAvoidanceY;
       }
-      v58 = *(_DWORD *)(a1 + 208);
-      if (v58 != -1) {
-        v106 = v58 - *(__int16 *)(a1 + 12);
-        if (v106 < 0)
-          v106 += TRAK_LEN;
-        if (TRAK_LEN / 2 < v106)
-          v106 -= TRAK_LEN;
-        v100 = *(float *)(a1 + 24) * tcos[*(_DWORD *)(a1 + 64) & 0x3FFF];
-        v93 = localdata_variable_4[32 * *(__int16 *)(a1 + 12)] * control_c_variable_163 * (double)v106;
-        if (v106 < 0 || fabs(v93 / v100) < v86 * control_c_variable_164 * v100 / v104)
-          v83 = -1;
+      iAITargetCar = pCar->iAITargetCar;
+      if (iAITargetCar != -1) {
+        iDistanceToTarget = iAITargetCar - pCar->nCurrChunk;
+        if (iDistanceToTarget < 0)
+          iDistanceToTarget += TRAK_LEN;
+        if (TRAK_LEN / 2 < iDistanceToTarget)
+          iDistanceToTarget -= TRAK_LEN;
+        fForwardSpeed = pCar->fFinalSpeed * tcos[pCar->nYaw3 & 0x3FFF];
+        fTrackDistance = localdata[pCar->nCurrChunk].fTrackHalfLength * 2.0f * (float)iDistanceToTarget;
+        if (iDistanceToTarget < 0 || fabs(fTrackDistance / fForwardSpeed) < fDragCoefficient * 36.0 * fForwardSpeed / fMaxEngineSpeed)
+          iActionFlag = -1;
       }
-      if ((*(_DWORD *)(a1 + 24) & 0x7FFFFFFF) == 0)
-        *(_BYTE *)(a1 + 184) = -1;
-      v50 = 24 * *(__int16 *)(a1 + 12);
-      if ((*((_BYTE *)&TrakColour_variable_1[2 * *(_DWORD *)(a1 + 212)] + v50 + 1) & 2) == 0
-        && *(float *)(a1 + 24) < (double)control_c_variable_159) {
-        v50 = 0;
-        v83 = 0;
-      }
+      //if ((LODWORD(pCar->fFinalSpeed) & 0x7FFFFFFF) == 0)
+      if (fabs(pCar->fFinalSpeed) == 0)
+        pCar->byDebugDamage = -1;
+      if ((TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x2000000) == 0 && pCar->fFinalSpeed < 40.0)
+        iActionFlag = 0;
       break;
     default:
-      break;
+      break;                                    // AI strategy selection: 0=Normal, 1=Aggressive, 2=Defensive, 3=Attack, 4=Fast, 5=Pits
   }
-  if (*(_BYTE *)(a1 + 184))
-    v83 = -1;
-  if (v83)
-    v110 = -1;
-  *(float *)&v84 = v82 - *(float *)a1;
-  v97 = v108 - *(float *)(a1 + 4);
-  v85 = *(float *)&v84;
-  v88 = v97;
-  if ((v84 & 0x7FFFFFFF) != 0 || (LODWORD(v97) & 0x7FFFFFFF) != 0) {
-    v71 = v85;
-    IF_DATAN2(v85);
-    v72 = v71 * control_c_variable_167 / control_c_variable_168;
-    _CHP(v73, v50);
-    v84 = (int)v72;
-    v60 = (int)v72 & 0x3FFF;
+  if (pCar->byDebugDamage)
+    iActionFlag = -1;
+  if (iActionFlag)
+    iAIThrottleControl = -1;
+  fDeltaX = fTargetX - pCar->pos.fX;
+  fDeltaY = fTargetSteerY - pCar->pos.fY;
+  fDeltaXCopy = fDeltaX;
+  fDeltaYCopy = fDeltaY;
+  //if ((LODWORD(fDeltaX) & 0x7FFFFFFF) != 0 || (LODWORD(fDeltaY) & 0x7FFFFFFF) != 0) {
+  if (fabs(fDeltaX) > FLT_EPSILON || fabs(fDeltaY) > FLT_EPSILON) {
+    dCalculatedAngle = atan2(fDeltaYCopy, fDeltaXCopy) * 16384.0 / 6.28318530718;// Calculate steering angle to target position
+    //_CHP();
+    //LODWORD(fDeltaX) = (int)dCalculatedAngle;
+    iTargetAngle = (int)dCalculatedAngle & 0x3FFF;
   } else {
-    LOWORD(v60) = 0;
+    iTargetAngle = 0;
+    //LOWORD(iTargetAngle) = 0;
   }
-  v74 = ((_WORD)v60 - *(_WORD *)(a1 + 20)) & 0x3FFF;
-  if (v74 > 0x2000)
-    v74 -= 0x4000;
-  if (v74 < -v105[23])
-    v74 = -v105[23];
-  if (v74 > v105[23])
-    v74 = v105[23];
-  *(_DWORD *)(a1 + 76) = v74;
-  if (*(char *)(a1 + 128) == -1) {
-    v76 = *(float *)(a1 + 120);
-    if (v76 >= control_c_variable_169) {
-      if (v76 < control_c_variable_170) {
-        v75 = rand();
-        if ((72 * v75 - (__CFSHL__((72 * v75) >> 31, 15) + ((72 * v75) >> 31 << 15))) >> 15) {
-          v110 = *(char *)(a1 + 242);
+  iSteeringSensitivity = ((int16)iTargetAngle - pCar->nYaw) & 0x3FFF;// Apply steering input with engine sensitivity limits
+  if (iSteeringSensitivity > 0x2000)
+    iSteeringSensitivity -= 0x4000;
+  if (iSteeringSensitivity < -pEngine->iSteeringSensitivity)
+    iSteeringSensitivity = -pEngine->iSteeringSensitivity;
+  if (iSteeringSensitivity > pEngine->iSteeringSensitivity)
+    iSteeringSensitivity = pEngine->iSteeringSensitivity;
+  pCar->iSteeringInput = iSteeringSensitivity;
+  if ((char)pCar->byGearAyMax == -1)          // AI gear shifting and RPM control based on engine state
+  {
+    fRPMRatio = pCar->fRPMRatio;
+    if (fRPMRatio >= 0.1) {
+      if (fRPMRatio < 0.9) {
+        iRandomValue = rand();
+        if ((72 * iRandomValue) >> 15) {
+          iAIThrottleControl = pCar->byAIThrottleControl;
         } else {
-          v110 = -*(char *)(a1 + 242);
-          *(_BYTE *)(a1 + 242) = v110;
+          iAIThrottleControl = -pCar->byAIThrottleControl;
+          pCar->byAIThrottleControl = iAIThrottleControl;
         }
       } else {
-        *(_BYTE *)(a1 + 242) = -1;
-        v110 = -1;
+        pCar->byAIThrottleControl = -1;
+        iAIThrottleControl = -1;
       }
     } else {
-      *(_BYTE *)(a1 + 242) = 1;
-      v110 = 1;
+      pCar->byAIThrottleControl = 1;
+      iAIThrottleControl = 1;
     }
   }
-  if (v110 > 0 && (*(_DWORD *)(a1 + 28) & 0x7FFFFFFF) == 0)
-    v110 = -1;
-  if (champ_mode && !champ_go[*(_DWORD *)(a1 + 32)])
-    v110 = -1;
-  if (v110 <= 0) {
-    if (v110 >= 0)
-      FreeWheel(a1);
+  //if (iAIThrottleControl > 0 && (LODWORD(pCar->fHealth) & 0x7FFFFFFF) == 0)
+  if (iAIThrottleControl > 0 && fabs(pCar->fHealth) == 0)
+    iAIThrottleControl = -1;
+  if (champ_mode && !champ_go[pCar->iDriverIdx])
+    iAIThrottleControl = -1;
+  if (iAIThrottleControl <= 0)                // Apply acceleration, deceleration, or freewheeling based on AI decision
+  {
+    if (iAIThrottleControl >= 0)
+      FreeWheel(pCar);
     else
-      Decelerate(a1);
+      Decelerate(pCar);
   } else {
-    Accelerate(a1);
-  }*/
+    Accelerate(pCar);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

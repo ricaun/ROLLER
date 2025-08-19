@@ -393,7 +393,7 @@ void placecars()
       iCarIdx3 = iDriverIdx;
       Car[iCarIdx3].iLastValidChunk = Car[iDriverIdx].nCurrChunk;// Initialize track chunk tracking variables
       Car[iCarIdx3].nChunk2 = Car[iDriverIdx].nCurrChunk;
-      Car[iCarIdx3].iUnk20 = -1;
+      Car[iCarIdx3].iTrackedCarIdx = -1;
       Car[iCarIdx3].byLap = 0;
       Car[iCarIdx3].byLappedStatus = 0;
       Car[iCarIdx3].byLapNumber = 0;
@@ -422,7 +422,7 @@ void placecars()
       *(int *)((char *)carorder + uiOrderOffset) = iDriverIdx;// Add car to race order array
       Car[iDriverIdx].byAccelerating = 0;              // Initialize various car flags and counters
       Car[iDriverIdx].byEngineStartTimer = 0;
-      Car[iDriverIdx].byUnk60 = 0;
+      Car[iDriverIdx].byAIThrottleControl = 0;
       Car[iDriverIdx].byPitLaneActiveFlag = 0;
       Car[iDriverIdx].bySfxCooldown = 0;
       Car[iDriverIdx].byCollisionTimer = 0;

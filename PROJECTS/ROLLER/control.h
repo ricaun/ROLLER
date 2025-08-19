@@ -10,12 +10,17 @@
 typedef struct
 {
   int strategyAy[5];
-  float floatUnkAy[5];
+  float fSteerSensitivity;
+  float fSteerDamping;
+  float fAvoidSensitivity;
+  float fAvoidReaction;
+  float fAvoidDistance;
 } tCarStrategy;
 
 //-------------------------------------------------------------------------------------------------
 
 extern float levels[7];
+extern float mineff[6];
 extern int flipst[6];
 extern int level;
 extern tCarStrategy CarStrategy[16];

@@ -41,7 +41,7 @@ typedef struct
   int iBankingSteerOffset;
   float fCarHalfWidth;
   float fCarWidthBankingProjection;
-  int iUnk20;
+  int iTrackedCarIdx;
   int iUnk20_2;
   int16 nDeathTimer;
   uint8 byCarDesignIdx;
@@ -69,7 +69,7 @@ typedef struct
   int iRollMotion;
   int iPitchMotion;
   int iYawMotion;
-  int iUnk38_4;
+  int iAIUpdateTimer;
   float fUnk39;
   uint8 byDebugDamage;
   uint8 byAttacker;
@@ -91,7 +91,7 @@ typedef struct
   int16 nChangeMateCooldown;
   uint8 byThrottlePressed;
   uint8 byAccelerating;
-  uint8 byUnk60;
+  uint8 byAIThrottleControl;
   uint8 byEngineStartTimer;
   uint8 byPitLaneActiveFlag;
   uint8 byPadding0;
