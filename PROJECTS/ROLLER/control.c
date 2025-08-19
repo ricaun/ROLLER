@@ -3871,7 +3871,7 @@ LABEL_113:
   LABEL_126:
     pCar->nUnk70 = -1;
     pCar->byStatusFlags = 0;
-    pCar->byUnk77 = 0;
+    pCar->bySfxCooldown = 0;
     byUnk64 = pCar->byUnk64;
     pCar->byCollisionTimer = 0;
     pCar->byUnk64 = 1 - byUnk64;
@@ -5554,926 +5554,891 @@ int getangle(float fX, float fY)
 
 //-------------------------------------------------------------------------------------------------
 //00033000
-void landontrack(int a1)
+void landontrack(tCar *pCar)
 {
-  (void)(a1);
-  /*
-  float *v2; // ebp
-  int v3; // eax
-  float *v4; // esi
-  float *v5; // ecx
-  float *v6; // ebx
-  double v7; // st7
-  double v8; // st5
-  double v9; // rt0
-  bool v10; // eax
-  int v11; // edx
-  float v12; // eax
-  double v13; // st7
-  int v14; // ecx
-  double v15; // st7
-  __int16 v16; // fps
-  _BOOL1 v17; // c0
-  char v18; // c2
-  _BOOL1 v19; // c3
-  double v20; // st7
-  double v21; // st7
-  double v22; // st5
-  double v23; // st6
-  double v24; // st6
-  double v25; // st7
-  double v26; // st7
-  int v27; // edx
-  int v28; // eax
-  double v29; // st7
-  double v30; // st7
-  int v31; // eax
-  bool v32; // eax
-  int v33; // edx
-  int v34; // eax
-  double v35; // st7
-  double v36; // st7
-  __int16 v37; // fps
-  _BOOL1 v38; // c0
-  char v39; // c2
-  _BOOL1 v40; // c3
-  double v41; // st7
-  double v42; // st7
-  double v43; // st5
-  double v44; // st6
-  double v45; // st6
-  double v46; // st7
-  double v47; // st7
-  int v48; // ecx
-  double v49; // st7
-  double v50; // st7
-  int v51; // eax
-  long double v52; // st7
-  double v53; // st7
-  int v54; // edx
-  __int64 v55; // rax
-  int v56; // eax
-  __int16 v57; // fps
-  double v58; // st7
-  _BOOL1 v59; // c0
-  char v60; // c2
-  _BOOL1 v61; // c3
-  __int16 v62; // fps
-  double v63; // st7
-  _BOOL1 v64; // c0
-  char v65; // c2
-  _BOOL1 v66; // c3
-  int v67; // edx
-  double v68; // st7
-  double v69; // st7
-  int v70; // eax
-  int v71; // eax
-  double v72; // st7
-  double v73; // st7
-  int v74; // eax
-  int v75; // eax
-  __int16 v76; // fps
-  _BOOL1 v77; // c0
-  char v78; // c2
-  _BOOL1 v79; // c3
-  double v80; // st7
-  int v81; // eax
-  double v82; // st7
-  int v83; // edx
-  double v84; // st7
-  double v85; // st5
-  double v86; // rt2
-  int v87; // edx
-  int v88; // eax
-  double v89; // st7
-  double v90; // st5
-  double v91; // st4
-  double v92; // st7
-  double v93; // st5
-  double v94; // st4
-  long double v95; // st7
-  double v96; // st7
-  double v97; // st7
-  __int16 v98; // fps
-  _BOOL1 v99; // c0
-  char v100; // c2
-  _BOOL1 v101; // c3
-  double v102; // st7
-  double v103; // st7
-  double v104; // st5
-  double v105; // st6
-  double v106; // st7
-  double v107; // st5
-  double v108; // st6
-  double v109; // st7
-  int v110; // ecx
-  int v111; // eax
-  double v112; // st7
-  double v113; // st7
-  int v114; // eax
-  double v115; // st7
-  double v116; // st5
-  double v117; // st4
-  long double v118; // st7
-  float *v119; // edx
-  double v120; // st7
-  double v121; // st7
-  __int16 v122; // fps
-  _BOOL1 v123; // c0
-  char v124; // c2
-  _BOOL1 v125; // c3
-  double v126; // st7
-  double v127; // st7
-  double v128; // st5
-  double v129; // st6
-  double v130; // st7
-  double v131; // st5
-  double v132; // st6
-  double v133; // st7
-  int v134; // ecx
-  double v135; // st7
-  double v136; // st7
-  int v137; // eax
-  double v138; // st7
-  double v139; // st5
-  double v140; // rt0
-  float *v141; // edx
-  int v142; // eax
-  double v143; // st7
-  double v144; // st5
-  double v145; // st4
-  double v146; // st7
-  double v147; // st5
-  double v148; // st4
-  long double v149; // st7
-  float *v150; // edx
-  double v151; // st7
-  __int16 v152; // fps
-  _BOOL1 v153; // c0
-  char v154; // c2
-  _BOOL1 v155; // c3
-  double v156; // st7
-  double v157; // st7
-  double v158; // st5
-  double v159; // st6
-  double v160; // st7
-  double v161; // st5
-  double v162; // st6
-  double v163; // st7
-  int v164; // ebx
-  double v165; // st7
-  double v166; // st7
-  int v167; // eax
-  int v168; // eax
-  double v169; // st7
-  double v170; // st5
-  double v171; // st4
-  long double v172; // st7
-  double v173; // st7
-  __int16 v174; // fps
-  _BOOL1 v175; // c0
-  char v176; // c2
-  _BOOL1 v177; // c3
-  double v178; // st7
-  double v179; // st7
-  double v180; // st5
-  double v181; // st6
-  double v182; // st7
-  double v183; // st5
-  double v184; // st6
-  double v185; // st7
-  int v186; // edx
-  double v187; // st7
-  double v188; // st7
-  int v189; // eax
-  long double v190; // st7
-  float v191; // [esp+0h] [ebp-1ECh]
-  float v192; // [esp+0h] [ebp-1ECh]
-  float v193; // [esp+0h] [ebp-1ECh]
-  float v194; // [esp+0h] [ebp-1ECh]
-  float v195; // [esp+0h] [ebp-1ECh]
-  float v196; // [esp+0h] [ebp-1ECh]
-  float v197; // [esp+0h] [ebp-1ECh]
-  float v198; // [esp+0h] [ebp-1ECh]
-  float v199; // [esp+4h] [ebp-1E8h] BYREF
-  float v200; // [esp+8h] [ebp-1E4h]
-  float v201; // [esp+Ch] [ebp-1E0h]
-  float v202; // [esp+10h] [ebp-1DCh]
-  float v203; // [esp+14h] [ebp-1D8h]
-  float v204; // [esp+18h] [ebp-1D4h]
-  float v205; // [esp+1Ch] [ebp-1D0h]
-  float v206; // [esp+20h] [ebp-1CCh]
-  float v207; // [esp+24h] [ebp-1C8h]
-  float v208; // [esp+28h] [ebp-1C4h]
-  float v209; // [esp+2Ch] [ebp-1C0h]
-  float v210; // [esp+30h] [ebp-1BCh]
-  int v211; // [esp+84h] [ebp-168h] BYREF
-  int v212; // [esp+88h] [ebp-164h] BYREF
-  int v213; // [esp+8Ch] [ebp-160h] BYREF
-  int v214; // [esp+90h] [ebp-15Ch] BYREF
-  float v215; // [esp+94h] [ebp-158h]
-  float v216; // [esp+98h] [ebp-154h]
-  float v217; // [esp+9Ch] [ebp-150h]
-  int v218; // [esp+A0h] [ebp-14Ch]
-  int v219; // [esp+A4h] [ebp-148h]
-  float v220; // [esp+A8h] [ebp-144h]
-  float v221; // [esp+ACh] [ebp-140h]
-  float v222; // [esp+B0h] [ebp-13Ch]
-  float v223; // [esp+B4h] [ebp-138h]
-  float v224; // [esp+B8h] [ebp-134h]
-  int v225; // [esp+BCh] [ebp-130h]
-  float v226; // [esp+C0h] [ebp-12Ch]
-  int v227; // [esp+C4h] [ebp-128h]
-  float v228; // [esp+C8h] [ebp-124h]
-  float v229; // [esp+CCh] [ebp-120h]
-  float v230; // [esp+D0h] [ebp-11Ch]
-  float v231; // [esp+D4h] [ebp-118h]
-  float v232; // [esp+D8h] [ebp-114h]
-  float v233; // [esp+DCh] [ebp-110h]
-  int v234; // [esp+E0h] [ebp-10Ch]
-  float v235; // [esp+E4h] [ebp-108h]
-  float v236; // [esp+E8h] [ebp-104h]
-  float v237; // [esp+ECh] [ebp-100h]
-  float v238; // [esp+F0h] [ebp-FCh]
-  float v239; // [esp+F4h] [ebp-F8h]
-  float v240; // [esp+F8h] [ebp-F4h]
-  float v241; // [esp+FCh] [ebp-F0h]
-  int v242; // [esp+100h] [ebp-ECh]
-  float v243; // [esp+104h] [ebp-E8h]
-  float v244; // [esp+108h] [ebp-E4h]
-  float v245; // [esp+10Ch] [ebp-E0h]
-  int v246; // [esp+110h] [ebp-DCh]
-  float v247; // [esp+114h] [ebp-D8h]
-  int v248; // [esp+118h] [ebp-D4h]
-  int v249; // [esp+11Ch] [ebp-D0h]
-  float v250; // [esp+120h] [ebp-CCh]
-  float v251; // [esp+124h] [ebp-C8h]
-  int v252; // [esp+128h] [ebp-C4h]
-  float v253; // [esp+12Ch] [ebp-C0h]
-  float v254; // [esp+130h] [ebp-BCh]
-  float v255; // [esp+134h] [ebp-B8h]
-  float v256; // [esp+138h] [ebp-B4h]
-  float v257; // [esp+13Ch] [ebp-B0h]
-  float v258; // [esp+140h] [ebp-ACh]
-  float v259; // [esp+144h] [ebp-A8h]
-  float v260; // [esp+148h] [ebp-A4h]
-  float v261; // [esp+14Ch] [ebp-A0h]
-  float v262; // [esp+150h] [ebp-9Ch]
-  float v263; // [esp+154h] [ebp-98h]
-  float v264; // [esp+158h] [ebp-94h]
-  float v265; // [esp+15Ch] [ebp-90h]
-  float v266; // [esp+160h] [ebp-8Ch]
-  float v267; // [esp+164h] [ebp-88h]
-  float v268; // [esp+168h] [ebp-84h]
-  float v269; // [esp+16Ch] [ebp-80h]
-  float v270; // [esp+170h] [ebp-7Ch]
-  float v271; // [esp+174h] [ebp-78h]
-  float v272; // [esp+178h] [ebp-74h]
-  float v273; // [esp+17Ch] [ebp-70h]
-  float v274; // [esp+180h] [ebp-6Ch]
-  float v275; // [esp+184h] [ebp-68h]
-  float v276; // [esp+188h] [ebp-64h]
-  float v277; // [esp+18Ch] [ebp-60h]
-  float v278; // [esp+190h] [ebp-5Ch]
-  float v279; // [esp+194h] [ebp-58h]
-  float v280; // [esp+198h] [ebp-54h]
-  float v281; // [esp+19Ch] [ebp-50h]
-  float v282; // [esp+1A0h] [ebp-4Ch]
-  float v283; // [esp+1A4h] [ebp-48h]
-  float v284; // [esp+1A8h] [ebp-44h]
-  float v285; // [esp+1ACh] [ebp-40h]
-  int v286; // [esp+1B0h] [ebp-3Ch]
-  float v287; // [esp+1B4h] [ebp-38h]
-  float v288; // [esp+1B8h] [ebp-34h]
-  float v289; // [esp+1BCh] [ebp-30h]
-  float v290; // [esp+1C0h] [ebp-2Ch]
-  int v291; // [esp+1C4h] [ebp-28h]
-  float v292; // [esp+1C8h] [ebp-24h]
-  int v293; // [esp+1CCh] [ebp-20h]
-  int v294; // [esp+1D0h] [ebp-1Ch]
+  tTrackInfo *pTrackInfo; // ebp
+  int iNextChunkIdx; // eax
+  tData *pCurrentData; // esi
+  tTrackInfo *pNextTrackInfo; // ecx
+  tData *pNextData; // ebx
+  double dTransformedY; // st7
+  double dTransformedX; // st5
+  double dTransformedZ; // rt0
+  bool bRoofCollision; // eax
+  double dWallNormalY; // st7
+  int iRollMomentumBackup; // ecx
+  double dDamageAmount; // st7
+  double dSoundVolume; // st7
+  double dLocalY; // st7
+  double dLocalX; // st5
+  double dLocalZ; // st6
+  double dTempX; // st6
+  double dTempZ; // st7
+  double dPositionZ; // st7
+  float fDirectionX; // edx
+  int iChunkIdx; // eax
+  //__int16 nFpuStack1; // fps
+  double dAngle1; // st7
+  bool bRoofCheck; // eax
+  double dWallPosition; // st7
+  double dDamageLeft; // st7
+  int iRollBackup; // edx
+  double dVolumeCalc; // st7
+  double dVelocityY; // st7
+  double dVelocityX; // st5
+  double dVelocityZ; // st6
+  double dLocalPosX; // st6
+  double dLocalPosZ; // st7
+  double dFinalPosZ; // st7
+  float fDirX; // ecx
+  //__int16 nFpuStack2; // fps
+  double dAngle2; // st7
+  long double dHorizontalSpeed; // st7
+  double dNegTrackWidth; // st7
+  int iGroundType; // edx
+  //int64 llTrackColor; // rax
+  int iChunkIndex; // ecx
+  float fTransformX; // edx
+  //__int16 nFpuStack3; // fps
+  double dAngle3; // st7
+  int iBankAdjusted; // edx
+  int iElevationAdjusted; // eax
+  double dHeightDiff; // st7
+  int iBankValue; // eax
+  int iStunned; // eax
+  double dImpactVolume; // st7
+  int iSfxType; // eax
+  double dStunnedVolume; // st7
+  int iGroundColorType; // edx
+  double dSeparatedY; // st7
+  double dSeparatedX; // st5
+  double dSeparatedZ; // rt2
+  tGroundPt *pGroundPts; // edx
+  double dGroundY1; // st7
+  double dGroundX1; // st5
+  double dGroundZ1; // st4
+  double dGroundY0; // st7
+  double dGroundX0; // st5
+  double dGroundZ0; // st4
+  double dSlopeDiff; // st7
+  double dUndergroundDamage; // st7
+  int iRollBackup2; // edx
+  double dNegSpeed; // st7
+  double dBankSoundVolume; // st7
+  double dInterpolatedY; // st7
+  double dInterpolatedX; // st5
+  double dInterpolatedZ; // st6
+  double dDirectionY2; // st7
+  double dDirectionX2; // st5
+  double dDirectionZ2; // st6
+  double dFinalDirectionZ; // st7
+  float fDirXFinal; // ecx
+  int dYawCalc; // eax
+  //__int16 nFpuStack4; // fps
+  double dAngle4; // st7
+  double dGroundY2; // st7
+  double dGroundX2; // st5
+  double dGroundZ2; // st4
+  double dSlopeDiff2; // st7
+  double dUndergroundDamage2; // st7
+  double dNegSpeed2; // st7
+  double dBankSoundVolume2; // st7
+  double dInterpolatedY2; // st7
+  double dInterpolatedX2; // st5
+  double dInterpolatedZ2; // st6
+  double dDirectionY3; // st7
+  double dDirectionX3; // st5
+  double dDirectionZ3; // st6
+  double dFinalDirectionZ2; // st7
+  float fDirXFinal2; // ecx
+  //__int16 nFpuStack5; // fps
+  double dAngle5; // st7
+  double dSeparatedY2; // st7
+  double dSeparatedX2; // st5
+  double dSeparatedZ2; // rt0
+  tGroundPt *pGroundPts2; // edx
+  double dGroundY4; // st7
+  double dGroundX4; // st5
+  double dGroundZ4; // st4
+  double dGroundY5; // st7
+  double dGroundX5; // st5
+  double dGroundZ5; // st4
+  double dSlopeDiff5; // st7
+  double dUndergroundDamage5; // st7
+  double dBankSoundVolume5; // st7
+  double dGroundY3; // st7
+  double dGroundX3; // st5
+  double dGroundZ3; // st6
+  double dDirectionY4; // st7
+  double dDirectionX4; // st5
+  double dDirectionZ4; // st6
+  double dFinalDirectionZ4; // st7
+  float fDirXFinal5; // ebx
+  //__int16 nFpuStack6; // fps
+  double dAngle6; // st7
+  double dGroundY6; // st7
+  double dGroundX6; // st5
+  double dGroundZ6; // st4
+  double dSlopeDiff6; // st7
+  double dUndergroundDamage6; // st7
+  double dBankSoundVolume6; // st7
+  double dInterpolatedY3; // st7
+  double dInterpolatedX3; // st5
+  double dInterpolatedZ3; // st6
+  double dDirectionY5; // st7
+  double dDirectionX5; // st5
+  double dDirectionZ5; // st6
+  double dFinalDirectionZ5; // st7
+  float fDirXFinal6; // edx
+  //__int16 nFpuStack7; // fps
+  double dAngle7; // st7
+  double dFinalHorizSpeed; // st7
+  float fTempDamage; // [esp+0h] [ebp-1ECh]
+  float fTempDamage2; // [esp+0h] [ebp-1ECh]
+  float fTempDamage3; // [esp+0h] [ebp-1ECh]
+  float fThrottle; // [esp+0h] [ebp-1ECh]
+  float fUndergroundDamage; // [esp+0h] [ebp-1ECh]
+  float fUndergroundDamage2; // [esp+0h] [ebp-1ECh]
+  float fUndergroundDamage5; // [esp+0h] [ebp-1ECh]
+  float fUndergroundDamage6; // [esp+0h] [ebp-1ECh]
+  tData data; // [esp+4h] [ebp-1E8h] BYREF
+  int iBank; // [esp+84h] [ebp-168h] BYREF
+  int iAzimuth; // [esp+88h] [ebp-164h] BYREF
+  int piNearestChunk; // [esp+8Ch] [ebp-160h] BYREF
+  int iElevation; // [esp+90h] [ebp-15Ch] BYREF
+  float fAngleCalcTemp1; // [esp+94h] [ebp-158h]
+  float fDirectionTemp1; // [esp+98h] [ebp-154h]
+  float fX; // [esp+9Ch] [ebp-150h]
+  float fDirectionTemp2; // [esp+A0h] [ebp-14Ch]
+  float fDirectionTemp3; // [esp+A4h] [ebp-148h]
+  float fAngleCalcTemp2; // [esp+A8h] [ebp-144h]
+  float fAngleCalcTemp3; // [esp+ACh] [ebp-140h]
+  float fAngleCalcTemp4; // [esp+B0h] [ebp-13Ch]
+  float fGroundYCalc1; // [esp+B4h] [ebp-138h]
+  float fAngleCalcTemp5; // [esp+B8h] [ebp-134h]
+  float fAngleCalcTemp6; // [esp+BCh] [ebp-130h]
+  float fY; // [esp+C0h] [ebp-12Ch]
+  float fAngleCalcTemp7; // [esp+C4h] [ebp-128h]
+  float fGroundYCalc2; // [esp+C8h] [ebp-124h]
+  float fGroundYCalc3; // [esp+CCh] [ebp-120h]
+  float fGroundYCalc4; // [esp+D0h] [ebp-11Ch]
+  float fTrackHalfWidthNext; // [esp+D4h] [ebp-118h]
+  float fHeightDiffCalc; // [esp+D8h] [ebp-114h]
+  float fSlopeDiffCalc1; // [esp+DCh] [ebp-110h]
+  float fDirectionYTemp1; // [esp+E0h] [ebp-10Ch]
+  float fTrackWidthNeg; // [esp+E4h] [ebp-108h]
+  float fWallDamageCalc; // [esp+E8h] [ebp-104h]
+  float fSlopeDiffCalc2; // [esp+ECh] [ebp-100h]
+  float fTrackHalfWidth; // [esp+F0h] [ebp-FCh]
+  float fSlopeDiffCalc3; // [esp+F4h] [ebp-F8h]
+  float fNegSpeedCalc1; // [esp+F8h] [ebp-F4h]
+  float fNegSpeedCalc2; // [esp+FCh] [ebp-F0h]
+  float fDirectionYTemp2; // [esp+100h] [ebp-ECh]
+  float fHeightDiffGround; // [esp+104h] [ebp-E8h]
+  float fPrevZPosition; // [esp+108h] [ebp-E4h]
+  float fHeightDiffUnder; // [esp+10Ch] [ebp-E0h]
+  float fDirectionYTemp3; // [esp+110h] [ebp-DCh]
+  float fGroundHeight; // [esp+114h] [ebp-D8h]
+  float fDirectionYTemp4; // [esp+118h] [ebp-D4h]
+  float fDirectionYTemp5; // [esp+11Ch] [ebp-D0h]
+  float fSlopeDiffCalc4; // [esp+120h] [ebp-CCh]
+  float fInterpolatedBoundary; // [esp+124h] [ebp-C8h]
+  float fDirectionYTemp6; // [esp+128h] [ebp-C4h]
+  float fCarPosZ; // [esp+12Ch] [ebp-C0h]
+  float fCarPosX; // [esp+130h] [ebp-BCh]
+  float fWallBoundary; // [esp+134h] [ebp-B8h]
+  float fGroundYInterp1; // [esp+138h] [ebp-B4h]
+  float fGroundZInterp1; // [esp+13Ch] [ebp-B0h]
+  float fDirectionZTemp1; // [esp+140h] [ebp-ACh]
+  float fCarPosY; // [esp+144h] [ebp-A8h]
+  float fDirectionZTemp2; // [esp+148h] [ebp-A4h]
+  float fGroundZInterp2; // [esp+14Ch] [ebp-A0h]
+  float fGroundZInterp3; // [esp+150h] [ebp-9Ch]
+  float fInterpolatedHeight1; // [esp+154h] [ebp-98h]
+  float fInterpolatedHeight2; // [esp+158h] [ebp-94h]
+  float fDirectionXTemp1; // [esp+15Ch] [ebp-90h]
+  float fDirectionXTemp2; // [esp+160h] [ebp-8Ch]
+  float fInterpolatedHeight3; // [esp+164h] [ebp-88h]
+  float fInterpolatedHeight4; // [esp+168h] [ebp-84h]
+  float fVolumeCalc; // [esp+16Ch] [ebp-80h]
+  float fGroundYInterp2; // [esp+170h] [ebp-7Ch]
+  float fDirectionZTemp3; // [esp+174h] [ebp-78h]
+  float fDirectionZTemp4; // [esp+178h] [ebp-74h]
+  float fGroundZInterp4; // [esp+17Ch] [ebp-70h]
+  float fDirectionXTemp3; // [esp+180h] [ebp-6Ch]
+  float fDirectionXTemp4; // [esp+184h] [ebp-68h]
+  float fRoofHeightCheck; // [esp+188h] [ebp-64h]
+  float fRoofHeight; // [esp+18Ch] [ebp-60h]
+  float fGroundYInterp3; // [esp+190h] [ebp-5Ch]
+  float fGroundZInterp5; // [esp+194h] [ebp-58h]
+  float fDirectionZLocal; // [esp+198h] [ebp-54h]
+  float fDirectionXLocal; // [esp+19Ch] [ebp-50h]
+  float fDirectionYLocal1; // [esp+1A0h] [ebp-4Ch]
+  float fDirectionYLocal2; // [esp+1A4h] [ebp-48h]
+  float fDirectionYLocal3; // [esp+1A8h] [ebp-44h]
+  float fDirectionYLocal4; // [esp+1ACh] [ebp-40h]
+  int iChunk; // [esp+1B0h] [ebp-3Ch]
+  float fLocalCoordX; // [esp+1B4h] [ebp-38h]
+  float fDirectionYLocal; // [esp+1B8h] [ebp-34h]
+  float fLocalCoordY; // [esp+1BCh] [ebp-30h]
+  float fLocalCoordZ; // [esp+1C0h] [ebp-2Ch]
+  float fTempCalc; // [esp+1C4h] [ebp-28h]
+  float fZ; // [esp+1C8h] [ebp-24h]
+  float fDirectionYFinal; // [esp+1CCh] [ebp-20h]
+  float fDirectionYFinal2; // [esp+1D0h] [ebp-1Ch]
 
-  v217 = *(float *)(a1 + 52);
-  v226 = *(float *)(a1 + 56);
-  v292 = *(float *)(a1 + 60);
-  v254 = *(float *)a1;
-  v259 = *(float *)(a1 + 4);
-  v253 = *(float *)(a1 + 8);
-  findnearsection(a1, &v213);
-  if (v213 == -1)
-    v286 = *(_DWORD *)(a1 + 216);
+  fX = pCar->pos2.fX;                           // Store car's current and previous positions for collision calculations
+  fY = pCar->pos2.fY;
+  fZ = pCar->pos2.fZ;
+  fCarPosX = pCar->pos.fX;
+  fCarPosY = pCar->pos.fY;
+  fCarPosZ = pCar->pos.fZ;
+  findnearsection(pCar, &piNearestChunk);       // Find nearest track section for collision detection
+  if (piNearestChunk == -1)
+    iChunk = pCar->iLastValidChunk;
   else
-    v286 = v213;
-  v2 = (float *)&TrackInfo[9 * v286];
-  v3 = v286 + 1;
-  v4 = (float *)((char *)&localdata + 128 * v286);
-  if (v286 + 1 >= TRAK_LEN)
-    v3 = 0;
-  v5 = (float *)&TrackInfo[9 * v3];
-  v6 = (float *)((char *)&localdata + 128 * v3);
-  if (GroundColour_variable_4[5 * v286] >= 0)
-    calculateseparatedcoordinatesystem(v286, &v199);
-  v7 = v259 + v4[10];
-  v8 = v254 + v4[9];
-  v9 = v253 + v4[11];
-  v287 = v4[3] * v7 + *v4 * v8 + v4[6] * v9;
-  v289 = v4[1] * v8 + v4[4] * v7 + v4[7] * v9;
-  v290 = v7 * v4[5] + v8 * v4[2] + v9 * v4[8];
-  v244 = (v217 + v4[9]) * v4[2] + (v226 + v4[10]) * v4[5] + (v292 + v4[11]) * v4[8];
-  v281 = v4[3] * *(float *)(a1 + 44) + *v4 * *(float *)(a1 + 40) + v4[6] * *(float *)(a1 + 48);
-  v288 = v4[1] * *(float *)(a1 + 40) + v4[4] * *(float *)(a1 + 44) + v4[7] * *(float *)(a1 + 48);
-  v280 = v4[2] * *(float *)(a1 + 40) + v4[5] * *(float *)(a1 + 44) + v4[8] * *(float *)(a1 + 48);
-  if (v289 < 0.0) {
-    if (TrakColour_variable_11[6 * v286]) {
-      v277 = v2[8];
-      if (v277 < 0.0)
-        v32 = v290 >= (double)v277 && v290 <= 0.0;
+    iChunk = piNearestChunk;
+  pTrackInfo = &TrackInfo[iChunk];
+  iNextChunkIdx = iChunk + 1;
+  pCurrentData = &localdata[iChunk];
+  if (iChunk + 1 >= TRAK_LEN)
+    iNextChunkIdx = 0;
+  pNextTrackInfo = &TrackInfo[iNextChunkIdx];
+  pNextData = &localdata[iNextChunkIdx];
+  if (GroundColour[iChunk][2] >= 0)           // Handle separated coordinate system for underground sections
+    calculateseparatedcoordinatesystem(iChunk, &data);
+  dTransformedY = fCarPosY + pCurrentData->pointAy[3].fY;
+  dTransformedX = fCarPosX + pCurrentData->pointAy[3].fX;
+  dTransformedZ = fCarPosZ + pCurrentData->pointAy[3].fZ;// Transform car position and direction to track local coordinates
+  fLocalCoordX = (float)(pCurrentData->pointAy[1].fX * dTransformedY + pCurrentData->pointAy[0].fX * dTransformedX + pCurrentData->pointAy[2].fX * dTransformedZ);
+  fLocalCoordY = (float)(pCurrentData->pointAy[0].fY * dTransformedX + pCurrentData->pointAy[1].fY * dTransformedY + pCurrentData->pointAy[2].fY * dTransformedZ);
+  fLocalCoordZ = (float)(dTransformedY * pCurrentData->pointAy[1].fZ + dTransformedX * pCurrentData->pointAy[0].fZ + dTransformedZ * pCurrentData->pointAy[2].fZ);
+  fPrevZPosition = (fX + pCurrentData->pointAy[3].fX) * pCurrentData->pointAy[0].fZ
+    + (fY + pCurrentData->pointAy[3].fY) * pCurrentData->pointAy[1].fZ
+    + (fZ + pCurrentData->pointAy[3].fZ) * pCurrentData->pointAy[2].fZ;
+  fDirectionXLocal = pCurrentData->pointAy[1].fX * pCar->direction.fY + pCurrentData->pointAy[0].fX * pCar->direction.fX + pCurrentData->pointAy[2].fX * pCar->direction.fZ;
+  fDirectionYLocal = pCurrentData->pointAy[0].fY * pCar->direction.fX + pCurrentData->pointAy[1].fY * pCar->direction.fY + pCurrentData->pointAy[2].fY * pCar->direction.fZ;
+  fDirectionZLocal = pCurrentData->pointAy[0].fZ * pCar->direction.fX + pCurrentData->pointAy[1].fZ * pCar->direction.fY + pCurrentData->pointAy[2].fZ * pCar->direction.fZ;
+  if (fLocalCoordY < 0.0) {
+    if (TrakColour[iChunk][4]) {
+      fRoofHeight = pTrackInfo->fRoofHeight;    // Handle collision with left wall/barrier (positive Y direction)
+      if (fRoofHeight < 0.0)
+        bRoofCheck = fLocalCoordZ >= (double)fRoofHeight && fLocalCoordZ <= 0.0;
       else
-        v32 = v290 <= (double)v277 && v290 >= 0.0;
-      if (v32 && v277 > 0.0) {
-        v33 = v286;
-        v34 = 3 * v286;
-        v35 = TrakColour_variable_11[6 * v286] < 0 ? -v4[13] : -v4[13] - v2[2];
-        v255 = v35;
-        if (v289 - *(float *)&CarBaseY <= v255) {
-          if (v288 < 0.0) {
+        bRoofCheck = fLocalCoordZ <= (double)fRoofHeight && fLocalCoordZ >= 0.0;
+      if (bRoofCheck && fRoofHeight > 0.0) {
+        dWallPosition = TrakColour[iChunk][4] < 0 ? -pCurrentData->fTrackHalfWidth : -pCurrentData->fTrackHalfWidth - pTrackInfo->fRShoulderWidth;
+        fWallBoundary = (float)dWallPosition;
+        if (fLocalCoordY - CarBaseY <= fWallBoundary) {
+          if (fDirectionYLocal < 0.0) {
             if (death_race)
-              v36 = -v288 * control_c_variable_174 * control_c_variable_175;
+              dDamageLeft = -fDirectionYLocal * 0.006 * 4.0;// Apply wall collision damage (4x in death race mode)
             else
-              v36 = -v288 * control_c_variable_174;
-            v192 = v36;
-            v34 = dodamage(v192);
-            v33 = -*(_DWORD *)(a1 + 200);
-            HIBYTE(v288) ^= 0x80u;
-            *(_DWORD *)(a1 + 200) = v33;
+              dDamageLeft = -fDirectionYLocal * 0.006;
+            fTempDamage2 = (float)dDamageLeft;
+            dodamage(pCar, fTempDamage2);
+            iRollBackup = -pCar->iRollMomentum;
+            fDirectionYLocal = -fDirectionYLocal;
+            //HIBYTE(fDirectionYLocal) ^= 0x80u;
+            pCar->iRollMomentum = iRollBackup;
           }
-          if (v288 < (double)control_c_variable_176)
-            v288 = 40.0;
-          v38 = v288 < (double)control_c_variable_176;
-          v39 = 0;
-          v40 = v288 == control_c_variable_176;
-          LOWORD(v34) = v37;
-          if (v288 > (double)control_c_variable_176 && !*(_BYTE *)(a1 + 306)) {
-            v41 = v288 * control_c_variable_177 * control_c_variable_178;
-            _CHP(v34, v33);
-            v291 = (int)v41;
-            v33 = *(_DWORD *)(a1 + 32);
-            sfxpend(12, v33, (int)v41);
-            *(_BYTE *)(a1 + 306) = 9;
+          if (fDirectionYLocal < 40.0)
+            fDirectionYLocal = 40.0;
+          if (fDirectionYLocal > 40.0 && !pCar->bySfxCooldown) {
+            dVolumeCalc = fDirectionYLocal * 32768.0 * 0.025;
+            //_CHP();
+            //LODWORD(fTempCalc) = (int)dVolumeCalc;
+            sfxpend(SOUND_SAMPLE_WALL1, pCar->iDriverIdx, (int)dVolumeCalc);// SOUND_SAMPLE_WALL1
+            pCar->bySfxCooldown = 9;
           }
-          v42 = v288;
-          v43 = v281;
-          v44 = v280;
-          *(float *)(a1 + 40) = v4[1] * v288 + *v4 * v281 + v4[2] * v280;
-          *(float *)(a1 + 44) = v4[3] * v43 + v4[4] * v42 + v4[5] * v44;
-          *(float *)(a1 + 48) = v42 * v4[7] + v43 * v4[6] + v44 * v4[8];
-          v289 = v255 + *(float *)&CarBaseY;
-          v45 = v287;
-          v46 = v290;
-          *(float *)a1 = v4[1] * v289 + *v4 * v287 + v4[2] * v290 - v4[9];
-          *(float *)(a1 + 4) = v4[3] * v45 + v4[4] * v289 + v4[5] * v46 - v4[10];
-          v47 = v46 * v4[8] + v45 * v4[6] + v4[7] * v289 - v4[11];
-          v291 = *(int *)(a1 + 40);
-          v242 = *(_DWORD *)(a1 + 44);
-          v216 = *(float *)&v291;
-          v48 = v291;
-          v219 = v242;
-          *(float *)(a1 + 8) = v47;
-          if ((v48 & 0x7FFFFFFF) != 0 || (v242 & 0x7FFFFFFF) != 0) {
-            v49 = v216;
-            IF_DATAN2(v216);
-            v50 = v49 * control_c_variable_179 / control_c_variable_180;
-            _CHP(v51, v33);
-            v291 = (int)v50;
-            v28 = (int)v50 & 0x3FFF;
+          dVelocityY = fDirectionYLocal;
+          dVelocityX = fDirectionXLocal;
+          dVelocityZ = fDirectionZLocal;
+          pCar->direction.fX = (float)(pCurrentData->pointAy[0].fY * fDirectionYLocal + pCurrentData->pointAy[0].fX * fDirectionXLocal + pCurrentData->pointAy[0].fZ * fDirectionZLocal);
+          pCar->direction.fY = (float)(pCurrentData->pointAy[1].fX * dVelocityX + pCurrentData->pointAy[1].fY * dVelocityY + pCurrentData->pointAy[1].fZ * dVelocityZ);
+          pCar->direction.fZ = (float)(dVelocityY * pCurrentData->pointAy[2].fY + dVelocityX * pCurrentData->pointAy[2].fX + dVelocityZ * pCurrentData->pointAy[2].fZ);
+          fLocalCoordY = fWallBoundary + CarBaseY;
+          dLocalPosX = fLocalCoordX;
+          dLocalPosZ = fLocalCoordZ;
+          pCar->pos.fX = pCurrentData->pointAy[0].fY * fLocalCoordY
+            + pCurrentData->pointAy[0].fX * fLocalCoordX
+            + pCurrentData->pointAy[0].fZ * fLocalCoordZ
+            - pCurrentData->pointAy[3].fX;
+          pCar->pos.fY = (float)(pCurrentData->pointAy[1].fX * dLocalPosX
+            + pCurrentData->pointAy[1].fY * fLocalCoordY
+            + pCurrentData->pointAy[1].fZ * dLocalPosZ
+            - pCurrentData->pointAy[3].fY);
+          dFinalPosZ = dLocalPosZ * pCurrentData->pointAy[2].fZ
+            + dLocalPosX * pCurrentData->pointAy[2].fX
+            + pCurrentData->pointAy[2].fY * fLocalCoordY
+            - pCurrentData->pointAy[3].fZ;
+          fTempCalc = pCar->direction.fX;
+          fDirectionYTemp2 = pCar->direction.fY;
+          fDirectionTemp1 = fTempCalc;
+          fDirX = fTempCalc;
+          fDirectionTemp3 = fDirectionYTemp2;
+          pCar->pos.fZ = (float)dFinalPosZ;
+          //if ((LODWORD(fDirX) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYTemp2) & 0x7FFFFFFF) != 0) {
+          if (fabs(fDirX) > FLT_EPSILON || fabs(fDirectionYTemp2) > FLT_EPSILON) {
+            dAngle2 = atan2(fDirectionTemp3, fDirectionTemp1) * 16384.0 / 6.28318530718;
+            //_CHP();
+            //LODWORD(fTempCalc) = (int)dAngle2;
+            iChunkIdx = (int)dAngle2 & 0x3FFF;
           } else {
-            v28 = 0;
+            iChunkIdx = 0;
           }
           goto LABEL_69;
         }
       }
     }
-  } else if (TrakColour_variable_10[6 * v286]) {
-    v276 = v2[8];
-    if (v276 < 0.0)
-      v10 = v290 >= (double)v276 && v290 <= 0.0;
+  } else if (TrakColour[iChunk][3])             // Handle collision with right wall/barrier (negative Y direction)
+  {
+    fRoofHeightCheck = pTrackInfo->fRoofHeight;
+    if (fRoofHeightCheck < 0.0)
+      bRoofCollision = fLocalCoordZ >= (double)fRoofHeightCheck && fLocalCoordZ <= 0.0;
     else
-      v10 = v290 <= (double)v276 && v290 >= 0.0;
-    if (v10 && v276 > 0.0) {
-      v11 = v286;
-      LODWORD(v12) = 3 * v286;
-      if (TrakColour_variable_10[6 * v286] < 0) {
-        v238 = v4[13];
-        v12 = v6[13];
-        v231 = v12;
+      bRoofCollision = fLocalCoordZ <= (double)fRoofHeightCheck && fLocalCoordZ >= 0.0;
+    if (bRoofCollision && fRoofHeightCheck > 0.0) {
+      if (TrakColour[iChunk][3] < 0) {
+        fTrackHalfWidth = pCurrentData->fTrackHalfWidth;
+        fTrackHalfWidthNext = pNextData->fTrackHalfWidth;
       } else {
-        v238 = v4[13] + *v2;
-        v231 = v6[13] + *v5;
+        fTrackHalfWidth = pCurrentData->fTrackHalfWidth + pTrackInfo->fLShoulderWidth;
+        fTrackHalfWidthNext = pNextData->fTrackHalfWidth + pNextTrackInfo->fLShoulderWidth;
       }
-      v251 = ((v287 + v4[12]) * v231 - (v287 - v4[12]) * v238) / (v4[12] * control_c_variable_181);
-      if (v289 + *(float *)&CarBaseY >= v251) {
-        if (v288 > 0.0) {
+      fInterpolatedBoundary = ((fLocalCoordX + pCurrentData->fTrackHalfLength) * fTrackHalfWidthNext - (fLocalCoordX - pCurrentData->fTrackHalfLength) * fTrackHalfWidth)
+        / (pCurrentData->fTrackHalfLength
+         * 2.0f);
+      if (fLocalCoordY + CarBaseY >= fInterpolatedBoundary) {
+        if (fDirectionYLocal > 0.0) {
           if (death_race)
-            v13 = v288 * control_c_variable_182 * control_c_variable_175;
+            dWallNormalY = fDirectionYLocal * 0.005 * 4.0;
           else
-            v13 = v288 * control_c_variable_182;
-          v191 = v13;
-          v12 = COERCE_FLOAT(dodamage(v191));
-          BYTE1(v11) = HIBYTE(v288) ^ 0x80;
-          v14 = -*(_DWORD *)(a1 + 200);
-          HIBYTE(v288) ^= 0x80u;
-          *(_DWORD *)(a1 + 200) = v14;
+            dWallNormalY = fDirectionYLocal * 0.005;
+          fTempDamage = (float)dWallNormalY;
+          dodamage(pCar, fTempDamage);
+          iRollMomentumBackup = -pCar->iRollMomentum;
+          fDirectionYLocal = -fDirectionYLocal;
+          //HIBYTE(fDirectionYLocal) ^= 0x80u;
+          pCar->iRollMomentum = iRollMomentumBackup;
         }
-        if (v288 > (double)control_c_variable_183)
-          v288 = -40.0;
-        v15 = -v288;
-        v236 = v15;
-        v17 = v15 < control_c_variable_176;
-        v18 = 0;
-        v19 = v15 == control_c_variable_176;
-        LOWORD(v12) = v16;
-        if (v15 > control_c_variable_176 && !*(_BYTE *)(a1 + 306)) {
-          v20 = v236 * control_c_variable_177 * control_c_variable_178;
-          _CHP(LODWORD(v12), v11);
-          v291 = (int)v20;
-          sfxpend(12, *(_DWORD *)(a1 + 32), (int)v20);
-          *(_BYTE *)(a1 + 306) = 9;
+        if (fDirectionYLocal > -40.0)
+          fDirectionYLocal = -40.0;
+        dDamageAmount = -fDirectionYLocal;
+        fWallDamageCalc = (float)dDamageAmount;
+        if (dDamageAmount > 40.0 && !pCar->bySfxCooldown) {
+          dSoundVolume = fWallDamageCalc * 32768.0 * 0.025;
+          //_CHP();
+          //LODWORD(fTempCalc) = (int)dSoundVolume;
+          sfxpend(SOUND_SAMPLE_WALL1, pCar->iDriverIdx, (int)dSoundVolume);// SOUND_SAMPLE_WALL1
+          pCar->bySfxCooldown = 9;
         }
-        v21 = v288;
-        v22 = v281;
-        v23 = v280;
-        *(float *)(a1 + 40) = v4[1] * v288 + *v4 * v281 + v4[2] * v280;
-        *(float *)(a1 + 44) = v4[3] * v22 + v4[4] * v21 + v4[5] * v23;
-        *(float *)(a1 + 48) = v21 * v4[7] + v22 * v4[6] + v23 * v4[8];
-        v289 = v251 - *(float *)&CarBaseY;
-        v24 = v287;
-        v25 = v290;
-        *(float *)a1 = v4[1] * v289 + *v4 * v287 + v4[2] * v290 - v4[9];
-        *(float *)(a1 + 4) = v4[3] * v24 + v4[4] * v289 + v4[5] * v25 - v4[10];
-        v26 = v25 * v4[8] + v24 * v4[6] + v4[7] * v289 - v4[11];
-        v291 = *(int *)(a1 + 40);
-        v234 = *(_DWORD *)(a1 + 44);
-        v224 = *(float *)&v291;
-        v27 = v291;
-        v225 = v234;
-        *(float *)(a1 + 8) = v26;
-        if ((v27 & 0x7FFFFFFF) != 0 || (v234 & 0x7FFFFFFF) != 0) {
-          v29 = v224;
-          IF_DATAN2(v224);
-          v30 = v29 * control_c_variable_179 / control_c_variable_180;
-          _CHP(v31, v27);
-          v291 = (int)v30;
-          v28 = (int)v30 & 0x3FFF;
+        dLocalY = fDirectionYLocal;
+        dLocalX = fDirectionXLocal;
+        dLocalZ = fDirectionZLocal;
+        pCar->direction.fX = (float)(pCurrentData->pointAy[0].fY * fDirectionYLocal + pCurrentData->pointAy[0].fX * fDirectionXLocal + pCurrentData->pointAy[0].fZ * fDirectionZLocal);
+        pCar->direction.fY = (float)(pCurrentData->pointAy[1].fX * dLocalX + pCurrentData->pointAy[1].fY * dLocalY + pCurrentData->pointAy[1].fZ * dLocalZ);
+        pCar->direction.fZ = (float)(dLocalY * pCurrentData->pointAy[2].fY + dLocalX * pCurrentData->pointAy[2].fX + dLocalZ * pCurrentData->pointAy[2].fZ);
+        fLocalCoordY = fInterpolatedBoundary - CarBaseY;
+        dTempX = fLocalCoordX;
+        dTempZ = fLocalCoordZ;
+        pCar->pos.fX = pCurrentData->pointAy[0].fY * fLocalCoordY
+          + pCurrentData->pointAy[0].fX * fLocalCoordX
+          + pCurrentData->pointAy[0].fZ * fLocalCoordZ
+          - pCurrentData->pointAy[3].fX;
+        pCar->pos.fY = (float)(pCurrentData->pointAy[1].fX * dTempX + pCurrentData->pointAy[1].fY * fLocalCoordY + pCurrentData->pointAy[1].fZ * dTempZ - pCurrentData->pointAy[3].fY);
+        dPositionZ = dTempZ * pCurrentData->pointAy[2].fZ + dTempX * pCurrentData->pointAy[2].fX + pCurrentData->pointAy[2].fY * fLocalCoordY - pCurrentData->pointAy[3].fZ;
+        fTempCalc = pCar->direction.fX;
+        fDirectionYTemp1 = pCar->direction.fY;
+        fAngleCalcTemp5 = fTempCalc;
+        fDirectionX = fTempCalc;
+        fAngleCalcTemp6 = fDirectionYTemp1;
+        pCar->pos.fZ = (float)dPositionZ;
+        //if ((LODWORD(fDirectionX) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYTemp1) & 0x7FFFFFFF) != 0) {
+        if (fabs(fDirectionX) > FLT_EPSILON || fabs(fDirectionYTemp1) > FLT_EPSILON) {
+          dAngle1 = atan2(fAngleCalcTemp6, fAngleCalcTemp5) * 16384.0 / 6.28318530718;
+          //_CHP();
+          //LODWORD(fTempCalc) = (int)dAngle1;
+          iChunkIdx = (int)dAngle1 & 0x3FFF;
         } else {
-          v28 = 0;
+          iChunkIdx = 0;
         }
       LABEL_69:
-        v52 = *(float *)(a1 + 40) * *(float *)(a1 + 40) + *(float *)(a1 + 44) * *(float *)(a1 + 44);
-        *(_DWORD *)(a1 + 64) = v28;
-        *(float *)(a1 + 36) = sqrt(v52);
+        dHorizontalSpeed = pCar->direction.fX * pCar->direction.fX + pCar->direction.fY * pCar->direction.fY;
+        pCar->nYaw3 = iChunkIdx;
+        pCar->fHorizontalSpeed = (float)sqrt(dHorizontalSpeed);
       }
     }
   }
-  if (v4[13] + *v2 >= v289) {
-    v53 = -v4[13];
-    v235 = v53;
-    if (v53 - v2[2] <= v289) {
-      if (v289 <= (double)v4[13])
-        v54 = v289 >= (double)v235 ? 1 : 2;
+  if (pCurrentData->fTrackHalfWidth + pTrackInfo->fLShoulderWidth >= fLocalCoordY) {
+    dNegTrackWidth = -pCurrentData->fTrackHalfWidth;// Check if car is within track boundaries for ground collision
+    fTrackWidthNeg = (float)dNegTrackWidth;
+    if (dNegTrackWidth - pTrackInfo->fRShoulderWidth <= fLocalCoordY) {
+      if (fLocalCoordY <= (double)pCurrentData->fTrackHalfWidth)
+        iGroundType = fLocalCoordY >= (double)fTrackWidthNeg ? 1 : 2;
       else
-        v54 = 0;
-      v55 = *((int *)&TrakColour + 6 * v286 + v54);
-      v56 = (HIDWORD(v55) ^ v55) - HIDWORD(v55);
-      if ((v56 & 0x20000) == 0)
-        goto LABEL_81;
-      v58 = v4[12] * control_c_variable_181;
-      v59 = v58 < *(float *)&CarBaseX;
-      v60 = 0;
-      v61 = v58 == *(float *)&CarBaseX;
-      LOWORD(v56) = v57;
-      if (v58 <= *(float *)&CarBaseX
-        || (v63 = v4[13] * control_c_variable_181,
-            v64 = v63 < *(float *)&CarBaseX,
-            v65 = 0,
-            v66 = v63 == *(float *)&CarBaseX,
-            LOWORD(v56) = v62,
-            v63 <= *(float *)&CarBaseX)) {
-      LABEL_81:
-        v247 = getgroundz(v56, v287, v289, v286);
-        if (v290 <= (double)v247 && v280 * control_c_variable_181 + v247 + control_c_variable_184 <= v290) {
-          *(float *)a1 = v287;
-          *(float *)(a1 + 4) = v289;
-          getlocalangles(&v212, &v214, &v211);
-          *(_WORD *)(a1 + 20) = v212;
-          *(_DWORD *)(a1 + 64) = v212;
-          *(_WORD *)(a1 + 18) = v214;
-          *(_WORD *)(a1 + 16) = v211;
-          v67 = LODWORD(v281);
-          *(_WORD *)(a1 + 12) = v286;
-          if ((v67 & 0x7FFFFFFF) != 0 || (LODWORD(v288) & 0x7FFFFFFF) != 0) {
-            v68 = v281;
-            IF_DATAN2(v281);
-            v69 = v68 * control_c_variable_179 / control_c_variable_180;
-            _CHP(v70, v67);
-            v291 = (int)v69;
-            *(_DWORD *)(a1 + 64) = (int)v69 & 0x3FFF;
+        iGroundType = 0;
+      //llTrackColor = TrakColour[iChunk][iGroundType];
+      //if ((((HIDWORD(llTrackColor) ^ (unsigned int)llTrackColor) - HIDWORD(llTrackColor)) & 0x20000) == 0
+      if ((TrakColour[iChunk][iGroundType] & SURFACE_FLAG_SKIP_RENDER) == 0
+        || pCurrentData->fTrackHalfLength * 2.0 <= CarBaseX
+        || pCurrentData->fTrackHalfWidth * 2.0 <= CarBaseX) {
+        iChunkIndex = iChunk;
+        fGroundHeight = (float)getgroundz(fLocalCoordX, fLocalCoordY, iChunk);// Handle normal ground collision - calculate ground height and landing physics
+        if (fLocalCoordZ <= (double)fGroundHeight && fDirectionZLocal * 2.0 + fGroundHeight + -250.0 <= fLocalCoordZ) {
+          pCar->pos.fX = fLocalCoordX;
+          pCar->pos.fY = fLocalCoordY;
+          getlocalangles(pCar->nYaw, pCar->nPitch, pCar->nRoll, iChunkIndex, &iAzimuth, &iElevation, &iBank);
+          pCar->nYaw = iAzimuth;
+          pCar->nYaw3 = iAzimuth;
+          pCar->nPitch = iElevation;
+          pCar->nRoll = iBank;
+          fTransformX = fDirectionXLocal;
+          pCar->nCurrChunk = iChunk;
+          //if ((LODWORD(fTransformX) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYLocal) & 0x7FFFFFFF) != 0) {
+          if (fabs(fTransformX) > FLT_EPSILON || fabs(fDirectionYLocal) > FLT_EPSILON) {
+            dAngle3 = atan2(fDirectionYLocal, fDirectionXLocal) * 16384.0 / 6.28318530718;
+            //_CHP();
+            //LODWORD(fTempCalc) = (int)dAngle3;
+            pCar->nYaw3 = (int)dAngle3 & 0x3FFF;
           }
-          if (v211 < 4096 || v211 > 12288) {
-            *(_DWORD *)(a1 + 204) = 0;
+          if (iBank < 4096 || iBank > 12288) {
+            pCar->iStunned = 0;
           } else {
-            *(_DWORD *)(a1 + 204) = -1;
-            *(_DWORD *)(a1 + 76) = 0;
-            v67 = v211 + 0x2000;
-            v211 = v67;
-            if (v67 >= 0x4000)
-              v211 = v67 - 0x4000;
+            pCar->iStunned = -1;
+            pCar->iSteeringInput = 0;
+            iBankAdjusted = iBank + 0x2000;
+            iBank = iBankAdjusted;
+            if (iBankAdjusted >= 0x4000)
+              iBank = iBankAdjusted - 0x4000;
           }
-          putflat(a1);
-          if (v214 > 0x2000) {
-            v67 = v214 - 0x4000;
-            v214 -= 0x4000;
-          }
-          v71 = v214;
-          *(_DWORD *)(a1 + 144) = 0;
-          *(_DWORD *)(a1 + 140) = v71;
-          *(_DWORD *)(a1 + 148) = v214;
-          if (v211 > 0x2000)
-            v211 -= 0x4000;
-          v72 = v244 - v290;
-          v232 = v72;
-          v73 = v72 * control_c_variable_177 * control_c_variable_178;
-          v74 = v211;
-          *(_DWORD *)(a1 + 72) = 3;
-          *(_DWORD *)(a1 + 152) = v74;
-          *(_DWORD *)(a1 + 156) = v74;
-          v75 = *(_DWORD *)(a1 + 204);
-          v269 = v73;
-          if (v75) {
-            v82 = v269;
-            _CHP(v75, v67);
-            v291 = (int)v82;
-            sfxpend(13, *(_DWORD *)(a1 + 32), (int)v82);
-          } else if (!*(_BYTE *)(a1 + 306)) {
-            v77 = v232 < (double)control_c_variable_176;
-            v78 = 0;
-            v79 = v232 == control_c_variable_176;
-            LOWORD(v75) = v76;
-            v80 = v269;
-            if (v232 <= (double)control_c_variable_176) {
-              _CHP(v75, v67);
-              v291 = (int)v80;
-              v81 = 10;
+          putflat(pCar);
+          if (iElevation > 0x2000)
+            iElevation -= 0x4000;
+          iElevationAdjusted = iElevation;
+          pCar->iUnk35_3 = 0;
+          pCar->iPitchBackup = iElevationAdjusted;
+          pCar->iPitchCameraOffset = iElevation;
+          if (iBank > 0x2000)
+            iBank -= 0x4000;
+          dHeightDiff = fPrevZPosition - fLocalCoordZ;
+          fHeightDiffCalc = (float)dHeightDiff;
+          iBankValue = iBank;
+          pCar->iControlType = 3;
+          pCar->iUnk36_2 = iBankValue;
+          pCar->iRollCameraOffset = iBankValue;
+          iStunned = pCar->iStunned;
+          fVolumeCalc = (float)(dHeightDiff * 32768.0 * 0.025);
+          if (iStunned) {
+            dStunnedVolume = fVolumeCalc;
+            //_CHP();
+            //LODWORD(fTempCalc) = (int)dStunnedVolume;
+            sfxpend(SOUND_SAMPLE_ROOF, pCar->iDriverIdx, (int)dStunnedVolume);// SOUND_SAMPLE_ROOF
+          } else if (!pCar->bySfxCooldown) {
+            dImpactVolume = fVolumeCalc;
+            if (fHeightDiffCalc <= 40.0) {
+              //_CHP();
+              //LODWORD(fTempCalc) = (int)dImpactVolume;
+              iSfxType = SOUND_SAMPLE_LIGHTLAN;                    // SOUND_SAMPLE_LIGHTLAN
             } else {
-              _CHP(v75, v67);
-              v291 = (int)v80;
-              v81 = 9;
+              //_CHP();                           // Play appropriate landing sound effect based on impact severity
+              //LODWORD(fTempCalc) = (int)dImpactVolume;
+              iSfxType = SOUND_SAMPLE_LANDSKID;                     // SOUND_SAMPLE_LANDSKID
             }
-            sfxpend(v81, *(_DWORD *)(a1 + 32), v291);
-            *(_BYTE *)(a1 + 306) = 9;
+            sfxpend(iSfxType, pCar->iDriverIdx, (int)dImpactVolume);
+            pCar->bySfxCooldown = 9;
           }
-          v193 = fabs((v244 - v290) * tsin[v214 & 0x3FFF] * control_c_variable_185);
-          dodamage(v193);
-          v194 = sqrt(v281 * v281 + v288 * v288);
-          SetEngine(a1, v194);
+          fTempDamage3 = (float)fabs((fPrevZPosition - fLocalCoordZ) * tsin[iElevation & 0x3FFF] * 0.05);// Calculate landing damage based on impact angle and velocity
+          dodamage(pCar, fTempDamage3);
+          fThrottle = (float)sqrt(fDirectionXLocal * fDirectionXLocal + fDirectionYLocal * fDirectionYLocal);
+          SetEngine(pCar, fThrottle);
         }
       }
     }
   }
-  if (*(__int16 *)(a1 + 12) == -1) {
-    v83 = GroundColour_variable_4[5 * v286];
-    if (v83 != -1) {
-      if (v83 >= 0) {
-        v84 = v259 + v209;
-        v85 = v254 + v208;
-        v86 = v253 + v210;
-        v287 = v202 * v84 + v199 * v85 + v205 * v86;
-        v289 = v200 * v85 + v203 * v84 + v206 * v86;
-        v4 = &v199;
-        v290 = v84 * v204 + v85 * v201 + v86 * v207;
+  if (pCar->nCurrChunk == -1) {
+    iGroundColorType = GroundColour[iChunk][2]; // Handle underground section collision detection when car is below track level
+    if (iGroundColorType != -1) {
+      if (iGroundColorType >= 0) {
+        dSeparatedY = fCarPosY + data.pointAy[3].fY;
+        dSeparatedX = fCarPosX + data.pointAy[3].fX;
+        dSeparatedZ = fCarPosZ + data.pointAy[3].fZ;
+        fLocalCoordX = (float)(data.pointAy[1].fX * dSeparatedY + data.pointAy[0].fX * dSeparatedX + data.pointAy[2].fX * dSeparatedZ);
+        fLocalCoordY = (float)(data.pointAy[0].fY * dSeparatedX + data.pointAy[1].fY * dSeparatedY + data.pointAy[2].fY * dSeparatedZ);
+        pCurrentData = &data;
+        fLocalCoordZ = (float)(dSeparatedY * data.pointAy[1].fZ + dSeparatedX * data.pointAy[0].fZ + dSeparatedZ * data.pointAy[2].fZ);
       }
-      if ((GroundColour_variable_4[5 * v286] < 0 || v289 < 0.0)
-        && (GroundColour_variable_4[5 * v286] >= 0 || v4[13] + *v2 - *(float *)&CarBaseY > v289)) {
-        if (GroundColour_variable_4[5 * v286] >= 0) {
-          v138 = v259 + v209;
-          v139 = v254 + v208;
-          v140 = v253 + v210;
-          v287 = v202 * v138 + v199 * v139 + v205 * v140;
-          v289 = v200 * v139 + v203 * v138 + v206 * v140;
-          v4 = &v199;
-          v290 = v138 * v204 + v139 * v201 + v140 * v207;
+      if ((GroundColour[iChunk][2] < 0 || fLocalCoordY < 0.0)
+        && (GroundColour[iChunk][2] >= 0 || pCurrentData->fTrackHalfWidth + pTrackInfo->fLShoulderWidth - CarBaseY > fLocalCoordY)) {
+        if (GroundColour[iChunk][2] >= 0) {
+          dSeparatedY2 = fCarPosY + data.pointAy[3].fY;
+          dSeparatedX2 = fCarPosX + data.pointAy[3].fX;
+          dSeparatedZ2 = fCarPosZ + data.pointAy[3].fZ;
+          fLocalCoordX = (float)(data.pointAy[1].fX * dSeparatedY2 + data.pointAy[0].fX * dSeparatedX2 + data.pointAy[2].fX * dSeparatedZ2);
+          fLocalCoordY = (float)(data.pointAy[0].fY * dSeparatedX2 + data.pointAy[1].fY * dSeparatedY2 + data.pointAy[2].fY * dSeparatedZ2);
+          pCurrentData = &data;
+          fLocalCoordZ = (float)(dSeparatedY2 * data.pointAy[1].fZ + dSeparatedX2 * data.pointAy[0].fZ + dSeparatedZ2 * data.pointAy[2].fZ);
         }
-        if (GroundColour_variable_4[5 * v286] >= 0 && v289 < 0.0
-          || GroundColour_variable_4[5 * v286] < 0 && -v4[13] - v2[2] + *(float *)&CarBaseY >= v289) {
-          v141 = &GroundPt[18 * v286];
-          v142 = (int)(v141 + 12);
-          v143 = v141[13] + v4[10];
-          v144 = v141[12] + v4[9];
-          v145 = v141[14] + v4[11];
-          v256 = v4[4] * v143 + v4[1] * v144 + v4[7] * v145;
-          v279 = v143 * v4[5] + v144 * v4[2] + v145 * v4[8];
-          v245 = v290 - v279;
-          if (v290 <= (double)v279) {
-            v168 = (int)(v141 + 9);
-            v169 = v141[10] + v4[10];
-            v170 = v141[9] + v4[9];
-            v171 = v141[11] + v4[11];
-            v230 = v4[4] * v169 + v4[1] * v170 + v4[7] * v171;
-            v257 = v169 * v4[5] + v170 * v4[2] + v171 * v4[8];
-            v172 = v279 - v257;
-            v250 = v172;
-            if (fabs(v172) <= control_c_variable_186)
-              v263 = -1000000.0;
+        if (GroundColour[iChunk][2] >= 0 && fLocalCoordY < 0.0
+          || GroundColour[iChunk][2] < 0 && -pCurrentData->fTrackHalfWidth - pTrackInfo->fRShoulderWidth + CarBaseY >= fLocalCoordY) {
+          pGroundPts2 = &GroundPt[iChunk];
+          dGroundY4 = pGroundPts2->pointAy[4].fY + pCurrentData->pointAy[3].fY;
+          dGroundX4 = pGroundPts2->pointAy[4].fX + pCurrentData->pointAy[3].fX;
+          dGroundZ4 = pGroundPts2->pointAy[4].fZ + pCurrentData->pointAy[3].fZ;
+          fGroundYInterp1 = (float)(pCurrentData->pointAy[1].fY * dGroundY4 + pCurrentData->pointAy[0].fY * dGroundX4 + pCurrentData->pointAy[2].fY * dGroundZ4);
+          fGroundZInterp5 = (float)(dGroundY4 * pCurrentData->pointAy[1].fZ + dGroundX4 * pCurrentData->pointAy[0].fZ + dGroundZ4 * pCurrentData->pointAy[2].fZ);
+          fHeightDiffUnder = fLocalCoordZ - fGroundZInterp5;
+          if (fLocalCoordZ <= (double)fGroundZInterp5) {
+            dGroundY6 = pGroundPts2->pointAy[3].fY + pCurrentData->pointAy[3].fY;
+            dGroundX6 = pGroundPts2->pointAy[3].fX + pCurrentData->pointAy[3].fX;
+            dGroundZ6 = pGroundPts2->pointAy[3].fZ + pCurrentData->pointAy[3].fZ;
+            fGroundYCalc4 = (float)(pCurrentData->pointAy[1].fY * dGroundY6 + pCurrentData->pointAy[0].fY * dGroundX6 + pCurrentData->pointAy[2].fY * dGroundZ6);
+            fGroundZInterp1 = (float)(dGroundY6 * pCurrentData->pointAy[1].fZ + dGroundX6 * pCurrentData->pointAy[0].fZ + dGroundZ6 * pCurrentData->pointAy[2].fZ);
+            dSlopeDiff6 = fGroundZInterp5 - fGroundZInterp1;
+            fSlopeDiffCalc4 = (float)dSlopeDiff6;
+            if (fabs(dSlopeDiff6) <= 10.0)
+              fInterpolatedHeight1 = -1000000.0;
             else
-              v263 = v245 * v230 / (v257 - v279) + (v290 - v257) * v256 / v250;
-            if (v289 - *(float *)&CarBaseY < v263) {
-              v275 = v4[3] * *(float *)(a1 + 44) + *v4 * *(float *)(a1 + 40) + v4[6] * *(float *)(a1 + 48);
-              v285 = v4[1] * *(float *)(a1 + 40) + v4[4] * *(float *)(a1 + 44) + v4[7] * *(float *)(a1 + 48);
-              v260 = v4[2] * *(float *)(a1 + 40) + v4[5] * *(float *)(a1 + 44) + v4[8] * *(float *)(a1 + 48);
-              if (v285 < 0.0) {
-                HIBYTE(v285) ^= 0x80u;
+              fInterpolatedHeight1 = fHeightDiffUnder * fGroundYCalc4 / (fGroundZInterp1 - fGroundZInterp5)
+              + (fLocalCoordZ - fGroundZInterp1) * fGroundYInterp1 / fSlopeDiffCalc4;
+            if (fLocalCoordY - CarBaseY < fInterpolatedHeight1) {
+              fDirectionXTemp4 = pCurrentData->pointAy[1].fX * pCar->direction.fY
+                + pCurrentData->pointAy[0].fX * pCar->direction.fX
+                + pCurrentData->pointAy[2].fX * pCar->direction.fZ;
+              fDirectionYLocal4 = pCurrentData->pointAy[0].fY * pCar->direction.fX
+                + pCurrentData->pointAy[1].fY * pCar->direction.fY
+                + pCurrentData->pointAy[2].fY * pCar->direction.fZ;
+              fDirectionZTemp2 = pCurrentData->pointAy[0].fZ * pCar->direction.fX
+                + pCurrentData->pointAy[1].fZ * pCar->direction.fY
+                + pCurrentData->pointAy[2].fZ * pCar->direction.fZ;
+              if (fDirectionYLocal4 < 0.0) {
+                fDirectionYLocal4 = -fDirectionYLocal4;
+                //HIBYTE(fDirectionYLocal4) ^= 0x80u;
                 if (death_race)
-                  v173 = v285 * control_c_variable_182 * control_c_variable_175;
+                  dUndergroundDamage6 = fDirectionYLocal4 * 0.005 * 4.0;
                 else
-                  v173 = v285 * control_c_variable_182;
-                v198 = v173;
-                v168 = dodamage(v198);
-                *(_DWORD *)(a1 + 200) = -*(_DWORD *)(a1 + 200);
+                  dUndergroundDamage6 = fDirectionYLocal4 * 0.005;
+                fUndergroundDamage6 = (float)dUndergroundDamage6;
+                dodamage(pCar, fUndergroundDamage6);
+                pCar->iRollMomentum = -pCar->iRollMomentum;
               }
-              if (v285 < (double)control_c_variable_176)
-                v285 = 40.0;
-              v175 = v285 < (double)control_c_variable_176;
-              v176 = 0;
-              v177 = v285 == control_c_variable_176;
-              LOWORD(v168) = v174;
-              if (v285 > (double)control_c_variable_176 && !*(_BYTE *)(a1 + 306)) {
-                v178 = v285 * control_c_variable_177 * control_c_variable_178;
-                _CHP(v168, v141);
-                v291 = (int)v178;
-                sfxpend(11, *(_DWORD *)(a1 + 32), (int)v178);
-                *(_BYTE *)(a1 + 306) = 9;
+              if (fDirectionYLocal4 < 40.0)
+                fDirectionYLocal4 = 40.0;
+              if (fDirectionYLocal4 > 40.0 && !pCar->bySfxCooldown) {
+                dBankSoundVolume6 = fDirectionYLocal4 * 32768.0 * 0.025;
+                //_CHP();
+                //LODWORD(fTempCalc) = (int)dBankSoundVolume6;
+                sfxpend(SOUND_SAMPLE_BANK, pCar->iDriverIdx, (int)dBankSoundVolume6);// SOUND_SAMPLE_BANK
+                pCar->bySfxCooldown = 9;
               }
-              v179 = v263 + *(float *)&CarBaseY;
-              v180 = v287;
-              v181 = v290;
-              *(float *)a1 = v4[1] * v179 + *v4 * v287 + v4[2] * v290 - v4[9];
-              *(float *)(a1 + 4) = v4[3] * v180 + v4[4] * v179 + v4[5] * v181 - v4[10];
-              *(float *)(a1 + 8) = v179 * v4[7] + v180 * v4[6] + v181 * v4[8] - v4[11];
-              v182 = v285;
-              v183 = v275;
-              v184 = v260;
-              *(float *)(a1 + 40) = v4[1] * v285 + *v4 * v275 + v4[2] * v260;
-              *(float *)(a1 + 44) = v4[3] * v183 + v4[4] * v182 + v4[5] * v184;
-              v185 = v182 * v4[7] + v183 * v4[6] + v184 * v4[8];
-              v291 = *(int *)(a1 + 40);
-              v248 = *(_DWORD *)(a1 + 44);
-              v215 = *(float *)&v291;
-              v186 = v291;
-              v293 = v248;
-              *(float *)(a1 + 48) = v185;
-              if ((v186 & 0x7FFFFFFF) != 0 || (v248 & 0x7FFFFFFF) != 0) {
-                v187 = v215;
-                IF_DATAN2(v215);
-                v188 = v187 * control_c_variable_179 / control_c_variable_180;
-                _CHP(v189, v186);
-                v291 = (int)v188;
-                v111 = (int)v188 & 0x3FFF;
+              dInterpolatedY3 = fInterpolatedHeight1 + CarBaseY;
+              dInterpolatedX3 = fLocalCoordX;
+              dInterpolatedZ3 = fLocalCoordZ;
+              pCar->pos.fX = (float)(pCurrentData->pointAy[0].fY * dInterpolatedY3
+                + pCurrentData->pointAy[0].fX * fLocalCoordX
+                + pCurrentData->pointAy[0].fZ * fLocalCoordZ
+                - pCurrentData->pointAy[3].fX);
+              pCar->pos.fY = (float)(pCurrentData->pointAy[1].fX * dInterpolatedX3
+                + pCurrentData->pointAy[1].fY * dInterpolatedY3
+                + pCurrentData->pointAy[1].fZ * dInterpolatedZ3
+                - pCurrentData->pointAy[3].fY);
+              pCar->pos.fZ = (float)(dInterpolatedY3 * pCurrentData->pointAy[2].fY
+                + dInterpolatedX3 * pCurrentData->pointAy[2].fX
+                + dInterpolatedZ3 * pCurrentData->pointAy[2].fZ
+                - pCurrentData->pointAy[3].fZ);
+              dDirectionY5 = fDirectionYLocal4;
+              dDirectionX5 = fDirectionXTemp4;
+              dDirectionZ5 = fDirectionZTemp2;
+              pCar->direction.fX = pCurrentData->pointAy[0].fY * fDirectionYLocal4
+                + pCurrentData->pointAy[0].fX * fDirectionXTemp4
+                + pCurrentData->pointAy[0].fZ * fDirectionZTemp2;
+              pCar->direction.fY = (float)(pCurrentData->pointAy[1].fX * dDirectionX5 + pCurrentData->pointAy[1].fY * dDirectionY5 + pCurrentData->pointAy[1].fZ * dDirectionZ5);
+              dFinalDirectionZ5 = dDirectionY5 * pCurrentData->pointAy[2].fY + dDirectionX5 * pCurrentData->pointAy[2].fX + dDirectionZ5 * pCurrentData->pointAy[2].fZ;
+              fTempCalc = pCar->direction.fX;
+              fDirectionYTemp4 = pCar->direction.fY;
+              fAngleCalcTemp1 = fTempCalc;
+              fDirXFinal6 = fTempCalc;
+              fDirectionYFinal = fDirectionYTemp4;
+              pCar->direction.fZ = (float)dFinalDirectionZ5;
+              //if ((LODWORD(fDirXFinal6) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYTemp4) & 0x7FFFFFFF) != 0) {
+              if (fabs(fDirXFinal6) > FLT_EPSILON || fabs(fDirectionYTemp4) > FLT_EPSILON) {
+                dAngle7 = atan2(fDirectionYFinal, fAngleCalcTemp1) * 16384.0 / 6.28318530718;
+                //_CHP();
+                //LODWORD(fTempCalc) = (int)dAngle7;
+                dYawCalc = (int)dAngle7 & 0x3FFF;
               } else {
-                v111 = 0;
+                dYawCalc = 0;
               }
               goto LABEL_192;
             }
-          } else if (v289 < (double)v256) {
-            v146 = v141[16] + v4[10];
-            v147 = v141[15] + v4[9];
-            v148 = v141[17] + v4[11];
-            v223 = v4[4] * v146 + v4[1] * v147 + v4[7] * v148;
-            v262 = v146 * v4[5] + v147 * v4[2] + v148 * v4[8];
-            v149 = v279 - v262;
-            v239 = v149;
-            v150 = v141 + 15;
-            v264 = fabs(v149) <= control_c_variable_186
-              ? -1000000.0
-              : v245 * v223 / (v262 - v279) + (v290 - v262) * v256 / v239;
-            if (v289 - *(float *)&CarBaseY < v264) {
-              v274 = v4[3] * *(float *)(a1 + 44) + *v4 * *(float *)(a1 + 40) + v4[6] * *(float *)(a1 + 48);
-              v284 = v4[1] * *(float *)(a1 + 40) + v4[4] * *(float *)(a1 + 44) + v4[7] * *(float *)(a1 + 48);
-              v272 = v4[2] * *(float *)(a1 + 40) + v4[5] * *(float *)(a1 + 44) + v4[8] * *(float *)(a1 + 48);
-              if (v284 < 0.0) {
-                HIBYTE(v284) ^= 0x80u;
+          } else if (fLocalCoordY < (double)fGroundYInterp1) {
+            dGroundY5 = pGroundPts2->pointAy[5].fY + pCurrentData->pointAy[3].fY;
+            dGroundX5 = pGroundPts2->pointAy[5].fX + pCurrentData->pointAy[3].fX;
+            dGroundZ5 = pGroundPts2->pointAy[5].fZ + pCurrentData->pointAy[3].fZ;
+            fGroundYCalc1 = (float)(pCurrentData->pointAy[1].fY * dGroundY5 + pCurrentData->pointAy[0].fY * dGroundX5 + pCurrentData->pointAy[2].fY * dGroundZ5);
+            fGroundZInterp3 = (float)(dGroundY5 * pCurrentData->pointAy[1].fZ + dGroundX5 * pCurrentData->pointAy[0].fZ + dGroundZ5 * pCurrentData->pointAy[2].fZ);
+            dSlopeDiff5 = fGroundZInterp5 - fGroundZInterp3;
+            fSlopeDiffCalc3 = (float)dSlopeDiff5;
+            fInterpolatedHeight2 = fabs(dSlopeDiff5) <= 10.0
+              ? -1000000.0f
+              : fHeightDiffUnder * fGroundYCalc1 / (fGroundZInterp3 - fGroundZInterp5)
+              + (fLocalCoordZ - fGroundZInterp3) * fGroundYInterp1 / fSlopeDiffCalc3;
+            if (fLocalCoordY - CarBaseY < fInterpolatedHeight2) {
+              fDirectionXTemp3 = pCurrentData->pointAy[1].fX * pCar->direction.fY
+                + pCurrentData->pointAy[0].fX * pCar->direction.fX
+                + pCurrentData->pointAy[2].fX * pCar->direction.fZ;
+              fDirectionYLocal3 = pCurrentData->pointAy[0].fY * pCar->direction.fX
+                + pCurrentData->pointAy[1].fY * pCar->direction.fY
+                + pCurrentData->pointAy[2].fY * pCar->direction.fZ;
+              fDirectionZTemp4 = pCurrentData->pointAy[0].fZ * pCar->direction.fX
+                + pCurrentData->pointAy[1].fZ * pCar->direction.fY
+                + pCurrentData->pointAy[2].fZ * pCar->direction.fZ;
+              if (fDirectionYLocal3 < 0.0) {
+                fDirectionYLocal3 = -fDirectionYLocal3;
+                //HIBYTE(fDirectionYLocal3) ^= 0x80u;
                 if (death_race)
-                  v151 = v284 * control_c_variable_182 * control_c_variable_175;
+                  dUndergroundDamage5 = fDirectionYLocal3 * 0.005 * 4.0;
                 else
-                  v151 = v284 * control_c_variable_182;
-                v197 = v151;
-                v142 = dodamage(v197);
-                *(_DWORD *)(a1 + 200) = -*(_DWORD *)(a1 + 200);
+                  dUndergroundDamage5 = fDirectionYLocal3 * 0.005;
+                fUndergroundDamage5 = (float)dUndergroundDamage5;
+                dodamage(pCar, fUndergroundDamage5);
+                pCar->iRollMomentum = -pCar->iRollMomentum;
               }
-              if (v284 < (double)control_c_variable_176)
-                v284 = 40.0;
-              v153 = v284 < (double)control_c_variable_176;
-              v154 = 0;
-              v155 = v284 == control_c_variable_176;
-              LOWORD(v142) = v152;
-              if (v284 > (double)control_c_variable_176 && !*(_BYTE *)(a1 + 306)) {
-                v156 = v284 * control_c_variable_177 * control_c_variable_178;
-                _CHP(v142, v150);
-                v291 = (int)v156;
-                v150 = *(float **)(a1 + 32);
-                sfxpend(11, v150, (int)v156);
-                *(_BYTE *)(a1 + 306) = 9;
+              if (fDirectionYLocal3 < 40.0)
+                fDirectionYLocal3 = 40.0;
+              if (fDirectionYLocal3 > 40.0 && !pCar->bySfxCooldown) {
+                dBankSoundVolume5 = fDirectionYLocal3 * 32768.0 * 0.025;
+                //_CHP();
+                //LODWORD(fTempCalc) = (int)dBankSoundVolume5;
+                sfxpend(SOUND_SAMPLE_BANK, pCar->iDriverIdx, (int)dBankSoundVolume5);// SOUND_SAMPLE_BANK
+                pCar->bySfxCooldown = 9;
               }
-              v157 = v264 + *(float *)&CarBaseY;
-              v158 = v287;
-              v159 = v290;
-              *(float *)a1 = v4[1] * v157 + *v4 * v287 + v4[2] * v290 - v4[9];
-              *(float *)(a1 + 4) = v4[3] * v158 + v4[4] * v157 + v4[5] * v159 - v4[10];
-              *(float *)(a1 + 8) = v157 * v4[7] + v158 * v4[6] + v159 * v4[8] - v4[11];
-              v160 = v284;
-              v161 = v274;
-              v162 = v272;
-              *(float *)(a1 + 40) = v4[1] * v284 + *v4 * v274 + v4[2] * v272;
-              *(float *)(a1 + 44) = v4[3] * v161 + v4[4] * v160 + v4[5] * v162;
-              v163 = v160 * v4[7] + v161 * v4[6] + v162 * v4[8];
-              v291 = *(int *)(a1 + 40);
-              v252 = *(_DWORD *)(a1 + 44);
-              v221 = *(float *)&v291;
-              v164 = v291;
-              v218 = v252;
-              *(float *)(a1 + 48) = v163;
-              if ((v164 & 0x7FFFFFFF) != 0 || (v252 & 0x7FFFFFFF) != 0) {
-                v165 = v221;
-                IF_DATAN2(v221);
-                v166 = v165 * control_c_variable_179 / control_c_variable_180;
-                _CHP(v167, v150);
-                v291 = (int)v166;
-                v111 = (int)v166 & 0x3FFF;
+              dGroundY3 = fInterpolatedHeight2 + CarBaseY;
+              dGroundX3 = fLocalCoordX;
+              dGroundZ3 = fLocalCoordZ;
+              pCar->pos.fX = (float)(pCurrentData->pointAy[0].fY * dGroundY3
+                + pCurrentData->pointAy[0].fX * fLocalCoordX
+                + pCurrentData->pointAy[0].fZ * fLocalCoordZ
+                - pCurrentData->pointAy[3].fX);
+              pCar->pos.fY = (float)(pCurrentData->pointAy[1].fX * dGroundX3
+                + pCurrentData->pointAy[1].fY * dGroundY3
+                + pCurrentData->pointAy[1].fZ * dGroundZ3
+                - pCurrentData->pointAy[3].fY);
+              pCar->pos.fZ = (float)(dGroundY3 * pCurrentData->pointAy[2].fY
+                + dGroundX3 * pCurrentData->pointAy[2].fX
+                + dGroundZ3 * pCurrentData->pointAy[2].fZ
+                - pCurrentData->pointAy[3].fZ);
+              dDirectionY4 = fDirectionYLocal3;
+              dDirectionX4 = fDirectionXTemp3;
+              dDirectionZ4 = fDirectionZTemp4;
+              pCar->direction.fX = pCurrentData->pointAy[0].fY * fDirectionYLocal3
+                + pCurrentData->pointAy[0].fX * fDirectionXTemp3
+                + pCurrentData->pointAy[0].fZ * fDirectionZTemp4;
+              pCar->direction.fY = (float)(pCurrentData->pointAy[1].fX * dDirectionX4 + pCurrentData->pointAy[1].fY * dDirectionY4 + pCurrentData->pointAy[1].fZ * dDirectionZ4);
+              dFinalDirectionZ4 = dDirectionY4 * pCurrentData->pointAy[2].fY + dDirectionX4 * pCurrentData->pointAy[2].fX + dDirectionZ4 * pCurrentData->pointAy[2].fZ;
+              fTempCalc = pCar->direction.fX;
+              fDirectionYTemp6 = pCar->direction.fY;
+              fAngleCalcTemp3 = fTempCalc;
+              fDirXFinal5 = fTempCalc;
+              fDirectionTemp2 = fDirectionYTemp6;
+              pCar->direction.fZ = (float)dFinalDirectionZ4;
+              //if ((LODWORD(fDirXFinal5) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYTemp6) & 0x7FFFFFFF) != 0) {
+              if (fabs(fDirXFinal5) > FLT_EPSILON || fabs(fDirectionYTemp6) > FLT_EPSILON) {
+                dAngle6 = atan2(fDirectionTemp2, fAngleCalcTemp3) * 16384.0 / 6.28318530718;
+                //_CHP();
+                //LODWORD(fTempCalc) = (int)dAngle6;
+                dYawCalc = (int)dAngle6 & 0x3FFF;
               } else {
-                v111 = 0;
+                dYawCalc = 0;
               }
               goto LABEL_192;
             }
           }
         }
       } else {
-        v87 = (int)&GroundPt[18 * v286];
-        v88 = v87 + 12;
-        v89 = *(float *)(v87 + 16) + v4[10];
-        v90 = *(float *)(v87 + 12) + v4[9];
-        v91 = *(float *)(v87 + 20) + v4[11];
-        v270 = v4[4] * v89 + v4[1] * v90 + v4[7] * v91;
-        v278 = v89 * v4[5] + v90 * v4[2] + v91 * v4[8];
-        v243 = v290 - v278;
-        if (v290 <= (double)v278) {
-          v115 = *(float *)(v87 + 28) + v4[10];
-          v116 = *(float *)(v87 + 24) + v4[9];
-          v117 = *(float *)(v87 + 32) + v4[11];
-          v229 = v4[4] * v115 + v4[1] * v116 + v4[7] * v117;
-          v261 = v115 * v4[5] + v116 * v4[2] + v117 * v4[8];
-          v118 = v278 - v261;
-          v233 = v118;
-          v119 = (float *)(v87 + 24);
-          if (fabs(v118) <= control_c_variable_186)
-            v268 = 1000000.0;
+        pGroundPts = &GroundPt[iChunk];
+        dGroundY1 = pGroundPts->pointAy[1].fY + pCurrentData->pointAy[3].fY;
+        dGroundX1 = pGroundPts->pointAy[1].fX + pCurrentData->pointAy[3].fX;
+        dGroundZ1 = pGroundPts->pointAy[1].fZ + pCurrentData->pointAy[3].fZ;
+        fGroundYInterp2 = (float)(pCurrentData->pointAy[1].fY * dGroundY1 + pCurrentData->pointAy[0].fY * dGroundX1 + pCurrentData->pointAy[2].fY * dGroundZ1);
+        fGroundYInterp3 = (float)(dGroundY1 * pCurrentData->pointAy[1].fZ + dGroundX1 * pCurrentData->pointAy[0].fZ + dGroundZ1 * pCurrentData->pointAy[2].fZ);
+        fHeightDiffGround = fLocalCoordZ - fGroundYInterp3;
+        if (fLocalCoordZ <= (double)fGroundYInterp3) {
+          dGroundY2 = pGroundPts->pointAy[2].fY + pCurrentData->pointAy[3].fY;
+          dGroundX2 = pGroundPts->pointAy[2].fX + pCurrentData->pointAy[3].fX;
+          dGroundZ2 = pGroundPts->pointAy[2].fZ + pCurrentData->pointAy[3].fZ;
+          fGroundYCalc3 = (float)(pCurrentData->pointAy[1].fY * dGroundY2 + pCurrentData->pointAy[0].fY * dGroundX2 + pCurrentData->pointAy[2].fY * dGroundZ2);
+          fGroundZInterp2 = (float)(dGroundY2 * pCurrentData->pointAy[1].fZ + dGroundX2 * pCurrentData->pointAy[0].fZ + dGroundZ2 * pCurrentData->pointAy[2].fZ);
+          dSlopeDiff2 = fGroundYInterp3 - fGroundZInterp2;
+          fSlopeDiffCalc1 = (float)dSlopeDiff2;
+          if (fabs(dSlopeDiff2) <= 10.0)
+            fInterpolatedHeight4 = 1000000.0f;
           else
-            v268 = v243 * v229 / (v261 - v278) + (v290 - v261) * v270 / v233;
-          if (v289 + *(float *)&CarBaseY > v268) {
-            v266 = v4[3] * *(float *)(a1 + 44) + *v4 * *(float *)(a1 + 40) + v4[6] * *(float *)(a1 + 48);
-            v282 = v4[1] * *(float *)(a1 + 40) + v4[4] * *(float *)(a1 + 44) + v4[7] * *(float *)(a1 + 48);
-            v271 = v4[2] * *(float *)(a1 + 40) + v4[5] * *(float *)(a1 + 44) + v4[8] * *(float *)(a1 + 48);
-            if (v282 > 0.0) {
+            fInterpolatedHeight4 = fHeightDiffGround * fGroundYCalc3 / (fGroundZInterp2 - fGroundYInterp3)
+            + (fLocalCoordZ - fGroundZInterp2) * fGroundYInterp2 / fSlopeDiffCalc1;
+          if (fLocalCoordY + CarBaseY > fInterpolatedHeight4) {
+            fDirectionXTemp2 = pCurrentData->pointAy[1].fX * pCar->direction.fY
+              + pCurrentData->pointAy[0].fX * pCar->direction.fX
+              + pCurrentData->pointAy[2].fX * pCar->direction.fZ;
+            fDirectionYLocal1 = pCurrentData->pointAy[0].fY * pCar->direction.fX
+              + pCurrentData->pointAy[1].fY * pCar->direction.fY
+              + pCurrentData->pointAy[2].fY * pCar->direction.fZ;
+            fDirectionZTemp3 = pCurrentData->pointAy[0].fZ * pCar->direction.fX
+              + pCurrentData->pointAy[1].fZ * pCar->direction.fY
+              + pCurrentData->pointAy[2].fZ * pCar->direction.fZ;
+            if (fDirectionYLocal1 > 0.0) {
               if (death_race)
-                v120 = v282 * control_c_variable_182 * control_c_variable_175;
+                dUndergroundDamage2 = fDirectionYLocal1 * 0.005 * 4.0;
               else
-                v120 = v282 * control_c_variable_182;
-              v196 = v120;
-              v88 = dodamage(v196);
-              HIBYTE(v282) ^= 0x80u;
-              *(_DWORD *)(a1 + 200) = -*(_DWORD *)(a1 + 200);
+                dUndergroundDamage2 = fDirectionYLocal1 * 0.005;
+              fUndergroundDamage2 = (float)dUndergroundDamage2;
+              dodamage(pCar, fUndergroundDamage2);
+              fDirectionYLocal1 = -fDirectionYLocal1;
+              //HIBYTE(fDirectionYLocal1) ^= 0x80u;
+              pCar->iRollMomentum = -pCar->iRollMomentum;
             }
-            if (v282 > (double)control_c_variable_183)
-              v282 = -40.0;
-            v121 = -v282;
-            v240 = v121;
-            v123 = v121 < control_c_variable_176;
-            v124 = 0;
-            v125 = v121 == control_c_variable_176;
-            LOWORD(v88) = v122;
-            if (v121 > control_c_variable_176 && !*(_BYTE *)(a1 + 306)) {
-              v126 = v240 * control_c_variable_177 * control_c_variable_178;
-              _CHP(v88, v119);
-              v291 = (int)v126;
-              v119 = *(float **)(a1 + 32);
-              sfxpend(11, v119, (int)v126);
-              *(_BYTE *)(a1 + 306) = 9;
+            if (fDirectionYLocal1 > -40.0)
+              fDirectionYLocal1 = -40.0;
+            dNegSpeed2 = -fDirectionYLocal1;
+            fNegSpeedCalc1 = (float)dNegSpeed2;
+            if (dNegSpeed2 > 40.0 && !pCar->bySfxCooldown) {
+              dBankSoundVolume2 = fNegSpeedCalc1 * 32768.0 * 0.025;
+              //_CHP();
+              //LODWORD(fTempCalc) = (int)dBankSoundVolume2;
+              sfxpend(SOUND_SAMPLE_BANK, pCar->iDriverIdx, (int)dBankSoundVolume2);// SOUND_SAMPLE_BANK
+              pCar->bySfxCooldown = 9;
             }
-            v127 = v268 - *(float *)&CarBaseY;
-            v128 = v287;
-            v129 = v290;
-            *(float *)a1 = v4[1] * v127 + *v4 * v287 + v4[2] * v290 - v4[9];
-            *(float *)(a1 + 4) = v4[3] * v128 + v4[4] * v127 + v4[5] * v129 - v4[10];
-            *(float *)(a1 + 8) = v127 * v4[7] + v128 * v4[6] + v129 * v4[8] - v4[11];
-            v130 = v282;
-            v131 = v266;
-            v132 = v271;
-            *(float *)(a1 + 40) = v4[1] * v282 + *v4 * v266 + v4[2] * v271;
-            *(float *)(a1 + 44) = v4[3] * v131 + v4[4] * v130 + v4[5] * v132;
-            v133 = v130 * v4[7] + v131 * v4[6] + v132 * v4[8];
-            v291 = *(int *)(a1 + 40);
-            v249 = *(_DWORD *)(a1 + 44);
-            v220 = *(float *)&v291;
-            v134 = v291;
-            v227 = v249;
-            *(float *)(a1 + 48) = v133;
-            if ((v134 & 0x7FFFFFFF) != 0 || (v249 & 0x7FFFFFFF) != 0) {
-              v135 = v220;
-              IF_DATAN2(v220);
-              v136 = v135 * control_c_variable_179 / control_c_variable_180;
-              _CHP(v137, v119);
-              v291 = (int)v136;
-              v111 = (int)v136 & 0x3FFF;
+            dInterpolatedY2 = fInterpolatedHeight4 - CarBaseY;
+            dInterpolatedX2 = fLocalCoordX;
+            dInterpolatedZ2 = fLocalCoordZ;
+            pCar->pos.fX = (float)(pCurrentData->pointAy[0].fY * dInterpolatedY2
+              + pCurrentData->pointAy[0].fX * fLocalCoordX
+              + pCurrentData->pointAy[0].fZ * fLocalCoordZ
+              - pCurrentData->pointAy[3].fX);
+            pCar->pos.fY = (float)(pCurrentData->pointAy[1].fX * dInterpolatedX2
+              + pCurrentData->pointAy[1].fY * dInterpolatedY2
+              + pCurrentData->pointAy[1].fZ * dInterpolatedZ2
+              - pCurrentData->pointAy[3].fY);
+            pCar->pos.fZ = (float)(dInterpolatedY2 * pCurrentData->pointAy[2].fY
+              + dInterpolatedX2 * pCurrentData->pointAy[2].fX
+              + dInterpolatedZ2 * pCurrentData->pointAy[2].fZ
+              - pCurrentData->pointAy[3].fZ);
+            dDirectionY3 = fDirectionYLocal1;
+            dDirectionX3 = fDirectionXTemp2;
+            dDirectionZ3 = fDirectionZTemp3;
+            pCar->direction.fX = pCurrentData->pointAy[0].fY * fDirectionYLocal1
+              + pCurrentData->pointAy[0].fX * fDirectionXTemp2
+              + pCurrentData->pointAy[0].fZ * fDirectionZTemp3;
+            pCar->direction.fY = (float)(pCurrentData->pointAy[1].fX * dDirectionX3 + pCurrentData->pointAy[1].fY * dDirectionY3 + pCurrentData->pointAy[1].fZ * dDirectionZ3);
+            dFinalDirectionZ2 = dDirectionY3 * pCurrentData->pointAy[2].fY + dDirectionX3 * pCurrentData->pointAy[2].fX + dDirectionZ3 * pCurrentData->pointAy[2].fZ;
+            fTempCalc = pCar->direction.fX;
+            fDirectionYTemp5 = pCar->direction.fY;
+            fAngleCalcTemp2 = fTempCalc;
+            fDirXFinal2 = fTempCalc;
+            fAngleCalcTemp7 = fDirectionYTemp5;
+            pCar->direction.fZ = (float)dFinalDirectionZ2;
+            //if ((LODWORD(fDirXFinal2) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYTemp5) & 0x7FFFFFFF) != 0) {
+            if (fabs(fDirXFinal2) > FLT_EPSILON || fabs(fDirectionYTemp5) > FLT_EPSILON) {
+              dAngle5 = atan2(fAngleCalcTemp7, fAngleCalcTemp2) * 16384.0 / 6.28318530718;
+              //_CHP();
+              //LODWORD(fTempCalc) = (int)dAngle5;
+              dYawCalc = (int)dAngle5 & 0x3FFF;
             } else {
-              v111 = 0;
+              dYawCalc = 0;
             }
             goto LABEL_192;
           }
-        } else if (v289 > (double)v270) {
-          v92 = *(float *)(v87 + 4) + v4[10];
-          v93 = *(float *)v87 + v4[9];
-          v94 = *(float *)(v87 + 8) + v4[11];
-          v228 = v4[4] * v92 + v4[1] * v93 + v4[7] * v94;
-          v273 = v92 * v4[5] + v93 * v4[2] + v94 * v4[8];
-          v95 = v278 - v273;
-          v237 = v95;
-          v267 = fabs(v95) <= control_c_variable_186
-            ? 1000000.0
-            : v243 * v228 / (v273 - v278) + (v290 - v273) * v270 / v237;
-          if (v289 + *(float *)&CarBaseY > v267) {
-            v265 = v4[3] * *(float *)(a1 + 44) + *v4 * *(float *)(a1 + 40) + v4[6] * *(float *)(a1 + 48);
-            v283 = v4[1] * *(float *)(a1 + 40) + v4[4] * *(float *)(a1 + 44) + v4[7] * *(float *)(a1 + 48);
-            v258 = v4[2] * *(float *)(a1 + 40) + v4[5] * *(float *)(a1 + 44) + v4[8] * *(float *)(a1 + 48);
-            if (v283 > 0.0) {
+        } else if (fLocalCoordY > (double)fGroundYInterp2) {
+          dGroundY0 = pGroundPts->pointAy[0].fY + pCurrentData->pointAy[3].fY;
+          dGroundX0 = pGroundPts->pointAy[0].fX + pCurrentData->pointAy[3].fX;
+          dGroundZ0 = pGroundPts->pointAy[0].fZ + pCurrentData->pointAy[3].fZ;
+          fGroundYCalc2 = (float)(pCurrentData->pointAy[1].fY * dGroundY0 + pCurrentData->pointAy[0].fY * dGroundX0 + pCurrentData->pointAy[2].fY * dGroundZ0);
+          fGroundZInterp4 = (float)(dGroundY0 * pCurrentData->pointAy[1].fZ + dGroundX0 * pCurrentData->pointAy[0].fZ + dGroundZ0 * pCurrentData->pointAy[2].fZ);
+          dSlopeDiff = fGroundYInterp3 - fGroundZInterp4;
+          fSlopeDiffCalc2 = (float)dSlopeDiff;
+          fInterpolatedHeight3 = fabs(dSlopeDiff) <= 10.0
+            ? 1000000.0f
+            : fHeightDiffGround * fGroundYCalc2 / (fGroundZInterp4 - fGroundYInterp3) + (fLocalCoordZ - fGroundZInterp4) * fGroundYInterp2 / fSlopeDiffCalc2;
+          if (fLocalCoordY + CarBaseY > fInterpolatedHeight3) {
+            fDirectionXTemp1 = pCurrentData->pointAy[1].fX * pCar->direction.fY
+              + pCurrentData->pointAy[0].fX * pCar->direction.fX
+              + pCurrentData->pointAy[2].fX * pCar->direction.fZ;
+            fDirectionYLocal2 = pCurrentData->pointAy[0].fY * pCar->direction.fX
+              + pCurrentData->pointAy[1].fY * pCar->direction.fY
+              + pCurrentData->pointAy[2].fY * pCar->direction.fZ;
+            fDirectionZTemp1 = pCurrentData->pointAy[0].fZ * pCar->direction.fX
+              + pCurrentData->pointAy[1].fZ * pCar->direction.fY
+              + pCurrentData->pointAy[2].fZ * pCar->direction.fZ;
+            if (fDirectionYLocal2 > 0.0) {
               if (death_race)
-                v96 = v283 * control_c_variable_182 * control_c_variable_175;
+                dUndergroundDamage = fDirectionYLocal2 * 0.005 * 4.0;
               else
-                v96 = v283 * control_c_variable_182;
-              v195 = v96;
-              v88 = dodamage(v195);
-              v87 = -*(_DWORD *)(a1 + 200);
-              HIBYTE(v283) ^= 0x80u;
-              *(_DWORD *)(a1 + 200) = v87;
+                dUndergroundDamage = fDirectionYLocal2 * 0.005;
+              fUndergroundDamage = (float)dUndergroundDamage;
+              dodamage(pCar, fUndergroundDamage);
+              iRollBackup2 = -pCar->iRollMomentum;
+              //HIBYTE(fDirectionYLocal2) ^= 0x80u;
+              fDirectionYLocal2 = -fDirectionYLocal2;
+              pCar->iRollMomentum = iRollBackup2;
             }
-            if (v283 > (double)control_c_variable_183)
-              v283 = -40.0;
-            v97 = -v283;
-            v241 = v97;
-            v99 = v97 < control_c_variable_176;
-            v100 = 0;
-            v101 = v97 == control_c_variable_176;
-            LOWORD(v88) = v98;
-            if (v97 > control_c_variable_176 && !*(_BYTE *)(a1 + 306)) {
-              v102 = v241 * control_c_variable_177 * control_c_variable_178;
-              _CHP(v88, v87);
-              v291 = (int)v102;
-              v87 = *(_DWORD *)(a1 + 32);
-              sfxpend(11, v87, (int)v102);
-              *(_BYTE *)(a1 + 306) = 9;
+            if (fDirectionYLocal2 > -40.0)
+              fDirectionYLocal2 = -40.0;
+            dNegSpeed = -fDirectionYLocal2;
+            fNegSpeedCalc2 = (float)dNegSpeed;
+            if (dNegSpeed > 40.0 && !pCar->bySfxCooldown) {
+              dBankSoundVolume = fNegSpeedCalc2 * 32768.0 * 0.025;
+              //_CHP();
+              //LODWORD(fTempCalc) = (int)dBankSoundVolume;
+              sfxpend(SOUND_SAMPLE_BANK, pCar->iDriverIdx, (int)dBankSoundVolume);// SOUND_SAMPLE_BANK
+              pCar->bySfxCooldown = 9;
             }
-            v103 = v267 - *(float *)&CarBaseY;
-            v104 = v287;
-            v105 = v290;
-            *(float *)a1 = v4[1] * v103 + *v4 * v287 + v4[2] * v290 - v4[9];
-            *(float *)(a1 + 4) = v4[3] * v104 + v4[4] * v103 + v4[5] * v105 - v4[10];
-            *(float *)(a1 + 8) = v103 * v4[7] + v104 * v4[6] + v105 * v4[8] - v4[11];
-            v106 = v283;
-            v107 = v265;
-            v108 = v258;
-            *(float *)(a1 + 40) = v4[1] * v283 + *v4 * v265 + v4[2] * v258;
-            *(float *)(a1 + 44) = v4[3] * v107 + v4[4] * v106 + v4[5] * v108;
-            v109 = v106 * v4[7] + v107 * v4[6] + v108 * v4[8];
-            v291 = *(int *)(a1 + 40);
-            v246 = *(_DWORD *)(a1 + 44);
-            v222 = *(float *)&v291;
-            v110 = v291;
-            v294 = v246;
-            *(float *)(a1 + 48) = v109;
-            if ((v110 & 0x7FFFFFFF) != 0 || (v246 & 0x7FFFFFFF) != 0) {
-              v112 = v222;
-              IF_DATAN2(v222);
-              v113 = v112 * control_c_variable_179 / control_c_variable_180;
-              _CHP(v114, v87);
-              v291 = (int)v113;
-              v111 = (int)v113 & 0x3FFF;
+            dInterpolatedY = fInterpolatedHeight3 - CarBaseY;
+            dInterpolatedX = fLocalCoordX;
+            dInterpolatedZ = fLocalCoordZ;
+            pCar->pos.fX = (float)(pCurrentData->pointAy[0].fY * dInterpolatedY
+              + pCurrentData->pointAy[0].fX * fLocalCoordX
+              + pCurrentData->pointAy[0].fZ * fLocalCoordZ
+              - pCurrentData->pointAy[3].fX);
+            pCar->pos.fY = (float)(pCurrentData->pointAy[1].fX * dInterpolatedX
+              + pCurrentData->pointAy[1].fY * dInterpolatedY
+              + pCurrentData->pointAy[1].fZ * dInterpolatedZ
+              - pCurrentData->pointAy[3].fY);
+            pCar->pos.fZ = (float)(dInterpolatedY * pCurrentData->pointAy[2].fY
+              + dInterpolatedX * pCurrentData->pointAy[2].fX
+              + dInterpolatedZ * pCurrentData->pointAy[2].fZ
+              - pCurrentData->pointAy[3].fZ);
+            dDirectionY2 = fDirectionYLocal2;
+            dDirectionX2 = fDirectionXTemp1;
+            dDirectionZ2 = fDirectionZTemp1;
+            pCar->direction.fX = pCurrentData->pointAy[0].fY * fDirectionYLocal2
+              + pCurrentData->pointAy[0].fX * fDirectionXTemp1
+              + pCurrentData->pointAy[0].fZ * fDirectionZTemp1;
+            pCar->direction.fY = (float)(pCurrentData->pointAy[1].fX * dDirectionX2 + pCurrentData->pointAy[1].fY * dDirectionY2 + pCurrentData->pointAy[1].fZ * dDirectionZ2);
+            dFinalDirectionZ = dDirectionY2 * pCurrentData->pointAy[2].fY + dDirectionX2 * pCurrentData->pointAy[2].fX + dDirectionZ2 * pCurrentData->pointAy[2].fZ;
+            fTempCalc = pCar->direction.fX;
+            fDirectionYTemp3 = pCar->direction.fY;
+            fAngleCalcTemp4 = fTempCalc;
+            fDirXFinal = fTempCalc;
+            fDirectionYFinal2 = fDirectionYTemp3;
+            pCar->direction.fZ = (float)dFinalDirectionZ;
+            //if ((LODWORD(fDirXFinal) & 0x7FFFFFFF) != 0 || (LODWORD(fDirectionYTemp3) & 0x7FFFFFFF) != 0) {
+            if (fabs(fDirXFinal) > FLT_EPSILON || fabs(fDirectionYTemp3) > FLT_EPSILON) {
+              dAngle4 = atan2(fDirectionYFinal2, fAngleCalcTemp4) * 16384.0 / 6.28318530718;
+              //_CHP();
+              //LODWORD(fTempCalc) = (int)dAngle4;
+              dYawCalc = (int)dAngle4 & 0x3FFF;
             } else {
-              v111 = 0;
+              dYawCalc = 0;
             }
           LABEL_192:
-            v190 = *(float *)(a1 + 40) * *(float *)(a1 + 40) + *(float *)(a1 + 44) * *(float *)(a1 + 44);
-            *(_DWORD *)(a1 + 64) = v111;
-            *(float *)(a1 + 36) = sqrt(v190);
+            dFinalHorizSpeed = pCar->direction.fX * pCar->direction.fX + pCar->direction.fY * pCar->direction.fY;
+            pCar->nYaw3 = dYawCalc;
+            pCar->fHorizontalSpeed = (float)sqrt(dFinalHorizSpeed);
           }
         }
       }
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

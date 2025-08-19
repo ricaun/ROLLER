@@ -424,7 +424,7 @@ void placecars()
       Car[iDriverIdx].byUnk61 = 0;
       Car[iDriverIdx].byUnk60 = 0;
       Car[iDriverIdx].iUnk62_1 = 0;
-      Car[iDriverIdx].byUnk77 = 0;
+      Car[iDriverIdx].bySfxCooldown = 0;
       Car[iDriverIdx].byCollisionTimer = 0;
       Car[iDriverIdx].byUnk64 = 0;
       Car[iDriverIdx].byUnk65 = 0;

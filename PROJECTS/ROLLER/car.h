@@ -117,7 +117,7 @@ typedef struct
   int iUnk74;
   uint8 byUnk75;
   uint8 byUnk76;
-  uint8 byUnk77;
+  uint8 bySfxCooldown;
   uint8 byPadding17;
 } tCar;
 

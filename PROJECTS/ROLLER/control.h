@@ -81,7 +81,7 @@ double block(int iCarIdx, float fSteeringInput, float fMaxOutput, float fSaturat
 void autocar2(tCar *pCar);
 void changestrategy(tCar *pCar);
 int getangle(float fX, float fY);
-void landontrack(int a1);
+void landontrack(tCar *pCar);
 void converttoair(tCar *pCar);
 void ordercars();
 void changeline(tCar *pCar);
