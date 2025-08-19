@@ -3173,357 +3173,352 @@ LABEL_502:
 
 //-------------------------------------------------------------------------------------------------
 //0002F040
-int16 check_crossed_line(tCar *a1)
+void check_crossed_line(tCar *pCar)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int v1; // ebp
-  __int16 v2; // dx
-  int v3; // edx
-  int v4; // edx
-  int v5; // edx
-  int v6; // esi
-  int v7; // eax
-  int v8; // edx
-  int v9; // eax
-  int v10; // ebx
-  int *v11; // eax
-  char v12; // dl
-  double v13; // st7
-  int v14; // ecx
-  int v15; // edx
-  int v16; // esi
-  int v17; // ebx
-  int v18; // edx
-  char *v19; // esi
-  char *v20; // edi
-  char v21; // al
-  char v22; // al
-  int v23; // esi
-  int v24; // edx
-  int v25; // eax
-  int v26; // edx
-  int v27; // ebx
-  unsigned __int8 v28; // bl
-  int v29; // eax
-  int v30; // ecx
-  double v31; // st7
-  int v32; // eax
-  int v33; // eax
-  int v34; // ebx
-  int v35; // esi
-  unsigned __int8 v36; // al
-  int v37; // eax
-  int v38; // eax
-  int v39; // edx
-  int v40; // ecx
-  unsigned __int8 v41; // bh
-  int v42; // eax
-  int v44; // [esp+0h] [ebp-20h]
-  int v45; // [esp+4h] [ebp-1Ch]
+  int iDriverIdx; // eax
+  int16 nCurrChunk; // dx
+  int iRacers; // edx
+  int iRacePosition; // eax
+  int iCurrentChunk; // edx
+  int iChunk2; // eax
+  int byLap; // edx
+  int iChampMode; // esi
+  int iDriverIdx2; // eax
+  int iTargetDriverIdx; // edx
+  int iRacePos; // eax
+  int iTargetCar; // ebx
+  tCarEngine *pEngine; // eax
+  signed __int8 byMaxGear; // dl
+  double dPowerCalc; // st7
+  int iSoundSample1; // ecx
+  int iHumanControl1; // edx
+  int iDriverIdx3; // esi
+  uint8 byRacePosition; // dl
+  int iDriverIdx4; // ebx
+  int iCarDesignIdx; // edx
+  char *szDriverName; // esi
+  char *szRecordName; // edi
+  char cChar1; // al
+  char cChar2; // al
+  int iFastestLapFlag; // esi
+  int iCarCounter; // edx
+  int iCarOrderIdx; // eax
+  int iDriverIdx5; // edx
+  int iDriverIdx6; // ebx
+  uint8 byRacePos2; // bl
+  int iSoundSample2; // eax
+  int iDriverIdx7; // ecx
+  double dRunningLapTime; // st7
+  int iFinishersCount1; // eax
+  int iDriverIdx8; // eax
+  int iHumanControl2; // ebx
+  int iDriverIdx9; // esi
+  uint8 byRacePos3; // al
+  int iSoundSample3; // eax
+  int iFinishersCount2; // eax
+  int iDriverIdx10; // eax
+  int v44; // edx
+  int iDriverIdx11; // ecx
+  uint8 byRacePos4; // bh
+  int iSoundSample4; // eax
+  int iSoundSample5; // [esp+0h] [ebp-20h]
+  int iSoundSample6; // [esp+4h] [ebp-1Ch]
 
-  v1 = a1;
   if (champ_mode) {
-    a1 = 4 * *(_DWORD *)(a1 + 32);
-    if (*(int *)((char *)champ_go + a1)) {
-      v2 = *(_WORD *)(v1 + 12);
-      if (v2 > 16 && v2 < 64) {
-        v3 = racers;
-        *(int *)((char *)champ_go + a1) = 0;
-        a1 = *(unsigned __int8 *)(v1 + 130);
-        if (a1 < v3 - 1) {
+    iDriverIdx = pCar->iDriverIdx;
+    if (champ_go[iDriverIdx])                 // Check if this driver has championship go flag set
+    {
+      nCurrChunk = pCar->nCurrChunk;
+      if (nCurrChunk > 16 && nCurrChunk < 64) // Check if car is in early race chunk range (after start line)
+      {
+        iRacers = racers;
+        champ_go[iDriverIdx] = 0;               // Clear championship go flag for this driver
+        iRacePosition = pCar->byRacePosition;
+        if (iRacePosition < iRacers - 1) {
           champ_zoom = 0;
-          LOWORD(a1) = carorder_variable_1[a1];
-          ViewType[0] = a1;
+          ViewType[0] = carorder[iRacePosition + 1];
           --champ_car;
         }
       }
     }
   }
-  v4 = *(__int16 *)(v1 + 12);
-  if (v4 != -1) {
-    a1 = *(__int16 *)(v1 + 14);
-    if (a1 != -1) {
-      if (a1 - v4 > TRAK_LEN / 2 && !finished_car[*(_DWORD *)(v1 + 32)]) {
-        if (*(_BYTE *)(v1 + 129) == *(_BYTE *)(v1 + 104)) {
-          v5 = *(char *)(v1 + 129);
-          if (v5 <= NoOfLaps) {
+  iCurrentChunk = pCar->nCurrChunk;             // Check if car has valid current chunk position
+  if (iCurrentChunk != -1) {
+    iChunk2 = pCar->nChunk2;
+    if (iChunk2 != -1) {                                           // Detect forward lap line crossing (crossed finish line going forward)
+      if (iChunk2 - iCurrentChunk > TRAK_LEN / 2 && !finished_car[pCar->iDriverIdx]) {                                         // Check if lap count matches expected lap number
+        if (pCar->byLap == pCar->byLapNumber) {
+          byLap = pCar->byLap;
+          if (byLap <= NoOfLaps) {                                     // Record lap time for trial mode (game_type == 2)
             if (game_type == 2)
-              trial_times[6 * *(_DWORD *)(v1 + 32) + v5] = *(float *)(v1 + 220);
-            v6 = champ_mode;
-            ++*(_BYTE *)(v1 + 129);
-            if (v6) {
+              trial_times[6 * pCar->iDriverIdx + byLap] = pCar->fRunningLapTime;
+            iChampMode = champ_mode;
+            ++pCar->byLap;                      // Increment lap counter
+            if (iChampMode) {                                   // Handle championship mode camera switching
               if (champ_car) {
-                v8 = *(_DWORD *)(v1 + 32);
-                if (ViewType[0] == v8) {
-                  v9 = v8 ^ ViewType[0];
-                  LOBYTE(v9) = *(_BYTE *)(v1 + 130);
-                  if (v9 < racers - 1) {
-                    v10 = carorder_variable_1[v9];
-                    champ_go[v10] = -1;
-                    v10 *= 308;
-                    v11 = &CarEngines[28 * (unsigned __int8)Car_variable_22[v10]];
-                    *(float *)((char *)Car_variable_28 + v10) = 1.0;
-                    v12 = *(_BYTE *)v11 - 1;
-                    Car_variable_30[v10] = v12;
-                    *(float *)((char *)Car_variable_8 + v10) = *(float *)(v11[2] + 4 * v12);
-                    *(int *)((char *)Car_variable_26 + v10) = *(_DWORD *)((char *)Car_variable_8 + v10);
-                    v13 = calc_pow(
-                            (unsigned __int8)Car_variable_22[v10],
-                            Car_variable_30[v10],
-                            *(float *)((char *)Car_variable_28 + v10));
-                    *(int *)((char *)Car_variable_27 + v10) = 0;
-                    Car_variable_61[v10] = 36;
-                    Car_variable_58[v10] = -1;
-                    *(float *)((char *)Car_variable_29 + v10) = v13;
+                iTargetDriverIdx = pCar->iDriverIdx;
+                if (ViewType[0] == iTargetDriverIdx) {
+                  iRacePos = 0;// iTargetDriverIdx ^ViewType[0];
+                  iRacePos = pCar->byRacePosition;
+                  //LOBYTE(iRacePos) = pCar->byRacePosition;
+                  if (iRacePos < racers - 1) {
+                    iTargetCar = carorder[iRacePos + 1];
+                    champ_go[iTargetCar] = -1;
+                    //iTargetCar *= sizeof(tCar);
+                    pEngine = &CarEngines.engines[Car[iTargetCar].byCarDesignIdx];
+                    Car[iTargetCar].fRPMRatio = 1.0;
+                    byMaxGear = LOBYTE(pEngine->iNumGears) - 1;
+                    Car[iTargetCar].byGearAyMax = byMaxGear;
+                    Car[iTargetCar].fFinalSpeed = pEngine->pSpds[byMaxGear];
+                    Car[iTargetCar].fBaseSpeed = Car[iTargetCar].fFinalSpeed;
+                    dPowerCalc = calc_pow(
+                                   Car[iTargetCar].byCarDesignIdx,
+                                   Car[iTargetCar].byGearAyMax,
+                                   Car[iTargetCar].fRPMRatio);
+                    Car[iTargetCar].fSpeedOverflow = 0.0;
+                    Car[iTargetCar].byUnk61 = 36;
+                    Car[iTargetCar].byThrottlePressed = -1;
+                    Car[iTargetCar].fPower = (float)dPowerCalc;
                   }
                 }
               } else {
-                v7 = *(_DWORD *)(v1 + 32);
+                iDriverIdx2 = pCar->iDriverIdx;
                 champ_mode = 2;
-                champ_go[v7] = 0;
+                champ_go[iDriverIdx2] = 0;
               }
             }
-            v14 = -1;
-            v15 = NoOfLaps;
-            v44 = -1;
-            v45 = -1;
-            if (*(char *)(v1 + 129) > NoOfLaps && NoOfLaps) {
-              finished_car[*(_DWORD *)(v1 + 32)] = -1;
-              v15 = human_control[*(_DWORD *)(v1 + 32)];
+            iSoundSample1 = -1;
+            iSoundSample5 = -1;
+            iSoundSample6 = -1;
+            if (pCar->byLap > NoOfLaps && NoOfLaps)// Check if race is finished (exceeded total lap count)
+            {
+              finished_car[pCar->iDriverIdx] = -1;// Mark car as finished and increment finisher count
+              iHumanControl1 = human_control[pCar->iDriverIdx];
               ++finishers;
-              if (v15)
+              if (iHumanControl1)
                 ++human_finishers;
-              v16 = *(_DWORD *)(v1 + 32);
-              if ((__int16)player1_car == v16 || player2_car == v16) {
-                if (*(char *)(v1 + 103) > 0) {
-                  LOBYTE(v15) = *(_BYTE *)(v1 + 130);
-                  if ((_BYTE)v15) {
-                    if ((unsigned __int8)v15 >= 3u) {
-                      if ((unsigned __int8)v15 >= 0xDu)
-                        v45 = 24;
+              iDriverIdx3 = pCar->iDriverIdx;
+              if (player1_car == iDriverIdx3 || player2_car == iDriverIdx3)// Handle finish sounds for player cars based on position
+              {
+                if ((char)pCar->byLives > 0) {
+                  byRacePosition = pCar->byRacePosition;
+                  if (byRacePosition) {
+                    if (byRacePosition >= 3u) {
+                      if (byRacePosition >= 0xDu)
+                        iSoundSample6 = SOUND_SAMPLE_RUBBISH;     // SOUND_SAMPLE_RUBBISH
                       else
-                        v45 = 25;
+                        iSoundSample6 = SOUND_SAMPLE_POOR;     // SOUND_SAMPLE_POOR
                     } else {
-                      v45 = 23;
+                      iSoundSample6 = SOUND_SAMPLE_HARDER;       // SOUND_SAMPLE_HARDER
                     }
                   } else {
-                    v45 = 22;
+                    iSoundSample6 = SOUND_SAMPLE_WINNER;         // SOUND_SAMPLE_WINNER
                   }
-                  v44 = 30;
+                  iSoundSample5 = SOUND_SAMPLE_RACEOVER;           // SOUND_SAMPLE_RACEOVER
                 }
               } else if (player_type != 2) {
-                if (*(_BYTE *)(v1 + 130))
-                  small_zoom((_BYTE *)&language_buffer + 64 * *(unsigned __int8 *)(v1 + 130) + 384);
+                if (pCar->byRacePosition)
+                  small_zoom(&language_buffer[64 * pCar->byRacePosition + 384]);
                 else
-                  start_zoom(language_buffer_variable_40, 0);
-                v15 = *(_DWORD *)(v1 + 32);
-                subzoom(&driver_names[9 * v15]);
+                  start_zoom(&language_buffer[2560], 0);
+                subzoom(driver_names[pCar->iDriverIdx]);
               }
             }
-            if (*(float *)(v1 + 220) < (double)*(float *)(v1 + 224) && *(char *)(v1 + 129) > 1) {
-              *(_DWORD *)(v1 + 224) = *(_DWORD *)(v1 + 220);
-              if (*(float *)(v1 + 224) >= (double)RecordLaps[game_track]) {
-                v23 = -1;
-                if (racers > 0) {
-                  v24 = 0;
+            if (pCar->fRunningLapTime < (double)pCar->fBestLapTime && pCar->byLap > 1)// Check if this lap is a new personal best
+            {
+              pCar->fBestLapTime = pCar->fRunningLapTime;
+              if (pCar->fBestLapTime >= (double)RecordLaps[game_track])// Check if lap time beats track record
+              {
+                iFastestLapFlag = -1;
+                if (racers > 0)               // Check if this is fastest lap among all drivers
+                {
+                  iCarCounter = 0;
                   do {
-                    v25 = carorder[v24];
-                    if (v25 != *(_DWORD *)(v1 + 32)
-                      && *(float *)&Car_variable_53[77 * v25] <= (double)*(float *)(v1 + 224)) {
-                      v23 = 0;
-                    }
-                    ++v24;
-                  } while (v24 < racers);
+                    iCarOrderIdx = carorder[iCarCounter];
+                    if (iCarOrderIdx != pCar->iDriverIdx && Car[iCarOrderIdx].fBestLapTime <= (double)pCar->fBestLapTime)
+                      iFastestLapFlag = 0;
+                    ++iCarCounter;
+                  } while (iCarCounter < racers);
                 }
-                v26 = *(_DWORD *)(v1 + 32);
-                if ((__int16)player1_car == v26 || player2_car == v26) {
-                  if (*(char *)(v1 + 129) > 2) {
-                    if (v23)
-                      v14 = 40;
+                iDriverIdx5 = pCar->iDriverIdx;
+                if (player1_car == iDriverIdx5 || player2_car == iDriverIdx5) {
+                  if (pCar->byLap > 2) {
+                    if (iFastestLapFlag)
+                      iSoundSample1 = 40;
                     else
-                      v14 = 39;
+                      iSoundSample1 = 39;
                   }
-                } else if (v23 && *(char *)(v1 + 129) > 2) {
-                  sprintf(&buffer, "%s %s", language_buffer_variable_45, &driver_names[9 * v26]);
-                  small_zoom(&buffer);
-                  make_time(&buffer, v26, *(float *)(v1 + 224));
-                  subzoom(&buffer);
+                } else if (iFastestLapFlag && pCar->byLap > 2) {
+                  sprintf(buffer, "%s %s", &language_buffer[2880], driver_names[iDriverIdx5]);
+                  small_zoom(buffer);
+                  make_time(buffer, pCar->fBestLapTime);
+                  subzoom(buffer);
                 }
               } else {
-                v17 = *(_DWORD *)(v1 + 32);
-                if ((__int16)player1_car == v17 || player2_car == v17) {
-                  if (*(float *)(v1 + 224) >= RecordLaps[game_track] + control_c_variable_101)
-                    v14 = 37;
+                iDriverIdx4 = pCar->iDriverIdx;
+                if (player1_car == iDriverIdx4 || player2_car == iDriverIdx4) {
+                  if (pCar->fBestLapTime >= RecordLaps[game_track] + -0.5)
+                    iSoundSample1 = 37;
                   else
-                    v14 = 38;
-                } else if (*(char *)(v1 + 129) > 2) {
-                  sprintf(&buffer, "%s %s", language_buffer_variable_43, &driver_names[9 * v17]);
-                  small_zoom(&buffer);
-                  make_time(&buffer, v15, *(float *)(v1 + 224));
-                  subzoom(&buffer);
+                    iSoundSample1 = 38;
+                } else if (pCar->byLap > 2) {
+                  sprintf(buffer, "%s %s", &language_buffer[2752], driver_names[iDriverIdx4]);
+                  small_zoom(buffer);
+                  make_time(buffer, pCar->fBestLapTime);
+                  subzoom(buffer);
                 }
-                if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-                  v18 = *(unsigned __int8 *)(v1 + 102) + 16;
+                if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0)
+                  iCarDesignIdx = pCar->byCarDesignIdx + 16;
                 else
-                  v18 = *(unsigned __int8 *)(v1 + 102);
-                RecordCars[game_track] = v18;
-                RecordLaps[game_track] = *(float *)(v1 + 224);
-                v19 = &driver_names[9 * *(_DWORD *)(v1 + 32)];
-                v20 = &RecordNames[9 * game_track];
+                  iCarDesignIdx = pCar->byCarDesignIdx;
+                RecordCars[game_track] = iCarDesignIdx;
+                RecordLaps[game_track] = pCar->fBestLapTime;
+                szDriverName = driver_names[pCar->iDriverIdx];
+                szRecordName = RecordNames[game_track];
                 do {
-                  v21 = *v19;
-                  *v20 = *v19;
-                  if (!v21)
+                  cChar1 = *szDriverName;
+                  *szRecordName = *szDriverName;
+                  if (!cChar1)
                     break;
-                  v22 = v19[1];
-                  v19 += 2;
-                  v20[1] = v22;
-                  v20 += 2;
-                } while (v22);
+                  cChar2 = szDriverName[1];
+                  szDriverName += 2;
+                  szRecordName[1] = cChar2;
+                  szRecordName += 2;
+                } while (cChar2);
               }
             }
-            if (v14 != -1)
-              speechsample(v14, 0x8000, 18, *(_DWORD *)(v1 + 32));
-            if (v45 != -1)
-              speechsample(v45, 0x8000, 18, *(_DWORD *)(v1 + 32));
-            if (v44 != -1)
-              speechsample(v44, 0x8000, 18, *(_DWORD *)(v1 + 32));
-            if (*(_BYTE *)(v1 + 129) != 1) {
-              v27 = *(_DWORD *)(v1 + 32);
-              if (((__int16)player1_car == v27 || player2_car == v27)
-                && finishers - Destroyed <= 0
-                && !finished_car[*(_DWORD *)(v1 + 32)]
-                && competitors > 1) {
-                switch (NoOfLaps - *(char *)(v1 + 129)) {
+            if (iSoundSample1 != -1)
+              speechsample(iSoundSample1, 0x8000, 18, pCar->iDriverIdx);
+            if (iSoundSample6 != -1)
+              speechsample(iSoundSample6, 0x8000, 18, pCar->iDriverIdx);
+            if (iSoundSample5 != -1)
+              speechsample(iSoundSample5, 0x8000, 18, pCar->iDriverIdx);
+            if (pCar->byLap != 1) {
+              iDriverIdx6 = pCar->iDriverIdx;
+              if ((player1_car == iDriverIdx6 || player2_car == iDriverIdx6) && finishers - Destroyed <= 0 && !finished_car[pCar->iDriverIdx] && competitors > 1) {                                 // Announce remaining laps to player cars
+                switch (NoOfLaps - pCar->byLap) {
                   case 0:
-                    v28 = *(_BYTE *)(v1 + 130);
-                    if (v28) {
-                      if (v28 >= 5u) {
-                        if (!SamplePtr_variable_1)
+                    byRacePos2 = pCar->byRacePosition;
+                    if (byRacePos2) {
+                      if (byRacePos2 >= 5u) {
+                        if (!SamplePtr[16])
                           goto LABEL_102;
-                        v29 = 16;
+                        iSoundSample2 = SOUND_SAMPLE_FINAL1;     // SOUND_SAMPLE_FINAL1
                       } else {
-                        if (!SamplePtr_variable_2)
+                        if (!SamplePtr[17])
                           goto LABEL_102;
-                        v29 = 17;
+                        iSoundSample2 = SOUND_SAMPLE_FINAL2;     // SOUND_SAMPLE_FINAL2
                       }
                       break;
                     }
-                    if (!SamplePtr_variable_3)
+                    if (!SamplePtr[18])
                       goto LABEL_102;
-                    v29 = 18;
-                    v30 = *(_DWORD *)(v1 + 32);
+                    iSoundSample2 = SOUND_SAMPLE_FINAL3;         // SOUND_SAMPLE_FINAL3
+                    iDriverIdx7 = pCar->iDriverIdx;
                     goto LABEL_104;
                   case 1:
-                    if (!SamplePtr_variable_4)
+                    if (!SamplePtr[53])
                       goto LABEL_102;
-                    v29 = 53;
+                    iSoundSample2 = SOUND_SAMPLE_2LAPS;         // SOUND_SAMPLE_2LAPS
                     break;
                   case 2:
-                    if (!SamplePtr_variable_5)
+                    if (!SamplePtr[54])
                       goto LABEL_102;
-                    v29 = 54;
+                    iSoundSample2 = SOUND_SAMPLE_3LAPS;         // SOUND_SAMPLE_3LAPS
                     break;
                   case 3:
-                    if (!SamplePtr_variable_6)
+                    if (!SamplePtr[55])
                       goto LABEL_102;
-                    v29 = 55;
+                    iSoundSample2 = SOUND_SAMPLE_4LAPS;         // SOUND_SAMPLE_4LAPS
                     break;
                   case 4:
-                    if (!SamplePtr_variable_7)
+                    if (!SamplePtr[56])
                       goto LABEL_102;
-                    v29 = 56;
+                    iSoundSample2 = SOUND_SAMPLE_5LAPS;         // SOUND_SAMPLE_5LAPS
                     break;
                   default:
                   LABEL_102:
-                    v29 = 15;
+                    iSoundSample2 = SOUND_SAMPLE_KEEPGO;         // SOUND_SAMPLE_KEEPGO
                     break;
                 }
-                v30 = *(_DWORD *)(v1 + 32);
+                iDriverIdx7 = pCar->iDriverIdx;
               LABEL_104:
-                speechsample(v29, 0x8000, 18, v30);
+                speechsample(iSoundSample2, 0x8000, 18, iDriverIdx7);
               }
             }
-            v31 = *(float *)(v1 + 220);
-            *(_DWORD *)(v1 + 220) = 0;
-            *(float *)(v1 + 228) = v31;
+            dRunningLapTime = pCar->fRunningLapTime;
+            pCar->fRunningLapTime = 0.0;
+            pCar->fPreviousLapTime = (float)dRunningLapTime;
           }
         }
-        v32 = finishers - Destroyed;
-        ++*(_BYTE *)(v1 + 104);
-        if (v32 > 0) {
-          v33 = *(_DWORD *)(v1 + 32);
-          if (!finished_car[v33] && competitors > 1) {
-            finished_car[v33] = -1;
-            v34 = human_control[*(_DWORD *)(v1 + 32)];
+        iFinishersCount1 = finishers - Destroyed;
+        ++pCar->byLapNumber;
+        if (iFinishersCount1 > 0) {
+          iDriverIdx8 = pCar->iDriverIdx;
+          if (!finished_car[iDriverIdx8] && competitors > 1) {
+            finished_car[iDriverIdx8] = -1;
+            iHumanControl2 = human_control[pCar->iDriverIdx];
             ++finishers;
-            if (v34)
+            if (iHumanControl2)
               ++human_finishers;
-            v35 = *(_DWORD *)(v1 + 32);
-            if (((__int16)player1_car == v35 || player2_car == v35) && *(char *)(v1 + 103) > 0) {
-              v36 = *(_BYTE *)(v1 + 130);
-              if (v36) {
-                if (v36 >= 3u) {
-                  if (v36 >= 0xDu)
-                    v37 = 24;
+            iDriverIdx9 = pCar->iDriverIdx;
+            if ((player1_car == iDriverIdx9 || player2_car == iDriverIdx9) && (char)pCar->byLives > 0) {
+              byRacePos3 = pCar->byRacePosition;
+              if (byRacePos3) {
+                if (byRacePos3 >= 3u) {
+                  if (byRacePos3 >= 0xDu)
+                    iSoundSample3 = SOUND_SAMPLE_RUBBISH;         // SOUND_SAMPLE_RUBBISH
                   else
-                    v37 = 25;
+                    iSoundSample3 = SOUND_SAMPLE_POOR;         // SOUND_SAMPLE_POOR
                 } else {
-                  v37 = 23;
+                  iSoundSample3 = SOUND_SAMPLE_HARDER;           // SOUND_SAMPLE_HARDER
                 }
               } else {
-                v37 = 22;
+                iSoundSample3 = SOUND_SAMPLE_WINNER;             // SOUND_SAMPLE_WINNER
               }
-              speechsample(v37, 0x8000, 18, *(_DWORD *)(v1 + 32));
-              speechsample(30, 0x8000, 18, *(_DWORD *)(v1 + 32));
+              speechsample(iSoundSample3, 0x8000, 18, pCar->iDriverIdx);
+              speechsample(SOUND_SAMPLE_RACEOVER, 0x8000, 18, pCar->iDriverIdx);// SOUND_SAMPLE_RACEOVER
             }
           }
         }
       }
-      a1 = -TRAK_LEN / 2;
-      if (*(__int16 *)(v1 + 14) - *(__int16 *)(v1 + 12) < a1) {
-        v38 = finishers;
-        --*(_BYTE *)(v1 + 104);
-        a1 = v38 - Destroyed;
-        if (a1 > 0) {
-          a1 = 4 * *(_DWORD *)(v1 + 32);
-          if (!*(int *)((char *)finished_car + a1) && competitors > 1) {
-            *(int *)((char *)finished_car + a1) = -1;
-            v39 = human_control[*(_DWORD *)(v1 + 32)];
+      if (pCar->nChunk2 - pCar->nCurrChunk < -TRAK_LEN / 2)// Detect backward lap line crossing (went backwards across finish line)
+      {
+        iFinishersCount2 = finishers;
+        --pCar->byLapNumber;
+        if (iFinishersCount2 - Destroyed > 0) {
+          iDriverIdx10 = pCar->iDriverIdx;
+          if (!finished_car[iDriverIdx10] && competitors > 1) {
+            finished_car[iDriverIdx10] = -1;
+            v44 = human_control[pCar->iDriverIdx];
             ++finishers;
-            if (v39)
+            if (v44)
               ++human_finishers;
-            LOWORD(a1) = player1_car;
-            v40 = *(_DWORD *)(v1 + 32);
-            if ((__int16)player1_car == v40 || (LOWORD(a1) = player2_car, player2_car == v40)) {
-              if (*(char *)(v1 + 103) > 0) {
-                v41 = *(_BYTE *)(v1 + 130);
-                if (v41) {
-                  if (v41 >= 3u) {
-                    if (v41 >= 0xDu)
-                      v42 = 24;
-                    else
-                      v42 = 25;
-                  } else {
-                    v42 = 23;
-                  }
+            iDriverIdx11 = pCar->iDriverIdx;
+            if ((player1_car == iDriverIdx11 || player2_car == iDriverIdx11) && (char)pCar->byLives > 0) {
+              byRacePos4 = pCar->byRacePosition;
+              if (byRacePos4) {
+                if (byRacePos4 >= 3u) {
+                  if (byRacePos4 >= 0xDu)
+                    iSoundSample4 = SOUND_SAMPLE_RUBBISH;         // SOUND_SAMPLE_RUBBISH
+                  else
+                    iSoundSample4 = SOUND_SAMPLE_POOR;         // SOUND_SAMPLE_POOR
                 } else {
-                  v42 = 22;
+                  iSoundSample4 = SOUND_SAMPLE_HARDER;           // SOUND_SAMPLE_HARDER
                 }
-                speechsample(v42, 0x8000, 18, *(_DWORD *)(v1 + 32));
-                LOWORD(a1) = speechsample(30, 0x8000, 18, *(_DWORD *)(v1 + 32));
+              } else {
+                iSoundSample4 = SOUND_SAMPLE_WINNER;             // SOUND_SAMPLE_WINNER
               }
+              speechsample(iSoundSample4, 0x8000, 18, pCar->iDriverIdx);
+              speechsample(SOUND_SAMPLE_RACEOVER, 0x8000, 18, pCar->iDriverIdx);// SOUND_SAMPLE_RACEOVER
             }
           }
         }
       }
-      if (*(char *)(v1 + 104) < 0)
-        *(_BYTE *)(v1 + 104) = 0;
+      if ((pCar->byLapNumber & 0x80u) != 0)   // Prevent lap number underflow (reset to 0 if went negative)
+        pCar->byLapNumber = 0;
     }
   }
-  return a1;*/
 }
 
 //-------------------------------------------------------------------------------------------------
