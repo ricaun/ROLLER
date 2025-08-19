@@ -64,7 +64,7 @@ void SetEngine(tCar *pCar, float fThrottle);
 double change_gear(int iCurrentGear, int iNextGear, tCar *pCar, int iCarDesignIdx);
 void updatecar2(tCar *pCar, int a2, int a3, int a4);
 int16 check_crossed_line(tCar *a1);
-char checkplacement(int a1);
+void checkplacement(tCar *pCar);
 void testteaminit(tCar *pCar);
 void doteaminit();
 void hitleft(tCar *pCar, int iSampleIdx, int iIsRightSide);
@@ -77,7 +77,7 @@ void findnearcars(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRight
 void findnearcarsforce(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRightCarIdx, float *pfRightTime, float *pfTargetX, float *pfTargetY);
 double interpolatesteer(float fSteeringInput, float fSaturationThreshold, float fDeadzoneThreshold, float fMaxOutput, float fMinOutput);
 double avoid(int a1, int a2, float a3, int a4, float a5, float a6, void *a7);
-double block(int a1, float a2, int a3, float a4, float a5);
+double block(int iCarIdx, float fSteeringInput, float fMaxOutput, float fSaturationThreshold, float fDeadzoneThreshold);
 void autocar2(tCar *pCar);
 void changestrategy(tCar *pCar);
 int getangle(float fX, float fY);

@@ -3528,355 +3528,354 @@ int16 check_crossed_line(tCar *a1)
 
 //-------------------------------------------------------------------------------------------------
 //0002F920
-char checkplacement(int a1)
+void checkplacement(tCar *pCar)
 {
-  (void)(a1);
-  return 0;
-  /*
-  int v2; // eax
-  int v3; // eax
-  int v4; // edi
-  int v5; // ebp
-  __int16 v6; // ax
-  int v7; // eax
-  unsigned int v8; // ebx
-  unsigned int v9; // edx
-  int v10; // ecx
-  int v11; // eax
-  double v12; // st7
-  int v13; // eax
-  int v14; // eax
-  int v15; // edx
-  int v16; // eax
-  float *v17; // eax
-  double v18; // st7
-  int v19; // eax
-  int v20; // eax
-  int v21; // eax
-  int v22; // eax
-  int v23; // edx
-  int i; // eax
-  int v25; // edi
-  int v26; // eax
-  int v27; // edx
-  int v28; // eax
-  char v29; // ch
-  int v30; // eax
-  int v31; // edx
-  int v32; // eax
-  int v33; // eax
-  int v34; // edx
-  int v35; // eax
-  char v36; // dl
-  __int16 v38; // [esp+0h] [ebp-34h]
-  float v39; // [esp+4h] [ebp-30h]
-  int v40; // [esp+8h] [ebp-2Ch]
-  int v41; // [esp+10h] [ebp-24h]
-  int v42; // [esp+14h] [ebp-20h]
-  int v43; // [esp+18h] [ebp-1Ch]
+  int iRandValue; // eax
+  int iNewChunk; // edi
+  int iPlacementResult; // ebp
+  int16 nCurrChunk; // ax
+  int iRandValue2; // eax
+  unsigned int uiLaneType; // ebx
+  int iCarArrayIdx; // edx
+  int iChunkDiff; // ecx
+  int iNormalizedChunkDiff; // eax
+  double dLanePosition; // st7
+  int iSelectedView; // eax
+  int iMaskedDriverIdx; // eax
+  int iMaskedViewType; // edx
+  int iCurrentChunk; // eax
+  tData *pDataAy; // eax
+  double dPosZ; // st7
+  int iCurrentViewType; // eax
+  int iRespawnRand; // eax
+  int iCarLoopIdx; // edx
+  int iCarArrayIdx2; // eax
+  //int i; // eax
+  int iDriverIdx; // edi
+  //int iSprayOffset1; // eax
+  int iDriverIdx2; // edx
+  //int iSprayOffset2; // eax
+  int8 byPreviousLap; // ch
+  int iPlayer1Car; // eax
+  int iCurrentDriverIdx; // edx
+  uint8 byLives; // al
+  int iSpeechSample; // eax
+  int iViewType; // eax
+  int iPlayerNum; // edx
+  int iCalcViewType; // eax
+  uint8 byUnk64; // dl
+  int16 iBackupChunk; // [esp+0h] [ebp-34h]
+  float fX; // [esp+4h] [ebp-30h]
+  float fY; // [esp+8h] [ebp-2Ch]
+  int iTempChunk; // [esp+10h] [ebp-24h]
+  int iRespawnChunk; // [esp+14h] [ebp-20h]
+  int iCarCounter; // [esp+18h] [ebp-1Ch]
 
-  v2 = rand();
-  v3 = (10 * v2 - (__CFSHL__((10 * v2) >> 31, 15) + ((10 * v2) >> 31 << 15))) >> 15;
-  v4 = v3 + *(__int16 *)(a1 + 14);
-  if (v4 >= TRAK_LEN)
-    v4 = TRAK_LEN - 1;
-  if (v4 == -1)
-    v4 = 0;
-  if ((*(_DWORD *)(a1 + 28) & 0x7FFFFFFF) == 0 && !numstops)
-    *(_DWORD *)(a1 + 28) = 1120403456;
-  if ((*(_DWORD *)(a1 + 28) & 0x7FFFFFFF) != 0) {
-    while ((*((_DWORD *)&TrakColour + 6 * v4) & 0xA420000) != 0
-         && (*((_DWORD *)&TrakColour_variable_3 + 6 * v4) & 0xA420000) != 0
-         && (*((_DWORD *)&TrakColour_variable_7 + 6 * v4) & 0xA420000) != 0) {
-      if (++v4 == TRAK_LEN)
-        v4 ^= TRAK_LEN;
+  iRandValue = rand();                          // Generate random chunk position near current chunk
+  iNewChunk = ((10 * iRandValue) >> 15) + pCar->nChunk2;
+  if (iNewChunk >= TRAK_LEN)
+    iNewChunk = TRAK_LEN - 1;
+  if (iNewChunk == -1)
+    iNewChunk = 0;
+  //if ((LODWORD(pCar->fHealth) & 0x7FFFFFFF) == 0 && !numstops)// Reset health to 100 if car has zero health and not at a stop
+  if (fabs(pCar->fHealth) > FLT_EPSILON && !numstops)// Reset health to 100 if car has zero health and not at a stop
+    pCar->fHealth = 100.0;
+  //if ((LODWORD(pCar->fHealth) & 0x7FFFFFFF) != 0)// Handle placement for cars with health (alive cars)
+  if (fabs(pCar->fHealth) > FLT_EPSILON)// Handle placement for cars with health (alive cars)
+  {                                             // Find a valid track chunk without collision barriers
+    while ((TrakColour[iNewChunk][0] & 0xA420000) != 0 && (TrakColour[iNewChunk][1] & 0xA420000) != 0 && (TrakColour[iNewChunk][2] & 0xA420000) != 0) {
+      if (++iNewChunk == TRAK_LEN)
+        iNewChunk ^= TRAK_LEN;
     }
-    v5 = -1;
-    v39 = *(float *)a1;
-    *(_DWORD *)a1 = 0;
-    v40 = *(_DWORD *)(a1 + 4);
-    v6 = *(_WORD *)(a1 + 12);
-    *(_DWORD *)(a1 + 4) = 0;
-    v38 = v6;
-    *(_WORD *)(a1 + 12) = v4;
+    iPlacementResult = -1;
+    fX = pCar->pos.fX;
+    pCar->pos.fX = 0.0;
+    fY = pCar->pos.fY;
+    nCurrChunk = pCar->nCurrChunk;
+    pCar->pos.fY = 0.0;
+    iBackupChunk = nCurrChunk;
+    pCar->nCurrChunk = iNewChunk;
     do {
-      v7 = rand();
-      v8 = (3 * v7 - (__CFSHL__((3 * v7) >> 31, 15) + ((3 * v7) >> 31 << 15))) >> 15;
-    } while ((TrakColour_variable_1[12 * v4 + 2 * v8] & 0xA42) != 0);
-    LOBYTE(v3) = numcars;
-    v43 = 0;
-    if (numcars > 0) {
-      v9 = 0;
+      iRandValue2 = rand();                     // Generate random lane (0-2) that doesn't have collision barriers
+      uiLaneType = (3 * iRandValue2) >> 15;
+    } while ((TrakColour[iNewChunk][uiLaneType] & 0xA420000) != 0);
+    iCarCounter = 0;
+    if (numcars > 0)                          // Check for collision with other cars in same lane
+    {
+      iCarArrayIdx = 0;
       do {
-        if (v43 != *(_DWORD *)(a1 + 32) && Car_variable_17[v9 / 4] == 3 && v8 == Car_variable_50[v9 / 4]) {
-          v10 = v4 - Car_variable_3[v9 / 2];
-          v11 = v10;
-          if (v10 < 0)
-            v11 = TRAK_LEN + v10;
-          if (v11 > TRAK_LEN / 2)
-            v11 -= TRAK_LEN;
-          if (v11 <= 8 && v11 >= -2)
-            v5 = 0;
+        if (iCarCounter != pCar->iDriverIdx && Car[iCarArrayIdx].iControlType == 3 && uiLaneType == Car[iCarArrayIdx].iLaneType) {
+          iChunkDiff = iNewChunk - Car[iCarArrayIdx].nCurrChunk;
+          iNormalizedChunkDiff = iChunkDiff;
+          if (iChunkDiff < 0)
+            iNormalizedChunkDiff = TRAK_LEN + iChunkDiff;
+          if (iNormalizedChunkDiff > TRAK_LEN / 2)
+            iNormalizedChunkDiff -= TRAK_LEN;
+          if (iNormalizedChunkDiff <= 8 && iNormalizedChunkDiff >= -2)
+            iPlacementResult = 0;
         }
-        LOBYTE(v3) = ++v43;
-        v9 += 308;
-      } while (v43 < numcars);
+        ++iCarCounter;
+        ++iCarArrayIdx;
+      } while (iCarCounter < numcars);
     }
-    if (!v5)
+    if (!iPlacementResult)
       goto LABEL_39;
-    LOBYTE(v3) = 36 * v4;
-    if (v8) {
-      if (v8 <= 1) {
-        *(_DWORD *)(a1 + 4) = 0;
+    if (uiLaneType)                           // Set Y position based on lane type (0=left shoulder, 1=center, 2=right shoulder)
+    {
+      if (uiLaneType <= 1) {
+        pCar->pos.fY = 0.0;
       LABEL_38:
-        *(_DWORD *)(a1 + 212) = v8;
+        pCar->iLaneType = uiLaneType;
       LABEL_39:
-        if (!v5) {
-          *(float *)a1 = v39;
-          *(_DWORD *)(a1 + 4) = v40;
-          LOBYTE(v3) = v38;
-          *(_WORD *)(a1 + 12) = v38;
+        if (!iPlacementResult) {
+          pCar->pos.fX = fX;
+          pCar->pos.fY = fY;
+          pCar->nCurrChunk = iBackupChunk;
         }
         goto LABEL_113;
       }
-      if (v8 != 2)
+      if (uiLaneType != 2)
         goto LABEL_38;
-      v12 = -*(float *)&localdata_variable_5[32 * v4] - *(float *)&TrackInfo_variable_2[9 * v4] * control_c_variable_103;
+      dLanePosition = -localdata[iNewChunk].fTrackHalfWidth - TrackInfo[iNewChunk].fRShoulderWidth * 0.5f;
     } else {
-      v12 = *(float *)&TrackInfo[9 * v4] * control_c_variable_103 + *(float *)&localdata_variable_5[32 * v4];
+      dLanePosition = TrackInfo[iNewChunk].fLShoulderWidth * 0.5f + localdata[iNewChunk].fTrackHalfWidth;
     }
-    *(float *)(a1 + 4) = v12;
+    pCar->pos.fY = (float)dLanePosition;
     goto LABEL_38;
   }
-  v5 = 0;
-  if ((network_on || *(char *)(a1 + 103) > 0 || lastsample >= -144 || (v3 = *(__int16 *)(a1 + 100), v3 >= -64))
-    && (!network_on || *(char *)(a1 + 103) > 0 || *(__int16 *)(a1 + 100) >= 0)) {
-    if (*(__int16 *)(a1 + 100) < 0 && *(char *)(a1 + 103) > 0) {
-      v22 = rand();
-      v5 = -1;
-      v3 = stops[(v22 * numstops - (__CFSHL__((v22 * numstops) >> 31, 15) + ((v22 * numstops) >> 31 << 15))) >> 15];
-      v23 = 0;
-      v42 = v3;
+  iPlacementResult = 0;
+  if ((network_on || (char)pCar->byLives > 0 || lastsample >= -144 || pCar->nDeathTimer >= -64) && (!network_on || (char)pCar->byLives > 0 || pCar->nDeathTimer >= 0)) {                                             // Handle respawn for dead cars (health=0, has lives left)
+    if (pCar->nDeathTimer < 0 && (char)pCar->byLives > 0) {
+      iRespawnRand = rand();                    // Randomly select a respawn stop position
+      iPlacementResult = -1;
+      iCarLoopIdx = 0;
+      iRespawnChunk = stops[(iRespawnRand * numstops) >> 15];
       if (numcars > 0) {
-        v3 = 0;
+        iCarArrayIdx2 = 0;
         do {
-          if (v23 != *(_DWORD *)(a1 + 32) && Car_variable_23[v3] > 0 && *(int *)((char *)Car_variable_17 + v3) == 3) {
-            v41 = *(__int16 *)((char *)Car_variable_3 + v3);
-            if ((TrakColour_variable_1[12 * v41 + 2 * *(int *)((char *)Car_variable_50 + v3)] & 0x200) != 0) {
-              if (v41 == v42)
-                v5 = 0;
-              if (*(__int16 *)((char *)Car_variable_3 + v3) - 1 == v42)
-                v5 = 0;
-              if (*(__int16 *)((char *)Car_variable_3 + v3) + 1 == v42)
-                v5 = 0;
+          if (iCarLoopIdx != pCar->iDriverIdx && (char)Car[iCarArrayIdx2].byLives > 0 && Car[iCarArrayIdx2].iControlType == 3) {
+            iTempChunk = Car[iCarArrayIdx2].nCurrChunk;
+            if ((TrakColour[iTempChunk][Car[iCarArrayIdx2].iLaneType] & 0x2000000) != 0) {
+              if (iTempChunk == iRespawnChunk)
+                iPlacementResult = 0;
+              if (Car[iCarArrayIdx2].nCurrChunk - 1 == iRespawnChunk)
+                iPlacementResult = 0;
+              if (Car[iCarArrayIdx2].nCurrChunk + 1 == iRespawnChunk)
+                iPlacementResult = 0;
             }
           }
-          ++v23;
-          v3 += 308;
-        } while (v23 < numcars);
+          ++iCarLoopIdx;
+          ++iCarArrayIdx2;
+        } while (iCarLoopIdx < numcars);
       }
-      if (v5) {
-        for (i = 0; i != 352; car_texs_loaded_variable_2[352 * *(_DWORD *)(a1 + 32) + i] = 0)
-          i += 11;
+      if (iPlacementResult) {
+        //TODO may need to look at this further
+        for (int j = 0; j < 32; j++)
+          CarSpray[pCar->iDriverIdx][j].fSize = 0.0f;
+        //for (i = 0; i != 352; car_texs_loaded[352 * pCar->iDriverIdx + 12 + i] = 0)
+        //  i += 11;
+
         if (player_type == 2) {
-          v25 = *(_DWORD *)(a1 + 32);
-          if ((__int16)player1_car == v25) {
-            v26 = v25 ^ (__int16)player1_car;
-            do {
-              v26 += 352;
-              *(int *)((char *)&CarSpray_variable_5 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_6 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_7 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_8 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_9 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_10 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_11 + v26) = 0;
-              *(int *)((char *)&CarSpray_variable_12 + v26) = 0;
-            } while (v26 != 1408);
+          iDriverIdx = pCar->iDriverIdx;
+          if (player1_car == iDriverIdx) {
+            // Clear iLifeTime for all CarSpray objects for driver 16
+            for (int j = 0; j < 32; j++) {
+                CarSpray[16][j].iLifeTime = 0;
+            }
+            //iSprayOffset1 = iDriverIdx ^ player1_car;
+            //do {
+            //  iSprayOffset1 += 352;
+            //  *(int *)((char *)&CarSpray[15][24].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][25].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][26].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][27].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][28].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][29].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][30].iLifeTime + iSprayOffset1) = 0;
+            //  *(int *)((char *)&CarSpray[15][31].iLifeTime + iSprayOffset1) = 0;
+            //} while (iSprayOffset1 != 1408);
           }
-          v27 = *(_DWORD *)(a1 + 32);
-          if (player2_car == v27) {
-            v28 = v27 ^ player2_car;
-            do {
-              v28 += 352;
-              *(int *)((char *)&CarSpray_variable_14 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_15 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_16 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_17 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_18 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_19 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_20 + v28) = 0;
-              *(int *)((char *)&CarSpray_variable_21 + v28) = 0;
-            } while (v28 != 1408);
+          iDriverIdx2 = pCar->iDriverIdx;
+          if (player2_car == iDriverIdx2) {
+            // Clear iLifeTime for all CarSpray objects for driver 17
+            for (int j = 0; j < 32; j++) {
+                CarSpray[17][j].iLifeTime = 0;
+            }
+            //iSprayOffset2 = iDriverIdx2 ^ player2_car;
+            //do {
+            //  iSprayOffset2 += 352;
+            //  *(int *)((char *)&CarSpray[16][24].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][25].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][26].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][27].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][28].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][29].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][30].iLifeTime + iSprayOffset2) = 0;
+            //  *(int *)((char *)&CarSpray[16][31].iLifeTime + iSprayOffset2) = 0;
+            //} while (iSprayOffset2 != 1408);
           }
         }
-        if ((__int16)player1_car == *(_DWORD *)(a1 + 32) && SelectedView[0] != DeathView) {
-          SelectedView[0] = DeathView;
-          DeathView = -1;
+        if (player1_car == pCar->iDriverIdx && SelectedView[0] != DeathView[0]) {
+          SelectedView[0] = DeathView[0];
+          DeathView[0] = -1;
           select_view(0);
           initcarview(ViewType[0], 0);
         }
-        if (player2_car == *(_DWORD *)(a1 + 32) && SelectedView_variable_1 != DeathView_variable_1[0]) {
-          SelectedView_variable_1 = DeathView_variable_1[0];
-          DeathView_variable_1[0] = -1;
+        if (player2_car == pCar->iDriverIdx && SelectedView[1] != DeathView[1]) {
+          SelectedView[1] = DeathView[1];
+          DeathView[1] = -1;
           select_view(1);
-          initcarview(ViewType_variable_1, 1);
+          initcarview(ViewType[1], 1);
         }
-        v4 = v42;
-        *(_DWORD *)(a1 + 4) = localdata_variable_8[32 * v42];
-        if (*(__int16 *)(a1 + 12) < carorder_variable_2[numstops] - 10) {
-          v29 = *(_BYTE *)(a1 + 104) - 1;
-          *(_BYTE *)(a1 + 104) = v29;
-          if (v29 < 0)
-            *(_BYTE *)(a1 + 104) = 0;
+        iNewChunk = iRespawnChunk;
+        pCar->pos.fY = localdata[iRespawnChunk].fAILine1;
+        if (pCar->nCurrChunk < carorder[numstops + 15] - 10) {
+          byPreviousLap = pCar->byLapNumber - 1;
+          pCar->byLapNumber = byPreviousLap;
+          if (byPreviousLap < 0)
+            pCar->byLapNumber = 0;
         }
-        *(_DWORD *)(a1 + 28) = 1120403456;
-        v30 = (__int16)player1_car;
-        v31 = *(_DWORD *)(a1 + 32);
-        *(_BYTE *)(a1 + 276) = 8;
-        if (v30 == v31 || (LOBYTE(v3) = player2_car, player2_car == v31)) {
-          LOBYTE(v3) = *(_BYTE *)(a1 + 103);
-          if ((_BYTE)v3) {
-            if ((unsigned __int8)v3 <= 1u) {
-              v32 = 44;
+        pCar->fHealth = 100.0;
+        iPlayer1Car = player1_car;
+        iCurrentDriverIdx = pCar->iDriverIdx;
+        pCar->byCheatAmmo = 8;
+        if (iPlayer1Car == iCurrentDriverIdx || player2_car == iCurrentDriverIdx) {
+          byLives = pCar->byLives;
+          if (byLives) {
+            if (byLives <= 1u) {
+              iSpeechSample = SOUND_SAMPLE_1LEFT;               // SOUND_SAMPLE_1LEFT
             } else {
-              if ((_BYTE)v3 != 2)
+              if (byLives != 2)
                 goto LABEL_113;
-              v32 = 43;
+              iSpeechSample = SOUND_SAMPLE_2LEFT;               // SOUND_SAMPLE_2LEFT
             }
           } else {
-            v32 = 45;
+            iSpeechSample = SOUND_SAMPLE_0LEFT;                 // SOUND_SAMPLE_0LEFT
           }
-          LOBYTE(v3) = speechsample(v32, 0x8000, 18, *(_DWORD *)(a1 + 32));
+          speechsample(iSpeechSample, 0x8000, 18, pCar->iDriverIdx);
         }
       }
     }
   } else {
-    v13 = SelectedView[0];
-    *(_BYTE *)(a1 + 103) = -1;
-    if (v13 == 7) {
-      v14 = *(_DWORD *)(a1 + 32) & 0xFE;
-      v15 = ViewType[0] & 0xFE;
-      if ((unsigned __int8)v15 == v14) {
-        SelectedView[0] = v14 ^ v15;
+    iSelectedView = SelectedView[0];            // Handle permanently dead cars (no lives left)
+    pCar->byLives = -1;
+    if (iSelectedView == 7) {
+      iMaskedDriverIdx = pCar->iDriverIdx & 0xFE;
+      iMaskedViewType = ViewType[0] & 0xFE;
+      if ((unsigned __int8)iMaskedViewType == iMaskedDriverIdx) {
+        SelectedView[0] = iMaskedDriverIdx ^ iMaskedViewType;
         select_view(0);
         initcarview(ViewType[0], 0);
       }
     }
-    if (human_control[*(_DWORD *)(a1 + 32)])
+    if (human_control[pCar->iDriverIdx])
       ++dead_humans;
-    LOBYTE(v3) = dead_humans;
     if (dead_humans < players) {
-      v16 = *(__int16 *)(a1 + 12);
-      *(_DWORD *)(a1 + 72) = 0;
-      if (v16 == -1) {
-        *(_DWORD *)a1 = 0;
-        *(_DWORD *)(a1 + 4) = 0;
-        *(_DWORD *)(a1 + 8) = 1148846080;
+      iCurrentChunk = pCar->nCurrChunk;
+      pCar->iControlType = 0;
+      if (iCurrentChunk == -1) {
+        pCar->pos.fX = 0.0f;
+        pCar->pos.fY = 0.0f;
+        pCar->pos.fZ = 1000.0f;
       } else {
-        v17 = (float *)((char *)&localdata + 128 * v16);
-        *(float *)a1 = 0.0 * v17[1] + 0.0 * *v17 + 0.0 * v17[2] - v17[9];
-        *(float *)(a1 + 4) = 0.0 * v17[3] + 0.0 * v17[4] + 0.0 * v17[5] - v17[10];
-        v18 = 0.0 * v17[6] + 0.0 * v17[7] + 0.0 * v17[8] - v17[11] + control_c_variable_102;
-        *(_WORD *)(a1 + 14) = *(_WORD *)(a1 + 12);
-        *(float *)(a1 + 8) = v18;
+        pDataAy = &localdata[iCurrentChunk];
+        pCar->pos.fX = 0.0f * pDataAy->pointAy[0].fY + 0.0f * pDataAy->pointAy[0].fX + 0.0f * pDataAy->pointAy[0].fZ - pDataAy->pointAy[3].fX;
+        pCar->pos.fY = 0.0f * pDataAy->pointAy[1].fX + 0.0f * pDataAy->pointAy[1].fY + 0.0f * pDataAy->pointAy[1].fZ - pDataAy->pointAy[3].fY;
+        dPosZ = 0.0 * pDataAy->pointAy[2].fX + 0.0 * pDataAy->pointAy[2].fY + 0.0 * pDataAy->pointAy[2].fZ - pDataAy->pointAy[3].fZ + 1000.0;
+        pCar->nChunk2 = pCar->nCurrChunk;
+        pCar->pos.fZ = (float)dPosZ;
       }
-      v19 = 308 * ViewType[0];
-      *(_WORD *)(a1 + 12) = -1;
-      *(_DWORD *)(a1 + 24) = 0;
-      *(_DWORD *)(a1 + 112) = 0;
-      *(_DWORD *)(a1 + 116) = 0;
-      *(_BYTE *)(a1 + 128) = 0;
-      *(_DWORD *)(a1 + 120) = 0;
-      *(_DWORD *)(a1 + 124) = 0;
-      if (Car_variable_23[v19] < 0) {
-        for (ViewType[0] = 0; !human_control[ViewType[0]] || Car_variable_23[308 * ViewType[0]] < 0; ++ViewType[0])
+      iCurrentViewType = ViewType[0];
+      pCar->nCurrChunk = -1;
+      pCar->fFinalSpeed = 0.0;
+      pCar->fBaseSpeed = 0.0;
+      pCar->fSpeedOverflow = 0.0;
+      pCar->byGearAyMax = 0;
+      pCar->fRPMRatio = 0.0;
+      pCar->fPower = 0.0;
+      if ((Car[iCurrentViewType].byLives & 0x80u) != 0) {
+        for (ViewType[0] = 0; !human_control[ViewType[0]] || (Car[ViewType[0]].byLives & 0x80u) != 0; ++ViewType[0])
           ;
-        v20 = initcarview(ViewType[0], 0);
-        stopallsamples(v20);
+        initcarview(ViewType[0], 0);
+        stopallsamples();
       }
-      v3 = 308 * ViewType_variable_1;
-      if (Car_variable_23[v3] < 0) {
-        for (ViewType_variable_1 = 0;
-              !human_control[ViewType_variable_1] || Car_variable_23[308 * ViewType_variable_1] < 0;
-              ++ViewType_variable_1) {
+      if ((Car[ViewType[1]].byLives & 0x80u) != 0) {
+        for (ViewType[1] = 0; !human_control[ViewType[1]] || (Car[ViewType[1]].byLives & 0x80u) != 0; ++ViewType[1])
           ;
-        }
-        v21 = initcarview(ViewType_variable_1, 0);
-        LOBYTE(v3) = stopallsamples(v21);
+        initcarview(ViewType[1], 0);
+        stopallsamples();
       }
     }
   }
 LABEL_113:
-  if (v5 && *(char *)(a1 + 103) > 0) {
-    *(_DWORD *)a1 = 0;
-    *(_DWORD *)(a1 + 8) = 0;
-    *(_WORD *)(a1 + 18) = 0;
-    *(_WORD *)(a1 + 20) = 0;
-    *(_DWORD *)(a1 + 64) = 0;
-    *(_WORD *)(a1 + 16) = 0;
-    *(_BYTE *)(a1 + 187) = 0;
-    *(_DWORD *)(a1 + 72) = 3;
-    *(_DWORD *)(a1 + 68) = 0;
-    *(_DWORD *)(a1 + 192) = 0;
-    *(_WORD *)(a1 + 238) = 1080;
-    *(_DWORD *)(a1 + 188) = 0;
-    *(_DWORD *)(a1 + 204) = 0;
-    *(_DWORD *)(a1 + 140) = 0;
-    *(_DWORD *)(a1 + 144) = 0;
-    *(_DWORD *)(a1 + 148) = 0;
-    *(_DWORD *)(a1 + 152) = 0;
-    *(_DWORD *)(a1 + 156) = 0;
-    *(_DWORD *)(a1 + 132) = 0;
-    *(_DWORD *)(a1 + 136) = 0;
-    *(_DWORD *)(a1 + 176) = 0;
-    *(_DWORD *)(a1 + 208) = -1;
-    *(_DWORD *)(a1 + 24) = 0;
-    *(_DWORD *)(a1 + 124) = 0;
-    *(_DWORD *)(a1 + 120) = 0;
-    *(_DWORD *)(a1 + 116) = 0;
-    *(_DWORD *)(a1 + 112) = 0;
-    *(_BYTE *)(a1 + 128) = 0;
-    *(_WORD *)(a1 + 286) = 0;
-    *(_WORD *)(a1 + 236) = -1;
-    *(_BYTE *)(a1 + 240) = 0;
-    *(_BYTE *)(a1 + 241) = 0;
-    *(_BYTE *)(a1 + 243) = 0;
-    *(_WORD *)(a1 + 12) = v4;
-    *(_DWORD *)(a1 + 216) = v4;
-    *(_WORD *)(a1 + 14) = v4;
-    *(_DWORD *)(a1 + 132) = 0;
-    *(_DWORD *)(a1 + 136) = 0;
-    putflat(a1);
-    *(_DWORD *)(a1 + 280) = 1 - *(_DWORD *)(a1 + 280);
+  if (iPlacementResult && (char)pCar->byLives > 0)// Initialize car state after successful placement
+  {
+    pCar->pos.fX = 0.0;
+    pCar->pos.fZ = 0.0;
+    pCar->nPitch = 0;
+    pCar->nYaw = 0;
+    pCar->nYaw3 = 0;
+    pCar->nRoll = 0;
+    pCar->byUnk43 = 0;
+    pCar->iControlType = 3;
+    pCar->iJumpMomentum = 0;
+    pCar->iSelectedStrategy = 0;
+    pCar->nChangeMateCooldown = 1080;
+    pCar->iBobMode = 0;
+    pCar->iStunned = 0;
+    pCar->iPitchBackup = 0;
+    pCar->iUnk35_3 = 0;
+    pCar->iPitchCameraOffset = 0;
+    pCar->iUnk36_2 = 0;
+    pCar->iRollCameraOffset = 0;
+    pCar->iPitchDynamicOffset = 0;
+    pCar->iRollDynamicOffset = 0;
+    pCar->iUnk38_4 = 0;
+    pCar->iAITargetCar = -1;
+    pCar->fFinalSpeed = 0.0;
+    pCar->fPower = 0.0;
+    pCar->fRPMRatio = 0.0;
+    pCar->fSpeedOverflow = 0.0;
+    pCar->fBaseSpeed = 0.0;
+    pCar->byGearAyMax = 0;
+    pCar->nUnk71 = 0;
+    pCar->nTargetChunk = -1;
+    pCar->byThrottlePressed = 0;
+    pCar->byAccelerating = 0;
+    pCar->byUnk61 = 0;
+    pCar->nCurrChunk = iNewChunk;
+    pCar->iLastValidChunk = iNewChunk;
+    pCar->nChunk2 = iNewChunk;
+    pCar->iPitchDynamicOffset = 0;
+    pCar->iRollDynamicOffset = 0;
+    putflat(pCar);                              // Reset car to flat ground position and update camera views
+    pCar->iUnk69 = 1 - pCar->iUnk69;
     if (Play_View == 1) {
       if ((ViewType[0] & 1) != 0)
-        v35 = ViewType[0] - 1;
+        iCalcViewType = ViewType[0] - 1;
       else
-        v35 = ViewType[0] + 1;
-      if (v35 != *(_DWORD *)(a1 + 32))
+        iCalcViewType = ViewType[0] + 1;
+      if (iCalcViewType != pCar->iDriverIdx)
         goto LABEL_126;
-      v34 = 0;
-      v33 = -v35 - 1;
+      iPlayerNum = 0;
+      iViewType = -iCalcViewType - 1;
     } else {
-      if (ViewType[0] == *(_DWORD *)(a1 + 32))
+      if (ViewType[0] == pCar->iDriverIdx)
         initcarview(ViewType[0], 0);
-      v33 = ViewType_variable_1;
-      if (ViewType_variable_1 != *(_DWORD *)(a1 + 32))
+      iViewType = ViewType[1];
+      if (ViewType[1] != pCar->iDriverIdx)
         goto LABEL_126;
-      v34 = 1;
+      iPlayerNum = 1;
     }
-    initcarview(v33, v34);
+    initcarview(iViewType, iPlayerNum);
   LABEL_126:
-    *(_WORD *)(a1 + 284) = -1;
-    *(_BYTE *)(a1 + 131) = 0;
-    *(_BYTE *)(a1 + 306) = 0;
-    v36 = *(_BYTE *)(a1 + 273);
-    *(_BYTE *)(a1 + 272) = 0;
-    LOBYTE(v3) = 1 - v36;
-    *(_BYTE *)(a1 + 273) = 1 - v36;
+    pCar->nUnk70 = -1;
+    pCar->byStatusFlags = 0;
+    pCar->byUnk77 = 0;
+    byUnk64 = pCar->byUnk64;
+    pCar->byCollisionTimer = 0;
+    pCar->byUnk64 = 1 - byUnk64;
   }
-  return v3;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4827,16 +4826,12 @@ double avoid(int a1, int a2, float a3, int a4, float a5, float a6, void *a7)
 
 //-------------------------------------------------------------------------------------------------
 //00031B40
-double block(int a1, float a2, int a3, float a4, float a5)
+double block(int iCarIdx, float fSteeringInput, float fMaxOutput, float fSaturationThreshold, float fDeadzoneThreshold)
 {
-  (void)(a1); (void)(a2); (void)(a3); (void)(a4); (void)(a5);
-  return 0.0;
-  /*
-  if (a1 == -1)
-    return *(float *)&a3;
+  if (iCarIdx == -1)
+    return fMaxOutput;
   else
-    return (float)interpolatesteer(a2, a4, a5, a3, LODWORD(Car_variable_1[77 * a1]));
-    */
+    return (float)interpolatesteer(fSteeringInput, fSaturationThreshold, fDeadzoneThreshold, fMaxOutput, Car[iCarIdx].pos.fY);
 }
 
 //-------------------------------------------------------------------------------------------------
