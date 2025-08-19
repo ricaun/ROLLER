@@ -400,7 +400,7 @@ void placecars()
       Car[iCarIdx3].fUnk39 = CarEngines.engines[Car[iDriverIdx].byCarDesignIdx].fUnk24;
       Car[iCarIdx3].iControlType = 3;
       Car[iCarIdx3].iSelectedStrategy = 0;
-      Car[iCarIdx3].iRevengeMode = 0;
+      Car[iCarIdx3].iBobMode = 0;
       Car[iCarIdx3].iAITargetLine = -1;
       iRandomVal = rand();
       Car[iDriverIdx].iAITargetCar = -1;
@@ -423,7 +423,7 @@ void placecars()
       Car[iDriverIdx].byAccelerating = 0;              // Initialize various car flags and counters
       Car[iDriverIdx].byUnk61 = 0;
       Car[iDriverIdx].byUnk60 = 0;
-      Car[iDriverIdx].byUnk62[0] = 0;
+      Car[iDriverIdx].iUnk62_1 = 0;
       Car[iDriverIdx].byUnk77 = 0;
       Car[iDriverIdx].byUnk63 = 0;
       Car[iDriverIdx].byUnk64 = 0;

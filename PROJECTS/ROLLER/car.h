@@ -75,7 +75,7 @@ typedef struct
   uint8 byAttacker;
   uint8 byKills;
   uint8 byUnk43;
-  int iRevengeMode;
+  int iBobMode;
   int iSelectedStrategy;
   int iAITargetLine;
   int iRollMomentum;
@@ -93,7 +93,13 @@ typedef struct
   uint8 byAccelerating;
   uint8 byUnk60;
   uint8 byUnk61;
-  uint8 byUnk62[28];
+  int iUnk62_1;
+  int iLeftTargetIdx;
+  float fLeftTargetTime;
+  int iRightTargetIdx;
+  float fRightTargetTime;
+  float fTargetX;
+  float fTargetY;
   uint8 byUnk63;
   uint8 byUnk64;
   uint8 byUnk65;

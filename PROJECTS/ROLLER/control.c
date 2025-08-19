@@ -36,6 +36,7 @@ tCarStrategy CarStrategy[16] =    //000A42E8
   { { 20, 60, 5, 15, 0 },   { 4.0f, 1.2f, 4.0f, 1.4f, 9000.0f } },
   { { 20, 40, 0, 40, 1 },   { 3.0f, 2.0f, 3.4000001f, 1.0f, 9000.0f } }
 };
+int nearcall[4][4];               //00149750
 int carorder[16];                 //00149790
 int stops[10];                    //001497D0
 float trial_times[96];            //001497F8
@@ -4293,30 +4294,30 @@ int scansection(tCar *pCar)
 
 //-------------------------------------------------------------------------------------------------
 //00030AC0
-double getgroundz(float a1, float a2, int iChunkIdx)
+double getgroundz(float fXPos, float fYOffset, int iChunkIdx)
 {
-  return 0.0;/*
   tData *pData; // edx
-  double v8; // st7
+  double dAngleIdx; // st7
   tTrackInfo *pTrackInfo; // ebx
-  double v10; // st7
-  float v12; // [esp+4h] [ebp-14h]
-  float v13; // [esp+8h] [ebp-10h]
+  double dAbsYOffset; // st7
+  float fTempYOffset; // [esp+4h] [ebp-14h]
+  float fGroundZ; // [esp+8h] [ebp-10h]
 
-  pData = &localdata[iChunkIdx];
-  v8 = (double)SLODWORD(pData->fUnk23) * a1 / (pData->fUnk13 * control_c_variable_128);
-  _CHP();
-  pTrackInfo = &TrackInfo[iChunkIdx];
-  v13 = -a2 * ptan[(int)v8 & 0x3FFF];
-  if (a2 >= (double)pData->fUnk14)
-    v13 = (a2 - pData->fUnk14) * pTrackInfo->center.fY / pTrackInfo->center.fX + v13;
-  v10 = -a2;
-  if (v10 >= pData->fUnk14) {
-    v12 = v10;
-    return (float)((v12 - pData->fUnk14) * *(float *)&pTrackInfo->iUnk1 / pTrackInfo->center.fZ + v13);
+  pData = &localdata[iChunkIdx];                // Get track data for the specified chunk
+  dAngleIdx = (double)pData->iBankDelta * fXPos / (pData->fTrackHalfLength * 2.0);// Calculate banking angle index based on X position in chunk
+  //_CHP();
+  pTrackInfo = &TrackInfo[iChunkIdx];           // Get track shoulder information for this chunk
+  fGroundZ = -fYOffset * ptan[(int)dAngleIdx & 0x3FFF];// Calculate base ground height using banking angle
+  if (fYOffset >= (double)pData->fTrackHalfWidth)// Check if position is on left shoulder (positive Y beyond track)
+    fGroundZ = (fYOffset - pData->fTrackHalfWidth) * pTrackInfo->fLShoulderHeight / pTrackInfo->fLShoulderWidth + fGroundZ;// Add left shoulder height based on distance beyond track edge
+  dAbsYOffset = -fYOffset;
+  if (dAbsYOffset >= pData->fTrackHalfWidth)  // Check if position is on right shoulder (negative Y beyond track)
+  {
+    fTempYOffset = (float)dAbsYOffset;
+    return (float)((fTempYOffset - pData->fTrackHalfWidth) * pTrackInfo->fRShoulderHeight / pTrackInfo->fRShoulderWidth + fGroundZ);// Add right shoulder height and return total ground Z
   }
-  return v13;*/
-};
+  return fGroundZ;                              // Return banking height for positions on main track
+}
 
 //-------------------------------------------------------------------------------------------------
 //00030B80
@@ -4512,324 +4513,319 @@ void putflat(tCar *pCar)
 
 //-------------------------------------------------------------------------------------------------
 //00031060
-float *findnearcars(float *a1, float *a2, float *a3, float *a4, float *a5, float *a6, float *a7)
+void findnearcars(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRightCarIdx, float *pfRightTime, float *pfTargetX, float *pfTargetY)
 {
-  return 0;/*
-  int v8; // eax
-  float *result; // eax
-  float v10; // [esp+0h] [ebp-18h]
-  float v11; // [esp+4h] [ebp-14h]
+  int iDriverIdx; // eax
+  float fRightTargetTime; // [esp+0h] [ebp-18h]
+  float fLeftTargetTime; // [esp+4h] [ebp-14h]
 
-  v8 = *((_DWORD *)a1 + 8);
-  if (v8 == nearcall[4 * nearcarcheck]
-    || v8 == nearcall_variable_1[4 * nearcarcheck]
-    || v8 == nearcall_variable_2[4 * nearcarcheck]
-    || v8 == nearcall_variable_3[4 * nearcarcheck]) {
-    findnearcarsforce((int)a1, (int *)a2, a3, (int *)a4, a5, a6, a7);
-    a1[62] = *a2;
-    a1[63] = *a3;
-    a1[64] = *a4;
-    a1[65] = *a5;
-    a1[66] = *a6;
-    result = a7;
-    a1[67] = *a7;
+  iDriverIdx = pCar->iDriverIdx;                // Check if this car should perform full collision detection this frame
+  if (iDriverIdx == nearcall[nearcarcheck][0] || iDriverIdx == nearcall[nearcarcheck][1] || iDriverIdx == nearcall[nearcarcheck][2] || iDriverIdx == nearcall[nearcarcheck][3])// Check against scheduled cars for this frame (load balancing)
+  {
+    findnearcarsforce(pCar, piLeftCarIdx, pfLeftTime, piRightCarIdx, pfRightTime, pfTargetX, pfTargetY);// Perform full collision detection and cache results
+    pCar->iLeftTargetIdx = *piLeftCarIdx;       // Cache collision detection results in car structure
+    pCar->fLeftTargetTime = *pfLeftTime;
+    pCar->iRightTargetIdx = *piRightCarIdx;
+    pCar->fRightTargetTime = *pfRightTime;
+    pCar->fTargetX = *pfTargetX;
+    pCar->fTargetY = *pfTargetY;
   } else {
-    *a2 = a1[62];
-    v11 = a1[63];
-    *a4 = a1[64];
-    v10 = a1[65];
-    *a6 = a1[66];
-    *a7 = a1[67];
-    if (*(_DWORD *)a2 != -1) {
-      if (v11 < 0.0) {
-        v11 = v11 + control_c_variable_134;
+    *piLeftCarIdx = pCar->iLeftTargetIdx;       // Use cached collision data from previous frame
+    fLeftTargetTime = pCar->fLeftTargetTime;
+    *piRightCarIdx = pCar->iRightTargetIdx;
+    fRightTargetTime = pCar->fRightTargetTime;
+    *pfTargetX = pCar->fTargetX;
+    *pfTargetY = pCar->fTargetY;
+    if (*piLeftCarIdx != -1)                  // Update cached collision times by subtracting frame time
+    {
+      if (fLeftTargetTime < 0.0) {
+        fLeftTargetTime = fLeftTargetTime + -0.02777777777777778f;// Subtract frame time (1/36 second is about 0.0278s for 36 FPS)
       } else {
-        v11 = v11 + control_c_variable_134;
-        if (v11 < 0.0)
-          v11 = 0.0;
+        fLeftTargetTime = fLeftTargetTime + -0.02777777777777778f;
+        if (fLeftTargetTime < 0.0)            // Clamp positive times to zero (collision imminent)
+          fLeftTargetTime = 0.0;
       }
     }
-    if (*(_DWORD *)a4 != -1) {
-      if (v10 < 0.0) {
-        v10 = v10 + control_c_variable_134;
+    if (*piRightCarIdx != -1) {
+      if (fRightTargetTime < 0.0) {
+        fRightTargetTime = fRightTargetTime + -0.02777777777777778f;
       } else {
-        v10 = v10 + control_c_variable_134;
-        if (v10 < 0.0)
-          v10 = 0.0;
+        fRightTargetTime = fRightTargetTime + -0.02777777777777778f;
+        if (fRightTargetTime < 0.0)
+          fRightTargetTime = 0.0;
       }
     }
-    *a3 = v11;
-    *a5 = v10;
-    a1[63] = v11;
-    a1[65] = v10;
-    if (Car[*(_DWORD *)a2].nCurrChunk == -1) {
-      *a2 = NAN;
-      *a3 = -10000.0;
-      a1[62] = NAN;
-      a1[63] = -10000.0;
+    *pfLeftTime = fLeftTargetTime;
+    *pfRightTime = fRightTargetTime;
+    pCar->fLeftTargetTime = fLeftTargetTime;
+    pCar->fRightTargetTime = fRightTargetTime;
+    if (Car[*piLeftCarIdx].nCurrChunk == -1)  // Validate left target car is still on track
+    {
+      *piLeftCarIdx = -1;                       // Clear invalid left target (car removed from track)
+      *pfLeftTime = -10000.0;
+      pCar->iLeftTargetIdx = -1;
+      pCar->fLeftTargetTime = -10000.0;
     }
-    result = (float *)Car[*(_DWORD *)a4].nCurrChunk;
-    if (result == (float *)-1) {
-      *a4 = NAN;
-      result = a5;
-      *a5 = -10000.0;
-      a1[64] = NAN;
-      a1[65] = -10000.0;
+    if (Car[*piRightCarIdx].nCurrChunk == -1) // Validate right target car is still on track
+    {
+      *piRightCarIdx = -1;                      // Clear invalid right target (car removed from track)
+      *pfRightTime = -10000.0;
+      pCar->iRightTargetIdx = -1;
+      pCar->fRightTargetTime = -10000.0;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00031250
-int findnearcarsforce(int a1, int *a2, float *a3, int *a4, void *a5, float *a6, float *a7)
+void findnearcarsforce(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRightCarIdx, float *pfRightTime, float *pfTargetX, float *pfTargetY)
 {
-  return 0;/*
-  int v7; // esi
-  long double v9; // st7
-  int v10; // ebx
-  tData *v11; // ecx
-  double v12; // st7
-  double v13; // st7
-  int v14; // ebx
-  double v15; // st6
-  double v16; // rt0
-  double v17; // rt1
-  double v18; // st5
-  tData *v19; // ecx
-  int v20; // edi
-  int v21; // eax
-  int v22; // ebx
-  double v23; // st7
-  int v24; // esi
-  int v25; // ebx
-  int v26; // eax
-  double v27; // st7
+  int iTrakLen; // esi
+  double dAbsSpeed; // st7
   int nCurrChunk; // ebx
-  double v29; // st7
+  tData *pTrackData; // ecx
+  double dTrackPos; // st7
+  double dNewTrackPos; // st7
+  int iNextChunk; // ebx
+  double dYPos; // st6
+  double dTempX; // rt0
+  double dTempY; // rt1
+  double dTempZ; // st5
+  tData *pCurrTrackData; // ecx
+  int iCarIdx; // edi
+  int iDriverIdx; // eax
+  int iChunkDiff; // ebx
+  double dOtherCarSpeed; // st7
+  int iTrakLenTemp; // esi
+  int iChunkIdx; // ebx
+  int iCounter; // eax
+  double dDistanceCalc; // st7
+  int iOtherCarChunk; // ebx
+  double dTempDistance; // st7
   signed int i; // ecx
-  int v31; // ebx
-  long double v32; // st7
-  _DWORD *v33; // ebx
-  int result; // eax
-  float v37; // [esp+1Ch] [ebp-54h]
-  float v38; // [esp+20h] [ebp-50h]
-  float v39; // [esp+24h] [ebp-4Ch]
-  float v40; // [esp+28h] [ebp-48h]
-  int v41; // [esp+2Ch] [ebp-44h]
-  int v42; // [esp+30h] [ebp-40h]
-  float v43; // [esp+34h] [ebp-3Ch]
-  float v44; // [esp+38h] [ebp-38h]
-  float v45; // [esp+3Ch] [ebp-34h]
-  float v46; // [esp+40h] [ebp-30h]
-  float v47; // [esp+44h] [ebp-2Ch]
-  float v48; // [esp+48h] [ebp-28h]
-  float v49; // [esp+4Ch] [ebp-24h]
-  float v50; // [esp+50h] [ebp-20h]
-  int v51; // [esp+54h] [ebp-1Ch]
-  float v52; // [esp+58h] [ebp-18h]
-  int v53; // [esp+5Ch] [ebp-14h]
-  float v54; // [esp+60h] [ebp-10h]
-  float j; // [esp+60h] [ebp-10h]
-  float v56; // [esp+60h] [ebp-10h]
-  float v57; // [esp+60h] [ebp-10h]
+  int iSideFlag; // ebx
+  double dSpeedDiff; // st7
+  float *pOutParam; // ebx
+  float fOutValue; // eax
+  float fSpeedForCalc; // [esp+1Ch] [ebp-54h]
+  float fStrategyValue; // [esp+20h] [ebp-50h]
+  float fTrackPos; // [esp+24h] [ebp-4Ch]
+  float fOwnSpeedForward; // [esp+28h] [ebp-48h]
+  int iLeftCarIdx; // [esp+2Ch] [ebp-44h]
+  int iRightCarIdx; // [esp+30h] [ebp-40h]
+  float fCarWidth; // [esp+34h] [ebp-3Ch]
+  float fTrackLength; // [esp+38h] [ebp-38h]
+  float fSpeedDiffCalc; // [esp+3Ch] [ebp-34h]
+  float fOtherCarSpeed; // [esp+40h] [ebp-30h]
+  float fForwardPos; // [esp+44h] [ebp-2Ch]
+  float fReversePos; // [esp+48h] [ebp-28h]
+  float fLeftTime; // [esp+4Ch] [ebp-24h]
+  float fRightTime; // [esp+50h] [ebp-20h]
+  int iCarLoopIdx; // [esp+54h] [ebp-1Ch]
+  float fTimeToCollision; // [esp+58h] [ebp-18h]
+  int iNormalizedChunkDiff; // [esp+5Ch] [ebp-14h]
+  float fDistFromChunk; // [esp+60h] [ebp-10h]
+  float fDistance; // [esp+60h] [ebp-10h]
+  float fNegDistance; // [esp+60h] [ebp-10h]
+  float fAdjustedDistance; // [esp+60h] [ebp-10h]
 
-  v7 = TRAK_LEN;
-  v38 = CarStrategy_variable_1[10 * *(_DWORD *)(a1 + 32)];
-  v9 = fabs(*(float *)(a1 + 24));
-  if (v9 < control_c_variable_135) {
-    v37 = v9;
-    v38 = (v38 + control_c_variable_136) * v37 * control_c_variable_137 + control_c_variable_138;
+  iTrakLen = TRAK_LEN;
+  fStrategyValue = CarStrategy[pCar->iDriverIdx].floatUnkAy[4];// Get AI strategy value for car avoidance distance
+  dAbsSpeed = fabs(pCar->fFinalSpeed);          // Calculate absolute speed for distance scaling
+  if (dAbsSpeed < 450.0) {
+    fSpeedForCalc = (float)dAbsSpeed;
+    fStrategyValue = (fStrategyValue + -1000.0f) * fSpeedForCalc * 0.0022222223f + 1000.0f;
   }
-  v49 = -10000.0;
-  v50 = -10000.0;
-  v10 = *(__int16 *)(a1 + 12);
-  v41 = -1;
-  v42 = -1;
-  if (*(_DWORD *)(a1 + 188)) {
-    v48 = *(float *)a1 - localdata[v10].fUnk13 - v38;
-    while (control_c_variable_140 * localdata[v10].fUnk13 > v48) {
-      v13 = control_c_variable_139 * localdata[v10--].fUnk13 + v48;
-      v48 = v13;
-      if (v10 < 0)
-        v10 = TRAK_LEN - 1;
+  fLeftTime = -10000.0;
+  fRightTime = -10000.0;
+  nCurrChunk = pCar->nCurrChunk;
+  iLeftCarIdx = -1;
+  iRightCarIdx = -1;
+  if (pCar->iBobMode)                         // Calculate look-ahead position based on revenge mode
+  {
+    fReversePos = pCar->pos.fX - localdata[nCurrChunk].fTrackHalfLength - fStrategyValue;
+    while (-2.0 * localdata[nCurrChunk].fTrackHalfLength > fReversePos) {
+      dNewTrackPos = 2.0 * localdata[nCurrChunk--].fTrackHalfLength + fReversePos;
+      fReversePos = (float)dNewTrackPos;
+      if (nCurrChunk < 0)
+        nCurrChunk = TRAK_LEN - 1;
     }
-    v11 = &localdata[v10];
-    v12 = v48 + v11->fUnk13;
+    pTrackData = &localdata[nCurrChunk];
+    dTrackPos = fReversePos + pTrackData->fTrackHalfLength;
   } else {
-    v47 = v38 + *(float *)a1 + localdata[v10].fUnk13;
+    fForwardPos = fStrategyValue + pCar->pos.fX + localdata[nCurrChunk].fTrackHalfLength;
     while (1) {
-      v44 = control_c_variable_139 * localdata[v10].fUnk13;
-      if (v47 <= (double)v44)
+      fTrackLength = 2.0f * localdata[nCurrChunk].fTrackHalfLength;
+      if (fForwardPos <= (double)fTrackLength)
         break;
-      ++v10;
-      v47 = v47 - v44;
-      if (v10 == TRAK_LEN)
-        v10 ^= TRAK_LEN;
+      ++nCurrChunk;
+      fForwardPos = fForwardPos - fTrackLength;
+      if (nCurrChunk == TRAK_LEN)
+        nCurrChunk ^= TRAK_LEN;
     }
-    v11 = &localdata[v10];
-    v12 = v47 - v11->fUnk13;
+    pTrackData = &localdata[nCurrChunk];
+    dTrackPos = fForwardPos - pTrackData->fTrackHalfLength;
   }
-  v39 = v12;
-  v14 = v10 + 1;
-  if (v14 == TRAK_LEN)
-    v14 ^= TRAK_LEN;
-  v15 = ((v11->fUnk13 - v39) * *(&v11->fUnk25 + *(_DWORD *)(a1 + 160))
-       + (v39 + v11->fUnk13) * *(&localdata[v14].fUnk25 + *(_DWORD *)(a1 + 160)))
-    / (v11->fUnk13
-     * control_c_variable_139);
-  v16 = v11->pointAy[1].fX * v39 + v11->pointAy[1].fY * v15 - v11->pointAy[3].fY;
-  v17 = v11->pointAy[0].fY * v15 + v11->pointAy[0].fX * v39 - v11->pointAy[3].fX;
-  v18 = v39 * v11->pointAy[2].fX + v15 * v11->pointAy[2].fY - v11->pointAy[3].fZ;
-  v19 = &localdata[*(__int16 *)(a1 + 12)];
-  *a6 = (v16 + v19->pointAy[3].fY) * v19->pointAy[1].fX
-    + (v17 + v19->pointAy[3].fX) * v19->pointAy[0].fX
-    + (v18 + v19->pointAy[3].fZ) * v19->pointAy[2].fX;
-  *a7 = (v17 + v19->pointAy[3].fX) * v19->pointAy[0].fY
-    + (v16 + v19->pointAy[3].fY) * v19->pointAy[1].fY
-    + (v18 + v19->pointAy[3].fZ) * v19->pointAy[2].fY;
-  v51 = 0;
-  v40 = *(float *)(a1 + 24) * tcos[*(_DWORD *)(a1 + 64) & 0x3FFF];
-  if (numcars > 0) {
-    v20 = 0;
+  fTrackPos = (float)dTrackPos;
+  iNextChunk = nCurrChunk + 1;
+  if (iNextChunk == TRAK_LEN)
+    iNextChunk ^= TRAK_LEN;
+  dYPos = ((pTrackData->fTrackHalfLength - fTrackPos) * *(&pTrackData->fAILine1 + pCar->iAICurrentLine)
+         + (fTrackPos + pTrackData->fTrackHalfLength) * *(&localdata[iNextChunk].fAILine1 + pCar->iAICurrentLine))
+    / (pTrackData->fTrackHalfLength
+     * 2.0);
+  dTempX = pTrackData->pointAy[1].fX * fTrackPos + pTrackData->pointAy[1].fY * dYPos - pTrackData->pointAy[3].fY;
+  dTempY = pTrackData->pointAy[0].fY * dYPos + pTrackData->pointAy[0].fX * fTrackPos - pTrackData->pointAy[3].fX;
+  dTempZ = fTrackPos * pTrackData->pointAy[2].fX + dYPos * pTrackData->pointAy[2].fY - pTrackData->pointAy[3].fZ;
+  pCurrTrackData = &localdata[pCar->nCurrChunk];
+  *pfTargetX = (float)((dTempX + pCurrTrackData->pointAy[3].fY) * pCurrTrackData->pointAy[1].fX
+    + (dTempY + pCurrTrackData->pointAy[3].fX) * pCurrTrackData->pointAy[0].fX
+    + (dTempZ + pCurrTrackData->pointAy[3].fZ) * pCurrTrackData->pointAy[2].fX);
+  *pfTargetY = (float)((dTempY + pCurrTrackData->pointAy[3].fX) * pCurrTrackData->pointAy[0].fY
+    + (dTempX + pCurrTrackData->pointAy[3].fY) * pCurrTrackData->pointAy[1].fY
+    + (dTempZ + pCurrTrackData->pointAy[3].fZ) * pCurrTrackData->pointAy[2].fY);
+  iCarLoopIdx = 0;
+  fOwnSpeedForward = pCar->fFinalSpeed * tcos[pCar->nYaw3 & 0x3FFF];
+  if (numcars > 0)                            // Main loop: check all cars for collision threats
+  {
+    iCarIdx = 0;
     do {
-      v21 = *(_DWORD *)(a1 + 32);
-      TRAK_LEN = v7;
-      if (v21 == v51 || (char)Car[v20].byUnk23 <= 0)
+      iDriverIdx = pCar->iDriverIdx;
+      TRAK_LEN = iTrakLen;
+      if (iDriverIdx == iCarLoopIdx || (char)Car[iCarIdx].byLives <= 0)
         goto LABEL_67;
-      v22 = Car[v20].nCurrChunk - *(__int16 *)(a1 + 12);
-      v53 = v22;
-      if (v22 < 0)
-        v53 = v22 + v7;
-      if (v7 / 2 < v53)
-        v53 -= v7;
-      v23 = Car[v20].fMaxSpeed * tcos[Car[v20].iAngleIdx15 & 0x3FFF];
-      TRAK_LEN = v7;
-      v46 = v23;
-      if (Car[v20].iUnk17 != 3
-        || fabs((double)v53 / (v40 - v46)) >= control_c_variable_141
-        || !linevalid(*(__int16 *)(a1 + 12), *(float *)(a1 + 4), Car[v20].pos.fY)) {
-        goto LABEL_67;
+      iChunkDiff = Car[iCarIdx].nCurrChunk - pCar->nCurrChunk;
+      iNormalizedChunkDiff = iChunkDiff;
+      if (iChunkDiff < 0)
+        iNormalizedChunkDiff = iChunkDiff + iTrakLen;
+      if (iTrakLen / 2 < iNormalizedChunkDiff)
+        iNormalizedChunkDiff -= iTrakLen;
+      dOtherCarSpeed = Car[iCarIdx].fFinalSpeed * tcos[Car[iCarIdx].nYaw3 & 0x3FFF];
+      TRAK_LEN = iTrakLen;
+      fOtherCarSpeed = (float)dOtherCarSpeed;
+      if (Car[iCarIdx].iControlType != 3
+        || fabs((double)iNormalizedChunkDiff / (fOwnSpeedForward - fOtherCarSpeed)) >= 0.2f
+        || !linevalid(pCar->nCurrChunk, pCar->pos.fY, Car[iCarIdx].pos.fY)) {
+        goto LABEL_67;                          // Check if car is AI-controlled and within collision range
       }
-      v24 = TRAK_LEN;
-      if (v53 <= 0) {
-        if (v53 >= 0) {
-          j = Car[v20].pos.fX - *(float *)a1;
+      iTrakLenTemp = TRAK_LEN;
+      if (iNormalizedChunkDiff <= 0) {
+        if (iNormalizedChunkDiff >= 0) {
+          fDistance = Car[iCarIdx].pos.fX - pCar->pos.fX;
         } else {
-          nCurrChunk = Car[v20].nCurrChunk;
-          v56 = -(localdata[nCurrChunk].fUnk13 - Car[v20].pos.fX);
-          v29 = v56 - (localdata[*(__int16 *)(a1 + 12)].fUnk13 + *(float *)a1);
+          iOtherCarChunk = Car[iCarIdx].nCurrChunk;
+          fNegDistance = -(localdata[iOtherCarChunk].fTrackHalfLength - Car[iCarIdx].pos.fX);
+          dTempDistance = fNegDistance - (localdata[pCar->nCurrChunk].fTrackHalfLength + pCar->pos.fX);
           for (i = 1; ; ++i) {
-            ++nCurrChunk;
-            j = v29;
-            if (i >= (int)abs32(v53))
+            ++iOtherCarChunk;
+            fDistance = (float)dTempDistance;
+            if (i >= (int)abs(iNormalizedChunkDiff))
               break;
-            if (nCurrChunk >= TRAK_LEN)
-              nCurrChunk -= TRAK_LEN;
-            v29 = j - control_c_variable_139 * localdata[nCurrChunk].fUnk13;
+            if (iOtherCarChunk >= TRAK_LEN)
+              iOtherCarChunk -= TRAK_LEN;
+            dTempDistance = fDistance - 2.0 * localdata[iOtherCarChunk].fTrackHalfLength;
           }
-          v24 = TRAK_LEN;
-          if (j > 0.0)
-            j = 0.0;
+          iTrakLenTemp = TRAK_LEN;
+          if (fDistance > 0.0)
+            fDistance = 0.0;
         }
       } else {
-        v54 = localdata[*(__int16 *)(a1 + 12)].fUnk13 - *(float *)a1;
-        v25 = *(__int16 *)(a1 + 12) + 1;
-        v26 = 1;
-        for (j = localdata[Car[v20].nCurrChunk].fUnk13 + Car[v20].pos.fX + v54; v26 < v53; j = v27) {
-          if (v25 >= TRAK_LEN)
-            v25 -= TRAK_LEN;
-          v27 = control_c_variable_139 * localdata[v25].fUnk13 + j;
-          ++v26;
-          ++v25;
+        fDistFromChunk = localdata[pCar->nCurrChunk].fTrackHalfLength - pCar->pos.fX;
+        iChunkIdx = pCar->nCurrChunk + 1;
+        iCounter = 1;
+        for (fDistance = localdata[Car[iCarIdx].nCurrChunk].fTrackHalfLength + Car[iCarIdx].pos.fX + fDistFromChunk; iCounter < iNormalizedChunkDiff; fDistance = (float)dDistanceCalc) {
+          if (iChunkIdx >= TRAK_LEN)
+            iChunkIdx -= TRAK_LEN;
+          dDistanceCalc = 2.0 * localdata[iChunkIdx].fTrackHalfLength + fDistance;
+          ++iCounter;
+          ++iChunkIdx;
         }
-        if (j < 0.0)
-          j = 0.0;
+        if (fDistance < 0.0)
+          fDistance = 0.0;
       }
-      v43 = control_c_variable_139 * CarBaseX;
-      if (j < 0.0) {
-        v57 = j + v43;
-        v31 = 0;
-        if (v57 > 0.0)
-          v57 = 0.0;
+      fCarWidth = 2.0f * CarBaseX;
+      if (fDistance < 0.0) {
+        fAdjustedDistance = fDistance + fCarWidth;
+        iSideFlag = 0;
+        if (fAdjustedDistance > 0.0)
+          fAdjustedDistance = 0.0;
       } else {
-        v57 = j - v43;
-        v31 = -1;
-        if (v57 < 0.0)
-          v57 = 0.0;
+        fAdjustedDistance = fDistance - fCarWidth;
+        iSideFlag = -1;
+        if (fAdjustedDistance < 0.0)
+          fAdjustedDistance = 0.0;
       }
-      v32 = v40 - v46;
-      if (fabs(v32) >= control_c_variable_142) {
-        v45 = v32;
-        v52 = v57 / (control_c_variable_143 * v45);
+      dSpeedDiff = fOwnSpeedForward - fOtherCarSpeed;
+      if (fabs(dSpeedDiff) >= 0.0001) {
+        fSpeedDiffCalc = (float)dSpeedDiff;
+        fTimeToCollision = fAdjustedDistance / (36.0f * fSpeedDiffCalc);// Calculate time to collision based on relative speed
       } else {
-        v52 = -10000.0;
+        fTimeToCollision = -10000.0;
       }
-      TRAK_LEN = v24;
-      if (fabs(v52) > control_c_variable_144)
+      TRAK_LEN = iTrakLenTemp;
+      if (fabs(fTimeToCollision) > 8.0)
         goto LABEL_67;
-      if (v31) {
-        if (v52 < 0.0) {
-          if (v52 > (double)v50 && v50 < 0.0) {
-            v42 = v51;
-            v50 = v52;
+      if (iSideFlag) {
+        if (fTimeToCollision < 0.0) {
+          if (fTimeToCollision > (double)fRightTime && fRightTime < 0.0) {
+            iRightCarIdx = iCarLoopIdx;
+            fRightTime = fTimeToCollision;
           }
-        } else if (v52 < (double)v50 || v50 < 0.0) {
-          v42 = v51;
-          v50 = v52;
+        } else if (fTimeToCollision < (double)fRightTime || fRightTime < 0.0) {
+          iRightCarIdx = iCarLoopIdx;
+          fRightTime = fTimeToCollision;
         }
         goto LABEL_67;
       }
-      if (v52 < 0.0) {
-        if (v52 <= (double)v49 || v49 >= 0.0)
+      if (fTimeToCollision < 0.0) {
+        if (fTimeToCollision <= (double)fLeftTime || fLeftTime >= 0.0)
           goto LABEL_67;
-      } else if (v52 >= (double)v49 && v49 >= 0.0) {
+      } else if (fTimeToCollision >= (double)fLeftTime && fLeftTime >= 0.0) {
         goto LABEL_67;
       }
-      v41 = v51;
-      v49 = v52;
+      iLeftCarIdx = iCarLoopIdx;
+      fLeftTime = fTimeToCollision;
     LABEL_67:
-      v7 = TRAK_LEN;
-      ++v20;
-      ++v51;
-    } while (v51 < numcars);
+      iTrakLen = TRAK_LEN;
+      ++iCarIdx;
+      ++iCarLoopIdx;
+    } while (iCarLoopIdx < numcars);
   }
-  if (*(_DWORD *)(a1 + 188)) {
-    *a2 = v42;
-    *a4 = v41;
-    *a3 = v50;
-    v33 = a5;
-    result = LODWORD(v49);
+  if (pCar->iBobMode)                         // Return results: left/right car indices and collision times
+  {
+    *piLeftCarIdx = iRightCarIdx;
+    *piRightCarIdx = iLeftCarIdx;
+    *pfLeftTime = fRightTime;
+    pOutParam = pfRightTime;
+    fOutValue = fLeftTime;
   } else {
-    *a2 = v41;
-    *a4 = v42;
-    *a3 = v49;
-    v33 = a5;
-    result = LODWORD(v50);
+    *piLeftCarIdx = iLeftCarIdx;
+    *piRightCarIdx = iRightCarIdx;
+    *pfLeftTime = fLeftTime;
+    pOutParam = pfRightTime;
+    fOutValue = fRightTime;
   }
-  *v33 = result;
-  TRAK_LEN = v7;
-  return result;*/
+  *pOutParam = fOutValue;
+  TRAK_LEN = iTrakLen;
 }
 
 //-------------------------------------------------------------------------------------------------
 //00031870
-double interpolatesteer(float a1, float a2, float a3, int a4, int a5)
+double interpolatesteer(float fSteeringInput, float fSaturationThreshold, float fDeadzoneThreshold, float fMaxOutput, float fMinOutput)
 {
-  return 0.0;
-  /*
-  long double v5; // st7
-  float v8; // [esp+Ch] [ebp+4h]
+  double dAbsInput; // st7
+  float fAbsInput; // [esp+Ch] [ebp+4h]
 
-  v5 = fabs(a1);
-  v8 = v5;
-  if (v5 <= a2) {
-    if (v8 < (double)a3)
-      return *(float *)&a5;
-    return (float)(((v8 - a3) * *(float *)&a4 - (v8 - a2) * *(float *)&a5) / (a2 - a3));
+  dAbsInput = fabs(fSteeringInput);             // Get absolute value of steering input
+  fAbsInput = (float)dAbsInput;
+  if (dAbsInput <= fSaturationThreshold)      // Check if input exceeds saturation threshold
+  {                                             // Check if input is in deadzone
+    if (fAbsInput < (double)fDeadzoneThreshold)
+      return fMinOutput;                        // Return minimum output value (deadzone)
+    return (float)(((fAbsInput - fDeadzoneThreshold) * fMaxOutput - (fAbsInput - fSaturationThreshold) * fMinOutput) / (fSaturationThreshold - fDeadzoneThreshold));// Linear interpolation between deadzone and saturation
   } else {
-    return *(float *)&a4;
-  }*/
+    return fMaxOutput;                          // Return maximum output value (saturation)
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -5551,14 +5547,14 @@ void changestrategy(tCar *pCar)
       iRandRevengeCheck = rand();
       if ((1000 * iRandRevengeCheck) >> 15 < iRevengeProbability) {                                         // Trigger revenge speech if same car design as player (not in clones mode)
         // CHEAT_MODE_CLONES
-        if (player_type != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && !pCar->iRevengeMode && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx) {
+        if (player_type != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && !pCar->iBobMode && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx) {
           byCarDesignIdx = pCar->byCarDesignIdx;
           if (byCarDesignIdx <= 7u) {
             speechsample(byCarDesignIdx + 71, 20000, 18, player1_car + 17664);
             speechsample(SOUND_SAMPLE_REVERST, 20000, 0, player1_car);// SOUND_SAMPLE_REVERST
           }
         }
-        pCar->iRevengeMode = -1;                // Activate revenge mode (-1)
+        pCar->iBobMode = -1;                // Activate revenge mode (-1)
         goto LABEL_39;
       }
     } else {
@@ -5566,18 +5562,18 @@ void changestrategy(tCar *pCar)
       if ((1000 * iRandRevengeAlt) >> 15 < pStrategyData->strategyAy[4])// Advanced levels (4+): use strategy data for revenge probability
       {
         // CHEAT_MODE_CLONES
-        if (player_type != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && !pCar->iRevengeMode && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx && pCar->byCarDesignIdx <= 7u) {
+        if (player_type != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && !pCar->iBobMode && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx && pCar->byCarDesignIdx <= 7u) {
           speechsample(pCar->byCarDesignIdx + 71, 20000, 18, player1_car + 17664);
           speechsample(SOUND_SAMPLE_REVERST, 20000, 0, player1_car);// SOUND_SAMPLE_REVERST
         }
-        pCar->iRevengeMode = -1;
+        pCar->iBobMode = -1;
         goto LABEL_39;
       }
     }
-    pCar->iRevengeMode = 0;
+    pCar->iBobMode = 0;
   LABEL_39:
     if (winner_mode)                          // Winner mode disables revenge/aggression
-      pCar->iRevengeMode = 0;
+      pCar->iBobMode = 0;
   }
   if (iOldStrategy != pCar->iSelectedStrategy)          // If strategy changed, play speech and set cooldown timer
   {
