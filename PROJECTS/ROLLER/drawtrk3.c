@@ -884,7 +884,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
   int iProjectedZ; // [esp+164h] [ebp-390h]
   int iNextSectionIndex; // [esp+168h] [ebp-38Ch]
   int iRightWallFlags; // [esp+16Ch] [ebp-388h]
-  int iLeftWallFlags; // [esp+170h] [ebp-384h]
+  int iLeftWallFlags = 0; // [esp+170h] [ebp-384h]
   bool bGroundVisible; // [esp+174h] [ebp-380h]
   float fScreenTempX1; // [esp+178h] [ebp-37Ch]
   float fScreenTempY1; // [esp+17Ch] [ebp-378h]
