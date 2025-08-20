@@ -341,6 +341,12 @@ void UpdateDebugLoop()
     int value = 0;
     int font = 0;
 
+    int _scr_size = scr_size; // Backup scr_size
+
+    LoadPanel(); // Load rev_vga array
+    scr_size = 64; // scale text size
+    screen_pointer = scrbuf; // Set screen pointer to scrbuf
+
     strcpy(text, "Debug font ascii");
 
     while (debugEnable) {
@@ -377,6 +383,22 @@ void UpdateDebugLoop()
 
       uint8 color_white = 0x8Fu;
       uint8 color_red = 0xE7u;
+
+      // Mini text print
+      scr_size = 64; // scale text size
+      mini_prt_centre(rev_vga[0], "0123456789", 320, 240 - 8);
+      prt_centrecol(rev_vga[1], "0123456789", 320, 240, color_white);
+      scr_size = 128; // scale text size
+      mini_prt_centre(rev_vga[0], "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 320 / 2, (240 + 8) / 2);
+      prt_centrecol(rev_vga[1], "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 320 / 2, (240 + 24) / 2, color_white);
+
+      // Mini text print with config_buffer
+      //mini_prt_centre(rev_vga[0], &config_buffer[value * 64], 320 / 2, (240 + 40) / 2); // This fail with `-`
+
+      prt_centrecol(rev_vga[1], &config_buffer[value * 64], 320 / 2, (240 + 56) / 2, color_white);
+      scr_size = 256; // scale text size
+      prt_centrecol(rev_vga[1], &config_buffer[value * 64], 320 / 4, (240 + 72) / 4, color_white);
+
 
       sprintf(buffer, "%s", text);
       front_text((tBlockHeader *)front_vga_font, buffer, font_ascii, font_offsets, 0, size / 2, color_white, 0);
@@ -432,6 +454,8 @@ void UpdateDebugLoop()
     fre((void **)&front_vga_font3);
     fre((void **)&front_vga_font2);
     fre((void **)&front_vga_font1);
+
+    scr_size = _scr_size; // Restore scr_size
   }
 }
 #endif
