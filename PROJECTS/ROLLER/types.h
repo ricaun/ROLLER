@@ -135,6 +135,8 @@ typedef int32 fixed16_16;
 #define GET_SHIWORD(x) (int16)GET_HIWORD(x)
 #define GET_SLOWORD(x) (int16)GET_LOWORD(x)
 
+#define SET_BYTE1(lval, rval) (lval = (lval & 0xFFFF00FF) | ((rval) & 0x000000FF))
+
 //64-bit helpers
 #define SET_BYTE1_64(lval, rval)  (lval = (lval & 0xFFFFFFFFFFFF00FF) | ((rval) & 0x000000000000FF00))
 #define SET_LOWORD_64(lval, rval) (lval = (lval & 0xFFFFFFFFFFFF0000) | ((rval) & 0x000000000000FFFF))

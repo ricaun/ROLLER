@@ -313,7 +313,8 @@ void initlocalsection(int iChunkIdx)
   // Calculate banking angle difference for physics
   fBankAngle = atan2(pointArray[7] - pointArray[10], pointArray[11] - pointArray[8]);
   //fBankAngle = IF_DATAN2(nFpStatus1, pointArray[7] - pointArray[10], pointArray[11] - pointArray[8]);
-  fBankDelta = (fBankAngle - atan2(pointArray[5] - pointArray[2], fBankAngle)) * 16384.0 / 6.28318530718 + 0.5;
+  fBankDelta = (fBankAngle - atan2(pointArray[1] - pointArray[4], pointArray[5] - pointArray[2])) * 16384.0 / 6.28318530718 + 0.5;
+  //fBankDelta = (fBankAngle - atan2(pointArray[5] - pointArray[2], fBankAngle)) * 16384.0 / 6.28318530718 + 0.5;
   //fBankDelta = (fBankAngle - IF_DATAN2(nFpStatus2, pointArray[5] - pointArray[2], fBankAngle)) * 16384.0 / 6.28318530718 + 0.5;
   floor(fBankDelta);
   //_CHP();

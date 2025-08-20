@@ -10,6 +10,7 @@
 #include "replay.h"
 #include "colision.h"
 #include "frontend.h"
+#include "roller.h"
 #include <math.h>
 #include <float.h>
 #include <string.h>
@@ -4224,7 +4225,7 @@ void putflat(tCar *pCar)
   double dPitchResult; // st5
   //int iYawIndex; // eax
   double dRollResult; // st7
-  int nPitchFinal; // eax
+  int iPitchFinal_1; // eax
   int iStunned; // edi
   int nYaw; // [esp+14h] [ebp-40h]
   float fAbsYPos; // [esp+1Ch] [ebp-38h]
@@ -4359,11 +4360,14 @@ void putflat(tCar *pCar)
   //_CHP();
   dRollResult = dPitchForCalc * tsin[nYaw] + (double)iBankInt * tcos[nYaw];
   //_CHP();
-  nPitchFinal = (int)dPitchResult;
-  nPitchFinal = ((uint16)(int)dPitchResult >> 8) & 0x3FFF;// Mask pitch angle to 14-bit range
-  //BYTE1(nPitchFinal) = ((unsigned __int16)(int)dPitchResult >> 8) & 0x3F;// Mask pitch result to 14-bit range (0x3FFF)
+  
+
+  iPitchFinal_1 = (int)dPitchResult;
+  //iPitchFinal_1 = ((int16)(int)dPitchResult >> 8) & 0x3FFF;// Mask pitch angle to 14-bit range
+  SET_BYTE1(iPitchFinal_1, ((uint16)(int)dPitchResult >> 8) & 0x3F);// Mask pitch result to 14-bit range (0x3FFF)
+  //BYTE1(iPitchFinal_1) = ((unsigned __int16)(int)dPitchResult >> 8) & 0x3F;// Mask pitch result to 14-bit range (0x3FFF)
   iStunned = pCar->iStunned;
-  pCar->nPitch = nPitchFinal;
+  pCar->nPitch = iPitchFinal_1;
   iRollFinal = (int)dRollResult;
   if (iStunned)                               // Apply stunned car effects - add roll offset and height adjustment
   {
