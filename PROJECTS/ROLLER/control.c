@@ -4362,10 +4362,12 @@ void putflat(tCar *pCar)
   //_CHP();
   
 
-  iPitchFinal_1 = (int)dPitchResult;
-  //iPitchFinal_1 = ((int16)(int)dPitchResult >> 8) & 0x3FFF;// Mask pitch angle to 14-bit range
-  SET_BYTE1(iPitchFinal_1, ((uint16)(int)dPitchResult >> 8) & 0x3F);// Mask pitch result to 14-bit range (0x3FFF)
+  //iPitchFinal_1 = (int)dPitchResult;
+  ////iPitchFinal_1 = ((int16)(int)dPitchResult >> 8) & 0x3FFF;// Mask pitch angle to 14-bit range
+  //SET_BYTE1(iPitchFinal_1, ((uint16)(int)dPitchResult >> 8) & 0x3F);// Mask pitch result to 14-bit range (0x3FFF)
   //BYTE1(iPitchFinal_1) = ((unsigned __int16)(int)dPitchResult >> 8) & 0x3F;// Mask pitch result to 14-bit range (0x3FFF)
+
+  iPitchFinal_1 = ((int)dPitchResult) & 0x3FFF;
   iStunned = pCar->iStunned;
   pCar->nPitch = iPitchFinal_1;
   iRollFinal = (int)dRollResult;
