@@ -600,10 +600,12 @@ void copy_screens()
   copypic(scrbuf, screen);
   disable_keyboard();
   ticks = 0;
+#ifndef _DEBUG
   while (ticks < 180) {
     UpdateSDL();
     UpdateSDLWindow();
   }
+#endif
   fre((void**)&front_vga[0]);
   fade_palette(0);
 }
