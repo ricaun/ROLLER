@@ -557,6 +557,9 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
   char iShouldFlipVert; // [esp+8h] [ebp-14h]
   char iShouldFlipHoriz; // [esp+Ch] [ebp-10h]
 
+  if (!pTexture)
+    return; //added by ROLLER
+
   // Check if tex idx is valid for given tex type
   uiSurfaceType = pPolyParams->iSurfaceType;
   if ((uint8)pPolyParams->iSurfaceType >= NoOfTextures && (uiSurfaceType & SURFACE_FLAG_SKIP_RENDER) == 0 && !iTexIdx
