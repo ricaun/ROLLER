@@ -3,6 +3,7 @@
 #include "sound.h"
 #include "frontend.h"
 #include "func2.h"
+#include "graphics.h"
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
