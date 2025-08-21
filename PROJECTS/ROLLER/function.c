@@ -3,6 +3,7 @@
 #include "control.h"
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 //-------------------------------------------------------------------------------------------------
 
 float mapsize[25] =       //000A45C0
@@ -531,53 +532,69 @@ int calculate_aheadbehindtime(int a1, float *a2, float *a3)
 
 //-------------------------------------------------------------------------------------------------
 //000376B0
-int initnearcars()
+void initnearcars()
 {
-  return 0;
-  /*
-  int v0; // edi
-  int v1; // ebx
-  int v2; // ebx
-  int v3; // esi
-  int v4; // ecx
-  int v5; // edx
-  int j; // eax
-  int result; // eax
-  int v8; // [esp+0h] [ebp-20h]
-  int i; // [esp+4h] [ebp-1Ch]
+  int iAICarsRemaining; // edi
+  int iCarIndex; // ebx
+  int iCurrentCarIdx; // ebx
+  int iCarsPerGroup; // esi
+  //int iGroupCarCount; // ecx
+  //int iNearCallOffset; // edx
+  //int iTempCarIdx; // eax
+  int iGroupSize; // [esp+0h] [ebp-20h]
+  //int iGroupOffset; // [esp+4h] [ebp-1Ch]
 
-  memset(nearcall, 255, 64);
-  v0 = 0;
+  memset(nearcall, 255, sizeof(nearcall));      // Initialize nearcall array with -1 (no car assigned)
+  iAICarsRemaining = 0;                         // Count total number of AI-controlled cars
   if (numcars > 0) {
-    v1 = 0;
-    do {
-      if (!non_competitors[v1] && !human_control[v1])
-        ++v0;
-      ++v1;
-    } while (v1 < numcars);
+    iCarIndex = 0;
+    do {                                           // Skip non-competitors and human-controlled cars
+      if (!non_competitors[iCarIndex] && !human_control[iCarIndex])
+        ++iAICarsRemaining;
+      ++iCarIndex;
+    } while (iCarIndex < numcars);
   }
-  v2 = 0;
-  v8 = 4;
-  for (i = 0; i != 64; i += 16) {
-    v3 = v0 / v8;
-    v4 = 0;
-    if (v0 / v8 > 0) {
-      v5 = i;
-      do {
-        for (j = v2; non_competitors[j] || human_control[j]; ++j)
-          ++v2;
-        ++v4;
-        *(int *)((char *)nearcall + v5) = v2;
-        v5 += 4;
-        ++v2;
-      } while (v4 < v3);
+
+  iCurrentCarIdx = 0;
+  iGroupSize = 4;                                    // Start with group size 4, distribute AI cars across 4 groups
+  for (int iGroup = 0; iGroup < 4; iGroup++)            // Loop through 4 nearcall groups: [0],[1],[2],[3]
+  {
+    iCarsPerGroup = iAICarsRemaining / iGroupSize; // Calculate how many cars to assign to current group
+    for (int iSlot = 0; iSlot < iCarsPerGroup; iSlot++)
+    {
+      // Find next AI car (skip non-competitors and human players)
+      while (non_competitors[iCurrentCarIdx] || human_control[iCurrentCarIdx])
+      {
+        iCurrentCarIdx++;
+      }
+      // Assign AI car index to current nearcall group slot
+      nearcall[iGroup][iSlot] = iCurrentCarIdx;
+      iCurrentCarIdx++;
     }
-    v0 -= v3;
-    --v8;
+    iAICarsRemaining -= iCarsPerGroup;             // Subtract assigned cars from remaining count
+    iGroupSize--;                                   // Decrease group size for uneven distribution
   }
-  result = 0;
-  nearcarcheck = 0;
-  return result;*/
+  //iCurrentCarIdx = 0;
+  //iGroupSize = 4;                               // Start with group size 4, distribute AI cars across 4 groups
+  //for (iGroupOffset = 0; iGroupOffset != 64; iGroupOffset += 16)// Loop through 4 nearcall groups: [0],[1],[2],[3]
+  //{
+  //  iCarsPerGroup = iAICarsRemaining / iGroupSize;// Calculate how many cars to assign to current group
+  //  iGroupCarCount = 0;
+  //  if (iAICarsRemaining / iGroupSize > 0) {
+  //    iNearCallOffset = iGroupOffset;
+  //    do {                                         // Find next AI car (skip non-competitors and human players)
+  //      for (iTempCarIdx = iCurrentCarIdx; non_competitors[iTempCarIdx] || human_control[iTempCarIdx]; ++iTempCarIdx)
+  //        ++iCurrentCarIdx;
+  //      ++iGroupCarCount;
+  //      *(int *)((char *)nearcall[0] + iNearCallOffset) = iCurrentCarIdx;// Assign AI car index to current nearcall group slot
+  //      iNearCallOffset += 4;
+  //      ++iCurrentCarIdx;
+  //    } while (iGroupCarCount < iCarsPerGroup);
+  //  }
+  //  iAICarsRemaining -= iCarsPerGroup;          // Subtract assigned cars from remaining count
+  //  --iGroupSize;                               // Decrease group size for uneven distribution
+  //}
+  nearcarcheck = 0;                             // Reset near car check counter
 }
 
 //-------------------------------------------------------------------------------------------------
