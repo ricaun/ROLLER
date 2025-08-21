@@ -16,6 +16,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <fcntl.h>
+#include <assert.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
@@ -552,6 +553,38 @@ void updatejoy()
 //00039C20
 void readuserdata(int iPlayer)
 {
+  int iHalfKeyIndex; // esi
+  int iPlayerIdx; // eax
+  tCarEngine *pEngine; // ebx
+  int iKeyIndex; // esi
+  unsigned int uiAccelKey; // eax
+  unsigned int uiBrakeKey; // eax
+  uint8 byLeftKey; // bl
+  int iTurnRate; // ebp
+  int iTurnRate_1; // edx
+  int iPlayerIdx2; // eax
+  int iSteering; // ebx
+  int iMaxSteering; // edi
+  int iTurnRate_2; // edx
+  int iSteering_1; // ebx
+  int iMinSteering_1; // edx
+  int iSteering_2; // eax
+  int iSteering_4; // edx
+  int iSteering_3; // edx
+  unsigned int iJoyLeft; // eax
+  unsigned int iJoyRight; // ebx
+  int iLeftEffect; // eax
+  int iMinSteering; // eax
+  int16 nButtonFlags_1; // bx
+  int16 nButtonFlags; // ax
+  unsigned int uiGearUpKey; // edx
+  int iGearChange; // eax
+  unsigned int uiGearDownKey; // edx
+  int iStrategyFlags; // eax
+  int iNode; // edx
+  int iMessageIdx; // eax
+  char iAccelState; // [esp+0h] [ebp-1Ch]
+
   // Skip processing during countdown phase
   if (countdown >= 140) {
     user_inp = 0;
@@ -559,198 +592,278 @@ void readuserdata(int iPlayer)
   }
 
   // Calculate key indices for this player (6 keys per player)
-  int iKeyOffset = iPlayer * 6;
-  tCarEngine *pEngine = (tCarEngine *)p_eng[iPlayer];
+  iHalfKeyIndex = 3 * iPlayer;
+  iPlayerIdx = iPlayer;
+  pEngine = p_eng[iPlayerIdx];
+  iKeyIndex = 2 * iHalfKeyIndex;
 
-  // Early exit if no engine data
+  // Early exit if no engine
   if (!pEngine) {
     user_inp = 0;
     return;
   }
 
-  // Initialize input state
-  int iButtonFlags = 0;
-  int iSteeringValue = last_inp[iPlayer];
-  int iMaxSteering = pEngine->iSteeringSensitivity << 8;
-  rud_steer[iPlayer] = iMaxSteering;
+  // calculate maximum steering value
+  rud_steer[iPlayerIdx] = pEngine->iSteeringSensitivity << 8;
+  iAccelState = 0;
+  // // Update steering state
+  rud_swheel[iPlayerIdx] = GET_SLOWORD(last_inp[iPlayerIdx]);
 
   // Process acceleration and brake inputs
-  uint8 byAccelKey = userkey[iKeyOffset + 2];  // Acceleration key USERKEY_P1UP or USERKEY_P2UP
-  uint8 byBrakeKey = userkey[iKeyOffset + 3];  // Brake key USERKEY_P1DOWN or USERKEY_P2DOWN
-  int iAccelState = 0;
-
-  if ((byAccelKey > 0x83 && joyvalue[byAccelKey] > 0xC8) ||
-      (byAccelKey <= 0x83 && keys[byAccelKey])) {
-    iAccelState = 1;  // Accelerate
+  uiAccelKey = userkey[iKeyIndex + 2];
+  if (uiAccelKey > 0x83) {
+    //if ((unsigned int)musicbuffer_variable_1[uiAccelKey] <= 0xC8)// joyvalue[uiAccelKey]
+    if ((unsigned int)joyvalue[uiAccelKey] <= 0xC8)// 
+      goto LABEL_9;
+  } else if (!keys[uiAccelKey]) {
+    goto LABEL_9;
   }
-  if ((byBrakeKey > 0x83 && joyvalue[byBrakeKey] > 0xC8) ||
-      (byBrakeKey <= 0x83 && keys[byBrakeKey])) {
-    iAccelState = iAccelState == 1 ? -1 : -2;  // Brake or both
+  iAccelState = 1;
+LABEL_9:
+  uiBrakeKey = userkey[iKeyIndex + 3];
+  if (uiBrakeKey > 0x83) {
+    //if ((unsigned int)musicbuffer_variable_1[uiBrakeKey] <= 0xC8)// joyvalue[uiBrakeKey]
+    if ((unsigned int)joyvalue[uiBrakeKey] <= 0xC8)// 
+      goto LABEL_14;
+  } else if (!keys[uiBrakeKey]) {
+    goto LABEL_14;
   }
+  iAccelState -= 2;
+LABEL_14:
 
-  // Process steering input
-  uint8 byLeftKey = userkey[iKeyOffset];      // Steer left USERKEY_P1LEFT or USERKEY_P2LEFT
-  uint8 byRightKey = userkey[iKeyOffset + 1]; // Steer right USERKEY_P1RIGHT or USERKEYP2RIGHT
-
-  if (byLeftKey > 0x83) {
-    // Joystick steering processing
-    int iJoyLeft = (80 * joyvalue[byLeftKey]) >> 8;
-    int iJoyRight = (80 * joyvalue[byRightKey]) >> 8;
-
-    if (iJoyLeft > 0x102) iJoyLeft = 0x102;
-    if (iJoyRight > 0x102) iJoyRight = 0x102;
-
-    int iLeftEffect = (p_joyk1[iPlayer] * ((iJoyLeft * iJoyLeft * iJoyLeft) >> 8) + p_joyk2[iPlayer] * iJoyLeft);
-    int iRightEffect = (p_joyk1[iPlayer] * ((iJoyRight * iJoyRight * iJoyRight) >> 8) + p_joyk2[iPlayer] * iJoyRight);
-
-    iSteeringValue = (iLeftEffect - iRightEffect) >> 16;
+  // process steering input
+  byLeftKey = userkey[iKeyIndex];
+  if (byLeftKey > 0x83u) {
+    // joystick steering processing
+    //iJoyLeft = (unsigned int)(80 * musicbuffer_variable_1[byLeftKey]) >> 8;// joyvalue[byLeftKey]
+    iJoyLeft = (unsigned int)(80 * joyvalue[byLeftKey]) >> 8;// 
+    if (iJoyLeft > 0x102)
+      iJoyLeft = 0x102;
+    //iJoyRight = (unsigned int)(80 * musicbuffer_variable_1[userkey[iKeyIndex + 1]]) >> 8;// joyvalue[byRightKey]
+    iJoyRight = (unsigned int)(80 * joyvalue[iKeyIndex + 1]) >> 8;// 
+    iLeftEffect = (int)(p_joyk1[iPlayer] * ((int)(iJoyLeft * iJoyLeft * iJoyLeft) >> 8) + p_joyk2[iPlayer] * iJoyLeft) >> 16;
+    if (iJoyRight > 0x102)
+      iJoyRight = 0x102;
+    rud_swheel[iPlayer] = iLeftEffect - ((int)(p_joyk1[iPlayer] * ((int)(iJoyRight * iJoyRight * iJoyRight) >> 8) + p_joyk2[iPlayer] * iJoyRight) >> 16);
 
     // Clamp steering to valid range
-    if (iSteeringValue < -iMaxSteering) iSteeringValue = -iMaxSteering;
-    if (iSteeringValue > iMaxSteering) iSteeringValue = iMaxSteering;
+    iMinSteering = -rud_steer[iPlayer];
+    if (iMinSteering > rud_swheel[iPlayer])
+      rud_swheel[iPlayer] = iMinSteering;
+    iPlayerIdx2 = iPlayer;
+    iMaxSteering = rud_steer[iPlayer];
+    if (rud_swheel[iPlayer] > iMaxSteering)
+      goto LABEL_43;
+  }
+  // Keyboard steering processing
+  // process left steering
+  else if (keys[byLeftKey]) {
+    iTurnRate = rud_turn[iPlayer];
+    if (iTurnRate >= 0)
+      // apply turn decay
+      rud_turn[iPlayer] = 32 * p_eng[iPlayer]->iTurnDecayRate + iTurnRate;
+    else
+      // calculate new turn rate
+      rud_turn[iPlayer] = (int)(abs(rud_swheel[iPlayer]) * ((p_eng[iPlayer]->iMaxTurnRate << 8) - 32 * p_eng[iPlayer]->iTurnDecayRate)) / rud_steer[iPlayer];
+    iTurnRate_1 = p_eng[iPlayer]->iMaxTurnRate << 8;
+    if (iTurnRate_1 < rud_turn[iPlayer])
+      rud_turn[iPlayer] = iTurnRate_1;
+    iPlayerIdx2 = iPlayer;
+
+    // Apply turn rate and clamp
+    iSteering = rud_turn[iPlayer] + rud_swheel[iPlayer];
+    iMaxSteering = rud_steer[iPlayer];
+    rud_swheel[iPlayer] = iSteering;
+    if (iSteering > iMaxSteering)
+      LABEL_43:
+    rud_swheel[iPlayerIdx2] = iMaxSteering;
+  }
+  // process right steering
+  else if (keys[userkey[iKeyIndex + 1]]) {
+    if (rud_turn[iPlayer] >= 0)
+      rud_turn[iPlayer] += 32 * p_eng[iPlayer]->iTurnDecayRate;
+    else
+      rud_turn[iPlayer] = (int)(abs(rud_swheel[iPlayer]) * ((p_eng[iPlayer]->iMaxTurnRate << 8) - 32 * p_eng[iPlayer]->iTurnDecayRate)) / rud_steer[iPlayer];
+    iTurnRate_2 = p_eng[iPlayer]->iMaxTurnRate << 8;
+    if (iTurnRate_2 < rud_turn[iPlayer])
+      rud_turn[iPlayer] = iTurnRate_2;
+    iSteering_1 = rud_swheel[iPlayer] - rud_turn[iPlayer];
+    iMinSteering_1 = -rud_steer[iPlayer];
+    rud_swheel[iPlayer] = iSteering_1;
+    if (iMinSteering_1 > iSteering_1)
+      rud_swheel[iPlayer] = iMinSteering_1;
   } else {
-    // Keyboard steering processing
-    if (keys[byLeftKey]) {
-      // Process left steering
-      int iTurnRate = rud_turn[iPlayer];
-
-      if (iTurnRate >= 0) {
-        // Apply turn decay
-        iTurnRate += 32 * pEngine->iTurnDecayRate;
-      } else {
-        // Calculate new turn rate
-        int iDecay = (pEngine->iMaxTurnRate << 8) - (32 * pEngine->iTurnDecayRate);
-        int iAbsSteer = abs(iSteeringValue);
-        iTurnRate = (iDecay * iAbsSteer) / iMaxSteering;
-      }
-
-      // Apply turn rate and clamp
-      iSteeringValue += iTurnRate;
-      if (iSteeringValue > iMaxSteering) iSteeringValue = iMaxSteering;
-    } else if (keys[byRightKey]) {
-      // Process right steering (mirror of left)
-      int iTurnRate = rud_turn[iPlayer];
-
-      if (iTurnRate <= 0) {
-        iTurnRate -= 32 * pEngine->iTurnDecayRate;
-      } else {
-        int iDecay = (pEngine->iMaxTurnRate << 8) - (32 * pEngine->iTurnDecayRate);
-        int iAbsSteer = abs(iSteeringValue);
-        iTurnRate = -(iDecay * iAbsSteer) / iMaxSteering;
-      }
-
-      iSteeringValue += iTurnRate;
-      if (iSteeringValue < -iMaxSteering) iSteeringValue = -iMaxSteering;
+    // center steering when no input
+    iSteering_2 = rud_swheel[iPlayer];
+    rud_turn[iPlayer] = -1;
+    if (iSteering_2 <= 0) {
+      iSteering_3 = (p_eng[iPlayer]->iWheelCenteringRate << 8) + rud_swheel[iPlayer];
+      rud_swheel[iPlayer] = iSteering_3;
+      if (iSteering_3 > 0)
+        rud_swheel[iPlayer] = 0;
     } else {
-      // Center steering when no input
-      rud_turn[iPlayer] = -1;
-      int iCentering = pEngine->iWheelCenteringRate << 8;
-
-      if (iSteeringValue > 0) {
-        iSteeringValue -= iCentering;
-        if (iSteeringValue < 0) iSteeringValue = 0;
-      } else if (iSteeringValue < 0) {
-        iSteeringValue += iCentering;
-        if (iSteeringValue > 0) iSteeringValue = 0;
-      }
+      iSteering_4 = rud_swheel[iPlayer] - (p_eng[iPlayer]->iWheelCenteringRate << 8);
+      rud_swheel[iPlayer] = iSteering_4;
+      if (iSteering_4 < 0)
+        rud_swheel[iPlayer] = 0;
     }
   }
 
   // Update steering state
-  rud_swheel[iPlayer] = iSteeringValue;
-
-  // Build button flags
-  if (iAccelState > 0) iButtonFlags |= BUTTON_FLAG_ACCEL;  // Accelerate flag
-  if (iAccelState < 0) iButtonFlags |= BUTTON_FLAG_BRAKE;  // Brake flag
+  SET_LOWORD(user_inp, rud_swheel[iPlayer]);
+  nButtonFlags_1 = iAccelState > 0;
+  if (iAccelState < 0)
+    nButtonFlags_1 |= 2;
+  nButtonFlags &= 0x00FF;
+  //  LOBYTE(nButtonFlags_1) = nButtonFlags_1 | 2;
+  //HIBYTE(nButtonFlags) = 0;
 
   // Process special buttons
-  uint8 bySpecialKey = iPlayer ? userkey[USERKEY_P2CHEAT] : userkey[USERKEY_P2DOWNGEAR];  // P2downgear or P2cheat
-  if ((bySpecialKey > 0x83 && joyvalue[bySpecialKey] > 0xC8) ||
-      (bySpecialKey <= 0x83 && keys[bySpecialKey])) {
-    iButtonFlags |= BUTTON_FLAG_SPECIAL;  // Special action flag
+  if (iPlayer) {
+    if (userkey[13] > 0x83u)                  // USERKEY_P2CHEAT
+    {
+      //if ((unsigned int)musicbuffer_variable_1[userkey[13]] <= 0xC8)// joyvalue[userkey[USERKEY_P2CHEAT]]
+      if ((unsigned int)joyvalue[userkey[USERKEY_P2CHEAT]] <= 0xC8)// 
+        goto LABEL_57;
+    } else if (!keys[userkey[13]])              // USERKEY_P2CHEAT
+    {
+      goto LABEL_57;
+    }
+  } else if (userkey[12] > 0x83u)               // USERKEY_P2DOWNGEAR
+  {
+    //if ((unsigned int)musicbuffer_variable_1[userkey[12]] <= 0xC8)// joyvalue[userkey[USERKEY_P2DOWNGEAR]]
+    if ((unsigned int)joyvalue[userkey[USERKEY_P2DOWNGEAR]] <= 0xC8)// 
+      goto LABEL_57;
+  } else if (!keys[userkey[12]])                // USERKEY_P2DOWNGEAR
+  {
+    goto LABEL_57;
   }
-
-  // Process gear shifting
-  uint8 byGearUpKey = userkey[iKeyOffset + 4]; //USERKEY_P1UPGEAR or USERKEY_P2UPGEAR
-  uint8 byGearDownKey = userkey[iKeyOffset + 5]; //USERKEY_P1DOWNGEAR or USERKEY_P2DOWNGEAR
-  int iGearChange = 0;
-
-  if ((byGearUpKey > 0x83 && joyvalue[byGearUpKey] > 0xC8) ||
-      (byGearUpKey <= 0x83 && keys[byGearUpKey])) {
-    iGearChange = 1;
-    iButtonFlags |= BUTTON_FLAG_UPGEAR;  // Gear up flag
+  //TODO look a this again
+  //LOBYTE(nButtonFlags) = nButtonFlags_1 | 0x20;   // special action flag
+  //nButtonFlags_1 = nButtonFlags;
+  nButtonFlags_1 |= 0x20;
+LABEL_57:
+  // process gear shifting
+  uiGearUpKey = userkey[iKeyIndex + 4];
+  iGearChange = 0;
+  if (uiGearUpKey > 0x83) {
+    //if ((unsigned int)musicbuffer_variable_1[uiGearUpKey] <= 0xC8)// joyvalue[uiGearUpKey]
+    if ((unsigned int)joyvalue[uiGearUpKey] <= 0xC8)// 
+      goto LABEL_62;
+  } else if (!keys[uiGearUpKey]) {
+    goto LABEL_62;
   }
-  if ((byGearDownKey > 0x83 && joyvalue[byGearDownKey] > 0xC8) ||
-      (byGearDownKey <= 0x83 && keys[byGearDownKey])) {
-    iGearChange = -1;
-    iButtonFlags |= BUTTON_FLAG_DOWNGEAR;  // Gear down flag
+  iGearChange = 1;
+LABEL_62:
+  uiGearDownKey = userkey[iKeyIndex + 5];
+  if (uiGearDownKey > 0x83) {
+    //if ((unsigned int)musicbuffer_variable_1[uiGearDownKey] <= 0xC8)// joyvalue[uiGearDownKey]
+    if ((unsigned int)joyvalue[uiGearDownKey] <= 0xC8)// 
+      goto LABEL_67;
+  } else if (!keys[uiGearDownKey]) {
+    goto LABEL_67;
   }
+  iGearChange = -1;
+LABEL_67:
+  if (!iGearChange)
+    rud_gr[iPlayer] = 0;
+  if (rud_gr[iPlayer])
+    iGearChange = 0;
 
   // Update gear state
-  if (iGearChange != 0) {
-    rud_gr[iPlayer] = -1;  // Gear changed
+  if (iGearChange > 0) {
+    //LOBYTE(nButtonFlags_1) = nButtonFlags_1 | 4;    // gear up flag
+    nButtonFlags_1 |= 4;    // gear up flag
+    rud_gr[iPlayer] = -1;                       // gear changed
+  }
+  if (iGearChange < 0) {
+    //LOBYTE(nButtonFlags_1) = nButtonFlags_1 | 8;    // gear down flag
+    nButtonFlags_1 |= 8;    // gear down flag
+    rud_gr[iPlayer] = -1;                       // gear changed
   }
 
   // Process strategy buttons (F1-F4)
-  if (lastsample < 0) {
-    int iStrategyFlags = 0;
-    if (keys[63]) iStrategyFlags |= BUTTON_FLAG_F1;  // F1
-    if (keys[64]) iStrategyFlags |= BUTTON_FLAG_F2;  // F2
-    if (keys[65]) iStrategyFlags |= BUTTON_FLAG_F3;  // F3
-    if (keys[66]) iStrategyFlags |= BUTTON_FLAG_F4;  // F4
+  if (lastsample >= 0)
+    goto LABEL_107;
+  iStrategyFlags = 0;
+  if (keys[63])                               // F1
+  {
+    iStrategyFlags = 0x40;
+  } else if (keys[64])                          // F2
+  {
+    iStrategyFlags = 0x80;
+  } else if (keys[65])                          // F3
+  {
+    iStrategyFlags = 0x100;
+  } else if (keys[66])                          // F4
+  {
+    iStrategyFlags = 0x200;
+  }
+  if (!iStrategyFlags)
+    rud_strat[iPlayer] = 0;
+  if (rud_strat[iPlayer])
+    iStrategyFlags = 0;
+  if (!iStrategyFlags)
+    goto LABEL_107;
 
-    // Handle network messages for strategy buttons
-    if (iStrategyFlags) {
-      rud_strat[iPlayer] = -1;  // Mark strategy button pressed
+  // Handle network messages for strategy buttons
+  if (network_on) {
+    message_node = network_mes_mode;
+    // Validate target node for messaging
+    if (network_mes_mode >= 0) {
+      if (human_control[message_node])
+        message_node = car_to_player[message_node];
+      else
+        message_node = -2;                      // invalid target
+    }
 
-      if (network_on) {
-        int iTargetNode = network_mes_mode;
+    // Send message if valid target and player hasn't finished
+    if (message_node > -2 && !finished_car[player1_car]) {
 
-        // Validate target node for messaging
-        if (iTargetNode >= 0) {
-          if (human_control[iTargetNode]) {
-            iTargetNode = car_to_player[iTargetNode];
-          } else {
-            iTargetNode = -2;  // Invalid target
+      // Map strategy flags to message types
+      if ((iStrategyFlags & 0x40) != 0) {
+        iNode = message_node;
+        iMessageIdx = 0;
+      } else if ((iStrategyFlags & 0x80u) == 0) {
+        if ((iStrategyFlags & 0x100) != 0) {
+          iNode = message_node;
+          iMessageIdx = 2;
+        } else {
+          if ((iStrategyFlags & 0x200) == 0) {
+          LABEL_105:
+            iStrategyFlags &= 0xFFFF0000;
+            //LOWORD(iStrategyFlags) = 0;
+            goto LABEL_106;
           }
+          iNode = message_node;
+          iMessageIdx = 3;
         }
-
-        // Send message if valid target and player hasn't finished
-        if (iTargetNode > -2 && !finished_car[player1_car]) {
-          int iMessageType = -1;
-
-          // Map strategy flags to message types
-          if (iStrategyFlags & BUTTON_FLAG_F1) iMessageType = 0;      // F1 -> Message 0
-          else if (iStrategyFlags & BUTTON_FLAG_F2) iMessageType = 1; // F2 -> Message 1
-          else if (iStrategyFlags & BUTTON_FLAG_F3) iMessageType = 2; // F3 -> Message 2
-          else if (iStrategyFlags & BUTTON_FLAG_F4) iMessageType = 3; // F4 -> Message 3
-
-          if (iMessageType != -1) {
-            send_mes(iMessageType, iTargetNode);
-          }
-        }
+      } else {
+        iNode = message_node;
+        iMessageIdx = 1;
       }
-
-      // Add strategy flags to button state
-      iButtonFlags |= iStrategyFlags;
-    } else {
-      // Strategy buttons not pressed
-      rud_strat[iPlayer] = 0;
+      send_mes(iMessageIdx, iNode);
+      goto LABEL_105;
     }
   }
-
+LABEL_106:
+  nButtonFlags_1 |= iStrategyFlags;               // add strategy buttons to buttons state
+  rud_strat[iPlayer] = -1;                      // mark strategy button pressed
+LABEL_107:
   // Handle quit request
   if (I_Want_Out && !already_quit) {
+    I_Want_Out = 0;
     already_quit = -1;
-    if (wConsoleNode == master) {
-      iButtonFlags |= BUTTON_FLAG_MASTER_QUIT;  // Master quit flag
-    } else {
-      iButtonFlags |= BUTTON_FLAG_SLAVE_QUIT;  // Client quit flag
-    }
+    if (wConsoleNode == master)
+      //HIBYTE(nButtonFlags_1) |= 8u;               // master quit flag
+      nButtonFlags_1 |= 0x0800u;               // master quit flag
+    else
+      //HIBYTE(nButtonFlags_1) |= 4u;               // client quit flag
+      nButtonFlags_1 |= 0x0400u;               // client quit flag
   }
 
-  // Store final input state
-  user_inp = (iButtonFlags << 16) | (iSteeringValue & 0xFFFF);
+  // store final input state
+  SET_HIWORD(user_inp, nButtonFlags_1);
 }
 
 //-------------------------------------------------------------------------------------------------
