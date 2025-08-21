@@ -32,10 +32,10 @@ void DrawHorizon(uint8 *pScrBuf)
   int iSkyHeight1; // eax
   int iSkyHeight2; // eax
   int iGroundHeight3; // eax
-  int iLoopEnd; // edi
-  int iLoopCounter; // esi
-  double dSlope; // st7
-  double dPrevScanValue; // st6
+  //int iLoopEnd; // edi
+  //int iLoopCounter; // esi
+  //double dSlope; // st7
+  //double dPrevScanValue; // st6
   int iRowCounter; // edi
   int iScanIdx; // ebp
   double dScanValue; // st7
@@ -120,8 +120,8 @@ void DrawHorizon(uint8 *pScrBuf)
         // Pre-calculate horizon intersection points for each scanline
         for (int iScanlineIdx = 0; iScanlineIdx < winh; iScanlineIdx++)
         {
-            hor_scan[iScanlineIdx] = fScanValue;
-            fScanValue -= fSlope;  // Move to next scanline position
+          hor_scan[iScanlineIdx] = fScanValue;
+          fScanValue -= fSlope;  // Move to next scanline position
         }
         //iLoopEnd = 4 * winh;
         //iLoopCounter = 0;
