@@ -1301,6 +1301,7 @@ void ZoomSub(const char *szText, const char *mappingTable, tBlockHeader *pBlockH
       else
         dCharWidth = (double)((pBlockHeader[iCharIndex].iWidth + 1) << 6);// Get character width from font data, add 1 pixel spacing
       dNewTextWidth = dCharWidth / game_scale[iPlayerIdx] + (double)iTotalWidth;// Scale character width and accumulate total
+      pbyTextPtr++;
       //_CHP();
     }
     if (iTotalWidth <= 310)                   // Check if total width fits within 310 pixels
@@ -3667,7 +3668,87 @@ void save_fatal_config()
 //0001B4A0
 void load_fatal_config()
 {
-  // Initialize global variables with default values
+  FILE *pFile; // eax
+  FILE *pFile2; // edi
+  int iLength; // ebp
+  char *pData; // eax
+  int i; // eax
+  char *pBuffer; // ebx
+  char *szEnd; // eax
+  char cEnd; // dh
+  char *pBuffer2; // ebx
+  char *szEnd2; // eax
+  char cEnd2; // cl
+  char *pBuffer3; // ebx
+  char *szEnd3; // eax
+  char cEnd3; // dl
+  char *pBuffer4; // ebx
+  char *szEnd4; // eax
+  char cEnd4; // cl
+  char *pBuffer5; // ebx
+  char *szEnd5; // eax
+  char cEnd5; // dl
+  char *pBuffer6; // ebx
+  char *szEnd6; // eax
+  char cEnd6; // cl
+  char *pBuffer7; // ebx
+  char *szEnd7; // eax
+  char cEnd7; // dl
+  char *pBuffer8; // ebx
+  char *szEnd8; // eax
+  char cBuffer8; // cl
+  char *pBuffer9; // ebx
+  char *szEnd9; // eax
+  char cEnd9; // dl
+  char *pBuffer10; // ebx
+  char *szEnd10; // eax
+  char cEnd10; // cl
+  char *pBuffer11; // ebx
+  char *szEnd11; // eax
+  char cEnd11; // dl
+  char *pBuffer12; // ebx
+  char *szEnd12; // eax
+  char cEnd12; // cl
+  char *pBuffer13; // ebx
+  char *szEnd13; // eax
+  char cEnd13; // dl
+  char *pBuffer14; // ebx
+  char *szEnd14; // eax
+  char cEnd14; // cl
+  char *pBuffer15; // ebx
+  char *szEnd15; // eax
+  char cEnd15; // dl
+  char *pBuffer16; // ebx
+  char *szEnd16; // eax
+  char cEnd16; // cl
+  char *pBuffer17; // ebx
+  char *szEnd17; // eax
+  char cEnd17; // dl
+  char *pBuffer18; // ebx
+  char *szEnd18; // eax
+  char cEnd18; // cl
+  char *szSLOWCOACH; // ebx
+  char *szEnd19; // eax
+  char cEnd19; // dl
+  char *szOutOfMyWay; // ebx
+  char *szEnd20; // eax
+  char cEnd20; // dh
+  char *szYouDie; // ebx
+  char *szEnd21; // eax
+  char cEnd21; // cl
+  char *szSucker; // ebx
+  char *szEnd22; // eax
+  char cEnd22; // ch
+  char *pModemInitstring; // ebx
+  char *szEnd23; // eax
+  char cEnd23; // dl
+  char *pModemPhone; // ebx
+  char *szEnd24; // eax
+  char cEnd24; // dh
+  int iTemp; // [esp+0h] [ebp-24h] BYREF
+  char *pData2; // [esp+4h] [ebp-20h] BYREF
+  int iTemp2[7]; // [esp+8h] [ebp-1Ch] BYREF // not an array
+
   JAXmin = 10000;
   JAXmax = -10000;
   JAYmin = 10000;
@@ -3686,257 +3767,590 @@ void load_fatal_config()
   fatal_ini_loaded = 0;
 
   // Open FATAL.INI file
-  char *pData;
-  int iFileSize;
-  FILE *pFile;
-  char *pDataEnd;
-  pFile = ROLLERfopen("FATAL.INI", "rb");
+  pFile = fopen("FATAL.INI", "rb");
+  pFile2 = pFile;
   if (pFile) {
     fatal_ini_loaded = -1;
 
     // Get file size
-    fseek(pFile, 0, SEEK_END);
-    iFileSize = ftell(pFile);
-    fseek(pFile, 0, SEEK_SET);
-
-    // Allocate buffer and read file
-    pData = getbuffer(iFileSize + 1);
+    fseek(pFile, 0, 2);
+    iLength = ftell(pFile2);
+    fseek(pFile2, 0, 0);
+    // allocate buffer
+    pData = (char *)getbuffer(iLength + 1);
+    pData2 = pData;
     if (pData) {
-      fread(pData, 1, iFileSize, pFile);
-      fclose(pFile);
+      fread(pData, 1u, iLength, pFile2);
+      fclose(pFile2);
 
-      // Decode file contents
-      decode(pData, iFileSize, 77, 101);
+      // decode file contents
+      decode((uint8 *)pData2, iLength, 77, 101);
 
       // Convert DOS line endings to Unix
-      for (int i = 0; i < iFileSize; i++) {
-        if (pData[i] == '\r') {
-          pData[i] = '\n';
-        }
+      for (i = 0; i < iLength; ++i) {
+        if (pData2[i] == '\r')
+          pData2[i] = '\n';
       }
 
       // Add null terminator
-      pDataEnd = pData + iFileSize;
-      *pDataEnd = '\0';
+      pData2[iLength] = 0;
 
       // Read configuration values
-      getconfigvalue(pData, "EngineVolume", &EngineVolume, 0, 128);
-      getconfigvalue(pData, "SFXVolume", &SFXVolume, 0, 128);
-      getconfigvalue(pData, "SpeechVolume", &SpeechVolume, 0, 128);
-      getconfigvalue(pData, "MusicVolume", &MusicVolume, 0, 128);
-      if (EngineVolume == 128) EngineVolume = 127;
-      if (SFXVolume == 128) SFXVolume = 127;
-      if (SpeechVolume == 128) SpeechVolume = 127;
-      if (MusicVolume == 128) MusicVolume = 127;
-
-      getconfigvalue(pData, "CarE", &allengines, 0, 1);
-      if (allengines) allengines = -1;
-
-      getconfigvalue(pData, "SfxO", &soundon, 0, 1);
-      if (soundon) soundon = -1;
-
-      getconfigvalue(pData, "MusO", &musicon, 0, 1);
-      if (musicon) musicon = -1;
-
-      getconfigvalue(pData, "SVGA", &game_svga, 0, 1);
-      if (game_svga == 1) game_svga = -1;
-      if (no_mem) game_svga = 0;
-
+      getconfigvalue(pData2, "EngineVolume", &EngineVolume, 0, 128);
+      getconfigvalue(pData2, "SFXVolume", &SFXVolume, 0, 128);
+      getconfigvalue(pData2, "SpeechVolume", &SpeechVolume, 0, 128);
+      getconfigvalue(pData2, "MusicVolume", &MusicVolume, 0, 128);
+      if (EngineVolume == 128)
+        EngineVolume = 127;
+      if (SFXVolume == 128)
+        SFXVolume = 127;
+      if (SpeechVolume == 128)
+        SpeechVolume = 127;
+      if (MusicVolume == 128)
+        MusicVolume = 127;
+      getconfigvalue(pData2, "CarE", &allengines, 0, 1);
+      if (allengines)
+        allengines = -1;
+      getconfigvalue(pData2, "SfxO", &soundon, 0, 1);
+      if (soundon)
+        soundon = -1;
+      getconfigvalue(pData2, "MusO", &musicon, 0, 1);
+      if (musicon)
+        musicon = -1;
+      getconfigvalue(pData2, "SVGA", &game_svga, 0, 1);
+      if (game_svga == 1)
+        game_svga = -1;
+      if (no_mem)
+        game_svga = 0;
       game_size = 128;
-      getconfigvalue(pData, "Size", &game_size, 64, 128);
-      if (!game_svga) {
-        game_size = (game_size - (game_size < 0)) / 2;
-      }
-
-      getconfigvalue(pData, "View", &game_view[0], 0, 8);
-      getconfigvalue(pData, "Names", &names_on, 0, 2);
+      getconfigvalue(pData2, "Size", &game_size, 64, 128);
+      if (!game_svga)
+        game_size /= 2;
+      getconfigvalue(pData2, "View", game_view, 0, 8);
+      getconfigvalue(pData2, "Names", &names_on, 0, 2);
 
       // Read keyboard mappings
-      getconfigvalueuc(pData, "P1left",     (uint8 *)&userkey[USERKEY_P1LEFT], 0, 139);
-      getconfigvalueuc(pData, "P1right",    (uint8 *)&userkey[USERKEY_P1RIGHT], 0, 139);
-      getconfigvalueuc(pData, "P1up",       (uint8 *)&userkey[USERKEY_P1UP], 0, 139);
-      getconfigvalueuc(pData, "P1down",     (uint8 *)&userkey[USERKEY_P1DOWN], 0, 139);
-      getconfigvalueuc(pData, "P1upgear",   (uint8 *)&userkey[USERKEY_P1UPGEAR], 0, 139);
-      getconfigvalueuc(pData, "P1downgear", (uint8 *)&userkey[USERKEY_P1DOWNGEAR], 0, 139);
-      getconfigvalueuc(pData, "P1cheat",    (uint8 *)&userkey[USERKEY_P1CHEAT], 0, 139);
-      getconfigvalueuc(pData, "P2left",     (uint8 *)&userkey[USERKEY_P2LEFT], 0, 139);
-      getconfigvalueuc(pData, "P2right",    (uint8 *)&userkey[USERKEY_P2RIGHT], 0, 139);
-      getconfigvalueuc(pData, "P2up",       (uint8 *)&userkey[USERKEY_P2UP], 0, 139);
-      getconfigvalueuc(pData, "P2down",     (uint8 *)&userkey[USERKEY_P2DOWN], 0, 139);
-      getconfigvalueuc(pData, "P2upgear",   (uint8 *)&userkey[USERKEY_P2UPGEAR], 0, 139);
-      getconfigvalueuc(pData, "P2downgear", (uint8 *)&userkey[USERKEY_P2DOWNGEAR], 0, 139);
-      getconfigvalueuc(pData, "P2cheat",    (uint8 *)&userkey[USERKEY_P2CHEAT], 0, 139);
+      getconfigvalueuc(pData2, "P1left",      (uint8*)&userkey[0], 0, 139);
+      getconfigvalueuc(pData2, "P1right",     (uint8*)&userkey[1], 0, 139);
+      getconfigvalueuc(pData2, "P1up",        (uint8*)&userkey[2], 0, 139);
+      getconfigvalueuc(pData2, "P1down",      (uint8*)&userkey[3], 0, 139);
+      getconfigvalueuc(pData2, "P1upgear",    (uint8*)&userkey[4], 0, 139);
+      getconfigvalueuc(pData2, "P1downgear",  (uint8*)&userkey[5], 0, 139);
+      getconfigvalueuc(pData2, "P1cheat",     (uint8*)&userkey[12], 0, 139);
+      getconfigvalueuc(pData2, "P2left",      (uint8*)&userkey[6], 0, 139);
+      getconfigvalueuc(pData2, "P2right",     (uint8*)&userkey[7], 0, 139);
+      getconfigvalueuc(pData2, "P2up",        (uint8*)&userkey[8], 0, 139);
+      getconfigvalueuc(pData2, "P2down",      (uint8*)&userkey[9], 0, 139);
+      getconfigvalueuc(pData2, "P2upgear",    (uint8*)&userkey[10], 0, 139);
+      getconfigvalueuc(pData2, "P2downgear",  (uint8*)&userkey[11], 0, 139);
+      getconfigvalueuc(pData2, "P2cheat",     (uint8*)&userkey[13], 0, 139);
 
-      // Read joystick configuration
-      int iTemp;
-      getconfigvalue(pData, "Joy1X", &iTemp, 0, 1);
-      x1ok = iTemp ? 1 : 0;
+      // Read joystick config
+      getconfigvalue(pData2, "Joy1X", &iTemp, 0, 1);
+      x1ok = iTemp != 0;
+      getconfigvalue(pData2, "Joy1Y", &iTemp, 0, 1);
+      if (iTemp)
+        y1ok = 2;
+      else
+        y1ok = 0;
+      getconfigvalue(pData2, "Joy2X", &iTemp, 0, 1);
+      if (iTemp)
+        x2ok = 4;
+      else
+        x2ok = 0;
+      getconfigvalue(pData2, "Joy2Y", &iTemp, 0, 1);
+      if (iTemp)
+        y2ok = 8;
+      else
+        y2ok = 0;
 
-      getconfigvalue(pData, "Joy1Y", &iTemp, 0, 1);
-      y1ok = iTemp ? 2 : 0;
-
-      getconfigvalue(pData, "Joy2X", &iTemp, 0, 1);
-      x2ok = iTemp ? 4 : 0;
-
-      getconfigvalue(pData, "Joy2Y", &iTemp, 0, 1);
-      y2ok = iTemp ? 8 : 0;
-
-      // Validate calibration values
+      // validate x1 calibration values
       if (x1ok) {
         JAXmin = 10000;
         JAXmax = -10000;
-        getconfigvalue(pData, "Joy1Xmin", &JAXmin, 0, 0x7FFFFFFF);
-        getconfigvalue(pData, "Joy1Xmax", &JAXmax, 0, 0x7FFFFFFF);
-        if (JAXmax <= JAXmin) x1ok = 0;
+        iTemp2[0] = 10000;
+        getconfigvalue(pData2, "Joy1Xmin", iTemp2, 0, 0x7FFFFFFF);
+        JAXmin = iTemp2[0];
+        iTemp2[0] = JAXmax;
+        getconfigvalue(pData2, "Joy1Xmax", iTemp2, 0, 0x7FFFFFFF);
+        JAXmax = iTemp2[0];
+        if (iTemp2[0] < JAXmin)
+          x1ok = 0;
       }
       if (y1ok) {
         JAYmin = 10000;
         JAYmax = -10000;
-        getconfigvalue(pData, "Joy1Ymin", &JAYmin, 0, 0x7FFFFFFF);
-        getconfigvalue(pData, "Joy1Ymax", &JAYmax, 0, 0x7FFFFFFF);
-        if (JAYmax <= JAYmin) y1ok = 0;
+        iTemp2[0] = 10000;
+        getconfigvalue(pData2, "Joy1Ymin", iTemp2, 0, 0x7FFFFFFF);
+        JAYmin = iTemp2[0];
+        iTemp2[0] = JAYmax;
+        getconfigvalue(pData2, "Joy1Ymax", iTemp2, 0, 0x7FFFFFFF);
+        JAYmax = iTemp2[0];
+        if (iTemp2[0] < JAYmin)
+          y1ok = 0;
       }
       if (x2ok) {
         JBXmin = 10000;
         JBXmax = -10000;
-        getconfigvalue(pData, "Joy2Xmin", &JBXmin, 0, 0x7FFFFFFF);
-        getconfigvalue(pData, "Joy2Xmax", &JBXmax, 0, 0x7FFFFFFF);
-        if (JBXmax <= JBXmin) x2ok = 0;
+        iTemp2[0] = 10000;
+        getconfigvalue(pData2, "Joy2Xmin", iTemp2, 0, 0x7FFFFFFF);
+        JBXmin = iTemp2[0];
+        iTemp2[0] = JBXmax;
+        getconfigvalue(pData2, "Joy2Xmax", iTemp2, 0, 0x7FFFFFFF);
+        JBXmax = iTemp2[0];
+        if (iTemp2[0] < JBXmin)
+          x2ok = 0;
       }
       if (y2ok) {
         JBYmin = 10000;
         JBYmax = -10000;
-        getconfigvalue(pData, "Joy2Ymin", &JBYmin, 0, 0x7FFFFFFF);
-        getconfigvalue(pData, "Joy2Ymax", &JBYmax, 0, 0x7FFFFFFF);
-        if (JBYmax <= JBYmin) y2ok = 0;
+        iTemp2[0] = 10000;
+        getconfigvalue(pData2, "Joy2Ymin", iTemp2, 0, 0x7FFFFFFF);
+        JBYmin = iTemp2[0];
+        iTemp2[0] = JBYmax;
+        getconfigvalue(pData2, "Joy2Ymax", iTemp2, 0, 0x7FFFFFFF);
+        JBYmax = iTemp2[0];
+        if (iTemp2[0] < JBYmin)
+          y2ok = 0;
       }
+      if (JAXmin == JAXmax)
+        JAXmax = JAXmin + 1;
+      if (JAYmin == JAYmax)
+        JAYmax = JAYmin + 1;
+      if (JBXmin == JBXmax)
+        JBXmax = JBXmin + 1;
+      if (JBYmin == JBYmax)
+        JBYmax = JBYmin + 1;
+      bitaccept = y2ok | x2ok | y1ok | x1ok;
 
-      // Calculate bitmask for accepted joystick axes
-      bitaccept = x1ok | y1ok | x2ok | y2ok;
-
-      // Process player names
-      char *pNamePos = FindConfigVar(pData, "Nom");
-      if (pNamePos) {
-        char *pDest = buffer;
-        while (*pNamePos != '\n') {
-          *pDest++ = *pNamePos++;
+      // process player names
+      pBuffer = buffer;
+      szEnd = FindConfigVar(pData2, "Nom");
+      if (szEnd) {
+        while (1) {
+          cEnd = *szEnd;
+          if (*szEnd == '\n')
+            break;
+          ++pBuffer;
+          ++szEnd;
+          *(pBuffer - 1) = cEnd;
         }
-        *pDest = '\0';
+        *pBuffer = '\0';
       }
-      if (!buffer[0]) {
+      if (!buffer[0])
         strcpy(buffer, "HUMAN");
-      }
       name_copy(player_names[0], buffer);
+      iTemp2[0] = 0;
+      getconfigvalue(pData2, "Car1", iTemp2, -1, 15);
+      Players_Cars[0] = iTemp2[0];
+      iTemp2[0] = level;
+      getconfigvalue(pData2, "Level", iTemp2, 0, 5);
+      level = iTemp2[0];
+      iTemp2[0] = damage_level;
+      getconfigvalue(pData2, "Damage", iTemp2, 0, 2);
+      damage_level = iTemp2[0];
+      iTemp2[0] = textures_off;
+      getconfigvalue(pData2, "Detail", iTemp2, 0, 0x7FFFFFFF);
+      textures_off = iTemp2[0];
+      getconfigvalue(pData2, "Ahead", &view_limit, 0, 1);
+      getconfigvalue(pData2, "Record", &replay_record, 0, 1);
+      iTemp2[0] = game_type;
+      getconfigvalue(pData2, "Game", iTemp2, 0, 2);
+      game_type = iTemp2[0];
+      iTemp2[0] = competitors;
+      getconfigvalue(pData2, "Racers", iTemp2, 1, 16);
+      competitors = iTemp2[0];
+      iTemp2[0] = TrackLoad;
+      getconfigvalue(pData2, "Track", iTemp2, -1, 24);
+      TrackLoad = iTemp2[0];
+      getconfigvalue(pData2, "Players", &player_type, 0, 4);
 
-      // Read various game settings
-      getconfigvalue(pData, "Car1", &Players_Cars[0], 0, 15);
-      getconfigvalue(pData, "Level", &level, 0, 5);
-      getconfigvalue(pData, "Damage", &damage_level, 0, 2);
-      getconfigvalue(pData, "Detail", &textures_off, 0, 0x7FFFFFFF);
-      getconfigvalue(pData, "Ahead", &view_limit, 0, 1);
-      getconfigvalue(pData, "Record", &replay_record, 0, 1);
-      getconfigvalue(pData, "Game", &game_type, 0, 2);
-      getconfigvalue(pData, "Racers", &competitors, 1, 16);
-      getconfigvalue(pData, "Track", &TrackLoad, -1, 24);
-      getconfigvalue(pData, "Players", &player_type, 0, 4);
-
-      // Process second player name if needed      
+      // process second player name
       if (player_type && player_type != 2)
         player_type = 0;
       if (player_type == 2) {
-        char *pName2Pos = FindConfigVar(pData, "Han");
-        if (pName2Pos) {
-          char *pDest = buffer;
-          while (*pName2Pos != '\n') {
-            *pDest++ = *pName2Pos++;
+        pBuffer2 = buffer;
+        szEnd2 = FindConfigVar(pData2, "Han");
+        if (szEnd2) {
+          while (1) {
+            cEnd2 = *szEnd2;
+            if (*szEnd2 == '\n')
+              break;
+            ++pBuffer2;
+            ++szEnd2;
+            *(pBuffer2 - 1) = cEnd2;
           }
-          *pDest = '\0';
+          *pBuffer2 = '\0';
         }
-        if (!buffer[0]) {
+        if (!buffer[0])
           strcpy(buffer, "PLAYER 2");
-        }
         name_copy(player_names[1], buffer);
-        getconfigvalue(pData, "Car2", &Players_Cars[1], -1, 15);
+        iTemp2[0] = 0;
+        getconfigvalue(pData2, "Car2", iTemp2, -1, 15);
+        Players_Cars[1] = iTemp2[0];
       }
 
-      // Adjust track load for game type
-      if (game_type == 1) {
-        if (TrackLoad < 1) {
-          TrackLoad = 1;
-        } else {
-          // Clear the lower 3 bits (round down to multiple of 8)
-          TrackLoad = ((TrackLoad - 1) & 0xFFFFFFF8) + 1;
-        }
-      }
+      // adjust TrackLoad for game_type
+      if (game_type == 1)
+        TrackLoad = 8 * ((TrackLoad - 1) >> 3) + 1;
 
-      // Process AI driver names
-      char *compNameAy[] = {
-          "Ariel1", "Ariel2", "DeSilva1", "DeSilva2",
-          "Pulse1", "Pulse2", "Global1", "Global2",
-          "Million1", "Million2", "Mission1", "Mission2",
-          "Zizin1", "Zizin2", "Reise1", "Reise2"
-      };
-      for (int i = 0; i < 16; i++) {
-        char *pNameSrc = FindConfigVar(pData, compNameAy[i]);
-        if (pNameSrc) {
-          char *pDest = buffer;
-          while (*pNameSrc != '\n') {
-            *pDest++ = *pNameSrc++;
-          }
-          *pDest = '\0';
-        } else {
-          sprintf(buffer, "COMP %d", i + 1);
-        }
-        name_copy(default_names[i], buffer);
-      }
+      //added by ROLLER, compatibility with other releases
+      if (TrackLoad < 1)
+        TrackLoad = 1;
 
-      // Process network messages
-      char *netMessageAy[] = {
-          "NetMes1", "NetMes2", "NetMes3", "NetMes4"
-      };
-      for (int i = 0; i < 4; i++) {
-        char *pMsgSrc = FindConfigVar(pData, netMessageAy[i]);
-        if (pMsgSrc) {
-          char *pDest = network_messages[i];
-          while (*pMsgSrc != '\n') {
-            *pDest++ = *pMsgSrc++;
-          }
-          *pDest = '\0';
+      // process AI driver names
+      pBuffer3 = buffer;
+      szEnd3 = FindConfigVar(pData2, "Ariel1");
+      if (szEnd3) {
+        while (1) {
+          cEnd3 = *szEnd3;
+          if (*szEnd3 == '\n')
+            break;
+          ++pBuffer3;
+          ++szEnd3;
+          *(pBuffer3 - 1) = cEnd3;
         }
+        *pBuffer3 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 1");
+      name_copy(default_names[0], buffer);
+      pBuffer4 = buffer;
+      szEnd4 = FindConfigVar(pData2, "Ariel2");
+      if (szEnd4) {
+        while (1) {
+          cEnd4 = *szEnd4;
+          if (*szEnd4 == '\n')
+            break;
+          ++pBuffer4;
+          ++szEnd4;
+          *(pBuffer4 - 1) = cEnd4;
+        }
+        *pBuffer4 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 2");
+      name_copy(default_names[1], buffer);
+      pBuffer5 = buffer;
+      szEnd5 = FindConfigVar(pData2, "DeSilva1");
+      if (szEnd5) {
+        while (1) {
+          cEnd5 = *szEnd5;
+          if (*szEnd5 == '\n')
+            break;
+          ++pBuffer5;
+          ++szEnd5;
+          *(pBuffer5 - 1) = cEnd5;
+        }
+        *pBuffer5 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 3");
+      name_copy(default_names[2], buffer);
+      pBuffer6 = buffer;
+      szEnd6 = FindConfigVar(pData2, "DeSilva2");
+      if (szEnd6) {
+        while (1) {
+          cEnd6 = *szEnd6;
+          if (*szEnd6 == '\n')
+            break;
+          ++pBuffer6;
+          ++szEnd6;
+          *(pBuffer6 - 1) = cEnd6;
+        }
+        *pBuffer6 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 4");
+      name_copy(default_names[3], buffer);
+      pBuffer7 = buffer;
+      szEnd7 = FindConfigVar(pData2, "Pulse1");
+      if (szEnd7) {
+        while (1) {
+          cEnd7 = *szEnd7;
+          if (*szEnd7 == '\n')
+            break;
+          ++pBuffer7;
+          ++szEnd7;
+          *(pBuffer7 - 1) = cEnd7;
+        }
+        *pBuffer7 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 5");
+      name_copy(default_names[4], buffer);
+      pBuffer8 = buffer;
+      szEnd8 = FindConfigVar(pData2, "Pulse2");
+      if (szEnd8) {
+        while (1) {
+          cBuffer8 = *szEnd8;
+          if (*szEnd8 == '\n')
+            break;
+          ++pBuffer8;
+          ++szEnd8;
+          *(pBuffer8 - 1) = cBuffer8;
+        }
+        *pBuffer8 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 6");
+      name_copy(default_names[5], buffer);
+      pBuffer9 = buffer;
+      szEnd9 = FindConfigVar(pData2, "Global1");
+      if (szEnd9) {
+        while (1) {
+          cEnd9 = *szEnd9;
+          if (*szEnd9 == '\n')
+            break;
+          ++pBuffer9;
+          ++szEnd9;
+          *(pBuffer9 - 1) = cEnd9;
+        }
+        *pBuffer9 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 7");
+      name_copy(default_names[6], buffer);
+      pBuffer10 = buffer;
+      szEnd10 = FindConfigVar(pData2, "Global2");
+      if (szEnd10) {
+        while (1) {
+          cEnd10 = *szEnd10;
+          if (*szEnd10 == '\n')
+            break;
+          ++pBuffer10;
+          ++szEnd10;
+          *(pBuffer10 - 1) = cEnd10;
+        }
+        *pBuffer10 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 8");
+      name_copy(default_names[7], buffer);
+      pBuffer11 = buffer;
+      szEnd11 = FindConfigVar(pData2, "Million1");
+      if (szEnd11) {
+        while (1) {
+          cEnd11 = *szEnd11;
+          if (*szEnd11 == '\n')
+            break;
+          ++pBuffer11;
+          ++szEnd11;
+          *(pBuffer11 - 1) = cEnd11;
+        }
+        *pBuffer11 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 9");
+      name_copy(default_names[8], buffer);
+      pBuffer12 = buffer;
+      szEnd12 = FindConfigVar(pData2, "Million2");
+      if (szEnd12) {
+        while (1) {
+          cEnd12 = *szEnd12;
+          if (*szEnd12 == '\n')
+            break;
+          ++pBuffer12;
+          ++szEnd12;
+          *(pBuffer12 - 1) = cEnd12;
+        }
+        *pBuffer12 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 10");
+      name_copy(default_names[9], buffer);
+      pBuffer13 = buffer;
+      szEnd13 = FindConfigVar(pData2, "Mission1");
+      if (szEnd13) {
+        while (1) {
+          cEnd13 = *szEnd13;
+          if (*szEnd13 == '\n')
+            break;
+          ++pBuffer13;
+          ++szEnd13;
+          *(pBuffer13 - 1) = cEnd13;
+        }
+        *pBuffer13 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 11");
+      name_copy(default_names[10], buffer);
+      pBuffer14 = buffer;
+      szEnd14 = FindConfigVar(pData2, "Mission2");
+      if (szEnd14) {
+        while (1) {
+          cEnd14 = *szEnd14;
+          if (*szEnd14 == '\n')
+            break;
+          ++pBuffer14;
+          ++szEnd14;
+          *(pBuffer14 - 1) = cEnd14;
+        }
+        *pBuffer14 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 12");
+      name_copy(default_names[11], buffer);
+      pBuffer15 = buffer;
+      szEnd15 = FindConfigVar(pData2, "Zizin1");
+      if (szEnd15) {
+        while (1) {
+          cEnd15 = *szEnd15;
+          if (*szEnd15 == '\n')
+            break;
+          ++pBuffer15;
+          ++szEnd15;
+          *(pBuffer15 - 1) = cEnd15;
+        }
+        *pBuffer15 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 13");
+      name_copy(default_names[12], buffer);
+      pBuffer16 = buffer;
+      szEnd16 = FindConfigVar(pData2, "Zizin2");
+      if (szEnd16) {
+        while (1) {
+          cEnd16 = *szEnd16;
+          if (*szEnd16 == '\n')
+            break;
+          ++pBuffer16;
+          ++szEnd16;
+          *(pBuffer16 - 1) = cEnd16;
+        }
+        *pBuffer16 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 14");
+      name_copy(default_names[13], buffer);
+      pBuffer17 = buffer;
+      szEnd17 = FindConfigVar(pData2, "Reise1");
+      if (szEnd17) {
+        while (1) {
+          cEnd17 = *szEnd17;
+          if (*szEnd17 == '\n')
+            break;
+          ++pBuffer17;
+          ++szEnd17;
+          *(pBuffer17 - 1) = cEnd17;
+        }
+        *pBuffer17 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 15");
+      name_copy(default_names[14], buffer);
+      pBuffer18 = buffer;
+      szEnd18 = FindConfigVar(pData2, "Reise2");
+      if (szEnd18) {
+        while (1) {
+          cEnd18 = *szEnd18;
+          if (*szEnd18 == '\n')
+            break;
+          ++pBuffer18;
+          ++szEnd18;
+          *(pBuffer18 - 1) = cEnd18;
+        }
+        *pBuffer18 = '\0';
+      }
+      if (!buffer[0])
+        strcpy(buffer, "COMP 16");
+      name_copy(default_names[15], buffer);
+
+      // process network messages
+      szSLOWCOACH = network_messages[0];
+      szEnd19 = FindConfigVar(pData2, "NetMes1");
+      if (szEnd19) {
+        while (1) {
+          cEnd19 = *szEnd19;
+          if (*szEnd19 == '\n')
+            break;
+          ++szSLOWCOACH;
+          ++szEnd19;
+          *(szSLOWCOACH - 1) = cEnd19;
+        }
+        *szSLOWCOACH = '\0';
+      }
+      szOutOfMyWay = network_messages[1];
+      szEnd20 = FindConfigVar(pData2, "NetMes2");
+      if (szEnd20) {
+        while (1) {
+          cEnd20 = *szEnd20;
+          if (*szEnd20 == '\n')
+            break;
+          ++szOutOfMyWay;
+          ++szEnd20;
+          *(szOutOfMyWay - 1) = cEnd20;
+        }
+        *szOutOfMyWay = '\0';
+      }
+      szYouDie = network_messages[2];
+      szEnd21 = FindConfigVar(pData2, "NetMes3");
+      if (szEnd21) {
+        while (1) {
+          cEnd21 = *szEnd21;
+          if (*szEnd21 == '\n')
+            break;
+          ++szYouDie;
+          ++szEnd21;
+          *(szYouDie - 1) = cEnd21;
+        }
+        *szYouDie = '\0';
+      }
+      szSucker = network_messages[3];
+      szEnd22 = FindConfigVar(pData2, "NetMes4");
+      if (szEnd22) {
+        while (1) {
+          cEnd22 = *szEnd22;
+          if (*szEnd22 == '\n')
+            break;
+          ++szSucker;
+          ++szEnd22;
+          *(szSucker - 1) = cEnd22;
+        }
+        *szSucker = '\0';
       }
 
       // Read modem/network settings
-      getconfigvalue(pData, "ComPort", &serial_port, 1, 4);
-      getconfigvalue(pData, "ModemPort", &modem_port, 1, 4);
-      getconfigvalue(pData, "ModemTone", &modem_tone, -10, 10);
-      char *pModemInit = FindConfigVar(pData, "ModemInit");
-      if (pModemInit) {
-        char *pDest = modem_initstring;
-        while (*pModemInit != '\n') {
-          *pDest++ = *pModemInit++;
+      getconfigvalue(pData2, "ComPort", &serial_port, 1, 4);
+      getconfigvalue(pData2, "ModemPort", &modem_port, 1, 4);
+      getconfigvalue(pData2, "ModemTone", &modem_tone, -10, 10);
+      pModemInitstring = modem_initstring;
+      szEnd23 = FindConfigVar(pData2, "ModemInit");
+      if (szEnd23) {
+        while (1) {
+          cEnd23 = *szEnd23;
+          if (*szEnd23 == '\n')
+            break;
+          ++pModemInitstring;
+          ++szEnd23;
+          *(pModemInitstring - 1) = cEnd23;
         }
-        *pDest = '\0';
+        *pModemInitstring = '\0';
       }
-      char *pModemPhone = FindConfigVar(pData, "ModemPhone");
-      if (pModemPhone) {
-        char *pDest = modem_phone;
-        while (*pModemPhone != '\n') {
-          *pDest++ = *pModemPhone++;
+      pModemPhone = modem_phone;
+      szEnd24 = FindConfigVar(pData2, "ModemPhone");
+      if (szEnd24) {
+        while (1) {
+          cEnd24 = *szEnd24;
+          if (*szEnd24 == '\n')
+            break;
+          ++pModemPhone;
+          ++szEnd24;
+          *(pModemPhone - 1) = cEnd24;
         }
-        *pDest = '\0';
+        *pModemPhone = '\0';
       }
-      getconfigvalue(pData, "ModemCall", &modem_call, -10, 10);
-      getconfigvalue(pData, "ModemType", &current_modem, -800, 800);
-      getconfigvalue(pData, "ModemBaud", &modem_baud, 9600, 28800);
-      getconfigvalue(pData, "NetSlot", &network_slot, 0, 99999999);
-
-      // Free configuration buffer
-      fre((void**)&pData);
+      getconfigvalue(pData2, "ModemCall", &modem_call, -10, 10);
+      getconfigvalue(pData2, "ModemType", &current_modem, -800, 800);
+      getconfigvalue(pData2, "ModemBaud", &modem_baud, 9600, 28800);
+      iTemp2[0] = network_slot;
+      getconfigvalue(pData2, "NetSlot", iTemp2, 0, 99999999);
+      network_slot = iTemp2[0];
+      fre((void **)&pData2);
     } else {
-      fclose(pFile);
+      fclose(pFile2);
     }
   }
-
   remove_uncalibrated();
 }
 
