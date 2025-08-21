@@ -3995,6 +3995,7 @@ void load_fatal_config()
         TrackLoad = 8 * ((TrackLoad - 1) >> 3) + 1;
 
       //added by ROLLER, compatibility with other releases
+      //TODO find out how other exes handle this
       if (TrackLoad < 1)
         TrackLoad = 1;
 
