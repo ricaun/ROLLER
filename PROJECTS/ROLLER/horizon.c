@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <assert.h>
 //-------------------------------------------------------------------------------------------------
 
 tCloudData cloud[40]; //00199950
@@ -116,21 +117,21 @@ void DrawHorizon(uint8 *pScrBuf)
       }
       fScanValue = (float)(((double)iHorizonY * fSlope + (double)iHorizonX) * fScale);// Pre-calculate horizon intersection points for each scanline
       if (winh > 0) {
-        // // Pre-calculate horizon intersection points for each scanline
-        // for (int iScanlineIdx = 0; iScanlineIdx < winh; iScanlineIdx++)
-        // {
-        //     hor_scan[iScanlineIdx] = fScanValue;
-        //     fScanValue -= fSlope;  // Move to next scanline position
-        // }
-        iLoopEnd = 4 * winh;
-        iLoopCounter = 0;
-        dSlope = fSlope;
-        do {
-          dPrevScanValue = fScanValue - dSlope;
-          iLoopCounter += 4;
-          *(float *)((char *)&GroundPt[499].pointAy[5].fZ + iLoopCounter) = fScanValue;// reference to hor_scan
-          fScanValue = (float)dPrevScanValue;
-        } while (iLoopCounter < iLoopEnd);
+        // Pre-calculate horizon intersection points for each scanline
+        for (int iScanlineIdx = 0; iScanlineIdx < winh; iScanlineIdx++)
+        {
+            hor_scan[iScanlineIdx] = fScanValue;
+            fScanValue -= fSlope;  // Move to next scanline position
+        }
+        //iLoopEnd = 4 * winh;
+        //iLoopCounter = 0;
+        //dSlope = fSlope;
+        //do {
+        //  dPrevScanValue = fScanValue - dSlope;
+        //  iLoopCounter += 4;
+        //  *(float *)((char *)&GroundPt[499].pointAy[5].fZ + iLoopCounter) = fScanValue;// reference to hor_scan
+        //  fScanValue = (float)dPrevScanValue;
+        //} while (iLoopCounter < iLoopEnd);
       }
       if (ground_left)                        // Branch: ground on left side of screen
       {
