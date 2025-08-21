@@ -6,7 +6,7 @@
 
 extern char revs_files1[6][13];
 extern char revs_files2[6][13];
-extern char texture_file[12];
+extern char texture_file[13];
 extern char bldtex_file[13];
 extern char gencartex_name[11];
 extern int car_remap[4096];

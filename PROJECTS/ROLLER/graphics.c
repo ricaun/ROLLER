@@ -38,7 +38,7 @@ char revs_files2[6][13] = //000A420E
   "pancar2.bm",
   ""
 };
-char texture_file[12] = "texture.drh";  //000A425C
+char texture_file[13] = "texture.drh";  //000A425C
 char bldtex_file[13] = "building.drh";  //000A4269
 char gencartex_name[11] = "gentex.drh"; //000A4276
 int car_remap[4096];    //001446C0
