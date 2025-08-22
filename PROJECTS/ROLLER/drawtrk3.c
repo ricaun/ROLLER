@@ -2081,7 +2081,10 @@ LABEL_393:
       pScreenCoord = NULL;
       pCurrentGroundScreen = NULL;
       pNextGroundScreen = NULL;
-      if (pRenderCommand->nRenderPriority != 11 && pRenderCommand->nRenderPriority != 14) {
+      if (pRenderCommand->nRenderPriority != 11 && pRenderCommand->nRenderPriority != 14 
+        && iSectionNum >= 0 && iSectionNum < MAX_TRACK_CHUNKS //index checks added by ROLLER
+        && iNextSectionIndex >= 0 && iNextSectionIndex < MAX_TRACK_CHUNKS) {
+
         iNextSectionIndex = NextSect[iSectionNum];
         pScreenCoord_1 = &TrackScreenXYZ[iSectionNum];
         pCurrentGroundScreen = &GroundScreenXYZ[iSectionNum];
