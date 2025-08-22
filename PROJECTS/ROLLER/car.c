@@ -1478,7 +1478,7 @@ LABEL_117:
   pCoords = CarDesigns[carDesignIndex].pCoords;
   pPols = CarDesigns[carDesignIndex].pPols;
   if ((Car[iCarIndexCopy].byStatusFlags & 2) != 0) {
-    pCarDesign = 0;
+    pCarDesign = NULL;
     iNumCoords = 0;
   }
   fWarpDistortion = tsin[((uint16)warp_angle + ((uint16)iCarIndexCopy << 11)) & 0x3FFF] * 0.5f;
@@ -1570,7 +1570,7 @@ LABEL_117:
   }
   iVisiblePolygons = 0;
   iPolygonCount = 0;
-  if ((int)pCarDesign->byNumPols > 0) {
+  if (pCarDesign && (int)pCarDesign->byNumPols > 0) {
     iPolygonLoopIdx = 0;
     do {
       for (jj = 0; jj < 4; ++jj) {
