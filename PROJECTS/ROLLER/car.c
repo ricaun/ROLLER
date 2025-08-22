@@ -687,7 +687,10 @@ void DrawCars(int iCarIdx, int iViewMode)
         fTransformM22 = tcos[iPitch] * tcos[iRoll];
         iPointIdx = 0;
         fClosestZ = 1073676300.0f;               // Initialize closest Z distance for depth sorting
-        pointAy = localdata[iCurrChunk_1].pointAy;
+        
+        if (iCurrChunk_1 >= 0 && iCurrChunk_1 < TRAK_LEN) //check added by ROLLER
+          pointAy = localdata[iCurrChunk_1].pointAy;
+
         pHitboxPt = CarBox.hitboxAy[pCar->byCarDesignIdx];// Get car hitbox points and chunk transform matrix
         do {
           fHitboxX = pHitboxPt->fX;             // Transform car hitbox points loop (8 points)
