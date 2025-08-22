@@ -5065,10 +5065,12 @@ LABEL_8:
 
         // Assign player index to car_to_player
         iCarId2 = Players_Cars[j];
-        if (allocated_cars[iCarId2] == 1)
-          car_to_player[2 * iCarId2] = i;
-        else
-          car_to_player[2 * iCarId2 + 1] = i;
+        if (iCarId2 <= 7) { //added by ROLLER, ignore cheat cars, bug in original game
+          if (allocated_cars[iCarId2] == 1)
+            car_to_player[2 * iCarId2] = i;
+          else
+            car_to_player[2 * iCarId2 + 1] = i;
+        }
       }
       ++j;
       ++i;
