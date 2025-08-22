@@ -11,6 +11,7 @@
 #include "func2.h"
 #include "function.h"
 #include "polytex.h"
+#include "roller.h"
 #include <math.h>
 #include <assert.h>
 #include <string.h>
@@ -407,7 +408,7 @@ void placecars()
       Car[iDriverIdx].fHealth = 100.0f;
       Car[iDriverIdx].nTargetChunk = -1;
       Car[iDriverIdx].nLastCommentaryChunk = -1;
-      Car[iDriverIdx].iAICurrentLine = iRandomVal >> 13;
+      Car[iDriverIdx].iAICurrentLine = GetHighOrderRand(4, iRandomVal);// iRandomVal >> 13;
       //Car[iDriverIdx].iUnk37 = (iRandomVal % 8192) / 8192;
       //Car[iDriverIdx].iUnk37 = (iRandomVal - (__CFSHL__(iRandomVal >> 31, 13) + (iRandomVal >> 31 << 13))) >> 13;
       Car[iDriverIdx].iStunned = 0;

@@ -671,7 +671,7 @@ void firework_screen()
             //_CHP();
             iScreenY = (int)fTempY;
             iRandValue = rand();                // Generate random color variation for firework sparkle effect
-            iColorOffset = (16 * iRandValue) >> 15;
+            iColorOffset = GetHighOrderRand(16, iRandValue);// (16 * iRandValue) >> 15;
             //iColorOffset = (16 * iRandValue) % 32768 / 15;
             //iColorOffset = (16 * iRandValue - (__CFSHL__((16 * iRandValue) >> 31, 15) + ((16 * iRandValue) >> 31 << 15))) >> 15;
             byFinalOffset = iColorOffset - 4;   // Calculate color offset (-4 to +11 range) with minimum of 0

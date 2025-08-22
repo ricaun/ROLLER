@@ -57,6 +57,7 @@ int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis);
 void ReplaceExtension(char *szFilename, const char *szNewExt);
 void ErrorBoxExit(const char *szErrorMsgFormat, ...);
 void autoselectsoundlanguage();
+int GetHighOrderRand(int iRange, int iRandValue);
 
 //-------------------------------------------------------------------------------------------------
 #endif

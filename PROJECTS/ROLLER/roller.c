@@ -1261,3 +1261,10 @@ void autoselectsoundlanguage() // Add by ROLLER to auto-select languagename when
 }
 
 //-------------------------------------------------------------------------------------------------
+
+int GetHighOrderRand(int iRange, int iRandValue)
+{
+  return (int)(((double)iRange * iRandValue) / (RAND_MAX + 1.0));
+}
+
+//-------------------------------------------------------------------------------------------------

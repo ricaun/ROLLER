@@ -4,6 +4,7 @@
 #include "sound.h"
 #include "func2.h"
 #include "view.h"
+#include "roller.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -686,7 +687,7 @@ void dodamage(tCar *pCar, float fDamage)
             rand();
           } else {
             iRandValue1 = rand();
-            if ((12 * iRandValue1) >> 15 < iDamageIntensity)
+            if (GetHighOrderRand(12, iRandValue1) < iDamageIntensity)
               pCarSpray->iTimer = -1;
           }
           ++iSprayIdx;
@@ -702,7 +703,7 @@ void dodamage(tCar *pCar, float fDamage)
             for (i = 0; i < 32; ++i) {
               if (pPlayerSpray->iLifeTime <= 0) {
                 iRandValue2 = rand();
-                if ((12 * iRandValue2) >> 15 < iDamageIntensity)
+                if (GetHighOrderRand(12, iRandValue2) < iDamageIntensity)
                   pPlayerSpray->iTimer = -1;
               }
               ++pPlayerSpray;
