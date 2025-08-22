@@ -32,7 +32,7 @@ int invulnerable[16];     //00149EB0
 //-------------------------------------------------------------------------------------------------
 //00036C00
 void finish_race()
-{                                               // Initialize random seed for AI behavior if player type is 1
+{
   int iAiCarCount; // edi
   int iLap; // esi
   int iCarOrderIdx; // edx
@@ -405,113 +405,113 @@ INTERPOLATION_CALC:
 
 //-------------------------------------------------------------------------------------------------
 //000373A0
-int calculate_aheadbehindtime(int a1, float *a2, float *a3)
+void calculate_aheadbehindtime(int iCarIdx, float *pfAheadTime, float *pfBehindTime)
 {
-  return 0;
-  /*
-  int result; // eax
-  int v5; // esi
-  int v6; // edi
-  int v7; // esi
-  int v8; // edi
-  float v9; // eax
-  double v10; // st7
-  int v11; // esi
-  int v12; // eax
-  int v13; // ecx
-  int v14; // esi
-  float v15; // eax
-  double v16; // st7
-  float v17; // [esp+0h] [ebp-44h]
-  float v18; // [esp+0h] [ebp-44h]
-  float v19; // [esp+4h] [ebp-40h]
-  float v20; // [esp+8h] [ebp-3Ch]
-  float v21; // [esp+Ch] [ebp-38h]
-  float v22; // [esp+10h] [ebp-34h]
-  float v23; // [esp+1Ch] [ebp-28h]
-  float v24; // [esp+20h] [ebp-24h]
-  float v25; // [esp+24h] [ebp-20h]
-  float v26; // [esp+28h] [ebp-1Ch]
-  float v27; // [esp+2Ch] [ebp-18h]
+  int iCurrentCarId; // eax
+  int iCurrChunk; // esi
+  int iAheadCarId; // edi
+  int nCurrChunk; // esi
+  int iAheadCarRef; // edi
+  float fFinalSpeed; // eax
+  double dTimeCalc; // st7
+  int iRacePosition; // eax
+  int iBehindCarId; // esi
+  int iLastValidChunk; // eax
+  int iCurrentCarRef; // ecx
+  int iBehindCarRef; // esi
+  float fBehindSpeed; // eax
+  double dBehindTimeCalc; // st7
+  float fAheadTimeResult; // [esp+0h] [ebp-44h]
+  float fBehindTimeResult; // [esp+0h] [ebp-44h]
+  float fTrackDistance; // [esp+4h] [ebp-40h]
+  float fBehindTrackDistance; // [esp+8h] [ebp-3Ch]
+  float fAheadSpeed; // [esp+Ch] [ebp-38h]
+  float fBehindSpeedFinal; // [esp+10h] [ebp-34h]
+  float fAheadDistance; // [esp+1Ch] [ebp-28h]
+  float fAheadCarPosition; // [esp+20h] [ebp-24h]
+  float fBehindDistance; // [esp+24h] [ebp-20h]
+  float fBehindCarPosition; // [esp+28h] [ebp-1Ch]
+  float fCurrentCarPosition; // [esp+2Ch] [ebp-18h]
 
-  result = 308 * a1;
-  if (Car_variable_23[result] > 0) {
-    v5 = *(__int16 *)((char *)Car_variable_3 + result);
-    if (v5 == -1)
-      v5 = *(int *)((char *)Car_variable_51 + result);
-    v27 = (float)(averagesectionlen * v5 + totaltrackdistance * Car_variable_24[308 * a1]);
-    if (Car_variable_3[154 * a1] != -1)
-      v27 = v27 + Car[77 * a1];
-    if (Car_variable_32[308 * a1]) {
-      v6 = nearcall_variable_4[(unsigned __int8)Car_variable_32[308 * a1]];
-      if (Car_variable_23[308 * v6] > 0) {
-        v7 = Car_variable_3[154 * v6];
-        if (v7 == -1)
-          v7 = Car_variable_51[77 * v6];
-        v24 = (float)(averagesectionlen * v7 + totaltrackdistance * Car_variable_24[308 * v6]);
-        if (Car_variable_3[154 * v6] != -1)
-          v24 = v24 + Car[77 * v6];
-        v8 = 77 * v6;
-        v23 = fabs(v27 - v24);
-        if (Car_variable_8[77 * a1] <= (double)Car_variable_8[v8])
-          v9 = Car_variable_8[v8];
+  iCurrentCarId = iCarIdx;
+  if ((char)Car[iCurrentCarId].byLives > 0)   // Check if current car is alive, otherwise return -1 for both times
+  {
+    iCurrChunk = Car[iCurrentCarId].nCurrChunk; // Calculate current car's absolute position on track (chunk + lap distance)
+    if (iCurrChunk == -1)
+      iCurrChunk = Car[iCurrentCarId].iLastValidChunk;
+    fCurrentCarPosition = (float)(averagesectionlen * iCurrChunk + totaltrackdistance * (char)Car[iCarIdx].byLapNumber);
+    if (Car[iCarIdx].nCurrChunk != -1)
+      fCurrentCarPosition = fCurrentCarPosition + Car[iCarIdx].pos.fX;
+    if (Car[iCarIdx].byRacePosition)          // Calculate time to car ahead (if not in first position)
+    {
+      //TODO recheck this offset to ensure it is correct
+      iAheadCarId = carorder[Car[iCarIdx].byRacePosition - 1];// Get car ahead from race position order
+      if ((char)Car[iAheadCarId].byLives > 0) {
+        nCurrChunk = Car[iAheadCarId].nCurrChunk;
+        if (nCurrChunk == -1)
+          nCurrChunk = Car[iAheadCarId].iLastValidChunk;
+        fAheadCarPosition = (float)(averagesectionlen * nCurrChunk + totaltrackdistance * (char)Car[iAheadCarId].byLapNumber);// Calculate ahead car's absolute position on track
+        if (Car[iAheadCarId].nCurrChunk != -1)
+          fAheadCarPosition = fAheadCarPosition + Car[iAheadCarId].pos.fX;
+        iAheadCarRef = iAheadCarId;
+        fAheadDistance = (float)fabs(fCurrentCarPosition - fAheadCarPosition);// Calculate absolute distance between cars
+        if (Car[iCarIdx].fFinalSpeed <= (double)Car[iAheadCarRef].fFinalSpeed)// Use higher speed of the two cars for time calculation
+          fFinalSpeed = Car[iAheadCarRef].fFinalSpeed;
         else
-          v9 = Car_variable_8[77 * a1];
-        v21 = v9;
-        if (v9 < (double)function_c_variable_5)
-          v21 = 100.0;
-        v19 = (float)totaltrackdistance;
-        if (v23 >= (double)v19)
-          v10 = v23 * function_c_variable_6 / v19;
+          fFinalSpeed = Car[iCarIdx].fFinalSpeed;
+        fAheadSpeed = fFinalSpeed;
+        if (fFinalSpeed < 100.0)
+          fAheadSpeed = 100.0;
+        fTrackDistance = (float)totaltrackdistance;
+        if (fAheadDistance >= (double)fTrackDistance)// Convert distance to time: if >1 lap apart use large penalty, else distance/speed
+          dTimeCalc = fAheadDistance * 10000000.0 / fTrackDistance;
         else
-          v10 = v23 / v21 * function_c_variable_7;
-        v17 = v10;
-        *a2 = v17;
+          dTimeCalc = fAheadDistance / fAheadSpeed * 0.027777778;
+        fAheadTimeResult = (float)dTimeCalc;
+        *pfAheadTime = fAheadTimeResult;
       } else {
-        *a2 = -1.0;
+        *pfAheadTime = -1.0;
       }
     } else {
-      *a2 = -1.0;
+      *pfAheadTime = -1.0;
     }
-    result = (unsigned __int8)Car_variable_32[308 * a1];
-    if (result == numcars - 1) {
-      *a3 = -1.0;
+    iRacePosition = Car[iCarIdx].byRacePosition;// Calculate time to car behind (if not in last position)
+    if (iRacePosition == numcars - 1) {
+      *pfBehindTime = -1.0;
     } else {
-      v11 = carorder_variable_1[result];
-      if (Car_variable_23[308 * v11] > 0) {
-        v12 = Car_variable_3[154 * v11];
-        if (v12 == -1)
-          v12 = Car_variable_51[77 * v11];
-        v26 = (float)(averagesectionlen * v12 + totaltrackdistance * Car_variable_24[308 * v11]);
-        if (Car_variable_3[154 * v11] != -1)
-          v26 = v26 + Car[77 * v11];
-        v13 = 77 * a1;
-        v14 = 77 * v11;
-        v25 = fabs(v27 - v26);
-        if (Car_variable_8[v13] <= (double)Car_variable_8[v14])
-          v15 = Car_variable_8[v14];
+      iBehindCarId = carorder[iRacePosition + 1];// Get car behind from race position order
+      if ((char)Car[iBehindCarId].byLives > 0) {
+        iLastValidChunk = Car[iBehindCarId].nCurrChunk;
+        if (iLastValidChunk == -1)
+          iLastValidChunk = Car[iBehindCarId].iLastValidChunk;
+        fBehindCarPosition = (float)(averagesectionlen * iLastValidChunk + totaltrackdistance * (char)Car[iBehindCarId].byLapNumber);// Calculate behind car's absolute position and distance/time gap
+        if (Car[iBehindCarId].nCurrChunk != -1)
+          fBehindCarPosition = fBehindCarPosition + Car[iBehindCarId].pos.fX;
+        iCurrentCarRef = iCarIdx;
+        iBehindCarRef = iBehindCarId;
+        fBehindDistance = (float)fabs(fCurrentCarPosition - fBehindCarPosition);
+        if (Car[iCurrentCarRef].fFinalSpeed <= (double)Car[iBehindCarRef].fFinalSpeed)
+          fBehindSpeed = Car[iBehindCarRef].fFinalSpeed;
         else
-          v15 = Car_variable_8[v13];
-        v22 = v15;
-        if (v15 < (double)function_c_variable_5)
-          v22 = 100.0;
-        v20 = (float)totaltrackdistance;
-        if (v25 >= (double)v20)
-          v16 = v25 * function_c_variable_6 / v20;
+          fBehindSpeed = Car[iCurrentCarRef].fFinalSpeed;
+        fBehindSpeedFinal = fBehindSpeed;
+        if (fBehindSpeed < 100.0)
+          fBehindSpeedFinal = 100.0;
+        fBehindTrackDistance = (float)totaltrackdistance;
+        if (fBehindDistance >= (double)fBehindTrackDistance)
+          dBehindTimeCalc = fBehindDistance * 10000000.0 / fBehindTrackDistance;
         else
-          v16 = v25 / v22 * function_c_variable_7;
-        v18 = v16;
-        result = LODWORD(v18);
-        *a3 = v18;
+          dBehindTimeCalc = fBehindDistance / fBehindSpeedFinal * 0.027777778;
+        fBehindTimeResult = (float)dBehindTimeCalc;
+        *pfBehindTime = fBehindTimeResult;
       } else {
-        *a3 = -1.0;
+        *pfBehindTime = -1.0;
       }
     }
   } else {
-    *a2 = -1.0;
-    *a3 = -1.0;
+    *pfAheadTime = -1.0;
+    *pfBehindTime = -1.0;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -991,58 +991,48 @@ void doviewtend(tCar *pCar, int iFrameDelta, int iViewIdx)
 
 //-------------------------------------------------------------------------------------------------
 //00038330
-int changemateto(int result, int a2)
+void changemateto(int iCarIndex, int iNewStrategy)
 {
-  return 0;
-  /*
-  int v2; // ecx
-  int v4; // esi
-  int v5; // edi
-  int v6; // eax
-  int v7; // ecx
-  int v8; // eax
-  int v9; // esi
+  int iMateCarIndex; // esi
+  int iRandomValue; // eax
+  int iSpeechParam; // ecx
+  int iRandomSpeech; // eax
+  int iCooldownCarIndex; // esi
 
-  v2 = result;
-  if ((result & 1) != 0)
-    v4 = result - 1;
+  if ((iCarIndex & 1) != 0)
+    iMateCarIndex = iCarIndex - 1;
   else
-    v4 = result + 1;
-  if (Car_variable_23[308 * v4] > 0 && !human_control[v4]) {
-    result = Car_variable_45[77 * v4];
-    v5 = a2 + 57;
-    if (a2 == result) {
-      if (player_type != 2 && v2 == (__int16)player1_car && (cheat_mode & 0x4000) == 0)
-        return speechsample(a2 + 57, 20000, 18, v2);
+    iMateCarIndex = iCarIndex + 1;
+  if ((char)Car[iMateCarIndex].byLives > 0 && !human_control[iMateCarIndex])// Check if mate car is alive and AI-controlled
+  {                                             // Check if mate already has the requested strategy
+    if (iNewStrategy == Car[iMateCarIndex].iSelectedStrategy) {                                           // Play acknowledgment speech when mate already has requested strategy
+      // CHEAT_MODE_CLONES
+      if (player_type != 2 && iCarIndex == player1_car && (cheat_mode & CHEAT_MODE_CLONES) == 0)
+        speechsample(iNewStrategy + 57, 20000, 18, iCarIndex);
     } else {
-      v6 = rand(result);
-      result = (v6 - (__CFSHL__(v6 >> 31, 13) + (v6 >> 31 << 13))) >> 13;
-      if (result == 3 || Car_variable_57[154 * v4]) {
-        if (player_type == 2
-          || (result = (__int16)player1_car, v2 != (__int16)player1_car)
-          || (cheat_mode & 0x4000) != 0) {
-          result = rand(result);
+      iRandomValue = rand();                    // Random chance (1/4) or cooldown check - mate may refuse strategy change
+      if (GetHighOrderRand(4, iRandomValue) == 3 || Car[iMateCarIndex].nChangeMateCooldown) {
+        // CHEAT_MODE_CLONES
+        if (player_type == 2 || iCarIndex != player1_car || (cheat_mode & CHEAT_MODE_CLONES) != 0) {
+          rand();
         } else {
-          v7 = (__int16)player1_car + ((Car_variable_45[77 * v4] + 61) << 8);
-          v8 = rand((__int16)player1_car);
-          speechsample(((v8 - (__CFSHL__(v8 >> 31, 14) + (v8 >> 31 << 14))) >> 14) + 65, 20000, 18, v7);
-          result = speechsample(Car_variable_45[77 * v4] + 61, 20000, 0, (__int16)player1_car);
+          iSpeechParam = player1_car + ((Car[iMateCarIndex].iSelectedStrategy + 61) << 8);// Play refusal speech sequence when mate rejects strategy change
+          iRandomSpeech = rand();
+          speechsample(GetHighOrderRand(2, iRandomSpeech) + 65, 20000, 18, iSpeechParam);
+          speechsample(Car[iMateCarIndex].iSelectedStrategy + 61, 20000, 0, player1_car);
         }
-        v9 = 154 * v4;
-        if (!Car_variable_57[v9])
-          Car_variable_57[v9] = 1080;
+        iCooldownCarIndex = iMateCarIndex;
+        if (!Car[iCooldownCarIndex].nChangeMateCooldown)
+          Car[iCooldownCarIndex].nChangeMateCooldown = 1080;// Set strategy change cooldown (1080 ticks)
       } else {
-        Car_variable_45[77 * v4] = a2;
-        if (player_type != 2 && v2 == (__int16)player1_car) {
-          result = cheat_mode;
-          if ((cheat_mode & 0x4000) == 0)
-            result = speechsample(v5, 20000, 18, v2);
-        }
-        Car_variable_57[154 * v4] = 1080;
+        Car[iMateCarIndex].iSelectedStrategy = iNewStrategy;// Accept strategy change and play confirmation speech
+        // CHEAT_MODE_CLONES
+        if (player_type != 2 && iCarIndex == player1_car && (cheat_mode & CHEAT_MODE_CLONES) == 0)
+          speechsample(iNewStrategy + 57, 20000, 18, iCarIndex);
+        Car[iMateCarIndex].nChangeMateCooldown = 1080;
       }
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

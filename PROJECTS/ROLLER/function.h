@@ -14,12 +14,12 @@ extern int invulnerable[16];
 
 void finish_race();
 double getbankz(float fInput, int iChunkIdx, tData *pData);
-int calculate_aheadbehindtime(int a1, float *a2, float *a3);
+void calculate_aheadbehindtime(int iCarIdx, float *pfAheadTime, float *pfBehindTime);
 void initnearcars();
 void initpits();
 void dodamage(tCar *pCar, float fDamage);
 void doviewtend(tCar *pCar, int iFrameDelta, int iViewIdx);
-int changemateto(int result, int a2);
+void changemateto(int iCarIndex, int iNewStrategy);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
 void analysefalloff(tCar *pCar);
 int showmap(uint8 *a1, int a2);
