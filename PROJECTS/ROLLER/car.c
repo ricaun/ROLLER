@@ -1692,7 +1692,7 @@ LABEL_117:
               kk = iVisiblePolygons;
             }
           }
-          if (iLinkedPolygonIdx > 0)
+          if (iLinkedPolygonIdx > 0 && iDepthSortIdx > 0)//depth sort check added by ROLLER
             CarZOrder[iLinkedPolygonIdx].fZDepth = CarZOrder[iDepthSortIdx].fZDepth + -1.0f;
           nNextPolIdx = pLinkedPolygons[nNextPolIdx].nNextPolIdx;
           iDepthSortIdx = iLinkedPolygonIdx;
