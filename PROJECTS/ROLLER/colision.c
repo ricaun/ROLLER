@@ -219,7 +219,8 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
     iCar1NormalizedAngle -= 0x2000;
   if (iCar2AngleDiff > 4096)
     iCar2AngleDiff -= 0x2000;
-  if (coldist[((iCar1NormalizedAngle << 6) + 270336) >> 14][((iCar2AngleDiff << 6) + 270336) >> 14] > sqrt(
+    //TODO look at this and ensure casting is correct
+  if (coldist[(((uint32)iCar1NormalizedAngle << 6) + 270336) >> 14][(((uint32)iCar2AngleDiff << 6) + 270336) >> 14] > sqrt(
     (fTransformedPosX1 - fX) * (fTransformedPosX1 - fX)
     + (fTransformedPosY1 - fY) * (fTransformedPosY1 - fY)))// Check if cars are within collision distance using precomputed lookup table
     iCollisionDetected = -1;
