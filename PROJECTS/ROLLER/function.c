@@ -5,6 +5,7 @@
 #include "func2.h"
 #include "view.h"
 #include "roller.h"
+#include "network.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -31,327 +32,306 @@ int invulnerable[16];     //00149EB0
 //-------------------------------------------------------------------------------------------------
 //00036C00
 void finish_race()
-{
-  /*
-  int v0; // edi
-  int v1; // esi
-  int v2; // edx
-  int v3; // eax
-  int v4; // edx
-  int m; // eax
-  unsigned int v6; // ecx
-  int v7; // eax
-  unsigned int v8; // ebx
-  int v9; // ebp
-  int v10; // ecx
-  int v11; // eax
-  int v12; // ebx
-  __int64 v13; // rax
-  int v14; // ebp
-  int v15; // ebx
-  __int64 v16; // rax
-  int v17; // edx
+{                                               // Initialize random seed for AI behavior if player type is 1
+  int iAiCarCount; // edi
+  int iLap; // esi
+  int iCarOrderIdx; // edx
+  int iCurrentCarId; // eax
+  int iFinishedCarIndex; // edx
+  int ii; // eax
+  int iNearCarId; // ecx
+  int iFinishingCarId; // eax
+  int iCarId; // ebx
+  int iTotalLaps; // ebp
+  int iChunk2; // ecx
+  int iLap_1; // eax
+  int iChunk2_1; // ebx
+  int iRandomOffset; // eax
+  int iTrackLength; // ebp
+  int iChunkDistance; // ebx
+  int iDistanceCounter; // edx
+  int iLapThreshold; // eax
+  int iChampAiIndex; // edx
   int j; // ecx
   int k; // eax
-  int v20; // eax
-  int v21; // ebx
-  int v22; // ebx
-  int v23; // ebx
-  int v24; // ebp
-  int v25; // esi
-  int v26; // eax
+  int iChampionshipCarId; // eax
+  int iChampPlayerIndex; // edx
+  int iPlayerPlaceIndex; // ebx
+  int m; // eax
+  int iAiPlacementIndex; // ebx
+  int iRandomValue; // eax
+  int iRandomCarIndex; // eax
+  int iRandomPlayerIndex; // edx
+  int iPlayerPlacementIndex; // ebx
+  int n; // eax
+  int iCarIndex; // ebp
+  int iCarArrayIndex; // esi
+  int iTargetPosition; // eax
   int i; // ebx
-  int v28; // edx
-  int v29; // ebx
-  int v30; // edx
-  int v31; // ecx
-  int v32; // ebx
-  int v33; // ebx
-  int v34; // ecx
-  double v35; // st7
-  double v36; // st7
-  __int16 v37; // fps
-  double v38; // st7
-  _BOOL1 v39; // c0
-  char v40; // c2
-  _BOOL1 v41; // c3
-  int v42; // edi
-  int v43; // ebx
-  char v44; // cl
-  unsigned int v45; // edx
-  double v46; // st7
-  double v47; // st7
-  double v48; // st6
-  int v49; // [esp+8h] [ebp-3Ch]
-  float v50; // [esp+10h] [ebp-34h]
-  float v51; // [esp+14h] [ebp-30h]
-  int v52; // [esp+18h] [ebp-2Ch]
-  int v53; // [esp+1Ch] [ebp-28h]
-  int v54; // [esp+1Ch] [ebp-28h]
-  int v55; // [esp+1Ch] [ebp-28h]
-  int v56; // [esp+1Ch] [ebp-28h]
-  int v57; // [esp+1Ch] [ebp-28h]
-  int v58; // [esp+1Ch] [ebp-28h]
-  int v59; // [esp+1Ch] [ebp-28h]
-  int v60; // [esp+1Ch] [ebp-28h]
-  int v61; // [esp+1Ch] [ebp-28h]
-  float v62; // [esp+20h] [ebp-24h]
-  float v63; // [esp+24h] [ebp-20h]
-  float v64; // [esp+28h] [ebp-1Ch]
+  int iTargetCarId; // edx
+  int iCurrentPosition; // ebx
+  int iPositionIndex; // edx
+  int iCar; // ecx
+  int iCarBytesTotal; // ebx
+  int iCarByteOffset; // edx
+  int iCarInitIndex; // eax
+  int iLapTimeIndex; // ebx
+  int iLapTimeCarIndex; // ecx
+  int iLapTimeCarId; // edx
+  double dRunningLapTime; // st7
+  int iRaceTimeCarId; // edx
+  int iAiCarBytes; // edi
+  int iByteOffset; // ebx
+  char byFinishingLap; // cl
+  int iLapAssignCarId; // edx
+  double dTimeDiff; // st7
+  double dRemainingTime; // st7
+  double dLapThreshold; // st6
+  int iRacePosition; // [esp+8h] [ebp-3Ch]
+  float fTotalRaceTime; // [esp+10h] [ebp-34h]
+  float fWinnerTotalTime; // [esp+14h] [ebp-30h]
+  int iMaxRacerIndex; // [esp+18h] [ebp-2Ch]
+  int iCarCounter; // [esp+1Ch] [ebp-28h]
+  int iFinishingCarId_1; // [esp+1Ch] [ebp-28h]
+  int iAiOrderIndex; // [esp+1Ch] [ebp-28h]
+  int iPlayerOrderIndex; // [esp+1Ch] [ebp-28h]
+  int iRandomOrderCounter; // [esp+1Ch] [ebp-28h]
+  int iRandomPlayerCounter; // [esp+1Ch] [ebp-28h]
+  int iFinishCarIdx; // [esp+1Ch] [ebp-28h]
+  int iCarInitCounter; // [esp+1Ch] [ebp-28h]
+  int iCarCountera; // [esp+1Ch] [ebp-28h]
+  float fReferenceLapTime; // [esp+20h] [ebp-24h]
+  float fRandomLapVariation; // [esp+24h] [ebp-20h]
+  float fTimeDifference; // [esp+28h] [ebp-1Ch]
 
   if (player_type == 1)
     srand(random_seed);
-  v0 = 0;
-  v53 = 0;
-  v1 = Car_variable_31[308 * carorder[0]];
+  iAiCarCount = 0;                              // Count AI cars (non-human controlled) that are still alive
+  iCarCounter = 0;
+  iLap = Car[carorder[0]].byLap;
   if (racers > 0) {
-    v2 = 0;
+    iCarOrderIdx = 0;
     do {
-      v3 = carorder[v2];
-      if (!human_control[v3] && Car_variable_23[308 * v3] > 0)
-        ++v0;
-      ++v2;
-      ++v53;
-    } while (v2 < racers);
+      iCurrentCarId = carorder[iCarOrderIdx];
+      if (!human_control[iCurrentCarId] && (char)Car[iCurrentCarId].byLives > 0)
+        ++iAiCarCount;
+      ++iCarOrderIdx;
+      ++iCarCounter;
+    } while (iCarOrderIdx < racers);
   }
-  if (v1 <= NoOfLaps) {
-    LODWORD(v16) = NoOfLaps - 2;
+  if (iLap <= NoOfLaps)                       // Check if race is still in progress (current lap <= total laps)
+  {
+    iLapThreshold = NoOfLaps - 2;               // Handle near-end-of-race logic (last 2 laps)
     if (NoOfLaps - 2 < 1)
-      LODWORD(v16) = 1;
-    if (v1 >= (int)v16) {
-      v59 = 0;
+      iLapThreshold = 1;
+    if (iLap >= iLapThreshold) {
+      iFinishCarIdx = 0;                        // Handle human players finishing race in final laps
       if (racers > 0) {
-        v24 = 0;
-        v25 = 0;
-        v52 = racers - 1;
-        do {
-          if (human_control[v24] && !finished_car[v24]) {
-            v49 = (unsigned __int8)Car_variable_32[v25];
-            v26 = v52;
-            for (i = v52; ; --i) {
-              v28 = carorder[i];
-              if (!finished_car[v28])
+        iCarIndex = 0;
+        iCarArrayIndex = 0;
+        iMaxRacerIndex = racers - 1;
+        do {                                       // Find human player and update finishing order
+          if (human_control[iCarIndex] && !finished_car[iCarIndex]) {
+            iRacePosition = Car[iCarArrayIndex].byRacePosition;
+            iTargetPosition = iMaxRacerIndex;
+            for (i = iMaxRacerIndex; ; --i) {
+              iTargetCarId = carorder[i];
+              if (!finished_car[iTargetCarId])
                 break;
-              --v26;
+              --iTargetPosition;
             }
-            finished_car[v28] = -1;
-            v29 = v49;
-            if (v26 > v49) {
-              v30 = v49;
+            finished_car[iTargetCarId] = -1;
+            iCurrentPosition = iRacePosition;
+            if (iTargetPosition > iRacePosition) {
+              iPositionIndex = iRacePosition;   // Shift car positions in finishing order array
               do {
-                v31 = carorder_variable_1[v30];
-                carorder[v30] = v31;
-                Car_variable_32[308 * v31] = v29++;
-                ++v30;
-              } while (v29 < v26);
+                iCar = carorder[iPositionIndex + 1];
+                carorder[iPositionIndex] = iCar;
+                Car[iCar].byRacePosition = iCurrentPosition++;
+                ++iPositionIndex;
+              } while (iCurrentPosition < iTargetPosition);
             }
-            carorder[v26] = v59;
-            Car_variable_23[v25] = -1;
-            Car_variable_32[v25] = v59;
+            carorder[iTargetPosition] = iFinishCarIdx;
+            Car[iCarArrayIndex].byLives = -1;
+            Car[iCarArrayIndex].byRacePosition = iFinishCarIdx;
           }
-          ++v24;
-          LODWORD(v16) = v59 + 1;
-          v25 += 308;
-          v59 = v16;
-        } while ((int)v16 < racers);
+          ++iCarIndex;
+          ++iCarArrayIndex;
+          ++iFinishCarIdx;
+        } while (iFinishCarIdx < racers);
       }
-    } else if (game_type == 1 && Race > 0) {
-      v17 = 0;
-      v55 = 0;
-      if (v0 > 0) {
-        for (j = 0; j < v0; ++j) {
-          for (k = v17; ; ++k) {
-            ++v17;
+    } else if (game_type == 1 && Race > 0)      // Championship mode: Order AI cars by championship standings
+    {
+      iChampAiIndex = 0;
+      iAiOrderIndex = 0;
+      if (iAiCarCount > 0) {
+        for (j = 0; j < iAiCarCount; ++j) {
+          for (k = iChampAiIndex; ; ++k) {
+            ++iChampAiIndex;
             if (!human_control[champorder[k]])
               break;
           }
-          v20 = champorder[k];
-          carorder[j] = v20;
-          finished_car[v20] = -1;
-          LODWORD(v16) = ++v55;
+          iChampionshipCarId = champorder[k];
+          carorder[j] = iChampionshipCarId;
+          finished_car[iChampionshipCarId] = -1;
+          ++iAiOrderIndex;
         }
       }
-      HIDWORD(v16) = 0;
-      v56 = 0;
+      iChampPlayerIndex = 0;
+      iPlayerOrderIndex = 0;
       if (players > 0) {
-        v21 = v0;
+        iPlayerPlaceIndex = iAiCarCount;
         do {
-          LODWORD(v16) = 4 * HIDWORD(v16);
-          while (!*(int *)((char *)human_control + v16)) {
-            LODWORD(v16) = v16 + 4;
-            ++HIDWORD(v16);
+          for (m = iChampPlayerIndex; !human_control[m]; ++m)
+            ++iChampPlayerIndex;
+          if (!finished_car[m]) {
+            Car[iChampPlayerIndex].byLives = -1;
+            carorder[iPlayerPlaceIndex] = iChampPlayerIndex;
+            finished_car[m] = -1;
           }
-          if (!*(int *)((char *)finished_car + v16)) {
-            Car_variable_23[308 * HIDWORD(v16)] = -1;
-            carorder[v21] = HIDWORD(v16);
-            *(int *)((char *)finished_car + v16) = -1;
-          }
-          ++HIDWORD(v16);
-          LODWORD(v16) = v56 + 1;
-          ++v21;
-          v56 = v16;
-        } while ((int)v16 < players);
+          ++iChampPlayerIndex;
+          ++iPlayerPlaceIndex;
+          ++iPlayerOrderIndex;
+        } while (iPlayerOrderIndex < players);
       }
     } else {
-      LODWORD(v16) = 0;
-      v57 = 0;
-      if (v0 > 0) {
-        v22 = 0;
+      iRandomOrderCounter = 0;                  // Random placement mode: Randomly order AI cars for finish
+      if (iAiCarCount > 0) {
+        iAiPlacementIndex = 0;
         while (1) {
-          LODWORD(v16) = rand(v16);
-          LODWORD(v16) = (int)(v16 * numcars
-                             - (__CFSHL__(((int)v16 * numcars) >> 31, 15)
-                                + (((int)v16 * numcars) >> 31 << 15))) >> 15;
-          if ((_DWORD)v16 == numcars)
-            LODWORD(v16) = numcars - 1;
-          HIDWORD(v16) = 4 * v16;
-          if (!human_control[(_DWORD)v16] && !finished_car[(_DWORD)v16]) {
-            carorder[v22++] = v16;
-            LODWORD(v16) = v57 + 1;
-            *(int *)((char *)finished_car + HIDWORD(v16)) = -1;
-            ++v57;
-            if (v22 >= v0)
+          iRandomValue = rand();
+          iRandomCarIndex = GetHighOrderRand(numcars, iRandomValue);
+          //iRandomCarIndex = (iRandomValue * numcars - (__CFSHL__((iRandomValue * numcars) >> 31, 15) + ((iRandomValue * numcars) >> 31 << 15))) >> 15;
+          if (iRandomCarIndex == numcars)
+            iRandomCarIndex = numcars - 1;
+          if (!human_control[iRandomCarIndex] && !finished_car[iRandomCarIndex]) {
+            carorder[iAiPlacementIndex++] = iRandomCarIndex;
+            finished_car[iRandomCarIndex] = -1;
+            ++iRandomOrderCounter;
+            if (iAiPlacementIndex >= iAiCarCount)
               break;
           }
         }
       }
-      HIDWORD(v16) = 0;
-      v58 = 0;
+      iRandomPlayerIndex = 0;
+      iRandomPlayerCounter = 0;
       if (players > 0) {
-        v23 = v0;
+        iPlayerPlacementIndex = iAiCarCount;
         do {
-          LODWORD(v16) = 4 * HIDWORD(v16);
-          while (!*(int *)((char *)human_control + v16)) {
-            LODWORD(v16) = v16 + 4;
-            ++HIDWORD(v16);
+          for (n = iRandomPlayerIndex; !human_control[n]; ++n)
+            ++iRandomPlayerIndex;
+          if (!finished_car[n]) {
+            Car[iRandomPlayerIndex].byLives = -1;
+            carorder[iPlayerPlacementIndex] = iRandomPlayerIndex;
+            finished_car[n] = -1;
           }
-          if (!*(int *)((char *)finished_car + v16)) {
-            Car_variable_23[308 * HIDWORD(v16)] = -1;
-            carorder[v23] = HIDWORD(v16);
-            *(int *)((char *)finished_car + v16) = -1;
-          }
-          ++HIDWORD(v16);
-          LODWORD(v16) = v58 + 1;
-          ++v23;
-          v58 = v16;
-        } while ((int)v16 < players);
+          ++iRandomPlayerIndex;
+          ++iPlayerPlacementIndex;
+          ++iRandomPlayerCounter;
+        } while (iRandomPlayerCounter < players);
       }
     }
-    v60 = 0;
+    iCarInitCounter = 0;                        // Initialize AI car race times and best lap times
     if (numcars > 0) {
-      v32 = 4 * numcars;
-      v16 = 0LL;
+      iCarBytesTotal = 4 * numcars;
+      iCarByteOffset = 0;
+      iCarInitIndex = 0;
       do {
-        if (!*(int *)((char *)human_control + HIDWORD(v16))) {
-          *(int *)((char *)Car_variable_55 + v16) = 0;
-          *(int *)((char *)Car_variable_53 + v16) = 1566444395;
+        if (!human_control[iCarByteOffset / 4u]) {
+          Car[iCarInitIndex].fTotalRaceTime = 0.0;
+          Car[iCarInitIndex].fBestLapTime = 9.9999998e17f;
         }
-        HIDWORD(v16) += 4;
-        LODWORD(v16) = v16 + 308;
-        ++v60;
-      } while (SHIDWORD(v16) < v32);
+        iCarByteOffset += 4;
+        ++iCarInitIndex;
+        ++iCarInitCounter;
+      } while (iCarByteOffset < iCarBytesTotal);
     }
-    v61 = 0;
-    if (NoOfLaps > 0) {
-      do {
-        v33 = 0;
-        if (v0 > 0) {
-          v34 = 0;
-          do {
-            v16 = rand(v16);
-            v35 = (double)(int)v16 * function_c_variable_2;
-            LODWORD(v16) = 308 * HIDWORD(v16);
-            v63 = v35 + function_c_variable_3;
-            if (v33)
-              v36 = Car_variable_52[77 * nearcall_variable_4[v34]];
-            else
-              v36 = RecordLaps[game_track];
-            Car_variable_52[77 * HIDWORD(v16)] = v36 + v63;
-            HIDWORD(v16) *= 308;
-            *(float *)((char *)Car_variable_55 + HIDWORD(v16)) = *(float *)((char *)Car_variable_52 + HIDWORD(v16))
-              + *(float *)((char *)Car_variable_55 + HIDWORD(v16));
-            v38 = *(float *)((char *)Car_variable_53 + HIDWORD(v16));
-            v39 = v38 < *(float *)((char *)Car_variable_52 + HIDWORD(v16));
-            v40 = 0;
-            v41 = v38 == *(float *)((char *)Car_variable_52 + HIDWORD(v16));
-            LOWORD(v16) = v37;
-            if (v38 > *(float *)((char *)Car_variable_52 + HIDWORD(v16))) {
-              *(float *)&v16 = *(float *)((char *)Car_variable_52 + HIDWORD(v16));
-              *(int *)((char *)Car_variable_53 + HIDWORD(v16)) = v16;
-            }
-            ++v33;
-            ++v34;
-          } while (v33 < v0);
-        }
-        LODWORD(v16) = v61 + 1;
-        v61 = v16;
-      } while ((int)v16 < NoOfLaps);
-    }
-    v50 = *(float *)&Car_variable_55[77 * carorder[0]];
-    v62 = RecordLaps[game_track];
-    if (v62 < (double)function_c_variable_1)
-      v62 = 10.0;
-    if (v0 > 0) {
-      v42 = 4 * v0;
-      v43 = 0;
-      v44 = NoOfLaps + 1;
-      do {
-        v45 = 308 * carorder[v43 / 4u];
-        v46 = *(float *)&Car_variable_55[v45 / 4] - v50;
-        Car_variable_31[v45] = v44;
-        if (v46 > v62) {
-          v64 = v46;
-          v47 = v64;
-          v48 = v62;
-          do {
-            v47 = v47 - v48;
-            --Car_variable_31[v45];
-          } while (v47 > v48);
-        }
-        v43 += 4;
-      } while (v43 < v42);
-    }
-  } else {
-    while (finishers < racers) {
-      v4 = 0;
-      for (m = 0; finished_car[carorder[m]]; ++m)
-        ++v4;
-      v6 = 154 * nearcall_variable_4[v4];
-      v51 = *(float *)&Car_variable_55[v6 / 2];
-      v7 = carorder[v4];
-      v8 = 308 * v7;
-      v9 = NoOfLaps;
-      v10 = Car_variable_4[v6];
-      finished_car[v7] = -1;
-      v54 = v7;
-      v11 = Car_variable_31[308 * v7];
-      ++finishers;
-      if (v11 == v9) {
-        LOBYTE(v11) = NoOfLaps + 1;
-        Car_variable_31[v8] = NoOfLaps + 1;
-        v12 = Car_variable_4[v8 / 2];
-        if (v10 < v12) {
-          v14 = TRAK_LEN;
-          LODWORD(v13) = (int)(12 * rand(v11)) / 0x8000;
-          v10 += v14;
-        } else {
-          LODWORD(v13) = (int)(12 * rand(v11)) / 0x8000;
-        }
-        v15 = v10 - v12 + v13;
-        *(float *)&Car_variable_55[77 * v54] = v51 + function_c_variable_3;
-        if (v15 > 0) {
-          do {
-            v13 = rand(v13);
-            *(float *)&Car_variable_55[77 * v54] = (double)(int)v13 * function_c_variable_4 * function_c_variable_2
-              + function_c_variable_4
-              + *(float *)&Car_variable_55[77 * v54];
-          } while (HIDWORD(v13) + 1 < v15);
-        }
-      } else if (v11 < v9) {
-        ++Car_variable_31[v8];
+    for (iCarCountera = 0; iCarCountera < NoOfLaps; ++iCarCountera)// Generate lap times for each AI car for all laps
+    {
+      iLapTimeIndex = 0;
+      if (iAiCarCount > 0) {
+        iLapTimeCarIndex = 0;
+        do {
+          iLapTimeCarId = carorder[iLapTimeCarIndex];
+          fRandomLapVariation = (float)((double)rand() * 0.000030517578125 + 0.02);// Add random variation (0.02-0.05s) to base lap time
+          if (iLapTimeIndex)
+            dRunningLapTime = Car[nearcall[3][iLapTimeCarIndex + 3]].fRunningLapTime;
+          else
+            dRunningLapTime = RecordLaps[game_track];
+          Car[iLapTimeCarId].fRunningLapTime = (float)dRunningLapTime + fRandomLapVariation;
+          iRaceTimeCarId = iLapTimeCarId;
+          Car[iRaceTimeCarId].fTotalRaceTime = Car[iRaceTimeCarId].fRunningLapTime + Car[iRaceTimeCarId].fTotalRaceTime;
+          if (Car[iRaceTimeCarId].fBestLapTime > (double)Car[iRaceTimeCarId].fRunningLapTime)
+            Car[iRaceTimeCarId].fBestLapTime = Car[iRaceTimeCarId].fRunningLapTime;
+          ++iLapTimeIndex;
+          ++iLapTimeCarIndex;
+        } while (iLapTimeIndex < iAiCarCount);
       }
     }
-  }*/
+    fTotalRaceTime = Car[carorder[0]].fTotalRaceTime;// Calculate final race positions based on total race times
+    fReferenceLapTime = RecordLaps[game_track];
+    if (fReferenceLapTime < 10.0)
+      fReferenceLapTime = 10.0;
+    if (iAiCarCount > 0) {
+      iAiCarBytes = 4 * iAiCarCount;
+      iByteOffset = 0;
+      byFinishingLap = NoOfLaps + 1;
+      do {
+        iLapAssignCarId = carorder[iByteOffset / 4u];
+        dTimeDiff = Car[iLapAssignCarId].fTotalRaceTime - fTotalRaceTime;
+        Car[iLapAssignCarId].byLap = byFinishingLap;
+        if (dTimeDiff > fReferenceLapTime)    // Calculate how many laps behind based on time difference
+        {
+          fTimeDifference = (float)dTimeDiff;
+          dRemainingTime = fTimeDifference;
+          dLapThreshold = fReferenceLapTime;
+          do {
+            dRemainingTime = dRemainingTime - dLapThreshold;
+            --Car[iLapAssignCarId].byLap;
+          } while (dRemainingTime > dLapThreshold);
+        }
+        iByteOffset += 4;
+      } while (iByteOffset < iAiCarBytes);
+    }
+  } else {                                             // Race in progress: Process cars finishing current lap
+    while (finishers < racers) {
+      iFinishedCarIndex = 0;
+      for (ii = 0; finished_car[carorder[ii]]; ++ii)
+        ++iFinishedCarIndex;
+      iNearCarId = nearcall[3][iFinishedCarIndex + 3];
+      fWinnerTotalTime = Car[iNearCarId].fTotalRaceTime;
+      iFinishingCarId = carorder[iFinishedCarIndex];
+      iCarId = iFinishingCarId;
+      iTotalLaps = NoOfLaps;
+      iChunk2 = Car[iNearCarId].nChunk2;
+      finished_car[iFinishingCarId] = -1;
+      iFinishingCarId_1 = iFinishingCarId;
+      iLap_1 = Car[iFinishingCarId].byLap;
+      ++finishers;
+      if (iLap_1 == iTotalLaps)               // Check if car completed all laps
+      {
+        Car[iCarId].byLap = NoOfLaps + 1;
+        iChunk2_1 = Car[iCarId].nChunk2;
+        if (iChunk2 < iChunk2_1) {
+          iTrackLength = TRAK_LEN;
+          iRandomOffset = 12 * rand() / 0x8000;
+          iChunk2 += iTrackLength;
+        } else {
+          iRandomOffset = 12 * rand() / 0x8000;
+        }
+        iChunkDistance = iChunk2 - iChunk2_1 + iRandomOffset;
+        iDistanceCounter = 0;
+        for (Car[iFinishingCarId_1].fTotalRaceTime = fWinnerTotalTime + 0.02f;
+              iDistanceCounter < iChunkDistance;
+              Car[iFinishingCarId_1].fTotalRaceTime = (float)((double)rand() * 0.1 * 0.000030517578125 + 0.1 + Car[iFinishingCarId_1].fTotalRaceTime))// Adjust finishing time based on track position
+        {
+          ++iDistanceCounter;
+        }
+      } else if (iLap_1 < iTotalLaps) {
+        ++Car[iCarId].byLap;
+      }
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
