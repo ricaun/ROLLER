@@ -48,6 +48,7 @@ extern int Destroyed;
 extern int nearcarcheck;
 extern int ahead_sect;
 extern int ahead_time;
+extern int Victim;
 extern int Fatality;
 extern int Fatality_Count;
 extern int cheat_control;

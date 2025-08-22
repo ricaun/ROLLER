@@ -17,7 +17,7 @@ double getbankz(float fInput, int iChunkIdx, tData *pData);
 int calculate_aheadbehindtime(int a1, float *a2, float *a3);
 void initnearcars();
 void initpits();
-void dodamage(tCar *a1, float a2);
+void dodamage(tCar *pCar, float fDamage);
 void doviewtend(tCar *pCar, int a2, int a3);
 int changemateto(int result, int a2);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);

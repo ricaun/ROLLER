@@ -426,7 +426,7 @@ void placecars()
       Car[iDriverIdx].byPitLaneActiveFlag = 0;
       Car[iDriverIdx].bySfxCooldown = 0;
       Car[iDriverIdx].byCollisionTimer = 0;
-      Car[iDriverIdx].byUnk64 = 0;
+      Car[iDriverIdx].byDamageToggle = 0;
       Car[iDriverIdx].byUnk65 = 0;
       Car[iDriverIdx].byCheatAmmo = 8;          // Set cheat ammo count
       Car[iDriverIdx].nReverseWarnCooldown = 0;

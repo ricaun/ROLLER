@@ -1,6 +1,9 @@
 #include "function.h"
 #include "loadtrak.h"
 #include "control.h"
+#include "sound.h"
+#include "func2.h"
+#include "view.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -633,236 +636,220 @@ void initpits()
 
 //-------------------------------------------------------------------------------------------------
 //000377D0
-void dodamage(tCar *a1, float a2)
+void dodamage(tCar *pCar, float fDamage)
 {
-  /*
-  int *v6; // edi
-  int v7; // eax
-  int v8; // edx
-  __int16 v9; // fps
-  _BYTE *v10; // ebx
-  _BOOL1 v11; // c0
-  char v12; // c2
-  _BOOL1 v13; // c3
-  int v14; // eax
-  double v15; // st7
-  int v16; // eax
-  int v17; // ecx
-  int v18; // eax
-  _DWORD *v19; // ebx
-  int v20; // eax
+  tCarEngine *pCarEngine; // edi
+  int iDriverIdx; // eax
+  tCarSpray *pCarSpray; // ebx
+  int iSprayIdx; // ecx
+  int iRandValue1; // eax
+  tCarSpray *pPlayerSpray; // ebx
   int i; // ecx
-  int v22; // eax
-  char v23; // dh
-  int v24; // ebx
-  int v25; // edi
-  int v26; // eax
-  int v27; // ecx
-  int v28; // ebx
+  int iRandValue2; // eax
+  uint8 byStatusFlags; // dh
+  int iPlayerType; // ebx
+  int iDeadDriverIdx; // edi
+  int iGameTrack; // eax
+  int iCurrentDriverIdx; // ecx
+  int iRacePosition; // ebx
   int j; // edx
-  int v30; // edx
-  int v31; // eax
-  int v32; // ebx
-  int v33; // edi
-  int v34; // ebp
-  int v35; // edx
-  int v36; // ebp
-  int v37; // eax
-  unsigned __int8 v38; // bl
-  int v39; // edi
-  float v40; // [esp+0h] [ebp-20h]
-  int v41; // [esp+4h] [ebp-1Ch]
-  int v42; // [esp+4h] [ebp-1Ch]
+  int iCurrentPos; // edx
+  int iPosIdx; // eax
+  int iCarOrderValue; // ebx
+  int iFinishers; // edi
+  int iHumanControl; // ebp
+  int iCheckDriverIdx; // edx
+  int iPlayer2DriverIdx; // ebp
+  int iPlayerTypeCheck; // eax
+  uint8 byCarDesignIdx; // bl
+  int iFinalDriverIdx; // edi
+  float fHealth; // [esp+0h] [ebp-20h]
+  int iDamageIntensity; // [esp+4h] [ebp-1Ch]
+  int iRacePosCount; // [esp+4h] [ebp-1Ch]
 
-  v6 = &CarEngines[28 * *(unsigned __int8 *)(a1 + 102)];
-  v40 = *(float *)(a1 + 28);
-  v7 = *(_DWORD *)(a1 + 32);
-  if (!invulnerable[v7] && !finished_car[v7]) {
-    if ((*(_BYTE *)(a1 + 131) & 4) == 0) {
-      v8 = *(_DWORD *)(a1 + 32);
-      v14 = 1408 * v8;
-      v10 = &CarSpray[1408 * v8];
-      v11 = a2 < function_c_variable_9;
-      v12 = 0;
-      v13 = a2 == function_c_variable_9;
-      LOWORD(v14) = v9;
-      if (a2 > function_c_variable_9) {
-        v15 = a2 * function_c_variable_10;
-        _CHP(v14, v8);
-        v41 = (int)v15;
-        *(_BYTE *)(a1 + 273) = 1 - *(_BYTE *)(a1 + 273);
-        LOBYTE(v16) = (int)v15;
-        v17 = 0;
-        *(_BYTE *)(a1 + 275) = v16;
+  pCarEngine = &CarEngines.engines[pCar->byCarDesignIdx];// Get car engine data based on car design
+  fHealth = pCar->fHealth;
+  iDriverIdx = pCar->iDriverIdx;
+  if (!invulnerable[iDriverIdx] && !finished_car[iDriverIdx])// Check if car is vulnerable and not finished
+  {                                             // Check if car is not already destroyed (status flag 4)
+    if ((pCar->byStatusFlags & 4) == 0) {
+      pCarSpray = CarSpray[pCar->iDriverIdx];
+      if (fDamage > 0.55)                     // Handle visual spray effects for significant damage (> 0.55)
+      {
+        //_CHP();
+        iDamageIntensity = (int)(fDamage * 16.0);
+        pCar->byDamageToggle = 1 - pCar->byDamageToggle;
+        iSprayIdx = 0;
+        pCar->byDamageIntensity = iDamageIntensity;
         do {
-          if (*((int *)v10 + 7) > 0) {
-            v16 = rand(v16);
+          if (pCarSpray->iLifeTime > 0) {
+            rand();
           } else {
-            v18 = rand(v16);
-            v16 = (12 * v18 - (__CFSHL__((12 * v18) >> 31, 15) + ((12 * v18) >> 31 << 15))) >> 15;
-            if (v16 < v41)
-              *((_DWORD *)v10 + 8) = -1;
+            iRandValue1 = rand();
+            if ((12 * iRandValue1) >> 15 < iDamageIntensity)
+              pCarSpray->iTimer = -1;
           }
-          ++v17;
-          v10 += 44;
-        } while (v17 < 32);
+          ++iSprayIdx;
+          ++pCarSpray;
+        } while (iSprayIdx < 32);               // Loop through all 32 spray effects for this car
         if (player_type == 2) {
-          v19 = 0;
-          if ((__int16)player1_car == *(_DWORD *)(a1 + 32))
-            v19 = &CarSpray_variable_13;
-          v20 = player2_car;
-          if (player2_car == *(_DWORD *)(a1 + 32))
-            v19 = &CarSpray_variable_22;
-          if (v19) {
+          pPlayerSpray = 0;
+          if (player1_car == pCar->iDriverIdx)
+            pPlayerSpray = CarSpray[16];
+          if (player2_car == pCar->iDriverIdx)
+            pPlayerSpray = CarSpray[17];
+          if (pPlayerSpray) {
             for (i = 0; i < 32; ++i) {
-              if ((int)v19[7] <= 0) {
-                v22 = rand(v20);
-                v20 = (12 * v22 - (__CFSHL__((12 * v22) >> 31, 15) + ((12 * v22) >> 31 << 15))) >> 15;
-                if (v20 < v41)
-                  v19[8] = -1;
+              if (pPlayerSpray->iLifeTime <= 0) {
+                iRandValue2 = rand();
+                if ((12 * iRandValue2) >> 15 < iDamageIntensity)
+                  pPlayerSpray->iTimer = -1;
               }
-              v19 += 11;
+              ++pPlayerSpray;
             }
           }
         }
       }
     }
-    *(float *)(a1 + 28) = *(float *)(a1 + 28) - a2 * *((float *)v6 + 26);
-    if (*(float *)(a1 + 28) < 1.0) {
-      v23 = *(_BYTE *)(a1 + 131);
-      *(_DWORD *)(a1 + 28) = 0;
-      if ((v23 & 4) == 0) {
-        --*(_BYTE *)(a1 + 103);
-        v24 = player_type;
-        *(_WORD *)(a1 + 100) = 18;
-        if (v24 != 2 && (cheat_mode & 0x4000) == 0) {
-          v25 = *(_DWORD *)(a1 + 32);
-          if ((__int16)player1_car != v25
-            && *(_BYTE *)(a1 + 102) == Car_variable_22[308 * (__int16)player1_car]
-            && !human_control[v25]
-            && *(_BYTE *)(a1 + 102) <= 7u) {
-            speechsample(*(unsigned __int8 *)(a1 + 102) + 71, 20000, 18, (__int16)player1_car + 17152);
-            speechsample(67, 20000, 0, (__int16)player1_car);
+    pCar->fHealth = pCar->fHealth - fDamage * pCarEngine->fUnk24;// Apply damage to car health (modified by engine durability)
+    if (pCar->fHealth < 1.0)                  // Handle car destruction when health drops below 1.0
+    {
+      byStatusFlags = pCar->byStatusFlags;
+      pCar->fHealth = 0.0;
+      if ((byStatusFlags & 4) == 0) {
+        --pCar->byLives;
+        iPlayerType = player_type;
+        pCar->nDeathTimer = 18;
+        // CHEAT_MODE_CLONES
+        if (iPlayerType != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0) {
+          iDeadDriverIdx = pCar->iDriverIdx;
+          if (player1_car != iDeadDriverIdx && pCar->byCarDesignIdx == Car[player1_car].byCarDesignIdx && !human_control[iDeadDriverIdx] && pCar->byCarDesignIdx <= 7u) {
+            // SOUND_SAMPLE_ARIEL
+            speechsample(pCar->byCarDesignIdx + SOUND_SAMPLE_ARIEL, 20000, 18, player1_car + 17152);
+            // SOUND_SAMPLE_TGONE
+            speechsample(SOUND_SAMPLE_TGONE, 20000, 0, player1_car);
           }
         }
-        v26 = game_track;
-        *(_WORD *)(a1 + 238) = 1080;
-        ++RecordKills[v26];
-        v27 = *(_DWORD *)(a1 + 32);
-        if (v27 == ViewType[0]) {
-          if (v27 == (__int16)player1_car)
-            DeathView = SelectedView[0];
+        iGameTrack = game_track;
+        pCar->nChangeMateCooldown = 1080;
+        ++RecordKills[iGameTrack];
+        iCurrentDriverIdx = pCar->iDriverIdx;
+        if (iCurrentDriverIdx == ViewType[0]) {
+          if (iCurrentDriverIdx == player1_car)
+            DeathView[0] = SelectedView[0];
           if (SelectedView[0] != 1 && SelectedView[0] != 3) {
             SelectedView[0] = 1;
             select_view(0);
             initcarview(ViewType[0], 0);
           }
         }
-        if (v27 == ViewType_variable_1) {
-          if (v27 == player2_car)
-            DeathView_variable_1[0] = SelectedView_variable_1;
-          if (SelectedView_variable_1 != 1 && SelectedView_variable_1 != 3) {
-            SelectedView_variable_1 = 1;
+        if (iCurrentDriverIdx == ViewType[1]) {
+          if (iCurrentDriverIdx == player2_car)
+            DeathView[1] = SelectedView[1];
+          if (SelectedView[1] != 1 && SelectedView[1] != 3) {
+            SelectedView[1] = 1;
             select_view(1);
-            initcarview(ViewType_variable_1, 1);
+            initcarview(ViewType[1], 1);
           }
         }
-        if (!*(_BYTE *)(a1 + 103) && !finished_car[v27]) {
-          v28 = *(unsigned __int8 *)(a1 + 130);
+        if (!pCar->byLives && !finished_car[iCurrentDriverIdx]) {
+          iRacePosition = pCar->byRacePosition; // Update race positions when car is eliminated
           ++Destroyed;
-          v42 = racers - 1;
+          iRacePosCount = racers - 1;
           for (j = racers - 1; finished_car[carorder[j]]; --j)
-            --v42;
-          v30 = v28;
-          finished_car[v27] = -1;
-          if (v28 < v42) {
-            v31 = v28;
+            --iRacePosCount;
+          iCurrentPos = iRacePosition;
+          finished_car[iCurrentDriverIdx] = -1;
+          if (iRacePosition < iRacePosCount) {
+            iPosIdx = iRacePosition;
             do {
-              v32 = carorder_variable_1[v31];
-              carorder[v31] = v32;
-              Car_variable_32[308 * v32] = v30++;
-              ++v31;
-            } while (v30 < v42);
+              iCarOrderValue = carorder[iPosIdx + 1];
+              carorder[iPosIdx] = iCarOrderValue;
+              Car[iCarOrderValue].byRacePosition = iCurrentPos++;
+              ++iPosIdx;
+            } while (iCurrentPos < iRacePosCount);
           }
-          carorder[v42] = v27;
-          v33 = finishers;
-          *(_BYTE *)(a1 + 130) = v42;
-          v34 = human_control[v27];
-          finishers = v33 + 1;
-          if (v34)
+          carorder[iRacePosCount] = iCurrentDriverIdx;
+          iFinishers = finishers;
+          pCar->byRacePosition = iRacePosCount;
+          iHumanControl = human_control[iCurrentDriverIdx];
+          finishers = iFinishers + 1;
+          if (iHumanControl)
             ++human_finishers;
-          if ((v27 == (__int16)player1_car || v27 == player2_car) && *(char *)(a1 + 103) > 0)
-            speechsample(24, 0x8000, 18, v27);
+          if ((iCurrentDriverIdx == player1_car || iCurrentDriverIdx == player2_car) && (char)pCar->byLives > 0)
+            // SOUND_SAMPLE_RUBBISH
+            speechsample(SOUND_SAMPLE_RUBBISH, 0x8000, 18, iCurrentDriverIdx);
         }
-        v35 = *(_DWORD *)(a1 + 32);
-        if ((__int16)player1_car == v35 || player2_car == v35) {
-          speechsample(14, 0x8000, 18, *(_DWORD *)(a1 + 32));
-          if (!*(_BYTE *)(a1 + 103)) {
-            speechsample(45, 0x8000, 18, *(_DWORD *)(a1 + 32));
-            speechsample(30, 0x8000, 18, *(_DWORD *)(a1 + 32));
+        iCheckDriverIdx = pCar->iDriverIdx;
+        if (player1_car == iCheckDriverIdx || player2_car == iCheckDriverIdx) {
+          // SOUND_SAMPLE_FATALITY
+          speechsample(SOUND_SAMPLE_FATALITY, 0x8000, 18, pCar->iDriverIdx);// Play death sound effects for human players
+          if (!pCar->byLives) {
+            // SOUND_SAMPLE_0LEFT
+            speechsample(SOUND_SAMPLE_0LEFT, 0x8000, 18, pCar->iDriverIdx);
+            // SOUND_SAMPLE_RACEOVER
+            speechsample(SOUND_SAMPLE_RACEOVER, 0x8000, 18, pCar->iDriverIdx);
           }
         }
-        if (*(_BYTE *)(a1 + 187))
-          ++Car_variable_42[308 * *(unsigned __int8 *)(a1 + 185)];
-        if (*(_BYTE *)(a1 + 187) && *(unsigned __int8 *)(a1 + 185) == (_WORD)player1_car) {
-          speechsample(21, 0x8000, 18, (__int16)player1_car);
-          Victim = *(_DWORD *)(a1 + 32);
-        } else if ((__int16)player1_car != *(_DWORD *)(a1 + 32)) {
-          if (*(char *)(a1 + 103) <= 0)
-            sprintf(&buffer, "%s %s", language_buffer_variable_31, &driver_names[9 * *(_DWORD *)(a1 + 32)]);
+        if (pCar->byDamageSourceTimer)
+          ++Car[pCar->byAttacker].byKills;      // Track kills for the attacking car
+        if (pCar->byDamageSourceTimer && pCar->byAttacker == player1_car) {
+          speechsample(SOUND_SAMPLE_GOTONE, 0x8000, 18, player1_car);
+          Victim = pCar->iDriverIdx;
+        } else if (player1_car != pCar->iDriverIdx) {
+          if ((char)pCar->byLives <= 0)
+            sprintf(buffer, "%s %s", &language_buffer[1984], driver_names[pCar->iDriverIdx]);
           else
-            sprintf(&buffer, "%s %s", language_buffer_variable_30, &driver_names[9 * *(_DWORD *)(a1 + 32)]);
-          small_zoom(&buffer);
-          if (*(_BYTE *)(a1 + 187)) {
-            sprintf(&buffer, "%s %s", language_buffer_variable_34, &driver_names[9 * *(unsigned __int8 *)(a1 + 185)]);
-            subzoom(&buffer);
+            sprintf(buffer, "%s %s", &language_buffer[1920], driver_names[pCar->iDriverIdx]);
+          small_zoom(buffer);
+          if (pCar->byDamageSourceTimer) {
+            sprintf(buffer, "%s %s", &language_buffer[2176], driver_names[pCar->byAttacker]);
+            subzoom(buffer);
           }
         }
         if (player_type == 2) {
-          if (*(_BYTE *)(a1 + 187) && *(unsigned __int8 *)(a1 + 185) == player2_car) {
-            speechsample(21, 0x8000, 18, player2_car);
-            Victim = *(_DWORD *)(a1 + 32);
+          if (pCar->byDamageSourceTimer && pCar->byAttacker == player2_car) {
+            // SOUND_SAMPLE_GOTONE
+            speechsample(SOUND_SAMPLE_GOTONE, 0x8000, 18, player2_car);
+            Victim = pCar->iDriverIdx;
           } else {
-            v36 = *(_DWORD *)(a1 + 32);
-            if (player2_car != v36) {
-              if (*(char *)(a1 + 103) <= 0)
-                sprintf(&buffer, "%s %s", language_buffer_variable_31, &driver_names[9 * v36]);
+            iPlayer2DriverIdx = pCar->iDriverIdx;
+            if (player2_car != iPlayer2DriverIdx) {
+              if ((char)pCar->byLives <= 0)
+                sprintf(buffer, "%s %s", &language_buffer[1984], driver_names[iPlayer2DriverIdx]);
               else
-                sprintf(&buffer, "%s %s", language_buffer_variable_30, &driver_names[9 * v36]);
-              small_zoom(&buffer);
-              if (*(_BYTE *)(a1 + 187)) {
-                sprintf(
-                  &buffer,
-                  "%s %s",
-                  language_buffer_variable_34,
-                  &driver_names[9 * *(unsigned __int8 *)(a1 + 185)]);
-                subzoom(&buffer);
+                sprintf(buffer, "%s %s", &language_buffer[1920], driver_names[iPlayer2DriverIdx]);
+              small_zoom(buffer);
+              if (pCar->byDamageSourceTimer) {
+                sprintf(buffer, "%s %s", &language_buffer[2176], driver_names[pCar->byAttacker]);
+                subzoom(buffer);
               }
             }
           }
         }
       }
-      *(_BYTE *)(a1 + 131) |= 4u;
+      pCar->byStatusFlags |= 4u;
     }
-    if (*(float *)(a1 + 28) < (double)function_c_variable_11 && v40 >= (double)function_c_variable_11) {
-      v37 = player_type;
-      *(_WORD *)(a1 + 238) = 1080;
-      if (v37 != 2 && (cheat_mode & 0x4000) == 0 && (__int16)player1_car != *(_DWORD *)(a1 + 32)) {
-        v38 = *(_BYTE *)(a1 + 102);
-        if (v38 == Car_variable_22[308 * (__int16)player1_car] && !human_control[*(_DWORD *)(a1 + 32)] && v38 <= 7u) {
-          speechsample(v38 + 71, 20000, 18, (__int16)player1_car + 17408);
-          speechsample(68, 20000, 0, (__int16)player1_car);
+    if (pCar->fHealth < 30.0 && fHealth >= 30.0)// Handle transition from healthy to critical health (30.0 threshold)
+    {
+      iPlayerTypeCheck = player_type;
+      pCar->nChangeMateCooldown = 1080;
+      // CHEAT_MODE_CLONES
+      if (iPlayerTypeCheck != 2 && (cheat_mode & CHEAT_MODE_CLONES) == 0 && player1_car != pCar->iDriverIdx) {
+        byCarDesignIdx = pCar->byCarDesignIdx;
+        if (byCarDesignIdx == Car[player1_car].byCarDesignIdx && !human_control[pCar->iDriverIdx] && byCarDesignIdx <= 7u) {
+          // SOUND_SAMPLE_ARIEL
+          speechsample(byCarDesignIdx + SOUND_SAMPLE_ARIEL, 20000, 18, player1_car + 17408);
+          // SOUND_SAMPLE_TDAMAGE
+          speechsample(SOUND_SAMPLE_TDAMAGE, 20000, 0, player1_car);
         }
       }
     }
   }
-  v39 = *(_DWORD *)(a1 + 32);
-  if (((__int16)player1_car == v39 || player2_car == v39)
-    && *(float *)(a1 + 28) < (double)function_c_variable_11
-    && v40 >= (double)function_c_variable_11
-    && *(_BYTE *)(a1 + 102) <= 7u) {
-    speechsample(27, 20000, 18, *(_DWORD *)(a1 + 32));
-  }*/
+  iFinalDriverIdx = pCar->iDriverIdx;
+  if ((player1_car == iFinalDriverIdx || player2_car == iFinalDriverIdx) && pCar->fHealth < 30.0 && fHealth >= 30.0 && pCar->byCarDesignIdx <= 7u)
+    // SOUND_SAMPLE_BLOWTIME
+    speechsample(SOUND_SAMPLE_BLOWTIME, 20000, 18, pCar->iDriverIdx);// Play critical health warning sound for human players
 }
 
 //-------------------------------------------------------------------------------------------------

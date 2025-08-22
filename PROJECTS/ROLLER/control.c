@@ -64,6 +64,7 @@ int Destroyed;                    //00149D8C
 int nearcarcheck;                 //00149D90
 int ahead_sect;                   //00149D94
 int ahead_time;                   //00149D98
+int Victim;                       //00149D9C
 int Fatality;                     //00149DB0
 int Fatality_Count;               //00149DB4
 int cheat_control;                //00149DB8
@@ -187,7 +188,7 @@ void humancar(int iCarIdx)
       iTargetCar1 = iTargetCarIdx;
       if (iTargetCarIdx >= 0 && Car[iTargetCarIdx].nCurrChunk != -1 && Car[iTargetCarIdx].byCarDesignIdx != 13) {
         Car[iTargetCarIdx].byAttacker = iCarIdx_1;// Apply damage: 200 damage, stop target car, consume ammo
-        Car[iTargetCarIdx].byUnk43 = -40;
+        Car[iTargetCarIdx].byDamageSourceTimer = -40;
         dodamage(&Car[iTargetCarIdx], 200.0);
         Car[iTargetCar1].fFinalSpeed = 0.0;
         Car[iTargetCar1].byGearAyMax = 0;
@@ -324,7 +325,7 @@ void humancar(int iCarIdx)
       Car[iTeleportTarget].iLastValidChunk = nTemp;// SLOWORD(fChunkValue);
       Car[iTeleportTarget].byAttacker = iCarIdx_1;
       Car[iTeleportTarget].byGearAyMax = 0;
-      Car[iTeleportTarget].byUnk43 = -40;
+      Car[iTeleportTarget].byDamageSourceTimer = -40;
       iPlayerIdx2 = iCarIdx_1;
       Car[iTeleportTarget].nCurrChunk = -1;
       if (cheatsampleok(iPlayerIdx2))
@@ -786,9 +787,9 @@ void control()
           if ((Car[iCarUpdateIdx].byLives & 0x80u) == 0) {
             if (fudge_wait < 0)
               updatecar2(&Car[iCarUpdateIdx]);
-            byUnk43 = Car[iCarUpdateIdx].byUnk43;
+            byUnk43 = Car[iCarUpdateIdx].byDamageSourceTimer;
             if (byUnk43 && Car[iCarUpdateIdx].fHealth > 0.0)
-              Car[iCarUpdateIdx].byUnk43 = byUnk43 - 1;
+              Car[iCarUpdateIdx].byDamageSourceTimer = byUnk43 - 1;
           }
           iCarArrayIdx = numcars;
           ++iUpdateCarIdx;
@@ -3739,7 +3740,7 @@ LABEL_113:
     pCar->nYaw = 0;
     pCar->nYaw3 = 0;
     pCar->nRoll = 0;
-    pCar->byUnk43 = 0;
+    pCar->byDamageSourceTimer = 0;
     pCar->iControlType = 3;
     pCar->iJumpMomentum = 0;
     pCar->iSelectedStrategy = 0;
@@ -3795,9 +3796,9 @@ LABEL_113:
     pCar->nLastCommentaryChunk = -1;
     pCar->byStatusFlags = 0;
     pCar->bySfxCooldown = 0;
-    byUnk64 = pCar->byUnk64;
+    byUnk64 = pCar->byDamageToggle;
     pCar->byCollisionTimer = 0;
-    pCar->byUnk64 = 1 - byUnk64;
+    pCar->byDamageToggle = 1 - byUnk64;
   }
 }
 

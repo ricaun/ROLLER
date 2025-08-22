@@ -405,10 +405,10 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
     LABEL_96:
       if (pCar1->fHealth > 0.0)
         pCar1->byAttacker = pCar2->iDriverIdx;
-      pCar1->byUnk43 = -40;
+      pCar1->byDamageSourceTimer = -40;
       if (pCar2->fHealth > 0.0)
         pCar2->byAttacker = pCar1->iDriverIdx;
-      pCar2->byUnk43 = -40;
+      pCar2->byDamageSourceTimer = -40;
       fCar1FinalDamage = fCar1Damage * damage_levels[damage_level];
       dodamage(pCar1, fCar1FinalDamage);        // Apply calculated damage to both cars and set attacker information
       fCar2FinalDamage = fCar2Damage * damage_levels[damage_level];

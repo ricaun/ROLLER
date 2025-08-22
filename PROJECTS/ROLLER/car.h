@@ -74,7 +74,7 @@ typedef struct
   uint8 byDebugDamage;
   uint8 byAttacker;
   uint8 byKills;
-  uint8 byUnk43;
+  uint8 byDamageSourceTimer;
   int iBobMode;
   int iSelectedStrategy;
   int iAITargetLine;
@@ -104,9 +104,9 @@ typedef struct
   float fTargetX;
   float fTargetY;
   uint8 byCollisionTimer;
-  uint8 byUnk64;
+  uint8 byDamageToggle;
   uint8 byUnk65;
-  uint8 byPadding14;
+  uint8 byDamageIntensity;
   uint8 byCheatAmmo;
   uint8 byCheatCooldown;
   uint8 byWheelAnimationFrame;
