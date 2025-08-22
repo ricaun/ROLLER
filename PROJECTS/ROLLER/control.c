@@ -6694,7 +6694,7 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
               pCarSpray->velocity.fX = (float)(-105 - ((150 * iRandomVelX3) >> 15));
               //pCarSpray->velocity.fX = (float)(-105 - ((150 * iRandomVelX3 - (__CFSHL__((150 * iRandomVelX3) >> 31, 15) + ((150 * iRandomVelX3) >> 31 << 15))) >> 15));
               iRandomVelY8 = rand();
-              pCarSpray->velocity.fY = (float)((400 * iRandomVelY7) >> 15);
+              pCarSpray->velocity.fY = (float)((400 * iRandomVelY8) >> 15);
               //pCarSpray->velocity.fY = (float)(((400 * iRandomVelY8 - (__CFSHL__((400 * iRandomVelY8) >> 31, 15) + ((400 * iRandomVelY8) >> 31 << 15))) >> 15) - 200);
               iRandomUnk5_3 = rand();
               iCalculatedUnk5 = ((30 * iRandomUnk5_3) >> 15) - 20;
