@@ -18,7 +18,7 @@ int calculate_aheadbehindtime(int a1, float *a2, float *a3);
 void initnearcars();
 void initpits();
 void dodamage(tCar *pCar, float fDamage);
-void doviewtend(tCar *pCar, int a2, int a3);
+void doviewtend(tCar *pCar, int iFrameDelta, int iViewIdx);
 int changemateto(int result, int a2);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
 void analysefalloff(tCar *pCar);

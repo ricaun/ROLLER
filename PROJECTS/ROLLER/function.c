@@ -854,168 +854,158 @@ void dodamage(tCar *pCar, float fDamage)
 
 //-------------------------------------------------------------------------------------------------
 //00037F00
-void doviewtend(tCar *pCar, int a2, int a3)
-{/*
-  int v5; // edx
-  unsigned int v6; // eax
-  int v7; // edx
-  int v8; // esi
-  double v9; // st7
-  double v10; // st7
-  int v11; // ebx
-  double v12; // st7
-  int v13; // esi
-  double v14; // st7
-  double v15; // st7
-  int v16; // ebx
-  double v17; // st7
-  int v18; // esi
-  double v19; // st7
-  double v20; // st7
-  int v21; // ebx
-  double v22; // st7
-  int v23; // esi
-  double v24; // st7
-  double v25; // st7
-  int v26; // ebx
-  double v27; // st7
-  int v28; // esi
-  double v29; // st7
-  double v30; // st7
-  int v31; // ebx
-  double v32; // st7
-  int v33; // [esp+4h] [ebp-50h]
-  int v34; // [esp+8h] [ebp-4Ch]
-  int v35; // [esp+Ch] [ebp-48h]
-  int v36; // [esp+10h] [ebp-44h]
-  int v37; // [esp+14h] [ebp-40h]
-  int v38; // [esp+18h] [ebp-3Ch]
-  float v39; // [esp+1Ch] [ebp-38h]
-  float v40; // [esp+20h] [ebp-34h]
-  float v41; // [esp+24h] [ebp-30h]
-  float v42; // [esp+28h] [ebp-2Ch]
-  int v43; // [esp+2Ch] [ebp-28h]
-  float v44; // [esp+30h] [ebp-24h]
-  float v45; // [esp+34h] [ebp-20h]
-  float v46; // [esp+38h] [ebp-1Ch]
-  float v47; // [esp+3Ch] [ebp-18h]
-  float v48; // [esp+40h] [ebp-14h]
-  float v49; // [esp+44h] [ebp-10h]
+void doviewtend(tCar *pCar, int iFrameDelta, int iViewIdx)
+{
+  int iSelectedView; // edx
+  unsigned int iControlType; // eax
+  double dChasePullCrash; // st7
+  double dTempPullCrash; // st7
+  int iViewIndex; // ebx
+  double dTempPullCrash2; // st7
+  double dChasePullNormal; // st7
+  double dTempPullNormal; // st7
+  int iViewIndex2; // ebx
+  double dTempPullNormal2; // st7
+  double dChasePullDefault; // st7
+  double dTempPullDefault; // st7
+  int iViewIndex3; // ebx
+  double dTempPullDefault2; // st7
+  double dHighSpeedCrashPull; // st7
+  double dTempHighSpeedCrash; // st7
+  int iViewIndex4; // ebx
+  double dTempHighSpeedCrash2; // st7
+  double dHighSpeedNormalPull; // st7
+  double dTempHighSpeedNormal; // st7
+  int iViewIndex5; // ebx
+  double dTempHighSpeedNormal2; // st7
+  int iHighSpeedPullIncrement; // [esp+4h] [ebp-50h]
+  int iTargetPullNormal; // [esp+8h] [ebp-4Ch]
+  int iTargetPullHighSpeed; // [esp+Ch] [ebp-48h]
+  int iTargetPullCrash; // [esp+10h] [ebp-44h]
+  int iTargetPullDefault; // [esp+14h] [ebp-40h]
+  int iTargetPullHighSpeedCrash; // [esp+18h] [ebp-3Ch]
+  float fTargetPullHighSpeed; // [esp+1Ch] [ebp-38h]
+  float fTargetPullNormal; // [esp+20h] [ebp-34h]
+  float fTargetPullHighSpeedCrash; // [esp+24h] [ebp-30h]
+  float fTargetPullDefault; // [esp+28h] [ebp-2Ch]
+  int iPullSpeed; // [esp+2Ch] [ebp-28h]
+  float fTargetPullDefaultFloat; // [esp+30h] [ebp-24h]
+  float fTargetPullCrashFloat; // [esp+34h] [ebp-20h]
+  float fTargetPullNormalFloat; // [esp+38h] [ebp-1Ch]
+  float fTargetPullCrashLimit; // [esp+3Ch] [ebp-18h]
+  float fTargetPullHighSpeedLimit; // [esp+40h] [ebp-14h]
+  float fTargetPullHighSpeedCrashLimit; // [esp+44h] [ebp-10h]
 
-  v5 = SelectedView[a3];
-  if (v5 == 1 || v5 == 3) {
-    v6 = *(_DWORD *)(a1 + 72);
-    v43 = 40 * a2;
-    v7 = 4 * a3;
-    if (v6 < 2) {
-      if (!v6) {
-        v18 = chaseview[a3];
-        v19 = viewdata_variable_4[6 * v18];
-        _CHP(3 * v18, v7);
-        v37 = (int)v19;
-        v42 = v19;
-        if (PULLZ[a3] > (double)v42) {
-          v20 = PULLZ[a3] - (double)v43;
-          PULLZ[a3] = v20;
-          if (v20 < v42)
-            PULLZ[a3] = v42;
+  iSelectedView = SelectedView[iViewIdx];       // Get the selected view type for this view index (a3: 0=player1 view, 1=player2 view)
+  if (iSelectedView == 1 || iSelectedView == 3)// Only process chase views (view types 1 and 3)
+  {
+    iControlType = pCar->iControlType;          // Get car control type to determine pull behavior
+    iPullSpeed = 40 * iFrameDelta;              // Calculate pull speed increment (40 units per frame) * frame delta
+    if (iControlType < 2) {                                           // Control type 0: Autopilot/Default car behavior
+      if (!iControlType) {
+        dChasePullDefault = viewdata[chaseview[iViewIdx]].fChasePullDefault;// Get default chase pull distance from view data
+        //_CHP();
+        iTargetPullDefault = (int)dChasePullDefault;
+        fTargetPullDefault = (float)dChasePullDefault;
+        if (PULLZ[iViewIdx] > (double)fTargetPullDefault) {
+          dTempPullDefault = PULLZ[iViewIdx] - (double)iPullSpeed;
+          PULLZ[iViewIdx] = (float)dTempPullDefault;
+          if (dTempPullDefault < fTargetPullDefault)
+            PULLZ[iViewIdx] = fTargetPullDefault;
         }
-        v44 = (float)v37;
-        v21 = a3;
-        if (PULLZ[v21] < (double)v44) {
-          v22 = (double)(40 * a2) + PULLZ[v21];
-          PULLZ[v21] = v22;
-          if (v22 > v44)
-            PULLZ[v21] = v44;
-        }
-      }
-    } else if (v6 <= 3) {
-      if (*(_DWORD *)(a1 + 204)) {
-        v8 = chaseview[a3];
-        v9 = viewdata_variable_3[6 * v8];
-        _CHP(3 * v8, v7);
-        v36 = (int)v9;
-        v45 = v9;
-        if (PULLZ[a3] > (double)v45) {
-          v10 = PULLZ[a3] - (double)v43;
-          PULLZ[a3] = v10;
-          if (v10 < v45)
-            PULLZ[a3] = v45;
-        }
-        v47 = (float)v36;
-        v11 = a3;
-        if (PULLZ[v11] < (double)v47) {
-          v12 = (double)(40 * a2) + PULLZ[v11];
-          PULLZ[v11] = v12;
-          if (v12 > v47)
-            PULLZ[v11] = v47;
-        }
-      } else {
-        v13 = chaseview[a3];
-        v14 = viewdata_variable_2[6 * v13];
-        _CHP(3 * v13, v7);
-        v34 = (int)v14;
-        v40 = v14;
-        if (PULLZ[a3] > (double)v40) {
-          v15 = PULLZ[a3] - (double)v43;
-          PULLZ[a3] = v15;
-          if (v15 < v40)
-            PULLZ[a3] = v40;
-        }
-        v46 = (float)v34;
-        v16 = a3;
-        if (PULLZ[v16] < (double)v46) {
-          v17 = (double)(40 * a2) + PULLZ[v16];
-          PULLZ[v16] = v17;
-          if (v17 > v46)
-            PULLZ[v16] = v46;
+        fTargetPullDefaultFloat = (float)iTargetPullDefault;
+        iViewIndex3 = iViewIdx;
+        if (PULLZ[iViewIndex3] < (double)fTargetPullDefaultFloat) {
+          dTempPullDefault2 = (double)(40 * iFrameDelta) + PULLZ[iViewIndex3];
+          PULLZ[iViewIndex3] = (float)dTempPullDefault2;
+          if (dTempPullDefault2 > fTargetPullDefaultFloat)
+            PULLZ[iViewIndex3] = fTargetPullDefaultFloat;
         }
       }
-    } else if (v6 == 1002) {
-      v33 = 160 * a2;
-      if (*(_DWORD *)(a1 + 204)) {
-        v23 = chaseview[a3];
-        v24 = viewdata_variable_3[6 * v23] + function_c_variable_13;
-        _CHP(3 * v23, v7);
-        v38 = (int)v24;
-        v41 = v24;
-        if (PULLZ[a3] > (double)v41) {
-          v25 = PULLZ[a3] - (double)v33;
-          PULLZ[a3] = v25;
-          if (v25 < v41)
-            PULLZ[a3] = v41;
+    } else if (iControlType <= 3) {                                           // Check if car is stunned/crashed to use crash pull values
+      if (pCar->iStunned) {
+        dChasePullCrash = viewdata[chaseview[iViewIdx]].fChasePullCrash;// Use crash pull distance for stunned cars
+        //_CHP();
+        iTargetPullCrash = (int)dChasePullCrash;
+        fTargetPullCrashFloat = (float)dChasePullCrash;
+        if (PULLZ[iViewIdx] > (double)fTargetPullCrashFloat) {
+          dTempPullCrash = PULLZ[iViewIdx] - (double)iPullSpeed;
+          PULLZ[iViewIdx] = (float)dTempPullCrash;
+          if (dTempPullCrash < fTargetPullCrashFloat)
+            PULLZ[iViewIdx] = fTargetPullCrashFloat;
         }
-        v49 = (float)v38;
-        v26 = a3;
-        if (PULLZ[v26] < (double)v49) {
-          v27 = (double)(40 * a2) + PULLZ[v26];
-          PULLZ[v26] = v27;
-          if (v27 > v49)
-            PULLZ[v26] = v49;
+        fTargetPullCrashLimit = (float)iTargetPullCrash;
+        iViewIndex = iViewIdx;
+        if (PULLZ[iViewIndex] < (double)fTargetPullCrashLimit) {
+          dTempPullCrash2 = (double)(40 * iFrameDelta) + PULLZ[iViewIndex];
+          PULLZ[iViewIndex] = (float)dTempPullCrash2;
+          if (dTempPullCrash2 > fTargetPullCrashLimit)
+            PULLZ[iViewIndex] = fTargetPullCrashLimit;
         }
       } else {
-        v28 = chaseview[a3];
-        v29 = viewdata_variable_2[6 * v28] + function_c_variable_12;
-        _CHP(3 * v28, v7);
-        v35 = (int)v29;
-        v39 = v29;
-        if (PULLZ[a3] > (double)v39) {
-          v30 = PULLZ[a3] - (double)v33;
-          PULLZ[a3] = v30;
-          if (v30 < v39)
-            PULLZ[a3] = v39;
+        dChasePullNormal = viewdata[chaseview[iViewIdx]].fChasePullNormal;// Use normal pull distance for active cars
+        //_CHP();
+        iTargetPullNormal = (int)dChasePullNormal;
+        fTargetPullNormal = (float)dChasePullNormal;
+        if (PULLZ[iViewIdx] > (double)fTargetPullNormal) {
+          dTempPullNormal = PULLZ[iViewIdx] - (double)iPullSpeed;
+          PULLZ[iViewIdx] = (float)dTempPullNormal;
+          if (dTempPullNormal < fTargetPullNormal)
+            PULLZ[iViewIdx] = fTargetPullNormal;
         }
-        v48 = (float)v35;
-        v31 = a3;
-        if (PULLZ[v31] < (double)v48) {
-          v32 = (double)(40 * a2) + PULLZ[v31];
-          PULLZ[v31] = v32;
-          if (v32 > v48)
-            PULLZ[v31] = v48;
+        fTargetPullNormalFloat = (float)iTargetPullNormal;
+        iViewIndex2 = iViewIdx;
+        if (PULLZ[iViewIndex2] < (double)fTargetPullNormalFloat) {
+          dTempPullNormal2 = (double)(40 * iFrameDelta) + PULLZ[iViewIndex2];
+          PULLZ[iViewIndex2] = (float)dTempPullNormal2;
+          if (dTempPullNormal2 > fTargetPullNormalFloat)
+            PULLZ[iViewIndex2] = fTargetPullNormalFloat;
+        }
+      }
+    } else if (iControlType == 1002)            // Control type 1002: High-speed mode with modified pull distances
+    {
+      iHighSpeedPullIncrement = 160 * iFrameDelta;// Use faster pull speed for high-speed mode (160 units per frame)
+      if (pCar->iStunned) {
+        dHighSpeedCrashPull = viewdata[chaseview[iViewIdx]].fChasePullCrash + -400.0;// High-speed crash: use crash pull distance minus 400 units
+        //_CHP();
+        iTargetPullHighSpeedCrash = (int)dHighSpeedCrashPull;
+        fTargetPullHighSpeedCrash = (float)dHighSpeedCrashPull;
+        if (PULLZ[iViewIdx] > (double)fTargetPullHighSpeedCrash) {
+          dTempHighSpeedCrash = PULLZ[iViewIdx] - (double)iHighSpeedPullIncrement;
+          PULLZ[iViewIdx] = (float)dTempHighSpeedCrash;
+          if (dTempHighSpeedCrash < fTargetPullHighSpeedCrash)
+            PULLZ[iViewIdx] = fTargetPullHighSpeedCrash;
+        }
+        fTargetPullHighSpeedCrashLimit = (float)iTargetPullHighSpeedCrash;
+        iViewIndex4 = iViewIdx;
+        if (PULLZ[iViewIndex4] < (double)fTargetPullHighSpeedCrashLimit) {
+          dTempHighSpeedCrash2 = (double)(40 * iFrameDelta) + PULLZ[iViewIndex4];
+          PULLZ[iViewIndex4] = (float)dTempHighSpeedCrash2;
+          if (dTempHighSpeedCrash2 > fTargetPullHighSpeedCrashLimit)
+            PULLZ[iViewIndex4] = fTargetPullHighSpeedCrashLimit;
+        }
+      } else {
+        dHighSpeedNormalPull = viewdata[chaseview[iViewIdx]].fChasePullNormal + 400.0;// High-speed normal: use normal pull distance plus 400 units
+        //_CHP();
+        iTargetPullHighSpeed = (int)dHighSpeedNormalPull;
+        fTargetPullHighSpeed = (float)dHighSpeedNormalPull;
+        if (PULLZ[iViewIdx] > (double)fTargetPullHighSpeed) {
+          dTempHighSpeedNormal = PULLZ[iViewIdx] - (double)iHighSpeedPullIncrement;
+          PULLZ[iViewIdx] = (float)dTempHighSpeedNormal;
+          if (dTempHighSpeedNormal < fTargetPullHighSpeed)
+            PULLZ[iViewIdx] = fTargetPullHighSpeed;
+        }
+        fTargetPullHighSpeedLimit = (float)iTargetPullHighSpeed;
+        iViewIndex5 = iViewIdx;
+        if (PULLZ[iViewIndex5] < (double)fTargetPullHighSpeedLimit) {
+          dTempHighSpeedNormal2 = (double)(40 * iFrameDelta) + PULLZ[iViewIndex5];
+          PULLZ[iViewIndex5] = (float)dTempHighSpeedNormal2;
+          if (dTempHighSpeedNormal2 > fTargetPullHighSpeedLimit)
+            PULLZ[iViewIndex5] = fTargetPullHighSpeedLimit;
         }
       }
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
