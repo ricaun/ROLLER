@@ -260,7 +260,8 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
       iCar1Normalized2 -= 0x2000;
     if (iCar2Angle2Diff > 4096)
       iCar2Angle2Diff -= 0x2000;
-    dSeparationDistance = coldist[((iCar1Normalized2 << 6) + 270336) >> 14][((iCar2Angle2Diff << 6) + 270336) >> 14] + 60.0;
+      //TODO look at this and ensure casting is correct
+    dSeparationDistance = coldist[(((uint32)iCar1Normalized2 << 6) + 270336) >> 14][(((uint32)iCar2Angle2Diff << 6) + 270336) >> 14] + 60.0;
     dMidpointX = (fX + fPosX1Copy) * 0.5;
     dMidpointY = (fY + fPosY1Copy) * 0.5;
     pCar1->pos.fX = (float)(dMidpointX - dSeparationDistance * tcos[iCollisionDirection] * 0.5);// Separate cars to prevent overlap: move each car away from collision point
