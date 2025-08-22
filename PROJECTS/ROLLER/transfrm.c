@@ -1206,7 +1206,7 @@ int getpitchchange(int iChunkIdx, int iLLaneIdx, int iRLaneIdx)
 
 //-------------------------------------------------------------------------------------------------
 //00063990
-void __fastcall getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimuth, int *piElevation, int *piBank)
+void getworldangles(int iYaw, int iPitch, int iRoll, int iChunkIdx, int *piAzimuth, int *piElevation, int *piBank)
 {
   double dCosPitch; // st7
   int iYaw_1; // ecx

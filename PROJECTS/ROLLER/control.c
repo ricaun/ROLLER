@@ -3117,7 +3117,7 @@ void check_crossed_line(tCar *pCar)
   int iRacePos; // eax
   int iTargetCar; // ebx
   tCarEngine *pEngine; // eax
-  signed __int8 byMaxGear; // dl
+  int8 byMaxGear; // dl
   double dPowerCalc; // st7
   int iSoundSample1; // ecx
   int iHumanControl1; // edx
@@ -3196,7 +3196,7 @@ void check_crossed_line(tCar *pCar)
                     //iTargetCar *= sizeof(tCar);
                     pEngine = &CarEngines.engines[Car[iTargetCar].byCarDesignIdx];
                     Car[iTargetCar].fRPMRatio = 1.0;
-                    byMaxGear = LOBYTE(pEngine->iNumGears) - 1;
+                    byMaxGear = (uint8)(pEngine->iNumGears) - 1;
                     Car[iTargetCar].byGearAyMax = byMaxGear;
                     Car[iTargetCar].fFinalSpeed = pEngine->pSpds[byMaxGear];
                     Car[iTargetCar].fBaseSpeed = Car[iTargetCar].fFinalSpeed;
@@ -3686,7 +3686,7 @@ void checkplacement(tCar *pCar)
     if (iSelectedView == 7) {
       iMaskedDriverIdx = pCar->iDriverIdx & 0xFE;
       iMaskedViewType = ViewType[0] & 0xFE;
-      if ((unsigned __int8)iMaskedViewType == iMaskedDriverIdx) {
+      if ((uint8)iMaskedViewType == iMaskedDriverIdx) {
         SelectedView[0] = iMaskedDriverIdx ^ iMaskedViewType;
         select_view(0);
         initcarview(ViewType[0], 0);
@@ -4949,7 +4949,7 @@ LABEL_24:
     if (iRightCarIdx == -1 || fRightTime < 0.0) {
       if (iLeftCarIdx != -1 && fLeftTime >= 0.0) {
         if (Car[iLeftCarIdx].fHealth < 25.0 && !finished_car[iLeftCarIdx])
-          iSelectedStrategy = Car[iLeftCarIdx].fHealth > 0.0 && ((unsigned __int8)iRightCarIdx & (pCar->iDriverIdx == 65534) & 0xFE) == 0 && pCar->fHealth >= 40.0;
+          iSelectedStrategy = Car[iLeftCarIdx].fHealth > 0.0 && ((uint8)iRightCarIdx & (pCar->iDriverIdx == 65534) & 0xFE) == 0 && pCar->fHealth >= 40.0;
         if (human_control[iLeftCarIdx] && ((cheat_mode & 2) != 0 || pCar->byCarDesignIdx == 13) && Car[iLeftCarIdx].fHealth > 0.0 && !finished_car[iLeftCarIdx]) {
           iSelectedStrategy = 1;
           if (pCar->byCarDesignIdx == 13 && fLeftTime < 3.0) {
@@ -4964,7 +4964,7 @@ LABEL_24:
       }
     } else {
       if (Car[iRightCarIdx].fHealth < 25.0 && !finished_car[iRightCarIdx]) {
-        if (Car[iRightCarIdx].fHealth <= 0.0 || ((unsigned __int8)iRightCarIdx & (pCar->iDriverIdx == 65534) & 0xFE) != 0 || pCar->fHealth < 40.0)
+        if (Car[iRightCarIdx].fHealth <= 0.0 || ((uint8)iRightCarIdx & (pCar->iDriverIdx == 65534) & 0xFE) != 0 || pCar->fHealth < 40.0)
           iSelectedStrategy = 0;
         else
           iSelectedStrategy = 3;
@@ -6978,9 +6978,9 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
     }
     if ((pCarSpray->iLifeTime & 3) == 0)      // Animate particle colors by cycling through color palette every 4 frames
     {
-      uiColor = (unsigned __int8)pCarSpray->iColor;
+      uiColor = (uint8)pCarSpray->iColor;
       if (uiColor < 0x15) {
-        if (!(unsigned __int8)pCarSpray->iColor) {
+        if (!(uint8)pCarSpray->iColor) {
           iColorCycle = 21;
           goto SET_COLOR_CYCLE;
         }
