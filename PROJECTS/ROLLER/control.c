@@ -4430,14 +4430,14 @@ void findnearcars(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *piRight
     *pfRightTime = fRightTargetTime;
     pCar->fLeftTargetTime = fLeftTargetTime;
     pCar->fRightTargetTime = fRightTargetTime;
-    if (Car[*piLeftCarIdx].nCurrChunk == -1)  // Validate left target car is still on track
+    if (*piLeftCarIdx >= 0 && Car[*piLeftCarIdx].nCurrChunk == -1)  // Validate left target car is still on track
     {
       *piLeftCarIdx = -1;                       // Clear invalid left target (car removed from track)
       *pfLeftTime = -10000.0;
       pCar->iLeftTargetIdx = -1;
       pCar->fLeftTargetTime = -10000.0;
     }
-    if (Car[*piRightCarIdx].nCurrChunk == -1) // Validate right target car is still on track
+    if (*piRightCarIdx >= 0 && Car[*piRightCarIdx].nCurrChunk == -1) // Validate right target car is still on track
     {
       *piRightCarIdx = -1;                      // Clear invalid right target (car removed from track)
       *pfRightTime = -10000.0;
