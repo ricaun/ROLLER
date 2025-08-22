@@ -4977,7 +4977,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           goto LABEL_115;
         case 1:                                 // Horiz subdivision only
           // Calculate midpoint between verts 0 and 1, and 2 and 3
-          if (fY_mid01 < 1.0) {
+          if (fY_mid01 < 1.0 || isnan(fY_mid01)) {
             if ((double)iScreenCenterX_calc <= fX_mid01)
               iScreenX_mid12 = 20000;
             else
@@ -5004,7 +5004,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fY_mid12 = (fY2_3D + fY3_3D) * 0.5f;
           fZ_mid12 = (fZ2_3D + fZ3_3D) * 0.5f;
 
-          if (fZ_mid12 < 1.0) {
+          if (fZ_mid12 < 1.0 || isnan(fZ_mid12)) {
             if ((double)(winw / 2) <= fX_mid12)
               iScreenX_mid23 = 20000;
             else
@@ -5118,7 +5118,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fZ_mid12_1 = (fZ1_3D + fZ2_3D) * 0.5f;
 
           // Too close to camera
-          if (fZ_mid12_1 < 1.0) {
+          if (fZ_mid12_1 < 1.0 || isnan(fZ_mid12_1)) {
             if ((double)iScreenCenterX_calc <= fX_mid12_1)
               iScreenX_mid12_1 = 20000;
             else
@@ -5143,7 +5143,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fX_mid30 = (fX3_3D + fX0_3D) * 0.5f;
           fY_mid30 = (fY3_3D + fY0_3D) * 0.5f;
           fZ_mid30 = (fZ3_3D + fZ0_3D) * 0.5f;
-          if (fZ_mid30 < 1.0) {
+          if (fZ_mid30 < 1.0 || isnan(fZ_mid30)) {
             if ((double)(winw / 2) <= fX_mid30)
               iScreenX_mid30 = 20000;
             else
@@ -5253,7 +5253,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           // Calculate all edge midpoints
 
           // midpoint of edge 0-1 (top edge)
-          if (fY_mid01 < 1.0) {
+          if (fY_mid01 < 1.0 || isnan(fY_mid01)) {
             if ((double)iScreenCenterX_calc <= fX_mid01)
               iScreenX_mid01 = 20000;
             else
@@ -5278,7 +5278,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fX_mid12_2 = (fX1_3D + fX2_3D) * 0.5f;
           fY_mid12_2 = (fY1_3D + fY2_3D) * 0.5f;
           fZ_mid12_2 = (fZ1_3D + fZ2_3D) * 0.5f;
-          if (fZ_mid12_2 < 1.0) {
+          if (fZ_mid12_2 < 1.0 || isnan(fZ_mid12_2)) {
             if ((double)(winw / 2) <= fX_mid12_2)
               iScreenX_mid12_2 = 20000;
             else
@@ -5303,7 +5303,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fX_mid23 = (fX2_3D + fX3_3D) * 0.5f;
           fY_mid23 = (fY2_3D + fY3_3D) * 0.5f;
           fZ_mid23 = (fZ2_3D + fZ3_3D) * 0.5f;
-          if (fZ_mid23 < 1.0) {
+          if (fZ_mid23 < 1.0 || isnan(fZ_mid23)) {
             if ((double)(winw / 2) <= fX_mid23)
               iScreenX_mid23_1 = 20000;
             else
@@ -5328,7 +5328,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fX_mid30_1 = (fX3_3D + fX0_3D) * 0.5f;
           fY_mid30_1 = (fY3_3D + fY0_3D) * 0.5f;
           fZ_mid30_1 = (fZ3_3D + fZ0_3D) * 0.5f;
-          if (fZ_mid30_1 < 1.0) {
+          if (fZ_mid30_1 < 1.0 || isnan(fZ_mid30_1)) {
             if ((double)(winw / 2) <= fX_mid30_1)
               iScreenX_mid30_1 = 20000;
             else
@@ -5353,7 +5353,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
           fX_center = (fX_mid01 + fX_mid23) * 0.5f;
           fY_center = (fMidZ_quad + fY_mid23) * 0.5f;
           fZ_center = (fY_mid01 + fZ_mid23) * 0.5f;
-          if (fZ_center < 1.0) {
+          if (fZ_center < 1.0 || isnan(fZ_center)) {
             if ((double)(winw / 2) <= fX_center)
               iScreenX_center = 20000;
             else

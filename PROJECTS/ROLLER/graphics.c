@@ -1113,6 +1113,7 @@ void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIs
 
   if (iNumBlocks > 0) {
     iRemapAyOffset = 0;
+    iTexRowBytes = 0;
     if (iRemapType >= 0) //check added by ROLLER
       iTexRowBytes = iRemapType << 10;
     do {
