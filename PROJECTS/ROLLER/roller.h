@@ -58,6 +58,7 @@ void ReplaceExtension(char *szFilename, const char *szNewExt);
 void ErrorBoxExit(const char *szErrorMsgFormat, ...);
 void autoselectsoundlanguage();
 int GetHighOrderRand(int iRange, int iRandValue);
+int ReadUnalignedInt(const void *pData);
 
 //-------------------------------------------------------------------------------------------------
 #endif

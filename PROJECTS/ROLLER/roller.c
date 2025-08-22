@@ -1268,3 +1268,11 @@ int GetHighOrderRand(int iRange, int iRandValue)
 }
 
 //-------------------------------------------------------------------------------------------------
+
+int ReadUnalignedInt(const void *pData)
+{
+  const uint8 *pBytes = (const uint8*)pData;
+  return (uint32)pBytes[0] | ((uint32)pBytes[1] << 8) | ((uint32)pBytes[2] << 16) | ((uint32)pBytes[3] << 24);
+}
+
+//-------------------------------------------------------------------------------------------------
