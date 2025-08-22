@@ -690,6 +690,8 @@ void DrawCars(int iCarIdx, int iViewMode)
         
         if (iCurrChunk_1 >= 0 && iCurrChunk_1 < TRAK_LEN) //check added by ROLLER
           pointAy = localdata[iCurrChunk_1].pointAy;
+        else
+          pointAy = NULL;
 
         pHitboxPt = CarBox.hitboxAy[pCar->byCarDesignIdx];// Get car hitbox points and chunk transform matrix
         do {
@@ -700,7 +702,7 @@ void DrawCars(int iCarIdx, int iViewMode)
           CarPt[iPointIdx].world.fY = fHitboxX * fTransformM10 + fHitboxY * fTransformM11 + fHitboxZ * fTransformM21 + fY;
           ++pHitboxPt;
           CarPt[iPointIdx].world.fZ = fHitboxX * fTransformM20 + fHitboxY * fTransformM12 + fHitboxZ * fTransformM22 + fZ;
-          if (iCurrChunk_1 != -1)             // Transform from car space to track chunk space if valid chunk
+          if (iCurrChunk_1 != -1 && pointAy)             // Transform from car space to track chunk space if valid chunk
           {
             fWorldX = CarPt[iPointIdx].world.fX;
             fWorldY = CarPt[iPointIdx].world.fY;

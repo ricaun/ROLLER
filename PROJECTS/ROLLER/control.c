@@ -2330,6 +2330,8 @@ LABEL_171:
   iControlTypeLocal = pCar->iControlType;       // Branch on car control type: 0=Free Movement, 1=?, 2=Ground, 3=AI/Player
   if (pCar->nCurrChunk >= 0 && pCar->nCurrChunk < TRAK_LEN)//check added by ROLLER
     pLocalData = (float *)&localdata[pCar->nCurrChunk];
+  else
+    pLocalData = NULL;
 
   if (iControlTypeLocal < 2) {
     if (!iControlTypeLocal) {
@@ -7260,7 +7262,10 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
     iForwardExtraIdx = iForwardExtraStart;
     if (iForwardExtraStart >= 0 && iForwardExtraStart < TRAK_LEN) //check added by ROLLER
       pForwardExtraData = &localdata[iForwardExtraStart];
-    if (iForwardExtraStart < iForwardExtraEnd)// Search forward extra chunks for nearest track section
+    else
+      pForwardExtraData = NULL;
+
+    if (iForwardExtraStart < iForwardExtraEnd && pForwardExtraData)// Search forward extra chunks for nearest track section
     {
       iForwardExtraGroundIdx = iForwardExtraStart;
       do {
