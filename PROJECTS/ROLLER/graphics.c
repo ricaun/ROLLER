@@ -1113,7 +1113,8 @@ void init_remap(uint8 *pTextureBaseAddr, int iRemapType, int iNumBlocks, int iIs
 
   if (iNumBlocks > 0) {
     iRemapAyOffset = 0;
-    iTexRowBytes = iRemapType << 10;
+    if (iRemapType >= 0) //check added by ROLLER
+      iTexRowBytes = iRemapType << 10;
     do {
       // Calculate tex memory addr for current block
       if (iIsLowRes) {

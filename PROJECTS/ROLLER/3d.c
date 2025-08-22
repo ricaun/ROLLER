@@ -1528,12 +1528,14 @@ void play_game_init()
     p_eng[1] = &CarEngines.engines[Car[player2_car].byCarDesignIdx];
   iTurnRateCalc = p_eng[0]->iMaxTurnRate + 2 * p_eng[0]->iTurnDecayRate;
   iSteeringSensitivity = p_eng[0]->iSteeringSensitivity;
-  p_joyk1[0] = ((iSteeringSensitivity * (p_eng[0]->iMaxTurnRate - p_eng[0]->iTurnDecayRate)) << 8) / iTurnRateCalc;
+  //TODO look at this, cast to uint32 and bit shift or multiply?
+  p_joyk1[0] = ((iSteeringSensitivity * (p_eng[0]->iMaxTurnRate - p_eng[0]->iTurnDecayRate)) * 256) / iTurnRateCalc;
   p_joyk2[0] = ((3 * iSteeringSensitivity * p_eng[0]->iTurnDecayRate) << 16) / iTurnRateCalc;
   if (player_type == 2) {
     iTurnRateCalc2 = p_eng[1]->iMaxTurnRate + 2 * p_eng[1]->iTurnDecayRate;
     iSteeringSensitivity2 = p_eng[1]->iSteeringSensitivity;
-    p_joyk1[1] = ((iSteeringSensitivity2 * (p_eng[1]->iMaxTurnRate - p_eng[1]->iTurnDecayRate)) << 8) / iTurnRateCalc2;
+    //TODO look at this, cast to uint32 and bit shift or multiply?
+    p_joyk1[1] = ((iSteeringSensitivity2 * (p_eng[1]->iMaxTurnRate - p_eng[1]->iTurnDecayRate)) * 256) / iTurnRateCalc2;
     p_joyk2[1] = ((3 * iSteeringSensitivity2 * p_eng[1]->iTurnDecayRate) << 16) / iTurnRateCalc2;
   }
   start_race = -1;

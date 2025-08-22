@@ -261,7 +261,7 @@ void initclouds()
 {                                               // Loop through all 40 cloud slots
   int iCloudIdx; // edi
   int iRandVal1; // eax
-  int iAngle1Calc; // eax
+  uint32 uiAngle1Calc; // eax
   int iAngle1; // ebp
   int iRandVal2; // eax
   int iAngle2; // esi
@@ -312,10 +312,10 @@ void initclouds()
     fRadius = 1800000.0;                        // Start with maximum radius for placement attempt
     do {
       iRandVal1 = rand();                       // Generate random angle1 (theta) for spherical coordinates
-      iAngle1Calc = 3400 * GetHighOrderRand(iRandVal1, iRandVal1);
+      uiAngle1Calc = (uint32)3400 * (uint32)GetHighOrderRand(iRandVal1, iRandVal1);
       //iAngle1Calc = 3400 * (((iRandVal1 * iRandVal1) & 0x7FFF) >> 15);
       //iAngle1Calc = 3400 * ((iRandVal1 * iRandVal1 - (__CFSHL__((iRandVal1 * iRandVal1) >> 31, 15) + ((iRandVal1 * iRandVal1) >> 31 << 15))) >> 15);
-      iAngle1 = ((iAngle1Calc & 0x8000) >> 15) + 520;  // Will be either 520 or 521
+      iAngle1 = ((uiAngle1Calc & 0x8000) >> 15) + 520;  // Will be either 520 or 521
       //iAngle1 = ((iAngle1Calc - (__CFSHL__(iAngle1Calc >> 31, 15) + (iAngle1Calc >> 31 << 15))) >> 15) + 520;
       iRandVal2 = rand();                       // Generate random angle2 (phi) for spherical coordinates
       
