@@ -814,7 +814,7 @@ void receive_multiple()
           //gssCommsPostListen();
           continue;
         case PACKET_ID_NOCD:
-          cd_error = -1;
+          //cd_error = -1;
           //TODO network
           //gssCommsPostListen();
           continue;

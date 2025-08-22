@@ -483,12 +483,12 @@ void UpdateSDL()
       }
 #endif // _DEBUG
 
-      if (e.key.key == SDLK_ESCAPE) {
-        quit_game = 1;
+      //if (e.key.key == SDLK_ESCAPE) {
+      //  quit_game = 1;
       //} else if (e.key.key == SDLK_F11) {
       //  ToggleFullscreen();
       //  continue;
-      } else if (e.key.key == SDLK_RETURN) {
+      if (e.key.key == SDLK_RETURN) {
         SDL_Keymod mod = SDL_GetModState();
         if (mod & (SDL_KMOD_LALT | SDL_KMOD_RALT)) {
           ToggleFullscreen();
