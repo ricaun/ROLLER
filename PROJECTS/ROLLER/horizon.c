@@ -508,8 +508,15 @@ void displayclouds(uint8 *pScrBuf)
       //_CHP();
       yp = (int)dProjY0;
       fScreenX0 = (float)(xp >> 6);        // Convert to screen space and check clipping bounds (-5000 to +5000)
-      iYCalcTemp = (iScrSizeTemp * (199 - (int)dProjY0)) >> 6;
-      fScreenY0 = (float)iYCalcTemp;
+
+      //bounds check added by ROLLER
+      if ((int)dProjY0 < -10000 || (int)dProjY0 > 10000) {
+        iBehindCamera = 1;  // Skip this vertex
+      } else {
+        iYCalcTemp = (iScrSizeTemp * (199 - (int)dProjY0)) >> 6;
+        fScreenY0 = (float)iYCalcTemp;
+      }
+
       if (iBehindCamera || fScreenX0 >= -5000.0 && fScreenX0 <= 5000.0 && fScreenY0 >= -5000.0 && fScreenY0 <= 5000.0) {
         dScreenX0 = fScreenX0;                  // Store vertex 0 coordinates in polygon structure
         //_CHP();
