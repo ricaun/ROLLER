@@ -16,6 +16,7 @@
 #include "moving.h"
 #include "graphics.h"
 #include <stdio.h>
+#include "roller.h"
 #include <string.h>
 #include <math.h>
 #include <fcntl.h>
@@ -2448,7 +2449,7 @@ void prt_letter_rev(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *p
 
 //-------------------------------------------------------------------------------------------------
 //00019050
-void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
+void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, uint8 byColor)
 {
   int iDone; // ebp
   int iYPos; // [esp+0h] [ebp-14h] BYREF
@@ -2470,7 +2471,7 @@ void prt_stringcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
 
 //-------------------------------------------------------------------------------------------------
 //000190B0
-void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
+void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, uint8 byColor)
 {
   const char *i; // esi
   int iCharIdx; // eax
@@ -2505,7 +2506,7 @@ void prt_rightcol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY,
 
 //-------------------------------------------------------------------------------------------------
 //00019160
-void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, char byColor)
+void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY, Uint8 byColor)
 {
   const char *pCurrChar; // esi
   const char *pCharItr; // eax
@@ -2547,7 +2548,7 @@ void prt_centrecol(tBlockHeader *pBlockHeader, const char *szStr, int iX, int iY
 
 //-------------------------------------------------------------------------------------------------
 //00019210
-void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, char byColor)
+void prt_lettercol(tBlockHeader *pBlockHeader, char byChar, int *piXPos, int *piYPos, uint8 byColor)
 {
   int iSavedScrSize; // esi
   int byCharIndex; // ebx
@@ -2749,7 +2750,7 @@ void display_paused()
       }
       prt_centrecol(rev_vga[1], pszMenuText, 160, 48, byMenuItemColor);
       if (req_edit == 2)
-        byOption2Color = 0x8F;
+        byOption2Color = (char)0x8F;
       else
         byOption2Color = 0x83;
       prt_centrecol(rev_vga[1], &config_buffer[256], 160, 60, byOption2Color);
@@ -4621,12 +4622,12 @@ void LoadRecords()
         iRecordIdx = 1;
         iRecordNamePos3 = 18;
         do {
-          RecordLaps[iRecordIdx] = (float)((double)*pIntBuf * 0.01);
-          iRecordCarVal = pIntBuf[1];
+          RecordLaps[iRecordIdx] = (float)((double)ReadUnalignedInt((void*)pIntBuf) * 0.01);
+          iRecordCarVal = ReadUnalignedInt(&pIntBuf[1]);
           pIntBuf += 3;
           RecordCars[iRecordIdx] = iRecordCarVal;
           iRecordNamePos4 = iRecordNamePos3;
-          RecordKills[iRecordIdx] = *(pIntBuf - 1);
+          RecordKills[iRecordIdx] = ReadUnalignedInt((pIntBuf - 1));
           iRecordNameCharPos = 9 * iRecordNameIdx;
 
           // Copy 9-character record name
