@@ -5029,40 +5029,50 @@ void AllocateCars()
 //0005E1C0
 void check_cars()
 {
+  //int v0; // ebx
+  int iPlayerCount; // eax
+  int i; // edx
+  int j; // eax
+  int iCarId; // edi
+  int iCarId2; // ebx
+
   memset(allocated_cars, 0, sizeof(allocated_cars));
+  //_STOSD(allocated_cars, 0, v0, 14u);
 
-  // Determine number of players
-  switch (player_type) {
-    case 0:
-      players = 1;
-      break;
-    case 1:
-      players = network_on;
-      break;
-    case 2:
-      players = 2;
-      break;
-    default:
-      return;
+  // determine number of players
+  iPlayerCount = player_type;
+  if (!player_type) {
+    players = 1;
+    goto LABEL_8;
   }
+  if ((unsigned int)player_type <= 1) {
+    iPlayerCount = network_on;
+    goto LABEL_7;
+  }
+  if (player_type == 2)
+    LABEL_7:
+  players = iPlayerCount;
+LABEL_8:
+  i = 0;
+  if (players > 0) {
+    j = 0;
+    do {
+      iCarId = Players_Cars[j];
+      if (iCarId >= 0) {
+        // If cheat bit CHEAT_MODE_CLONES is not enabled, count the car usage
+        if ((cheat_mode & CHEAT_MODE_CLONES) == 0)
+          ++allocated_cars[iCarId];
 
-  if (players <= 0)
-    return;
-
-  for (int i = 0; i < players; i++) {
-    int iCarId = Players_Cars[i];
-
-    // If not in CHEAT_MODE_CLONES, increment allocation count
-    if (!(cheat_mode & CHEAT_MODE_CLONES)) {
-      allocated_cars[iCarId]++;
-    }
-
-    // Assign player index to car_to_player[iCarId][slot]
-    if (allocated_cars[iCarId] == 1) {
-      car_to_player[2 * iCarId] = i;
-    } else {
-      car_to_player[2 * iCarId + 1] = i;
-    }
+        // Assign player index to car_to_player
+        iCarId2 = Players_Cars[j];
+        if (allocated_cars[iCarId2] == 1)
+          car_to_player[2 * iCarId2] = i;
+        else
+          car_to_player[2 * iCarId2 + 1] = i;
+      }
+      ++j;
+      ++i;
+    } while (i < players);
   }
 }
 
