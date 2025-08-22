@@ -48,7 +48,7 @@ typedef struct
   float fGripBonus;
   float fMaxGripLimit;
   float fUnk24;
-  float fUnk25;
+  float fMass;
 } tCarEngine;
 
 //-------------------------------------------------------------------------------------------------

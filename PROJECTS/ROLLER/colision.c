@@ -1,532 +1,536 @@
 #include "colision.h"
+#include "loadtrak.h"
+#include "3d.h"
+#include "function.h"
+#include "control.h"
+#include "sound.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
-int damage_level; //00189944
+float damage_levels[4] = { 1.0, 2.0, 4.0, 8.0 }; //000A639C
+float coldist[33][33];  //00188840
+int damage_level;       //00189944
 
 //-------------------------------------------------------------------------------------------------
 //0005F8F0
 void testcollisions()
-{/*
-  int v0; // esi
-  float *v1; // ecx
-  int v2; // ebx
-  float *v3; // edx
-  float *v4; // eax
-  int v5; // [esp+0h] [ebp-20h]
-  unsigned int v6; // [esp+4h] [ebp-1Ch]
+{
+  int iSecondCarIdx; // esi
+  tCar *pSecondCar; // ecx
+  int iChunkDistance; // ebx
+  tCar *pTrailingCar; // edx
+  tCar *pLeadingCar; // eax
+  int iFirstCarIdx; // [esp+0h] [ebp-20h]
+  int iCurrentCarIdx; // [esp+4h] [ebp-1Ch]
 
-  v5 = 0;
+  iFirstCarIdx = 0;                             // Initialize first car index for outer loop
   if (numcars > 0) {
-    v6 = 0;
-    do {
-      if (Car_variable_17[v6 / 4] == 3 && (Car_variable_33[v6] & 2) == 0) {
-        v0 = v5 + 1;
-        if (v5 + 1 < numcars) {
-          v1 = &Car[77 * v0];
-          do {
-            if (Car_variable_17[77 * v0] == 3 && (Car_variable_33[308 * v0] & 2) == 0) {
-              v2 = Car_variable_3[154 * v0] - Car_variable_3[v6 / 2];
-              if (v2 < 0)
-                v2 += TRAK_LEN;
-              if (v2 > TRAK_LEN / 2)
-                v2 -= TRAK_LEN;
-              if ((int)abs32(v2) < 4) {
-                v3 = &Car[v6 / 4];
-                if (v2 < 0) {
-                  v2 = -v2;
-                  v4 = v1;
+    iCurrentCarIdx = 0;
+    do {                                           // Check if car is AI controlled (type 3) and not destroyed (status bit 2 clear)
+      if (Car[iCurrentCarIdx].iControlType == 3 && (Car[iCurrentCarIdx].byStatusFlags & 2) == 0) {
+        iSecondCarIdx = iFirstCarIdx + 1;       // Start inner loop from next car to avoid duplicate collision checks
+        if (iFirstCarIdx + 1 < numcars) {
+          pSecondCar = &Car[iSecondCarIdx];
+          do {                                     // Check if second car is also AI controlled and not destroyed
+            if (Car[iSecondCarIdx].iControlType == 3 && (Car[iSecondCarIdx].byStatusFlags & 2) == 0) {
+              iChunkDistance = Car[iSecondCarIdx].nCurrChunk - Car[iCurrentCarIdx].nCurrChunk;// Calculate distance between cars in track chunks (handles circular track wraparound)
+              if (iChunkDistance < 0)
+                iChunkDistance += TRAK_LEN;     // Handle negative distance by adding track length (circular track)
+              if (iChunkDistance > TRAK_LEN / 2)// Use shortest path around circular track (normalize distance > half track length)
+                iChunkDistance -= TRAK_LEN;
+              if ((int)abs(iChunkDistance) < 4)// Check if cars are close enough for collision (within 4 track chunks)
+              {
+                pTrailingCar = &Car[iCurrentCarIdx];
+                if (iChunkDistance < 0)       // Determine which car is leading/trailing for collision calculation
+                {
+                  iChunkDistance = -iChunkDistance;
+                  pLeadingCar = pSecondCar;
                 } else {
-                  v4 = &Car[v6 / 4];
-                  v3 = v1;
+                  pLeadingCar = &Car[iCurrentCarIdx];
+                  pTrailingCar = pSecondCar;
                 }
-                testcoll(v4, v3, v2);
+                testcoll(pLeadingCar, pTrailingCar, iChunkDistance);// Perform detailed collision test between leading and trailing cars
               }
             }
-            ++v0;
-            v1 += 77;
-          } while (v0 < numcars);
+            ++iSecondCarIdx;
+            ++pSecondCar;
+          } while (iSecondCarIdx < numcars);
         }
       }
-      v6 += 308;
-      ++v5;
-    } while (v5 < numcars);
-  }*/
+      ++iCurrentCarIdx;
+      ++iFirstCarIdx;
+    } while (iFirstCarIdx < numcars);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //0005FA00
-void testcoll(tCar *pCar1, tCar *pCar2, int a3)
-{/*
+void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
+{
   tData *pData2; // eax
-  double v7; // st7
-  double v8; // st6
-  double v9; // st5
+  double dRelativeX1; // st7
+  double dRelativeY1; // st6
+  double dRelativeZ1; // st5
   tData *pData1; // eax
-  double v11; // rt0
-  double v12; // st5
-  double v13; // st4
-  double v14; // st7
-  double v15; // rt2
-  double v16; // st4
-  int nDirection; // ebx
+  double dRelativeZ1Copy; // rt0
+  double dTransformedY1; // st5
+  double dTransformedX1; // st4
+  double dProjectedX1; // st7
+  double dTransformedX1Copy; // rt2
+  double dTransformedZ1; // st4
+  int nCar2Yaw; // ebx
   int nCurrChunk; // eax
-  int i; // edx
-  int v20; // ecx
-  __int16 v21; // bx
-  int v22; // ebp
-  __int16 v23; // ax
-  int v24; // ecx
-  int v25; // eax
-  int v26; // edx
+  int iChunkStep; // edx
+  int iChunkOffset; // ecx
+  int16 nCar2PredictedYaw; // bx
+  int iCollisionDetected; // ebp
+  int16 nAngleToCollision; // ax
+  int iCar1AngleDiff; // ecx
+  int iCar2AngleDiff; // eax
+  int iCar1NormalizedAngle; // edx
   tData *pData2_2; // eax
-  double v28; // st7
-  double v29; // st6
-  double v30; // st5
+  double dRelativeX2; // st7
+  double dRelativeY2; // st6
+  double dRelativeZ2; // st5
   tData *pData1_1; // eax
-  double v32; // rt0
-  double v33; // st5
-  double v34; // st4
-  double v35; // st7
-  double v36; // rt2
-  double v37; // st4
-  int v38; // eax
-  __int16 v39; // dx
-  int v40; // ecx
-  int v41; // ebp
-  int v42; // eax
-  int v43; // edx
-  double v44; // st7
-  double v45; // st6
-  double v46; // st5
-  int16 v47; // ax
-  tData *v48; // edx
-  int v49; // eax
-  int v50; // ebx
-  double v51; // st4
-  double v52; // st7
-  double v53; // st6
-  double v54; // st7
-  double v55; // st6
-  double v56; // st5
-  double v57; // st7
-  int iUnk10; // edx
-  double v59; // st6
-  int v60; // eax
-  int iUnk45; // eax
-  long double v62; // st7
-  int v63; // edx
-  int v64; // ebx
-  long double v65; // st7
-  int v66; // eax
-  double v67; // st7
-  double v68; // st7
-  int v69; // eax
-  int v70; // ecx
-  int v71; // eax
-  int v72; // ecx
-  float v73; // [esp+0h] [ebp-CCh]
-  float v74; // [esp+0h] [ebp-CCh]
-  float v75; // [esp+0h] [ebp-CCh]
-  float v76; // [esp+4h] [ebp-C8h]
-  float v77; // [esp+4h] [ebp-C8h]
-  float v78; // [esp+4h] [ebp-C8h]
-  float v79; // [esp+4h] [ebp-C8h]
-  float v80; // [esp+4h] [ebp-C8h]
-  float v81; // [esp+4h] [ebp-C8h]
-  float v82; // [esp+4h] [ebp-C8h]
-  float fMaxSpeed; // [esp+18h] [ebp-B4h]
-  float v84; // [esp+20h] [ebp-ACh]
-  float v85; // [esp+28h] [ebp-A4h]
-  float v86; // [esp+2Ch] [ebp-A0h]
-  float v87; // [esp+38h] [ebp-94h]
-  float v88; // [esp+38h] [ebp-94h]
-  float v89; // [esp+44h] [ebp-88h]
-  float v90; // [esp+44h] [ebp-88h]
-  float v91; // [esp+50h] [ebp-7Ch]
-  float v92; // [esp+58h] [ebp-74h]
-  float v93; // [esp+5Ch] [ebp-70h]
-  float v94; // [esp+60h] [ebp-6Ch]
-  float v95; // [esp+64h] [ebp-68h]
-  float v96; // [esp+68h] [ebp-64h]
-  int16 v97; // [esp+6Ch] [ebp-60h]
-  int v98; // [esp+70h] [ebp-5Ch]
-  float v99; // [esp+74h] [ebp-58h]
-  float v100; // [esp+78h] [ebp-54h]
-  float v101; // [esp+7Ch] [ebp-50h]
-  float v102; // [esp+80h] [ebp-4Ch]
-  float v103; // [esp+84h] [ebp-48h]
-  float v104; // [esp+88h] [ebp-44h]
+  double dRelativeZ2Copy; // rt0
+  double dTransformedY2; // st5
+  double dTransformedX2; // st4
+  double dProjectedX2; // st7
+  double dTransformedX2Copy; // rt2
+  double dTransformedZ2; // st4
+  int iCollisionAngle; // eax
+  int16 nCollisionAngleShort; // dx
+  int iCollisionDirection; // ecx
+  int iCar1Angle2Diff; // ebp
+  int iCar2Angle2Diff; // eax
+  int iCar1Normalized2; // edx
+  double dSeparationDistance; // st7
+  double dMidpointX; // st6
+  double dMidpointY; // st5
+  int16 nCurrentChunk; // ax
+  tData *pTrackData; // edx
+  int iCar1VelAngle; // eax
+  int iCar2VelAngle; // ebx
+  double dInverseTotalMass; // st4
+  double dCar1NewVelocity; // st7
+  double dCar1NewVelY; // st6
+  double dCar2NewVelocity; // st7
+  double dMomentumFactor; // st6
+  int iDriverIdx; // edx
+  int iSoundEffectId; // eax
+  int iSelectedStrategy; // eax
+  double dCar1SineFactor; // st7
+  int iCar1AITimer; // edx
+  int iCar2Strategy; // ebx
+  double dCar2SineFactor; // st7
+  int iCar2AITimer; // eax
+  double dNegCar2VelX; // st7
+  double dInverseVelSum; // st7
+  int iSpeechId1; // eax
+  int iCar1DriverIdx; // ecx
+  int iSpeechId2; // eax
+  int iCar2DriverIdx; // ecx
+  float fDeltaX1; // [esp+0h] [ebp-CCh]
+  float fDeltaX2; // [esp+0h] [ebp-CCh]
+  float fDeltaX3; // [esp+0h] [ebp-CCh]
+  float fDeltaY1; // [esp+4h] [ebp-C8h]
+  float fDeltaY2; // [esp+4h] [ebp-C8h]
+  float fDeltaY3; // [esp+4h] [ebp-C8h]
+  float fCar1FinalSpeed; // [esp+4h] [ebp-C8h]
+  float fCar2FinalSpeed; // [esp+4h] [ebp-C8h]
+  float fCar1FinalDamage; // [esp+4h] [ebp-C8h]
+  float fCar2FinalDamage; // [esp+4h] [ebp-C8h]
+  float fFinalSpeed; // [esp+18h] [ebp-B4h]
+  float fCar1PosX2; // [esp+20h] [ebp-ACh]
+  float fCar1PosY2; // [esp+28h] [ebp-A4h]
+  float fCar2Speed; // [esp+2Ch] [ebp-A0h]
+  float fTransformedPosX1; // [esp+38h] [ebp-94h]
+  float fTransformedPosX2; // [esp+38h] [ebp-94h]
+  float fTransformedPosY1; // [esp+44h] [ebp-88h]
+  float fTransformedPosY2; // [esp+44h] [ebp-88h]
+  float fCar1Damage; // [esp+50h] [ebp-7Ch]
+  float fCar2VelY; // [esp+58h] [ebp-74h]
+  float fVelocityLimit1; // [esp+5Ch] [ebp-70h]
+  float fCar2Damage; // [esp+60h] [ebp-6Ch]
+  float fVelocityLimit2; // [esp+64h] [ebp-68h]
+  float fCar1VelY; // [esp+68h] [ebp-64h]
+  int16 nCar1Yaw; // [esp+6Ch] [ebp-60h]
+  int iVelocityAngle; // [esp+70h] [ebp-5Ch]
+  float fCar1NewVelY; // [esp+74h] [ebp-58h]
+  float fCar2NewVelX; // [esp+78h] [ebp-54h]
+  float fCar2NewVelY; // [esp+7Ch] [ebp-50h]
+  float fCar1NewVelX; // [esp+80h] [ebp-4Ch]
+  float fCar2VelX; // [esp+84h] [ebp-48h]
+  float fPosX1Copy; // [esp+88h] [ebp-44h]
   float fY; // [esp+8Ch] [ebp-40h]
-  float v106; // [esp+90h] [ebp-3Ch]
-  float v107; // [esp+94h] [ebp-38h]
+  float fPosY1Copy; // [esp+90h] [ebp-3Ch]
+  float fCar1VelX; // [esp+94h] [ebp-38h]
   float fX; // [esp+98h] [ebp-34h]
-  float v109; // [esp+9Ch] [ebp-30h]
-  float fUnk25; // [esp+A0h] [ebp-2Ch]
-  float v111; // [esp+A4h] [ebp-28h]
-  int v112; // [esp+A8h] [ebp-24h]
-  float v113; // [esp+ACh] [ebp-20h]
-  int v114; // [esp+B0h] [ebp-1Ch]
-  float v115; // [esp+B4h] [ebp-18h]
-  float v116; // [esp+B4h] [ebp-18h]
+  float fCar2Mass; // [esp+9Ch] [ebp-30h]
+  float fCar1Mass; // [esp+A0h] [ebp-2Ch]
+  float fAdjustedVel1; // [esp+A4h] [ebp-28h]
+  int iCar1RotAngle; // [esp+A8h] [ebp-24h]
+  float fAdjustedVel2; // [esp+ACh] [ebp-20h]
+  int iCar2RotAngle; // [esp+B0h] [ebp-1Ch]
+  float fSpeedDifference; // [esp+B4h] [ebp-18h]
+  float fDamageModifier; // [esp+B4h] [ebp-18h]
 
-  fX = pCar1->pos.fX;
+  fX = pCar1->pos.fX;                           // Get current positions of both cars for collision calculation
   fY = pCar1->pos.fY;
-  pData2 = &localdata[pCar2->nCurrChunk];
-  v7 = pData2->pointAy[0].fY * pCar2->pos.fY
-    + pData2->pointAy[0].fX * pCar2->pos.fX
-    + pData2->pointAy[0].fZ * pCar2->pos.fZ
-    - pData2->pointAy[3].fX;
-  v8 = pData2->pointAy[1].fY * pCar2->pos.fY
-    + pData2->pointAy[1].fX * pCar2->pos.fX
-    + pData2->pointAy[1].fZ * pCar2->pos.fZ
-    - pData2->pointAy[3].fY;
-  v9 = pData2->pointAy[2].fY * pCar2->pos.fY
-    + pData2->pointAy[2].fX * pCar2->pos.fX
-    + pData2->pointAy[2].fZ * pCar2->pos.fZ
-    - pData2->pointAy[3].fZ;
-  pData1 = &localdata[pCar1->nCurrChunk];
-  v11 = v9;
-  v12 = v8 + pData1->pointAy[3].fY;
-  v13 = v7 + pData1->pointAy[3].fX;
-  v14 = pData1->pointAy[1].fX * v12 + pData1->pointAy[0].fX * v13;
-  v15 = v13;
-  v16 = v11 + pData1->pointAy[3].fZ;
-  v87 = v14 + pData1->pointAy[2].fX * v16;
-  v89 = v16 * pData1->pointAy[2].fY + v15 * pData1->pointAy[0].fY + v12 * pData1->pointAy[1].fY;
-  v104 = v87;
-  v106 = v89;
-  nDirection = pCar2->nDirection;
-  v97 = pCar1->nDirection;
+  pData2 = &localdata[pCar2->nCurrChunk];       // Transform car2 position from world space to track local coordinates
+  dRelativeX1 = pData2->pointAy[0].fY * pCar2->pos.fY + pData2->pointAy[0].fX * pCar2->pos.fX + pData2->pointAy[0].fZ * pCar2->pos.fZ - pData2->pointAy[3].fX;
+  dRelativeY1 = pData2->pointAy[1].fY * pCar2->pos.fY + pData2->pointAy[1].fX * pCar2->pos.fX + pData2->pointAy[1].fZ * pCar2->pos.fZ - pData2->pointAy[3].fY;
+  dRelativeZ1 = pData2->pointAy[2].fY * pCar2->pos.fY + pData2->pointAy[2].fX * pCar2->pos.fX + pData2->pointAy[2].fZ * pCar2->pos.fZ - pData2->pointAy[3].fZ;
+  pData1 = &localdata[pCar1->nCurrChunk];       // Transform relative position back to car1's local coordinate system
+  dRelativeZ1Copy = dRelativeZ1;
+  dTransformedY1 = dRelativeY1 + pData1->pointAy[3].fY;
+  dTransformedX1 = dRelativeX1 + pData1->pointAy[3].fX;
+  dProjectedX1 = pData1->pointAy[1].fX * dTransformedY1 + pData1->pointAy[0].fX * dTransformedX1;
+  dTransformedX1Copy = dTransformedX1;
+  dTransformedZ1 = (float)dRelativeZ1Copy + pData1->pointAy[3].fZ;
+  fTransformedPosX1 = (float)dProjectedX1 + pData1->pointAy[2].fX * (float)dTransformedZ1;
+  fTransformedPosY1 = (float)(dTransformedZ1 * pData1->pointAy[2].fY + dTransformedX1Copy * pData1->pointAy[0].fY + dTransformedY1 * pData1->pointAy[1].fY);
+  fPosX1Copy = fTransformedPosX1;
+  fPosY1Copy = fTransformedPosY1;
+  nCar2Yaw = pCar2->nYaw;
+  nCar1Yaw = pCar1->nYaw;
   nCurrChunk = pCar1->nCurrChunk;
-  for (i = 0; i < a3; ++i) {
-    v20 = nCurrChunk++ << 7;
-    nDirection += *(int *)((char *)&localdata[0].iUnk16 + v20);
+  for (iChunkStep = 0; iChunkStep < iDistanceSteps; ++iChunkStep)// Predict car2's future position and angle based on distance steps ahead
+  {
+    iChunkOffset = nCurrChunk++ << 7;
+    nCar2Yaw += *(int *)((char *)&localdata[0].iYaw + iChunkOffset);
     if (nCurrChunk == TRAK_LEN)
       nCurrChunk ^= TRAK_LEN;
   }
-  v76 = v89 - fY;
-  v73 = v87 - fX;
-  v21 = nDirection & 0x3FFF;
-  v22 = 0;
-  v23 = getangle(v73, v76);
-  v24 = (v97 - v23) & 0x3FFF;
-  v25 = (v21 - v23) & 0x3FFF;
-  v26 = v24;
-  if (v24 > 0x2000)
-    v26 = v24 - 0x2000;
-  if (v25 > 0x2000)
-    v25 -= 0x2000;
-  if (v26 > 4096)
-    v26 -= 0x2000;
-  if (v25 > 4096)
-    v25 -= 0x2000;
-  if (coldist[33 * (((v26 << 6) + 270336) >> 14) + (((v25 << 6) + 270336) >> 14)] > sqrt(
-    (v87 - fX) * (v87 - fX)
-    + (v89 - fY) * (v89 - fY)))
-    v22 = -1;
-  if (v22) {
-    v84 = pCar1->pos2.fX;
-    v85 = pCar1->pos2.fY;
-    pData2_2 = &localdata[pCar2->nUnk4];
-    v28 = pData2_2->pointAy[0].fY * pCar2->pos2.fY
-      + pData2_2->pointAy[0].fX * pCar2->pos2.fX
-      + pData2_2->pointAy[0].fZ * pCar2->pos2.fZ
-      - pData2_2->pointAy[3].fX;
-    v29 = pData2_2->pointAy[1].fX * pCar2->pos2.fX
-      + pData2_2->pointAy[1].fY * pCar2->pos2.fY
-      + pData2_2->pointAy[1].fZ * pCar2->pos2.fZ
-      - pData2_2->pointAy[3].fY;
-    v30 = pData2_2->pointAy[2].fX * pCar2->pos2.fX
-      + pData2_2->pointAy[2].fY * pCar2->pos2.fY
-      + pData2_2->pointAy[2].fZ * pCar2->pos2.fZ
-      - pData2_2->pointAy[3].fZ;
-    pData1_1 = &localdata[pCar1->nUnk4];
-    v32 = v30;
-    v33 = v29 + pData1_1->pointAy[3].fY;
-    v34 = v28 + pData1_1->pointAy[3].fX;
-    v35 = pData1_1->pointAy[1].fX * v33 + pData1_1->pointAy[0].fX * v34;
-    v36 = v34;
-    v37 = v32 + pData1_1->pointAy[3].fZ;
-    v88 = v35 + pData1_1->pointAy[2].fX * v37;
-    v90 = v37 * pData1_1->pointAy[2].fY + v36 * pData1_1->pointAy[0].fY + v33 * pData1_1->pointAy[1].fY;
-    v77 = v106 - fY;
-    v74 = v104 - fX;
-    v38 = getangle(v74, v77);
-    v78 = v90 - v85;
-    v75 = v88 - v84;
-    v39 = v38;
-    v40 = v38;
-    v98 = getangle(v75, v78);
-    v41 = (v97 - v39) & 0x3FFF;
-    v42 = (v21 - v39) & 0x3FFF;
-    v43 = v41;
-    if (v41 > 0x2000)
-      v43 = v41 - 0x2000;
-    if (v42 > 0x2000)
-      v42 -= 0x2000;
-    if (v43 > 4096)
-      v43 -= 0x2000;
-    if (v42 > 4096)
-      v42 -= 0x2000;
-    v44 = coldist[33 * (((v43 << 6) + 270336) >> 14) + (((v42 << 6) + 270336) >> 14)] + colision_c_variable_1;
-    v45 = (fX + v104) * colision_c_variable_2;
-    v46 = (fY + v106) * colision_c_variable_2;
-    pCar1->pos.fX = v45 - v44 * tcos[v40] * colision_c_variable_2;
-    pCar1->pos.fY = v46 - v44 * tsin[v40] * colision_c_variable_2;
-    pCar2->pos.fX = v45 + v44 * tcos[v40] * colision_c_variable_2;
-    pCar2->pos.fY = v46 + v44 * tsin[v40] * colision_c_variable_2;
-    v47 = pCar1->nCurrChunk;
-    pCar2->nCurrChunk = v47;
-    v48 = &localdata[v47];
-    if (fabs(pCar1->pos.fX) > v48->fUnk13)
+  fDeltaY1 = fTransformedPosY1 - fY;
+  fDeltaX1 = fTransformedPosX1 - fX;
+  nCar2PredictedYaw = nCar2Yaw & 0x3FFF;
+  iCollisionDetected = 0;
+  nAngleToCollision = getangle(fDeltaX1, fDeltaY1);// Calculate angle from car1 to collision point for lookup table indexing
+  iCar1AngleDiff = (nCar1Yaw - nAngleToCollision) & 0x3FFF;// Normalize angle differences to proper ranges for collision lookup table
+  iCar2AngleDiff = (nCar2PredictedYaw - nAngleToCollision) & 0x3FFF;
+  iCar1NormalizedAngle = iCar1AngleDiff;
+  if (iCar1AngleDiff > 0x2000)
+    iCar1NormalizedAngle = iCar1AngleDiff - 0x2000;
+  if (iCar2AngleDiff > 0x2000)
+    iCar2AngleDiff -= 0x2000;
+  if (iCar1NormalizedAngle > 4096)
+    iCar1NormalizedAngle -= 0x2000;
+  if (iCar2AngleDiff > 4096)
+    iCar2AngleDiff -= 0x2000;
+  if (coldist[((iCar1NormalizedAngle << 6) + 270336) >> 14][((iCar2AngleDiff << 6) + 270336) >> 14] > sqrt(
+    (fTransformedPosX1 - fX) * (fTransformedPosX1 - fX)
+    + (fTransformedPosY1 - fY) * (fTransformedPosY1 - fY)))// Check if cars are within collision distance using precomputed lookup table
+    iCollisionDetected = -1;
+  if (iCollisionDetected)                     // COLLISION DETECTED: Begin collision resolution calculations
+  {
+    fCar1PosX2 = pCar1->pos2.fX;
+    fCar1PosY2 = pCar1->pos2.fY;
+    pData2_2 = &localdata[pCar2->nChunk2];
+    dRelativeX2 = pData2_2->pointAy[0].fY * pCar2->pos2.fY + pData2_2->pointAy[0].fX * pCar2->pos2.fX + pData2_2->pointAy[0].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fX;
+    dRelativeY2 = pData2_2->pointAy[1].fX * pCar2->pos2.fX + pData2_2->pointAy[1].fY * pCar2->pos2.fY + pData2_2->pointAy[1].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fY;
+    dRelativeZ2 = pData2_2->pointAy[2].fX * pCar2->pos2.fX + pData2_2->pointAy[2].fY * pCar2->pos2.fY + pData2_2->pointAy[2].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fZ;
+    pData1_1 = &localdata[pCar1->nChunk2];
+    dRelativeZ2Copy = dRelativeZ2;
+    dTransformedY2 = dRelativeY2 + pData1_1->pointAy[3].fY;
+    dTransformedX2 = dRelativeX2 + pData1_1->pointAy[3].fX;
+    dProjectedX2 = pData1_1->pointAy[1].fX * dTransformedY2 + pData1_1->pointAy[0].fX * dTransformedX2;
+    dTransformedX2Copy = dTransformedX2;
+    dTransformedZ2 = dRelativeZ2Copy + pData1_1->pointAy[3].fZ;
+    fTransformedPosX2 = (float)(dProjectedX2 + pData1_1->pointAy[2].fX * dTransformedZ2);
+    fTransformedPosY2 = (float)(dTransformedZ2 * pData1_1->pointAy[2].fY + dTransformedX2Copy * pData1_1->pointAy[0].fY + dTransformedY2 * pData1_1->pointAy[1].fY);
+    fDeltaY2 = fPosY1Copy - fY;
+    fDeltaX2 = fPosX1Copy - fX;
+    iCollisionAngle = getangle(fDeltaX2, fDeltaY2);
+    fDeltaY3 = fTransformedPosY2 - fCar1PosY2;
+    fDeltaX3 = fTransformedPosX2 - fCar1PosX2;
+    nCollisionAngleShort = iCollisionAngle;
+    iCollisionDirection = iCollisionAngle;
+    iVelocityAngle = getangle(fDeltaX3, fDeltaY3);
+    iCar1Angle2Diff = (nCar1Yaw - nCollisionAngleShort) & 0x3FFF;
+    iCar2Angle2Diff = (nCar2PredictedYaw - nCollisionAngleShort) & 0x3FFF;
+    iCar1Normalized2 = iCar1Angle2Diff;
+    if (iCar1Angle2Diff > 0x2000)
+      iCar1Normalized2 = iCar1Angle2Diff - 0x2000;
+    if (iCar2Angle2Diff > 0x2000)
+      iCar2Angle2Diff -= 0x2000;
+    if (iCar1Normalized2 > 4096)
+      iCar1Normalized2 -= 0x2000;
+    if (iCar2Angle2Diff > 4096)
+      iCar2Angle2Diff -= 0x2000;
+    dSeparationDistance = coldist[((iCar1Normalized2 << 6) + 270336) >> 14][((iCar2Angle2Diff << 6) + 270336) >> 14] + 60.0;
+    dMidpointX = (fX + fPosX1Copy) * 0.5;
+    dMidpointY = (fY + fPosY1Copy) * 0.5;
+    pCar1->pos.fX = (float)(dMidpointX - dSeparationDistance * tcos[iCollisionDirection] * 0.5);// Separate cars to prevent overlap: move each car away from collision point
+    pCar1->pos.fY = (float)(dMidpointY - dSeparationDistance * tsin[iCollisionDirection] * 0.5);
+    pCar2->pos.fX = (float)(dMidpointX + dSeparationDistance * tcos[iCollisionDirection] * 0.5);
+    pCar2->pos.fY = (float)(dMidpointY + dSeparationDistance * tsin[iCollisionDirection] * 0.5);
+    nCurrentChunk = pCar1->nCurrChunk;
+    pCar2->nCurrChunk = nCurrentChunk;
+    pTrackData = &localdata[nCurrentChunk];
+    if (fabs(pCar1->pos.fX) > pTrackData->fTrackHalfLength)
       scansection(pCar1);
-    if (fabs(pCar2->pos.fX) > v48->fUnk13)
+    if (fabs(pCar2->pos.fX) > pTrackData->fTrackHalfLength)
       scansection(pCar2);
-    fMaxSpeed = pCar1->fMaxSpeed;
-    v49 = (v97 - (_WORD)v98) & 0x3FFF;
-    v107 = fMaxSpeed * tcos[v49];
-    v96 = fMaxSpeed * tsin[v49];
-    v86 = pCar2->fMaxSpeed;
-    v50 = (v21 - (_WORD)v98) & 0x3FFF;
-    v103 = v86 * tcos[v50];
-    v92 = v86 * tsin[v50];
-    if (v103 < (double)v107) {
-      fUnk25 = CarEngines.engines[pCar1->byCarDesignIdx].fUnk25;
-      v109 = CarEngines.engines[pCar2->byCarDesignIdx].fUnk25;
-      v51 = 1.0 / (fUnk25 + v109);
-      v52 = ((fUnk25 - v109 * colision_c_variable_3) * v107 + v109 * colision_c_variable_4 * v103) * v51;
-      v102 = v52 * tcos[v98] - v96 * tsin[v98];
-      v53 = v52 * tsin[v98] + v96 * tcos[v98];
-      v54 = (v103 * (v109 - fUnk25 * colision_c_variable_3) + v107 * (fUnk25 * colision_c_variable_4)) * v51;
-      v99 = v53;
-      v100 = v54 * tcos[v98] - v92 * tsin[v98];
-      v112 = ((unsigned __int16)pCar1->iAngleIdx15 - (_WORD)v40) & 0x3FFF;
-      v101 = v54 * tsin[v98] + v92 * tcos[v98];
-      if ((unsigned int)v112 > 0x2000)
-        v112 = (((unsigned __int16)pCar1->iAngleIdx15 - (_WORD)v40) & 0x3FFF) - 0x4000;
-      v114 = ((unsigned __int16)pCar2->iAngleIdx15 - (_WORD)v40) & 0x3FFF;
-      if ((unsigned int)v114 > 0x2000)
-        v114 = (((unsigned __int16)pCar2->iAngleIdx15 - (_WORD)v40) & 0x3FFF) - 0x4000;
-      v115 = fabs(v103 - v107);
-      v55 = 1.0 / ((v109 + fUnk25) * colision_c_variable_6);
-      v56 = v109 * colision_c_variable_5 * (double)v114 * v115 * v55;
-      _CHP();
-      pCar1->iUnk16 = (int)v56;
-      v57 = v55 * (fUnk25 * colision_c_variable_5 * (double)v112 * v115);
-      _CHP();
-      pCar2->iUnk16 = (int)v57;
-      if (pCar1->iUnk16 > 1300)
-        pCar1->iUnk16 = 1300;
-      if (pCar2->iUnk16 > 1300)
-        pCar2->iUnk16 = 1300;
-      if (pCar1->iUnk16 < -1300)
-        pCar1->iUnk16 = -1300;
-      if (pCar2->iUnk16 < -1300)
-        pCar2->iUnk16 = -1300;
-      if (ViewType[0] == pCar1->iUnk10 || ViewType[0] == pCar2->iUnk10)
-        iUnk10 = ViewType[0];
+    fFinalSpeed = pCar1->fFinalSpeed;
+    iCar1VelAngle = (nCar1Yaw - (int16)iVelocityAngle) & 0x3FFF;
+    fCar1VelX = fFinalSpeed * tcos[iCar1VelAngle];// Calculate velocity components for both cars relative to collision angle
+    fCar1VelY = fFinalSpeed * tsin[iCar1VelAngle];
+    fCar2Speed = pCar2->fFinalSpeed;
+    iCar2VelAngle = (nCar2PredictedYaw - (int16)iVelocityAngle) & 0x3FFF;
+    fCar2VelX = fCar2Speed * tcos[iCar2VelAngle];
+    fCar2VelY = fCar2Speed * tsin[iCar2VelAngle];
+    if (fCar2VelX < (double)fCar1VelX) {
+      fCar1Mass = CarEngines.engines[pCar1->byCarDesignIdx].fMass;
+      fCar2Mass = CarEngines.engines[pCar2->byCarDesignIdx].fMass;
+      dInverseTotalMass = 1.0 / (fCar1Mass + fCar2Mass);// Calculate momentum exchange using car masses and velocity differences
+      dCar1NewVelocity = ((fCar1Mass - fCar2Mass * 0.6) * fCar1VelX + fCar2Mass * 1.6 * fCar2VelX) * dInverseTotalMass;
+      fCar1NewVelX = (float)(dCar1NewVelocity * tcos[iVelocityAngle] - fCar1VelY * tsin[iVelocityAngle]);
+      dCar1NewVelY = (float)(dCar1NewVelocity * tsin[iVelocityAngle] + fCar1VelY * tcos[iVelocityAngle]);
+      dCar2NewVelocity = (fCar2VelX * (fCar2Mass - fCar1Mass * 0.6) + fCar1VelX * (fCar1Mass * 1.6)) * dInverseTotalMass;
+      fCar1NewVelY = (float)dCar1NewVelY;
+      fCar2NewVelX = (float)(dCar2NewVelocity * tcos[iVelocityAngle] - fCar2VelY * tsin[iVelocityAngle]);
+      iCar1RotAngle = ((uint16)pCar1->nYaw3 - (int16)iCollisionDirection) & 0x3FFF;
+      fCar2NewVelY = (float)(dCar2NewVelocity * tsin[iVelocityAngle] + fCar2VelY * tcos[iVelocityAngle]);
+      if ((unsigned int)iCar1RotAngle > 0x2000)
+        iCar1RotAngle = (((uint16)pCar1->nYaw3 - (int16)iCollisionDirection) & 0x3FFF) - 0x4000;
+      iCar2RotAngle = ((uint16)pCar2->nYaw3 - (int16)iCollisionDirection) & 0x3FFF;
+      if ((unsigned int)iCar2RotAngle > 0x2000)
+        iCar2RotAngle = (((uint16)pCar2->nYaw3 - (int16)iCollisionDirection) & 0x3FFF) - 0x4000;
+      fSpeedDifference = (float)fabs(fCar2VelX - fCar1VelX);
+      dMomentumFactor = 1.0 / ((fCar2Mass + fCar1Mass) * 2048.0);
+      //_CHP();
+      pCar1->iJumpMomentum = (int)(fCar2Mass * 2.0 * (double)iCar2RotAngle * fSpeedDifference * dMomentumFactor);// Calculate jump/spin momentum based on angular impact and speed difference
+      //_CHP();
+      pCar2->iJumpMomentum = (int)(dMomentumFactor * (fCar1Mass * 2.0 * (double)iCar1RotAngle * fSpeedDifference));
+      if (pCar1->iJumpMomentum > 1300)
+        pCar1->iJumpMomentum = 1300;
+      if (pCar2->iJumpMomentum > 1300)
+        pCar2->iJumpMomentum = 1300;
+      if (pCar1->iJumpMomentum < -1300)
+        pCar1->iJumpMomentum = -1300;
+      if (pCar2->iJumpMomentum < -1300)
+        pCar2->iJumpMomentum = -1300;
+      if (ViewType[0] == pCar1->iDriverIdx || ViewType[0] == pCar2->iDriverIdx)
+        iDriverIdx = ViewType[0];
       else
-        iUnk10 = pCar1->iUnk10;
-      v59 = v115 * colision_c_variable_7 * colision_c_variable_8;
-      _CHP();
-      if (v115 >= (double)colision_c_variable_9)
-        v60 = 8;
+        iDriverIdx = pCar1->iDriverIdx;
+      //_CHP();
+      if (fSpeedDifference >= 100.0)
+        iSoundEffectId = 8;
       else
-        v60 = 7;
-      sfxpend(v60, iUnk10, (int)v59);
-      pCar1->iAngleIdx15 = getangle(v102, v99);
-      pCar2->iAngleIdx15 = getangle(v100, v101);
-      v79 = sqrt(v102 * v102 + v99 * v99);
-      SetEngine((int)pCar1, v79);
-      v80 = sqrt(v100 * v100 + v101 * v101);
-      SetEngine((int)pCar2, v80);
-      iUnk45 = pCar1->iUnk45;
-      if (iUnk45) {
-        if (iUnk45 != 2)
-          changestrategy((int)pCar1);
-        v63 = 0;
+        iSoundEffectId = 7;
+      sfxpend(iSoundEffectId, iDriverIdx, (int)(fSpeedDifference * 32768.0 * 0.025));// Play collision sound effect based on impact severity
+      pCar1->nYaw3 = getangle(fCar1NewVelX, fCar1NewVelY);
+      pCar2->nYaw3 = getangle(fCar2NewVelX, fCar2NewVelY);
+      fCar1FinalSpeed = (float)sqrt(fCar1NewVelX * fCar1NewVelX + fCar1NewVelY * fCar1NewVelY);
+      SetEngine(pCar1, fCar1FinalSpeed);
+      fCar2FinalSpeed = (float)sqrt(fCar2NewVelX * fCar2NewVelX + fCar2NewVelY * fCar2NewVelY);
+      SetEngine(pCar2, fCar2FinalSpeed);
+      iSelectedStrategy = pCar1->iSelectedStrategy;
+      if (iSelectedStrategy) {
+        if (iSelectedStrategy != 2)
+          changestrategy(pCar1);
+        iCar1AITimer = 0;
       } else {
-        v62 = fabs(tsin[v112 & 0x3FFF]);
-        _CHP();
-        v63 = 18 * (int)v62;
+        dCar1SineFactor = fabs(tsin[iCar1RotAngle & 0x3FFF]);
+        //_CHP();
+        iCar1AITimer = 18 * (int)dCar1SineFactor;
       }
-      v64 = pCar2->iUnk45;
-      if (v64) {
-        if (v64 != 2)
-          changestrategy((int)pCar2);
-        v66 = 0;
+      iCar2Strategy = pCar2->iSelectedStrategy;
+      if (iCar2Strategy) {
+        if (iCar2Strategy != 2)
+          changestrategy(pCar2);
+        iCar2AITimer = 0;
       } else {
-        v65 = fabs(tsin[v114 & 0x3FFF]);
-        _CHP();
-        v66 = 18 * (int)v65;
+        dCar2SineFactor = fabs(tsin[iCar2RotAngle & 0x3FFF]);
+        //_CHP();
+        iCar2AITimer = 18 * (int)dCar2SineFactor;
       }
-      if (human_control[pCar1->iUnk10] && pCar2->byCarDesignIdx != 13)
-        v66 += 18;
-      if (human_control[pCar2->iUnk10] && pCar1->byCarDesignIdx != 13)
-        v63 += 18;
-      if (pCar1->iPadding13 < 144)
-        pCar1->iPadding13 = v63;
-      if (pCar1->iPadding13 < 0)
-        pCar1->iPadding13 = 0;
-      if (pCar2->iPadding13 < 144)
-        pCar2->iPadding13 = v66;
-      if (pCar2->iPadding13 < 0)
-        pCar2->iPadding13 = 0;
-      v67 = -v103;
-      v111 = v67;
-      v113 = v107;
-      if (v67 < colision_c_variable_10)
-        v111 = 0.0099999998;
-      if (v107 < colision_c_variable_10)
-        v113 = 0.0099999998;
-      v95 = v113 * colision_c_variable_11;
-      if (v111 > (double)v95)
-        v111 = v113 * colision_c_variable_11;
-      v93 = v111 * colision_c_variable_11;
-      if (v113 > (double)v93)
-        v113 = v111 * colision_c_variable_11;
-      v116 = v115 + damage_levels[damage_level];
-      v68 = 1.0 / (v111 + v113);
-      v91 = v111 * v116 * colision_c_variable_12 * v68;
-      v94 = v68 * (v113 * v116 * colision_c_variable_12);
-      if (v91 >= 1.0) {
-        if (player1_car == pCar2->iUnk10 || player2_car == pCar2->iUnk10) {
-          v69 = 48;
+      if (human_control[pCar1->iDriverIdx] && pCar2->byCarDesignIdx != 13)
+        iCar2AITimer += 18;
+      if (human_control[pCar2->iDriverIdx] && pCar1->byCarDesignIdx != 13)
+        iCar1AITimer += 18;
+      if (pCar1->iAIUpdateTimer < 144)
+        pCar1->iAIUpdateTimer = iCar1AITimer;
+      if (pCar1->iAIUpdateTimer < 0)
+        pCar1->iAIUpdateTimer = 0;
+      if (pCar2->iAIUpdateTimer < 144)
+        pCar2->iAIUpdateTimer = iCar2AITimer;
+      if (pCar2->iAIUpdateTimer < 0)
+        pCar2->iAIUpdateTimer = 0;
+      dNegCar2VelX = -fCar2VelX;
+      fAdjustedVel1 = (float)dNegCar2VelX;
+      fAdjustedVel2 = fCar1VelX;
+      if (dNegCar2VelX < 0.01)
+        fAdjustedVel1 = 0.0099999998f;
+      if (fCar1VelX < 0.01)
+        fAdjustedVel2 = 0.0099999998f;
+      fVelocityLimit2 = fAdjustedVel2 * 9.0f;
+      if (fAdjustedVel1 > (double)fVelocityLimit2)
+        fAdjustedVel1 = fAdjustedVel2 * 9.0f;
+      fVelocityLimit1 = fAdjustedVel1 * 9.0f;
+      if (fAdjustedVel2 > (double)fVelocityLimit1)
+        fAdjustedVel2 = fAdjustedVel1 * 9.0f;
+      fDamageModifier = fSpeedDifference + damage_levels[damage_level];
+      dInverseVelSum = 1.0 / (fAdjustedVel1 + fAdjustedVel2);// Calculate damage amounts based on velocity ratios and impact severity
+      fCar1Damage = (float)(fAdjustedVel1 * fDamageModifier * 0.006 * dInverseVelSum);
+      fCar2Damage = (float)(dInverseVelSum * (fAdjustedVel2 * fDamageModifier * 0.006));
+      if (fCar1Damage >= 1.0) {
+        if (player1_car == pCar2->iDriverIdx || player2_car == pCar2->iDriverIdx) {
+          iSpeechId1 = 48;
         LABEL_87:
-          speechonly(v69, 0x8000, 18, pCar1->iUnk10);
+          speechonly(iSpeechId1, 0x8000, 18, pCar1->iDriverIdx);// Trigger driver speech/taunts based on damage dealt to opponents
           goto LABEL_88;
         }
-        v70 = pCar1->iUnk10;
-        if (player1_car == v70 || player2_car == v70) {
-          v69 = 47;
+        iCar1DriverIdx = pCar1->iDriverIdx;
+        if (player1_car == iCar1DriverIdx || player2_car == iCar1DriverIdx) {
+          iSpeechId1 = 47;
           goto LABEL_87;
         }
       }
     LABEL_88:
-      if (v94 >= 1.0) {
-        if (player1_car == pCar1->iUnk10 || player2_car == pCar1->iUnk10) {
-          v71 = 48;
+      if (fCar2Damage >= 1.0) {
+        if (player1_car == pCar1->iDriverIdx || player2_car == pCar1->iDriverIdx) {
+          iSpeechId2 = 48;
         } else {
-          v72 = pCar2->iUnk10;
-          if (player1_car != v72 && player2_car != v72)
+          iCar2DriverIdx = pCar2->iDriverIdx;
+          if (player1_car != iCar2DriverIdx && player2_car != iCar2DriverIdx)
             goto LABEL_96;
-          v71 = 47;
+          iSpeechId2 = 47;
         }
-        speechonly(v71, 0x8000, 18, pCar2->iUnk10);
+        speechonly(iSpeechId2, 0x8000, 18, pCar2->iDriverIdx);
       }
     LABEL_96:
-      if (pCar1->fUnk9 > 0.0)
-        pCar1->byUnk41 = pCar2->iUnk10;
+      if (pCar1->fHealth > 0.0)
+        pCar1->byAttacker = pCar2->iDriverIdx;
       pCar1->byUnk43 = -40;
-      if (pCar2->fUnk9 > 0.0)
-        pCar2->byUnk41 = pCar1->iUnk10;
+      if (pCar2->fHealth > 0.0)
+        pCar2->byAttacker = pCar1->iDriverIdx;
       pCar2->byUnk43 = -40;
-      v81 = v91 * damage_levels[damage_level];
-      dodamage((int)pCar1, v81);
-      v82 = v94 * damage_levels[damage_level];
-      dodamage((int)pCar2, v82);
+      fCar1FinalDamage = fCar1Damage * damage_levels[damage_level];
+      dodamage(pCar1, fCar1FinalDamage);        // Apply calculated damage to both cars and set attacker information
+      fCar2FinalDamage = fCar2Damage * damage_levels[damage_level];
+      dodamage(pCar2, fCar2FinalDamage);
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //000604B0
 void initcollisions()
-{/*
-  int v0; // ecx
-  int v1; // esi
-  int v2; // ebx
-  int result; // eax
-  double v4; // [esp+38h] [ebp-38h]
-  double v5; // [esp+40h] [ebp-30h]
-  int i; // [esp+4Ch] [ebp-24h]
-  int v7; // [esp+50h] [ebp-20h]
-  int v8; // [esp+54h] [ebp-1Ch]
+{
+  int iAngleIdx1; // ecx
+  int iTableOffset; // esi
+  int iCurrentOffset; // ebx
+  double dCarBaseX; // [esp+38h] [ebp-38h]
+  double dCarBaseY; // [esp+40h] [ebp-30h]
+  int iAngleIdx2; // [esp+4Ch] [ebp-24h]
+  int iCurrentDistance; // [esp+50h] [ebp-20h]
+  int iBinarySearchStep; // [esp+54h] [ebp-1Ch]
 
-  v4 = *(float *)&CarBaseX;
-  v0 = -4096;
-  v1 = 0;
-  v5 = *(float *)&CarBaseY;
+  dCarBaseX = CarBaseX;                         // Load car bounding box dimensions for collision calculations
+  iAngleIdx1 = -4096;                           // Initialize first car angle index (-4096 to 4352, 256 steps = 34 angles)
+  iTableOffset = 0;                             // Initialize collision distance table offset (34x34 lookup table)
+  dCarBaseY = CarBaseY;
   do {
-    v2 = v1;
-    for (i = -4096; i != 4352; i += 256) {
-      v7 = 1600;
-      v8 = 1024;
-      do {
-        if (!checkintersect(0.0, 0.0, (double)v0, (double)v7 - (double)v8, 0.0, (double)i, v4, v5))
-          v7 -= v8;
-        result = v8 / 2;
-        v8 = result;
-      } while (result);
-      v2 += 4;
-      *(float *)((char *)&result_p1_pos + v2) = (float)v7;
+    iCurrentOffset = iTableOffset;              // Start building row in collision distance table for current angle pair
+    for (iAngleIdx2 = -4096; iAngleIdx2 != 4352; iAngleIdx2 += 256)// Inner loop: iterate through second car angles (-4096 to 4352, 256 steps)
+    {
+      iCurrentDistance = 1600;                  // Initialize binary search for minimum collision distance (start at 1600)
+      iBinarySearchStep = 1024;                 // Binary search step size starts at 1024 (halved each iteration)
+      do {                                         // Test collision at current distance between cars at angle difference
+        if (!checkintersect(0.0, 0.0, (double)iAngleIdx1, (double)iCurrentDistance - (double)iBinarySearchStep, 0.0, (double)iAngleIdx2, dCarBaseX, dCarBaseY))
+          iCurrentDistance -= iBinarySearchStep;// No collision detected: reduce distance and continue binary search
+        iBinarySearchStep /= 2;                 // Halve binary search step size for next iteration
+      } while (iBinarySearchStep);
+      //TODO make this more readable
+      *(float *)((char *)&coldist + iCurrentOffset) = (float)iCurrentDistance;// Store minimum collision distance in lookup table (coldist array)
+      iCurrentOffset += 4;
+      //*(float *)((char *)&result_p1_pos + iCurrentOffset) = (float)iCurrentDistance;// Store minimum collision distance in lookup table (coldist array)
     }
-    v0 += 256;
-    v1 += 132;
-  } while (v0 != 4352);
-  return result;*/
+    iAngleIdx1 += 256;                          // Move to next angle index for first car (256 units = ~5.625 degrees)
+    iTableOffset += 132;                        // Move to next row in collision distance table (132 bytes = 33 floats)
+  } while (iAngleIdx1 != 4352);
 }
 
 //-------------------------------------------------------------------------------------------------
 //000605C0
-int checkintersect(
-        double a1,
-        double a2,
-        double dAngleIdx1,
-        double a4,
-        double a5,
-        double dAngleIdx2,
-        long double ldCarBaseX,
-        long double ldCarBaseY)
+int checkintersect(double dCar1PosX, double dCar1PosY, double dAngleIdx1, double dCar2PosX, double dCar2PosY, double dAngleIdx2, double dCarBaseX, double dCarBaseY)
 {
-  return 0;/*
-  long double v8; // st6
-  long double v9; // rt2
-  int v10; // edx
-  long double v11; // rt1
-  double v13; // [esp+48h] [ebp-3Ch]
-  double v14; // [esp+50h] [ebp-34h]
-  double v15; // [esp+58h] [ebp-2Ch]
-  double v16; // [esp+60h] [ebp-24h]
-  double v17; // [esp+68h] [ebp-1Ch]
-  double v18; // [esp+70h] [ebp-14h]
-  long double v19; // [esp+78h] [ebp-Ch]
-  long double v20; // [esp+78h] [ebp-Ch]
+  double dAngleDifference; // st6
+  double dCosAngle2; // rt2
+  int iIntersects; // edx
+  double dCosAngle1; // rt1
+  double dTransformedDistX1; // [esp+48h] [ebp-3Ch]
+  double dTransformedDistY2; // [esp+50h] [ebp-34h]
+  double dTransformedDistY1; // [esp+58h] [ebp-2Ch]
+  double dTransformedDistX2; // [esp+60h] [ebp-24h]
+  double dCosAngleDelta; // [esp+68h] [ebp-1Ch]
+  double dSinAngleDelta; // [esp+70h] [ebp-14h]
+  double dSinAngle2; // [esp+78h] [ebp-Ch]
+  double dSinAngle1; // [esp+78h] [ebp-Ch]
 
-  v8 = (a3 - a6) * colision_c_variable_13;
-  v17 = cos(v8);
-  v18 = sin(v8);
-  v9 = cos(a6 * colision_c_variable_13);
-  v19 = sin(a6 * colision_c_variable_13);
-  v13 = (a1 - a4) * v9 + (a2 - a5) * v19;
-  v15 = v9 * (a2 - a5) + (a4 - a1) * v19;
-  v10 = 0;
-  if (fabs(v17 * a7 - v18 * a8 + v13) <= a7 && fabs(a8 * v17 + v18 * a7 + v15) <= a8)
-    v10 = -1;
-  if (fabs(v17 * a7 - v18 * -a8 + v13) <= a7 && fabs(-a8 * v17 + v18 * a7 + v15) <= a8)
-    v10 = -1;
-  if (fabs(v17 * -a7 - v18 * a8 + v13) <= a7 && fabs(-a7 * v18 + a8 * v17 + v15) <= a8)
-    v10 = -1;
-  if (fabs(v17 * -a7 - v18 * -a8 + v13) <= a7 && fabs(-a7 * v18 + v17 * -a8 + v15) <= a8)
-    v10 = -1;
-  if (fabs(v13) <= a7 && fabs(v15) <= a8)
-    v10 = -1;
-  HIBYTE(v18) ^= 0x80u;
-  v11 = cos(a3 * colision_c_variable_13);
-  v20 = sin(a3 * colision_c_variable_13);
-  v16 = (a4 - a1) * v11 + (a5 - a2) * v20;
-  v14 = v11 * (a5 - a2) + (a1 - a4) * v20;
-  if (fabs(v17 * a7 - v18 * a8 + v16) <= a7 && fabs(v18 * a7 + a8 * v17 + v14) <= a8)
-    v10 = -1;
-  if (fabs(v17 * a7 - v18 * -a8 + v16) <= a7 && fabs(-a8 * v17 + v18 * a7 + v14) <= a8)
-    v10 = -1;
-  if (fabs(v17 * -a7 - v18 * a8 + v16) <= a7 && fabs(-a7 * v18 + a8 * v17 + v14) <= a8)
-    v10 = -1;
-  if (fabs(v17 * -a7 - v18 * -a8 + v16) <= a7 && fabs(-a7 * v18 + v17 * -a8 + v14) <= a8)
-    v10 = -1;
-  if (fabs(v16) <= a7 && fabs(v14) <= a8)
+  dAngleDifference = (dAngleIdx1 - dAngleIdx2) * 0.0003834951969714356;// Calculate angle difference between two cars (convert from angle indices to radians)
+  dCosAngleDelta = cos(dAngleDifference);       // Calculate trigonometric values for angle difference (rotation matrix components)
+  dSinAngleDelta = sin(dAngleDifference);
+  dCosAngle2 = cos(dAngleIdx2 * 0.0003834951969714356);// Calculate trigonometric values for second car's orientation
+  dSinAngle2 = sin(dAngleIdx2 * 0.0003834951969714356);
+  dTransformedDistX1 = (dCar1PosX - dCar2PosX) * dCosAngle2 + (dCar1PosY - dCar2PosY) * dSinAngle2;// Transform car position difference into second car's local coordinate system
+  dTransformedDistY1 = dCosAngle2 * (dCar1PosY - dCar2PosY) + (dCar2PosX - dCar1PosX) * dSinAngle2;
+  iIntersects = 0;                              // Initialize intersection result (0 = no intersection, -1 = intersection found)
+  if (fabs(dCosAngleDelta * dCarBaseX - dSinAngleDelta * dCarBaseY + dTransformedDistX1) <= dCarBaseX
+    && fabs(dCarBaseY * dCosAngleDelta + dSinAngleDelta * dCarBaseX + dTransformedDistY1) <= dCarBaseY)// Test intersection for first car's corner (+X, +Y) against second car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dCosAngleDelta * dCarBaseX - dSinAngleDelta * -dCarBaseY + dTransformedDistX1) <= dCarBaseX
+    && fabs(-dCarBaseY * dCosAngleDelta + dSinAngleDelta * dCarBaseX + dTransformedDistY1) <= dCarBaseY)// Test intersection for first car's corner (+X, -Y) against second car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dCosAngleDelta * -dCarBaseX - dSinAngleDelta * dCarBaseY + dTransformedDistX1) <= dCarBaseX
+    && fabs(-dCarBaseX * dSinAngleDelta + dCarBaseY * dCosAngleDelta + dTransformedDistY1) <= dCarBaseY)// Test intersection for first car's corner (-X, +Y) against second car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dCosAngleDelta * -dCarBaseX - dSinAngleDelta * -dCarBaseY + dTransformedDistX1) <= dCarBaseX
+    && fabs(-dCarBaseX * dSinAngleDelta + dCosAngleDelta * -dCarBaseY + dTransformedDistY1) <= dCarBaseY)// Test intersection for first car's corner (-X, -Y) against second car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dTransformedDistX1) <= dCarBaseX && fabs(dTransformedDistY1) <= dCarBaseY)// Test if first car's center point is inside second car's bounding box
+    iIntersects = -1;
+  //HIBYTE(dSinAngleDelta) ^= 0x80u;              // Flip sign of sine component to reverse transformation direction
+  dSinAngleDelta = -dSinAngleDelta;
+  dCosAngle1 = cos(dAngleIdx1 * 0.0003834951969714356);// Calculate trigonometric values for first car's orientation
+  dSinAngle1 = sin(dAngleIdx1 * 0.0003834951969714356);
+  dTransformedDistX2 = (dCar2PosX - dCar1PosX) * dCosAngle1 + (dCar2PosY - dCar1PosY) * dSinAngle1;// Transform car position difference into first car's local coordinate system
+  dTransformedDistY2 = dCosAngle1 * (dCar2PosY - dCar1PosY) + (dCar1PosX - dCar2PosX) * dSinAngle1;
+  if (fabs(dCosAngleDelta * dCarBaseX - dSinAngleDelta * dCarBaseY + dTransformedDistX2) <= dCarBaseX
+    && fabs(dSinAngleDelta * dCarBaseX + dCarBaseY * dCosAngleDelta + dTransformedDistY2) <= dCarBaseY)// Test intersection for second car's corner (+X, +Y) against first car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dCosAngleDelta * dCarBaseX - dSinAngleDelta * -dCarBaseY + dTransformedDistX2) <= dCarBaseX
+    && fabs(-dCarBaseY * dCosAngleDelta + dSinAngleDelta * dCarBaseX + dTransformedDistY2) <= dCarBaseY)// Test intersection for second car's corner (+X, -Y) against first car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dCosAngleDelta * -dCarBaseX - dSinAngleDelta * dCarBaseY + dTransformedDistX2) <= dCarBaseX
+    && fabs(-dCarBaseX * dSinAngleDelta + dCarBaseY * dCosAngleDelta + dTransformedDistY2) <= dCarBaseY)// Test intersection for second car's corner (-X, +Y) against first car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dCosAngleDelta * -dCarBaseX - dSinAngleDelta * -dCarBaseY + dTransformedDistX2) <= dCarBaseX
+    && fabs(-dCarBaseX * dSinAngleDelta + dCosAngleDelta * -dCarBaseY + dTransformedDistY2) <= dCarBaseY)// Test intersection for second car's corner (-X, -Y) against first car's bounding box
+  {
+    iIntersects = -1;
+  }
+  if (fabs(dTransformedDistX2) <= dCarBaseX && fabs(dTransformedDistY2) <= dCarBaseY)// Test if second car's center point is inside first car's bounding box
     return -1;
-  return v10;*/
+  return iIntersects;
 }
 
 //-------------------------------------------------------------------------------------------------
