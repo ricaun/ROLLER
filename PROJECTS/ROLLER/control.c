@@ -4986,7 +4986,8 @@ LABEL_24:
     iSelectedStrategy = 0;
   if (iRightCarIdx != -1) {
     byCurrentRacePos = pCar->byRacePosition;
-    if (byCurrentRacePos < 4u && byCurrentRacePos - Car[iLeftCarIdx].byRacePosition > 2 && !human_control[iLeftCarIdx])
+    //left car check added by ROLLER, todo look at asm and see if correct
+    if (byCurrentRacePos < 4u && iLeftCarIdx != -1 && byCurrentRacePos - Car[iLeftCarIdx].byRacePosition > 2 && !human_control[iLeftCarIdx])
       iSelectedStrategy = 0;
   }
   if ((TrakColour[pCar->nCurrChunk][1] & 0x800000) == 0)// Check if car is in pit zone (track color flag 0x800000)
