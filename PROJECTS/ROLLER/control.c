@@ -2328,7 +2328,9 @@ LABEL_171:
   if (ViewType[1] == pCar->iDriverIdx)
     doviewtend(pCar, 1, 1);
   iControlTypeLocal = pCar->iControlType;       // Branch on car control type: 0=Free Movement, 1=?, 2=Ground, 3=AI/Player
-  pLocalData = (float *)&localdata[pCar->nCurrChunk];
+  if (pCar->nCurrChunk >= 0 && pCar->nCurrChunk < TRAK_LEN)//check added by ROLLER
+    pLocalData = (float *)&localdata[pCar->nCurrChunk];
+
   if (iControlTypeLocal < 2) {
     if (!iControlTypeLocal) {
       pCar->direction.fZ = pCar->direction.fZ + -3.0f;// Free movement physics - direct position and direction updates
@@ -2378,7 +2380,7 @@ LABEL_171:
     }
     goto LABEL_502;
   }
-  if (iControlTypeLocal > 2) {
+  if (iControlTypeLocal > 2 && pCar->nCurrChunk >= 0 && pCar->nCurrChunk < TRAK_LEN) {//curr chunk check added by ROLLER
     if (iControlTypeLocal != 3)
       goto LABEL_502;
     if ((TrakColour[pCar->nCurrChunk][1] & 0x1000000) == 0)
@@ -7256,7 +7258,8 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
     iForwardExtraStart = pTrakView->nForwardExtraStart;
     iForwardExtraEnd = pTrakView->byForwardExtraChunks + iForwardExtraStart;
     iForwardExtraIdx = iForwardExtraStart;
-    pForwardExtraData = &localdata[iForwardExtraStart];
+    if (iForwardExtraStart >= 0 && iForwardExtraStart < TRAK_LEN) //check added by ROLLER
+      pForwardExtraData = &localdata[iForwardExtraStart];
     if (iForwardExtraStart < iForwardExtraEnd)// Search forward extra chunks for nearest track section
     {
       iForwardExtraGroundIdx = iForwardExtraStart;
