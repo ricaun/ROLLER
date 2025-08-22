@@ -613,7 +613,7 @@ void readuserdata(int iPlayer)
   uiAccelKey = userkey[iKeyIndex + 2];
   if (uiAccelKey > 0x83) {
     //if ((unsigned int)musicbuffer_variable_1[uiAccelKey] <= 0xC8)// joyvalue[uiAccelKey]
-    if ((unsigned int)joyvalue[uiAccelKey] <= 0xC8)// 
+    if ((unsigned int)joyvalue[uiAccelKey- 132] <= 0xC8)// 
       goto LABEL_9;
   } else if (!keys[uiAccelKey]) {
     goto LABEL_9;
@@ -623,7 +623,7 @@ LABEL_9:
   uiBrakeKey = userkey[iKeyIndex + 3];
   if (uiBrakeKey > 0x83) {
     //if ((unsigned int)musicbuffer_variable_1[uiBrakeKey] <= 0xC8)// joyvalue[uiBrakeKey]
-    if ((unsigned int)joyvalue[uiBrakeKey] <= 0xC8)// 
+    if ((unsigned int)joyvalue[uiBrakeKey- 132] <= 0xC8)// 
       goto LABEL_14;
   } else if (!keys[uiBrakeKey]) {
     goto LABEL_14;
@@ -636,11 +636,11 @@ LABEL_14:
   if (byLeftKey > 0x83u) {
     // joystick steering processing
     //iJoyLeft = (unsigned int)(80 * musicbuffer_variable_1[byLeftKey]) >> 8;// joyvalue[byLeftKey]
-    iJoyLeft = (unsigned int)(80 * joyvalue[byLeftKey]) >> 8;// 
+    iJoyLeft = (unsigned int)(80 * joyvalue[byLeftKey - 132]) >> 8;// 
     if (iJoyLeft > 0x102)
       iJoyLeft = 0x102;
     //iJoyRight = (unsigned int)(80 * musicbuffer_variable_1[userkey[iKeyIndex + 1]]) >> 8;// joyvalue[byRightKey]
-    iJoyRight = (unsigned int)(80 * joyvalue[iKeyIndex + 1]) >> 8;// 
+    iJoyRight = (unsigned int)(80 * joyvalue[userkey[iKeyIndex + 1] - 132]) >> 8;// 
     iLeftEffect = (int)(p_joyk1[iPlayer] * ((int)(iJoyLeft * iJoyLeft * iJoyLeft) >> 8) + p_joyk2[iPlayer] * iJoyLeft) >> 16;
     if (iJoyRight > 0x102)
       iJoyRight = 0x102;
@@ -723,7 +723,7 @@ LABEL_14:
     if (userkey[13] > 0x83u)                  // USERKEY_P2CHEAT
     {
       //if ((unsigned int)musicbuffer_variable_1[userkey[13]] <= 0xC8)// joyvalue[userkey[USERKEY_P2CHEAT]]
-      if ((unsigned int)joyvalue[userkey[USERKEY_P2CHEAT]] <= 0xC8)// 
+      if ((unsigned int)joyvalue[userkey[USERKEY_P2CHEAT]- 132] <= 0xC8)// 
         goto LABEL_57;
     } else if (!keys[userkey[13]])              // USERKEY_P2CHEAT
     {
@@ -732,7 +732,7 @@ LABEL_14:
   } else if (userkey[12] > 0x83u)               // USERKEY_P2DOWNGEAR
   {
     //if ((unsigned int)musicbuffer_variable_1[userkey[12]] <= 0xC8)// joyvalue[userkey[USERKEY_P2DOWNGEAR]]
-    if ((unsigned int)joyvalue[userkey[USERKEY_P2DOWNGEAR]] <= 0xC8)// 
+    if ((unsigned int)joyvalue[userkey[USERKEY_P2DOWNGEAR]- 132] <= 0xC8)// 
       goto LABEL_57;
   } else if (!keys[userkey[12]])                // USERKEY_P2DOWNGEAR
   {
@@ -748,7 +748,7 @@ LABEL_57:
   iGearChange = 0;
   if (uiGearUpKey > 0x83) {
     //if ((unsigned int)musicbuffer_variable_1[uiGearUpKey] <= 0xC8)// joyvalue[uiGearUpKey]
-    if ((unsigned int)joyvalue[uiGearUpKey] <= 0xC8)// 
+    if ((unsigned int)joyvalue[uiGearUpKey- 132] <= 0xC8)// 
       goto LABEL_62;
   } else if (!keys[uiGearUpKey]) {
     goto LABEL_62;
@@ -758,7 +758,7 @@ LABEL_62:
   uiGearDownKey = userkey[iKeyIndex + 5];
   if (uiGearDownKey > 0x83) {
     //if ((unsigned int)musicbuffer_variable_1[uiGearDownKey] <= 0xC8)// joyvalue[uiGearDownKey]
-    if ((unsigned int)joyvalue[uiGearDownKey] <= 0xC8)// 
+    if ((unsigned int)joyvalue[uiGearDownKey- 132] <= 0xC8)// 
       goto LABEL_67;
   } else if (!keys[uiGearDownKey]) {
     goto LABEL_67;
