@@ -564,8 +564,9 @@ void placecars()
         SLight[0][iSLightOffset / 0x30].speed.fX = (float)(fabs(SLight[0][iSLightOffset / 0x30].targetPos.fX - SLight[0][iSLightOffset / 0x30].currentPos.fX) * 0.01388888888888889);
         SLight[0][iSLightOffset / 0x30].speed.fY = (float)(fabs(SLight[0][iSLightOffset / 0x30].targetPos.fY - SLight[0][iSLightOffset / 0x30].currentPos.fY) * 0.01388888888888889);
         dLightSpeedZ = fabs(SLight[0][iSLightOffset / 0x30].targetPos.fZ - SLight[0][iSLightOffset / 0x30].currentPos.fZ) * 0.02777777777777778;
+        SLight[0][iSLightOffset / 0x30].speed.fZ = (float)dLightSpeedZ;
         iSLightOffset += 48;
-        StoreEngines[iSLightOffset / 0x18 + 13].speeds[2] = (float)dLightSpeedZ;
+        //StoreEngines[iSLightOffset / 0x18 + 13].speeds[2] = (float)dLightSpeedZ;
       } while (iSLightOffset != iMaxOffset);
       iMaxOffset += 144;
       ++iPlayers;
