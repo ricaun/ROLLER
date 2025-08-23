@@ -1090,14 +1090,9 @@ void DisplayCar(int iCarIndex, uint8 *pScreenBuffer, float fDistanceToCar)
     iMotionY = pCar->iPitchMotion;
     iMotionZ = pCar->iYawMotion;
   }
-  ///TODO: find out why this works in windows but not linux
-  //nRoll = pCar->iRollCameraOffset + iMotionX + pCar->nRoll + pCar->iRollDynamicOffset;
-  //iYawAngle = ((int16)iMotionZ + pCar->nYaw) & 0x3FFF;
-  //iPitch = ((uint16)pCar->iPitchCameraOffset + (int16)iMotionY + (uint16)pCar->iPitchDynamicOffset + pCar->nPitch) & 0x3FFF;
-  // Temporarily disable dynamic offsets to debug car rendering
-  nRoll = pCar->nRoll;  // Use simple roll without offsets
-  iYawAngle = pCar->nYaw & 0x3FFF;  // Use simple yaw without motion
-  iPitch = pCar->nPitch & 0x3FFF;   // Use simple pitch without offsets
+  nRoll = pCar->iRollCameraOffset + iMotionX + pCar->nRoll + pCar->iRollDynamicOffset;
+  iYawAngle = ((int16)iMotionZ + pCar->nYaw) & 0x3FFF;
+  iPitch = ((uint16)pCar->iPitchCameraOffset + (int16)iMotionY + (uint16)pCar->iPitchDynamicOffset + pCar->nPitch) & 0x3FFF;
 
   fRotMat00 = tcos[iYawAngle] * tcos[iPitch];   // Calculate 3x3 rotation matrix from car orientation angles
   fRotMat01 = tsin[iYawAngle] * tcos[iPitch];

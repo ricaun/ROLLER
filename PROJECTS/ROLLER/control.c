@@ -880,18 +880,18 @@ void control()
           dDamageFactor = 8.0 - 7.0 * fHealthFactor;
           fDamageMultiplier = (float)dDamageFactor;
           fHealthValue = (float)dDamageFactor * pCurrentCar->fFinalSpeed;
-          iRandomValue = rand() - 0x4000;
+          iRandomValue = ROLLERrand() - 0x4000;
           dRollMotionCalc = (double)iRandomValue * fHealthValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
           //_CHP();
           pCurrentCar->iRollMotion = (int)dRollMotionCalc;
           fHealthValue = fDamageMultiplier * pCurrentCar->fFinalSpeed;
-          iRandomValue = rand() - 0x4000;
+          iRandomValue = ROLLERrand() - 0x4000;
           dPitchMotionCalc = (double)iRandomValue * fHealthValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
           //_CHP();
 
           pCurrentCar->iPitchMotion = (int)dPitchMotionCalc;
           fHealthValue = fDamageMultiplier * pCurrentCar->fFinalSpeed;
-          iRandomValue = rand() - 0x4000;
+          iRandomValue = ROLLERrand() - 0x4000;
           dYawMotionCalc = (double)iRandomValue * fHealthValue / (double)CarEngines.engines[pCurrentCar->byCarDesignIdx].iStabilityFactor;
           //*(float *)&iRandomValue = fDamageMultiplier * pCurrentCar->fFinalSpeed;
           //LODWORD(fHealthValue) = rand() - 0x4000;

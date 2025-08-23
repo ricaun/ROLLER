@@ -1090,6 +1090,13 @@ int ROLLERfilelength(const char *szFile)
 }
 
 //-------------------------------------------------------------------------------------------------
+
+int ROLLERrand()
+{
+  return GetHighOrderRand(0x7FFF, rand());
+}
+
+//-------------------------------------------------------------------------------------------------
 //g_pTimerMutex MUST BE LOCKED before calling this function
 tTimerData *GetTimerData(SDL_TimerID timerID)
 {
