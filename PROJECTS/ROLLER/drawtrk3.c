@@ -4926,7 +4926,7 @@ void dodivide(float fX0_3D, float fY0_3D, float fZ0_3D,
                 // Render textured pol with car texture
                 //TODO is this correct?
                 POLYTEX(
-                  cartex_vga[car_texmap[subpolytype - 3]],
+                  cartex_vga[car_texmap[subpolytype - 3] - 1],
                   subptr,
                   subpoly,
                   car_texmap[subpolytype - 3],
