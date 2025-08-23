@@ -465,30 +465,32 @@ void placecars()
         Car[iViewCarIdx].fPower = (float)dPower;
       }
       nCurrChunk = Car[iDriverIdx].nCurrChunk;  // Position cars on track based on available lanes
-      pTrackLocalData = &localdata[nCurrChunk]; // Get track data for current chunk
-      pTrackChunk = &TrackInfo[nCurrChunk];     // Get track info for surface types
-      while ((TrakColour[Car[iDriverIdx].nCurrChunk][uiStartingLane] & 0x8000000) != 0)
-      //while ((TrakColour[Car[iDriverIdx].nCurrChunk][*(int *)((char *)surfaceTypeAy + Car[iDriverIdx].nCurrChunk)] & 0x8000000) != 0)// Find valid lane (avoid surfaces with special flags)
-      {
-        if (++uiStartingLane == 4)
-          uiStartingLane = 0;
-      }
-      if (uiStartingLane <= 3) {                                         // Calculate Y position based on selected lane
-        switch (uiStartingLane) {
-          case 0u:
-            dTrackYPos = pTrackChunk->fLShoulderWidth * 0.5 + pTrackLocalData->fTrackHalfWidth;// Lane 0: left shoulder position
-            break;
-          case 1u:
-            dTrackYPos = pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 1: left side of track
-            break;
-          case 2u:
-            dTrackYPos = -pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 2: right side of track
-            break;
-          case 3u:
-            dTrackYPos = -pTrackLocalData->fTrackHalfWidth - pTrackChunk->fRShoulderWidth * 0.5;// Lane 3: right shoulder position
-            break;
+      if (nCurrChunk >= 0 && nCurrChunk < TRAK_LEN) { //added by ROLLER
+        pTrackLocalData = &localdata[nCurrChunk]; // Get track data for current chunk
+        pTrackChunk = &TrackInfo[nCurrChunk];     // Get track info for surface types]
+        while ((TrakColour[Car[iDriverIdx].nCurrChunk][uiStartingLane] & 0x8000000) != 0)
+        //while ((TrakColour[Car[iDriverIdx].nCurrChunk][*(int *)((char *)surfaceTypeAy + Car[iDriverIdx].nCurrChunk)] & 0x8000000) != 0)// Find valid lane (avoid surfaces with special flags)
+        {
+          if (++uiStartingLane == 4)
+            uiStartingLane = 0;
         }
-        Car[iDriverIdx].pos.fY = (float)dTrackYPos;    // Set calculated Y position for car
+        if (uiStartingLane <= 3) {                                         // Calculate Y position based on selected lane
+          switch (uiStartingLane) {
+            case 0u:
+              dTrackYPos = pTrackChunk->fLShoulderWidth * 0.5 + pTrackLocalData->fTrackHalfWidth;// Lane 0: left shoulder position
+              break;
+            case 1u:
+              dTrackYPos = pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 1: left side of track
+              break;
+            case 2u:
+              dTrackYPos = -pTrackLocalData->fTrackHalfWidth * 0.5;// Lane 2: right side of track
+              break;
+            case 3u:
+              dTrackYPos = -pTrackLocalData->fTrackHalfWidth - pTrackChunk->fRShoulderWidth * 0.5;// Lane 3: right shoulder position
+              break;
+          }
+          Car[iDriverIdx].pos.fY = (float)dTrackYPos;    // Set calculated Y position for car
+        }
       }
       ++uiStartingLane;
       putflat(&Car[iDriverIdx]);                // Position car flat on track surface

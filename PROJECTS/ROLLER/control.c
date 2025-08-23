@@ -4245,12 +4245,15 @@ void putflat(tCar *pCar)
   int iPitchFinal; // [esp+34h] [ebp-20h]
 
   nCurrChunk = pCar->nCurrChunk;                // Get current track chunk and related data
+  if (nCurrChunk < 0 || nCurrChunk >= TRAK_LEN) //added by ROLLER
+    nCurrChunk = 0;
+
   pTrackInfo = &TrackInfo[nCurrChunk];
   pCurrData = &localdata[nCurrChunk];
   nYaw = pCar->nYaw;
   if (pCar->pos.fX >= 0.0)                    // Determine previous and next chunk indices based on car direction
   {
-    iPrevChunkIdx = pCar->nCurrChunk;
+    iPrevChunkIdx = nCurrChunk;
     iNextChunkIdx = nCurrChunk + 1;
     if (nCurrChunk + 1 == TRAK_LEN)
       iNextChunkIdx = TRAK_LEN ^ (nCurrChunk + 1);
