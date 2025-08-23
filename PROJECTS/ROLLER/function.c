@@ -1152,224 +1152,161 @@ bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
 //00038640
 void analysefalloff(tCar *pCar)
 {
-  /*
-  int v2; // ecx
-  double v3; // st7
-  char *v4; // esi
-  int v5; // eax
-  float *v6; // edi
-  unsigned int v7; // ecx
-  __int64 v8; // rax
-  __int64 v9; // rax
-  double v10; // st7
-  int v11; // edx
-  int v12; // ebp
-  double v13; // st7
-  __int16 v14; // fps
-  _BOOL1 v15; // c0
-  char v16; // c2
-  _BOOL1 v17; // c3
-  int v18; // eax
-  long double v19; // st7
-  int v20; // eax
-  double v21; // st7
-  __int64 v22; // rax
-  __int64 v23; // rax
-  double v24; // st7
-  int v25; // edx
-  int v26; // edx
-  double v27; // st7
-  __int16 v28; // fps
-  _BOOL1 v29; // c0
-  char v30; // c2
-  _BOOL1 v31; // c3
-  int v32; // eax
-  long double v33; // st7
-  int v34; // eax
-  double v35; // st7
-  int v36; // eax
-  __int64 v37; // rax
-  int v38; // eax
-  int v39; // edx
-  double v40; // st7
-  __int16 v41; // fps
-  _BOOL1 v42; // c0
-  char v43; // c2
-  _BOOL1 v44; // c3
-  int v45; // eax
-  long double v46; // st7
-  int v47; // eax
-  double v48; // st7
-  __int64 v49; // rax
-  int v50; // eax
-  int v51; // edx
-  double v52; // st7
-  __int16 v53; // fps
-  _BOOL1 v54; // c0
-  char v55; // c2
-  _BOOL1 v56; // c3
-  int v57; // eax
-  long double v58; // st7
-  int v59; // eax
-  double v60; // st7
-  float v61; // [esp+0h] [ebp-34h]
-  int v62; // [esp+0h] [ebp-34h]
-  int v63; // [esp+0h] [ebp-34h]
-  float v64; // [esp+4h] [ebp-30h]
-  float v65; // [esp+8h] [ebp-2Ch]
-  float v66; // [esp+Ch] [ebp-28h]
-  float v67; // [esp+10h] [ebp-24h]
-  float v68; // [esp+14h] [ebp-20h]
-  float v69; // [esp+18h] [ebp-1Ch]
-  float v70; // [esp+18h] [ebp-1Ch]
+  int iCurrChunk; // ecx
+  double dCarY; // st7
+  tData *pData; // esi
+  tTrackInfo *pInfo; // edi
+  unsigned int iLaneType; // ecx
+  //int64 v7; // rax
+  //int64 v8; // rax
+  double dWallPosition; // st7
+  int iWallFlag; // edx
+  int nYaw3; // ebp
+  double dSinVelocity; // st7
+  double dRollMomentum; // st7
+  //int64 v14; // rax
+  //int64 v15; // rax
+  double dWallPosition2; // st7
+  int iWallFlag2; // edx
+  int iYawTemp; // edx
+  double dSinVelocity2; // st7
+  double dRollMomentum2; // st7
+  int iPrevChunk; // eax
+  //int64 v22; // rax
+  int iYawTemp2; // edx
+  double dCosVelocity; // st7
+  double dRollMomentum3; // st7
+  //int64 v26; // rax
+  int iYawTemp3; // edx
+  double dCosVelocity2; // st7
+  double dRollMomentum4; // st7
+  float fCosVelocity; // [esp+0h] [ebp-34h]
+  float fSinVelocity; // [esp+0h] [ebp-34h]
+  float fSinVelocity2; // [esp+0h] [ebp-34h]
+  float fSinVelocityTemp; // [esp+4h] [ebp-30h]
+  float fCosVelocityTemp; // [esp+8h] [ebp-2Ch]
+  float fCosVelocityTemp2; // [esp+Ch] [ebp-28h]
+  float fSinVelocityTemp2; // [esp+10h] [ebp-24h]
+  float fCosVelocityTemp3; // [esp+14h] [ebp-20h]
+  float fTrackHalfWidth; // [esp+18h] [ebp-1Ch]
+  float fWallPosition; // [esp+18h] [ebp-1Ch]
 
-  v2 = *(__int16 *)(a1 + 12);
-  v3 = *(float *)(a1 + 4);
-  v4 = (char *)&localdata + 128 * v2;
-  v5 = 36 * v2;
-  *(_DWORD *)(a1 + 200) = 0;
-  v6 = (float *)&TrackInfo[9 * v2];
-  if (v3 <= *((float *)v4 + 13)) {
-    if (-*((float *)v4 + 13) <= *(float *)(a1 + 4))
-      v7 = 1;
+  iCurrChunk = pCar->nCurrChunk;
+  dCarY = pCar->pos.fY;
+  pData = &localdata[iCurrChunk];
+  pCar->iRollMomentum = 0;
+  pInfo = &TrackInfo[iCurrChunk];
+  if (dCarY <= pData->fTrackHalfWidth)        // Determine which lane/area the car is in: 0=left shoulder, 1=on track, 2=right shoulder
+  {
+    if (-pData->fTrackHalfWidth <= pCar->pos.fY)
+      iLaneType = 1;
     else
-      v7 = 2;
+      iLaneType = 2;
   } else {
-    v7 = 0;
+    iLaneType = 0;
   }
-  if (!v7) {
-    v10 = *((float *)v4 + 13) + *v6;
-    v11 = -1;
+  if (!iLaneType)                             // Handle left shoulder collision - set wall position and check for wall collision
+  {
+    dWallPosition = pData->fTrackHalfWidth + pInfo->fLShoulderWidth;
+    iWallFlag = -1;
     goto LABEL_11;
   }
-  if (v7 > 1) {
-    v9 = *((int *)&TrakColour_variable_3 + 6 * *(__int16 *)(a1 + 12));
-    v5 = (HIDWORD(v9) ^ v9) - HIDWORD(v9);
-    v10 = -*((float *)v4 + 13);
-    v11 = v5 & 0x20000;
+  if (iLaneType > 1) {
+    //v8 = TrakColour[pCar->nCurrChunk][1];
+    dWallPosition = -pData->fTrackHalfWidth;
+    iWallFlag = TrakColour[pCar->nCurrChunk][TRAK_COLOUR_CENTER] & SURFACE_FLAG_SKIP_RENDER;// ((HIDWORD(v8) ^ v8) - HIDWORD(v8)) & 0x20000;
   LABEL_11:
-    v69 = v10;
+    fTrackHalfWidth = (float)dWallPosition;
     goto LABEL_12;
   }
-  v8 = *((int *)&TrakColour + 6 * *(__int16 *)(a1 + 12));
-  HIDWORD(v8) = (HIDWORD(v8) ^ v8) - HIDWORD(v8);
-  v5 = *((_DWORD *)v4 + 13);
-  v11 = HIDWORD(v8) & 0x20000;
-  v69 = *(float *)&v5;
+  //v7 = TrakColour[pCar->nCurrChunk][0];
+  iWallFlag = TrakColour[pCar->nCurrChunk][TRAK_COLOUR_LEFT_LANE] & SURFACE_FLAG_SKIP_RENDER; //((HIDWORD(v7) ^ v7) - HIDWORD(v7)) & 0x20000;
+  fTrackHalfWidth = pData->fTrackHalfWidth;
 LABEL_12:
-  if (v11 && v69 < *(float *)(a1 + 84) * function_c_variable_14 + *(float *)(a1 + 4)) {
-    v12 = *(_DWORD *)(a1 + 64);
-    v13 = *(float *)(a1 + 24) * tsin[v12];
-    v67 = v13;
-    if (v13 < function_c_variable_15) {
-      v15 = v67 > 0.0;
-      v16 = 0;
-      v17 = 0.0 == v67;
-      LOWORD(v5) = v14;
-      if (v67 >= 0.0) {
-        v68 = *(float *)(a1 + 24) * tcos[v12];
-        v18 = getangle(v5, v11, v68, 1109393408);
-        v19 = v68 * v68 + function_c_variable_16;
-        *(_DWORD *)(a1 + 64) = v18;
-        *(float *)(a1 + 24) = sqrt(v19);
+  if (iWallFlag && fTrackHalfWidth < pCar->fCarHalfWidth * 0.5 + pCar->pos.fY)// Check if car is hitting the wall - if wall exists and car position exceeds wall boundary
+  {
+    nYaw3 = pCar->nYaw3;
+    dSinVelocity = pCar->fFinalSpeed * tsin[nYaw3];// Calculate lateral velocity component (sin component) for wall collision handling
+    if (dSinVelocity < 30.0) {
+      fSinVelocityTemp2 = (float)dSinVelocity;
+      if (fSinVelocityTemp2 >= 0.0) {
+        fCosVelocityTemp3 = pCar->fFinalSpeed * tcos[nYaw3];
+        pCar->nYaw3 = getangle(fCosVelocityTemp3, 40.0);// Adjust car yaw and speed when bouncing off left wall - redirect momentum
+        pCar->fFinalSpeed = (float)sqrt(fCosVelocityTemp3 * fCosVelocityTemp3 + 1600.0);
       }
     }
-    v20 = *(__int16 *)(a1 + 20);
-    v21 = tcos[v20] * function_c_variable_17 + (double)*(int *)(a1 + 200);
-    _CHP(v20, v11);
-    *(_DWORD *)(a1 + 200) = (int)v21;
+    dRollMomentum = tcos[pCar->nYaw] * 200.0 + (double)pCar->iRollMomentum;// Apply roll momentum based on car orientation - banking effect on slopes
+    //_CHP();
+    pCar->iRollMomentum = (int)dRollMomentum;
   }
-  if (v7) {
-    if (v7 <= 1) {
-      v23 = *((int *)&TrakColour_variable_7 + 6 * *(__int16 *)(a1 + 12));
-      v5 = (HIDWORD(v23) ^ v23) - HIDWORD(v23);
-      v24 = -*((float *)v4 + 13);
-      v25 = v5 & 0x20000;
+  if (iLaneType) {
+    if (iLaneType <= 1) {
+      //v15 = TrakColour[pCar->nCurrChunk][2];
+      dWallPosition2 = -pData->fTrackHalfWidth;
+      iWallFlag2 = TrakColour[pCar->nCurrChunk][TRAK_COLOUR_RIGHT_LANE] & SURFACE_FLAG_SKIP_RENDER;//((HIDWORD(v15) ^ v15) - HIDWORD(v15)) & 0x20000;
     } else {
-      v24 = -*((float *)v4 + 13) - v6[2];
-      v25 = -1;
+      dWallPosition2 = -pData->fTrackHalfWidth - pInfo->fRShoulderWidth;
+      iWallFlag2 = -1;
     }
-    v70 = v24;
+    fWallPosition = (float)dWallPosition2;
   } else {
-    v22 = *((int *)&TrakColour_variable_3 + 6 * *(__int16 *)(a1 + 12));
-    HIDWORD(v22) = (HIDWORD(v22) ^ v22) - HIDWORD(v22);
-    v5 = *((_DWORD *)v4 + 13);
-    v25 = HIDWORD(v22) & 0x20000;
-    v70 = *(float *)&v5;
+    //v14 = TrakColour[pCar->nCurrChunk][1];
+    iWallFlag2 = TrakColour[pCar->nCurrChunk][TRAK_COLOUR_CENTER] & SURFACE_FLAG_SKIP_RENDER; //((HIDWORD(v14) ^ v14) - HIDWORD(v14)) & 0x20000;
+    fWallPosition = pData->fTrackHalfWidth;
   }
-  if (v25 && v70 > *(float *)(a1 + 4) - *(float *)(a1 + 84) * function_c_variable_14) {
-    v26 = *(_DWORD *)(a1 + 64);
-    v27 = *(float *)(a1 + 24) * tsin[v26];
-    v64 = v27;
-    if (v27 > function_c_variable_18) {
-      v29 = v64 > 0.0;
-      v30 = 0;
-      v31 = 0.0 == v64;
-      LOWORD(v5) = v28;
-      if (v64 <= 0.0) {
-        v61 = *(float *)(a1 + 24) * tcos[v26];
-        v32 = getangle(v5, v26 * 4, v61, -1038090240);
-        v33 = v61 * v61 + function_c_variable_16;
-        *(_DWORD *)(a1 + 64) = v32;
-        *(float *)(a1 + 24) = sqrt(v33);
+  if (iWallFlag2 && fWallPosition > pCar->pos.fY - pCar->fCarHalfWidth * 0.5)// Check for right wall collision - mirror of left wall logic
+  {
+    iYawTemp = pCar->nYaw3;
+    dSinVelocity2 = pCar->fFinalSpeed * tsin[iYawTemp];
+    if (dSinVelocity2 > -30.0) {
+      fSinVelocityTemp = (float)dSinVelocity2;
+      if (fSinVelocityTemp <= 0.0) {
+        fCosVelocity = pCar->fFinalSpeed * tcos[iYawTemp];
+        pCar->nYaw3 = getangle(fCosVelocity, -40.0);// Adjust car yaw and speed when bouncing off right wall
+        pCar->fFinalSpeed = (float)sqrt(fCosVelocity * fCosVelocity + 1600.0);
       }
     }
-    v34 = *(__int16 *)(a1 + 20);
-    v35 = (double)*(int *)(a1 + 200) - tcos[v34] * function_c_variable_17;
-    _CHP(v34, v26 * 4);
-    *(_DWORD *)(a1 + 200) = (int)v35;
+    dRollMomentum2 = (double)pCar->iRollMomentum - tcos[pCar->nYaw] * 200.0;
+    //_CHP();
+    pCar->iRollMomentum = (int)dRollMomentum2;
   }
-  v36 = *(__int16 *)(a1 + 12) - 1;
-  if (v36 < 0)
-    v36 = TRAK_LEN - 1;
-  v37 = *((int *)&TrakColour + 6 * v36 + v7);
-  v38 = (HIDWORD(v37) ^ v37) - HIDWORD(v37);
-  if ((v38 & 0x20000) != 0 && -*((float *)v4 + 12) > *(float *)a1 - *(float *)(a1 + 88) * function_c_variable_14) {
-    v39 = *(_DWORD *)(a1 + 64);
-    v40 = *(float *)(a1 + 24) * tcos[v39];
-    v66 = v40;
-    if (v40 > function_c_variable_18) {
-      v42 = v66 > 0.0;
-      v43 = 0;
-      v44 = 0.0 == v66;
-      LOWORD(v38) = v41;
-      if (v66 <= 0.0) {
-        *(float *)&v62 = *(float *)(a1 + 24) * tsin[v39];
-        v45 = getangle(v38, v39 * 4, -40.0, v62);
-        v46 = *(float *)&v62 * *(float *)&v62 + function_c_variable_16;
-        *(_DWORD *)(a1 + 64) = v45;
-        *(float *)(a1 + 24) = sqrt(v46);
+  iPrevChunk = pCar->nCurrChunk - 1;            // Check previous track chunk for front wall collision
+  if (iPrevChunk < 0)
+    iPrevChunk = TRAK_LEN - 1;
+  //v22 = TrakColour[iPrevChunk][iLaneType];
+  //if ((((HIDWORD(v22) ^ (unsigned int)v22) - HIDWORD(v22)) & 0x20000) != 0 && -pData->fTrackHalfLength > pCar->pos.fX - pCar->fCarWidthBankingProjection * 0.5) {
+  if ((TrakColour[iPrevChunk][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0 && -pData->fTrackHalfLength > pCar->pos.fX - pCar->fCarWidthBankingProjection * 0.5) {
+    iYawTemp2 = pCar->nYaw3;
+    dCosVelocity = pCar->fFinalSpeed * tcos[iYawTemp2];
+    if (dCosVelocity > -30.0) {
+      fCosVelocityTemp2 = (float)dCosVelocity;
+      if (fCosVelocityTemp2 <= 0.0) {
+        fSinVelocity = pCar->fFinalSpeed * tsin[iYawTemp2];
+        pCar->nYaw3 = getangle(-40.0, fSinVelocity);// Handle front wall collision - adjust yaw by redirecting forward momentum
+        pCar->fFinalSpeed = (float)sqrt(fSinVelocity * fSinVelocity + 1600.0);
       }
     }
-    v47 = *(__int16 *)(a1 + 20);
-    v48 = tsin[v47] * function_c_variable_17 + (double)*(int *)(a1 + 200);
-    _CHP(v47, v39 * 4);
-    *(_DWORD *)(a1 + 200) = (int)v48;
+    dRollMomentum3 = tsin[pCar->nYaw] * 200.0 + (double)pCar->iRollMomentum;
+    //_CHP();
+    pCar->iRollMomentum = (int)dRollMomentum3;
   }
-  v49 = *((int *)&TrakColour + 6 * *(__int16 *)(a1 + 12) + v7 + 6);
-  v50 = (HIDWORD(v49) ^ v49) - HIDWORD(v49);
-  if ((v50 & 0x20000) != 0 && *((float *)v4 + 12) < *(float *)(a1 + 88) * function_c_variable_14 + *(float *)a1) {
-    v51 = *(_DWORD *)(a1 + 64);
-    v52 = *(float *)(a1 + 24) * tcos[v51];
-    v65 = v52;
-    if (v52 < function_c_variable_15) {
-      v54 = v65 > 0.0;
-      v55 = 0;
-      v56 = 0.0 == v65;
-      LOWORD(v50) = v53;
-      if (v65 >= 0.0) {
-        *(float *)&v63 = *(float *)(a1 + 24) * tsin[v51];
-        v57 = getangle(v50, v51 * 4, 40.0, v63);
-        v58 = *(float *)&v63 * *(float *)&v63 + function_c_variable_16;
-        *(_DWORD *)(a1 + 64) = v57;
-        *(float *)(a1 + 24) = sqrt(v58);
+  //v26 = TrakColour[pCar->nCurrChunk + 1][iLaneType];// Check next track chunk for rear wall collision
+  //if ((((HIDWORD(v26) ^ (unsigned int)v26) - HIDWORD(v26)) & 0x20000) != 0 && pData->fTrackHalfLength < pCar->fCarWidthBankingProjection * 0.5 + pCar->pos.fX) {
+  if ((TrakColour[pCar->nCurrChunk + 1][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0 && pData->fTrackHalfLength < pCar->fCarWidthBankingProjection * 0.5 + pCar->pos.fX) {
+    iYawTemp3 = pCar->nYaw3;
+    dCosVelocity2 = pCar->fFinalSpeed * tcos[iYawTemp3];
+    if (dCosVelocity2 < 30.0) {
+      fCosVelocityTemp = (float)dCosVelocity2;
+      if (fCosVelocityTemp >= 0.0) {
+        fSinVelocity2 = pCar->fFinalSpeed * tsin[iYawTemp3];
+        pCar->nYaw3 = getangle(40.0, fSinVelocity2);// Handle rear wall collision - adjust yaw by redirecting backward momentum
+        pCar->fFinalSpeed = (float)sqrt(fSinVelocity2 * fSinVelocity2 + 1600.0);
       }
     }
-    v59 = *(__int16 *)(a1 + 20);
-    v60 = (double)*(int *)(a1 + 200) - tsin[v59] * function_c_variable_17;
-    _CHP(v59, v51 * 4);
-    *(_DWORD *)(a1 + 200) = (int)v60;
-  }*/
+    dRollMomentum4 = (double)pCar->iRollMomentum - tsin[pCar->nYaw] * 200.0;
+    //_CHP();
+    pCar->iRollMomentum = (int)dRollMomentum4;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
