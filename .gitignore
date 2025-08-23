@@ -378,3 +378,5 @@ compile_flags.txt
 packages.microsoft.gpg
 .vscode/tasks.json
 .vscode/launch.json
+.claude
+CLAUDE.md

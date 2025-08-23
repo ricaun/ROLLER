@@ -1088,9 +1088,10 @@ void DisplayCar(int iCarIndex, uint8 *pScreenBuffer, float fDistanceToCar)
     iMotionY = pCar->iPitchMotion;
     iMotionZ = pCar->iYawMotion;
   }
-  unFlags = pCar->iRollCameraOffset + iMotionX + pCar->nRoll + pCar->iRollDynamicOffset;
-  iYawAngle = ((int16)iMotionZ + pCar->nYaw) & 0x3FFF;
-  iPitch = ((uint16)pCar->iPitchCameraOffset + (int16)iMotionY + (uint16)pCar->iPitchDynamicOffset + pCar->nPitch) & 0x3FFF;
+  // Temporarily disable dynamic offsets to debug car rendering
+  unFlags = pCar->nRoll;  // Use simple roll without offsets
+  iYawAngle = pCar->nYaw & 0x3FFF;  // Use simple yaw without motion
+  iPitch = pCar->nPitch & 0x3FFF;   // Use simple pitch without offsets
   fRotMat00 = tcos[iYawAngle] * tcos[iPitch];   // Calculate 3x3 rotation matrix from car orientation angles
   fRotMat01 = tsin[iYawAngle] * tcos[iPitch];
   dCosYaw = tcos[iYawAngle];
@@ -1940,9 +1941,11 @@ LABEL_117:
               gfx_size);                        // Subdivide polygon if too close to camera for better quality
           } else {
             // SURFACE_FLAG_APPLY_TEXTURE
-            if ((uiTextureSurface & SURFACE_FLAG_APPLY_TEXTURE) == 0 || !iTextureDisabled)
-              goto LABEL_267;
-            POLYTEX((&horizon_vga)[car_texmap[uiTextureMapOffset / 4]], pScrBuf, &CarPol, car_texmap[uiTextureMapOffset / 4], gfx_size);
+            if ((uiTextureSurface & SURFACE_FLAG_APPLY_TEXTURE) != 0 && iTextureDisabled) {
+              POLYTEX(cartex_vga[car_texmap[uiTextureMapOffset / 4] - 1], pScrBuf, &CarPol, car_texmap[uiTextureMapOffset / 4], gfx_size);
+            } else {
+              goto LABEL_267;  // No texture - render flat polygon
+            }
           }
         } else {
           CarZOrder[uiRenderLoopOffset / 0xC].iPolygonLink = -1;
