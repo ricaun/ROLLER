@@ -375,9 +375,9 @@ void initclouds()
       //iColorIndex = (5 * iRandColorBase - (__CFSHL__((5 * iRandColorBase) >> 31, 15) + ((5 * iRandColorBase) >> 31 << 15))) >> 15;
       cloud[iCloudIdx].iSurfaceType = iColorIndex;
       cloud[iCloudIdx].iSurfaceType = iColorIndex + 0x508;
-      if (rand() < 0x4000)                    // Randomly modify color properties (50% chance each)
+      if (ROLLERrand() < 0x4000)                    // Randomly modify color properties (50% chance each)
         cloud[iCloudIdx].iSurfaceType += 0x1000;
-      if (rand() < 0x4000)
+      if (ROLLERrand() < 0x4000)
         SET_HIWORD(cloud[iCloudIdx].iSurfaceType, 4 + GET_HIWORD(cloud[iCloudIdx].iSurfaceType));
         //HIWORD(cloud[iCloudIdx].iSurfaceType) += 4;
       cloud[iCloudIdx].fRadius = fRadius;       // Store cloud radius

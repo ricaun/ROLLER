@@ -6810,7 +6810,7 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
           if (fHealthFactor >= 1.0) {
             pCarSpray->iColor = 1302;
           } else {                                     // Generate damage particles based on health factor - more damage = more particles
-            if ((double)rand() * fHealthFactor < 8192.0 && fHealthFactor < 0.66) {
+            if ((double)ROLLERrand() * fHealthFactor < 8192.0 && fHealthFactor < 0.66) {
               pCarSpray->iType = (pCarSpray->iType & 0xFFFFFF00) | 1;
               //LOBYTE(pCarSpray->iType) = 1;
               iRandomLifetime2 = rand();
@@ -6832,7 +6832,7 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
                   else
                     iTempPosX = winw / 2 - GetHighOrderRand(scr_size, iRandomPosX1);
                   pCarSpray->position.fX = (float)iTempPosX;
-                  iRandomPosY1 = rand(); //TODO look at this
+                  iRandomPosY1 = ROLLERrand(); //TODO look at this
                   pCarSpray->position.fY = (float)(((iRandomPosY1 * scr_size) >> 16)
                                                  + winh);
                 } else {
@@ -6878,7 +6878,7 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
                 else
                   iTempPosX2 = winw / 2 - GetHighOrderRand(scr_size, iRandomPosX2);
                 pCarSpray->position.fX = (float)iTempPosX2;
-                iRandomPosY3 = rand(); //TODO: look at this
+                iRandomPosY3 = ROLLERrand(); //TODO: look at this
                 pCarSpray->position.fY = (float)(((iRandomPosY3 * scr_size) >> 16)
                                                + winh);
               } else {                                 // Health-based placement logic: high health uses fewer placements
@@ -6910,10 +6910,10 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
               iTempRandomValue = rand();
               pCarSpray->iColor = 1302;
               pCarSpray->iLifeTime = GetHighOrderRand(24, iTempRandomValue) + 24;
-              if (rand() < 0x4000)
+              if (ROLLERrand() < 0x4000)
                 pCarSpray->iColor |= 0x1000u;
                 //BYTE1(pCarSpray->iColor) |= 0x10u;
-              if (rand() < 0x4000)
+              if (ROLLERrand() < 0x4000)
                 pCarSpray->iColor |= 40000u;
                 //BYTE2(pCarSpray->iColor) |= 4u;
               if (iCinematicMode) {
@@ -6926,9 +6926,9 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
                 else
                   iTempVelX = -3 - GetHighOrderRand(3, iRandomVelX4);
                 pCarSpray->velocity.fX = (float)iTempVelX;
-                pCarSpray->fSize = (float)(((double)rand() * ((1.0 - fHealthFactor) * 32.0 + 32.0) * 0.000030517578125 + 32.0) * (double)scr_size * 0.015625);
+                pCarSpray->fSize = (float)(((double)ROLLERrand() * ((1.0 - fHealthFactor) * 32.0 + 32.0) * 0.000030517578125 + 32.0) * (double)scr_size * 0.015625);
                 fHealthMultiplier4 = fHealthFactor * 512.0f;
-                dLifetimeCalc1 = (double)rand() * fHealthMultiplier4 * 0.000030517578 + 64.0;
+                dLifetimeCalc1 = (double)ROLLERrand() * fHealthMultiplier4 * 0.000030517578 + 64.0;
                 //_CHP();
                 pCarSpray->iTimer = (int)dLifetimeCalc1;
                 rand();
@@ -6957,16 +6957,16 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
                 if (fHealthFactor <= 0.6) {
                   if (pCar->fHealth <= 0.0) {
                     fHealthMultiplier2 = fHealthFactor * 64.0f;
-                    dLifetimeCalc3 = (double)rand() * fHealthMultiplier2 * 0.000030517578 + 18.0;
+                    dLifetimeCalc3 = (double)ROLLERrand() * fHealthMultiplier2 * 0.000030517578 + 18.0;
                   } else {
                     fHealthMultiplier3 = fHealthFactor * 256.0f;
-                    dLifetimeCalc3 = (double)rand() * fHealthMultiplier3 * 0.000030517578 + 24.0;
+                    dLifetimeCalc3 = (double)ROLLERrand() * fHealthMultiplier3 * 0.000030517578 + 24.0;
                   }
                   //_CHP();
                   pCarSpray->iTimer = (int)dLifetimeCalc3;
                 } else {
                   fHealthMultiplier1 = fHealthFactor * 1024.0f;
-                  dLifetimeCalc2 = (double)rand() * fHealthMultiplier1 * 0.000030517578 + 36.0;
+                  dLifetimeCalc2 = (double)ROLLERrand() * fHealthMultiplier1 * 0.000030517578 + 36.0;
                   //_CHP();
                   pCarSpray->iTimer = (int)dLifetimeCalc2;
                 }
@@ -7007,10 +7007,10 @@ void dospray(tCar *pCar, int iCinematicMode, tCarSpray *pCarSpray)
         iColor = iColor & 0xFFFFFF00;  // Clear lowest byte only
         //LOBYTE(iColor) = 0;
         pCarSpray->iColor = iColorCycle | iColor;
-        if (rand() < 0x4000)
+        if (ROLLERrand() < 0x4000)
           pCarSpray->iColor ^= 0x1000u;
           //BYTE1(pCarSpray->iColor) ^= 0x10u;
-        if (rand() < 0x4000)
+        if (ROLLERrand() < 0x4000)
           pCarSpray->iColor ^= 40000u;
           //BYTE2(pCarSpray->iColor) ^= 4u;
         goto CONTINUE_COLOR_ANIMATION;

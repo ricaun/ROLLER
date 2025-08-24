@@ -253,7 +253,7 @@ void finish_race()
         iLapTimeCarIndex = 0;
         do {
           iLapTimeCarId = carorder[iLapTimeCarIndex];
-          fRandomLapVariation = (float)((double)rand() * 0.000030517578125 + 0.02);// Add random variation (0.02-0.05s) to base lap time
+          fRandomLapVariation = (float)((double)ROLLERrand() * 0.000030517578125 + 0.02);// Add random variation (0.02-0.05s) to base lap time
           if (iLapTimeIndex)
             dRunningLapTime = Car[nearcall[3][iLapTimeCarIndex + 3]].fRunningLapTime;
           else
@@ -314,16 +314,16 @@ void finish_race()
         iChunk2_1 = Car[iCarId].nChunk2;
         if (iChunk2 < iChunk2_1) {
           iTrackLength = TRAK_LEN;
-          iRandomOffset = 12 * rand() / 0x8000;
+          iRandomOffset = 12 * ROLLERrand() / 0x8000;
           iChunk2 += iTrackLength;
         } else {
-          iRandomOffset = 12 * rand() / 0x8000;
+          iRandomOffset = 12 * ROLLERrand() / 0x8000;
         }
         iChunkDistance = iChunk2 - iChunk2_1 + iRandomOffset;
         iDistanceCounter = 0;
         for (Car[iFinishingCarId_1].fTotalRaceTime = fWinnerTotalTime + 0.02f;
               iDistanceCounter < iChunkDistance;
-              Car[iFinishingCarId_1].fTotalRaceTime = (float)((double)rand() * 0.1 * 0.000030517578125 + 0.1 + Car[iFinishingCarId_1].fTotalRaceTime))// Adjust finishing time based on track position
+              Car[iFinishingCarId_1].fTotalRaceTime = (float)((double)ROLLERrand() * 0.1 * 0.000030517578125 + 0.1 + Car[iFinishingCarId_1].fTotalRaceTime))// Adjust finishing time based on track position
         {
           ++iDistanceCounter;
         }
