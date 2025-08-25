@@ -2780,8 +2780,8 @@ void enginesounds2(int iPlayer1Car, int iPlayer2Car)
 //0003D310
 void enginesounds(int iFocusCarIndex)
 {
-  unsigned int uiInitOffset; // eax
-  int iTotalOffset; // ebp
+  //unsigned int uiInitOffset; // eax
+  //int iTotalOffset; // ebp
   tCar *pFocusCar; // eax
   int iCurrChunk; // edx
   tData *pChunkData; // edx
@@ -3158,7 +3158,9 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
       iPrevChunkIdx = iCurrChunk - 1;
       if (!iPrevChunkIdx)
         iPrevChunkIdx = TRAK_LEN - 1;
-      while ((TrakColour[iPrevChunkIdx][iLaneType] & 0x20000000) != 0 && fTunnelDistanceBack < 6400.0) {
+
+      //iPrevChunkIdx check added by ROLLER
+      while (iPrevChunkIdx >= 0 && (TrakColour[iPrevChunkIdx][iLaneType] & 0x20000000) != 0 && fTunnelDistanceBack < 6400.0) {
         fTunnelDistanceBack = 2.0f * localdata[iPrevChunkIdx--].fTrackHalfLength + fTunnelDistanceBack;
         if (!iPrevChunkIdx)
           iPrevChunkIdx = TRAK_LEN - 1;
