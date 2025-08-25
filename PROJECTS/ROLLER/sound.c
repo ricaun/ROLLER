@@ -2121,33 +2121,33 @@ int speechonly(int result, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 //0003C2E0
-int speechsample(int result, int a2, int a3, int a4)
+void speechsample(int iSampleIdx, int iVolume, int iDelay, int iCarIdx)
 {
-  return 0; /*
-  int v4; // edi
-  int v5; // esi
+  int iWriteIndex; // edi
+  int iGameOverCount; // eax
+  int iCurrentWriteIndex; // eax
 
-  v4 = writesample;
-  v5 = result;
-  if (!disable_messages) {
-    if (result == 30) {
-      result = ++game_overs;
-      if (player_type != 2 || result == 2)
+  iWriteIndex = writesample;                    // Get current write position in speech queue
+  if (!disable_messages)                      // Only queue samples if messages are not disabled
+  {                                             // Special handling for game over sample (index 30)
+    if (iSampleIdx == 30) {
+      iGameOverCount = ++game_overs;
+      if (player_type != 2 || iGameOverCount == 2)// Disable further messages after 2 game overs in multiplayer or any in single player
         disable_messages = -1;
     }
-    if (!winner_mode || v5 >= 89) {
-      result = 16 * writesample;
-      *(int *)((char *)&speechinfo + result) = v5;
-      *(int *)((char *)&speechinfo_variable_1 + result) = a2;
-      *(int *)((char *)&speechinfo_variable_2 + result) = a3;
-      ++v4;
-      *(int *)((char *)&speechinfo_variable_3 + result) = a4;
-      if (v4 == 16)
-        v4 = 0;
+    if (!winner_mode || iSampleIdx >= 89)     // Only queue certain samples when in winner mode (samples >= 89)
+    {
+      iCurrentWriteIndex = writesample;         // Queue speech sample data into the circular buffer
+      speechinfo[iCurrentWriteIndex].iSampleIdx = iSampleIdx;
+      speechinfo[iCurrentWriteIndex].iVolume = iVolume;
+      speechinfo[iCurrentWriteIndex].iDelay = iDelay;
+      ++iWriteIndex;
+      speechinfo[iCurrentWriteIndex].iCarIdx = iCarIdx;
+      if (iWriteIndex == 16)                  // Wrap around queue index when it reaches buffer size (16)
+        iWriteIndex = 0;
     }
   }
-  writesample = v4;
-  return result;*/
+  writesample = iWriteIndex;                    // Update global write position for next sample
 }
 
 //-------------------------------------------------------------------------------------------------

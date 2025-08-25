@@ -404,7 +404,7 @@ int initsounds();
 void stopallsamples();
 int pannedsample(int result, int a2, int a3);
 int speechonly(int result, int a2, int a3, int a4);
-int speechsample(int result, int a2, int a3, int a4);
+void speechsample(int iSampleIdx, int iVolume, int iDelay, int iCarIdx);
 void analysespeechsamples();
 void dospeechsample(int iSampleIdx, int iVolume);
 void loadfrontendsample(char *fileName);
