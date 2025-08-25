@@ -12,6 +12,11 @@
 #include <string.h>
 //-------------------------------------------------------------------------------------------------
 
+int firework_colours[16] =  //000A4580
+{
+  231, 207, 171, 255, 243, 219, 195, 183,
+  255, 159, 183, 143, 231, 231, 231, 231
+};
 float mapsize[25] =       //000A45C0
 {
   6000.0, 6000.0, 3500.0, 4500.0, 6000.0,
@@ -1550,165 +1555,172 @@ void showmap(uint8 *pScrPtr, int iCarIdx)
 
 //-------------------------------------------------------------------------------------------------
 //000390D0
-int firework_display()
+void firework_display()
 {
-  return 0;/*
-  int result; // eax
-  int j; // eax
   int i; // ebp
-  _BYTE *v3; // ebx
-  int v4; // eax
-  int v5; // esi
-  __int64 v6; // rax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  int v11; // ecx
-  int v12; // esi
-  int v13; // eax
-  __int64 v14; // rax
-  double v15; // st7
-  __int64 v16; // rax
-  double v17; // st6
-  double v18; // st7
-  int v19; // edx
-  int v20; // ecx
-  double v21; // st6
-  double v22; // st7
-  int v23; // [esp+Ch] [ebp-2Ch]
-  int v24; // [esp+Ch] [ebp-2Ch]
-  float v25; // [esp+10h] [ebp-28h]
-  int v26; // [esp+14h] [ebp-24h]
-  float v27; // [esp+18h] [ebp-20h]
-  float v28; // [esp+1Ch] [ebp-1Ch]
+  tCarSpray *pSprayData; // ebx
+  uint8 byType; // al
+  int iRandTimer; // eax
+  int iTimerCount; // esi
+  int iWidthDiv3; // edx
+  int iRandX; // eax
+  int iRandVelX; // eax
+  int iRandLifetime; // eax
+  int iLifetimeCount; // eax
+  int iRandColor; // eax
+  int iParticleCount; // ecx
+  int iFireworkColor; // esi
+  int iRandAngle; // eax
+  int iAngleIndex; // edx
+  double dRandVelocity; // st7
+  int iRandParticleLife; // eax
+  double dVelocityY; // st6
+  double dVelocityX; // st7
+  int iActiveParticles; // edx
+  int j; // eax
+  int iLifeTime; // ecx
+  double dParticleVelY; // st6
+  double dParticleVelX; // st7
+  tCarSpray *pCleanupSpray; // eax
+  float fOrigVelY; // [esp+10h] [ebp-28h]
+  float fY; // [esp+14h] [ebp-24h]
+  float fX; // [esp+18h] [ebp-20h]
+  float fOrigVelX; // [esp+1Ch] [ebp-1Ch]
 
-  updates[0] = 0;
-  for (result = readptr; readptr != writeptr; result = readptr) {
+  for (updates = 0; readptr != writeptr; readptr = ((uint16)readptr + 1) & 0x1FF) {                                             // Only advance animation if not paused
     if (!paused)
-      ++updates[0];
+      ++updates;
     dozoomstuff(0);
-    if (readptr >= 0) {
-      for (i = 0; i != 25344; i += 1408) {
-        v3 = &CarSpray[i];
-        LOBYTE(j) = CarSpray[i + 40];
-        if ((_BYTE)j) {
-          if ((unsigned __int8)j <= 1u) {
-            j = *((_DWORD *)v3 + 7) - 1;
-            *((_DWORD *)v3 + 7) = j;
-            if (j > 0) {
-              qmemcpy((char *)&CarSpray_variable_4 + i, (char *)&CarSpray_variable_3 + i, 0x2Cu);
-              qmemcpy((char *)&CarSpray_variable_3 + i, (char *)&CarSpray_variable_2 + i, 0x2Cu);
-              qmemcpy((char *)&CarSpray_variable_2 + i, (char *)&CarSpray_variable_1 + i, 0x2Cu);
-              qmemcpy((char *)&CarSpray_variable_1 + i, &CarSpray[i], 0x2Cu);
-              v17 = *((float *)v3 + 4) + function_c_variable_21;
-              *((float *)v3 + 4) = v17;
-              *((float *)v3 + 1) = v17 + *((float *)v3 + 1);
-              v18 = *((float *)v3 + 3) + *(float *)v3;
-              *((_DWORD *)v3 + 9) = 143;
-              *(float *)v3 = v18;
+    if (readptr >= 0) {                                           // Process all 18 firework spray slots
+      for (i = 0; i != 18; ++i) {
+        pSprayData = CarSpray[i];
+        byType = CarSpray[i][0].iType;
+        if (byType) {                                       // Handle ascending rocket (type 1)
+          if (byType <= 1u) {
+            iLifetimeCount = pSprayData->iLifeTime - 1;
+            pSprayData->iLifeTime = iLifetimeCount;
+            if (iLifetimeCount > 0) {
+              memcpy(&CarSpray[i][4], &CarSpray[i][3], sizeof(CarSpray[i][4]));
+              memcpy(&CarSpray[i][3], &CarSpray[i][2], sizeof(CarSpray[i][3]));
+              memcpy(&CarSpray[i][2], &CarSpray[i][1], sizeof(CarSpray[i][2]));
+              memcpy(&CarSpray[i][1], CarSpray[i], sizeof(CarSpray[i][1]));
+              dVelocityY = pSprayData->velocity.fY + 0.1;// Apply gravity and update rocket position
+              pSprayData->velocity.fY = (float)dVelocityY;
+              pSprayData->position.fY = (float)dVelocityY + pSprayData->position.fY;
+              dVelocityX = pSprayData->velocity.fX + pSprayData->position.fX;
+              pSprayData->iColor = 0x8F;
+              pSprayData->position.fX = (float)dVelocityX;
             } else {
-              sfxsample(6, 0x8000, v3);
-              v27 = *(float *)v3;
-              v26 = *((_DWORD *)v3 + 1);
-              v28 = *((float *)v3 + 3);
-              v25 = *((float *)v3 + 4);
-              v10 = rand(LODWORD(v25));
-              v11 = 0;
-              v12 = firework_colours[(12 * v10 - (__CFSHL__((12 * v10) >> 31, 15) + ((12 * v10) >> 31 << 15))) >> 15];
+              sfxsample(SOUND_SAMPLE_EXPLO, 0x8000);             // Rocket reached peak - create explosion particles
+              fX = pSprayData->position.fX;
+              fY = pSprayData->position.fY;
+              fOrigVelX = pSprayData->velocity.fX;
+              fOrigVelY = pSprayData->velocity.fY;
+              iRandColor = rand();
+              iParticleCount = 0;
+              iFireworkColor = firework_colours[GetHighOrderRand(12, iRandColor)];
               do {
-                v3[40] = 2;
-                *((_DWORD *)v3 + 9) = v12;
-                *(float *)v3 = v27;
-                *((_DWORD *)v3 + 1) = v26;
-                v13 = rand(v26);
-                v14 = rand(((v13 << 14) - (__CFSHL__(v13 << 14 >> 31, 15) + (v13 << 14 >> 31 << 15))) >> 15);
-                v15 = (double)(int)v14 * function_c_variable_24 * function_c_variable_20;
-                *((float *)v3 + 3) = v15 * tcos[HIDWORD(v14)] + v28;
-                *((float *)v3 + 4) = v15 * tsin[HIDWORD(v14)] + v25;
-                v16 = rand(v14);
-                v3 += 44;
-                j = ((int)(v16 * HIDWORD(v16)
-                           - (__CFSHL__(((int)v16 * HIDWORD(v16)) >> 31, 15)
-                              + (((int)v16 * HIDWORD(v16)) >> 31 << 15))) >> 15)
-                  + 36;
-                ++v11;
-                *((_DWORD *)v3 - 4) = j;
-              } while (v11 < 32);
+                pSprayData->iType = 2;
+                //LOBYTE(pSprayData->iType) = 2;
+
+                pSprayData->iColor = iFireworkColor;
+                pSprayData->position.fX = fX;
+                pSprayData->position.fY = fY;
+                iRandAngle = rand();
+
+                iAngleIndex = GetHighOrderRand(32768, iRandAngle);
+                //iAngleIndex = ((iRandAngle << 14) - (__CFSHL__(iRandAngle << 14 >> 31, 15) + (iRandAngle << 14 >> 31 << 15))) >> 15;
+                
+                dRandVelocity = (double)rand() * 2.0 * 0.000030517578125;
+                pSprayData->velocity.fX = (float)dRandVelocity * tcos[iAngleIndex] + fOrigVelX;
+                pSprayData->velocity.fY = (float)dRandVelocity * tsin[iAngleIndex] + fOrigVelY;
+                iRandParticleLife = rand();
+                ++pSprayData;
+                ++iParticleCount;
+                pSprayData[-1].iLifeTime = GetHighOrderRand(36, iRandParticleLife) + 36;
+              } while (iParticleCount < 32);
             }
-          } else if ((_BYTE)j == 2) {
-            v19 = 0;
+          } else if (byType == 2)                // Handle explosion particles (type 2)
+          {
+            iActiveParticles = 0;
             for (j = 0; j < 32; ++j) {
-              v20 = *((_DWORD *)v3 + 7);
-              if (v20 > 0) {
-                v21 = *((float *)v3 + 4) + function_c_variable_21;
-                *((float *)v3 + 4) = v21;
-                *((float *)v3 + 1) = v21 + *((float *)v3 + 1);
-                v22 = *((float *)v3 + 3) + *(float *)v3;
-                *((_DWORD *)v3 + 7) = v20 - 1;
-                ++v19;
-                *(float *)v3 = v22;
+              iLifeTime = pSprayData->iLifeTime;
+              if (iLifeTime > 0) {
+                dParticleVelY = pSprayData->velocity.fY + 0.1;// Apply gravity to particle and update position
+                pSprayData->velocity.fY = (float)dParticleVelY;
+                pSprayData->position.fY = (float)dParticleVelY + pSprayData->position.fY;
+                dParticleVelX = pSprayData->velocity.fX + pSprayData->position.fX;
+                pSprayData->iLifeTime = iLifeTime - 1;
+                ++iActiveParticles;
+                pSprayData->position.fX = (float)dParticleVelX;
               }
-              v3 += 44;
+              ++pSprayData;
             }
-            if (!v19) {
-              j = (int)&CarSpray[i];
+            if (!iActiveParticles) {
+              pCleanupSpray = CarSpray[i];      // All particles expired - reset spray slot
               do {
-                j += 176;
-                *(_BYTE *)(j - 136) = 0;
-                *(_DWORD *)(j - 144) = 0;
-                *(_DWORD *)(j - 168) = 0;
-                *(_DWORD *)(j - 140) = 143;
-                *(_BYTE *)(j - 92) = 0;
-                *(_DWORD *)(j - 100) = 0;
-                *(_DWORD *)(j - 124) = 0;
-                *(_DWORD *)(j - 96) = 143;
-                *(_BYTE *)(j - 48) = 0;
-                *(_DWORD *)(j - 56) = 0;
-                *(_DWORD *)(j - 80) = 0;
-                *(_DWORD *)(j - 52) = 143;
-                *(_BYTE *)(j - 4) = 0;
-                *(_DWORD *)(j - 12) = 0;
-                *(_DWORD *)(j - 36) = 0;
-                v19 += 4;
-                *(_DWORD *)(j - 8) = 143;
-              } while (v19 < 32);
+                pCleanupSpray += 4;
+
+                pCleanupSpray[-4].iType = 0;
+                //LOBYTE(pCleanupSpray[-4].iType) = 0;
+
+                pCleanupSpray[-4].iTimer = 0;
+                pCleanupSpray[-4].position.fZ = 0.0;
+                pCleanupSpray[-4].iColor = 0x8F;
+
+                pCleanupSpray[-3].iType = 0;
+                //LOBYTE(pCleanupSpray[-3].iType) = 0;
+
+                pCleanupSpray[-3].iTimer = 0;
+                pCleanupSpray[-3].position.fZ = 0.0;
+                pCleanupSpray[-3].iColor = 0x8F;
+
+                pCleanupSpray[-2].iType = 0;
+                //LOBYTE(pCleanupSpray[-2].iType) = 0;
+
+                pCleanupSpray[-2].iTimer = 0;
+                pCleanupSpray[-2].position.fZ = 0.0;
+                pCleanupSpray[-2].iColor = 0x8F;
+
+                pCleanupSpray[-1].iType = 0;
+                //LOBYTE(pCleanupSpray[-1].iType) = 0;
+
+                pCleanupSpray[-1].iTimer = 0;
+                pCleanupSpray[-1].position.fZ = 0.0;
+                iActiveParticles += 4;
+                pCleanupSpray[-1].iColor = 0x8F;
+              } while (iActiveParticles < 32);
             }
           }
-        } else if ((*((_DWORD *)v3 + 2) & 0x7FFFFFFF) != 0) {
-          v5 = *((_DWORD *)v3 + 8) - 1;
-          *((_DWORD *)v3 + 8) = v5;
-          if (v5 < 0) {
-            v6 = rand(winw / 3);
-            v23 = 2 * winw / 3
-              - ((int)(v6 * HIDWORD(v6)
-                       - (__CFSHL__(((int)v6 * HIDWORD(v6)) >> 31, 15)
-                          + (((int)v6 * HIDWORD(v6)) >> 31 << 15))) >> 15);
-            *(float *)v3 = (float)v23;
-            *((float *)v3 + 1) = (float)winh;
-            v7 = rand(v23);
-            v8 = (4 * v7 - (__CFSHL__((4 * v7) >> 31, 15) + ((4 * v7) >> 31 << 15))) >> 15;
-            *((float *)v3 + 3) = (float)(2 - v8);
-            v24 = rand(v8);
-            *((float *)v3 + 4) = function_c_variable_23 - (double)v24 * function_c_variable_22 * function_c_variable_20;
-            v9 = rand(v24);
-            *((_DWORD *)v3 + 9) = 143;
-            v3[40] = 1;
-            j = ((48 * v9 - (__CFSHL__((48 * v9) >> 31, 15) + ((48 * v9) >> 31 << 15))) >> 15) + 18;
-            *((_DWORD *)v3 + 7) = j;
+        //} else if ((LODWORD(pSprayData->position.fZ) & 0x7FFFFFFF) != 0) {
+        } else if (fabs(pSprayData->position.fZ) != 0) {
+          iTimerCount = pSprayData->iTimer - 1;
+          pSprayData->iTimer = iTimerCount;
+          if (iTimerCount < 0) {
+            iWidthDiv3 = winw / 3;              // Launch new rocket with random position and velocity
+            iRandX = rand();
+            pSprayData->position.fX = (float)(2 * winw / 3 - GetHighOrderRand(iWidthDiv3, iRandX));
+            pSprayData->position.fY = (float)winh;
+            iRandVelX = rand();
+            pSprayData->velocity.fX = (float)(2 - GetHighOrderRand(4, iRandVelX));
+            pSprayData->velocity.fY = (float)(-4.8 - (double)rand() * 1.2 * 0.000030517578125);
+            iRandLifetime = rand();
+            pSprayData->iColor = 0x8F;
+
+            pSprayData->iType = 1;
+            //LOBYTE(pSprayData->iType) = 1;
+
+            pSprayData->iLifeTime = GetHighOrderRand(48, iRandLifetime) + 18;
           }
         } else {
-          *((_DWORD *)v3 + 2) = -1082130432;
-          v4 = rand(j);
-          j = (36 * v4 - (__CFSHL__((36 * v4) >> 31, 15) + ((36 * v4) >> 31 << 15))) >> 15;
-          *((_DWORD *)v3 + 8) = j;
+          pSprayData->position.fZ = -1.0;       // Initialize new firework with random launch delay
+          iRandTimer = rand();
+          pSprayData->iTimer = GetHighOrderRand(36, iRandTimer);
         }
       }
     }
-    analysespeechsamples(j);
-    readptr = ((_WORD)readptr + 1) & 0x1FF;
+    analysespeechsamples();
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

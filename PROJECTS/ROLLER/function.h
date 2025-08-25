@@ -6,6 +6,7 @@
 #include <stdbool.h>
 //-------------------------------------------------------------------------------------------------
 
+extern int firework_colours[16];
 extern float mapsize[25];
 extern int mapsect[25];
 extern int invulnerable[16];
@@ -23,7 +24,7 @@ void changemateto(int iCarIndex, int iNewStrategy);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
 void analysefalloff(tCar *pCar);
 void showmap(uint8 *pScrPtr, int iCarIdx);
-int firework_display();
+void firework_display();
 
 //-------------------------------------------------------------------------------------------------
 #endif
