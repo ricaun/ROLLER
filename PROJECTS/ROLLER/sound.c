@@ -100,6 +100,7 @@ int HandleSample[32];       //00163C0C
 tCarSoundData enginedelay[16]; //00163C8C
 int car_to_player[16];    //0016748C
 int player_to_car[16];      //001674CC
+tSpeechInfo speechinfo[16]; //0016750C
 int load_times[16];         //0016760C
 tCopyData copy_multiple[512][16]; //0016764C
 int unmangleinpoff;         //0016F64C
@@ -2151,251 +2152,244 @@ int speechsample(int result, int a2, int a3, int a4)
 
 //-------------------------------------------------------------------------------------------------
 //0003C530
-int analysespeechsamples()
+void analysespeechsamples()
 {
-  return 0; /*
-  int result; // eax
-  int v1; // ecx
-  int v2; // esi
-  int v3; // edx
-  char *v4; // eax
-  char *v5; // eax
-  int v6; // eax
-  int v7; // edx
-  int v8; // edi
-  int v9; // ecx
-  int v10; // eax
+  int iCarIdx; // ecx
+  int iCarIdxUpper; // esi
+  int iIsPlayerCar; // edx
+  const char *pszMessage; // eax
+  char *pszText; // eax
+  int iLap; // eax
+  int iWinCount; // edx
+  int iKillCount; // edi
+  int iResultKills; // ecx
+  int iSampleIdx; // eax
+  int iSampleDuration; // eax
 
-  result = readsample;
-  --lastsample;
-  if (readsample != writesample) {
-    result = -speechinfo_variable_2[4 * readsample];
-    if (result > lastsample) {
-      v1 = (unsigned __int8)speechinfo_variable_3[4 * readsample];
-      v2 = speechinfo_variable_3[4 * readsample] >> 8;
-      v3 = player_type == 2 && v1 != (__int16)player1_car;
-      switch (speechinfo[4 * readsample]) {
-        case 14:
-          start_zoom(language_buffer_variable_30, v3);
-          if (Car_variable_43[308 * v1])
-            goto LABEL_13;
-          goto LABEL_61;
-        case 15:
-          v6 = Car_variable_31[308 * v1];
-          if (NoOfLaps == v6)
-            goto LABEL_15;
-          sprintf(&buffer, "%i %s", NoOfLaps + 1 - v6, language_buffer_variable_58);
-          v5 = &buffer;
-          goto LABEL_60;
-        case 16:
-        case 17:
-        case 18:
-        LABEL_15:
-          v5 = (char *)&language_buffer_variable_35;
-          goto LABEL_60;
-        case 21:
-          if (Car_variable_23[308 * Victim] <= 0)
-            v4 = language_buffer_variable_31;
-          else
-            v4 = language_buffer_variable_30;
-          start_zoom(v4, v3);
-          sprintf(&buffer, "%s %s", language_buffer_variable_32, &driver_names[9 * Victim]);
-          subzoom(&buffer);
-          goto LABEL_61;
-        case 22:
-          v5 = language_buffer_variable_40;
-          goto LABEL_60;
-        case 23:
-        case 24:
-        case 25:
-          v5 = (char *)&language_buffer + 64 * (unsigned __int8)Car_variable_32[308 * v1] + 384;
-          goto LABEL_60;
-        case 26:
-          v5 = (char *)&language_buffer_variable_41;
-          goto LABEL_60;
-        case 30:
-          v5 = (char *)&language_buffer_variable_33;
-          goto LABEL_60;
-        case 37:
-        case 38:
-          start_zoom(language_buffer_variable_43, v3);
-          make_time(&buffer, v3, *(float *)&Car_variable_53[77 * v1]);
-          subzoom(&buffer);
-          goto LABEL_61;
-        case 39:
-          start_zoom(language_buffer_variable_44, v3);
-          make_time(&buffer, v3, *(float *)&Car_variable_53[77 * v1]);
-          subzoom(&buffer);
-          goto LABEL_61;
-        case 40:
-          start_zoom(language_buffer_variable_45, v3);
-          make_time(&buffer, v3, *(float *)&Car_variable_53[77 * v1]);
-          subzoom(&buffer);
-          goto LABEL_61;
-        case 43:
-          v5 = (char *)&language_buffer_variable_46;
-          goto LABEL_60;
-        case 44:
-          v5 = (char *)&language_buffer_variable_47;
-          goto LABEL_60;
-        case 45:
-          start_zoom(language_buffer_variable_31, v3);
-          if (Car_variable_43[308 * v1]) {
-          LABEL_13:
-            sprintf(
-              &buffer,
-              "%s %s",
-              language_buffer_variable_34,
-              &driver_names[9 * (unsigned __int8)Car_variable_41[308 * v1]]);
-            subzoom(&buffer);
-          }
-          goto LABEL_61;
-        case 46:
-          v5 = (char *)&language_buffer_variable_42;
-          goto LABEL_60;
-        case 51:
-          v5 = (char *)&language_buffer_variable_95;
-          goto LABEL_60;
-        case 52:
-          v5 = (char *)&language_buffer_variable_96;
-          goto LABEL_60;
-        case 53:
-          v5 = (char *)&language_buffer_variable_39;
-          goto LABEL_60;
-        case 54:
-          v5 = (char *)&language_buffer_variable_38;
-          goto LABEL_60;
-        case 55:
-          v5 = (char *)&language_buffer_variable_37;
-          goto LABEL_60;
-        case 56:
-          v5 = (char *)&language_buffer_variable_36;
-          goto LABEL_60;
-        case 57:
-        case 58:
-        case 59:
-        case 60:
-          small_zoom(language_buffer_variable_78);
-          subzoom((_BYTE *)&language_buffer + 64 * speechinfo[4 * readsample] + 1408);
-          goto LABEL_61;
-        case 65:
-        case 66:
-          small_zoom(language_buffer_variable_77);
-          subzoom((_BYTE *)&language_buffer + 64 * v2 + 1152);
-          goto LABEL_61;
-        case 71:
-        case 72:
-        case 73:
-        case 74:
-        case 75:
-        case 76:
-        case 77:
-        case 78:
-          small_zoom((_BYTE *)&language_buffer + 64 * speechinfo[4 * readsample] + 768);
-          switch (v2) {
-            case '=':
-            case '>':
-            case '?':
-            case '@':
-              subzoom((_BYTE *)&language_buffer + 64 * v2 + 1152);
-              break;
-            case 'C':
-              subzoom(language_buffer_variable_93);
-              break;
-            case 'D':
-              subzoom(language_buffer_variable_94);
-              break;
-            case 'E':
-              subzoom(language_buffer_variable_92);
-              break;
-            case 'F':
-              subzoom(language_buffer_variable_91);
-              break;
-            default:
-              goto LABEL_61;
-          }
-          goto LABEL_61;
-        case 89:
-        case 90:
-        case 91:
-        case 92:
-        case 93:
-        case 94:
-        case 95:
-        case 96:
-          v7 = total_wins[champorder[0]];
-          if (v7 == 1)
-            sprintf(&buffer, "%s", config_buffer_variable_85);
-          else
-            sprintf(&buffer, "%s %i %s", config_buffer_variable_83, v7, config_buffer_variable_84);
-          v5 = &buffer;
-          goto LABEL_59;
-        case 97:
-        case 98:
-        case 99:
-        case 100:
-        case 101:
-        case 102:
-        case 103:
-        case 104:
-        case 105:
-        case 106:
-        case 107:
-        case 108:
-        case 109:
-        case 110:
-        case 111:
-        case 112:
-        case 113:
-          if (champ_mode) {
-            v8 = total_kills[champorder[0]];
-            if (v8 == 1)
-              sprintf(&buffer, "%s", config_buffer_variable_80);
-            else
-              sprintf(&buffer, "%s %i %s", config_buffer_variable_81, v8, config_buffer_variable_82);
-            v5 = &buffer;
-          } else {
-            v9 = result_kills[result_order[0]];
-            if (v9 != 1) {
-              sprintf(&buffer, "%s %i %s", config_buffer_variable_81, v9, config_buffer_variable_82);
-              v3 = 0;
-              v5 = &buffer;
-              goto LABEL_60;
-            }
-            v5 = config_buffer_variable_80;
-          }
-        LABEL_59:
-          v3 = 0;
-        LABEL_60:
-          start_zoom(v5, v3);
-        LABEL_61:
-          if (soundon) {
-            v10 = speechinfo[4 * readsample];
-            if (SamplePtr[v10])
-              dospeechsample(v10, speechinfo_variable_1[4 * readsample]);
-          }
-          result = 36 * SampleLen[speechinfo[4 * readsample++]] / 11025;
-          lastsample = result;
-          if (readsample == 16)
-            readsample = 0;
-          break;
-        case 115:
-          if (result_kills[result_order[0]] <= 0 && result_order[0] != FastestLap)
+  --lastsample;                                 // Decrement sample timer
+  if (readsample != writesample && -speechinfo[readsample].iDelay > lastsample)// Check if there are samples to process and timing is right
+  {
+    iCarIdx = (uint8)speechinfo[readsample].iCarIdx;// Extract car index from speech info
+    iCarIdxUpper = speechinfo[readsample].iCarIdx >> 8;
+    iIsPlayerCar = player_type == 2 && iCarIdx != player1_car;// Check if this is about player car vs other cars
+    switch (speechinfo[readsample].iSampleIdx) {
+      case 0xE:
+        start_zoom(&language_buffer[1920], iIsPlayerCar);// Case 0xE: Handle crash/damage announcement
+        if (Car[iCarIdx].byDamageSourceTimer)
+          goto LABEL_13;
+        goto LABEL_61;
+      case 0xF:
+        iLap = Car[iCarIdx].byLap;              // Case 0xF: Handle lap count announcements
+        if (NoOfLaps == iLap)
+          goto LABEL_15;
+        sprintf(buffer, "%i %s", NoOfLaps + 1 - iLap, &language_buffer[3712]);
+        pszText = buffer;
+        goto LABEL_60;
+      case 0x10:
+      case 0x11:
+      case 0x12:
+      LABEL_15:
+        pszText = &language_buffer[2240];
+        goto LABEL_60;
+      case 0x15:
+        if ((char)Car[Victim].byLives <= 0)   // Case 0x15: Handle player elimination/death announcement
+          pszMessage = &language_buffer[1984];
+        else
+          pszMessage = &language_buffer[1920];
+        start_zoom(pszMessage, iIsPlayerCar);
+        sprintf(buffer, "%s %s", &language_buffer[2048], driver_names[Victim]);
+        subzoom(buffer);
+        goto LABEL_61;
+      case 0x16:
+        pszText = &language_buffer[2560];
+        goto LABEL_60;
+      case 0x17:
+      case 0x18:
+      case 0x19:
+        pszText = &language_buffer[64 * Car[iCarIdx].byRacePosition + 384];
+        goto LABEL_60;
+      case 0x1A:
+        pszText = &language_buffer[2624];
+        goto LABEL_60;
+      case 0x1E:
+        pszText = &language_buffer[2112];
+        goto LABEL_60;
+      case 0x25:
+      case 0x26:
+        start_zoom(&language_buffer[2752], iIsPlayerCar);// Cases 0x25-0x26: Handle best lap time announcements
+        make_time(buffer, Car[iCarIdx].fBestLapTime);
+        subzoom(buffer);
+        goto LABEL_61;
+      case 0x27:
+        start_zoom(&language_buffer[2816], iIsPlayerCar);
+        make_time(buffer, Car[iCarIdx].fBestLapTime);
+        subzoom(buffer);
+        goto LABEL_61;
+      case 0x28:
+        start_zoom(&language_buffer[2880], iIsPlayerCar);
+        make_time(buffer, Car[iCarIdx].fBestLapTime);
+        subzoom(buffer);
+        goto LABEL_61;
+      case 0x2B:
+        pszText = &language_buffer[2944];
+        goto LABEL_60;
+      case 0x2C:
+        pszText = &language_buffer[3008];
+        goto LABEL_60;
+      case 0x2D:
+        start_zoom(&language_buffer[1984], iIsPlayerCar);
+        if (Car[iCarIdx].byDamageSourceTimer) {
+        LABEL_13:
+          sprintf(buffer, "%s %s", &language_buffer[2176], driver_names[Car[iCarIdx].byAttacker]);
+          subzoom(buffer);
+        }
+        goto LABEL_61;
+      case 0x2E:
+        pszText = &language_buffer[2688];
+        goto LABEL_60;
+      case 0x33:
+        pszText = &language_buffer[6080];
+        goto LABEL_60;
+      case 0x34:
+        pszText = &language_buffer[6144];
+        goto LABEL_60;
+      case 0x35:
+        pszText = &language_buffer[2496];
+        goto LABEL_60;
+      case 0x36:
+        pszText = &language_buffer[2432];
+        goto LABEL_60;
+      case 0x37:
+        pszText = &language_buffer[2368];
+        goto LABEL_60;
+      case 0x38:
+        pszText = &language_buffer[2304];
+        goto LABEL_60;
+      case 0x39:
+      case 0x3A:
+      case 0x3B:
+      case 0x3C:
+        small_zoom(&language_buffer[4992]);
+        subzoom(&language_buffer[64 * speechinfo[readsample].iSampleIdx + 1408]);
+        goto LABEL_61;
+      case 0x41:
+      case 0x42:
+        small_zoom(&language_buffer[4928]);
+        subzoom(&language_buffer[64 * iCarIdxUpper + 1152]);
+        goto LABEL_61;
+      case 0x47:
+      case 0x48:
+      case 0x49:
+      case 0x4A:
+      case 0x4B:
+      case 0x4C:
+      case 0x4D:
+      case 0x4E:
+        small_zoom(&language_buffer[64 * speechinfo[readsample].iSampleIdx + 768]);
+        switch (iCarIdxUpper) {
+          case '=':
+          case '>':
+          case '?':
+          case '@':
+            subzoom(&language_buffer[64 * iCarIdxUpper + 1152]);
+            break;
+          case 'C':
+            subzoom(&language_buffer[5952]);
+            break;
+          case 'D':
+            subzoom(&language_buffer[6016]);
+            break;
+          case 'E':
+            subzoom(&language_buffer[5888]);
+            break;
+          case 'F':
+            subzoom(&language_buffer[5824]);
+            break;
+          default:
             goto LABEL_61;
-          v5 = (char *)&config_buffer_variable_74;
-          goto LABEL_59;
-        case 116:
-          v5 = (char *)&config_buffer_variable_75;
-          goto LABEL_59;
-        case 117:
-          v5 = (char *)&config_buffer_variable_76;
-          goto LABEL_59;
-        default:
+        }
+        goto LABEL_61;
+      case 0x59:
+      case 0x5A:
+      case 0x5B:
+      case 0x5C:
+      case 0x5D:
+      case 0x5E:
+      case 0x5F:
+      case 0x60:
+        iWinCount = total_wins[champorder[0]];  // Cases 0x59-0x60: Handle championship win count announcements
+        if (iWinCount == 1)
+          sprintf(buffer, "%s", &config_buffer[6784]);
+        else
+          sprintf(buffer, "%s %i %s", &config_buffer[6656], iWinCount, &config_buffer[6720]);
+        pszText = buffer;
+        goto LABEL_59;
+      case 0x61:
+      case 0x62:
+      case 0x63:
+      case 0x64:
+      case 0x65:
+      case 0x66:
+      case 0x67:
+      case 0x68:
+      case 0x69:
+      case 0x6A:
+      case 0x6B:
+      case 0x6C:
+      case 0x6D:
+      case 0x6E:
+      case 0x6F:
+      case 0x70:
+      case 0x71:
+        if (champ_mode)                       // Cases 0x61-0x71: Handle kill count announcements
+        {
+          iKillCount = total_kills[champorder[0]];
+          if (iKillCount == 1)
+            sprintf(buffer, "%s", &config_buffer[6464]);
+          else
+            sprintf(buffer, "%s %i %s", &config_buffer[6528], iKillCount, &config_buffer[6592]);
+          pszText = buffer;
+        } else {
+          iResultKills = result_kills[result_order[0]];
+          if (iResultKills != 1) {
+            sprintf(buffer, "%s %i %s", &config_buffer[6528], iResultKills, &config_buffer[6592]);
+            iIsPlayerCar = 0;
+            pszText = buffer;
+            goto LABEL_60;
+          }
+          pszText = &config_buffer[6464];
+        }
+      LABEL_59:
+        iIsPlayerCar = 0;
+      LABEL_60:
+        start_zoom(pszText, iIsPlayerCar);
+      LABEL_61:
+        if (soundon)                          // Play the actual audio sample if sound is enabled
+        {
+          iSampleIdx = speechinfo[readsample].iSampleIdx;
+          if (SamplePtr[iSampleIdx])
+            dospeechsample(iSampleIdx, speechinfo[readsample].iVolume);
+        }
+        iSampleDuration = (int)(36 * SampleLen[speechinfo[readsample++].iSampleIdx]) / 11025;// Calculate sample duration and advance to next sample in queue
+        lastsample = iSampleDuration;
+        if (readsample == 16)
+          readsample = 0;
+        break;
+      case 0x73:
+        if (result_kills[result_order[0]] <= 0 && result_order[0] != FastestLap)
           goto LABEL_61;
-      }
+        pszText = &config_buffer[6080];
+        goto LABEL_59;
+      case 0x74:
+        pszText = &config_buffer[6144];
+        goto LABEL_59;
+      case 0x75:
+        pszText = &config_buffer[6208];
+        goto LABEL_59;
+      default:
+        goto LABEL_61;                          // Process different types of speech samples based on sample index
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

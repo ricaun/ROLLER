@@ -245,7 +245,17 @@ typedef union
 {
   tCarInputData data;
   uint32 uiFullData;
-}tCopyData;
+} tCopyData;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int iSampleIdx;
+  int iVolume;
+  int iDelay;
+  int iCarIdx;
+} tSpeechInfo;
 
 //-------------------------------------------------------------------------------------------------
 
@@ -319,6 +329,7 @@ extern int HandleSample[32];
 extern tCarSoundData enginedelay[16];
 extern int car_to_player[16];
 extern int player_to_car[16];
+extern tSpeechInfo speechinfo[16];
 extern int load_times[16];
 extern tCopyData copy_multiple[512][16];
 extern int unmangleinpoff;
@@ -394,7 +405,7 @@ void stopallsamples();
 int pannedsample(int result, int a2, int a3);
 int speechonly(int result, int a2, int a3, int a4);
 int speechsample(int result, int a2, int a3, int a4);
-int analysespeechsamples();
+void analysespeechsamples();
 void dospeechsample(int iSampleIdx, int iVolume);
 void loadfrontendsample(char *fileName);
 int frontendsample(int iVol);
