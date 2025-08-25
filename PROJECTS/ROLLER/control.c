@@ -5093,7 +5093,8 @@ LABEL_24:
         LABEL_178:
           fTargetSteerY = (float)avoid(pCar->iDriverIdx, iLeftCarIdx, fLeftTime, fTargetY, pStrategy->fAvoidSensitivity, pStrategy->fAvoidReaction, &iActionFlag);
         } else {
-          if (pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx) {
+          //index check added by ROLLER
+          if (iLeftCarIdx >= 0 && pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx) {
           LABEL_154:
             pCar->iTrackedCarIdx = -1;
             goto LABEL_155;
