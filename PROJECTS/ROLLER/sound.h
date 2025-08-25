@@ -306,6 +306,7 @@ extern int bitaccept;
 extern uint8 *frontendspeechptr;
 extern int frontendspeechhandle;
 extern int holdmusic;
+extern int drivertype;
 extern uint8 unmangleinbuf[1024];
 extern int lastvolume[16];
 extern int lastpitch[16];

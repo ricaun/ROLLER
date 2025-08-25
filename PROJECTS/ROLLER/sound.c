@@ -79,6 +79,7 @@ int bitaccept = 0;          //000A4A40
 uint8 *frontendspeechptr = NULL;//000A4A44
 int frontendspeechhandle = -1;  //000A4A48
 int holdmusic = 0;          //000A4A4C
+int drivertype = -1;        //000A4A50
 uint8 unmangleinbuf[1024];  //00149EF0
 uint8 *musicbuffer;         //0014EBF8
 int lastvolume[16];         //001603F8
@@ -3753,48 +3754,42 @@ void loadasample(int iIndex)
 //0003EE40
 void select8bitdriver()
 {
-  /*
-  int v0; // edx
-
-  if (SoundCard) {
+  //TODO: integrate with SDL?
+  if (SoundCard) {                                             // If previous driver was type 1, clean up existing audio resources
     if (drivertype == 1) {
-      sosTIMERRemoveEvent(TimerEventHandle, v0);
-      sosDIGIUnInitDriver(DIGIHandle, 1, 1);
+      //sosTIMERRemoveEvent(TimerEventHandle);    // Remove existing timer event from SOS system
+      //sosDIGIUnInitDriver(DIGIHandle, 1, 1);    // Uninitialize existing digital audio driver
     }
-    resetsamplearray();
-    if (drivertype) {
-      drivertype = 0;
-      memset(&InitDriver, 0, 0x4Cu);
-      InitDriver = 4096;
-      InitDriver_variable_1 = -1;
-      InitDriver_variable_2 = 11025;
-      Hardware = SoundPort;
-      Hardware_variable_1 = SoundIRQ;
-      Hardware_variable_2 = SoundDMA;
-      InitDriver_variable_5 = 0;
-      if (sosDIGIInitDriver(
-        SoundCard,
-        0,
-        (unsigned int)&Hardware,
-        __DS__,
-        (unsigned int)&InitDriver,
-        (unsigned __int16)__DS__,
-        (unsigned int)&DIGIHandle,
-        (unsigned __int16)__DS__)) {
-        sosDIGIUnInitSystem();
-        SoundCard = 0;
-      } else {
-        sosTIMERRegisterEvent(
-          0x12Cu,
-          0x7FFF,
-          InitDriver_variable_3,
-          InitDriver_variable_4,
-          (unsigned int)&TimerEventHandle,
-          (unsigned __int16)__DS__);
-        sosDIGISetMasterVolume(DIGIHandle, 0x7FFFu);
-      }
+    resetsamplearray();                         // Reset internal sample array/buffer management
+    if (drivertype)                           // If any driver type was active, proceed with 8-bit driver initialization
+    {
+      drivertype = 0;                           // Set driver type to 0 (8-bit mode) and initialize driver configuration structure
+      //memset(&InitDriver, 0, sizeof(InitDriver));
+      //InitDriver.dwBufferSize = 4096;           // Configure audio parameters: 4096 buffer size, auto-detect (-1), 11025 Hz sample rate
+      //InitDriver.dwParam1 = -1;
+      //InitDriver.dwSampleRateHz = 11025;
+      //Hardware.dwPort = SoundPort;              // Configure hardware settings: I/O port, IRQ, and DMA channel from global settings
+      //Hardware.dwIRQ = SoundIRQ;
+      //Hardware.dwDMA = SoundDMA;
+      //InitDriver.iUnk7 = 0;
+      //if (sosDIGIInitDriver(
+      //  SoundCard,
+      //  0,
+      //  (unsigned int)&Hardware,
+      //  __DS__,
+      //  (unsigned int)&InitDriver,
+      //  (unsigned __int16)__DS__,
+      //  (unsigned int)&DIGIHandle,
+      //  (unsigned __int16)__DS__))        // Initialize SOS digital audio driver with configured parameters
+      //{
+      //  sosDIGIUnInitSystem();                  // If driver initialization failed, cleanup and disable sound card
+      //  SoundCard = 0;
+      //} else {
+      //  sosTIMERRegisterEvent(300u, 0x7FFF, (int)InitDriver.lpDriverMemoryCS, (__int16)InitDriver.lpTimerMemory, (unsigned int)&TimerEventHandle, (unsigned __int16)__DS__);// Driver initialized successfully: register timer event and set maximum volume
+      //  sosDIGISetMasterVolume(DIGIHandle, 0x7FFFu);// Set digital audio master volume to maximum (0x7FFF)
+      //}
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
