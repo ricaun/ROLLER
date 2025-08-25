@@ -10,6 +10,7 @@
 #include "tower.h"
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 //-------------------------------------------------------------------------------------------------
 
 int showsub = 0;    //000A34A0
@@ -1378,7 +1379,7 @@ void DrawTrack3(uint8 *pScrPtr, int iChaseCamIdx, int iCarIdx)
               pScreenPoint->screen.y = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].screen.y;
               pScreenPoint->projected.fX = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].projected.fX;
               pScreenPoint->projected.fY = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].projected.fY;
-              fGroundProjectedZ = TrackScreenXYZ[0].screenPtAy[iCurrentTrackIndex].projected.fZ;
+              fGroundProjectedZ = TrackScreenXYZ[iCurrentTrackIndex].screenPtAy[0].projected.fZ;
               //pScreenPoint->screen.x = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[0].screen.x + iIndexTmp2);
               //pScreenPoint->screen.y = *(int *)((char *)&TrackScreenXYZ[0].screenPtAy[0].screen.y + iIndexTmp2);
               //iGroundSectionOffset = iIndexTmp2;
