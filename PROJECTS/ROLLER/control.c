@@ -7318,59 +7318,61 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
         ++iForwardExtraGroundIdx;
       } while (iForwardExtraIdx < iForwardExtraEnd);
     }
-    iBackwardExtraStart = pTrakView->nBackwardExtraStart;
-    iBackwardExtraEnd = iBackwardExtraStart - pTrakView->byBackwardExtraChunks;
-    pBackwardExtraData = &localdata[iBackwardExtraStart];
-    iBackwardExtraIdx = iBackwardExtraStart;
-    if (iBackwardExtraStart > iBackwardExtraEnd)// Search backward extra chunks for nearest track section
-    {
-      iBackwardExtraGroundIdx = iBackwardExtraStart;
-      do {
-        dBackwardExtraCarX = pCar->pos.fX + pBackwardExtraData->pointAy[3].fX;
-        fTempCarX4 = (float)dBackwardExtraCarX;
-        dBackwardExtraCarY = pCar->pos.fY + pBackwardExtraData->pointAy[3].fY;
-        dBackwardExtraAbsY = fabs(dBackwardExtraCarY);
-        dBackwardExtraCarZ = pCar->pos.fZ + pBackwardExtraData->pointAy[3].fZ;
-        fBackwardExtraDotProduct = pBackwardExtraData->pointAy[0].fZ * pCar->direction.fX
-          + pBackwardExtraData->pointAy[1].fZ * pCar->direction.fY
-          + pBackwardExtraData->pointAy[2].fZ * pCar->direction.fZ;
-        dBackwardExtraAbsZ = fabs(dBackwardExtraCarZ);
-        fBackwardExtraPosition = (float)(dBackwardExtraCarY * pBackwardExtraData->pointAy[1].fZ
-          + pBackwardExtraData->pointAy[0].fZ * fTempCarX4
-          + dBackwardExtraCarZ * pBackwardExtraData->pointAy[2].fZ);
-        dBackwardExtraAbsX = fabs(dBackwardExtraCarX);
-        fBackwardExtraDistance = (float)sqrt(dBackwardExtraAbsX * dBackwardExtraAbsX + dBackwardExtraAbsY * dBackwardExtraAbsY + dBackwardExtraAbsZ * dBackwardExtraAbsZ)
-          - pBackwardExtraData->fTrackHalfLength;
-        if ((fBackwardExtraPosition >= -400.0 || GroundColour[iBackwardExtraGroundIdx][2] >= 0) && fBackwardExtraDistance < (double)fMinValidDistance) {
-          fMinValidDistance = fBackwardExtraDistance;
-          if (iBackwardExtraIdx < iTrakLen) {
-            if (iBackwardExtraIdx >= 0)
-              pCar->iLastValidChunk = iBackwardExtraIdx;
-            else
-              pCar->iLastValidChunk = iTrakLen + iBackwardExtraIdx;
-          } else {
-            pCar->iLastValidChunk = iBackwardExtraIdx - iTrakLen;
+    if (pTrakView->nBackwardExtraStart >= 0 && pTrakView->nBackwardExtraStart < TRAK_LEN) { //bounds check added by ROLLER
+      iBackwardExtraStart = pTrakView->nBackwardExtraStart;
+      iBackwardExtraEnd = iBackwardExtraStart - pTrakView->byBackwardExtraChunks;
+      pBackwardExtraData = &localdata[iBackwardExtraStart];
+      iBackwardExtraIdx = iBackwardExtraStart;
+      if (iBackwardExtraStart > iBackwardExtraEnd)// Search backward extra chunks for nearest track section
+      {
+        iBackwardExtraGroundIdx = iBackwardExtraStart;
+        do {
+          dBackwardExtraCarX = pCar->pos.fX + pBackwardExtraData->pointAy[3].fX;
+          fTempCarX4 = (float)dBackwardExtraCarX;
+          dBackwardExtraCarY = pCar->pos.fY + pBackwardExtraData->pointAy[3].fY;
+          dBackwardExtraAbsY = fabs(dBackwardExtraCarY);
+          dBackwardExtraCarZ = pCar->pos.fZ + pBackwardExtraData->pointAy[3].fZ;
+          fBackwardExtraDotProduct = pBackwardExtraData->pointAy[0].fZ * pCar->direction.fX
+            + pBackwardExtraData->pointAy[1].fZ * pCar->direction.fY
+            + pBackwardExtraData->pointAy[2].fZ * pCar->direction.fZ;
+          dBackwardExtraAbsZ = fabs(dBackwardExtraCarZ);
+          fBackwardExtraPosition = (float)(dBackwardExtraCarY * pBackwardExtraData->pointAy[1].fZ
+            + pBackwardExtraData->pointAy[0].fZ * fTempCarX4
+            + dBackwardExtraCarZ * pBackwardExtraData->pointAy[2].fZ);
+          dBackwardExtraAbsX = fabs(dBackwardExtraCarX);
+          fBackwardExtraDistance = (float)sqrt(dBackwardExtraAbsX * dBackwardExtraAbsX + dBackwardExtraAbsY * dBackwardExtraAbsY + dBackwardExtraAbsZ * dBackwardExtraAbsZ)
+            - pBackwardExtraData->fTrackHalfLength;
+          if ((fBackwardExtraPosition >= -400.0 || GroundColour[iBackwardExtraGroundIdx][2] >= 0) && fBackwardExtraDistance < (double)fMinValidDistance) {
+            fMinValidDistance = fBackwardExtraDistance;
+            if (iBackwardExtraIdx < iTrakLen) {
+              if (iBackwardExtraIdx >= 0)
+                pCar->iLastValidChunk = iBackwardExtraIdx;
+              else
+                pCar->iLastValidChunk = iTrakLen + iBackwardExtraIdx;
+            } else {
+              pCar->iLastValidChunk = iBackwardExtraIdx - iTrakLen;
+            }
           }
-        }
-        if ((fBackwardExtraDotProduct * 4.0 + -500.0 <= fBackwardExtraPosition || GroundColour[iBackwardExtraGroundIdx][2] >= 0)
-          && fBackwardExtraDistance < (double)fMinCurrentDistance) {
-          fMinCurrentDistance = fBackwardExtraDistance;
-          if (iBackwardExtraIdx < iTrakLen) {
-            if (iBackwardExtraIdx >= 0)
-              iNearestChunk = iBackwardExtraIdx;
-            else
-              iNearestChunk = iBackwardExtraIdx + iTrakLen;
-          } else {
-            iNearestChunk = iBackwardExtraIdx - iTrakLen;
+          if ((fBackwardExtraDotProduct * 4.0 + -500.0 <= fBackwardExtraPosition || GroundColour[iBackwardExtraGroundIdx][2] >= 0)
+            && fBackwardExtraDistance < (double)fMinCurrentDistance) {
+            fMinCurrentDistance = fBackwardExtraDistance;
+            if (iBackwardExtraIdx < iTrakLen) {
+              if (iBackwardExtraIdx >= 0)
+                iNearestChunk = iBackwardExtraIdx;
+              else
+                iNearestChunk = iBackwardExtraIdx + iTrakLen;
+            } else {
+              iNearestChunk = iBackwardExtraIdx - iTrakLen;
+            }
           }
-        }
-        if (iBackwardExtraIdx)
-          --pBackwardExtraData;
-        else
-          pBackwardExtraData = &localdata[iTrakLen - 1];
-        --iBackwardExtraIdx;
-        --iBackwardExtraGroundIdx;
-      } while (iBackwardExtraIdx > iBackwardExtraEnd);
+          if (iBackwardExtraIdx)
+            --pBackwardExtraData;
+          else
+            pBackwardExtraData = &localdata[iTrakLen - 1];
+          --iBackwardExtraIdx;
+          --iBackwardExtraGroundIdx;
+        } while (iBackwardExtraIdx > iBackwardExtraEnd);
+      }
     }
   }
   *piNearestChunk = iNearestChunk;              // Return index of nearest track chunk found
