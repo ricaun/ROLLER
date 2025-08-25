@@ -1567,7 +1567,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
     SET_HIWORD(iLeftEdgeDxTemp, GET_LOWORD(vertices[(int16)iMinYIdx].x) - GET_HIWORD(iLeftEdgeXTemp));
     iLeftRemain = iTempY2;
     iCalculatedStep = iLeftEdgeDxTemp / ((int16)iTempY2 - iTempY_2);
-    iStepOffset = iLeftEdgeXTemp - iCalculatedStep * iTempY_2;
+    iStepOffset = (int)((long long)iLeftEdgeXTemp - (long long)iCalculatedStep * iTempY_2);
     iLeftEdgeDx_1 = iCalculatedStep;
     iLeftEdgeX = iStepOffset;
     if (iCalculatedStep < 0)
