@@ -7187,7 +7187,8 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
       fForwardPosition = (float)(dForwardCarY * pForwardData->pointAy[1].fZ + pForwardData->pointAy[0].fZ * fTempCarX3 + dForwardCarZ * pForwardData->pointAy[2].fZ);
       dForwardAbsX = fabs(dForwardCarX);
       fForwardDistance = (float)sqrt(dForwardAbsX * dForwardAbsX + dForwardAbsY * dForwardAbsY + dForwardAbsZ * dForwardAbsZ) - pForwardData->fTrackHalfLength;// Calculate 3D distance from car to track centerline
-      if ((fForwardPosition >= -400.0 || GroundColour[iForwardGroundIdx][2] >= 0) && fForwardDistance < (double)fMinValidDistance)// Check position validity and update closest valid chunk if closer
+      if (iForwardGroundIdx >= 0 && iForwardGroundIdx < TRAK_LEN && //bounds check added by ROLLER
+        (fForwardPosition >= -400.0 || GroundColour[iForwardGroundIdx][2] >= 0) && fForwardDistance < (double)fMinValidDistance)// Check position validity and update closest valid chunk if closer
       {
         fMinValidDistance = fForwardDistance;
         if (iForwardChunkIdx < iTrakLen) {
@@ -7199,7 +7200,8 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
           pCar->iLastValidChunk = iForwardChunkIdx - iTrakLen;
         }
       }
-      if ((fForwardDotProduct * 4.0 + -500.0 <= fForwardPosition || GroundColour[iForwardGroundIdx][2] >= 0) && fForwardDistance < (double)fMinCurrentDistance)// Check forward position and update nearest current chunk if closer
+      if (iForwardGroundIdx >= 0 && iForwardGroundIdx < TRAK_LEN && //bounds check added by ROLLER
+        (fForwardDotProduct * 4.0 + -500.0 <= fForwardPosition || GroundColour[iForwardGroundIdx][2] >= 0) && fForwardDistance < (double)fMinCurrentDistance)// Check forward position and update nearest current chunk if closer
       {
         fMinCurrentDistance = fForwardDistance;
         if (iForwardChunkIdx < iTrakLen) {
@@ -7238,7 +7240,8 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
       fBackwardPosition = (float)(dBackwardCarY * pBackwardData->pointAy[1].fZ + pBackwardData->pointAy[0].fZ * fTempCarX + dBackwardCarZ * pBackwardData->pointAy[2].fZ);
       dBackwardAbsX = fabs(dBackwardCarX);
       fBackwardDistance = (float)sqrt(dBackwardAbsX * dBackwardAbsX + dBackwardAbsY * dBackwardAbsY + dBackwardAbsZ * dBackwardAbsZ) - pBackwardData->fTrackHalfLength;
-      if ((fBackwardPosition >= -400.0 || GroundColour[iBackwardGroundIdx][2] >= 0) && fBackwardDistance < (double)fMinValidDistance) {
+      if (iBackwardGroundIdx >= 0 && iBackwardGroundIdx < TRAK_LEN && //bounds check added by ROLLER
+        (fBackwardPosition >= -400.0 || GroundColour[iBackwardGroundIdx][2] >= 0) && fBackwardDistance < (double)fMinValidDistance) {
         fMinValidDistance = fBackwardDistance;
         if (iBackwardChunkIdx < iTrakLen) {
           if (iBackwardChunkIdx >= 0)
@@ -7249,7 +7252,8 @@ void findnearsection(tCar *pCar, int *piNearestChunk)
           pCar->iLastValidChunk = iBackwardChunkIdx - iTrakLen;
         }
       }
-      if ((fBackwardDotProduct * 4.0 + -500.0 <= fBackwardPosition || GroundColour[iBackwardGroundIdx][2] >= 0) && fBackwardDistance < (double)fMinCurrentDistance) {
+      if (iBackwardGroundIdx >= 0 && iBackwardGroundIdx < TRAK_LEN && //bounds check added by ROLLER
+        (fBackwardDotProduct * 4.0 + -500.0 <= fBackwardPosition || GroundColour[iBackwardGroundIdx][2] >= 0) && fBackwardDistance < (double)fMinCurrentDistance) {
         fMinCurrentDistance = fBackwardDistance;
         if (iBackwardChunkIdx < iTrakLen) {
           if (iBackwardChunkIdx >= 0)
