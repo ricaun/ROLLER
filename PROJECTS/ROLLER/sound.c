@@ -95,6 +95,7 @@ char lang[16][32];          //00162E38
 int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
+int Pending[16];            //0016314C
 int HandleCar[32];          //00163B8C
 int HandleSample[32];       //00163C0C
 tCarSoundData enginedelay[16]; //00163C8C
@@ -1964,53 +1965,66 @@ int check_joystickpresence()
 
 //-------------------------------------------------------------------------------------------------
 //0003BF20
-int initsounds()
+void initsounds()
 {
-  return 0; /*
-  int v0; // ebx
-  int result; // eax
-  int i; // ecx
-  int v3; // edx
+  //int iNumCars; // ebx
+  //int iLoopItr; // eax
+  //int i; // ecx
+  //int iCar; // edx
+  //int SampleHandleCarOffset; // eax
+  //int iPendingOffset; // eax
+  //
+  //iNumCars = numcars;
+  //iLoopItr = 2;
 
-  v0 = numcars;
-  result = 8;
-  HandleSample = -1;
-  HandleCar = -1;
-  HandleSample_variable_1 = -1;
-  HandleCar_variable_1 = -1;
-  do {
-    result += 20;
-    *(int *)((char *)&HandleCar_variable_2 + result) = -1;
-    *(int *)((char *)&SamplePending_variable_3 + result) = -1;
-    *(int *)((char *)&HandleCar_variable_3 + result) = -1;
-    *(int *)((char *)&SamplePending_variable_4 + result) = -1;
-    *(int *)((char *)&HandleCar_variable_4 + result) = -1;
-    *(int *)((char *)&SamplePending_variable_5 + result) = -1;
-    *(int *)((char *)&HandleCar_variable_5 + result) = -1;
-    *(int *)((char *)&SamplePending_variable_6 + result) = -1;
-    *(int *)((char *)&HandleCar_variable_6 + result) = -1;
-    *(int *)((char *)&SamplePending_variable_7 + result) = -1;
-  } while (result != 128);
-  for (i = 0; i != 7680; i += 64) {
-    v3 = 0;
-    if (v0 > 0) {
-      result = i;
-      do {
-        result += 4;
-        ++v3;
-        *(int *)((char *)&SamplePtr_variable_15 + result) = -1;
-      } while (v3 < v0);
-    }
+  for (int i = 0; i < 32; ++i) {
+    HandleSample[i] = -1;
+    HandleCar[i] = -1;
   }
-  if (v0 > 0) {
-    result = 0;
-    do {
-      result += 4;
-      *(int *)((char *)&SampleExt_variable_1 + result) = 0;
-    } while (result < 4 * v0);
+  //HandleSample[0] = -1;
+  //HandleCar[0] = -1;
+  //HandleSample[1] = -1;
+  //HandleCar[1] = -1;
+  //do {
+  //  iLoopItr += 5;
+  //  HandleCar[iLoopItr + 27] = -1;              // offset into HandleSample
+  //  SamplePending_variable_3[iLoopItr] = -1;    // offset into HandleCar
+  //  HandleCar[iLoopItr + 28] = -1;
+  //  SamplePending_variable_4[iLoopItr] = -1;
+  //  HandleCar[iLoopItr + 29] = -1;
+  //  SamplePending_variable_5[iLoopItr] = -1;
+  //  HandleCar[iLoopItr + 30] = -1;
+  //  SamplePending_variable_6[iLoopItr] = -1;
+  //  HandleCar[iLoopItr + 31] = -1;
+  //  SamplePending_variable_7[iLoopItr] = -1;
+  //} while (iLoopItr != 32);
+
+  for (int i = 0; i < 120; ++i) {
+    SampleHandleCar[i].handles[0] = -1;
   }
-  numcars = v0;
-  return result;*/
+  //for (i = 0; i != 7680; i += 64) {
+  //  iCar = 0;
+  //  if (iNumCars > 0) {
+  //    SampleHandleCarOffset = i;
+  //    do {
+  //      SampleHandleCarOffset += 4;
+  //      ++iCar;
+  //      *(uint8 **)((char *)&SamplePtr[119] + SampleHandleCarOffset) = (uint8 *)-1;// offsets into SampleHandleCar
+  //    } while (iCar < iNumCars);
+  //  }
+  //}
+
+  for (int i = 0; i < numcars; ++i) {
+    Pending[i] = 0;
+  }
+  //if (iNumCars > 0) {
+  //  iPendingOffset = 0;
+  //  do {
+  //    iPendingOffset += 4;
+  //    *(_DWORD *)&SampleExt[iPendingOffset + 62] = 0;// offsets into Pending
+  //  } while (iPendingOffset < 4 * iNumCars);
+  //}
+  //numcars = iNumCars;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2051,72 +2065,69 @@ void stopallsamples()
 
 //-------------------------------------------------------------------------------------------------
 //0003C110
-int pannedsample(int result, int a2, int a3)
+void pannedsample(int iSampleIdx, int iHandle, int iPan)
 {
-  return 0; /*
-  int v3; // esi
-  int v4; // edi
-  int v6; // ebp
-  unsigned int v7; // ebx
-  int v8; // eax
-  unsigned int v9; // ebx
-  unsigned int v10; // ecx
+  int iLocalHandle; // edi
+  //int iSampleOffset; // ebp
+  int iExistingHandle; // ebx
+  uint8 *pSampleData; // eax
+  unsigned int iNewHandle; // eax
+  unsigned int iOldSampleIdx; // ecx
 
-  v3 = result;
-  v4 = a2;
-  if (soundon && SamplePtr[result]) {
-    v6 = result << 6;
-    v7 = SampleHandleCar[16 * result];
-    if (v7 != -1) {
-      _disable();
-      a2 = SampleHandleCar[16 * result];
-      if (!sosDIGISampleDone(DIGIHandle, v7)) {
-        a2 = v7;
-        sosDIGIStopSample(DIGIHandle);
-        *(int *)((char *)SampleHandleCar + v6) = -1;
-        HandleSample[v7] = -1;
+  iLocalHandle = iHandle;
+  if (soundon && SamplePtr[iSampleIdx]) {
+    //iSampleOffset = iSampleIdx << 6;
+    iExistingHandle = SampleHandleCar[iSampleIdx].handles[0];
+    if (iExistingHandle != -1) {
+      //_disable();
+      iHandle = SampleHandleCar[iSampleIdx].handles[0];
+      //if (!sosDIGISampleDone(*(int *)&DIGIHandle, iExistingHandle)) {
+      if (!DIGISampleDone(iExistingHandle)) {
+        iHandle = iExistingHandle;
+        DIGIStopSample(iExistingHandle);
+        //sosDIGIStopSample(*(int *)&DIGIHandle, iExistingHandle);
+        //*(int *)((char *)SampleHandleCar[0].handles + iSampleOffset) = -1;
+        SampleHandleCar[iSampleIdx].handles[0] = -1;
+        HandleSample[iExistingHandle] = -1;
       }
-      _enable();
+      //_enable();
     }
-    SamplePanned_variable_1 = __DS__;
-    SamplePanned_variable_4 = v3;
-    SamplePanned_variable_3 = v4;
-    v8 = SamplePtr[v3];
-    SamplePanned_variable_5 = a3;
-    SamplePanned = v8;
-    SamplePanned_variable_2 = SampleLen[v3];
-    _disable();
-    v9 = sosDIGIStartSample(DIGIHandle, a2, &SamplePanned, __DS__);
-    result = v3 << 6;
-    SampleHandleCar[16 * v3] = v9;
-    _enable();
-    if (v9 != -1) {
-      if (v9 >= 0x20)
-        _assert(0, aS0S32, &aDpsoundC[2], 2071);
-      v10 = HandleSample[v9];
-      if (v10 != -1) {
-        if (v10 >= 0x78)
-          _assert(0, &aIHandlesampleS[3], &aDpsoundC[2], 2075);
-        if ((unsigned int)HandleCar[v9] >= 0x10)
-          _assert(0, aHandlecarS0Han, &aDpsoundC[2], 2076);
-        SampleHandleCar[16 * HandleSample[v9] + HandleCar[v9]] = -1;
+    //SamplePanned.unSegment = __DS__;            // Set up panned sample structure with audio parameters
+    SamplePanned.iSampleIndex = iSampleIdx;
+    SamplePanned.iVolume = iLocalHandle;
+    pSampleData = SamplePtr[iSampleIdx];
+    SamplePanned.iPan = iPan;
+    SamplePanned.pSample = pSampleData;
+    SamplePanned.iLength = SampleLen[iSampleIdx];
+    //_disable();                                 // Start playing the new panned sample and get handle
+    iNewHandle = DIGISampleStart(&SamplePanned);
+    //LOWORD(iNewHandle) = sosDIGIStartSample(*(int *)&DIGIHandle, iHandle, &SamplePanned);
+    SampleHandleCar[iSampleIdx].handles[0] = iNewHandle;
+    //_enable();
+    if (iNewHandle != -1)                     // Update handle tracking tables if sample started successfully
+    {                                           // Validate handle is within expected range (< 32)
+      //if (iNewHandle >= 0x20)
+      //  _assert(0, "s>=0 && s<32", a3, 2071);
+      iOldSampleIdx = HandleSample[iNewHandle]; // Clean up any existing handle mappings before assigning new ones
+      if (iOldSampleIdx != -1) {
+        //if (iOldSampleIdx >= 0x78)
+        //  _assert(0, "HandleSample[s]>=0 && HandleSample[s]<MAXSAMPLES", a3, 2075);
+        //if ((unsigned int)HandleCar[iNewHandle] >= 16)
+        //  _assert(0, "HandleCar[s]>=0 && HandleCar[s]<MAXCARS", a3, 2076);
+        SampleHandleCar[HandleSample[iNewHandle]].handles[HandleCar[iNewHandle]] = -1;
       }
-      result = 0;
-      HandleSample[v9] = v3;
-      HandleCar[v9] = 0;
+      HandleSample[iNewHandle] = iSampleIdx;    // Update handle-to-sample and handle-to-car mapping tables
+      HandleCar[iNewHandle] = 0;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //0003C2B0
-int speechonly(int result, int a2, int a3, int a4)
+void speechonly(int iSampleIdx, int iVolume, int iDelay, int iCarIdx)
 {
-  return 0; /*
-  if (readsample == writesample && -a3 > lastsample)
-    return speechsample(result, a2, a3, a4);
-  return result;*/
+  if (readsample == writesample && -iDelay > lastsample)
+    speechsample(iSampleIdx, iVolume, iDelay, iCarIdx);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2565,30 +2576,29 @@ void remove_frontendspeech()
 
 //-------------------------------------------------------------------------------------------------
 //0003CE70
-int sfxplaying(int a1)
+int sfxplaying(int iSampleIdx)
 {
-  return 0; /*
-  int v1; // ecx
-  unsigned int v2; // ebx
-  int result; // eax
+  //int iSampleHandleCarOffset; // ecx
+  int iCurrHandle; // ebx
+  int iReturn0; // eax
 
-  v1 = a1 << 6;
-  v2 = SampleHandleCar[16 * a1];
-  if (v2 == -1)
+  //iSampleHandleCarOffset = iSampleIdx << 6;
+  iCurrHandle = SampleHandleCar[iSampleIdx].handles[0];
+  if (iCurrHandle == -1)
     return 0;
-  if (!sosDIGISampleDone(DIGIHandle, v2))
+  if (!DIGISampleDone(iCurrHandle))
     return -1;
-  result = 0;
-  *(int *)((char *)SampleHandleCar + v1) = -1;
-  HandleSample[v2] = -1;
-  return result;*/
+  iReturn0 = 0;
+  SampleHandleCar[iSampleIdx].handles[0] = -1;
+  HandleSample[iCurrHandle] = -1;
+  return iReturn0;
 }
 
 //-------------------------------------------------------------------------------------------------
 //0003CEC0
-int cheatsampleok(int a1)
+int cheatsampleok(int iCarIdx)
 {
-  if (a1 == player1_car || a1 == player2_car)
+  if (iCarIdx == player1_car || iCarIdx == player2_car)
     return -1;
   else
     return 0;
