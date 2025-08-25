@@ -5106,7 +5106,13 @@ LABEL_24:
             fDefensiveY = fTargetY;
           else
             fDefensiveY = (float)interpolatesteer(fLeftTime, fStrategyA0_3, fStrategyA1, fTargetY, Car[iLeftCarIdx].pos.fY);
-          dYPositionDiff = pCar->pos.fY - Car[iLeftCarIdx].pos.fY;
+
+          //index check added by ROLLER
+          if (iLeftCarIdx == -1)
+            dYPositionDiff = 0;
+          else
+            dYPositionDiff = pCar->pos.fY - Car[iLeftCarIdx].pos.fY;
+            
           fTargetSteerY = fDefensiveY;
           if (CarBaseY * 2.0 + -200.0 > fabs(dYPositionDiff) && fLeftTime > 0.0) {
             dTargetCarSpeed = Car[iLeftCarIdx].fFinalSpeed * 0.2;
