@@ -6,6 +6,7 @@
 #include "func2.h"
 #include "roller.h"
 #include <string.h>
+#include <errno.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #else
@@ -404,6 +405,8 @@ void startreplay()
     } else if (replaytype == 2) {                                           // PLAYBACK MODE: Load replay data from GSS file
       if (!intro)
         rev_vga[15] = (tBlockHeader *)load_picture("replaysc.bm");// Load replay screen image if not in intro mode
+
+      int iCounter = 0; //added by ROLLER
       pDriverNamesSrc = driver_names[0];        // Backup current driver names to temp storage
       pTempNamesDest = temp_names[0];
       do {
@@ -421,7 +424,9 @@ void startreplay()
         } while (cTempChar2);
         pDriverNamesSrc += 9;
         pTempNamesDest += 9;
-      } while (pDriverNamesSrc != driver_names[16]);
+
+        ++iCounter;
+      } while (iCounter < 16);
 
       replayframes = ROLLERfilelength(replayfilename);
       //iFileHandle = open(replayfilename, 0x200);// Get replay file size to calculate frame count
@@ -604,6 +609,7 @@ void stopreplay()
   }
   if (replaytype == 2)                        // If replay type is 2 (recording/playback mode), restore driver names
   {
+    int iCounter = 0;
     szTempNamePtr = temp_names[0];              // Copy temp driver names back to original driver names array
     szDriverNamePtr = driver_names[0];
     do {
@@ -621,7 +627,9 @@ void stopreplay()
       } while (byChar2);
       szTempNamePtr += 9;
       szDriverNamePtr += 9;
-    } while (szTempNamePtr != temp_names[16]);
+
+      ++iCounter;
+    } while (iCounter < 16);
     TrackLoad = oldtrack;                       // Restore original track, car count and texture settings
     numcars = oldcars;
     textures_off = oldtextures;
