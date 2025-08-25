@@ -1911,24 +1911,23 @@ void ReadJoys(tJoyPos *pJoy)
 
 //-------------------------------------------------------------------------------------------------
 //0003BDD0
-int check_joystickpresence()
+void check_joystickpresence()
 {
-  return 0; /*
-  int v0; // ebx
-  int v1; // esi
-  int v2; // ecx
-  int v3; // edi
-  int v4; // eax
-  int result; // eax
-  int v6; // [esp+0h] [ebp-18h]
+  //TODO: integrate this with SDL
+  int iTimeoutCounter; // ebx
+  int iY1Temp; // esi
+  int iX2Temp; // ecx
+  int iY2Temp; // edi
+  int iGameportStatus; // eax
+  int iX1Temp; // [esp+0h] [ebp-18h]
 
-  v0 = 0;
-  x1ok = 1;
+  iTimeoutCounter = 0;                          // Initialize timeout counter
+  x1ok = 1;                                     // Initialize joystick axis detection flags (bit masks for port 0x201)
   y1ok = 2;
   x2ok = 4;
   y2ok = 8;
   bitaccept = 15;
-  JAXmin = 10000;
+  JAXmin = 10000;                               // Initialize joystick axis calibration min/max values
   JAXmax = -10000;
   JAYmin = 10000;
   JAYmax = -10000;
@@ -1936,35 +1935,33 @@ int check_joystickpresence()
   JBXmax = -10000;
   JBYmin = 10000;
   JBYmax = -10000;
-  __outbyte(0x201u, 0xFFu);
-  v6 = x1ok;
-  v1 = y1ok;
-  v2 = x2ok;
-  v3 = y2ok;
+  //__outbyte(0x201u, 0xFFu);                     // Trigger joystick measurement by writing 0xFF to gameport 0x201
+  iX1Temp = x1ok;
+  iY1Temp = y1ok;
+  iX2Temp = x2ok;
+  iY2Temp = y2ok;
   do {
-    v4 = 0;
-    LOBYTE(v4) = __inbyte(0x201u);
-    if (x1ok)
-      v6 = v4 & 1;
-    if (y1ok)
-      v1 = v4 & 2;
-    if (x2ok)
-      v2 = v4 & 4;
-    if (y2ok)
-      v3 = v4 & 8;
-    ++v0;
-  } while ((v4 & bitaccept) != 0 && v0 < 10000);
-  if (v6)
+    iGameportStatus = 0;                        // Main detection loop: read gameport and test axis presence
+    //LOBYTE(iGameportStatus) = __inbyte(0x201u); // Read current status from gameport 0x201
+    if (x1ok)                                 // Test X1 axis (bit 0) - if enabled, check if still active
+      iX1Temp = iGameportStatus & 1;
+    if (y1ok)                                 // Test Y1 axis (bit 1) - if enabled, check if still active
+      iY1Temp = iGameportStatus & 2;
+    if (x2ok)                                 // Test X2 axis (bit 2) - if enabled, check if still active
+      iX2Temp = iGameportStatus & 4;
+    if (y2ok)                                 // Test Y2 axis (bit 3) - if enabled, check if still active
+      iY2Temp = iGameportStatus & 8;
+    ++iTimeoutCounter;
+  } while ((iGameportStatus & bitaccept) != 0 && iTimeoutCounter < 10000);// Continue loop while any expected axes are still active and timeout not reached
+  if (iX1Temp)                                // Disable axes that didn't respond (indicating no joystick connected to that axis)
     x1ok = 0;
-  if (v2)
+  if (iX2Temp)
     x2ok = 0;
-  if (v1)
+  if (iY1Temp)
     y1ok = 0;
-  if (v3)
+  if (iY2Temp)
     y2ok = 0;
-  result = y2ok;
-  bitaccept = y2ok | y1ok | x1ok | x2ok;
-  return result;*/
+  bitaccept = y2ok | y1ok | x1ok | x2ok;        // Update bitaccept mask with only the axes that are actually present
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3065,219 +3062,175 @@ void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
 
 //-------------------------------------------------------------------------------------------------
 //0003DB40
-void enginesound(int a1, float a2, float a3, float a4, int a5)
-{/*
-  int v8; // ebp
-  int v9; // edx
-  __int16 v10; // fps
-  double v11; // st7
-  _BOOL1 v12; // c0
-  char v13; // c2
-  _BOOL1 v14; // c3
-  double v15; // st7
-  int v16; // ebx
-  int v17; // edx
-  int v18; // eax
-  int v19; // eax
-  __int16 v20; // fps
-  _BOOL1 v21; // c0
-  char v22; // c2
-  _BOOL1 v23; // c3
-  int v24; // edx
-  double v25; // st7
-  double v26; // st7
-  int v27; // eax
-  int v28; // eax
-  double v29; // st7
-  int v30; // eax
-  int v31; // edx
-  int v32; // edx
-  int v33; // edx
-  double v34; // st7
-  float v35; // eax
-  int v36; // edx
-  double v37; // st7
-  __int64 v38; // rax
-  int v39; // ebx
-  double v41; // st7
-  double v42; // st7
-  int v43; // edx
-  double v44; // st7
-  int v45; // eax
-  double v46; // st7
-  int v47; // ecx
-  int v48; // ebp
-  int v49; // esi
-  int v50; // edx
-  int v51; // ecx
-  int v52; // eax
-  double v53; // st7
-  float v54; // [esp+Ch] [ebp-4Ch]
-  float v55; // [esp+10h] [ebp-48h]
-  int v56; // [esp+14h] [ebp-44h]
-  int v57; // [esp+18h] [ebp-40h]
-  float v58; // [esp+20h] [ebp-38h]
-  int v59; // [esp+24h] [ebp-34h]
-  int v60; // [esp+24h] [ebp-34h]
-  int v61; // [esp+24h] [ebp-34h]
-  int v62; // [esp+28h] [ebp-30h]
-  int v63; // [esp+28h] [ebp-30h]
-  int v64; // [esp+28h] [ebp-30h]
-  int v65; // [esp+28h] [ebp-30h]
-  int v66; // [esp+2Ch] [ebp-2Ch]
-  float v67; // [esp+30h] [ebp-28h]
-  float v68; // [esp+34h] [ebp-24h]
-  float v69; // [esp+38h] [ebp-20h]
-  int v70; // [esp+3Ch] [ebp-1Ch]
+void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, float fDistance, int iStereoVolume)
+{
+  double dVolumeCalc; // st7
+  double dBasePitch; // st7
+  double dWheelSpinPitch; // st7
+  double dFinalEnginePitch; // st7
+  int iCurrChunk; // edx
+  int iPrevChunkIdx; // edx
+  int iNextChunkIdx; // edx
+  double dTunnelDistanceTemp; // st7
+  float fMinTunnelDistance; // eax
+  int iCarOffset; // edx
+  int iYaw; // edx
+  int iYaw3; // ebx
+  int iYawDifference; // eax
+  int iAbsYawDifference; // eax
+  double dSkidVolumeBase; // st7
+  double dSkidVolumeWithSpeed; // st7
+  double dFinalSkidVolume; // st7
+  //int iCarStructOffset; // eax
+  double dSkidPitchCalc; // st7
+  int iPendingSampleOffset; // ecx
+  int iCarIndexCopy; // ebp
+  int iPendingCounter; // esi
+  int i; // ecx
+  double dSampleVolume; // st7
+  float fTunnelDistance; // [esp+Ch] [ebp-4Ch]
+  float fDopplerFactor; // [esp+10h] [ebp-48h]
+  int iTunnelFlag; // [esp+14h] [ebp-44h]
+  int iLaneType; // [esp+18h] [ebp-40h]
+  float fHealthFactor; // [esp+20h] [ebp-38h]
+  int iBaseEngineVolume; // [esp+24h] [ebp-34h]
+  int iCalculatedEngineVolume; // [esp+24h] [ebp-34h]
+  int iFinalEngineVolume; // [esp+24h] [ebp-34h]
+  int iSkidBaseVolume; // [esp+28h] [ebp-30h]
+  int iSkidVolumeWithSpeed; // [esp+28h] [ebp-30h]
+  int iFinalSkidVolume; // [esp+28h] [ebp-30h]
+  int iFinalPitch; // [esp+2Ch] [ebp-2Ch]
+  float fDistanceAttenuation; // [esp+30h] [ebp-28h]
+  float fTunnelDistanceBack; // [esp+34h] [ebp-24h]
+  float fTunnelDistanceForward; // [esp+38h] [ebp-20h]
+  int iPendingSampleVolume; // [esp+3Ch] [ebp-1Ch]
 
-  v8 = a1;
   if (soundon) {
-    v55 = (a2 + sound_c_variable_39) / (sound_c_variable_39 - a3);
-    v9 = 77 * a1;
-    v67 = sound_c_variable_40 / (a4 * a4 + sound_c_variable_40);
-    v11 = Car_variable_28[77 * a1];
-    v12 = v11 < sound_c_variable_41;
-    v13 = 0;
-    v14 = v11 == sound_c_variable_41;
-    LOWORD(a1) = v10;
-    if (v11 >= sound_c_variable_41) {
-      v59 = 258 * EngineVolume;
+    fDopplerFactor = (fListenerDopplerVel + 1476.0f) / (1476.0f - fCarDopplerVel);// Calculate Doppler effect factor (sound speed / (sound speed - source velocity))
+    fDistanceAttenuation = 65536000.0f / (fDistance * fDistance + 65536000.0f);// Calculate distance attenuation factor (inverse square law with minimum)
+    if (Car[iCarIdx].fRPMRatio >= 0.1)        // Calculate base engine volume based on RPM ratio
+    {
+      iBaseEngineVolume = 258 * EngineVolume;
     } else {
-      v15 = Car_variable_28[v9] * sound_c_variable_42 * sound_c_variable_43 * (double)EngineVolume;
-      _CHP(a1, v9 * 4);
-      v59 = (int)v15;
+      dVolumeCalc = Car[iCarIdx].fRPMRatio * 258.0 * 10.0 * (double)EngineVolume;
+      //_CHP();
+      iBaseEngineVolume = (int)dVolumeCalc;
     }
-    v16 = Car_variable_72[77 * v8];
-    v17 = 8 * ((v16 * v59) >> 31);
-    v18 = (v16 * v59 - (__CFSHL__((v16 * v59) >> 31, 3) + v17)) >> 3;
-    v60 = v18;
-    if (v18 > 0x7FFF)
-      v60 = 0x7FFF;
-    _CHP(v18, v17);
-    v61 = (int)((double)v60 * v67);
-    if (v61 < 256)
-      v61 = 0;
-    v21 = a4 < (double)sound_c_variable_44;
-    v22 = 0;
-    v23 = a4 == sound_c_variable_44;
-    LOWORD(v19) = v20;
-    if (a4 >= (double)sound_c_variable_44)
-      v61 = 0;
-    v24 = 77 * v8;
-    v25 = Car_variable_28[77 * v8] * sound_c_variable_45 + sound_c_variable_46;
-    _CHP(v19, 308 * v8);
-    v26 = Car_variable_73[v24] * sound_c_variable_47 / (Car_variable_73[v24] + sound_c_variable_48) + (double)(int)v25;
-    _CHP(v27, 308 * v8);
-    v58 = (Car_variable_9[77 * v8] + sound_c_variable_49) * sound_c_variable_50;
-    if (v58 > 1.0)
-      v58 = 1.0;
-    v28 = Car_variable_74[77 * v8];
-    v29 = tsin[v28] * (1.0 - v58) * sound_c_variable_51 + (double)(6 * Car_variable_36[77 * v8] + (int)v26);
-    _CHP(v28, v24 * 4);
-    _CHP(v30, v24 * 4);
-    v56 = 0;
-    v31 = Car_variable_3[154 * v8];
-    v57 = Car_variable_50[77 * v8];
-    v66 = (int)(v29 * v55);
-    if (v31 != -1 && (TrakColour_variable_1[12 * v31 + 2 * v57] & 0x2000) != 0) {
-      v56 = -1;
-      v68 = localdata_variable_4[32 * v31] + Car[77 * v8];
-      v32 = v31 - 1;
-      if (!v32)
-        v32 = TRAK_LEN - 1;
-      while ((TrakColour_variable_1[12 * v32 + 2 * v57] & 0x2000) != 0 && v68 < (double)sound_c_variable_52) {
-        v68 = sound_c_variable_61 * localdata_variable_4[32 * v32--] + v68;
-        if (!v32)
-          v32 = TRAK_LEN - 1;
+    iCalculatedEngineVolume = (Car[iCarIdx].iEngineState * iBaseEngineVolume) / 8;
+    //iCalculatedEngineVolume = (Car[iCarIdx].iEngineState * iBaseEngineVolume
+    //                         - (__CFSHL__((Car[iCarIdx].iEngineState * iBaseEngineVolume) >> 31, 3)
+    //                            + 8 * ((Car[iCarIdx].iEngineState * iBaseEngineVolume) >> 31))) >> 3;// Apply engine state modifier to volume (divide by 8)
+    if (iCalculatedEngineVolume > 0x7FFF)
+      iCalculatedEngineVolume = 0x7FFF;
+    //_CHP();
+    iFinalEngineVolume = (int)((double)iCalculatedEngineVolume * fDistanceAttenuation);
+    if (iFinalEngineVolume < 256)
+      iFinalEngineVolume = 0;
+    if (fDistance >= 1048576.0)
+      iFinalEngineVolume = 0;
+    dBasePitch = Car[iCarIdx].fRPMRatio * 100000.0 + 8192.0;// Calculate engine pitch: base RPM + wheel spin effect
+    //_CHP();
+    dWheelSpinPitch = Car[iCarIdx].fWheelSpinAccumulation * 50000.0 / (Car[iCarIdx].fWheelSpinAccumulation + 2000.0) + (double)(int)dBasePitch;
+    //_CHP();
+    fHealthFactor = (Car[iCarIdx].fHealth + 34.0f) * 0.01f;// Calculate health factor for engine roughness (damaged cars sound rougher)
+    if (fHealthFactor > 1.0)
+      fHealthFactor = 1.0;
+    dFinalEnginePitch = tsin[Car[iCarIdx].iEngineVibrateOffset] * (1.0 - fHealthFactor) * 10000.0 + (double)(6 * Car[iCarIdx].iPitchCameraOffset + (int)dWheelSpinPitch);// Add engine vibration/roughness based on health and camera offset
+    //_CHP();
+    //_CHP();
+    iTunnelFlag = 0;
+    iCurrChunk = Car[iCarIdx].nCurrChunk;
+    iLaneType = Car[iCarIdx].iLaneType;
+    iFinalPitch = (int)(dFinalEnginePitch * fDopplerFactor);
+    if (iCurrChunk != -1 && (TrakColour[iCurrChunk][iLaneType] & 0x20000000) != 0)// Check if car is in tunnel section (bit 29 of TrakColour)
+    {
+      iTunnelFlag = -1;
+      fTunnelDistanceBack = localdata[iCurrChunk].fTrackHalfLength + Car[iCarIdx].pos.fX;// Calculate tunnel distance going backward through track
+      iPrevChunkIdx = iCurrChunk - 1;
+      if (!iPrevChunkIdx)
+        iPrevChunkIdx = TRAK_LEN - 1;
+      while ((TrakColour[iPrevChunkIdx][iLaneType] & 0x20000000) != 0 && fTunnelDistanceBack < 6400.0) {
+        fTunnelDistanceBack = 2.0f * localdata[iPrevChunkIdx--].fTrackHalfLength + fTunnelDistanceBack;
+        if (!iPrevChunkIdx)
+          iPrevChunkIdx = TRAK_LEN - 1;
       }
-      v33 = Car_variable_3[154 * v8] + 1;
-      v69 = localdata_variable_4[32 * Car_variable_3[154 * v8]] - Car[77 * v8];
-      if (v33 == TRAK_LEN)
-        v33 ^= TRAK_LEN;
-      while ((TrakColour_variable_1[12 * v33 + 2 * v57] & 0x2000) != 0 && v69 < (double)sound_c_variable_52) {
-        v34 = sound_c_variable_61 * localdata_variable_4[32 * v33++] + v69;
-        v69 = v34;
-        if (v33 == TRAK_LEN)
-          v33 ^= TRAK_LEN;
+      iNextChunkIdx = Car[iCarIdx].nCurrChunk + 1;// Calculate tunnel distance going forward through track
+      fTunnelDistanceForward = localdata[Car[iCarIdx].nCurrChunk].fTrackHalfLength - Car[iCarIdx].pos.fX;
+      if (iNextChunkIdx == TRAK_LEN)
+        iNextChunkIdx ^= TRAK_LEN;
+      while ((TrakColour[iNextChunkIdx][iLaneType] & 0x20000000) != 0 && fTunnelDistanceForward < 6400.0) {
+        dTunnelDistanceTemp = 2.0 * localdata[iNextChunkIdx++].fTrackHalfLength + fTunnelDistanceForward;
+        fTunnelDistanceForward = (float)dTunnelDistanceTemp;
+        if (iNextChunkIdx == TRAK_LEN)
+          iNextChunkIdx ^= TRAK_LEN;
       }
-      if (v69 >= (double)v68)
-        v35 = v68;
+      if (fTunnelDistanceForward >= (double)fTunnelDistanceBack)
+        fMinTunnelDistance = fTunnelDistanceBack;
       else
-        v35 = v69;
-      v54 = v35;
-      if (v35 > (double)sound_c_variable_52)
-        v54 = 6400.0;
+        fMinTunnelDistance = fTunnelDistanceForward;
+      fTunnelDistance = fMinTunnelDistance;
+      if (fMinTunnelDistance > 6400.0)
+        fTunnelDistance = 6400.0;
     }
-    v36 = 224 * v8;
-    enginedelay_variable_6[224 * v8 + 7 * delaywritex] = a5;
-    enginedelay[224 * v8 + 7 * delaywritex] = v66;
-    enginedelay_variable_1[7 * delaywritex + v36] = v61;
-    enginedelay_variable_2[7 * delaywritex + v36] = v66;
-    if (v56) {
-      v37 = v54 * sound_c_variable_53 * sound_c_variable_54 * (double)v61;
-      _CHP(v66, v36 * 4);
-      enginedelay_variable_3[7 * delaywritex + v36] = (int)v37;
+    iCarOffset = 32 * iCarIdx;
+    enginedelay[iCarIdx].engineSoundData[delaywritex].iPan = iStereoVolume;// Write engine sound data to delay buffer
+    enginedelay[iCarIdx].engineSoundData[delaywritex].iEnginePitch = iFinalPitch;
+    enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngineVol = iFinalEngineVolume;
+    enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngine2Pitch = iFinalPitch;
+    if (iTunnelFlag) {
+      //_CHP();                                   // Apply tunnel reverb effect to secondary engine sound
+      enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngine2Vol = (int)(fTunnelDistance * 0.6 * 0.00015625 * (double)iFinalEngineVolume);
     } else {
-      enginedelay_variable_3[7 * delaywritex + v36] = 0;
+      enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngine2Vol = 0;
     }
-    if (Car_variable_17[77 * v8] != 3
-      || (HIDWORD(v38) = Car_variable_7[154 * v8], v39 = Car_variable_15[77 * v8], HIDWORD(v38) == v39)) {
-      v65 = 0;
+    if (Car[iCarIdx].iControlType != 3 || (iYaw = Car[iCarIdx].nYaw, iYaw3 = Car[iCarIdx].nYaw3, iYaw == iYaw3)) {
+      iFinalSkidVolume = 0;
     } else {
-      LODWORD(v38) = HIDWORD(v38) - v39 + (HIDWORD(v38) - v39 < 0 ? 0x4000 : 0);
-      if ((int)v38 > 0x2000)
-        LODWORD(v38) = v38 - 0x4000;
-      v38 = (int)v38;
-      LODWORD(v38) = abs32(v38);
-      if ((int)v38 >= 200) {
-        v41 = (double)((int)v38 - 400) * sound_c_variable_55 * sound_c_variable_56 * sound_c_variable_57;
-        _CHP(v38 - 400, HIDWORD(v38));
-        v62 = (int)v41;
+      iYawDifference = iYaw - iYaw3 + (iYaw - iYaw3 < 0 ? 0x4000 : 0);// Calculate angular difference between input yaw and actual yaw
+      if (iYawDifference > 0x2000)
+        iYawDifference -= 0x4000;
+      iAbsYawDifference = abs(iYawDifference);
+      if (iAbsYawDifference >= 200)           // Calculate skid volume based on angular mismatch (understeer/oversteer)
+      {
+        dSkidVolumeBase = (double)(iAbsYawDifference - 400) * 65536.0 * 4.0 * 0.00006103515625;
+        //_CHP();
+        iSkidBaseVolume = (int)dSkidVolumeBase;
       } else {
-        v62 = 0;
+        iSkidBaseVolume = 0;
       }
-      v42 = (double)v62 * Car_variable_8[77 * v8] * sound_c_variable_58;
-      _CHP(308 * v8, HIDWORD(v38));
-      v63 = (int)v42;
-      if ((int)v42 > 0x7FFF)
-        v63 = 0x7FFF;
-      v43 = SFXVolume * v63 % 127;
-      v64 = SFXVolume * v63 / 127;
-      _CHP(v64, v43);
-      v65 = (int)((double)v64 * v67);
-      if (v65 < 256)
-        v65 = 0;
-      v44 = v55 * sound_c_variable_59;
-      _CHP(308 * v8, v43);
-      v46 = (*(float *)((char *)Car_variable_8 + v45) + sound_c_variable_52) * sound_c_variable_60 * (double)(int)v44;
-      _CHP(v45, v43);
-      v66 = (int)v46;
+      dSkidVolumeWithSpeed = (double)iSkidBaseVolume * Car[iCarIdx].fFinalSpeed * 0.0049999999;// Apply speed factor to skid volume (louder at higher speeds)
+      //_CHP();
+      iSkidVolumeWithSpeed = (int)dSkidVolumeWithSpeed;
+      if ((int)dSkidVolumeWithSpeed > 0x7FFF)
+        iSkidVolumeWithSpeed = 0x7FFF;
+      dFinalSkidVolume = (double)(SFXVolume * iSkidVolumeWithSpeed / 127) * fDistanceAttenuation;
+      //_CHP();
+      iFinalSkidVolume = (int)dFinalSkidVolume;
+      if ((int)dFinalSkidVolume < 256)
+        iFinalSkidVolume = 0;
+      //_CHP();                                   // DECOMPILER BUG: Missing iCarStructOffset = iCarIdx * 0x134 (sizeof(tCar)=308)
+      dSkidPitchCalc = (Car[iCarIdx].fFinalSpeed + 6400.0) * 0.00015625 * (double)(int)(fDopplerFactor * 65536.0);
+      //dSkidPitchCalc = (*(float *)((char *)&Car[0].fFinalSpeed + iCarStructOffset) + 6400.0) * 0.00015625 * (double)(int)(fDopplerFactor * 65536.0);
+      //_CHP();
+      iFinalPitch = (int)dSkidPitchCalc;
     }
-    enginedelay_variable_4[224 * v8 + 7 * delaywritex] = v66;
-    enginedelay_variable_5[224 * v8 + 7 * delaywritex] = v65;
-    v47 = 5 * v8;
-    v48 = v8;
-    v49 = 0;
-    v50 = Pending[v48];
-    v51 = 8 * v47;
-    if (v50 > 0) {
-      do {
-        v52 = SamplePending_variable_1[v51];
-        v70 = v52;
-        if (v52 > 0x8000)
-          v70 = 0x8000;
-        v53 = (double)v70 * v67;
-        _CHP(v52, v50);
-        if ((int)v53 >= 256) {
-          v50 = (int)v53;
-          pannedsample(SamplePending[v51], (int)v53, a5);
-        }
-        ++v49;
-        v51 += 2;
-      } while (v49 < Pending[v48]);
+    enginedelay[iCarIdx].engineSoundData[delaywritex].iSkid1Pitch = iFinalPitch;// Write tire skid sound data to delay buffer
+    enginedelay[iCarIdx].engineSoundData[delaywritex].iSkid1Vol = iFinalSkidVolume;
+    iPendingSampleOffset = 5 * iCarIdx;         // Process pending sound effects for this car
+    iCarIndexCopy = iCarIdx;
+    iPendingCounter = 0;
+    for (i = 8 * iPendingSampleOffset; iPendingCounter < Pending[iCarIndexCopy]; i += 2) {
+      iPendingSampleVolume = SamplePending[0][i + 1];
+      if (iPendingSampleVolume > 0x8000)
+        iPendingSampleVolume = 0x8000;
+      dSampleVolume = (double)iPendingSampleVolume * fDistanceAttenuation;// Apply distance attenuation to sample and output if loud enough
+      //_CHP();
+      if ((int)dSampleVolume >= 256)
+        pannedsample(SamplePending[0][i], (int)dSampleVolume, iStereoVolume);
+      ++iPendingCounter;
     }
-    Pending[v48] = 0;
-  }*/
+    Pending[iCarIndexCopy] = 0;                 // Clear pending sample count for next frame
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
