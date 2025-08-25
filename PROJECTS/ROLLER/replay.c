@@ -319,7 +319,7 @@ void startreplay()
   int iNumCarsLocal; // ebp
   //signed int iCarByteOffset; // eax
   //signed int iTotalCarBytes; // edx
-  int iReplayData; // [esp+0h] [ebp-3Ch] BYREF
+  uint8 replayData[32]; // [esp+0h] [ebp-3Ch] BYREF
   uint8 buffer[28]; // [esp+20h] [ebp-1Ch] BYREF
 
   oldcars = numcars;                            // Initialize replay state variables
@@ -531,12 +531,16 @@ void startreplay()
         iReplayDataIndex = 0;
         if (numcars > 0) {
           do {
-            fread(&iReplayData, 0x1Eu, 1u, replayfile);// Read initial replay frame data (30 bytes per car)
+            fread(&replayData, 0x1Eu, 1u, replayfile);// Read initial replay frame data (30 bytes per car)
             ++iReplayDataIndex;
-            cReplayDataByte = HIBYTE(iReplayData);
+            cReplayDataByte = replayData[3];
             iNumCarsLocal = numcars;
-            temp_names[15][iReplayDataIndex + 8] = HIBYTE(iReplayData);
-            newrepsample[iReplayDataIndex + 15] = cReplayDataByte;
+
+//TODO: ensure this is correct
+            newrepsample[iReplayDataIndex - 1] = replayData[3];
+            repsample[iReplayDataIndex - 1] = cReplayDataByte;
+            //temp_names[15][iReplayDataIndex + 8] = replayData[3];
+            //newrepsample[iReplayDataIndex + 15] = cReplayDataByte;
           } while (iReplayDataIndex < iNumCarsLocal);
         }
         replayheader = 10 * numcars + 673;      // Calculate replay header size and frame block size
