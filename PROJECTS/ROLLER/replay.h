@@ -40,6 +40,7 @@ extern int replaypanel;
 extern int controlicon;
 extern int replayspeeds[9];
 extern char *replayname[9];
+extern int lastintro;
 extern int filingmenu;
 extern int replaysetspeed;
 extern int replaydirection;
@@ -81,7 +82,7 @@ extern char rememberfilename[34];
 //-------------------------------------------------------------------------------------------------;
 
 void setreplaytrack();
-int startreplay();
+void startreplay();
 void stopreplay();
 int DoReplayData();
 void Rplay();

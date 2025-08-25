@@ -4,6 +4,7 @@
 #include "3d.h"
 #include "moving.h"
 #include "func2.h"
+#include "roller.h"
 #include <string.h>
 #ifdef IS_WINDOWS
 #include <io.h>
@@ -35,6 +36,7 @@ char *replayname[9] = {   //000A63E0
     "8",
     "16"
 };
+int lastintro = -1;       //000A6404
 int filingmenu = 0;       //000A6408
 int replaysetspeed = 0;   //000A6414
 int replaydirection = 0;  //000A6418
@@ -150,118 +152,126 @@ char rememberfilename[34];//0018EE9E
 //-------------------------------------------------------------------------------------------------
 //00063DB0
 void setreplaytrack()
-{/*
-  int v0; // eax
-  char *v1; // edi
-  char *v2; // esi
-  int v3; // eax
-  int v4; // eax
-  int v5; // edi
-  int v6; // eax
-  int v7; // ecx
-  int v8; // ebx
-  int *v9; // esi
-  int *v10; // eax
-  int v11; // ebp
-  int v12; // esi
-  unsigned __int8 v13; // al
-  int v14; // ecx
-  int v15; // [esp+0h] [ebp-20h]
-  _BYTE v16[28]; // [esp+4h] [ebp-1Ch] BYREF
+{
+  char *pszRememberFilename; // edi
+  char *pszReplayFilename; // esi
+  char c1; // al
+  char c2; // al
+  int iRandValue1; // eax
+  int iIntroFileNum1; // eax
+  FILE *pFile; // edi
+  int iRandValue2; // eax
+  int iIntroFileNum2; // eax
+  //uint32 iCheatFlags1; // ecx
+  //uint32 iCheatFlags2; // ebx
+  int *iNonCompetitor; // esi
+  int *pReplayNonCompetitor; // eax
+  int iByteOffset; // ebp
+  int iCarIndex; // esi
+  uint8 iCarDesign; // al
+  int iNumCarsTemp; // ecx
+  int iCarCounter; // [esp+0h] [ebp-20h]
+  uint8 buffer[28]; // [esp+4h] [ebp-1Ch] BYREF
 
   if (replaytype == 2) {
-    oldtrack = TrackLoad;
+    oldtrack = TrackLoad;                       // Save current game state before loading replay
     oldcars = numcars;
-    v0 = textures_off;
     oldtextures = textures_off;
     if (intro || replayfilename[0] == 73) {
-      v1 = (char *)&rememberfilename;
-      v2 = replayfilename;
+      pszRememberFilename = rememberfilename;   // Copy current filename to remember buffer
+      pszReplayFilename = replayfilename;
       do {
-        LOBYTE(v0) = *v2;
-        *v1 = *v2;
-        if (!(_BYTE)v0)
+        c1 = *pszReplayFilename;
+        *pszRememberFilename = *pszReplayFilename;
+        if (!c1)
           break;
-        LOBYTE(v0) = v2[1];
-        v2 += 2;
-        v1[1] = v0;
-        v1 += 2;
-      } while ((_BYTE)v0);
+        c2 = pszReplayFilename[1];
+        pszReplayFilename += 2;
+        pszRememberFilename[1] = c2;
+        pszRememberFilename += 2;
+      } while (c2);
       do {
-        v3 = rand(v0);
-        v0 = ((v3 * introfiles - (__CFSHL__((v3 * introfiles) >> 31, 15) + ((v3 * introfiles) >> 31 << 15))) >> 15) + 1;
-      } while (v0 == lastintro && introfiles != 1);
-      lastintro = v0;
-      sprintf(replayfilename, "INTRO%d.GSS", v0);
+        iRandValue1 = rand();                   // Generate random intro file number (1 to introfiles)
+        iIntroFileNum1 = GetHighOrderRand(introfiles, iRandValue1) + 1;
+      } while (iIntroFileNum1 == lastintro && introfiles != 1);
+      lastintro = iIntroFileNum1;
+      sprintf(replayfilename, "INTRO%d.GSS", iIntroFileNum1);
     }
-    v4 = fopen(replayfilename, aRb_0);
-    v5 = v4;
-    if (!v4) {
+    pFile = fopen(replayfilename, "rb");        // Open the selected intro GSS file
+    if (!pFile) {
       do {
-        v6 = rand(v4);
-        v4 = ((v6 * introfiles - (__CFSHL__((v6 * introfiles) >> 31, 15) + ((v6 * introfiles) >> 31 << 15))) >> 15) + 1;
-      } while (v4 == lastintro);
-      lastintro = v4;
-      sprintf(replayfilename, "INTRO%d.GSS", v4);
-      v5 = fopen(replayfilename, aRb_0);
+        iRandValue2 = rand();                   // Fallback: try different intro file if first failed to open
+        iIntroFileNum2 = GetHighOrderRand(introfiles, iRandValue2) + 1;
+      } while (iIntroFileNum2 == lastintro);
+      lastintro = iIntroFileNum2;
+      sprintf(replayfilename, "INTRO%d.GSS", iIntroFileNum2);
+      pFile = fopen(replayfilename, "rb");
     }
-    if (v5) {
-      fread(v16, 1, 1, v5);
-      TrackLoad = v16[0];
-      game_track = v16[0];
-      fread(v16, 1, 1, v5);
-      if ((v16[0] & 0x20) != 0)
-        textures_off |= (unsigned int)cstart_branch_1;
+    if (pFile) {
+      fread(buffer, 1u, 1u, pFile);             // Read track number from GSS file
+      TrackLoad = buffer[0];
+      game_track = buffer[0];
+      fread(buffer, 1u, 1u, pFile);             // Read game flags byte from GSS file
+
+      if ((buffer[0] & 0x20) != 0)            // Process texture flag (bit 5 = 0x20)
+        textures_off |= TEX_OFF_ADVANCED_CARS;
       else
-        textures_off &= ~0x10000u;
+        textures_off &= ~TEX_OFF_ADVANCED_CARS;
       cheat_mode = 0;
-      if ((v16[0] & 0x40) != 0) {
-        v7 = cheat_mode;
-        BYTE1(v7) = BYTE1(cheat_mode) | 0x10;
-        cheat_mode = v7;
+
+      if ((buffer[0] & 0x40) != 0)            // Process cheat mode flags (bit 6 = 0x40, bit 7 = 0x80)
+      {
+        cheat_mode |= CHEAT_MODE_DOUBLE_TRACK;
+        //iCheatFlags1 = cheat_mode;
+        //BYTE1(iCheatFlags1) = BYTE1(cheat_mode) | 0x10;
+        //cheat_mode = iCheatFlags1;
       } else {
-        v8 = cheat_mode;
-        BYTE1(v8) = BYTE1(cheat_mode) & 0xEF;
-        cheat_mode = v8;
+        cheat_mode &= ~CHEAT_MODE_DOUBLE_TRACK;
+        //iCheatFlags2 = cheat_mode;
+        //BYTE1(iCheatFlags2) = BYTE1(cheat_mode) & 0xEF;
+        //cheat_mode = iCheatFlags2;
       }
-      if (v16[0] >= 0)
-        cheat_mode &= ~0x8000u;
+
+      if ((buffer[0] & 0x80u) == 0)
+        cheat_mode &= ~CHEAT_MODE_TINY_CARS;
       else
-        cheat_mode |= 0x8000u;
-      v9 = non_competitors;
-      numcars = v16[0] & 0x1F;
-      fseek(v5, 605, 0);
+        cheat_mode |= CHEAT_MODE_TINY_CARS;
+
+      iNonCompetitor = non_competitors;
+      numcars = buffer[0] & 0x1F;               // Extract number of cars from lower 5 bits (0x1F mask)
+      fseek(pFile, 605, 0);                     // Seek to non-competitors data at offset 605
       do {
-        v10 = v9++;
-        fread(v10, 4, 1, v5);
-      } while (v9 != &non_competitors[16]);
-      fread(&racers, 4, 1, v5);
-      v15 = 0;
+        pReplayNonCompetitor = iNonCompetitor++;// Read 16 non-competitor entries (4 bytes each)
+        fread(pReplayNonCompetitor, 4u, 1u, pFile);
+      } while (iNonCompetitor != &non_competitors[16]);
+      fread(&racers, 4u, 1u, pFile);            // Read racers data (4 bytes)
+      iCarCounter = 0;
       if (numcars > 0) {
-        v11 = 0;
-        v12 = 0;
+        iByteOffset = 0;
+        iCarIndex = 0;
         do {
-          fread(v16, 1, 1, v5);
-          v13 = v16[0];
-          Car_variable_22[v12] = v16[0];
-          v14 = numcars;
-          ++v11;
-          v12 += 308;
-          car_texture_names_variable_1[v11] = v13;
-          ++v15;
-        } while (v15 < v14);
+          fread(buffer, 1u, 1u, pFile);         // Read car design index for each car
+          iCarDesign = buffer[0];
+          Car[iCarIndex].byCarDesignIdx = buffer[0];
+          iNumCarsTemp = numcars;
+          iByteOffset += 4;
+          Drivers_Car[iCarIndex] = iCarDesign;
+          ++iCarIndex;
+          //*(_DWORD *)&car_texture_names[10][iByteOffset + 252] = iCarDesign;// offset into Drivers_Car
+          ++iCarCounter;
+        } while (iCarCounter < iNumCarsTemp);
       }
     }
-    if (v5)
-      fclose(v5);
-  }*/
+    if (pFile)
+      fclose(pFile);                            // Close the GSS file
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //00064040
-int startreplay()
+void startreplay()
 {
-  return 0; /*
+  /*
   int result; // eax
   char *v1; // edi
   const char *v2; // esi
