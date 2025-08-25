@@ -2152,7 +2152,8 @@ LABEL_45:
     pCar->nReverseWarnCooldown = 180;
   iAudioDriverIdx = pCar->iDriverIdx;
   if ((player1_car == iAudioDriverIdx || player2_car == iAudioDriverIdx) && (nCurrentChunk >= 0 && pCar->nYaw3 < 4096 || pCar->nYaw3 > 12288)) {
-    //nCurrentChunk check added by ROLLER
+    //nCurrentChunk check and iAudioSample init added by ROLLER
+    iAudioSample = 0;
     if (nCurrentChunk >= 0 && (double)samplespeed[nCurrentChunk] <= pCar->fFinalSpeed) {
       iAudioSample = samplemax[nCurrentChunk];
     } else if (pCar->fFinalSpeed <= 80.0) {
