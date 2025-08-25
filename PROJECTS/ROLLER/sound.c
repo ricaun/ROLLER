@@ -96,6 +96,7 @@ int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
 int Pending[16];            //0016314C
+int SamplePending[16][40];  //0016318C
 int HandleCar[32];          //00163B8C
 int HandleSample[32];       //00163C0C
 tCarSoundData enginedelay[16]; //00163C8C
@@ -2707,70 +2708,70 @@ void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan,
 
 //-------------------------------------------------------------------------------------------------
 //0003D110
-int sfxpend(int a1, int a2, int a3)
+void sfxpend(int iSampleIdx, int iDriverIdx, int iVolume)
 {
-  return 0; /*
-  int v5; // edi
-  int result; // eax
-  int v7; // edi
-  int v8; // esi
-  int i; // edx
-  int v10; // ecx
+  int iClampedVolume; // edi
+  int iAdjustedVolume; // edi
+  int iDriverIndex; // ebx
+  int bSampleFound; // esi
+  int iArrayIndex; // eax
+  int iLoopCounter; // edx
+  int iPendingOffset; // eax
+  int iNewPendingCount; // ecx
 
-  v5 = a3;
-  if (a3 > 0x7FFF)
-    v5 = 0x7FFF;
-  if (replaytype != 2) {
-    newrepsample[a2] = a1;
-    repvolume[a2] = (unsigned __int16)(v5 - (__CFSHL__(v5 >> 31, 8) + ((unsigned __int16)(v5 >> 31) << 8))) >> 8;
+  iClampedVolume = iVolume;                     // Clamp volume to maximum allowed value (32767)
+  if (iVolume > 0x7FFF)
+    iClampedVolume = 0x7FFF;
+  if (replaytype != 2)                        // Store replay information if not in replay playback mode
+  {
+    newrepsample[iDriverIdx] = iSampleIdx;
+    repvolume[iDriverIdx] = iClampedVolume / 256;
+    //repvolume[iDriverIdx] = (unsigned __int16)(iClampedVolume - (__CFSHL__(iClampedVolume >> 31, 8) + ((unsigned __int16)(iClampedVolume >> 31) << 8))) >> 8;
   }
-  result = v5 * SFXVolume / 127;
-  v7 = result;
-  if (soundon) {
-    result = 4 * a2;
-    if (Pending[a2] != 5) {
-      v8 = 0;
-      result = 160 * a2;
-      for (i = 0; i < Pending[a2]; result += 8) {
-        if (a1 == *(int *)((char *)&SamplePending + result))
-          v8 = -1;
-        ++i;
-      }
-      if (!v8) {
-        result = 160 * a2 + 8 * Pending[a2];
-        *(int *)((char *)&SamplePending + result) = a1;
-        v10 = Pending[a2] + 1;
-        *(int *)((char *)&SamplePending_variable_1 + result) = v7;
-        Pending[a2] = v10;
-      }
+  iAdjustedVolume = iClampedVolume * SFXVolume / 127;// Calculate final volume based on global SFX volume setting
+  if (soundon && Pending[iDriverIdx] != 5)    // Only queue sample if sound is enabled and pending queue isn't full
+  {
+    iDriverIndex = iDriverIdx;
+    bSampleFound = 0;                           // Initialize duplicate detection flag and array indexing
+    iArrayIndex = 40 * iDriverIdx;
+    for (iLoopCounter = 0; iLoopCounter < Pending[iDriverIndex]; iArrayIndex += 2)// Check if this sample is already pending for this driver
+    {
+      if (iSampleIdx == SamplePending[0][iArrayIndex])
+        bSampleFound = -1;
+      ++iLoopCounter;
+    }
+    if (!bSampleFound)                        // Add sample to pending queue if it's not a duplicate
+    {
+      iPendingOffset = 160 * iDriverIdx + 8 * Pending[iDriverIndex];// Calculate offset in pending array and store sample data
+      *(int *)((char *)SamplePending[0] + iPendingOffset) = iSampleIdx;
+      iNewPendingCount = Pending[iDriverIndex] + 1;
+      *(int *)((char *)&SamplePending[0][1] + iPendingOffset) = iAdjustedVolume;
+      Pending[iDriverIndex] = iNewPendingCount; // Increment pending count for this driver
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //0003D200
-int enginesounds2(int result, int a2)
+void enginesounds2(int iPlayer1Car, int iPlayer2Car)
 {
-  return 0; /*
-  int v2; // ecx
-  int v3; // ecx
+  int iEngine1Offset; // ecx
+  int iEngine2Offset; // ecx
 
   if (soundon) {
     delaywritex = delaywrite & 0x1F;
-    v2 = 224 * result;
-    enginedelay_variable_1[7 * (delaywrite & 0x1F) + v2] = -1;
-    enginedelay_variable_3[7 * delaywritex + v2] = -1;
-    enginedelay_variable_5[7 * delaywritex + v2] = -1;
-    v3 = 224 * a2;
-    enginedelay_variable_1[7 * delaywritex + v3] = -1;
-    enginedelay_variable_3[7 * delaywritex + v3] = -1;
-    enginedelay_variable_5[7 * delaywritex + v3] = -1;
-    enginesound(0.0, 0.0, 2000.0, 0x8000);
-    enginesound(0.0, 0.0, 2000.0, 0x8000);
-    return delaywrite++;
+    iEngine1Offset = 32 * iPlayer1Car;
+    enginedelay[0].engineSoundData[(delaywrite & 0x1F) + iEngine1Offset].iEngineVol = -1;
+    enginedelay[0].engineSoundData[delaywritex + iEngine1Offset].iEngine2Vol = -1;
+    enginedelay[0].engineSoundData[delaywritex + iEngine1Offset].iSkid1Vol = -1;
+    iEngine2Offset = 32 * iPlayer2Car;
+    enginedelay[0].engineSoundData[delaywritex + iEngine2Offset].iEngineVol = -1;
+    enginedelay[0].engineSoundData[delaywritex + iEngine2Offset].iEngine2Vol = -1;
+    enginedelay[0].engineSoundData[delaywritex + iEngine2Offset].iSkid1Vol = -1;
+    enginesound(iPlayer1Car, 0.0, 0.0, 2000.0, 0x8000);
+    enginesound(iPlayer2Car, 0.0, 0.0, 2000.0, 0x8000);
+    ++delaywrite;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
