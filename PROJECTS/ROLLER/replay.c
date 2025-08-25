@@ -133,10 +133,13 @@ char repsample[16];       //0018DC78
 char repvolume[16];       //0018DC88
 int oldtrack;             //0018EE30
 int oldtextures;          //0018EE34
+int replayheader;         //0018EE38
 FILE *replayfile;         //0018EE3C
 int replayspeed;          //0018EE40
 int oldcars;              //0018EE44
 int replayframes;         //0018EE48
+int discfull;             //0018EE4C
+int replayblock;          //0018EE50
 int currentreplayframe;   //0018EE54
 int lastreplayframe;      //0018EE58
 int introfiles;           //0018EE70
@@ -271,51 +274,49 @@ void setreplaytrack()
 //00064040
 void startreplay()
 {
-  /*
-  int result; // eax
-  char *v1; // edi
-  const char *v2; // esi
-  char v3; // al
-  char v4; // al
-  int *v5; // esi
-  int *v6; // eax
-  int v7; // edi
-  int v8; // esi
-  int v9; // edi
-  char *v10; // esi
-  char *v11; // edx
-  char *v12; // ebx
-  char *v13; // edi
-  char *v14; // esi
-  char v15; // al
-  char v16; // al
-  int v17; // eax
-  __int64 v18; // rax
-  int v19; // ecx
-  int v20; // edx
-  int v21; // eax
-  int v22; // ecx
-  int v23; // ebx
-  int *v24; // esi
-  int *v25; // eax
-  int v26; // ebp
-  int v27; // edi
-  unsigned int v28; // esi
-  char v29; // al
-  int v30; // ebx
-  double v31; // st7
-  double v32; // st7
-  int v33; // edi
-  char *v34; // esi
-  int v35; // esi
-  char v36; // al
-  int v37; // ebp
-  unsigned int v38; // eax
-  int v39; // edx
-  int v40; // [esp+0h] [ebp-3Ch] BYREF
-  _BYTE v41[28]; // [esp+20h] [ebp-1Ch] BYREF
+  char *pDestStr; // edi
+  const char *pSrcStr; // esi
+  char cChar1; // al
+  char cChar2; // al
+  FILE *pWriteFile; // ecx
+  int *pNonCompetitorsWrite; // esi
+  int *pCurrentNonCompetitor; // eax
+  int iCarWriteCounter; // edi
+  int iCarWriteIndex; // esi
+  int iDriverNameCounter; // edi
+  char *pDriverNamesWrite; // esi
+  char *pDriverNamesSrc; // edx
+  char *pTempNamesDest; // ebx
+  char *pTempPtr1; // edi
+  char *pTempPtr2; // esi
+  char cTempChar1; // al
+  char cTempChar2; // al
+  //int iFileHandle; // eax
+  //int iFileHandleCopy; // edx
+  FILE *pReadFile; // ecx
+  //uint32 iCheatFlags1; // edx
+  //uint32 iCheatFlags2; // eax
+  //uint32 iCheatFlags3; // ecx
+  //uint32 iCheatFlags4; // ebx
+  int *pNonCompetitorsRead; // esi
+  int *pCurrentNonCompetitorRead; // eax
+  int iDriverIndex; // ebp
+  int iNonCompetitorIndex; // edi
+  int iCarArrayIndex; // esi
+  uint8 byCarDesignIdx; // al
+  int iNonCompetitorValue; // ebx
+  double dZCoordinate; // st7
+  int iDriverNameIndex; // edi
+  char *pDriverNamesRead; // esi
+  int iReplayDataIndex; // esi
+  char cReplayDataByte; // al
+  int iNumCarsLocal; // ebp
+  //signed int iCarByteOffset; // eax
+  //signed int iTotalCarBytes; // edx
+  int iReplayData; // [esp+0h] [ebp-3Ch] BYREF
+  uint8 buffer[28]; // [esp+20h] [ebp-1Ch] BYREF
 
-  oldcars = numcars;
+  oldcars = numcars;                            // Initialize replay state variables
   lastreplayframe = -1;
   currentreplayframe = 0;
   lastautocut = -1;
@@ -327,218 +328,244 @@ void startreplay()
   replaydirection = 1;
   replaypanel = -1;
   controlicon = 9;
-  memset(&disabled, 255, 0x4000);
-  memset(&camera, 0, 600);
-  result = replaytype;
+  memset(disabled, 255, sizeof(disabled));
+  memset(camera, 0, sizeof(camera));
   cuts = 0;
-  if (replaytype) {
+  if (replaytype) {                                             // RECORDING MODE: Set up replay file for writing
     if ((unsigned int)replaytype <= 1) {
-      v1 = replayfilename;
-      v2 = "..\\REPLAYS\\REPLAY.TMP";
+      pDestStr = replayfilename;
+      pSrcStr = "..\\REPLAYS\\REPLAY.TMP";      // Copy replay temp filename
       discfull = 0;
       do {
-        v3 = *v2;
-        *v1 = *v2;
-        if (!v3)
+        cChar1 = *pSrcStr;
+        *pDestStr = *pSrcStr;
+        if (!cChar1)
           break;
-        v4 = v2[1];
-        v2 += 2;
-        v1[1] = v4;
-        v1 += 2;
-      } while (v4);
-      result = fopen(replayfilename, &aYwb[1]);
-      replayfile = result;
-      if (result) {
-        v41[0] = TrackLoad;
-        fwrite(v41, 1, 1, result);
-        v41[0] = numcars;
-        if (((unsigned int)cstart_branch_1 & textures_off) != 0)
-          v41[0] = numcars | 0x20;
+        cChar2 = pSrcStr[1];
+        pSrcStr += 2;
+        pDestStr[1] = cChar2;
+        pDestStr += 2;
+      } while (cChar2);
+      pWriteFile = ROLLERfopen(replayfilename, "wb");// Open replay file for writing
+      replayfile = pWriteFile;
+      if (pWriteFile) {
+        buffer[0] = TrackLoad;                  // Write track number to replay file
+        fwrite(buffer, 1, 1, pWriteFile);
+        buffer[0] = numcars;                    // Write game flags (numcars + texture/cheat flags)
+        // TEX_OFF_ADVANCED_CARS
+        if ((textures_off & 0x10000) != 0)
+          buffer[0] = numcars | 0x20;
+        // CHEAT_MODE_DOUBLE_TRACK
         if ((cheat_mode & 0x1000) != 0)
-          v41[0] |= 0x40u;
+          buffer[0] |= 0x40u;
+        // CHEAT_MODE_TINY_CARS
         if ((cheat_mode & 0x8000) != 0)
-          v41[0] |= 0x80u;
-        fwrite(v41, 1, 1, replayfile);
-        v41[0] = ViewType[0];
-        fwrite(v41, 1, 1, replayfile);
-        v41[0] = SelectedView[0];
-        fwrite(v41, 1, 1, replayfile);
-        v5 = non_competitors;
-        fwrite(&camera, 6, 100, replayfile);
-        v41[0] = cuts;
-        fwrite(v41, 1, 1, replayfile);
+          buffer[0] |= 0x80u;
+        fwrite(buffer, 1, 1, replayfile);
+        buffer[0] = (uint8)ViewType[0];                // Write view type and selected view to replay file
+        fwrite(buffer, 1, 1, replayfile);
+        buffer[0] = SelectedView[0];
+        fwrite(buffer, 1, 1, replayfile);
+        pNonCompetitorsWrite = non_competitors;
+        fwrite(camera, 6, 100, replayfile);     // Write camera data and cuts to replay file
+        buffer[0] = cuts;
+        fwrite(buffer, 1, 1, replayfile);
         do {
-          v6 = v5++;
-          fwrite(v6, 4, 1, replayfile);
-        } while (v5 != &non_competitors[16]);
+          pCurrentNonCompetitor = pNonCompetitorsWrite++;// Write non-competitors and racers data
+          fwrite(pCurrentNonCompetitor, 4, 1, replayfile);
+        } while (pNonCompetitorsWrite != &non_competitors[16]);
         fwrite(&racers, 4, 1, replayfile);
-        v7 = 0;
+        iCarWriteCounter = 0;
         if (numcars > 0) {
-          v8 = 0;
+          iCarWriteIndex = 0;
           do {
-            v41[0] = Car_variable_22[v8];
-            ++v7;
-            fwrite(v41, 1, 1, replayfile);
-            v8 += 308;
-          } while (v7 < numcars);
+            buffer[0] = Car[iCarWriteIndex].byCarDesignIdx;// Write car design indices for each car
+            ++iCarWriteCounter;
+            fwrite(buffer, 1, 1, replayfile);
+            ++iCarWriteIndex;
+          } while (iCarWriteCounter < numcars);
         }
-        result = numcars;
-        v9 = 0;
+        iDriverNameCounter = 0;
         if (numcars > 0) {
-          v10 = driver_names;
+          pDriverNamesWrite = driver_names[0];
           do {
-            result = fwrite(v10, 9, 1, replayfile);
-            ++v9;
-            v10 += 9;
-          } while (v9 < numcars);
+            fwrite(pDriverNamesWrite, 9, 1, replayfile);
+            ++iDriverNameCounter;
+            pDriverNamesWrite += 9;
+          } while (iDriverNameCounter < numcars);
         }
       }
-    } else if (replaytype == 2) {
+    } else if (replaytype == 2) {                                           // PLAYBACK MODE: Load replay data from GSS file
       if (!intro)
-        rev_vga_variable_5 = load_picture((int)&aLreplayscBm[1], 0, 600, 9);
-      v11 = driver_names;
-      v12 = (char *)&temp_names;
+        rev_vga[15] = (tBlockHeader *)load_picture("replaysc.bm");// Load replay screen image if not in intro mode
+      pDriverNamesSrc = driver_names[0];        // Backup current driver names to temp storage
+      pTempNamesDest = temp_names[0];
       do {
-        v13 = v12;
-        v14 = v11;
+        pTempPtr1 = pTempNamesDest;
+        pTempPtr2 = pDriverNamesSrc;
         do {
-          v15 = *v14;
-          *v13 = *v14;
-          if (!v15)
+          cTempChar1 = *pTempPtr2;
+          *pTempPtr1 = *pTempPtr2;
+          if (!cTempChar1)
             break;
-          v16 = v14[1];
-          v14 += 2;
-          v13[1] = v16;
-          v13 += 2;
-        } while (v16);
-        v11 += 9;
-        v12 += 9;
-      } while (v11 != &driver_names[144]);
-      v17 = open(replayfilename, 512);
-      if (v17 != -1) {
-        v18 = filelength(v17, v17, v12);
-        replayframes = v18;
-        close(HIDWORD(v18), HIDWORD(v18));
-      }
-      v19 = fopen(replayfilename, aRb_0);
-      replayfile = v19;
-      if (v19) {
-        fread(v41, 1, 1, v19);
-        TrackLoad = v41[0];
-        game_track = v41[0];
-        fread(v41, 1, 1, replayfile);
-        if ((v41[0] & 0x20) != 0)
-          textures_off |= (unsigned int)cstart_branch_1;
+          cTempChar2 = pTempPtr2[1];
+          pTempPtr2 += 2;
+          pTempPtr1[1] = cTempChar2;
+          pTempPtr1 += 2;
+        } while (cTempChar2);
+        pDriverNamesSrc += 9;
+        pTempNamesDest += 9;
+      } while (pDriverNamesSrc != driver_names[16]);
+
+      replayframes = ROLLERfilelength(replayfilename);
+      //iFileHandle = open(replayfilename, 0x200);// Get replay file size to calculate frame count
+      //iFileHandleCopy = iFileHandle;
+      //if (iFileHandle != -1) {
+      //  replayframes = filelength(iFileHandle);
+      //  close(iFileHandleCopy);
+      //}
+
+      pReadFile = ROLLERfopen(replayfilename, "rb");  // Open replay file for reading
+      replayfile = pReadFile;
+      if (pReadFile) {
+        fread(buffer, 1u, 1u, pReadFile);       // Read track number and game flags from replay file
+        TrackLoad = buffer[0];
+        game_track = buffer[0];
+        fread(buffer, 1u, 1u, replayfile);
+
+        // TEX_OFF_ADVANCED_CARS
+        if ((buffer[0] & 0x20) != 0)
+          textures_off |= TEX_OFF_ADVANCED_CARS;
         else
-          textures_off &= ~0x10000u;
+          textures_off &= ~TEX_OFF_ADVANCED_CARS;
+
         cheat_mode = 0;
-        if ((v41[0] & 0x40) != 0) {
-          v20 = cheat_mode;
-          BYTE1(v20) = BYTE1(cheat_mode) | 0x10;
-          cheat_mode = v20;
+
+        // CHEAT_MODE_DOUBLE_TRACK
+        if ((buffer[0] & 0x40) != 0) {
+          cheat_mode |= CHEAT_MODE_DOUBLE_TRACK;
+          //iCheatFlags1 = cheat_mode;
+          //BYTE1(iCheatFlags1) = BYTE1(cheat_mode) | 0x10;
+          //cheat_mode = iCheatFlags1;
         } else {
-          v21 = cheat_mode;
-          BYTE1(v21) = BYTE1(cheat_mode) & 0xEF;
-          cheat_mode = v21;
+          cheat_mode &= ~CHEAT_MODE_DOUBLE_TRACK;
+          //iCheatFlags2 = cheat_mode;
+          //BYTE1(iCheatFlags2) = BYTE1(cheat_mode) & 0xEF;
+          //cheat_mode = iCheatFlags2;
         }
-        if (v41[0] >= 0) {
-          v23 = cheat_mode;
-          BYTE1(v23) = BYTE1(cheat_mode) & 0x7F;
-          cheat_mode = v23;
+
+        // CHEAT_MODE_TINY_CARS
+        if ((buffer[0] & 0x80u) == 0) {
+          cheat_mode |= CHEAT_MODE_TINY_CARS;
+          //iCheatFlags4 = cheat_mode;
+          //BYTE1(iCheatFlags4) = BYTE1(cheat_mode) & 0x7F;
+          //cheat_mode = iCheatFlags4;
         } else {
-          v22 = cheat_mode;
-          BYTE1(v22) = BYTE1(cheat_mode) | 0x80;
-          cheat_mode = v22;
+          cheat_mode &= ~CHEAT_MODE_TINY_CARS;
+          //iCheatFlags3 = cheat_mode;
+          //BYTE1(iCheatFlags3) = BYTE1(cheat_mode) | 0x80;
+          //cheat_mode = iCheatFlags3;
         }
-        numcars = v41[0] & 0x1F;
-        fread(v41, 1, 1, replayfile);
-        ViewType[0] = v41[0];
-        fread(v41, 1, 1, replayfile);
-        SelectedView[0] = v41[0];
-        fread(&camera, 6, 100, replayfile);
-        fread(v41, 1, 1, replayfile);
-        v24 = non_competitors;
-        cuts = v41[0];
+
+        numcars = buffer[0] & 0x1F;
+        fread(buffer, 1u, 1u, replayfile);
+        ViewType[0] = buffer[0];
+        fread(buffer, 1u, 1u, replayfile);
+        SelectedView[0] = buffer[0];
+        fread(camera, 6u, 0x64u, replayfile);
+        fread(buffer, 1u, 1u, replayfile);
+        pNonCompetitorsRead = non_competitors;
+        cuts = buffer[0];
         do {
-          v25 = v24++;
-          fread(v25, 4, 1, replayfile);
-        } while (v24 != &non_competitors[16]);
-        fread(&racers, 4, 1, replayfile);
-        v26 = 0;
+          pCurrentNonCompetitorRead = pNonCompetitorsRead++;
+          fread(pCurrentNonCompetitorRead, 4u, 1u, replayfile);
+        } while (pNonCompetitorsRead != &non_competitors[16]);
+        fread(&racers, 4u, 1u, replayfile);
+        iDriverIndex = 0;
         if (numcars > 0) {
-          v27 = 0;
-          v28 = 0;
+          iNonCompetitorIndex = 0;
+          iCarArrayIndex = 0;
           do {
-            fread(v41, 1, 1, replayfile);
-            v29 = v41[0];
-            Car_variable_10[v28 / 4] = v26;
-            Car_variable_22[v28] = v29;
-            Car_variable_64[v28] = 0;
-            v30 = non_competitors[v27];
-            Car_variable_65[v28] = 20;
-            if (v30) {
-              Car[v28 / 4] = -localdata_variable_1;
-              Car_variable_1[v28 / 4] = -localdata_variable_2;
-              v31 = -localdata_variable_3;
-              Car_variable_17[v28 / 4] = 0;
-              Car_variable_23[v28] = -1;
-              v32 = v31 + replay_c_variable_14;
-              Car_variable_8[v28 / 4] = 0.0;
-              Car_variable_27[v28 / 4] = 0;
-              finished_car[v27] = -1;
-              Car_variable_4[v28 / 2] = Car_variable_3[v28 / 2];
-              Car_variable_3[v28 / 2] = -1;
-              Car_variable_2[v28 / 4] = v32;
+            fread(buffer, 1u, 1u, replayfile);  // Initialize each car from replay data
+            byCarDesignIdx = buffer[0];
+            Car[iCarArrayIndex].iDriverIdx = iDriverIndex;
+            Car[iCarArrayIndex].byCarDesignIdx = byCarDesignIdx;
+            Car[iCarArrayIndex].byDamageToggle = 0;
+            iNonCompetitorValue = non_competitors[iNonCompetitorIndex];
+            Car[iCarArrayIndex].byUnk65 = 20;
+            if (iNonCompetitorValue)          // Position non-competitor cars off-track
+            {
+              Car[iCarArrayIndex].pos.fX = -localdata[0].pointAy[3].fX;
+              Car[iCarArrayIndex].pos.fY = -localdata[0].pointAy[3].fY;
+              dZCoordinate = -localdata[0].pointAy[3].fZ;
+              Car[iCarArrayIndex].iControlType = 0;
+              Car[iCarArrayIndex].byLives = -1;
+              Car[iCarArrayIndex].fFinalSpeed = 0.0;
+              Car[iCarArrayIndex].fSpeedOverflow = 0.0;
+              finished_car[iNonCompetitorIndex] = -1;
+              Car[iCarArrayIndex].nChunk2 = Car[iCarArrayIndex].nCurrChunk;
+              Car[iCarArrayIndex].nCurrChunk = -1;
+              Car[iCarArrayIndex].pos.fZ = (float)dZCoordinate + 1000.0f;
             }
-            ++v27;
-            ++v26;
-            v28 += 308;
-          } while (v26 < numcars);
+            ++iNonCompetitorIndex;
+            ++iDriverIndex;
+            ++iCarArrayIndex;
+          } while (iDriverIndex < numcars);
         }
-        v33 = 0;
+        iDriverNameIndex = 0;
         if (numcars > 0) {
-          v34 = driver_names;
+          pDriverNamesRead = driver_names[0];   // Read driver names from replay file
           do {
-            fread(v34, 9, 1, replayfile);
-            ++v33;
-            v34 += 9;
-          } while (v33 < numcars);
+            fread(pDriverNamesRead, 9u, 1u, replayfile);// Write driver names (9 bytes each)
+            ++iDriverNameIndex;
+            pDriverNamesRead += 9;
+          } while (iDriverNameIndex < numcars);
         }
-        fseek(replayfile, replayheader, 0);
-        v35 = 0;
+        fseek(replayfile, replayheader, 0);     // Seek to replay frame data header
+        iReplayDataIndex = 0;
         if (numcars > 0) {
           do {
-            fread(&v40, 30, 1, replayfile);
-            ++v35;
-            v36 = HIBYTE(v40);
-            v37 = numcars;
-            temp_names_variable_1[v35] = HIBYTE(v40);
-            newrepsample_variable_1[v35] = v36;
-          } while (v35 < v37);
+            fread(&iReplayData, 0x1Eu, 1u, replayfile);// Read initial replay frame data (30 bytes per car)
+            ++iReplayDataIndex;
+            cReplayDataByte = HIBYTE(iReplayData);
+            iNumCarsLocal = numcars;
+            temp_names[15][iReplayDataIndex + 8] = HIBYTE(iReplayData);
+            newrepsample[iReplayDataIndex + 15] = cReplayDataByte;
+          } while (iReplayDataIndex < iNumCarsLocal);
         }
-        replayheader = 10 * numcars + 673;
+        replayheader = 10 * numcars + 673;      // Calculate replay header size and frame block size
         replayblock = 30 * racers + 16;
-        replayframes = (replayframes - replayheader) / (30 * racers + 16);
+        replayframes = (int)(replayframes - replayheader) / (30 * racers + 16);
       }
-      if (numcars > 0) {
-        v38 = 0;
-        v39 = 308 * numcars;
-        do {
-          v38 += 308;
-          CarBox_variable_31[v38 / 4] = 8;
-          CarBox_variable_28[v38 / 4] = 0;
-          CarBox_variable_29[v38 / 4] = 0;
-          CarBox_variable_26[v38 / 4] = 0;
-          CarBox_variable_27[v38 / 4] = 0;
-        } while ((int)v38 < v39);
+
+      //TODO: ensure this is correct
+      for (int iCarIndex = 0; iCarIndex < numcars; iCarIndex++)
+      {
+        // Initialize car physics data for replay
+        Car[iCarIndex].iControlType = 8;           // was the DWORD assignment
+        Car[iCarIndex].fHorizontalSpeed = 0.0f;    // was hitboxAy[14][2].fZ
+        Car[iCarIndex].direction.fX = 0.0f;        // was hitboxAy[14][3].fY  
+        Car[iCarIndex].direction.fY = 0.0f;        // was hitboxAy[14][1].fY
+        Car[iCarIndex].direction.fZ = 0.0f;        // was hitboxAy[14][1].fZ
       }
-      result = 256;
-      replayspeed = 256;
+      //if (numcars > 0) {
+      //  iCarByteOffset = 0;
+      //  iTotalCarBytes = sizeof(tCar) * numcars;
+      //  do {
+      //    iCarByteOffset += sizeof(tCar);       // Initialize car physics data for replay
+      //    *(_DWORD *)((char *)&CarBox.hitboxAy[15][6].fY + iCarByteOffset) = 8;// offset into Car
+      //    *(float *)((char *)&CarBox.hitboxAy[14][2].fZ + iCarByteOffset) = 0.0;
+      //    *(float *)((char *)&CarBox.hitboxAy[14][3].fY + iCarByteOffset) = 0.0;
+      //    *(float *)((char *)&CarBox.hitboxAy[14][1].fY + iCarByteOffset) = 0.0;
+      //    *(float *)((char *)&CarBox.hitboxAy[14][1].fZ + iCarByteOffset) = 0.0;
+      //  } while (iCarByteOffset < iTotalCarBytes);
+      //}
+
+      replayspeed = 256;                        // Set default replay speed and check for intro mode
       if (replayfilename[0] == 73 && !intro)
         filingmenu = 1;
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
