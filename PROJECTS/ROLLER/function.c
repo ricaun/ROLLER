@@ -6,6 +6,7 @@
 #include "view.h"
 #include "roller.h"
 #include "network.h"
+#include "graphics.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -1311,248 +1312,240 @@ LABEL_12:
 
 //-------------------------------------------------------------------------------------------------
 //00038A80
-int showmap(uint8 *a1, int a2)
+void showmap(uint8 *pScrPtr, int iCarIdx)
 {
-  return 0;/*
-  int v2; // esi
-  int v4; // edx
-  int v5; // eax
-  float *v6; // edx
-  int v7; // eax
-  float *v8; // eax
-  double v9; // st5
-  double v10; // st7
-  double v11; // st6
-  double v12; // st5
-  double v13; // st7
-  int v14; // eax
-  int v15; // eax
-  int v16; // ebx
-  int v17; // edi
-  float *v18; // eax
-  double v19; // st5
-  double v20; // st7
-  double v21; // st6
-  double v22; // st5
-  int v23; // eax
-  double v24; // st7
-  int v25; // eax
-  int v26; // edx
-  int v27; // edx
-  int v28; // edi
-  int v29; // ebx
-  float *v30; // eax
-  double v31; // st7
-  double v32; // st6
-  double v33; // st5
-  int v34; // eax
-  double v35; // st7
-  int v36; // eax
-  int v37; // eax
-  int v38; // esi
-  int v39; // edx
-  int v40; // eax
+  int iChunk2; // edx
+  int iNextChunk; // eax
+  tData *pCurrChunkData; // edx
+  tData *pNextChunkData; // ebx
+  tData *pCarChunkData; // eax
+  double dInvScale; // st5
+  double dRelX; // st7
+  double dRelY; // st6
+  double dRotatedY_1; // st7
+  int iCalcResult; // eax
+  int iScreenX2; // eax
+  int iScreenY; // ebx
+  int iMapSect; // edi
+  tData *pSectionData; // eax
+  double dSectionInvScale; // st5
+  double dSectionRelX; // st7
+  double dSectionRelY; // st6
+  //int iAngleIndex; // eax
+  double dSectionRotatedY; // st7
+  int iSectionCalc; // eax
+  int iNextScreenX; // edx
+  int iCurrentScreenX; // edx
+  int iMapSectLoop; // edi
+  int iCurrentScreenY; // ebx
+  tData *pLoopSectionData; // eax
+  double dLoopRelX; // st7
+  double dLoopRelY; // st6
+  //int iLoopAngleIndex; // eax
+  double dLoopRotatedY; // st7
+  int iLoopCalc; // eax
+  int iLastSection; // eax
+  int iWinWidth; // esi
+  int iMarkerY; // edx
+  int iCurrentX; // eax
   int i; // ebx
-  float *v42; // eax
-  float *v43; // edi
-  int v44; // edx
-  float *v45; // edx
-  double v46; // st5
-  double v47; // st7
-  double v48; // st6
-  double v49; // st5
-  double v50; // st7
-  int v51; // ecx
-  int v52; // edx
-  int v53; // eax
-  int v54; // edx
-  int v55; // edx
-  _BYTE *v56; // ebx
-  int v57; // edx
-  int result; // eax
-  _BYTE *v59; // eax
-  float v60; // [esp+0h] [ebp-9Ch]
-  int v61; // [esp+4h] [ebp-98h]
-  int v62; // [esp+1Ch] [ebp-80h]
-  int v63; // [esp+20h] [ebp-7Ch]
-  int v64; // [esp+24h] [ebp-78h]
-  int v65; // [esp+34h] [ebp-68h]
-  int v66; // [esp+3Ch] [ebp-60h]
-  int v68; // [esp+44h] [ebp-58h]
-  float v69; // [esp+48h] [ebp-54h]
-  float v70; // [esp+4Ch] [ebp-50h]
-  float v71; // [esp+50h] [ebp-4Ch]
-  float v72; // [esp+54h] [ebp-48h]
-  int v73; // [esp+58h] [ebp-44h]
-  int v74; // [esp+5Ch] [ebp-40h]
-  int v75; // [esp+6Ch] [ebp-30h]
-  int v76; // [esp+70h] [ebp-2Ch]
-  int v77; // [esp+74h] [ebp-28h]
-  int v78; // [esp+78h] [ebp-24h]
-  float *v79; // [esp+7Ch] [ebp-20h]
-  int v80; // [esp+80h] [ebp-1Ch]
-  int v81; // [esp+84h] [ebp-18h]
+  tCar *pCarArray; // eax
+  tCar *pCurrentCar; // edi
+  int iCurrChunk; // edx
+  float *pChunkTransform; // edx
+  double dCarInvScale; // st5
+  double dTransformedX; // st7
+  double dTransformedY; // st6
+  double dRotatedX; // st5
+  double dRotatedY; // st7
+  int iScreenSize; // ecx
+  int iCarScreenCalc; // edx
+  int iDriverIdx; // edx
+  int iColorIndex; // edx
+  uint8 *pCarPixel; // ebx
+  int iCarColor; // edx
+  uint8 *pPlayerPixel; // eax
+  float fDeltaX; // [esp+0h] [ebp-9Ch]
+  float fDeltaY; // [esp+4h] [ebp-98h]
+  int iViewAngle; // [esp+1Ch] [ebp-80h]
+  int iX1; // [esp+20h] [ebp-7Ch]
+  int iOrigScreenY; // [esp+24h] [ebp-78h]
+  int iPlayerScreenY; // [esp+34h] [ebp-68h]
+  int iPlayerScreenX; // [esp+3Ch] [ebp-60h]
+  int iPlayerColor; // [esp+44h] [ebp-58h]
+  float fInvScale; // [esp+48h] [ebp-54h]
+  float fMapScale; // [esp+4Ch] [ebp-50h]
+  float fX; // [esp+50h] [ebp-4Ch]
+  float fY; // [esp+54h] [ebp-48h]
+  int iPixelLoop; // [esp+58h] [ebp-44h]
+  int iCarLoop; // [esp+5Ch] [ebp-40h]
+  int iSectionScreenXTemp; // [esp+6Ch] [ebp-30h]
+  int iSectionScreenY; // [esp+70h] [ebp-2Ch]
+  int iSectionScreenX; // [esp+74h] [ebp-28h]
+  int iY1; // [esp+78h] [ebp-24h]
+  tData *pData; // [esp+7Ch] [ebp-20h]
+  int iCarScreenY; // [esp+80h] [ebp-1Ch]
+  int iCarScreenX; // [esp+84h] [ebp-18h]
 
-  v2 = winw;
-  v70 = *(float *)&cur_mapsize;
-  if ((cheat_mode & 0x1000) != 0)
-    v70 = *(float *)&cur_mapsize * function_c_variable_19;
-  v4 = Car_variable_4[154 * a2];
-  v5 = v4 + 1;
-  if (v4 + 1 == TRAK_LEN)
-    v5 ^= TRAK_LEN;
-  v6 = (float *)((char *)&localdata + 128 * v4);
-  v7 = v5 << 7;
-  *(float *)&v61 = v6[10] - *(float *)((char *)&localdata + v7 + 40);
-  v60 = v6[9] - *(float *)((char *)&localdata + v7 + 36);
-  v62 = (4096 - (unsigned __int16)getangle(v7, 4096, v60, v61)) & 0x3FFF;
-  v8 = (float *)((char *)&localdata + 128 * Car_variable_4[154 * a2]);
-  v9 = 1.0 / v70;
-  v10 = (v8[9] - localdata_variable_1) * v9;
-  v11 = (v8[10] - localdata_variable_2) * v9;
-  v79 = v8;
-  v12 = v10 * tcos[v62] - v11 * tsin[v62];
-  _CHP(v8, 4 * v62);
-  v13 = v10 * tsin[v62] + v11 * tcos[v62];
-  _CHP(scr_size * ((int)v12 + 38), 4 * v62);
-  v15 = v14 >> 6;
-  v63 = v15;
-  v16 = (scr_size * (160 - (int)v13)) >> 6;
-  v17 = cur_mapsect;
-  v64 = v16;
+  fMapScale = cur_mapsize;                      // Set base map scale
+  if ((cheat_mode & CHEAT_MODE_DOUBLE_TRACK) != 0)             // Double scale if cheat mode bit 0x1000 is set
+    fMapScale = cur_mapsize * 2.0f;
+  iChunk2 = Car[iCarIdx].nChunk2;               // Calculate view angle based on car direction
+  iNextChunk = iChunk2 + 1;
+  if (iChunk2 + 1 == TRAK_LEN)
+    iNextChunk ^= TRAK_LEN;
+  pCurrChunkData = &localdata[iChunk2];
+  pNextChunkData = &localdata[iNextChunk];
+  fDeltaY = pCurrChunkData->pointAy[3].fY - pNextChunkData->pointAy[3].fY;
+  fDeltaX = pCurrChunkData->pointAy[3].fX - pNextChunkData->pointAy[3].fX;
+  iViewAngle = (4096 - (uint16)getangle(fDeltaX, fDeltaY)) & 0x3FFF;
+  pCarChunkData = &localdata[Car[iCarIdx].nChunk2];
+  dInvScale = 1.0 / fMapScale;                  // Setup coordinate transformation for map display
+  dRelX = (pCarChunkData->pointAy[3].fX - localdata[0].pointAy[3].fX) * dInvScale;
+  dRelY = (pCarChunkData->pointAy[3].fY - localdata[0].pointAy[3].fY) * dInvScale;
+  pData = pCarChunkData;
+  dRotatedX = dRelX * tcos[iViewAngle] - dRelY * tsin[iViewAngle]; //line skipped decompiler artifact
+  //_CHP();
+  dRotatedY_1 = dRelX * tsin[iViewAngle] + dRelY * tcos[iViewAngle];
+  //_CHP();
+  iCalcResult = scr_size * ((int)dRotatedX + 38); //line skipped decompiler artifact
+  iScreenX2 = iCalcResult >> 6;
+  iX1 = iScreenX2;
+  iScreenY = (scr_size * (160 - (int)dRotatedY_1)) >> 6;
+  iMapSect = cur_mapsect;
+
+  iOrigScreenY = iScreenY;
   while (1) {
-    v26 = v15 + 1;
-    if (v17 >= TRAK_LEN)
+    iNextScreenX = iScreenX2 + 1;               // Draw track centerline segments
+    if (iMapSect >= TRAK_LEN)
       break;
-    v18 = (float *)((char *)&localdata + 128 * v17);
-    v19 = 1.0 / v70;
-    v20 = (v79[9] - v18[9]) * v19;
-    v21 = (v79[10] - v18[10]) * v19;
-    v22 = v20 * tcos[v62] - v21 * tsin[v62];
-    _CHP(4 * v62, v26);
-    v24 = v20 * *(float *)((char *)tsin + v23) + v21 * *(float *)((char *)tcos + v23);
-    _CHP(scr_size * ((int)v22 + 38), v26);
-    v75 = v25 >> 6;
-    v76 = (scr_size * (160 - (int)v24)) >> 6;
-    compout(v26, (v25 >> 6) + 1, v16, v17, v2, v76, 112);
-    v15 = v75;
-    v16 = v76;
-    v17 += cur_mapsect;
+    pSectionData = &localdata[iMapSect];
+    dSectionInvScale = 1.0 / fMapScale;
+    dSectionRelX = (pData->pointAy[3].fX - pSectionData->pointAy[3].fX) * dSectionInvScale;
+    dSectionRelY = (pData->pointAy[3].fY - pSectionData->pointAy[3].fY) * dSectionInvScale;
+    dRotatedX = dSectionRelX * tcos[iViewAngle] - dSectionRelY * tsin[iViewAngle]; //line skipped decompiler artifact
+    //_CHP();
+    dSectionRotatedY = dSectionRelX * tsin[iViewAngle] + dSectionRelY * tcos[iViewAngle];
+    //_CHP();
+    iSectionCalc = scr_size * ((int)dRotatedX + 38); //line skipped decompiler artifact
+    iSectionScreenXTemp = iSectionCalc >> 6;
+    iSectionScreenY = (scr_size * (160 - (int)dSectionRotatedY)) >> 6;
+    compout(pScrPtr, iNextScreenX, iScreenY, (iSectionCalc >> 6) + 1, iSectionScreenY, 0x70u);
+    iScreenX2 = iSectionScreenXTemp;
+    iScreenY = iSectionScreenY;
+    iMapSect += cur_mapsect;
   }
-  compout(v26, v63 + 1, v16, v17, v2, v64, 112);
-  v27 = v63;
-  v28 = cur_mapsect;
-  v29 = v64;
-  if (cur_mapsect < TRAK_LEN) {
-    v69 = 1.0 / v70;
+  compout(pScrPtr, iNextScreenX, iScreenY, iX1 + 1, iOrigScreenY, 0x70u);
+  iCurrentScreenX = iX1;
+  iMapSectLoop = cur_mapsect;
+  iCurrentScreenY = iOrigScreenY;
+  if (cur_mapsect < TRAK_LEN)                 // Draw track edges with different colors
+  {
+    fInvScale = 1.0f / fMapScale;
     do {
-      v30 = (float *)((char *)&localdata + 128 * v28);
-      v31 = (v79[9] - v30[9]) * v69;
-      v32 = (v79[10] - v30[10]) * v69;
-      v33 = v31 * tcos[v62] - v32 * tsin[v62];
-      _CHP(4 * v62, v27);
-      v35 = v31 * *(float *)((char *)tsin + v34) + v32 * *(float *)((char *)tcos + v34);
-      _CHP(scr_size * ((int)v33 + 38), v27);
-      v77 = v36 >> 6;
-      v78 = (scr_size * (160 - (int)v35)) >> 6;
-      if ((TrakColour_variable_1[12 * v28] & 0x100) != 0
-        || (TrakColour_variable_5[12 * v28] & 0x100) != 0
-        || (TrakColour_variable_8[12 * v28] & 0x100) != 0) {
-        compout(v27, v77, v29, v28, v2, v78, 205);
-      } else {
-        compout(v27, v77, v29, v28, v2, v78, 131);
-      }
-      v27 = v77;
-      v28 += cur_mapsect;
-      v29 = v78;
-    } while (v28 < TRAK_LEN);
+      pLoopSectionData = &localdata[iMapSectLoop];
+      dLoopRelX = (pData->pointAy[3].fX - pLoopSectionData->pointAy[3].fX) * fInvScale;
+      dLoopRelY = (pData->pointAy[3].fY - pLoopSectionData->pointAy[3].fY) * fInvScale;
+      dRotatedX = dLoopRelX * tcos[iViewAngle] - dLoopRelY * tsin[iViewAngle]; //line skipped decompiler artifact
+      //_CHP();
+      dLoopRotatedY = dLoopRelX * tsin[iViewAngle] + dLoopRelY * tcos[iViewAngle];
+      //_CHP();
+      iLoopCalc = scr_size * ((int)dRotatedX + 38); //line skipped decompiler artifact
+      iSectionScreenX = iLoopCalc >> 6;
+      iY1 = (scr_size * (160 - (int)dLoopRotatedY)) >> 6;
+      if ((TrakColour[iMapSectLoop][0] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iMapSectLoop][1] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iMapSectLoop][2] & SURFACE_FLAG_YELLOW_MAP) != 0)
+        compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iSectionScreenX, iY1, 0xCDu);
+      else
+        compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iSectionScreenX, iY1, 0x83u);
+      iCurrentScreenX = iSectionScreenX;
+      iMapSectLoop += cur_mapsect;
+      iCurrentScreenY = iY1;
+    } while (iMapSectLoop < TRAK_LEN);
   }
-  v37 = 12 * (TRAK_LEN - 1);
-  if ((TrakColour_variable_1[v37] & 0x100) != 0
-    || (TrakColour_variable_5[v37] & 0x100) != 0
-    || (TrakColour_variable_8[v37] & 0x100) != 0) {
-    compout(v27, v63, v29, v64, v2, v64, 205);
-  } else {
-    compout(v27, v63, v29, v28, v2, v64, 131);
-  }
-  v73 = 0;
-  v38 = winw;
-  v39 = v64 - 1;
+  iLastSection = TRAK_LEN - 1;
+  if ((TrakColour[iLastSection][0] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iLastSection][1] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iLastSection][2] & SURFACE_FLAG_YELLOW_MAP) != 0)
+    compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iX1, iOrigScreenY, 0xCDu);
+  else
+    compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iX1, iOrigScreenY, 0x83u);
+  iPixelLoop = 0;                               // Draw 3x3 pixel marker at player position
+  iWinWidth = winw;
+  iMarkerY = iOrigScreenY - 1;
   do {
-    v40 = v63 - 1;
+    iCurrentX = iX1 - 1;
     for (i = 0; i < 3; ++i) {
-      if (v40 >= 0 && v40 < v38 && v39 >= 0 && v39 < winh)
-        *(_BYTE *)(v40 + v38 * v39 + a1) = -117;
-      ++v40;
+      if (iCurrentX >= 0 && iCurrentX < iWinWidth && iMarkerY >= 0 && iMarkerY < winh)
+        pScrPtr[iCurrentX + iWinWidth * iMarkerY] = -117;
+      ++iCurrentX;
     }
-    ++v39;
-    ++v73;
-  } while (v73 < 3);
-  v74 = 0;
-  if (numcars > 0) {
-    v42 = Car;
+    ++iMarkerY;
+    ++iPixelLoop;
+  } while (iPixelLoop < 3);
+  iCarLoop = 0;
+  if (numcars > 0)                            // Draw all cars on the minimap
+  {
+    pCarArray = Car;
     do {
-      v43 = v42;
-      if (*((char *)v42 + 103) > 0) {
-        v44 = *((__int16 *)v42 + 6);
-        if (v44 == -1) {
-          v71 = *v42;
-          v72 = v42[1];
+      pCurrentCar = pCarArray;
+      if ((char)pCarArray->byLives > 0) {
+        iCurrChunk = pCarArray->nCurrChunk;     // Calculate car position on track
+        if (iCurrChunk == -1) {
+          fX = pCarArray->pos.fX;
+          fY = pCarArray->pos.fY;
         } else {
-          v45 = (float *)((char *)&localdata + 128 * v44);
-          v71 = *v45 * *v42 - v45[9];
-          v72 = v45[3] * *v42 - v45[10];
+          pChunkTransform = (float *)&localdata[iCurrChunk];
+          fX = *pChunkTransform * pCarArray->pos.fX - pChunkTransform[9];
+          fY = pChunkTransform[3] * pCarArray->pos.fX - pChunkTransform[10];
         }
-        v46 = 1.0 / v70;
-        v47 = (v71 + v79[9]) * v46;
-        v48 = (v72 + v79[10]) * v46;
-        v49 = v47 * tcos[v62] - v48 * tsin[v62];
-        _CHP(v42, 4 * v62);
-        v50 = v47 * tsin[v62] + v48 * tcos[v62];
-        v51 = scr_size;
-        v52 = scr_size * ((int)v49 + 38);
-        _CHP(v53, v52);
-        v81 = v52 >> 6;
-        v80 = (v51 * (160 - (int)v50)) >> 6;
-        v54 = *((_DWORD *)v43 + 8);
-        if (v54 == a2) {
-          v55 = a2 ^ v54;
-          LOBYTE(v55) = *((_BYTE *)v43 + 102);
-          v68 = team_col[v55];
-          v66 = v81;
-          v65 = (v51 * (160 - (int)v50)) >> 6;
-        } else if (v81 > 0 && v38 - 1 > v81 && v80 > 0 && winh - 1 > v80) {
-          v56 = (_BYTE *)(a1 + v81 + v38 * v80);
-          v57 = team_col[*((unsigned __int8 *)v43 + 102)];
-          if (*((_BYTE *)v43 + 130) || (frames & 8) != 0) {
-            *(v56 - 1) = v57;
-            *v56 = v57;
-            v56[1] = v57;
-            v56[-v38] = v57;
-            v56[v38] = v57;
+        dCarInvScale = 1.0 / fMapScale;         // Transform car position to screen coordinates
+        dTransformedX = (fX + pData->pointAy[3].fX) * dCarInvScale;
+        dTransformedY = (fY + pData->pointAy[3].fY) * dCarInvScale;
+        dRotatedX = dTransformedX * tcos[iViewAngle] - dTransformedY * tsin[iViewAngle];
+        //_CHP();
+        dRotatedY = dTransformedX * tsin[iViewAngle] + dTransformedY * tcos[iViewAngle];
+        iScreenSize = scr_size;
+        iCarScreenCalc = scr_size * ((int)dRotatedX + 38);
+        //_CHP();
+        iCarScreenX = iCarScreenCalc >> 6;
+        iCarScreenY = (iScreenSize * (160 - (int)dRotatedY)) >> 6;
+        iDriverIdx = pCurrentCar->iDriverIdx;
+        if (iDriverIdx == iCarIdx)            // Special handling for player car (larger marker)
+        {
+          //iColorIndex = iCarIdx ^ iDriverIdx;
+          //LOBYTE(iColorIndex) = pCurrentCar->byCarDesignIdx;
+          iColorIndex = pCurrentCar->byCarDesignIdx;
+          iPlayerColor = team_col[iColorIndex];
+          iPlayerScreenX = iCarScreenX;
+          iPlayerScreenY = (iScreenSize * (160 - (int)dRotatedY)) >> 6;
+        } else if (iCarScreenX > 0 && iWinWidth - 1 > iCarScreenX && iCarScreenY > 0 && winh - 1 > iCarScreenY)// Draw car marker (cross pattern)
+        {
+          pCarPixel = &pScrPtr[iCarScreenX + iWinWidth * iCarScreenY];
+          iCarColor = team_col[pCurrentCar->byCarDesignIdx];
+          if (pCurrentCar->byRacePosition || (frames & 8) != 0) {
+            *(pCarPixel - 1) = iCarColor;
+            *pCarPixel = iCarColor;
+            pCarPixel[1] = iCarColor;
+            pCarPixel[-iWinWidth] = iCarColor;
+            pCarPixel[iWinWidth] = iCarColor;
           }
         }
       }
-      v42 += 77;
-      ++v74;
-    } while (v74 < numcars);
+      ++pCarArray;
+      ++iCarLoop;
+    } while (iCarLoop < numcars);
   }
-  result = 308 * a2;
-  if (Car_variable_23[308 * a2] > 0 && (Car_variable_32[308 * a2] || (frames & 8) != 0)) {
-    v59 = (_BYTE *)(v66 + a1 + v38 * v65);
-    *(v59 - 1) = v68;
-    *(v59 - 2) = v68;
-    *v59 = v68;
-    v59[1] = v68;
-    v59[2] = v68;
-    v59[-v38] = v68;
-    v59[-2 * v38] = v68;
-    v59[v38] = v68;
-    result = (int)&v59[2 * v38];
-    *(_BYTE *)result = v68;
+  if ((char)Car[iCarIdx].byLives > 0 && (Car[iCarIdx].byRacePosition || (frames & 8) != 0)) {
+    pPlayerPixel = &pScrPtr[iPlayerScreenX + iWinWidth * iPlayerScreenY];
+    *(pPlayerPixel - 1) = iPlayerColor;
+    *(pPlayerPixel - 2) = iPlayerColor;
+    *pPlayerPixel = iPlayerColor;
+    pPlayerPixel[1] = iPlayerColor;
+    pPlayerPixel[2] = iPlayerColor;
+    pPlayerPixel[-iWinWidth] = iPlayerColor;
+    pPlayerPixel[-2 * iWinWidth] = iPlayerColor;
+    pPlayerPixel[iWinWidth] = iPlayerColor;
+    pPlayerPixel[2 * iWinWidth] = iPlayerColor;
   }
-  winw = v38;
-  return result;*/
+  winw = iWinWidth;
 }
 
 //-------------------------------------------------------------------------------------------------

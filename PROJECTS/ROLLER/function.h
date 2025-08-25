@@ -22,7 +22,7 @@ void doviewtend(tCar *pCar, int iFrameDelta, int iViewIdx);
 void changemateto(int iCarIndex, int iNewStrategy);
 bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord);
 void analysefalloff(tCar *pCar);
-int showmap(uint8 *a1, int a2);
+void showmap(uint8 *pScrPtr, int iCarIdx);
 int firework_display();
 
 //-------------------------------------------------------------------------------------------------
