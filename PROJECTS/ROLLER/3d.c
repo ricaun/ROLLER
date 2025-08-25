@@ -582,7 +582,7 @@ void doexit()
   releasesamples();
   if (MusicCD)
     cdxdone();
-  remove("../REPLAYS/REPLAY.TMP");
+  ROLLERremove("../REPLAYS/REPLAY.TMP");
   if ((cheat_mode & CHEAT_MODE_WIDESCREEN) != 0)
     textures_off |= TEX_OFF_WIDESCREEN;
   else
@@ -1069,7 +1069,7 @@ int main(int argc, const char **argv, const char **envp)
   findintrofiles();
   initmusic();
   tick_on = 0;
-  remove("..\\REPLAYS\\REPLAY.TMP");
+  ROLLERremove("..\\REPLAYS\\REPLAY.TMP");
   readsoundconfig();
   loadcheatnames();
   cdxinit();

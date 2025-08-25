@@ -1020,6 +1020,54 @@ int ROLLERopen(const char *szFile, int iOpenFlags)
 
 //-------------------------------------------------------------------------------------------------
 
+int ROLLERremove(const char *szFile)
+{
+  int iSuccess = remove(szFile);
+  if (iSuccess == 0)
+    return 0;
+
+  char szUpper[260] = { 0 };
+  char szLower[260] = { 0 };
+  int iLength = (int)strlen(szFile);
+
+  for (int i = 0; i < iLength && i < sizeof(szUpper); ++i) {
+    szUpper[i] = toupper(szFile[i]);
+    szLower[i] = tolower(szFile[i]);
+  }
+
+  iSuccess = remove(szUpper);
+  if (iSuccess == 0) return 0;
+
+  iSuccess = remove(szLower);
+  return iSuccess;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+int ROLLERrename(const char *szOldName, const char *szNewName)
+{
+  int iSuccess = rename(szOldName, szNewName);
+  if (iSuccess == 0)
+    return 0;
+
+  char szUpper[260] = { 0 };
+  char szLower[260] = { 0 };
+  int iLength = (int)strlen(szOldName);
+
+  for (int i = 0; i < iLength && i < sizeof(szUpper); ++i) {
+    szUpper[i] = toupper(szOldName[i]);
+    szLower[i] = tolower(szOldName[i]);
+  }
+
+  iSuccess = rename(szUpper, szNewName);
+  if (iSuccess == 0) return 0;
+
+  iSuccess = rename(szLower, szNewName);
+  return iSuccess;
+}
+
+//-------------------------------------------------------------------------------------------------
+
 uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_NSTimerCallback callback, void *userdata)
 {
   SDL_LockMutex(g_pTimerMutex);

@@ -3660,7 +3660,7 @@ void save_fatal_config()
       fre((void**)&pBuf);
     } else {
       fclose(fp);
-      remove("FATAL.INI");
+      ROLLERremove("FATAL.INI");
     }
   }
 }

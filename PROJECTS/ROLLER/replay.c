@@ -15,8 +15,9 @@
 #endif
 //-------------------------------------------------------------------------------------------------
 //symbol names added by ROLLER
-char szNewEdit[10] = "NEW EDIT:"; //000A274C
-char szEdit[6] = "EDIT:";         //000A2758
+char g_szGss[5] = ".GSS";         //000A253C
+char g_szNewEdit[10] = "NEW EDIT:"; //000A274C
+char g_szEdit[6] = "EDIT:";         //000A2758
 
 //-------------------------------------------------------------------------------------------------
 
@@ -38,6 +39,8 @@ char *replayname[9] = {   //000A63E0
 };
 int lastintro = -1;       //000A6404
 int filingmenu = 0;       //000A6408
+int filefile = 0;         //000A640C
+int filefiles = 0;        //000A6410
 int replaysetspeed = 0;   //000A6414
 int replaydirection = 0;  //000A6418
 int lastfile = -1;        //000A641C
@@ -131,6 +134,8 @@ char temp_names[16][9];   //0018DBD8
 char newrepsample[16];    //0018DC68
 char repsample[16];       //0018DC78
 char repvolume[16];       //0018DC88
+int topfile;              //0018DC98
+char filename[500][9];    //0018DC9C
 int oldtrack;             //0018EE30
 int oldtextures;          //0018EE34
 int replayheader;         //0018EE38
@@ -150,6 +155,7 @@ int rewinding;            //0018EE68
 int forwarding;           //0018EE6C
 int replaystart;          //0018EE74
 int cuts;                 //0018EE78
+char selectfilename[30];  //0018EE80
 char rememberfilename[34];//0018EE9E
 
 //-------------------------------------------------------------------------------------------------
@@ -3024,306 +3030,292 @@ void nextcut()
 
 //-------------------------------------------------------------------------------------------------
 //00067BF0
-int loadreplay()
+void loadreplay()
 {
-  return 0; /*
-  char *v0; // esi
-  char *v1; // edi
-  char v2; // al
-  char v3; // al
-  char *v4; // esi
-  char *v5; // edi
-  char v6; // al
-  char v7; // al
-  int result; // eax
+  char *szSrc; // esi
+  char *szDst; // edi
+  char byChar1; // al
+  char byChar2; // al
+  char *szExt; // esi
+  char *szExtDst; // edi
+  char byExtChar1; // al
+  char byExtChar2; // al
 
-  holdmusic = -1;
+  holdmusic = -1;                               // Set initial flags for replay loading
   loading_replay = -1;
   filingmenu = 0;
-  if (filefiles) {
+  if (filefiles)                              // If files are available for replay loading
+  {
     play_game_uninit();
-    strcpy(replayfilename, "..\\REPLAYS\\");
-    v0 = selectfilename;
-    v1 = &replayfilename[strlen(replayfilename)];
+    strcpy(replayfilename, "..\\REPLAYS\\");    // Start building replay file path with base directory
+    szSrc = selectfilename;                     // Manually copy selected filename to replay path (2 chars at a time)
+    szDst = &replayfilename[strlen(replayfilename)];
     do {
-      v2 = *v0;
-      *v1 = *v0;
-      if (!v2)
+      byChar1 = *szSrc;
+      *szDst = *szSrc;
+      if (!byChar1)
         break;
-      v3 = v0[1];
-      v0 += 2;
-      v1[1] = v3;
-      v1 += 2;
-    } while (v3);
-    v4 = aGss;
-    v5 = &replayfilename[strlen(replayfilename)];
+      byChar2 = szSrc[1];
+      szSrc += 2;
+      szDst[1] = byChar2;
+      szDst += 2;
+    } while (byChar2);
+    szExt = g_szGss;                            // Append file extension to complete replay filename
+    szExtDst = &replayfilename[strlen(replayfilename)];
     do {
-      v6 = *v4;
-      *v5 = *v4;
-      if (!v6)
+      byExtChar1 = *szExt;
+      *szExtDst = *szExt;
+      if (!byExtChar1)
         break;
-      v7 = v4[1];
-      v4 += 2;
-      v5[1] = v7;
-      v5 += 2;
-    } while (v7);
-    replaytype = 2;
-    _disable();
+      byExtChar2 = szExt[1];
+      szExt += 2;
+      szExtDst[1] = byExtChar2;
+      szExtDst += 2;
+    } while (byExtChar2);
+    replaytype = 2;                             // Initialize replay playback parameters
+    //_disable();                                 // Disable interrupts while setting time-critical replay state
     replayspeed = 0;
     fraction = 0;
     replaydirection = 0;
     ticks = currentreplayframe;
-    _enable();
+    //_enable();
     play_game_init();
-    result = ViewType[0];
     pend_view_init = ViewType[0];
   }
-  screenready = 0;
+  screenready = 0;                              // Clear screen and loading flags to complete initialization
   lagdone = 0;
   holdmusic = 0;
   loading_replay = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00067CF0
-int savereplay()
+void savereplay()
 {
-  return 0; /*
-  int v0; // ebp
-  char *v1; // esi
-  char *v2; // edi
-  char v3; // al
-  char v4; // al
-  char *v5; // esi
-  char *v6; // edi
-  char v7; // al
-  char v8; // al
-  int result; // eax
-  char *v10; // esi
-  char *v11; // edi
-  char v12; // al
-  char v13; // al
-  char *v14; // esi
-  char *v15; // edi
-  char v16; // al
-  char v17; // al
-  int v18; // edi
-  int v19; // eax
-  int v20; // eax
-  int v21; // edi
-  char v22[32]; // [esp+0h] [ebp-48h] BYREF
-  int v23; // [esp+20h] [ebp-28h]
-  int v24; // [esp+24h] [ebp-24h]
-  int v25; // [esp+28h] [ebp-20h]
-  int v26; // [esp+2Ch] [ebp-1Ch]
+  uint8 *pbyBuffer; // ebp
+  char *szSrc1; // esi
+  char *szDst1; // edi
+  char byChar1_1; // al
+  char byChar2_1; // al
+  char *szExtSrc1; // esi
+  char *szExtDst1; // edi
+  char byExtChar1_1; // al
+  char byExtChar2_1; // al
+  char *szSrc2; // esi
+  char *szDst2; // edi
+  char byChar1_2; // al
+  char byChar2_2; // al
+  char *szExtSrc2; // esi
+  char *szExtDst2; // edi
+  char byExtChar1_2; // al
+  char byExtChar2_2; // al
+  unsigned int uiBytesRead; // edi
+  int iError; // eax
+  int iErrorCopy; // edi
+  char szTempFilename[32]; // [esp+0h] [ebp-48h] BYREF
+  int iFilePos; // [esp+20h] [ebp-28h]
+  int iErrorNum; // [esp+24h] [ebp-24h]
+  FILE *pFile; // [esp+28h] [ebp-20h]
+  int iErrorFlag; // [esp+2Ch] [ebp-1Ch]
 
-  v26 = 0;
-  v0 = scrbuf;
-  if (!strcmp(replayfilename, "..\\REPLAYS\\REPLAY.TMP")) {
-    ftell(replayfile);
+  iErrorFlag = 0;                               // Initialize error flag and buffer pointer
+  pbyBuffer = scrbuf;
+  if (!strcmp(replayfilename, "..\\REPLAYS\\REPLAY.TMP"))// Check if currently working with temporary replay file
+  {
+    ftell(replayfile);                          // Finalize temp replay: close file and rename to permanent location
     fclose(replayfile);
-    strcpy(replayfilename, "..\\REPLAYS\\");
-    v1 = selectfilename;
-    v2 = &replayfilename[strlen(replayfilename)];
+    strcpy(replayfilename, "..\\REPLAYS\\");    // Build final replay filename: path + selected name + extension
+    szSrc1 = selectfilename;                    // Copy selected filename to replay path (2 chars at a time)
+    szDst1 = &replayfilename[strlen(replayfilename)];
     do {
-      v3 = *v1;
-      *v2 = *v1;
-      if (!v3)
+      byChar1_1 = *szSrc1;
+      *szDst1 = *szSrc1;
+      if (!byChar1_1)
         break;
-      v4 = v1[1];
-      v1 += 2;
-      v2[1] = v4;
-      v2 += 2;
-    } while (v4);
-    v5 = aGss;
-    v6 = &replayfilename[strlen(replayfilename)];
+      byChar2_1 = szSrc1[1];
+      szSrc1 += 2;
+      szDst1[1] = byChar2_1;
+      szDst1 += 2;
+    } while (byChar2_1);
+    szExtSrc1 = g_szGss;                        // Append file extension to complete the filename
+    szExtDst1 = &replayfilename[strlen(replayfilename)];
     do {
-      v7 = *v5;
-      *v6 = *v5;
-      if (!v7)
+      byExtChar1_1 = *szExtSrc1;
+      *szExtDst1 = *szExtSrc1;
+      if (!byExtChar1_1)
         break;
-      v8 = v5[1];
-      v5 += 2;
-      v6[1] = v8;
-      v6 += 2;
-    } while (v8);
-    remove(replayfilename);
+      byExtChar2_1 = szExtSrc1[1];
+      szExtSrc1 += 2;
+      szExtDst1[1] = byExtChar2_1;
+      szExtDst1 += 2;
+    } while (byExtChar2_1);
+    ROLLERremove(replayfilename);                     // Remove existing file and rename temp to final name
     rename("..\\REPLAYS\\REPLAY.TMP", replayfilename);
-    replayfile = fopen(replayfilename, aRb_0);
-    result = fseek(replayfile, 0, 0);
+    replayfile = ROLLERfopen(replayfilename, "rb");
+    fseek(replayfile, 0, 0);
   } else {
-    strcpy(v22, "..\\REPLAYS\\");
-    v10 = selectfilename;
-    v11 = &v22[strlen(v22)];
+    strcpy(szTempFilename, "..\\REPLAYS\\");    // Handle non-temp replay: copy current replay to new filename
+    szSrc2 = selectfilename;                    // Build target filename: path + selected name + extension
+    szDst2 = &szTempFilename[strlen(szTempFilename)];
     do {
-      v12 = *v10;
-      *v11 = *v10;
-      if (!v12)
+      byChar1_2 = *szSrc2;
+      *szDst2 = *szSrc2;
+      if (!byChar1_2)
         break;
-      v13 = v10[1];
-      v10 += 2;
-      v11[1] = v13;
-      v11 += 2;
-    } while (v13);
-    v14 = aGss;
-    v15 = &v22[strlen(v22)];
+      byChar2_2 = szSrc2[1];
+      szSrc2 += 2;
+      szDst2[1] = byChar2_2;
+      szDst2 += 2;
+    } while (byChar2_2);
+    szExtSrc2 = g_szGss;
+    szExtDst2 = &szTempFilename[strlen(szTempFilename)];
     do {
-      v16 = *v14;
-      *v15 = *v14;
-      if (!v16)
+      byExtChar1_2 = *szExtSrc2;
+      *szExtDst2 = *szExtSrc2;
+      if (!byExtChar1_2)
         break;
-      v17 = v14[1];
-      v14 += 2;
-      v15[1] = v17;
-      v15 += 2;
-    } while (v17);
-    result = strcmp(v22, replayfilename);
-    if (result) {
-      result = fopen(v22, &aYwb[1]);
-      v25 = result;
-      if (result) {
-        v23 = ftell(replayfile);
+      byExtChar2_2 = szExtSrc2[1];
+      szExtSrc2 += 2;
+      szExtDst2[1] = byExtChar2_2;
+      szExtDst2 += 2;
+    } while (byExtChar2_2);
+    if (strcmp(szTempFilename, replayfilename))// Only copy if target filename is different from current
+    {
+      pFile = ROLLERfopen(szTempFilename, "wb");      // Open target file for writing and prepare for copy operation
+      if (pFile) {
+        iFilePos = ftell(replayfile);
         fseek(replayfile, 0, 0);
-        v26 = 0;
+        iErrorFlag = 0;                         // Copy file in chunks with error checking
         do {
-          v18 = fread(v0, 1, 64000, replayfile);
-          v19 = fwrite(v0, 1, v18, v25);
-          if (v19 != v18) {
-            v20 = *(_DWORD *)_get_errno_ptr(v19);
-            v26 = -1;
-            v24 = v20;
+          uiBytesRead = (uint32)fread(pbyBuffer, 1u, 0xFA00u, replayfile);
+          if (fwrite(pbyBuffer, 1, uiBytesRead, pFile) != uiBytesRead) {
+            iError = errno;// *(_DWORD *)_get_errno_ptr();// Handle write error - set error flag and save errno
+            iErrorFlag = -1;
+            iErrorNum = iError;
           }
-        } while (v18 && !v26);
-        v21 = v26;
-        fclose(v25);
-        if (v21)
-          remove(v22);
-        fseek(replayfile, v23, 0);
-        result = currentreplayframe;
+        } while (uiBytesRead && !iErrorFlag);
+        iErrorCopy = iErrorFlag;
+        fclose(pFile);                          // Cleanup: close file, remove on error, restore file position
+        if (iErrorCopy)
+          ROLLERremove(szTempFilename);
+        fseek(replayfile, iFilePos, 0);
         ticks = currentreplayframe;
       }
     }
   }
-  filingmenu = 0;
+  filingmenu = 0;                               // Reset menu flags and screen state
   lastfile = 0;
   screenready = 0;
-  if (v26) {
-    if (v24 == 12)
+  if (iErrorFlag)                             // Set appropriate error menu state based on error type
+  {
+    if (iErrorNum == 12)
       filingmenu = 6;
     else
       filingmenu = 7;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00067F50
-int deletereplay(int a1, int a2, int a3, int a4)
+void deletereplay()
 {
-  return 0; /*
-  char *v4; // esi
-  char *v5; // edi
-  char v6; // al
-  char v7; // al
-  char *v8; // esi
-  char *v9; // edi
-  char v10; // al
-  char v11; // al
-  char *v12; // edi
-  const char *v13; // esi
-  char v14; // al
-  char v15; // al
-  int result; // eax
-  char v17[44]; // [esp-30h] [ebp-34h] BYREF
-  int v18; // [esp-4h] [ebp-8h]
+  char *szSrc; // esi
+  char *szDst; // edi
+  char byChar1; // al
+  char byChar2; // al
+  char *szExtSrc; // esi
+  char *szExtDst; // edi
+  char byExtChar1; // al
+  char byExtChar2; // al
+  char *szTmpDst; // edi
+  const char *szTmpSrc; // esi
+  char byTmpChar1; // al
+  char byTmpChar2; // al
+  char szTargetFilename[40]; // [esp-30h] [ebp-34h] BYREF
 
-  v18 = a4;
-  strcpy(v17, "..\\REPLAYS\\");
-  v4 = selectfilename;
-  v5 = &v17[strlen(v17)];
+  strcpy(szTargetFilename, "..\\REPLAYS\\");    // Build target filename: path + selected filename + extension
+  szSrc = selectfilename;                       // Copy selected filename to path (2 chars at a time)
+  szDst = &szTargetFilename[strlen(szTargetFilename)];
   do {
-    v6 = *v4;
-    *v5 = *v4;
-    if (!v6)
+    byChar1 = *szSrc;
+    *szDst = *szSrc;
+    if (!byChar1)
       break;
-    v7 = v4[1];
-    v4 += 2;
-    v5[1] = v7;
-    v5 += 2;
-  } while (v7);
-  v8 = aGss;
-  v9 = &v17[strlen(v17)];
+    byChar2 = szSrc[1];
+    szSrc += 2;
+    szDst[1] = byChar2;
+    szDst += 2;
+  } while (byChar2);
+  szExtSrc = g_szGss;                           // Append file extension to complete target filename
+  szExtDst = &szTargetFilename[strlen(szTargetFilename)];
   do {
-    v10 = *v8;
-    *v9 = *v8;
-    if (!v10)
+    byExtChar1 = *szExtSrc;
+    *szExtDst = *szExtSrc;
+    if (!byExtChar1)
       break;
-    v11 = v8[1];
-    v8 += 2;
-    v9[1] = v11;
-    v9 += 2;
-  } while (v11);
-  if (!strcmp(replayfilename, v17)) {
-    remove("..\\REPLAYS\\REPLAY.TMP");
-    ftell(replayfile);
-    v12 = replayfilename;
+    byExtChar2 = szExtSrc[1];
+    szExtSrc += 2;
+    szExtDst[1] = byExtChar2;
+    szExtDst += 2;
+  } while (byExtChar2);
+  if (!strcmp(replayfilename, szTargetFilename))// Check if deleting the currently loaded replay file
+  {
+    ROLLERremove("..\\REPLAYS\\REPLAY.TMP");          // Deleting current replay: cleanup temp files and swap to temp
+    ftell(replayfile);                          // Close current replay file and rename target to temp
+    szTmpDst = replayfilename;
     fclose(replayfile);
-    v13 = "..\\REPLAYS\\REPLAY.TMP";
-    rename(v17, "..\\REPLAYS\\REPLAY.TMP");
+    szTmpSrc = "..\\REPLAYS\\REPLAY.TMP";       // Copy temp filename to current replayfilename (2 chars at a time)
+    ROLLERrename(szTargetFilename, "..\\REPLAYS\\REPLAY.TMP");
     do {
-      v14 = *v13;
-      *v12 = *v13;
-      if (!v14)
+      byTmpChar1 = *szTmpSrc;
+      *szTmpDst = *szTmpSrc;
+      if (!byTmpChar1)
         break;
-      v15 = v13[1];
-      v13 += 2;
-      v12[1] = v15;
-      v12 += 2;
-    } while (v15);
-    replayfile = fopen(replayfilename, aRb_0);
+      byTmpChar2 = szTmpSrc[1];
+      szTmpSrc += 2;
+      szTmpDst[1] = byTmpChar2;
+      szTmpDst += 2;
+    } while (byTmpChar2);
+    replayfile = ROLLERfopen(replayfilename, "rb");   // Reopen temp file as current replay
     fseek(replayfile, 0, 0);
   } else {
-    remove(v17);
+    ROLLERremove(szTargetFilename);                   // Not current replay: simple file deletion
   }
-  result = currentreplayframe;
-  ticks = currentreplayframe;
+  ticks = currentreplayframe;                   // Reset replay state and clear menu flags
   filingmenu = 0;
   lastfile = 0;
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 //00068070
-char updatedirectory()
+void updatedirectory()
 {
-  return 0; /*
-  int v0; // edx
-  char *v1; // edi
-  char *v2; // esi
-  char result; // al
+  int iNewTopFile; // edx
+  char *szDst; // edi
+  char *szSrc; // esi
+  char byChar1; // al
+  char byChar2; // al
 
-  v0 = topfile;
-  if (!filefiles)
+  iNewTopFile = topfile;                        // Initialize with current top file position
+  if (!filefiles)                             // If no files available, reset current file selection
     filefile = 0;
-  if (filefile < topfile)
-    v0 = topfile - 3;
-  if (v0 + 18 <= filefile)
-    v0 += 3;
-  v1 = selectfilename;
-  v2 = &filename[9 * filefile];
-  topfile = v0;
+  if (filefile < topfile)                     // If selected file is above view window, scroll up 3 positions
+    iNewTopFile = topfile - 3;
+  if (iNewTopFile + 18 <= filefile)           // If selected file is below view window (18 files visible), scroll down 3 positions
+    iNewTopFile += 3;
+  szDst = selectfilename;                       // Copy currently selected filename to selectfilename buffer (2 chars at a time)
+  szSrc = filename[filefile];
+  topfile = iNewTopFile;                        // Update top file position for scrolled view
   do {
-    result = *v2;
-    *v1 = *v2;
-    if (!result)
+    byChar1 = *szSrc;
+    *szDst = *szSrc;
+    if (!byChar1)
       break;
-    result = v2[1];
-    v2 += 2;
-    v1[1] = result;
-    v1 += 2;
-  } while (result);
-  return result;*/
+    byChar2 = szSrc[1];
+    szSrc += 2;
+    szDst[1] = byChar2;
+    szDst += 2;
+  } while (byChar2);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3448,9 +3440,9 @@ void displaycontrolpanel()
       if (iCurrentCut != -1)                  // Display camera cut information if one is active
       {                                         // Show different text for exact frame match vs approximate
         if (camera[iCurrentCut].iFrame == currentreplayframe)
-          pEditString = szNewEdit;
+          pEditString = g_szNewEdit;
         else
-          pEditString = szEdit;
+          pEditString = g_szEdit;
         replaypanelstring(pEditString, 164, 171, iScreenWidth);
         sprintf(buffer, "CAR %d", camera[iCurrentCut].byCarIdx + 1);
         replaypanelstring(buffer, 199, 171, iScreenWidth);

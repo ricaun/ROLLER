@@ -47,6 +47,8 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length);
 bool ROLLERfexists(const char *szFile);
 FILE *ROLLERfopen(const char *szFile, const char *szMode); //tries to open file with both all caps and all lower case
 int ROLLERopen(const char *szFile, int iOpenFlags); //tries to open file with both all caps and all lower case
+int ROLLERremove(const char *szFile); //tries to remove file with both all caps and all lower case
+int ROLLERrename(const char *szOldName, const char *szNewName); //tries to rename file with both all caps and all lower case
 uint32 ROLLERAddTimer(Uint32 uiFrequencyHz, SDL_NSTimerCallback callback, void *userdata);
 void ROLLERRemoveTimer(uint32 uiHandle);
 int ROLLERfilelength(const char *szFile);
