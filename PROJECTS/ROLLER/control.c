@@ -3660,7 +3660,8 @@ void checkplacement(tCar *pCar)
         }
         iNewChunk = iRespawnChunk;
         pCar->pos.fY = localdata[iRespawnChunk].fAILine1;
-        if (pCar->nCurrChunk < carorder[numstops + 15] - 10) {
+        if (pCar->nCurrChunk < stops[numstops - 1] - 10) {
+        //if (pCar->nCurrChunk < carorder[numstops + 15] - 10) {
           byPreviousLap = pCar->byLapNumber - 1;
           pCar->byLapNumber = byPreviousLap;
           if (byPreviousLap < 0)
