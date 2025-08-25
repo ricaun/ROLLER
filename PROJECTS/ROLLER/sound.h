@@ -259,6 +259,14 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iHandle;
+  int iVolume;
+} tSamplePending;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int samplespending;
 extern int writesample;
 extern int readsample;
@@ -326,7 +334,7 @@ extern int TrackMap[32];
 extern char TextExt[64];
 extern char SampleExt[64];
 extern int Pending[16];
-extern int SamplePending[16][40];
+extern tSamplePending SamplePending[16][20];
 extern int HandleCar[32];
 extern int HandleSample[32];
 extern tCarSoundData enginedelay[16];

@@ -101,7 +101,7 @@ int TrackMap[32];           //00163038
 char TextExt[64];           //001630CA
 char SampleExt[64];         //0016310A
 int Pending[16];            //0016314C
-int SamplePending[16][40];  //0016318C
+tSamplePending SamplePending[16][20];  //0016318C
 int HandleCar[32];          //00163B8C
 int HandleSample[32];       //00163C0C
 tCarSoundData enginedelay[16]; //00163C8C
@@ -2714,12 +2714,12 @@ void sfxpend(int iSampleIdx, int iDriverIdx, int iVolume)
 {
   int iClampedVolume; // edi
   int iAdjustedVolume; // edi
-  int iDriverIndex; // ebx
+  //int iDriverIndex; // ebx
   int bSampleFound; // esi
-  int iArrayIndex; // eax
-  int iLoopCounter; // edx
-  int iPendingOffset; // eax
-  int iNewPendingCount; // ecx
+  //int iArrayIndex; // eax
+  //int iLoopCounter; // edx
+  //int iPendingOffset; // eax
+  //int iNewPendingCount; // ecx
 
   iClampedVolume = iVolume;                     // Clamp volume to maximum allowed value (32767)
   if (iVolume > 0x7FFF)
@@ -2733,23 +2733,40 @@ void sfxpend(int iSampleIdx, int iDriverIdx, int iVolume)
   iAdjustedVolume = iClampedVolume * SFXVolume / 127;// Calculate final volume based on global SFX volume setting
   if (soundon && Pending[iDriverIdx] != 5)    // Only queue sample if sound is enabled and pending queue isn't full
   {
-    iDriverIndex = iDriverIdx;
-    bSampleFound = 0;                           // Initialize duplicate detection flag and array indexing
-    iArrayIndex = 40 * iDriverIdx;
-    for (iLoopCounter = 0; iLoopCounter < Pending[iDriverIndex]; iArrayIndex += 2)// Check if this sample is already pending for this driver
-    {
-      if (iSampleIdx == SamplePending[0][iArrayIndex])
+
+    // Check if this sample is already pending for this driver
+    bSampleFound = 0;
+    for (int iSampleIndex = 0; iSampleIndex < Pending[iDriverIdx]; iSampleIndex++) {
+      if (iSampleIdx == SamplePending[iDriverIdx][iSampleIndex].iHandle) {
         bSampleFound = -1;
-      ++iLoopCounter;
+        break;  // No need to continue once found
+      }
     }
-    if (!bSampleFound)                        // Add sample to pending queue if it's not a duplicate
-    {
-      iPendingOffset = 160 * iDriverIdx + 8 * Pending[iDriverIndex];// Calculate offset in pending array and store sample data
-      *(int *)((char *)SamplePending[0] + iPendingOffset) = iSampleIdx;
-      iNewPendingCount = Pending[iDriverIndex] + 1;
-      *(int *)((char *)&SamplePending[0][1] + iPendingOffset) = iAdjustedVolume;
-      Pending[iDriverIndex] = iNewPendingCount; // Increment pending count for this driver
+    //iDriverIndex = iDriverIdx;
+    //bSampleFound = 0;                           // Initialize duplicate detection flag and array indexing
+    //iArrayIndex = 40 * iDriverIdx;
+    //for (iLoopCounter = 0; iLoopCounter < Pending[iDriverIndex]; iArrayIndex += 2)// Check if this sample is already pending for this driver
+    //{
+    //  if (iSampleIdx == SamplePending[0][iArrayIndex])
+    //    bSampleFound = -1;
+    //  ++iLoopCounter;
+    //}
+
+    if (!bSampleFound) {
+    // Add sample to pending queue if it's not a duplicate
+      int iNextSlot = Pending[iDriverIdx];
+      SamplePending[iDriverIdx][iNextSlot].iHandle = iSampleIdx;
+      SamplePending[iDriverIdx][iNextSlot].iVolume = iAdjustedVolume;
+      Pending[iDriverIdx]++;  // Increment pending count for this driver
     }
+    //if (!bSampleFound)                        // Add sample to pending queue if it's not a duplicate
+    //{
+    //  iPendingOffset = 160 * iDriverIdx + 8 * Pending[iDriverIndex];// Calculate offset in pending array and store sample data
+    //  *(int *)((char *)SamplePending[0] + iPendingOffset) = iSampleIdx;
+    //  iNewPendingCount = Pending[iDriverIndex] + 1;
+    //  *(int *)((char *)&SamplePending[0][1] + iPendingOffset) = iAdjustedVolume;
+    //  Pending[iDriverIndex] = iNewPendingCount; // Increment pending count for this driver
+    //}
   }
 }
 
@@ -3092,11 +3109,11 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
   double dFinalSkidVolume; // st7
   //int iCarStructOffset; // eax
   double dSkidPitchCalc; // st7
-  int iPendingSampleOffset; // ecx
-  int iCarIndexCopy; // ebp
-  int iPendingCounter; // esi
-  int i; // ecx
-  double dSampleVolume; // st7
+  //int iPendingSampleOffset; // ecx
+  //int iCarIndexCopy; // ebp
+  //int iPendingCounter; // esi
+  //int i; // ecx
+  //double dSampleVolume; // st7
   float fTunnelDistance; // [esp+Ch] [ebp-4Ch]
   float fDopplerFactor; // [esp+10h] [ebp-48h]
   int iTunnelFlag; // [esp+14h] [ebp-44h]
@@ -3112,7 +3129,7 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
   float fDistanceAttenuation; // [esp+30h] [ebp-28h]
   float fTunnelDistanceBack; // [esp+34h] [ebp-24h]
   float fTunnelDistanceForward; // [esp+38h] [ebp-20h]
-  int iPendingSampleVolume; // [esp+3Ch] [ebp-1Ch]
+  //int iPendingSampleVolume; // [esp+3Ch] [ebp-1Ch]
 
   if (soundon) {
     fDopplerFactor = (fListenerDopplerVel + 1476.0f) / (1476.0f - fCarDopplerVel);// Calculate Doppler effect factor (sound speed / (sound speed - source velocity))
@@ -3227,20 +3244,41 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
     }
     enginedelay[iCarIdx].engineSoundData[delaywritex].iSkid1Pitch = iFinalPitch;// Write tire skid sound data to delay buffer
     enginedelay[iCarIdx].engineSoundData[delaywritex].iSkid1Vol = iFinalSkidVolume;
-    iPendingSampleOffset = 5 * iCarIdx;         // Process pending sound effects for this car
-    iCarIndexCopy = iCarIdx;
-    iPendingCounter = 0;
-    for (i = 8 * iPendingSampleOffset; iPendingCounter < Pending[iCarIndexCopy]; i += 2) {
-      iPendingSampleVolume = SamplePending[0][i + 1];
-      if (iPendingSampleVolume > 0x8000)
-        iPendingSampleVolume = 0x8000;
-      dSampleVolume = (double)iPendingSampleVolume * fDistanceAttenuation;// Apply distance attenuation to sample and output if loud enough
-      //_CHP();
-      if ((int)dSampleVolume >= 256)
-        pannedsample(SamplePending[0][i], (int)dSampleVolume, iStereoVolume);
-      ++iPendingCounter;
+
+    // Process pending sound effects for this car
+    int iPendingCount = Pending[iCarIdx];
+    // Process each pending sample for this car
+    for (int iSampleIndex = 0; iSampleIndex < iPendingCount; iSampleIndex++) {
+      int iSampleHandle = SamplePending[iCarIdx][iSampleIndex].iHandle;
+      int iSampleVolume = SamplePending[iCarIdx][iSampleIndex].iVolume;
+      // Clamp volume to maximum
+      if (iSampleVolume > 0x8000) {
+        iSampleVolume = 0x8000;
+      }
+      // Apply distance attenuation
+      double dAttenuatedVolume = (double)iSampleVolume * fDistanceAttenuation;
+      // Output sample if loud enough
+      if ((int)dAttenuatedVolume >= 256) {
+        pannedsample(iSampleHandle, (int)dAttenuatedVolume, iStereoVolume);
+      }
     }
-    Pending[iCarIndexCopy] = 0;                 // Clear pending sample count for next frame
+    // Clear pending sample count for next frame
+    Pending[iCarIdx] = 0;
+
+    //iPendingSampleOffset = 5 * iCarIdx;         // Process pending sound effects for this car
+    //iCarIndexCopy = iCarIdx;
+    //iPendingCounter = 0;
+    //for (i = 8 * iPendingSampleOffset; iPendingCounter < Pending[iCarIndexCopy]; i += 2) {
+    //  iPendingSampleVolume = SamplePending[0][i + 1];
+    //  if (iPendingSampleVolume > 0x8000)
+    //    iPendingSampleVolume = 0x8000;
+    //  dSampleVolume = (double)iPendingSampleVolume * fDistanceAttenuation;// Apply distance attenuation to sample and output if loud enough
+    //  //_CHP();
+    //  if ((int)dSampleVolume >= 256)
+    //    pannedsample(SamplePending[0][i], (int)dSampleVolume, iStereoVolume);
+    //  ++iPendingCounter;
+    //}
+    //Pending[iCarIndexCopy] = 0;                 // Clear pending sample count for next frame
   }
 }
 
