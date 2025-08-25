@@ -1446,14 +1446,16 @@ LABEL_105:
       dInverseZ = 1.0 / fClampedZ;
       dScreenX = dViewDistance * fShadowViewX * dInverseZ + (double)xbase;
       //_CHP();
-      xp = (int)dScreenX;
-      dScreenY = dInverseZ * (dViewDistance * fShadowViewY) + (double)ybase;
-      //_CHP();
-      yp = (int)dScreenY;
-      carpoint[ii].fX = (float)(xp * iScreenSize >> 6);
-      //carpoint[ii].fX = (float)(iScreenXInt >> 6);
-      iTemp = (iScreenSize * (199 - (int)dScreenY)) >> 6;
-      carpoint[ii].fY = (float)iTemp;
+      if (!isnan(dScreenX)) { //check added by ROLLER
+        xp = (int)dScreenX;
+        dScreenY = dInverseZ * (dViewDistance * fShadowViewY) + (double)ybase;
+        //_CHP();
+        yp = (int)dScreenY;
+        carpoint[ii].fX = (float)(xp * iScreenSize >> 6);
+        //carpoint[ii].fX = (float)(iScreenXInt >> 6);
+        iTemp = (iScreenSize * (199 - (int)dScreenY)) >> 6;
+        carpoint[ii].fY = (float)iTemp;
+      }
       //++ii;                                     // replace reference to carworld in for loop with this
     }
     dShadowX = carpoint[0].fX;
@@ -1713,7 +1715,12 @@ LABEL_117:
   }
   if (iVisiblePolygons > 0 || (Car[iCarIndexCopy].byStatusFlags & 2) != 0) {
     iSpriteIdx = 0;
-    pTrackChunkPtr = (float *)&localdata[iCurrChunk];
+
+    if (iCurrChunk >= 0 && iCurrChunk < TRAK_LEN)// bounds check added by ROLLER
+      pTrackChunkPtr = (float *)&localdata[iCurrChunk];
+    else
+      pTrackChunkPtr = NULL;
+
     pCarSprayArray = CarSpray[iCarIndexCopy];
     pSmokeSpray = pCarSprayArray;
     iSmokeIndex = 0;
@@ -1727,7 +1734,7 @@ LABEL_117:
         SmokePt[0][iSmokeIndex].world.fY = fPosX * fRotMat01 + fPosY * fRotMat12 + fPosZ * fRotMat11 + fCarPosY;
         iSmokeChunkIdx = iCurrChunk;
         SmokePt[0][iSmokeIndex].world.fZ = fPosX * fRotMat02 + fPosY * fRotMat21 + fPosZ * fRotMat22Copy + fCarPosZ;
-        if (iSmokeChunkIdx != -1) {
+        if (iSmokeChunkIdx != -1 && pTrackChunkPtr) {
           dSmokeChunkTransY = pTrackChunkPtr[1];
           fSmokeWorldX = SmokePt[0][iSmokeIndex].world.fX;
           fSmokeWorldY = SmokePt[0][iSmokeIndex].world.fY;
@@ -1773,7 +1780,7 @@ LABEL_117:
           SmokePt[1][iSmokeIndex].world.fY = fPosX * fRotMat01 + fPosY * fRotMat12 + fPosZ * fRotMat11 + fCarPosY;
           iSmokeChunkIdx2 = iCurrChunk;
           SmokePt[1][iSmokeIndex].world.fZ = fPosX * fRotMat02 + fPosY * fRotMat21 + fPosZ * fRotMat22Copy + fCarPosZ;
-          if (iSmokeChunkIdx2 != -1) {
+          if (iSmokeChunkIdx2 != -1 && pTrackChunkPtr) {
             dSmoke2ChunkTransY = pTrackChunkPtr[1];
             fSmokeWorldX = SmokePt[1][iSmokeIndex].world.fX;
             fSmokeWorldY = SmokePt[1][iSmokeIndex].world.fY;
