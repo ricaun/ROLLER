@@ -2152,11 +2152,12 @@ LABEL_45:
     pCar->nReverseWarnCooldown = 180;
   iAudioDriverIdx = pCar->iDriverIdx;
   if ((player1_car == iAudioDriverIdx || player2_car == iAudioDriverIdx) && (nCurrentChunk >= 0 && pCar->nYaw3 < 4096 || pCar->nYaw3 > 12288)) {
-    if ((double)samplespeed[nCurrentChunk] <= pCar->fFinalSpeed) {
+    //nCurrentChunk check added by ROLLER
+    if (nCurrentChunk >= 0 && (double)samplespeed[nCurrentChunk] <= pCar->fFinalSpeed) {
       iAudioSample = samplemax[nCurrentChunk];
     } else if (pCar->fFinalSpeed <= 80.0) {
       iAudioSample = 0;
-    } else {
+    } else if (nCurrentChunk >= 0){
       iAudioSample = samplemin[nCurrentChunk];
     }
     if (iAudioSample) {
@@ -5073,7 +5074,7 @@ LABEL_24:
         goto LABEL_175;
       if (iLeftCarIdx == pCar->iTrackedCarIdx && fLeftTime < 0.0)
         goto LABEL_178;
-      if (pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx)
+      if (iLeftCarIdx >= 0 && pCar->byCarDesignIdx == Car[iLeftCarIdx].byCarDesignIdx)
         goto LABEL_154;
       pCar->iTrackedCarIdx = -1;
       fStrategyParam1 = pStrategy->fSteerSensitivity;
