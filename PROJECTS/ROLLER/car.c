@@ -1492,7 +1492,8 @@ LABEL_117:
     iNumCoords = 0;
   }
   fWarpDistortion = tsin[((uint16)warp_angle + ((uint16)iCarIndexCopy << 11)) & 0x3FFF] * 0.5f;
-  if (iNumCoords > 0)                         // Process 3D car model coordinates and transform to screen space
+  //iCurrChunk bounds check added by ROLLER
+  if (iNumCoords > 0 && iCurrChunk >= 0 && iCurrChunk < TRAK_LEN)                         // Process 3D car model coordinates and transform to screen space
   {
     iCoordOffset = 0;
     iCoordLoopSize = 32 * iNumCoords;
