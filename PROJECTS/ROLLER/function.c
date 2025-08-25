@@ -261,7 +261,8 @@ void finish_race()
           iLapTimeCarId = carorder[iLapTimeCarIndex];
           fRandomLapVariation = (float)((double)ROLLERrand() * 0.000030517578125 + 0.02);// Add random variation (0.02-0.05s) to base lap time
           if (iLapTimeIndex)
-            dRunningLapTime = Car[nearcall[3][iLapTimeCarIndex + 3]].fRunningLapTime;
+            dRunningLapTime = Car[carorder[iLapTimeCarIndex]].fRunningLapTime;
+            //dRunningLapTime = Car[nearcall[3][iLapTimeCarIndex + 3]].fRunningLapTime;
           else
             dRunningLapTime = RecordLaps[game_track];
           Car[iLapTimeCarId].fRunningLapTime = (float)dRunningLapTime + fRandomLapVariation;
@@ -304,7 +305,8 @@ void finish_race()
       iFinishedCarIndex = 0;
       for (ii = 0; finished_car[carorder[ii]]; ++ii)
         ++iFinishedCarIndex;
-      iNearCarId = nearcall[3][iFinishedCarIndex + 3];
+      iNearCarId = carorder[iFinishedCarIndex];
+      //iNearCarId = nearcall[3][iFinishedCarIndex + 3];
       fWinnerTotalTime = Car[iNearCarId].fTotalRaceTime;
       iFinishingCarId = carorder[iFinishedCarIndex];
       iCarId = iFinishingCarId;
