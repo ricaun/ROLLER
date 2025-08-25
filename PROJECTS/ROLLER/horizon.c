@@ -544,7 +544,7 @@ void displayclouds(uint8 *pScrBuf)
         yp = (int)dProjY1;
         //iScreenXTemp = xp >> 6;
         fScreenX1 = (float)(xp >> 6);
-        iYCalcTemp = (iScrSize1 * (199 - (int)dProjY1)) >> 6;
+        iYCalcTemp = ((long long)iScrSize1 * (199 - (int)dProjY1)) >> 6;
         fScreenY1 = (float)iYCalcTemp;
         if (iBehindCamera || fScreenX1 >= -5000.0 && fScreenX1 <= 5000.0 && fScreenY1 >= -5000.0 && fScreenY1 <= 5000.0) {
           dScreenX1 = fScreenX1;                // Store vertex 1 coordinates in polygon structure
@@ -578,7 +578,7 @@ void displayclouds(uint8 *pScrBuf)
           //_CHP();
           yp = (int)dProjY2;
           fScreenX2 = (float)(xp >> 6);
-          iYCalcTemp = (iScrSize2 * (199 - (int)dProjY2)) >> 6;
+          iYCalcTemp = ((long long)iScrSize2 * (199 - (int)dProjY2)) >> 6;
           fScreenY2 = (float)iYCalcTemp;
           if (iBehindCamera || fScreenX2 >= -5000.0 && fScreenX2 <= 5000.0 && fScreenY2 >= -5000.0 && fScreenY2 <= 5000.0) {
             dScreenX2 = fScreenX2;              // Store vertex 2 coordinates in polygon structure
@@ -612,7 +612,7 @@ void displayclouds(uint8 *pScrBuf)
             //_CHP();
             yp = (int)dProjY3;
             fScreenX3 = (float)(xp >> 6);
-            iYCalcTemp = (iScrSize3 * (199 - (int)dProjY3)) >> 6;
+            iYCalcTemp = ((long long)iScrSize3 * (199 - (int)dProjY3)) >> 6;
             fScreenY3 = (float)iYCalcTemp;
             if (iBehindCamera || fScreenX3 >= -5000.0 && fScreenX3 <= 5000.0 && fScreenY3 >= -5000.0 && fScreenY3 <= 5000.0) {
               dScreenX3 = fScreenX3;            // Store vertex 3 coordinates in polygon structure
