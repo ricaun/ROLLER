@@ -2838,17 +2838,24 @@ void enginesounds(int iFocusCarIndex)
   if (soundon)                                // Check if sound is enabled globally
   {
     delaywritex = delaywrite & 0x1F;            // Get current delay buffer write index (0-31)
-    if (numcars > 0)                          // Initialize engine sound data for all cars
-    {
-      uiInitOffset = 0;
-      iTotalOffset = 896 * numcars;
-      do {
-        enginedelay[0].engineSoundData[delaywritex + uiInitOffset / 0x1C].iEngineVol = -1;
-        enginedelay[0].engineSoundData[delaywritex + uiInitOffset / 0x1C].iEngine2Vol = -1;
-        uiInitOffset += 896;
-        SamplePending[12][7 * delaywritex + 5 + uiInitOffset / 4] = -1;
-      } while ((int)uiInitOffset < iTotalOffset);
+    
+
+    for (int iCar = 0; iCar < numcars; ++iCar) {
+      enginedelay[iCar].engineSoundData[delaywritex].iEngineVol = -1;
+      enginedelay[iCar].engineSoundData[delaywritex].iEngine2Vol = -1;
+      enginedelay[iCar].engineSoundData[delaywritex].iSkid1Vol = -1;
     }
+    //if (numcars > 0)                          // Initialize engine sound data for all cars
+    //{
+    //  uiInitOffset = 0;
+    //  iTotalOffset = 896 * numcars;
+    //  do {
+    //    enginedelay[0].engineSoundData[delaywritex + uiInitOffset / 0x1C].iEngineVol = -1;
+    //    enginedelay[0].engineSoundData[delaywritex + uiInitOffset / 0x1C].iEngine2Vol = -1;
+    //    uiInitOffset += 896;
+    //    SamplePending[12][7 * delaywritex + 5 + uiInitOffset / 4] = -1;
+    //  } while ((int)uiInitOffset < iTotalOffset);
+    //}
     if (DriveView[0] == 3 || DriveView[0] == 6)// Check for external camera view (3) or tower view (6)
     {                                           // Setup listener position for tower view camera
       if (DriveView[0] == 6) {
