@@ -11,6 +11,9 @@
 #include "control.h"
 #include "network.h"
 #include "replay.h"
+#include "tower.h"
+#include "view.h"
+#include "transfrm.h"
 #include <memory.h>
 #include <ctype.h>
 #include <SDL3/SDL.h>
@@ -2776,228 +2779,234 @@ void enginesounds2(int iPlayer1Car, int iPlayer2Car)
 
 //-------------------------------------------------------------------------------------------------
 //0003D310
-int enginesounds(int result)
+void enginesounds(int iFocusCarIndex)
 {
-  return 0; /*
-  int v1; // edi
-  unsigned int v2; // eax
-  int v3; // ebp
-  float *v4; // eax
-  int v5; // edx
-  float *v6; // edx
-  int v7; // ebx
-  double v8; // st7
-  double v9; // st6
-  int v10; // ebp
-  double v11; // st7
-  int v12; // ecx
-  float *v13; // ebx
-  int v14; // eax
-  int v15; // esi
-  int v16; // esi
-  __int64 v17; // rax
-  int v18; // eax
-  int v19; // esi
-  double v20; // st7
-  double v21; // st6
-  int v22; // edx
-  int v23; // eax
-  int v24; // eax
-  double v25; // st7
-  int v26; // [esp+0h] [ebp-9Ch]
-  int v27; // [esp+4h] [ebp-98h] BYREF
-  int v28; // [esp+8h] [ebp-94h] BYREF
-  int v29; // [esp+10h] [ebp-8Ch] BYREF
-  float v30; // [esp+14h] [ebp-88h]
-  float v31; // [esp+18h] [ebp-84h]
-  float v32; // [esp+20h] [ebp-7Ch]
-  float v33; // [esp+24h] [ebp-78h]
-  float v34; // [esp+28h] [ebp-74h]
-  float v35; // [esp+2Ch] [ebp-70h]
-  float v36; // [esp+30h] [ebp-6Ch]
-  float v37; // [esp+34h] [ebp-68h]
-  float v38; // [esp+38h] [ebp-64h]
-  float v39; // [esp+3Ch] [ebp-60h]
-  float v40; // [esp+40h] [ebp-5Ch]
-  int v41; // [esp+44h] [ebp-58h]
-  float v42; // [esp+48h] [ebp-54h]
-  int v43; // [esp+4Ch] [ebp-50h]
-  float v44; // [esp+50h] [ebp-4Ch]
-  float v45; // [esp+54h] [ebp-48h]
-  float v46; // [esp+58h] [ebp-44h]
-  float v47; // [esp+5Ch] [ebp-40h]
-  float v48; // [esp+60h] [ebp-3Ch]
-  float v49; // [esp+64h] [ebp-38h]
-  float v50; // [esp+68h] [ebp-34h]
-  int v51; // [esp+6Ch] [ebp-30h]
-  int v52; // [esp+70h] [ebp-2Ch]
-  int v53; // [esp+74h] [ebp-28h]
-  float v54; // [esp+78h] [ebp-24h]
-  float v55; // [esp+7Ch] [ebp-20h]
-  float v56; // [esp+80h] [ebp-1Ch]
+  unsigned int uiInitOffset; // eax
+  int iTotalOffset; // ebp
+  tCar *pFocusCar; // eax
+  int iCurrChunk; // edx
+  tData *pChunkData; // edx
+  int iCarYaw; // ebx
+  double dSpeedCos; // st7
+  double dSpeedSin; // st6
+  int iChunkIdx; // ebp
+  double dCosRoll; // st7
+  int iCarIndex; // ecx
+  tCar *pCurrentCar; // ebx
+  int iEnableSound; // eax
+  int iCarChunk; // esi
+  int iChunkDiff; // esi
+  int iCurrentCarChunk; // eax
+  tData *pCarChunkData; // eax
+  int iYaw3; // esi
+  double dCurrentCarSpeedCos; // st7
+  double dCurrentCarSpeedSin; // st6
+  int iHorizontalAngle; // edx
+  int iVerticalAngle; // eax
+  double dVolumeCalc; // st7
+  float fTempVolumeCalc; // [esp+0h] [ebp-9Ch]
+  int iRoll; // [esp+4h] [ebp-98h] BYREF
+  int iYaw; // [esp+8h] [ebp-94h] BYREF
+  int iPitch; // [esp+10h] [ebp-8Ch] BYREF
+  float fHorizontalDistance; // [esp+14h] [ebp-88h]
+  float fTransformedX; // [esp+18h] [ebp-84h]
+  float fOrientMatrix_XX; // [esp+20h] [ebp-7Ch]
+  float fOrientMatrix_ZX; // [esp+24h] [ebp-78h]
+  float fOrientMatrix_ZZ; // [esp+28h] [ebp-74h]
+  float fOrientMatrix_YX; // [esp+2Ch] [ebp-70h]
+  float fOrientMatrix_YY; // [esp+30h] [ebp-6Ch]
+  float fOrientMatrix_XY; // [esp+34h] [ebp-68h]
+  float fListenerDirY; // [esp+38h] [ebp-64h]
+  float fListenerDirX; // [esp+3Ch] [ebp-60h]
+  float fListenerDirZ; // [esp+40h] [ebp-5Ch]
+  float fZ; // [esp+44h] [ebp-58h]
+  float fX; // [esp+48h] [ebp-54h]
+  float fY; // [esp+4Ch] [ebp-50h]
+  float fListenerDopplerVel; // [esp+50h] [ebp-4Ch]
+  float fCarDopplerVel; // [esp+54h] [ebp-48h]
+  float fCarVelY; // [esp+58h] [ebp-44h]
+  float fCarPosX; // [esp+5Ch] [ebp-40h]
+  float fCarVelZ; // [esp+60h] [ebp-3Ch]
+  float fCarPosZ; // [esp+64h] [ebp-38h]
+  float fTotalDistance; // [esp+68h] [ebp-34h]
+  int iStereoVolume; // [esp+6Ch] [ebp-30h]
+  float fRelativeY; // [esp+70h] [ebp-2Ch]
+  float fRelativeZ; // [esp+74h] [ebp-28h]
+  float fRelativeX; // [esp+78h] [ebp-24h]
+  float fCarPosY; // [esp+7Ch] [ebp-20h]
+  float fCarVelX; // [esp+80h] [ebp-1Ch]
 
-  v1 = result;
-  if (soundon) {
-    delaywritex = delaywrite & 0x1F;
-    if (numcars > 0) {
-      v2 = 0;
-      v3 = 896 * numcars;
+  if (soundon)                                // Check if sound is enabled globally
+  {
+    delaywritex = delaywrite & 0x1F;            // Get current delay buffer write index (0-31)
+    if (numcars > 0)                          // Initialize engine sound data for all cars
+    {
+      uiInitOffset = 0;
+      iTotalOffset = 896 * numcars;
       do {
-        enginedelay_variable_1[7 * delaywritex + v2 / 4] = -1;
-        enginedelay_variable_3[7 * delaywritex + v2 / 4] = -1;
-        v2 += 896;
-        SamplePending_variable_2[7 * delaywritex + v2 / 4] = -1;
-      } while ((int)v2 < v3);
+        enginedelay[0].engineSoundData[delaywritex + uiInitOffset / 0x1C].iEngineVol = -1;
+        enginedelay[0].engineSoundData[delaywritex + uiInitOffset / 0x1C].iEngine2Vol = -1;
+        uiInitOffset += 896;
+        SamplePending[12][7 * delaywritex + 5 + uiInitOffset / 4] = -1;
+      } while ((int)uiInitOffset < iTotalOffset);
     }
-    if (DriveView[0] == 3 || DriveView[0] == 6) {
+    if (DriveView[0] == 3 || DriveView[0] == 6)// Check for external camera view (3) or tower view (6)
+    {                                           // Setup listener position for tower view camera
       if (DriveView[0] == 6) {
-        v42 = -localdata_variable_16;
-        *(float *)&v43 = -localdata_variable_17;
-        v10 = 2;
-        *(float *)&v41 = sound_c_variable_37 - localdata_variable_18;
+        fX = -localdata[2].pointAy[3].fX;
+        fY = -localdata[2].pointAy[3].fY;
+        iChunkIdx = 2;
+        fZ = 1024.0f - localdata[2].pointAy[3].fZ;
       } else {
-        v10 = TowerBase[5 * NearTow];
-        v42 = *(float *)&TowerGx;
-        v43 = TowerGy;
-        v41 = TowerGz;
+        iChunkIdx = TowerBase[NearTow].iChunkIdx;
+        fX = TowerGx;
+        fY = TowerGy;
+        fZ = TowerGz;
       }
-      v39 = 0.0;
-      v38 = 0.0;
-      v40 = 0.0;
+      fListenerDirX = 0.0;
+      fListenerDirY = 0.0;
+      fListenerDirZ = 0.0;
     } else {
-      enginesound(0.0, 0.0, 2000.0, 0x8000);
-      v4 = &Car[77 * v1];
-      v5 = *((__int16 *)v4 + 6);
-      if (v5 == -1) {
-        v42 = *v4;
-        v43 = *((int *)v4 + 1);
-        v41 = *((int *)v4 + 2);
-        v39 = v4[10];
-        v38 = v4[11];
-        v40 = v4[12];
+      enginesound(iFocusCarIndex, 0.0, 0.0, 2000.0, 0x8000);// Process engine sound for focus car (in-car view)
+      pFocusCar = &Car[iFocusCarIndex];
+      iCurrChunk = pFocusCar->nCurrChunk;
+      if (iCurrChunk == -1) {
+        fX = pFocusCar->pos.fX;
+        fY = pFocusCar->pos.fY;
+        fZ = pFocusCar->pos.fZ;
+        fListenerDirX = pFocusCar->direction.fX;
+        fListenerDirY = pFocusCar->direction.fY;
+        fListenerDirZ = pFocusCar->direction.fZ;
       } else {
-        v6 = (float *)((char *)&localdata + 128 * v5);
-        v42 = v6[1] * v4[1] + *v6 * *v4 + v6[2] * v4[2] - v6[9];
-        *(float *)&v43 = v6[4] * v4[1] + v6[3] * *v4 + v6[5] * v4[2] - v6[10];
-        *(float *)&v41 = v6[7] * v4[1] + v6[6] * *v4 + v6[8] * v4[2] - v6[11];
-        v7 = *((_DWORD *)v4 + 16);
-        v8 = v4[6] * tcos[v7];
-        v9 = v4[6] * tsin[v7];
-        v39 = v6[1] * v9 + *v6 * v8;
-        v38 = v6[3] * v8 + v6[4] * v9;
-        v40 = v8 * v6[6] + v9 * v6[7];
+        pChunkData = &localdata[iCurrChunk];    // Transform car position from chunk coordinates to world coordinates
+        fX = pChunkData->pointAy[0].fY * pFocusCar->pos.fY
+          + pChunkData->pointAy[0].fX * pFocusCar->pos.fX
+          + pChunkData->pointAy[0].fZ * pFocusCar->pos.fZ
+          - pChunkData->pointAy[3].fX;
+        fY = pChunkData->pointAy[1].fY * pFocusCar->pos.fY
+          + pChunkData->pointAy[1].fX * pFocusCar->pos.fX
+          + pChunkData->pointAy[1].fZ * pFocusCar->pos.fZ
+          - pChunkData->pointAy[3].fY;
+        fZ = pChunkData->pointAy[2].fY * pFocusCar->pos.fY
+          + pChunkData->pointAy[2].fX * pFocusCar->pos.fX
+          + pChunkData->pointAy[2].fZ * pFocusCar->pos.fZ
+          - pChunkData->pointAy[3].fZ;
+        iCarYaw = pFocusCar->nYaw3;
+        dSpeedCos = pFocusCar->fFinalSpeed * tcos[iCarYaw];
+        dSpeedSin = pFocusCar->fFinalSpeed * tsin[iCarYaw];
+        fListenerDirX = (float)(pChunkData->pointAy[0].fY * dSpeedSin + pChunkData->pointAy[0].fX * dSpeedCos);
+        fListenerDirY = (float)(pChunkData->pointAy[1].fX * dSpeedCos + pChunkData->pointAy[1].fY * dSpeedSin);
+        fListenerDirZ = (float)(dSpeedCos * pChunkData->pointAy[2].fX + dSpeedSin * pChunkData->pointAy[2].fY);
       }
-      v10 = *((__int16 *)v4 + 6);
-      if (v10 == -1)
-        v10 = *((__int16 *)v4 + 7);
+      iChunkIdx = pFocusCar->nCurrChunk;
+      if (iChunkIdx == -1)
+        iChunkIdx = pFocusCar->nChunk2;
     }
     if (DriveView[0] != 3 && DriveView[0] != 6) {
-      if (Car_variable_17[77 * v1] == 3) {
-        getworldangles(&v28, &v29, &v27);
+      if (Car[iFocusCarIndex].iControlType == 3) {
+        getworldangles(Car[iFocusCarIndex].nYaw, Car[iFocusCarIndex].nPitch, Car[iFocusCarIndex].nRoll, Car[iFocusCarIndex].nCurrChunk, &iYaw, &iPitch, &iRoll);
       } else {
-        v28 = Car_variable_7[154 * v1];
-        v29 = Car_variable_6[154 * v1];
-        v27 = Car_variable_5[154 * v1];
+        iYaw = Car[iFocusCarIndex].nYaw;
+        iPitch = Car[iFocusCarIndex].nPitch;
+        iRoll = Car[iFocusCarIndex].nRoll;
       }
-      v32 = tcos[v28] * tcos[v29];
-      v37 = tcos[v28] * tsin[v29] * tsin[v27] - tsin[v28] * tcos[v27];
-      v35 = tsin[v28] * tcos[v29];
-      v36 = tsin[v28] * tsin[v29] * tsin[v27] + tcos[v28] * tcos[v27];
-      v11 = -tsin[v27] * tcos[v29];
-      v34 = tsin[v29];
-      v33 = v11;
+      fOrientMatrix_XX = tcos[iYaw] * tcos[iPitch];// Calculate camera orientation matrix from yaw/pitch/roll angles
+      fOrientMatrix_XY = tcos[iYaw] * tsin[iPitch] * tsin[iRoll] - tsin[iYaw] * tcos[iRoll];
+      fOrientMatrix_YX = tsin[iYaw] * tcos[iPitch];
+      fOrientMatrix_YY = tsin[iYaw] * tsin[iPitch] * tsin[iRoll] + tcos[iYaw] * tcos[iRoll];
+      dCosRoll = -tsin[iRoll] * tcos[iPitch];
+      fOrientMatrix_ZZ = tsin[iPitch];
+      fOrientMatrix_ZX = (float)dCosRoll;
     }
-    v12 = 0;
+    iCarIndex = 0;                              // Main loop: Process engine sounds for each car
     if (numcars > 0) {
-      v13 = Car;
+      pCurrentCar = Car;
       do {
-        v14 = -1;
-        if (Car_variable_23[308 * v12] < 0)
-          v14 = 0;
+        iEnableSound = -1;
+        if ((Car[iCarIndex].byLives & 0x80u) != 0)// Check if car is alive (bit 7 of byLives indicates death)
+          iEnableSound = 0;
         if (DriveView[0] == 3 || DriveView[0] == 6) {
-          if (v12 == v1 || allengines)
+          if (iCarIndex == iFocusCarIndex || allengines)
             goto LABEL_34;
-        } else if (v12 != v1 && allengines) {
+        } else if (iCarIndex != iFocusCarIndex && allengines) {
           goto LABEL_34;
         }
-        v14 = 0;
+        iEnableSound = 0;
       LABEL_34:
-        if (v14) {
-          v15 = Car_variable_3[154 * v12];
-          if (v15 == -1)
-            v15 = Car_variable_4[154 * v12];
-          v16 = v15 - v10;
-          if (v16 < 0)
-            v16 += TRAK_LEN;
-          if (v16 > TRAK_LEN / 2)
-            v16 -= TRAK_LEN;
-          v17 = v16;
-          if ((int)abs32(v16) >= 40) {
-            enginesound(0.0, 0.0, 1048576.0, 0x8000);
+        if (iEnableSound) {
+          iCarChunk = Car[iCarIndex].nCurrChunk;
+          if (iCarChunk == -1)
+            iCarChunk = Car[iCarIndex].nChunk2;
+          iChunkDiff = iCarChunk - iChunkIdx;
+          if (iChunkDiff < 0)
+            iChunkDiff += TRAK_LEN;
+          if (iChunkDiff > TRAK_LEN / 2)
+            iChunkDiff -= TRAK_LEN;
+          if ((int)abs(iChunkDiff) >= 40)   // Cull car sounds if more than 40 chunks away
+          {
+            enginesound(iCarIndex, 0.0, 0.0, 1048576.0, 0x8000);
           } else {
-            v18 = *((__int16 *)v13 + 6);
-            if (v18 == -1) {
-              v47 = *v13;
-              v55 = v13[1];
-              v49 = v13[2];
-              v56 = v13[10];
-              v46 = v13[11];
-              *(float *)&v17 = v13[12];
-              v48 = *(float *)&v17;
+            iCurrentCarChunk = pCurrentCar->nCurrChunk;
+            if (iCurrentCarChunk == -1) {
+              fCarPosX = pCurrentCar->pos.fX;
+              fCarPosY = pCurrentCar->pos.fY;
+              fCarPosZ = pCurrentCar->pos.fZ;
+              fCarVelX = pCurrentCar->direction.fX;
+              fCarVelY = pCurrentCar->direction.fY;
+              fCarVelZ = pCurrentCar->direction.fZ;
             } else {
-              LODWORD(v17) = (char *)&localdata + 128 * v18;
-              v47 = *(float *)(v17 + 4) * v13[1]
-                + *(float *)v17 * *v13
-                + *(float *)(v17 + 8) * v13[2]
-                - *(float *)(v17 + 36);
-              v55 = *(float *)(v17 + 16) * v13[1]
-                + *(float *)(v17 + 12) * *v13
-                + *(float *)(v17 + 20) * v13[2]
-                - *(float *)(v17 + 40);
-              v49 = *(float *)(v17 + 28) * v13[1]
-                + *(float *)(v17 + 24) * *v13
-                + *(float *)(v17 + 32) * v13[2]
-                - *(float *)(v17 + 44);
-              v19 = *((_DWORD *)v13 + 16);
-              v20 = v13[6] * tcos[v19];
-              v21 = v13[6] * tsin[v19];
-              v56 = *(float *)(v17 + 4) * v21 + *(float *)v17 * v20;
-              v46 = *(float *)(v17 + 12) * v20 + *(float *)(v17 + 16) * v21;
-              v48 = v20 * *(float *)(v17 + 24) + v21 * *(float *)(v17 + 28);
+              pCarChunkData = &localdata[iCurrentCarChunk];
+              fCarPosX = pCarChunkData->pointAy[0].fY * pCurrentCar->pos.fY
+                + pCarChunkData->pointAy[0].fX * pCurrentCar->pos.fX
+                + pCarChunkData->pointAy[0].fZ * pCurrentCar->pos.fZ
+                - pCarChunkData->pointAy[3].fX;
+              fCarPosY = pCarChunkData->pointAy[1].fY * pCurrentCar->pos.fY
+                + pCarChunkData->pointAy[1].fX * pCurrentCar->pos.fX
+                + pCarChunkData->pointAy[1].fZ * pCurrentCar->pos.fZ
+                - pCarChunkData->pointAy[3].fY;
+              fCarPosZ = pCarChunkData->pointAy[2].fY * pCurrentCar->pos.fY
+                + pCarChunkData->pointAy[2].fX * pCurrentCar->pos.fX
+                + pCarChunkData->pointAy[2].fZ * pCurrentCar->pos.fZ
+                - pCarChunkData->pointAy[3].fZ;
+              iYaw3 = pCurrentCar->nYaw3;
+              dCurrentCarSpeedCos = pCurrentCar->fFinalSpeed * tcos[iYaw3];
+              dCurrentCarSpeedSin = pCurrentCar->fFinalSpeed * tsin[iYaw3];
+              fCarVelX = (float)(pCarChunkData->pointAy[0].fY * dCurrentCarSpeedSin + pCarChunkData->pointAy[0].fX * dCurrentCarSpeedCos);
+              fCarVelY = (float)(pCarChunkData->pointAy[1].fX * dCurrentCarSpeedCos + pCarChunkData->pointAy[1].fY * dCurrentCarSpeedSin);
+              fCarVelZ = (float)(dCurrentCarSpeedCos * pCarChunkData->pointAy[2].fX + dCurrentCarSpeedSin * pCarChunkData->pointAy[2].fY);
             }
-            v54 = v47 - v42;
-            *(float *)&v52 = v55 - *(float *)&v43;
-            *(float *)&v53 = v49 - *(float *)&v41;
-            v30 = v54 * v54 + *(float *)&v52 * *(float *)&v52;
-            v50 = *(float *)&v53 * *(float *)&v53 + v30;
-            v30 = sqrt(v30);
-            v50 = sqrt(v50);
-            v22 = getangle(v17, SHIDWORD(v17), v54, v52);
-            v23 = getangle(v22, v22, v30, v53);
-            v44 = (v39 * tcos[v22] + v38 * tsin[v22]) * tcos[v23] + v40 * tsin[v23];
-            v45 = -(v56 * tcos[v22] + v46 * tsin[v22]) * tcos[v23] + v48 * tsin[v23];
+            fRelativeX = fCarPosX - fX;         // Calculate relative position vector from listener to car
+            fRelativeY = fCarPosY - fY;
+            fRelativeZ = fCarPosZ - fZ;
+            fHorizontalDistance = fRelativeX * fRelativeX + fRelativeY * fRelativeY;// Calculate horizontal and total 3D distances
+            fTotalDistance = fRelativeZ * fRelativeZ + fHorizontalDistance;
+            fHorizontalDistance = (float)sqrt(fHorizontalDistance);
+            fTotalDistance = (float)sqrt(fTotalDistance);
+            iHorizontalAngle = getangle(fRelativeX, fRelativeY);// Calculate horizontal and vertical angles for 3D positioning
+            iVerticalAngle = getangle(fHorizontalDistance, fRelativeZ);
+            fListenerDopplerVel = (fListenerDirX * tcos[iHorizontalAngle] + fListenerDirY * tsin[iHorizontalAngle]) * tcos[iVerticalAngle]
+              + fListenerDirZ * tsin[iVerticalAngle];// Calculate Doppler velocities for listener and car
+            fCarDopplerVel = -(fCarVelX * tcos[iHorizontalAngle] + fCarVelY * tsin[iHorizontalAngle]) * tcos[iVerticalAngle] + fCarVelZ * tsin[iVerticalAngle];
             if (DriveView[0] == 3 || DriveView[0] == 6) {
-              v51 = 0x8000;
+              iStereoVolume = 0x8000;
             } else {
-              v31 = v54 * v32 + *(float *)&v52 * v35 + *(float *)&v53 * v34;
-              *(float *)&v26 = v54 * v37 + *(float *)&v52 * v36 + *(float *)&v53 * v33;
-              v24 = getangle(v23, v22, v31, v26);
-              v25 = (1.0 - tsin[v24]) * sound_c_variable_38;
-              _CHP(v24, v22);
-              v51 = (int)v25;
-              if ((int)v25 >= (int)cstart_branch_1)
-                v51 = 0xFFFF;
+              fTransformedX = fRelativeX * fOrientMatrix_XX + fRelativeY * fOrientMatrix_YX + fRelativeZ * fOrientMatrix_ZZ;// Calculate stereo position using camera orientation matrix
+              fTempVolumeCalc = fRelativeX * fOrientMatrix_XY + fRelativeY * fOrientMatrix_YY + fRelativeZ * fOrientMatrix_ZX;
+              dVolumeCalc = (1.0 - tsin[getangle(fTransformedX, fTempVolumeCalc)]) * 32768.0;
+              //_CHP();
+              iStereoVolume = (int)dVolumeCalc;
+              if ((int)dVolumeCalc >= 0x10000)
+                iStereoVolume = 0xFFFF;
             }
-            enginesound(v44, v45, v50, v51);
+            enginesound(iCarIndex, fListenerDopplerVel, fCarDopplerVel, fTotalDistance, iStereoVolume);// Output final engine sound with calculated parameters
           }
         }
-        ++v12;
-        v13 += 77;
-      } while (v12 < numcars);
+        ++iCarIndex;
+        ++pCurrentCar;
+      } while (iCarIndex < numcars);
     }
-    return delaywrite++;
+    ++delaywrite;                               // Advance to next delay buffer frame for next iteration
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3614,24 +3623,22 @@ void set_palette(int iBrightness)
 
 //-------------------------------------------------------------------------------------------------
 //0003EAB0
-int check_joystick_usage()
+void check_joystick_usage()
 {
-  return 0; /*
-  int result; // eax
-  char v1; // dl
-  char v2; // cl
+  int i; // eax
+  uint8 byKey1; // dl
+  uint8 byKey2; // cl
 
   Joy1used = 0;
   Joy2used = 0;
-  for (result = 0; result < 12; ++result) {
-    v1 = userkey[result];
-    if (v1 == (char)0x80 || v1 == -127 || (unsigned __int8)v1 >= 0x84u && (unsigned __int8)v1 <= 0x87u)
+  for (i = 0; i < 12; ++i) {
+    byKey1 = userkey[i];
+    if (byKey1 == 0x80 || byKey1 == 0x81 || byKey1 >= 0x84u && byKey1 <= 0x87u)
       Joy1used = -1;
-    v2 = userkey[result];
-    if (v2 == -126 || v2 == -125 || (unsigned __int8)v2 >= 0x88u && (unsigned __int8)v2 <= 0x8Bu)
+    byKey2 = userkey[i];
+    if (byKey2 == 0x82 || byKey2 == 0x83 || byKey2 >= 0x88u && byKey2 <= 0x8Bu)
       Joy2used = -1;
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3839,61 +3846,77 @@ void select8bitdriver()
 
 //-------------------------------------------------------------------------------------------------
 //0003EF50
-int resetsamplearray()
+void resetsamplearray()
 {
-  return 0; /*
-  int v0; // ebx
-  int i; // ecx
-  int v2; // edx
-  int v3; // eax
-  int v4; // eax
-  int v5; // esi
-  int j; // ecx
-  int result; // eax
+  //int iNumCars; // ebx
+  //int i; // ecx
+  //int iCar; // edx
+  //int iEngineDelayOffset; // eax
+  //int iSampleOffset; // eax
+  //unsigned int iSampleHandleCarOffset; // esi
+  //int j; // ecx
+  //int iHandleOffset; // eax
 
-  v0 = numcars;
-  for (i = 0; i != 896; i += 28) {
-    v2 = 0;
-    if (v0 > 0) {
-      v3 = i;
-      do {
-        *(int *)((char *)enginedelay_variable_1 + v3) = -1;
-        *(int *)((char *)enginedelay_variable_3 + v3) = -1;
-        *(int *)((char *)enginedelay_variable_5 + v3) = -1;
-        ++v2;
-        v3 += 896;
-      } while (v2 < v0);
+  for (int i = 0; i < numcars; ++i) {
+    for (int j = 0; j < 32; ++j) {
+      enginedelay[i].engineSoundData[j].iEngineVol = -1;
+      enginedelay[i].engineSoundData[j].iEngine2Vol = -1;
+      enginedelay[i].engineSoundData[j].iSkid1Vol = -1;
     }
   }
-  v4 = 2;
-  HandleSample[0] = -1;
-  HandleCar[0] = -1;
-  HandleSample_variable_1 = -1;
-  HandleCar_variable_1 = -1;
-  do {
-    v4 += 5;
-    HandleCar_variable_2[v4] = -1;
-    SamplePending_variable_3[v4] = -1;
-    HandleCar_variable_3[v4] = -1;
-    SamplePending_variable_4[v4] = -1;
-    HandleCar_variable_4[v4] = -1;
-    SamplePending_variable_5[v4] = -1;
-    HandleCar_variable_5[v4] = -1;
-    SamplePending_variable_6[v4] = -1;
-    HandleCar_variable_6[v4] = -1;
-    SamplePending_variable_7[v4] = -1;
-  } while (v4 != 32);
-  v5 = 64;
-  for (j = 0; j < 120; ++j) {
-    result = j << 6;
-    do {
-      result += 4;
-      *(int *)((char *)&SamplePtr_variable_15 + result) = -1;
-    } while (result != v5);
-    v5 += 64;
+  //iNumCars = numcars;
+  //for (i = 0; i != sizeof(tCarSoundData); i += sizeof(tEngineSoundData)) {
+  //  iCar = 0;
+  //  if (iNumCars > 0) {
+  //    iEngineDelayOffset = i;
+  //    do {
+  //      *(int *)((char *)&enginedelay[0].engineSoundData[0].iEngineVol + iEngineDelayOffset) = -1;
+  //      *(int *)((char *)&enginedelay[0].engineSoundData[0].iEngine2Vol + iEngineDelayOffset) = -1;
+  //      *(int *)((char *)&enginedelay[0].engineSoundData[0].iSkid1Vol + iEngineDelayOffset) = -1;
+  //      ++iCar;
+  //      iEngineDelayOffset += sizeof(tCarSoundData);
+  //    } while (iCar < iNumCars);
+  //  }
+  //}
+
+  for (int i = 0; i < 32; ++i) {
+    HandleSample[i] = -1;
+    HandleCar[i] = -1;
   }
-  numcars = v0;
-  return result;*/
+  //iSampleOffset = 2;
+  //HandleSample[0] = -1;
+  //HandleCar[0] = -1;
+  //HandleSample[1] = -1;
+  //HandleCar[1] = -1;
+  //do {
+  //  iSampleOffset += 5;
+  //  HandleCar[iSampleOffset + 27] = -1;         // offset into HandleSample
+  //  SamplePending[15][iSampleOffset + 35] = -1; // offset into HandleCar
+  //  HandleCar[iSampleOffset + 28] = -1;
+  //  SamplePending[15][iSampleOffset + 36] = -1;
+  //  HandleCar[iSampleOffset + 29] = -1;
+  //  SamplePending[15][iSampleOffset + 37] = -1;
+  //  HandleCar[iSampleOffset + 30] = -1;
+  //  SamplePending[15][iSampleOffset + 38] = -1;
+  //  HandleCar[iSampleOffset + 31] = -1;
+  //  SamplePending[15][iSampleOffset + 39] = -1;
+  //} while (iSampleOffset != 32);
+
+  for (int i = 0; i < 120; ++i) {
+    for (int j = 0; j < 16; ++j) {
+      SampleHandleCar[i].handles[j] = -1;
+    }
+  }
+  //iSampleHandleCarOffset = sizeof(tSampleHandleCar);
+  //for (j = 0; j < 120; ++j) {
+  //  iHandleOffset = j << 6;
+  //  do {
+  //    iHandleOffset += 4;
+  //    *(uint8 **)((char *)&SamplePtr[119] + iHandleOffset) = (uint8 *)-1;// offset into SampleHandleCar
+  //  } while (iHandleOffset != iSampleHandleCarOffset);
+  //  iSampleHandleCarOffset += sizeof(tSampleHandleCar);
+  //}
+  //numcars = iNumCars;
 }
 
 //-------------------------------------------------------------------------------------------------
