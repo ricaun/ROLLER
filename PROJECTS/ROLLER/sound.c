@@ -20,6 +20,7 @@
 #include <SDL3/SDL_events.h>
 #include <fcntl.h>
 #include <assert.h>
+#include <math.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #define open _open
