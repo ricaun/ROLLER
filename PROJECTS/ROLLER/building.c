@@ -772,29 +772,29 @@ void init_animate_ads()
 
 //-------------------------------------------------------------------------------------------------
 //0006AB40
-int bldZcmp(int a1, int a2)
+int bldZcmp(const void *pBuilding1, const void *pBuilding2)
 {
-  (void)(a1); (void)(a2);
-  return 0;
-  /*
-  int v2; // ecx
-  int v3; // ebx
-  float v5; // [esp+0h] [ebp-10h]
-  float v6; // [esp+4h] [ebp-Ch]
+  int iPolygonLink1; // ecx
+  int iPolygonLink2; // ebx
+  float fZDepth2; // [esp+0h] [ebp-10h]
+  float fZDepth1; // [esp+4h] [ebp-Ch]
 
-  v2 = *(_DWORD *)(a1 + 4);
-  v6 = *(float *)a1;
-  v3 = *(_DWORD *)(a2 + 4);
-  v5 = *(float *)a2;
-  if (v2 < v3)
+  const tBuildingZOrderEntry *pEntry1 = (const tBuildingZOrderEntry *)pBuilding1;
+  const tBuildingZOrderEntry *pEntry2 = (const tBuildingZOrderEntry *)pBuilding2;
+
+  iPolygonLink1 = pEntry1->iPolygonLink;
+  fZDepth1 = pEntry1->fZDepth;
+  iPolygonLink2 = pEntry2->iPolygonLink;
+  fZDepth2 = pEntry2->fZDepth;
+  if (iPolygonLink1 < iPolygonLink2)
     return -1;
-  if (v2 == v3) {
-    if (v6 == v5)
+  if (iPolygonLink1 == iPolygonLink2) {
+    if (fZDepth1 == fZDepth2)
       return 0;
-    if (v6 >= (double)v5)
+    if (fZDepth1 >= (double)fZDepth2)
       return -1;
   }
-  return 1;*/
+  return 1;
 }
 
 //-------------------------------------------------------------------------------------------------

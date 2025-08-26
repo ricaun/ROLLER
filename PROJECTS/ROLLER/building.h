@@ -12,6 +12,15 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  float fZDepth;
+  int iPolygonLink;
+  int iPolygonIndex;
+} tBuildingZOrderEntry;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int BuildingSect[MAX_TRACK_CHUNKS];
 extern float BuildingAngles[768];
 extern int BuildingBase[256][4];
@@ -33,7 +42,7 @@ void InitBuildings();
 void CalcVisibleBuildings();
 void DrawBuilding(int a1, uint8 *a2);
 void init_animate_ads();
-int bldZcmp(int a1, int a2);
+int bldZcmp(const void *pBuilding1, const void *pBuilding2);
 
 //-------------------------------------------------------------------------------------------------
 #endif
