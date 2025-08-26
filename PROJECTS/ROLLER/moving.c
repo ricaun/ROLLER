@@ -196,7 +196,7 @@ void reinitramp(tStuntData *pStunt)
 
 //-------------------------------------------------------------------------------------------------
 //00074440
-void __fastcall updateramp(tStuntData *pStunt)
+void updateramp(tStuntData *pStunt)
 {
   int iTickStartIdx; // edx
   int iTimer; // ecx
