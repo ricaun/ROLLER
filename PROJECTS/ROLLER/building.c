@@ -408,7 +408,7 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
   float fYCoord1; // edx
   int iVert0; // eax
   int iVert3; // eax
-  unsigned __int8 *p_uiTex; // edi
+  uint8 *p_uiTex; // edi
   int iProjectedSum; // ebx
   tPoint *pVerticesRev; // edx
   tPolygon *pPolyRev; // ecx
