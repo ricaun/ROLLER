@@ -681,7 +681,7 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
           + (fDeltaX2 * fDeltaY2 - fDeltaY1 * fVert1Y) * fVert0Z;// Calculate polygon normal dot product for backface culling
         if (fNormalDot < 0.0 || (uiTex & 0x2000) != 0)// Render polygon if visible (negative normal = back-facing, or special flag)
         {
-          p_uiTex = (unsigned __int8 *)&pPolygon->uiTex;
+          p_uiTex = (uint8 *)&pPolygon->uiTex;
           iProjectedSum = 0;
           if (fNormalDot < 0.0)               // Copy vertices in reverse order for back-facing polygons
           {
