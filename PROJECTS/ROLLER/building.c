@@ -1,28 +1,39 @@
 #include "building.h"
-#include "3d.h"
 #include "loadtrak.h"
 #include "drawtrk3.h"
 #include "transfrm.h"
 #include "plans.h"
+#include "graphics.h"
+#include "polytex.h"
 #include <float.h>
 #include <string.h>
 #include <math.h>
+#include <stdlib.h>
 //-------------------------------------------------------------------------------------------------
 
-int BuildingSect[MAX_TRACK_CHUNKS]; //0018F040
-float BuildingAngles[768];  //0018F990
-int BuildingBase[256][4];   //00190590
-tVec3 BuildingBox[256][8];  //00191590
-float BuildingBaseX[256];   //00197710
-float BuildingBaseY[256];   //00197B10
-float BuildingBaseZ[256];   //00197F10
-float BuildingX[256];       //00198310
-float BuildingY[256];       //00198710
-float BuildingZ[256];       //00198B10
+uint8 BuildingSub[24] =                 //000A745C
+{
+  1u, 1u, 1u, 1u, 20u, 1u, 1u, 20u, 1u, 1u, 1u, 1u,
+  1u, 1u, 1u, 1u, 1u, 1u, 1u, 1u, 1u, 0u, 0u, 0u
+};
+tBuildingZOrderEntry BuildingZOrder[32];//0018EEC0
+int BuildingSect[MAX_TRACK_CHUNKS];     //0018F040
+tVec3 BuildingView[32];                 //0018F810
+float BuildingAngles[768];              //0018F990
+int BuildingBase[256][4];               //00190590
+tVec3 BuildingBox[256][8];              //00191590
+tScreenPt BuildingCoords[19];           //00197590
+float BuildingBaseX[256];               //00197710
+float BuildingBaseY[256];               //00197B10
+float BuildingBaseZ[256];               //00197F10
+float BuildingX[256];                   //00198310
+float BuildingY[256];                   //00198710
+float BuildingZ[256];                   //00198B10
 tVisibleBuilding VisibleBuildings[256]; //00198F10
-int16 advert_list[256];     //00199710
-int NumBuildings;           //0019993C
-int NumVisibleBuildings;    //00199940
+int16 advert_list[256];                 //00199710
+tPolyParams BuildingPol;                //00199910
+int NumBuildings;                       //0019993C
+int NumVisibleBuildings;                //00199940
 
 //-------------------------------------------------------------------------------------------------
 //000691B0
@@ -158,7 +169,7 @@ void InitBuildings()
             fMaxZ = *pZCoord;
           p_fX = pZCoord + 1;
         }
-        if ((cheat_mode & 0x1000) != 0)       // Scale building 2x if cheat mode 0x1000 is enabled
+        if ((cheat_mode & CHEAT_MODE_DOUBLE_TRACK) != 0)       // Scale building 2x if cheat mode 0x1000 is enabled
         {
           fMinX = fMinX * 2.0f;
           fMinY = fMinY * 2.0f;
@@ -361,406 +372,406 @@ FUNCTION_EXIT:
 
 //-------------------------------------------------------------------------------------------------
 //00069C10
-void DrawBuilding(int a1, uint8 *a2)
+void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
 {
-  (void)(a1); (void)(a2);
-  /*
-  int *v2; // esi
-  float *v3; // ecx
-  unsigned __int8 *v4; // ebx
-  float *v5; // edi
-  int v6; // ebp
-  float *v7; // eax
-  float v8; // edx
-  double v9; // st5
-  double v10; // rt1
-  double v11; // st5
-  int v12; // eax
-  double v13; // rt2
-  double v14; // st5
-  int v15; // eax
-  double v16; // st4
-  int v17; // eax
-  double v18; // st4
-  int v19; // eax
-  double v20; // st7
-  int v21; // eax
-  int v22; // edx
-  int *v23; // esi
-  int v24; // edi
-  int v25; // edx
-  float v26; // eax
-  float v27; // eax
-  float v28; // eax
-  float v29; // eax
-  float v30; // eax
-  int v31; // edx
-  int v32; // esi
+  tScreenPt *pScreenPt; // esi
+  tVec3 *pBuildingView; // ecx
+  tPolygon *pPols; // ebx
+  tVec3 *pCoords; // edi
+  int iClipped; // ebp
+  float *p_fZ; // eax
+  double dTransformedX; // st5
+  double dTempX; // rt1
+  double dTransformedY; // st5
+  double dTempY; // rt2
+  double dTransformedZ; // st5
+  double dViewX; // st4
+  double dViewY; // st4
+  double dViewZ; // st7
+  int iScreenY; // edx
+  int *p_projected; // esi
+  int iPolygonLoop; // edi
+  int iZOrderIdx; // edx
+  float fMinZ1; // eax
+  float fMinZ2; // eax
+  float fPolygonZ; // eax
+  float fZ; // eax
+  float fMaxZ; // eax
+  int iZOrderLoop; // edx
+  int iPolygonLink; // esi
   int k; // ebx
-  int v34; // ebx
-  unsigned __int8 *v35; // ebp
-  int v36; // eax
-  int v37; // edx
-  int v38; // eax
-  float v39; // edx
-  int v40; // eax
-  int v41; // eax
-  unsigned __int8 *v42; // edi
-  int v43; // ebx
-  _DWORD *v44; // edx
-  unsigned __int8 *v45; // ecx
-  _DWORD *v46; // eax
-  char *v47; // edx
-  unsigned __int8 *v48; // ecx
-  _DWORD *v49; // eax
-  _DWORD *v50; // edx
-  int v51; // ebx
-  int v52; // esi
-  int v53; // ecx
-  int v54; // edx
-  float v55; // eax
-  float v56; // eax
-  float v57; // eax
-  int v58; // ebp
-  double v59; // [esp+48h] [ebp-190h]
-  double v60; // [esp+58h] [ebp-180h]
-  double v61; // [esp+70h] [ebp-168h]
-  double v62; // [esp+78h] [ebp-160h]
-  double v63; // [esp+80h] [ebp-158h]
-  double v64; // [esp+88h] [ebp-150h]
-  float v65; // [esp+90h] [ebp-148h]
-  float v66; // [esp+94h] [ebp-144h]
-  int v67; // [esp+98h] [ebp-140h]
-  float v68; // [esp+9Ch] [ebp-13Ch]
-  float v69; // [esp+A0h] [ebp-138h]
-  float v70; // [esp+A4h] [ebp-134h]
-  float v71; // [esp+A8h] [ebp-130h]
-  int v72; // [esp+ACh] [ebp-12Ch]
-  float v73; // [esp+B0h] [ebp-128h]
-  float v74; // [esp+B0h] [ebp-128h]
-  float v75; // [esp+B4h] [ebp-124h]
-  float v76; // [esp+B4h] [ebp-124h]
-  int v77; // [esp+B8h] [ebp-120h]
-  float v78; // [esp+BCh] [ebp-11Ch]
-  float v79; // [esp+C0h] [ebp-118h]
-  float v80; // [esp+C0h] [ebp-118h]
-  float v81; // [esp+C4h] [ebp-114h]
-  float v82; // [esp+C4h] [ebp-114h]
-  float v83; // [esp+C8h] [ebp-110h]
-  float v84; // [esp+CCh] [ebp-10Ch]
-  float v85; // [esp+D0h] [ebp-108h]
-  float v86; // [esp+D4h] [ebp-104h]
-  float v87; // [esp+D8h] [ebp-100h]
-  float v89; // [esp+E0h] [ebp-F8h]
-  float v90; // [esp+F8h] [ebp-E0h]
-  float v91; // [esp+104h] [ebp-D4h]
-  float v92; // [esp+104h] [ebp-D4h]
-  int v93; // [esp+108h] [ebp-D0h]
-  float v94; // [esp+10Ch] [ebp-CCh]
-  float v95; // [esp+10Ch] [ebp-CCh]
-  float v96; // [esp+118h] [ebp-C0h]
-  float v97; // [esp+11Ch] [ebp-BCh]
-  float v98; // [esp+120h] [ebp-B8h]
-  float v99; // [esp+124h] [ebp-B4h]
-  float v100; // [esp+128h] [ebp-B0h]
-  float v102; // [esp+13Ch] [ebp-9Ch]
-  float v103; // [esp+13Ch] [ebp-9Ch]
-  float v104; // [esp+140h] [ebp-98h]
-  float v105; // [esp+154h] [ebp-84h]
-  float v106; // [esp+170h] [ebp-68h]
-  int v107; // [esp+184h] [ebp-54h]
-  float *v108; // [esp+188h] [ebp-50h]
+  int iPolygonIndex; // ebx
+  tPolygon *pPolygon; // ebp
+  int iVert2; // eax
+  float fY; // edx
+  int iVert1; // eax
+  float fYCoord1; // edx
+  int iVert0; // eax
+  int iVert3; // eax
+  unsigned __int8 *p_uiTex; // edi
+  int iProjectedSum; // ebx
+  tPoint *pVerticesRev; // edx
+  tPolygon *pPolyRev; // ecx
+  int *pScreenCoordRev; // eax
+  tPoint *pVertices; // edx
+  tPolygon *pPoly; // ecx
+  int *pScreenCoord; // eax
+  int *p_y; // edx
+  int iFinalVert0; // ebx
+  int iFinalVert1; // esi
+  int iFinalVert2; // ecx
+  int iFinalVert3; // edx
+  float fClosestZ1; // eax
+  float fClosestZ2; // eax
+  float fClosestZ; // eax
+  int iZOrderOffset; // ebp
+  double dCosYaw; // [esp+48h] [ebp-190h]
+  double dCosRoll; // [esp+58h] [ebp-180h]
+  double dSinYaw; // [esp+70h] [ebp-168h]
+  double dSinPitch; // [esp+78h] [ebp-160h]
+  double dCosPitch; // [esp+80h] [ebp-158h]
+  double dSinRoll; // [esp+88h] [ebp-150h]
+  float fCoordY; // [esp+90h] [ebp-148h]
+  float fBuildingZ; // [esp+94h] [ebp-144h]
+  int iViewY; // [esp+98h] [ebp-140h]
+  float fBuildingX; // [esp+9Ch] [ebp-13Ch]
+  float fX; // [esp+A0h] [ebp-138h]
+  float fCoordZ; // [esp+A4h] [ebp-134h]
+  float fBuildingY; // [esp+A8h] [ebp-130h]
+  int iViewX; // [esp+ACh] [ebp-12Ch]
+  float fVert1X; // [esp+B0h] [ebp-128h]
+  float fVert1Y; // [esp+B0h] [ebp-128h]
+  float fVert2Z; // [esp+B4h] [ebp-124h]
+  float fDeltaZ1; // [esp+B4h] [ebp-124h]
+  int iViewZ; // [esp+B8h] [ebp-120h]
+  float fVert2X; // [esp+BCh] [ebp-11Ch]
+  float fVert2Y; // [esp+C0h] [ebp-118h]
+  float fDeltaY1; // [esp+C0h] [ebp-118h]
+  float v75; // [esp+C4h] [ebp-114h]
+  float fDeltaX2; // [esp+C4h] [ebp-114h]
+  float fVert0Y; // [esp+C8h] [ebp-110h]
+  float fMatrix01; // [esp+CCh] [ebp-10Ch]
+  float fMatrix20; // [esp+D0h] [ebp-108h]
+  float fMatrix10; // [esp+D4h] [ebp-104h]
+  float fMatrix00; // [esp+D8h] [ebp-100h]
+  float fZDepth; // [esp+E0h] [ebp-F8h]
+  float fNormalDot; // [esp+F8h] [ebp-E0h]
+  float fRollAngle; // [esp+104h] [ebp-D4h]
+  float fRollRad; // [esp+104h] [ebp-D4h]
+  int iBestZOrderIdx; // [esp+108h] [ebp-D0h]
+  float fPitchAngle; // [esp+10Ch] [ebp-CCh]
+  float fPitchRad; // [esp+10Ch] [ebp-CCh]
+  float fDeltaY2; // [esp+118h] [ebp-C0h]
+  float fMatrix12; // [esp+11Ch] [ebp-BCh]
+  float fMatrix02; // [esp+120h] [ebp-B8h]
+  float fVert0Z; // [esp+124h] [ebp-B4h]
+  float fMatrix11; // [esp+128h] [ebp-B0h]
+  float fVert1Z; // [esp+13Ch] [ebp-9Ch]
+  float fDeltaZ2; // [esp+13Ch] [ebp-9Ch]
+  float fTempZ; // [esp+140h] [ebp-98h]
+  float fTempZ2; // [esp+154h] [ebp-84h]
+  float fTempClosestZ; // [esp+170h] [ebp-68h]
+  int iCurrentZOrderIdx; // [esp+184h] [ebp-54h]
+  float *p_fY; // [esp+188h] [ebp-50h]
   int j; // [esp+190h] [ebp-48h]
-  int v110; // [esp+194h] [ebp-44h]
-  unsigned int v111; // [esp+198h] [ebp-40h]
-  unsigned int v112; // [esp+1A0h] [ebp-38h]
-  float v113; // [esp+1A4h] [ebp-34h]
-  float v114; // [esp+1A4h] [ebp-34h]
-  float v115; // [esp+1ACh] [ebp-2Ch]
+  int iFoundPolygonLink; // [esp+194h] [ebp-44h]
+  unsigned int uiBuildingType; // [esp+198h] [ebp-40h]
+  int uiTex; // [esp+1A0h] [ebp-38h]
+  float fYawAngle; // [esp+1A4h] [ebp-34h]
+  float fYawRad; // [esp+1A4h] [ebp-34h]
+  float v109; // [esp+1ACh] [ebp-2Ch]
   int i; // [esp+1B0h] [ebp-28h]
-  float v117; // [esp+1B4h] [ebp-24h]
-  unsigned __int8 v118; // [esp+1BCh] [ebp-1Ch]
-  unsigned __int8 v119; // [esp+1C0h] [ebp-18h]
+  float fMatrix21; // [esp+1B4h] [ebp-24h]
+  uint8 byNumPols; // [esp+1BCh] [ebp-1Ch]
+  uint8 byNumCoords; // [esp+1C0h] [ebp-18h]
 
-  set_starts(0);
-  v111 = BuildingBase[4 * a1];
-  v2 = (int *)&BuildingCoords;
-  v3 = (float *)BuildingView;
-  v118 = BuildingPlans[12 * v111];
-  v4 = (unsigned __int8 *)*(&BuildingPlans_variable_2 + 3 * v111);
-  v119 = BuildingPlans_variable_1[12 * v111];
-  v5 = (float *)*(&BuildingPlans_variable_3 + 3 * v111);
-  if (v111 >= 9 && (v111 <= 0xA || v111 == 15)) {
-    v94 = *(float *)&BuildingAngles_variable_1[3 * a1];
-    v91 = BuildingAngles_variable_2[3 * a1];
-    v113 = (float)(360 * worlddirn / 0x3FFF);
+  set_starts(0);                                // Initialize rendering system
+  uiBuildingType = BuildingBase[iBuildingIdx][0];// Get building plan data (polygons, coordinates, etc.)
+  pScreenPt = BuildingCoords;
+  pBuildingView = BuildingView;
+  byNumPols = BuildingPlans[uiBuildingType].byNumPols;
+  pPols = BuildingPlans[uiBuildingType].pPols;
+  byNumCoords = BuildingPlans[uiBuildingType].byNumCoords;
+  pCoords = BuildingPlans[uiBuildingType].pCoords;
+  if (uiBuildingType >= 9 && (uiBuildingType <= 0xA || uiBuildingType == 15))// Special rotation for buildings 9, 10, and 15 based on world direction
+  {
+    fPitchAngle = BuildingAngles[3 * iBuildingIdx + 1];
+    fRollAngle = BuildingAngles[3 * iBuildingIdx + 2];
+    fYawAngle = (float)(360 * worlddirn / 0x3FFF);
   } else {
-    v113 = *(float *)&BuildingAngles[3 * a1];
-    v94 = *(float *)&BuildingAngles_variable_1[3 * a1];
-    v91 = BuildingAngles_variable_2[3 * a1];
+    fYawAngle = BuildingAngles[3 * iBuildingIdx];
+    fPitchAngle = BuildingAngles[3 * iBuildingIdx + 1];
+    fRollAngle = BuildingAngles[3 * iBuildingIdx + 2];
   }
-  v114 = v113 * building_c_variable_3;
-  v95 = v94 * building_c_variable_3;
-  v92 = building_c_variable_3 * v91;
-  v68 = BuildingX[a1];
-  v66 = BuildingZ[a1];
-  v59 = cos(v114);
-  v63 = cos(v95);
-  v61 = sin(v114);
-  v62 = sin(v95);
-  v64 = sin(v92);
-  v60 = cos(v92);
-  v71 = BuildingY[a1];
-  for (i = 0; v119 > i; ++i) {
-    v6 = 0;
-    v108 = v5 + 1;
-    v7 = v5 + 2;
-    if ((cheat_mode & 0x1000) != 0) {
-      v69 = *v5 * building_c_variable_4;
-      LODWORD(v8) = v5 + 1;
-      v65 = *v108 * building_c_variable_4;
-      v5 += 3;
-      v115 = building_c_variable_4 * *v7;
+  fYawRad = fYawAngle * 0.0174532925199f;        // Convert rotation angles from degrees to radians
+  fPitchRad = fPitchAngle * 0.0174532925199f;
+  fRollRad = 0.0174532925199f * fRollAngle;
+  fBuildingX = BuildingX[iBuildingIdx];
+  fBuildingZ = BuildingZ[iBuildingIdx];
+  dCosYaw = cos(fYawRad);                       // Calculate sine and cosine for 3D rotation matrix
+  dCosPitch = cos(fPitchRad);
+  dSinYaw = sin(fYawRad);
+  dSinPitch = sin(fPitchRad);
+  dSinRoll = sin(fRollRad);
+  dCosRoll = cos(fRollRad);
+  fBuildingY = BuildingY[iBuildingIdx];
+  for (i = 0; byNumCoords > i; ++i) {
+    iClipped = 0;
+    p_fY = &pCoords->fY;
+    p_fZ = &pCoords->fZ;
+    // CHEAT_MODE_DOUBLE_TRACK
+    if ((cheat_mode & CHEAT_MODE_DOUBLE_TRACK) != 0)           // Scale coordinates 2x if cheat mode enabled
+    {
+      fX = pCoords->fX * 2.0f;
+      fCoordY = *p_fY * 2.0f;
+      ++pCoords;
+      v109 = 2.0f * *p_fZ;
     } else {
-      v69 = *v5;
-      v7 = *(float **)v7;
-      v5 += 3;
-      v8 = *v108;
-      v115 = *(float *)&v7;
-      v65 = *v108;
+      fX = pCoords->fX;
+      ++pCoords;
+      v109 = *p_fZ;
+      fCoordY = *p_fY;
     }
-    v84 = v59 * v62 * v64 - v61 * v60;
-    v87 = v59 * v63;
-    v98 = -v59 * v62 * v60 - v61 * v64;
-    v9 = v69 * v87 + v65 * v84 + v115 * v98 + v68 - viewx;
-    _CHP(v7, LODWORD(v8));
-    v10 = v9;
-    v86 = v61 * v63;
-    v97 = -v61 * v62 * v60 + v59 * v64;
-    v100 = v61 * v62 * v64 + v59 * v60;
-    v11 = v69 * v86 + v65 * v100 + v115 * v97 + v71 - viewy;
-    _CHP(v12, LODWORD(v8));
-    v13 = v11;
-    v78 = v63 * v60;
-    v85 = v62;
-    v117 = -v64 * v63;
-    v14 = v69 * v85 + v65 * v117 + v115 * v78 + v66 - viewz;
-    _CHP(v15, LODWORD(v8));
-    v16 = v10 * vk1 + v13 * vk4 + v14 * vk7;
-    _CHP(v17, LODWORD(v8));
-    v72 = (int)v16;
-    v18 = v10 * vk2 + v13 * vk5 + v14 * vk8;
-    _CHP(v19, LODWORD(v8));
-    v67 = (int)v18;
-    v20 = v10 * vk3 + v13 * vk6 + v14 * vk9;
-    _CHP(v21, LODWORD(v8));
-    v77 = (int)v20;
-    if ((int)v20 < 80) {
-      v6 = 1;
-      v77 = 80;
+    fMatrix01 = (float)(dCosYaw * dSinPitch * dSinRoll - dSinYaw * dCosRoll);// Build 3x3 rotation matrix elements from yaw/pitch/roll
+    fMatrix00 = (float)(dCosYaw * dCosPitch);
+    fMatrix02 = (float)(-dCosYaw * dSinPitch * dCosRoll - dSinYaw * dSinRoll);
+    dTransformedX = fX * fMatrix00 + fCoordY * fMatrix01 + v109 * fMatrix02 + fBuildingX - viewx;// Apply 3D rotation and translation to building coordinates
+    //_CHP();
+    dTempX = dTransformedX;
+    fMatrix10 = (float)(dSinYaw * dCosPitch);
+    fMatrix12 = (float)(-dSinYaw * dSinPitch * dCosRoll + dCosYaw * dSinRoll);
+    fMatrix11 = (float)(dSinYaw * dSinPitch * dSinRoll + dCosYaw * dCosRoll);
+    dTransformedY = fX * fMatrix10 + fCoordY * fMatrix11 + v109 * fMatrix12 + fBuildingY - viewy;
+    //_CHP();
+    dTempY = dTransformedY;
+    fVert2X = (float)(dCosPitch * dCosRoll);
+    fMatrix20 = (float)dSinPitch;
+    fMatrix21 = (float)(-dSinRoll * dCosPitch);
+    dTransformedZ = fX * fMatrix20 + fCoordY * fMatrix21 + v109 * fVert2X + fBuildingZ - viewz;
+    //_CHP();
+    dViewX = dTempX * vk1 + dTempY * vk4 + dTransformedZ * vk7;// Transform world coordinates to view space
+    //_CHP();
+    iViewX = (int)dViewX;
+    dViewY = dTempX * vk2 + dTempY * vk5 + dTransformedZ * vk8;
+    //_CHP();
+    iViewY = (int)dViewY;
+    dViewZ = dTempX * vk3 + dTempY * vk6 + dTransformedZ * vk9;
+    //_CHP();
+    iViewZ = (int)dViewZ;
+    if ((int)dViewZ < 80)                     // Clip Z coordinate to prevent division by zero
+    {
+      iClipped = 1;
+      iViewZ = 80;
     }
-    xp = v72 * VIEWDIST / v77 + xbase;
-    yp = v67 * VIEWDIST / v77 + ybase;
-    v22 = v67 * VIEWDIST / v77 + ybase;
-    *v2 = (scr_size * (v72 * VIEWDIST / v77 + xbase)) >> 6;
-    v2[1] = (scr_size * (199 - v22)) >> 6;
-    *v3 = (float)v72;
-    v3[1] = (float)v67;
-    v3[2] = (float)(int)v20;
-    v23 = v2 + 2;
-    *v23 = v6;
-    v3 += 3;
-    v2 = v23 + 1;
+    xp = iViewX * VIEWDIST / iViewZ + xbase;    // Project 3D coordinates to 2D screen coordinates
+    yp = iViewY * VIEWDIST / iViewZ + ybase;
+    iScreenY = iViewY * VIEWDIST / iViewZ + ybase;
+    pScreenPt->screen.x = (scr_size * (iViewX * VIEWDIST / iViewZ + xbase)) >> 6;
+    pScreenPt->screen.y = (scr_size * (199 - iScreenY)) >> 6;
+    pBuildingView->fX = (float)iViewX;
+    pBuildingView->fY = (float)iViewY;
+    pBuildingView->fZ = (float)(int)dViewZ;
+    p_projected = (int *)&pScreenPt->projected;
+    *p_projected = iClipped;
+    ++pBuildingView;
+    pScreenPt = (tScreenPt *)(p_projected + 1);
   }
-  v24 = 0;
-  v25 = 0;
-  while (v24 < v118) {
-    BuildingZOrder_variable_2[v25] = v24;
-    BuildingZOrder_variable_1[v25] = *((__int16 *)v4 + 4);
-    if ((v4[5] & 0x80u) == 0) {
-      if (BuildingView_variable_2[3 * v4[2]] <= (double)BuildingView_variable_2[3 * v4[3]])
-        v29 = BuildingView_variable_2[3 * v4[3]];
+  iPolygonLoop = 0;
+  iZOrderIdx = 0;
+  while (iPolygonLoop < byNumPols) {
+    BuildingZOrder[iZOrderIdx].iPolygonIndex = iPolygonLoop;// Build Z-order sorting list for polygons
+    BuildingZOrder[iZOrderIdx].iPolygonLink = pPols->nNextPolIdx;
+    if ((pPols->uiTex & 0x8000) == 0)         // Calculate polygon Z depth for sorting (front-to-back vs back-to-front)
+    {                                           // Find maximum Z (farthest) for back-to-front rendering order
+      if (BuildingView[pPols->verts[2]].fZ <= (double)BuildingView[pPols->verts[3]].fZ)
+        fZ = BuildingView[pPols->verts[3]].fZ;
       else
-        v29 = BuildingView_variable_2[3 * v4[2]];
-      v105 = v29;
-      if (BuildingView_variable_2[3 * *v4] <= (double)BuildingView_variable_2[3 * v4[1]])
-        v30 = BuildingView_variable_2[3 * v4[1]];
+        fZ = BuildingView[pPols->verts[2]].fZ;
+      fTempZ2 = fZ;
+      if (BuildingView[pPols->verts[0]].fZ <= (double)BuildingView[pPols->verts[1]].fZ)
+        fMaxZ = BuildingView[pPols->verts[1]].fZ;
       else
-        v30 = BuildingView_variable_2[3 * *v4];
-      if (v30 <= (double)v105) {
-        if (BuildingView_variable_2[3 * v4[2]] <= (double)BuildingView_variable_2[3 * v4[3]])
-          v28 = BuildingView_variable_2[3 * v4[3]];
+        fMaxZ = BuildingView[pPols->verts[0]].fZ;
+      if (fMaxZ <= (double)fTempZ2) {
+        if (BuildingView[pPols->verts[2]].fZ <= (double)BuildingView[pPols->verts[3]].fZ)
+          fPolygonZ = BuildingView[pPols->verts[3]].fZ;
         else
-          v28 = BuildingView_variable_2[3 * v4[2]];
-      } else if (BuildingView_variable_2[3 * *v4] <= (double)BuildingView_variable_2[3 * v4[1]]) {
-        v28 = BuildingView_variable_2[3 * v4[1]];
+          fPolygonZ = BuildingView[pPols->verts[2]].fZ;
+      } else if (BuildingView[pPols->verts[0]].fZ <= (double)BuildingView[pPols->verts[1]].fZ) {
+        fPolygonZ = BuildingView[pPols->verts[1]].fZ;
       } else {
-        v28 = BuildingView_variable_2[3 * *v4];
+        fPolygonZ = BuildingView[pPols->verts[0]].fZ;
       }
-    } else {
-      if (BuildingView_variable_2[3 * v4[2]] >= (double)BuildingView_variable_2[3 * v4[3]])
-        v26 = BuildingView_variable_2[3 * v4[3]];
+    } else {                                           // Find minimum Z (closest) for front-to-back rendering order
+      if (BuildingView[pPols->verts[2]].fZ >= (double)BuildingView[pPols->verts[3]].fZ)
+        fMinZ1 = BuildingView[pPols->verts[3]].fZ;
       else
-        v26 = BuildingView_variable_2[3 * v4[2]];
-      v104 = v26;
-      if (BuildingView_variable_2[3 * *v4] >= (double)BuildingView_variable_2[3 * v4[1]])
-        v27 = BuildingView_variable_2[3 * v4[1]];
+        fMinZ1 = BuildingView[pPols->verts[2]].fZ;
+      fTempZ = fMinZ1;
+      if (BuildingView[pPols->verts[0]].fZ >= (double)BuildingView[pPols->verts[1]].fZ)
+        fMinZ2 = BuildingView[pPols->verts[1]].fZ;
       else
-        v27 = BuildingView_variable_2[3 * *v4];
-      if (v27 >= (double)v104) {
-        if (BuildingView_variable_2[3 * v4[2]] >= (double)BuildingView_variable_2[3 * v4[3]])
-          v28 = BuildingView_variable_2[3 * v4[3]];
+        fMinZ2 = BuildingView[pPols->verts[0]].fZ;
+      if (fMinZ2 >= (double)fTempZ) {
+        if (BuildingView[pPols->verts[2]].fZ >= (double)BuildingView[pPols->verts[3]].fZ)
+          fPolygonZ = BuildingView[pPols->verts[3]].fZ;
         else
-          v28 = BuildingView_variable_2[3 * v4[2]];
-      } else if (BuildingView_variable_2[3 * *v4] >= (double)BuildingView_variable_2[3 * v4[1]]) {
-        v28 = BuildingView_variable_2[3 * v4[1]];
+          fPolygonZ = BuildingView[pPols->verts[2]].fZ;
+      } else if (BuildingView[pPols->verts[0]].fZ >= (double)BuildingView[pPols->verts[1]].fZ) {
+        fPolygonZ = BuildingView[pPols->verts[1]].fZ;
       } else {
-        v28 = BuildingView_variable_2[3 * *v4];
+        fPolygonZ = BuildingView[pPols->verts[0]].fZ;
       }
     }
-    *(float *)&BuildingZOrder[v25] = v28;
-    v4 += 12;
-    v25 += 3;
-    ++v24;
+    BuildingZOrder[iZOrderIdx].fZDepth = fPolygonZ;
+    ++pPols;
+    ++iZOrderIdx;
+    ++iPolygonLoop;
   }
-  qsort(BuildingZOrder, v118, 12, bldZcmp);
-  for (j = 0; v118 > j; ++j) {
-    v31 = 0;
-    v110 = -1;
-    v32 = -1;
-    v89 = -32768.0;
-    for (k = 0; k < v118; ++k) {
-      if (BuildingZOrder_variable_1[v31] != v32) {
-        v32 = BuildingZOrder_variable_1[v31];
-        if (v89 < (double)*(float *)&BuildingZOrder[v31]) {
-          v93 = k;
-          v110 = BuildingZOrder_variable_1[v31];
-          v89 = *(float *)&BuildingZOrder[v31];
+  qsort(BuildingZOrder, byNumPols, 0xCu, bldZcmp);// Sort polygons by Z-depth using qsort
+  for (j = 0; byNumPols > j; ++j) {
+    iZOrderLoop = 0;
+    iFoundPolygonLink = -1;
+    iPolygonLink = -1;
+    fZDepth = -32768.0;
+    for (k = 0; k < byNumPols; ++k)           // Find deepest polygon in each linked group
+    {
+      if (BuildingZOrder[iZOrderLoop].iPolygonLink != iPolygonLink) {
+        iPolygonLink = BuildingZOrder[iZOrderLoop].iPolygonLink;
+        if (fZDepth < (double)BuildingZOrder[iZOrderLoop].fZDepth) {
+          iBestZOrderIdx = k;
+          iFoundPolygonLink = BuildingZOrder[iZOrderLoop].iPolygonLink;
+          fZDepth = BuildingZOrder[iZOrderLoop].fZDepth;
         }
       }
-      v31 += 3;
+      ++iZOrderLoop;
     }
-    if (v110 < 0) {
-      j = v118;
+    if (iFoundPolygonLink < 0) {
+      j = byNumPols;
     } else {
-      v107 = 3 * v93;
+      iCurrentZOrderIdx = iBestZOrderIdx;
       do {
-        BuildingZOrder[v107] = -1082130432;
-        v34 = BuildingZOrder_variable_2[v107];
-        BuildingZOrder_variable_1[v107] = -1;
-        v35 = (unsigned __int8 *)*(&BuildingPlans_variable_2 + 3 * v111) + 12 * v34;
-        v112 = *((_DWORD *)v35 + 1);
-        v36 = 3 * v35[2];
-        v81 = *(float *)&BuildingView[v36];
-        v37 = BuildingView_variable_1[v36];
-        v75 = BuildingView_variable_2[v36];
-        v38 = 3 * v35[1];
-        v79 = *(float *)&v37;
-        v73 = *(float *)&BuildingView[v38];
-        v39 = *(float *)&BuildingView_variable_1[v38];
-        v102 = BuildingView_variable_2[v38];
-        v40 = 3 * *v35;
-        v70 = *(float *)&BuildingView[v40];
-        v82 = v81 - v70;
-        v83 = *(float *)&BuildingView_variable_1[v40];
-        v80 = v79 - v83;
-        v99 = BuildingView_variable_2[v40];
-        v41 = 3 * v35[3];
-        v76 = v75 - v99;
-        v74 = v73 - *(float *)&BuildingView[v41];
-        v96 = v39 - *(float *)&BuildingView_variable_1[v41];
-        v103 = v102 - BuildingView_variable_2[v41];
-        v90 = (v80 * v103 - v76 * v96) * v70 + (v76 * v74 - v82 * v103) * v83 + (v82 * v96 - v80 * v74) * v99;
-        if (v90 < 0.0 || (v112 & 0x2000) != 0) {
-          v42 = v35 + 4;
-          v43 = 0;
-          if (v90 < 0.0) {
-            v47 = (char *)&BuildingPol_variable_3;
-            v48 = v35;
+        BuildingZOrder[iCurrentZOrderIdx].fZDepth = -1.0;
+        iPolygonIndex = BuildingZOrder[iCurrentZOrderIdx].iPolygonIndex;
+        BuildingZOrder[iCurrentZOrderIdx].iPolygonLink = -1;
+        pPolygon = &BuildingPlans[uiBuildingType].pPols[iPolygonIndex];
+        uiTex = pPolygon->uiTex;
+        iVert2 = pPolygon->verts[2];
+        v75 = BuildingView[iVert2].fX;
+        fY = BuildingView[iVert2].fY;
+        fVert2Z = BuildingView[iVert2].fZ;
+        iVert1 = pPolygon->verts[1];
+        fVert2Y = fY;
+        fVert1X = BuildingView[iVert1].fX;
+        fYCoord1 = BuildingView[iVert1].fY;
+        fVert1Z = BuildingView[iVert1].fZ;
+        iVert0 = pPolygon->verts[0];
+        fCoordZ = BuildingView[iVert0].fX;
+        fDeltaX2 = v75 - fCoordZ;
+        fVert0Y = BuildingView[iVert0].fY;
+        fDeltaY1 = fVert2Y - fVert0Y;
+        fVert0Z = BuildingView[iVert0].fZ;
+        iVert3 = pPolygon->verts[3];
+        fDeltaZ1 = fVert2Z - fVert0Z;
+        fVert1Y = fVert1X - BuildingView[iVert3].fX;
+        fDeltaY2 = fYCoord1 - BuildingView[iVert3].fY;
+        fDeltaZ2 = fVert1Z - BuildingView[iVert3].fZ;
+        fNormalDot = (fDeltaY1 * fDeltaZ2 - fDeltaZ1 * fDeltaY2) * fCoordZ
+          + (fDeltaZ1 * fVert1Y - fDeltaX2 * fDeltaZ2) * fVert0Y
+          + (fDeltaX2 * fDeltaY2 - fDeltaY1 * fVert1Y) * fVert0Z;// Calculate polygon normal dot product for backface culling
+        if (fNormalDot < 0.0 || (uiTex & 0x2000) != 0)// Render polygon if visible (negative normal = back-facing, or special flag)
+        {
+          p_uiTex = (unsigned __int8 *)&pPolygon->uiTex;
+          iProjectedSum = 0;
+          if (fNormalDot < 0.0)               // Copy vertices in reverse order for back-facing polygons
+          {
+            pVertices = BuildingPol.vertices;   // Copy vertices in forward order for front-facing polygons
+            pPoly = pPolygon;
             do {
-              v49 = (_DWORD *)((char *)&BuildingCoords + 12 * *v48);
-              v50 = v47 + 4;
-              *(v50 - 1) = *v49;
-              ++v48;
-              *v50 = v49[1];
-              v47 = (char *)(v50 + 1);
-              v43 += v49[2];
-            } while (v48 != v42);
+              pScreenCoord = &BuildingCoords[0].screen.x + 3 * pPoly->verts[0];
+              p_y = &pVertices->y;
+              *(p_y - 1) = *pScreenCoord;
+              pPoly = (tPolygon *)((char *)pPoly + 1);
+              *p_y = pScreenCoord[1];
+              pVertices = (tPoint *)(p_y + 1);
+              iProjectedSum += pScreenCoord[2];
+            } while (pPoly != (tPolygon *)p_uiTex);
           } else {
-            v44 = &BuildingPol_variable_4;
-            v45 = v35;
+            pVerticesRev = &BuildingPol.vertices[3];
+            pPolyRev = pPolygon;
             do {
-              v46 = (_DWORD *)((char *)&BuildingCoords + 12 * *v45);
-              *v44 = *v46;
-              v44 -= 2;
-              v44[3] = v46[1];
-              ++v45;
-              v43 += v46[2];
-            } while (v45 != v42);
+              pScreenCoordRev = &BuildingCoords[0].screen.x + 3 * pPolyRev->verts[0];
+              pVerticesRev->x = *pScreenCoordRev;
+              --pVerticesRev;
+              pVerticesRev[1].y = pScreenCoordRev[1];
+              pPolyRev = (tPolygon *)((char *)pPolyRev + 1);
+              iProjectedSum += pScreenCoordRev[2];
+            } while (pPolyRev != (tPolygon *)p_uiTex);
           }
-          if ((v112 & 0x200) != 0)
-            v112 = advert_list[a1];
-          if ((textures_off & 0x80) != 0 && (v112 & 0x100) != 0)
-            v112 = (v112 & 0xFFFFFE00) + bld_remap[(unsigned __int8)v112];
-          BuildingPol = v112;
-          BuildingPol_variable_2 = 4;
-          if (v43 < 4) {
-            v51 = *v35;
-            v52 = v35[1];
-            v53 = v35[2];
-            v54 = v35[3];
-            if (BuildingView_variable_2[3 * v51] >= (double)BuildingView_variable_2[3 * v52])
-              v55 = BuildingView_variable_2[3 * v52];
+          if ((uiTex & 0x200) != 0)           // Handle special textures (advertisements, building remapping)
+            uiTex = advert_list[iBuildingIdx];
+          if ((textures_off & 0x80) != 0 && (uiTex & 0x100) != 0)
+            uiTex = (uiTex & 0xFFFFFE00) + bld_remap[(uint8)uiTex];
+          BuildingPol.iSurfaceType = uiTex;
+          BuildingPol.uiNumVerts = 4;
+          if (iProjectedSum < 4) {
+            iFinalVert0 = pPolygon->verts[0];
+            iFinalVert1 = pPolygon->verts[1];
+            iFinalVert2 = pPolygon->verts[2];
+            iFinalVert3 = pPolygon->verts[3];
+            if (BuildingView[iFinalVert0].fZ >= (double)BuildingView[iFinalVert1].fZ)
+              fClosestZ1 = BuildingView[iFinalVert1].fZ;
             else
-              v55 = BuildingView_variable_2[3 * v51];
-            v106 = v55;
-            if (BuildingView_variable_2[3 * v53] >= (double)BuildingView_variable_2[3 * v54])
-              v56 = BuildingView_variable_2[3 * v54];
+              fClosestZ1 = BuildingView[iFinalVert0].fZ;
+            fTempClosestZ = fClosestZ1;
+            if (BuildingView[iFinalVert2].fZ >= (double)BuildingView[iFinalVert3].fZ)
+              fClosestZ2 = BuildingView[iFinalVert3].fZ;
             else
-              v56 = BuildingView_variable_2[3 * v53];
-            if (v106 >= (double)v56) {
-              if (BuildingView_variable_2[3 * v53] >= (double)BuildingView_variable_2[3 * v54])
-                v57 = BuildingView_variable_2[3 * v54];
+              fClosestZ2 = BuildingView[iFinalVert2].fZ;
+            if (fTempClosestZ >= (double)fClosestZ2) {
+              if (BuildingView[iFinalVert2].fZ >= (double)BuildingView[iFinalVert3].fZ)
+                fClosestZ = BuildingView[iFinalVert3].fZ;
               else
-                v57 = BuildingView_variable_2[3 * v53];
-            } else if (BuildingView_variable_2[3 * v51] >= (double)BuildingView_variable_2[3 * v52]) {
-              v57 = BuildingView_variable_2[3 * v52];
+                fClosestZ = BuildingView[iFinalVert2].fZ;
+            } else if (BuildingView[iFinalVert0].fZ >= (double)BuildingView[iFinalVert1].fZ) {
+              fClosestZ = BuildingView[iFinalVert1].fZ;
             } else {
-              v57 = BuildingView_variable_2[3 * v51];
+              fClosestZ = BuildingView[iFinalVert0].fZ;
             }
-            if ((double)(unsigned __int8)BuildingSub[v111] * subscale <= v57) {
-              if ((BuildingPol_variable_1 & 1) != 0)
-                POLYTEX(building_vga, a2, (int *)&BuildingPol, 17, gfx_size);
+            if ((double)BuildingSub[uiBuildingType] * subscale <= fClosestZ)// Check if polygon needs subdivision based on distance
+            {                                   // Render textured or flat polygon
+              if ((BuildingPol.iSurfaceType & 0x100) != 0)
+                POLYTEX(building_vga, pScrPtr, &BuildingPol, 17, gfx_size);
               else
-                POLYFLAT(a2, &BuildingPol);
+                POLYFLAT(pScrPtr, &BuildingPol);
             } else {
               subdivide(
-                a2,
-                (int)&BuildingPol,
-                *(float *)&BuildingView[3 * v51],
-                *(float *)&BuildingView_variable_1[3 * v51],
-                BuildingView_variable_2[3 * v51],
-                *(float *)&BuildingView[3 * v52],
-                *(float *)&BuildingView_variable_1[3 * v52],
-                BuildingView_variable_2[3 * v52],
-                *(float *)&BuildingView[3 * v53],
-                *(float *)&BuildingView_variable_1[3 * v53],
-                BuildingView_variable_2[3 * v53],
-                *(float *)&BuildingView[3 * v54],
-                *(float *)&BuildingView_variable_1[3 * v54],
-                BuildingView_variable_2[3 * v54],
+                pScrPtr,
+                &BuildingPol,
+                BuildingView[iFinalVert0].fX,
+                BuildingView[iFinalVert0].fY,
+                BuildingView[iFinalVert0].fZ,
+                BuildingView[iFinalVert1].fX,
+                BuildingView[iFinalVert1].fY,
+                BuildingView[iFinalVert1].fZ,
+                BuildingView[iFinalVert2].fX,
+                BuildingView[iFinalVert2].fY,
+                BuildingView[iFinalVert2].fZ,
+                BuildingView[iFinalVert3].fX,
+                BuildingView[iFinalVert3].fY,
+                BuildingView[iFinalVert3].fZ,
                 666,
-                gfx_size);
+                gfx_size);                      // Subdivide polygon for better quality when close to camera
             }
           }
         }
-        v58 = v107 * 4 + 12;
-        v107 += 3;
-        ++v93;
-      } while (v118 > v93 && v110 == *(int *)((char *)BuildingZOrder_variable_1 + v58));
+        iZOrderOffset = iCurrentZOrderIdx * 12 + 12;
+        ++iCurrentZOrderIdx;
+        ++iBestZOrderIdx;
+      } while (byNumPols > iBestZOrderIdx && iFoundPolygonLink == *(int *)((char *)&BuildingZOrder[0].iPolygonLink + iZOrderOffset));
     }
   }
-  init_animate_ads();*/
+  init_animate_ads();                           // Initialize animated advertisements
 }
 
 //-------------------------------------------------------------------------------------------------
