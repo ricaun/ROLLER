@@ -4,17 +4,68 @@
 #include "types.h"
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iLocalX;
+  int iLocalY;
+  int iLocalZ;
+} tStuntLocalPoint;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  tStuntLocalPoint localPtAy[6];
+  tVec3 refPoint;
+  float fTrackHalfLength;
+} tStuntGeometry;
+
+//-------------------------------------------------------------------------------------------------
+
+typedef struct
+{
+  int iGeometryIdx;
+  int iChunkCount;
+  int iNumTicks;
+  int iTickStartIdx2;
+  int iTimingGroup;
+  int iHeight;
+  int iTimeBulging;
+  int iTimeFlat;
+  int iRampSideLength;
+  int iFlags;
+  int iTickStartIdx;
+  int iTimingGroup2;
+  int iRunningTimer;
+  tVec3 startPos;
+  tVec3 endPos;
+  int iAngle;
+  tStuntGeometry *chunkDataAy;
+} tStuntData;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int totalramps;
-extern void *ramp[50];
+extern tStuntData *ramp[50];
 extern int replaytype;
 
 //-------------------------------------------------------------------------------------------------
 
-void *initramp(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
-int reinitramp(float *a1);
-int updateramp(int result);
-int updatestunts();
-int reinitstunts();
+tStuntData *initramp(
+        int iGeometryIdx,
+        int iChunkCount,
+        int iNumTicks,
+        int iTickStartIdx,
+        int iTimingGroup,
+        int iHeight,
+        int iTimeBulging,
+        int iTimeFlat,
+        int iRampSideLength,
+        int iFlags);
+void reinitramp(tStuntData *pStunt);
+void updateramp(tStuntData *pStunt);
+void updatestunts();
+void reinitstunts();
 void freeramp(void **pRampData);
 void freestunts(uint8 **pTrackData, int *pBuf);
 

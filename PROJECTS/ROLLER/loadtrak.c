@@ -1119,53 +1119,66 @@ void readstuntdata(uint8 **pTrackData)
 //-------------------------------------------------------------------------------------------------
 //0004D9B0
 void activatestunts()
-{/*
-  int *v0; // esi
-  int v1; // ebp
-  int v2; // edi
-  int *v3; // esi
-  int v4; // eax
-  int v5; // eax
-  int v6; // eax
-  int v7; // eax
-  int v8; // eax
-  int v9; // eax
-  int v10; // eax
-  int v11; // edx
-  int v12; // [esp+0h] [ebp-3Ch]
-  int v13; // [esp+4h] [ebp-38h]
-  int v14; // [esp+Ch] [ebp-30h]
-  int v15; // [esp+1Ch] [ebp-20h]
-  int v16; // [esp+20h] [ebp-1Ch]
+{
+  uint8 *pScrBuf; // esi
+  int iRampIdx; // ebp
+  int iGeometryIdx; // edi
+  int iChunkCount_1; // eax
+  int *pBufItr; // esi
+  int iNumTicks_1; // eax
+  int iTickStartIdx_1; // eax
+  int iTimingGroup_1; // eax
+  int iHeight_1; // eax
+  int iTimeBulging_1; // eax
+  int iTimeFlat_1; // eax
+  int iRampSideLength_1; // eax
+  int iFlags; // eax
+  tStuntData *pRampBuf; // eax
+  int iNewTotalRamps; // edx
+  int iTimeFlat; // [esp+0h] [ebp-3Ch]
+  int iTimeBulging; // [esp+4h] [ebp-38h]
+  int iRampSideLength; // [esp+Ch] [ebp-30h]
+  int iTickStartIdx; // [esp+10h] [ebp-2Ch]
+  int iNumTicks; // [esp+14h] [ebp-28h]
+  int iChunkCount; // [esp+18h] [ebp-24h]
+  int iTimingGroup; // [esp+1Ch] [ebp-20h]
+  int iHeight; // [esp+20h] [ebp-1Ch]
 
-  v0 = (int *)scrbuf;
-  v1 = 0;
+  pScrBuf = scrbuf;
+  iRampIdx = 0;
   totalramps = 0;
   do {
-    v2 = *v0++;
-    if (v2 == -1) {
-      ramp[v1] = 0;
+    iGeometryIdx = *(int *)pScrBuf;
+    pScrBuf += 4;
+    if (iGeometryIdx == -1) {
+      ramp[iRampIdx] = 0;
     } else {
-      v3 = v0 + 3;
-      v4 = *v3++;
-      v15 = v4;
-      v5 = *v3++;
-      v16 = v5;
-      v6 = *v3++;
-      v13 = v6;
-      v7 = *v3++;
-      v12 = v7;
-      v8 = *v3++;
-      v14 = v8;
-      v9 = *v3;
-      v0 = v3 + 1;
-      v10 = initramp(v15, v16, v13, v12, v14, v9);
-      v11 = totalramps + 1;
-      ramp[v1] = v10;
-      totalramps = v11;
+      iChunkCount_1 = *(int *)pScrBuf;
+      pBufItr = (int *)(pScrBuf + 4);
+      iChunkCount = iChunkCount_1;
+      iNumTicks_1 = *pBufItr++;
+      iNumTicks = iNumTicks_1;
+      iTickStartIdx_1 = *pBufItr++;
+      iTickStartIdx = iTickStartIdx_1;
+      iTimingGroup_1 = *pBufItr++;
+      iTimingGroup = iTimingGroup_1;
+      iHeight_1 = *pBufItr++;
+      iHeight = iHeight_1;
+      iTimeBulging_1 = *pBufItr++;
+      iTimeBulging = iTimeBulging_1;
+      iTimeFlat_1 = *pBufItr++;
+      iTimeFlat = iTimeFlat_1;
+      iRampSideLength_1 = *pBufItr++;
+      iRampSideLength = iRampSideLength_1;
+      iFlags = *pBufItr;
+      pScrBuf = (uint8 *)(pBufItr + 1);
+      pRampBuf = initramp(iGeometryIdx, iChunkCount, iNumTicks, iTickStartIdx, iTimingGroup, iHeight, iTimeBulging, iTimeFlat, iRampSideLength, iFlags);
+      iNewTotalRamps = totalramps + 1;
+      ramp[iRampIdx] = pRampBuf;
+      totalramps = iNewTotalRamps;
     }
-    ++v1;
-  } while (v2 != -1);*/
+    ++iRampIdx;
+  } while (iGeometryIdx != -1);
 }
 
 //-------------------------------------------------------------------------------------------------
