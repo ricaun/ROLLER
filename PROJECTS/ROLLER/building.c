@@ -3,13 +3,22 @@
 #include "loadtrak.h"
 #include "drawtrk3.h"
 #include "transfrm.h"
+#include "plans.h"
 #include <float.h>
+#include <string.h>
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 int BuildingSect[MAX_TRACK_CHUNKS]; //0018F040
 float BuildingAngles[768];  //0018F990
 int BuildingBase[256][4];   //00190590
 tVec3 BuildingBox[256][8];  //00191590
+float BuildingBaseX[256];   //00197710
+float BuildingBaseY[256];   //00197B10
+float BuildingBaseZ[256];   //00197F10
+float BuildingX[256];       //00198310
+float BuildingY[256];       //00198710
+float BuildingZ[256];       //00198B10
 tVisibleBuilding VisibleBuildings[256]; //00198F10
 int16 advert_list[256];     //00199710
 int NumBuildings;           //0019993C
@@ -18,207 +27,215 @@ int NumVisibleBuildings;    //00199940
 //-------------------------------------------------------------------------------------------------
 //000691B0
 void InitBuildings()
-{/*
-  int v0; // edi
-  int v1; // esi
-  unsigned int v2; // eax
-  tBuildingPlan *v3; // ecx
+{
+  int iBuildingIdx_1; // edi
+  int iBuildingIdx_2; // esi
+  unsigned int iBuildingType; // eax
+  tBuildingPlan *pBuildingPlan; // ecx
   tPolygon *pPols; // ebx
-  int v5; // edx
-  float *v6; // eax
-  tData *v7; // edx
-  int v8; // eax
+  int iNextSect; // edx
+  tData *pTrackData; // eax
+  tData *pNextTrackData; // edx
+  int iHalfHeight; // eax
   int byNumPols; // edx
   float *p_fX; // edx
   int i; // ebx
-  double v12; // st7
-  float *v13; // edx
-  double v14; // st7
-  float *v15; // edx
-  unsigned int v16; // edx
-  double v17; // [esp+0h] [ebp-118h]
-  double v18; // [esp+18h] [ebp-100h]
-  double v19; // [esp+28h] [ebp-F0h]
-  double v20; // [esp+38h] [ebp-E0h]
-  double v21; // [esp+40h] [ebp-D8h]
-  double v22; // [esp+48h] [ebp-D0h]
-  double v23; // [esp+50h] [ebp-C8h]
-  double v24; // [esp+58h] [ebp-C0h]
-  double v25; // [esp+60h] [ebp-B8h]
-  float v26; // [esp+70h] [ebp-A8h]
-  float v27; // [esp+80h] [ebp-98h]
-  float v28; // [esp+84h] [ebp-94h]
-  float v29; // [esp+8Ch] [ebp-8Ch]
-  float v30; // [esp+90h] [ebp-88h]
-  float v31; // [esp+94h] [ebp-84h]
-  float v32; // [esp+98h] [ebp-80h]
-  int v33; // [esp+9Ch] [ebp-7Ch]
-  float v34; // [esp+A0h] [ebp-78h]
-  float v35; // [esp+A4h] [ebp-74h]
-  int v36; // [esp+A8h] [ebp-70h]
-  float v37; // [esp+ACh] [ebp-6Ch]
-  int v38; // [esp+B0h] [ebp-68h]
-  int v39; // [esp+B4h] [ebp-64h]
-  float v40; // [esp+B8h] [ebp-60h]
-  float v41; // [esp+BCh] [ebp-5Ch]
-  float v42; // [esp+C0h] [ebp-58h]
-  float v43; // [esp+C4h] [ebp-54h]
-  float v44; // [esp+C8h] [ebp-50h]
-  float v45; // [esp+CCh] [ebp-4Ch]
-  float v46; // [esp+D0h] [ebp-48h]
-  float v47; // [esp+D4h] [ebp-44h]
-  float v48; // [esp+D8h] [ebp-40h]
-  float v49; // [esp+DCh] [ebp-3Ch]
-  float v50; // [esp+E0h] [ebp-38h]
-  float v51; // [esp+E4h] [ebp-34h]
-  int v52; // [esp+E8h] [ebp-30h]
-  int v53; // [esp+ECh] [ebp-2Ch]
-  int v54; // [esp+F0h] [ebp-28h]
-  int v55; // [esp+F4h] [ebp-24h]
-  int v56; // [esp+F8h] [ebp-20h]
-  int v57; // [esp+FCh] [ebp-1Ch]
+  double dTempY; // st7
+  float *pYCoord; // edx
+  double dTempZ; // st7
+  float *pZCoord; // edx
+  //unsigned int uiBuildingBoxOffset; // edx
+  double dDeltaY; // [esp+0h] [ebp-118h]
+  double dDeltaX; // [esp+18h] [ebp-100h]
+  double dCosPitch; // [esp+28h] [ebp-F0h]
+  double dCosYaw; // [esp+38h] [ebp-E0h]
+  double dCosRoll; // [esp+40h] [ebp-D8h]
+  double dSinYaw; // [esp+48h] [ebp-D0h]
+  double dSinRoll; // [esp+50h] [ebp-C8h]
+  double dSinPitch; // [esp+58h] [ebp-C0h]
+  double dDistance; // [esp+60h] [ebp-B8h]
+  float fZ; // [esp+70h] [ebp-A8h]
+  float fY; // [esp+80h] [ebp-98h]
+  float fX; // [esp+84h] [ebp-94h]
+  float fHalfWidth; // [esp+8Ch] [ebp-8Ch]
+  float fNegTrackY; // [esp+90h] [ebp-88h]
+  float fNegTrackX; // [esp+94h] [ebp-84h]
+  float fNegTrackZ; // [esp+98h] [ebp-80h]
+  int iBuildingBoxStride; // [esp+9Ch] [ebp-7Ch]
+  float fRollAngle; // [esp+A0h] [ebp-78h]
+  float fPitchAngle; // [esp+A4h] [ebp-74h]
+  int iBuildingSect; // [esp+A8h] [ebp-70h]
+  float fYawAngle; // [esp+ACh] [ebp-6Ch]
+  int iAngleIdx; // [esp+B0h] [ebp-68h]
+  int iBuildingIdx; // [esp+B4h] [ebp-64h]
+  float fMatrix20; // [esp+B8h] [ebp-60h]
+  float fMatrix21; // [esp+BCh] [ebp-5Ch]
+  float fMatrix12; // [esp+C0h] [ebp-58h]
+  float fMatrix10; // [esp+C4h] [ebp-54h]
+  float fMatrix00; // [esp+C8h] [ebp-50h]
+  float fMatrix02; // [esp+CCh] [ebp-4Ch]
+  float fMatrix22; // [esp+D0h] [ebp-48h]
+  float fMatrix11; // [esp+D4h] [ebp-44h]
+  float fMatrix01; // [esp+D8h] [ebp-40h]
+  float fBuildingY; // [esp+DCh] [ebp-3Ch]
+  float fBuildingX; // [esp+E0h] [ebp-38h]
+  float fBuildingZ; // [esp+E4h] [ebp-34h]
+  float fMinY; // [esp+E8h] [ebp-30h]
+  float fMaxZ; // [esp+ECh] [ebp-2Ch]
+  float fMinX; // [esp+F0h] [ebp-28h]
+  float fMaxY; // [esp+F4h] [ebp-24h]
+  float fMinZ; // [esp+F8h] [ebp-20h]
+  float fMaxX; // [esp+FCh] [ebp-1Ch]
 
-  memset(BuildingSect, 255, sizeof(BuildingSect));
-  v39 = 0;
+  memset(BuildingSect, 255, sizeof(BuildingSect));// Initialize building sector map to -1 (no buildings)
+  iBuildingIdx = 0;
   if (NumBuildings > 0) {
-    v38 = 0;
-    v0 = 0;
-    v1 = 0;
-    v33 = 96;
+    iAngleIdx = 0;
+    iBuildingIdx_1 = 0;
+    iBuildingIdx_2 = 0;
+    iBuildingBoxStride = 96;
     do {
-      v2 = BuildingBase[v0];
-      if (v2 <= 0x10) {
-        v3 = &BuildingPlans[v2];
-        pPols = v3->pPols;
-        v36 = BuildingBase_variable_1[v0];
-        v5 = v36 + 1;
-        v29 = (float)(32 * BuildingBase_variable_2[v0] / 2);
-        if (v36 + 1 >= TRAK_LEN)
-          v5 -= TRAK_LEN;
-        v6 = (float *)&localdata[v36];
-        v31 = -v6[9];
-        v30 = -v6[10];
-        v32 = -v6[11];
-        v7 = &localdata[v5];
-        v17 = v6[10] - v7->pointAy[3].fY;
-        v18 = v6[9] - v7->pointAy[3].fX;
-        v25 = sqrt(v18 * v18 + v17 * v17);
-        if ((HIDWORD(v18) & 0x7FFFFFFF) != 0 || LODWORD(v18))
-          v18 = (v6[9] - v7->pointAy[3].fX) / v25;
-        if ((HIDWORD(v17) & 0x7FFFFFFF) != 0 || LODWORD(v17))
-          v17 = v17 / v25;
-        v8 = 32 * BuildingBase_variable_3[v0] / 2;
-        BuildingX[v1] = v31 - v17 * v29;
-        BuildingY[v1] = v29 * v18 + v30;
-        BuildingSect[v36] = v39;
+      iBuildingType = BuildingBase[iBuildingIdx_1][0];
+      if (iBuildingType <= 0x10)              // Check if building type is valid (<=16)
+      {
+        pBuildingPlan = &BuildingPlans[iBuildingType];
+        pPols = pBuildingPlan->pPols;
+        iBuildingSect = BuildingBase[iBuildingIdx_1][1];
+        iNextSect = iBuildingSect + 1;          // Get next track segment, wrap around if needed
+        fHalfWidth = (float)(32 * BuildingBase[iBuildingIdx_1][2] / 2);// Calculate half width of building from BuildingBase[2]
+        if (iBuildingSect + 1 >= TRAK_LEN)
+          iNextSect -= TRAK_LEN;
+        pTrackData = &localdata[iBuildingSect];
+        fNegTrackX = -pTrackData->pointAy[3].fX;
+        fNegTrackY = -pTrackData->pointAy[3].fY;
+        fNegTrackZ = -pTrackData->pointAy[3].fZ;
+        pNextTrackData = &localdata[iNextSect];
+        dDeltaY = pTrackData->pointAy[3].fY - pNextTrackData->pointAy[3].fY;// Calculate track direction vector between current and next segment
+        dDeltaX = pTrackData->pointAy[3].fX - pNextTrackData->pointAy[3].fX;
+        dDistance = sqrt(dDeltaX * dDeltaX + dDeltaY * dDeltaY);// Calculate distance and normalize direction vector
+        //if ((HIDWORD(dDeltaX) & 0x7FFFFFFF) != 0 || LODWORD(dDeltaX))
+        if (dDeltaX != 0)
+          dDeltaX = (pTrackData->pointAy[3].fX - pNextTrackData->pointAy[3].fX) / dDistance;
+        //if ((HIDWORD(dDeltaY) & 0x7FFFFFFF) != 0 || LODWORD(dDeltaY))
+        if (dDeltaY != 0)
+          dDeltaY = dDeltaY / dDistance;
+        iHalfHeight = 32 * BuildingBase[iBuildingIdx_1][3] / 2;
+        BuildingX[iBuildingIdx_2] = fNegTrackX - (float)dDeltaY * fHalfWidth;// Calculate building position offset from track centerline
+        BuildingY[iBuildingIdx_2] = fHalfWidth * (float)dDeltaX + fNegTrackY;
+        BuildingSect[iBuildingSect] = iBuildingIdx;
         byNumPols = 0;
-        BuildingZ[v1] = (double)v8 + v32;
-        while (byNumPols < v3->byNumPols) {
+        BuildingZ[iBuildingIdx_2] = (float)iHalfHeight + fNegTrackZ;
+        while (byNumPols < pBuildingPlan->byNumPols) {                                       // Skip polygons with special texture flag (0x200)
           if ((pPols->uiTex & 0x200) != 0)
-            byNumPols = v3->byNumPols;
+            byNumPols = pBuildingPlan->byNumPols;
           ++pPols;
           ++byNumPols;
         }
-        *(float *)&v56 = 1073741800.0;
-        *(float *)&v52 = 1073741800.0;
-        *(float *)&v54 = 1073741800.0;
-        p_fX = &v3->pCoords->fX;
-        *(float *)&v53 = -1073741800.0;
-        *(float *)&v55 = -1073741800.0;
-        *(float *)&v57 = -1073741800.0;
-        for (i = 0; i < v3->byNumCoords; ++i) {
-          if (*p_fX < (double)*(float *)&v54)
-            v54 = *(int *)p_fX;
-          if (*p_fX > (double)*(float *)&v57)
-            v57 = *(int *)p_fX;
-          v12 = p_fX[1];
-          v13 = p_fX + 1;
-          if (v12 < *(float *)&v52)
-            v52 = *(int *)v13;
-          if (*v13 > (double)*(float *)&v55)
-            v55 = *(int *)v13;
-          v14 = v13[1];
-          v15 = v13 + 1;
-          if (v14 < *(float *)&v56)
-            v56 = *(int *)v15;
-          if (*v15 > (double)*(float *)&v53)
-            v53 = *(int *)v15;
-          p_fX = v15 + 1;
+        fMinZ = 1073741800.0f;                   // Initialize min/max values for bounding box calculation
+        fMinY = 1073741800.0f;
+        fMinX = 1073741800.0f;
+        p_fX = &pBuildingPlan->pCoords->fX;
+        fMaxZ = -1073741800.0f;
+        fMaxY = -1073741800.0f;
+        fMaxX = -1073741800.0f;
+        for (i = 0; i < pBuildingPlan->byNumCoords; ++i)// Find min/max coordinates for building bounding box
+        {
+          if (*p_fX < (double)fMinX)
+            fMinX = *p_fX;
+          if (*p_fX > (double)fMaxX)
+            fMaxX = *p_fX;
+          dTempY = p_fX[1];
+          pYCoord = p_fX + 1;
+          if (dTempY < fMinY)
+            fMinY = *pYCoord;
+          if (*pYCoord > (double)fMaxY)
+            fMaxY = *pYCoord;
+          dTempZ = pYCoord[1];
+          pZCoord = pYCoord + 1;
+          if (dTempZ < fMinZ)
+            fMinZ = *pZCoord;
+          if (*pZCoord > (double)fMaxZ)
+            fMaxZ = *pZCoord;
+          p_fX = pZCoord + 1;
         }
-        if ((cheat_mode & 0x1000) != 0) {
-          *(float *)&v54 = *(float *)&v54 * building_c_variable_1;
-          *(float *)&v52 = *(float *)&v52 * building_c_variable_1;
-          *(float *)&v56 = *(float *)&v56 * building_c_variable_1;
-          *(float *)&v57 = *(float *)&v57 * building_c_variable_1;
-          *(float *)&v55 = *(float *)&v55 * building_c_variable_1;
-          *(float *)&v53 = *(float *)&v53 * building_c_variable_1;
+        if ((cheat_mode & 0x1000) != 0)       // Scale building 2x if cheat mode 0x1000 is enabled
+        {
+          fMinX = fMinX * 2.0f;
+          fMinY = fMinY * 2.0f;
+          fMinZ = fMinZ * 2.0f;
+          fMaxX = fMaxX * 2.0f;
+          fMaxY = fMaxY * 2.0f;
+          fMaxZ = fMaxZ * 2.0f;
         }
-        v37 = *(float *)&BuildingAngles[v38] * building_c_variable_2;
-        v35 = *(float *)&BuildingAngles_variable_1[v38] * building_c_variable_2;
-        v34 = BuildingAngles_variable_2[v38] * building_c_variable_2;
-        v50 = BuildingX[v1];
-        v49 = BuildingY[v1];
-        v51 = BuildingZ[v1];
-        v20 = cos(v37);
-        v19 = cos(v35);
-        v22 = sin(v37);
-        v24 = sin(v35);
-        v23 = sin(v34);
-        v21 = cos(v34);
-        v16 = 96 * v39;
-        BuildingBox[v16 / 4] = v54;
-        BuildingBox_variable_1[v16 / 4] = v52;
-        BuildingBox_variable_2[v16 / 4] = v56;
-        BuildingBox_variable_3[v16 / 4] = v57;
-        BuildingBox_variable_4[v16 / 4] = v52;
-        BuildingBox_variable_5[v16 / 4] = v56;
-        BuildingBox_variable_6[v16 / 4] = v57;
-        BuildingBox_variable_7[v16 / 4] = v55;
-        BuildingBox_variable_8[v16 / 4] = v56;
-        BuildingBox_variable_9[v16 / 4] = v54;
-        BuildingBox_variable_10[v16 / 4] = v55;
-        BuildingBox_variable_11[v16 / 4] = v56;
-        BuildingBox_variable_12[v16 / 4] = v54;
-        BuildingBox_variable_13[v16 / 4] = v52;
-        BuildingBox_variable_14[v16 / 4] = v53;
-        BuildingBox_variable_15[v16 / 4] = v57;
-        BuildingBox_variable_16[v16 / 4] = v52;
-        BuildingBox_variable_17[v16 / 4] = v53;
-        BuildingBox_variable_18[v16 / 4] = v57;
-        BuildingBox_variable_19[v16 / 4] = v55;
-        BuildingBox_variable_20[v16 / 4] = v53;
-        BuildingBox_variable_21[v16 / 4] = v54;
-        BuildingBox_variable_22[v16 / 4] = v55;
-        BuildingBox_variable_23[v16 / 4] = v53;
+        fYawAngle = BuildingAngles[iAngleIdx] * 0.0174532925199f;// Convert building rotation angles from degrees to radians
+        fPitchAngle = BuildingAngles[iAngleIdx + 1] * 0.0174532925199f;
+        fRollAngle = BuildingAngles[iAngleIdx + 2] * 0.0174532925199f;
+        fBuildingX = BuildingX[iBuildingIdx_2];
+        fBuildingY = BuildingY[iBuildingIdx_2];
+        fBuildingZ = BuildingZ[iBuildingIdx_2];
+        dCosYaw = cos(fYawAngle);               // Calculate sine and cosine values for 3D rotation matrix
+        dCosPitch = cos(fPitchAngle);
+        dSinYaw = sin(fYawAngle);
+        dSinPitch = sin(fPitchAngle);
+        dSinRoll = sin(fRollAngle);
+        dCosRoll = cos(fRollAngle);
+        //uiBuildingBoxOffset = 96 * iBuildingIdx;
+        BuildingBox[iBuildingIdx][0].fX = fMinX;// Set up 8 corners of building bounding box (cube vertices)
+        BuildingBox[iBuildingIdx][0].fY = fMinY;
+        BuildingBox[iBuildingIdx][0].fZ = fMinZ;
+        BuildingBox[iBuildingIdx][1].fX = fMaxX;
+        BuildingBox[iBuildingIdx][1].fY = fMinY;
+        BuildingBox[iBuildingIdx][1].fZ = fMinZ;
+        BuildingBox[iBuildingIdx][2].fX = fMaxX;
+        BuildingBox[iBuildingIdx][2].fY = fMaxY;
+        BuildingBox[iBuildingIdx][2].fZ = fMinZ;
+        BuildingBox[iBuildingIdx][3].fX = fMinX;
+        BuildingBox[iBuildingIdx][3].fY = fMaxY;
+        BuildingBox[iBuildingIdx][3].fZ = fMinZ;
+        BuildingBox[iBuildingIdx][4].fX = fMinX;
+        BuildingBox[iBuildingIdx][4].fY = fMinY;
+        BuildingBox[iBuildingIdx][4].fZ = fMaxZ;
+        BuildingBox[iBuildingIdx][5].fX = fMaxX;
+        BuildingBox[iBuildingIdx][5].fY = fMinY;
+        BuildingBox[iBuildingIdx][5].fZ = fMaxZ;
+        BuildingBox[iBuildingIdx][6].fX = fMaxX;
+        BuildingBox[iBuildingIdx][6].fY = fMaxY;
+        BuildingBox[iBuildingIdx][6].fZ = fMaxZ;
+        BuildingBox[iBuildingIdx][7].fX = fMinX;
+        BuildingBox[iBuildingIdx][7].fY = fMaxY;
+        BuildingBox[iBuildingIdx][7].fZ = fMaxZ;
+        int iPoint = 0;
         do {
-          v28 = *(float *)&BuildingBox[v16 / 4];
-          v27 = *(float *)&BuildingBox_variable_1[v16 / 4];
-          v26 = *(float *)&BuildingBox_variable_2[v16 / 4];
-          v44 = v20 * v19;
-          v45 = -v20 * v24 * v21 - v22 * v23;
-          v48 = v20 * v24 * v23 - v22 * v21;
-          *(float *)&BuildingBox[v16 / 4] = v28 * v44 + v27 * v48 + v26 * v45 + v50;
-          v42 = -v22 * v24 * v21 + v20 * v23;
-          v43 = v22 * v19;
-          v47 = v22 * v24 * v23 + v20 * v21;
-          *(float *)&BuildingBox_variable_1[v16 / 4] = v28 * v43 + v27 * v47 + v26 * v42 + v49;
-          v16 += 12;
-          v40 = v24;
-          v46 = v21 * v19;
-          v41 = -v23 * v19;
-          BuildingBase_variable_4[v16 / 4] = v28 * v40 + v27 * v41 + v26 * v46 + v51;
-        } while (v16 != v33);
-        BuildingBaseX[v1] = BuildingX[v1];
-        BuildingBaseY[v1] = BuildingY[v1];
-        BuildingBaseZ[v1] = BuildingZ[v1];
+          fX = BuildingBox[iBuildingIdx][iPoint].fX;// Apply 3D rotation matrix and translate each bounding box corner
+          fY = BuildingBox[iBuildingIdx][iPoint].fY;
+          fZ = BuildingBox[iBuildingIdx][iPoint].fZ;
+          fMatrix00 = (float)(dCosYaw * dCosPitch);
+          fMatrix02 = (float)(-dCosYaw * dSinPitch * dCosRoll - dSinYaw * dSinRoll);
+          fMatrix01 = (float)(dCosYaw * dSinPitch * dSinRoll - dSinYaw * dCosRoll);
+          BuildingBox[iBuildingIdx][iPoint].fX = fX * fMatrix00 + fY * fMatrix01 + fZ * fMatrix02 + fBuildingX;
+          fMatrix12 = (float)(-dSinYaw * dSinPitch * dCosRoll + dCosYaw * dSinRoll);
+          fMatrix10 = (float)(dSinYaw * dCosPitch);
+          fMatrix11 = (float)(dSinYaw * dSinPitch * dSinRoll + dCosYaw * dCosRoll);
+          BuildingBox[iBuildingIdx][iPoint].fY = fX * fMatrix10 + fY * fMatrix11 + fZ * fMatrix12 + fBuildingY;
+          //uiBuildingBoxOffset += sizeof(tVec3);
+          fMatrix20 = (float)(dSinPitch);
+          fMatrix22 = (float)(dCosRoll * dCosPitch);
+          fMatrix21 = (float)(-dSinRoll * dCosPitch);
+          BuildingBox[iBuildingIdx][iPoint].fZ = fX * fMatrix20 + fY * fMatrix21 + fZ * fMatrix22 + fBuildingZ;
+          ++iPoint;
+          //*(float *)&BuildingBase[255][uiBuildingBoxOffset / 4 + 3] = fX * fMatrix20 + fY * fMatrix21 + fZ * fMatrix22 + fBuildingZ;// reference to BuildingBox
+        } while (iPoint < 8); //while (uiBuildingBoxOffset != iBuildingBoxStride);// 
+        BuildingBaseX[iBuildingIdx_2] = BuildingX[iBuildingIdx_2];// Store final building position in base arrays
+        BuildingBaseY[iBuildingIdx_2] = BuildingY[iBuildingIdx_2];
+        BuildingBaseZ[iBuildingIdx_2] = BuildingZ[iBuildingIdx_2];
       }
-      v0 += 4;
-      ++v1;
-      v38 += 3;
-      v33 += 96;
-      ++v39;
-    } while (v39 < NumBuildings);
-  }*/
+      ++iBuildingIdx_1;
+      ++iBuildingIdx_2;
+      iAngleIdx += 3;
+      iBuildingBoxStride += 96;
+      ++iBuildingIdx;
+    } while (iBuildingIdx < NumBuildings);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
