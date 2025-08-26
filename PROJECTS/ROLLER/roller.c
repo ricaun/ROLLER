@@ -911,6 +911,37 @@ void PlayAudioSampleWait(int iIndex)
   PlayAudioDataWait(SamplePtr[iIndex], SampleLen[iIndex]);
 }
 
+void DIGISetSampleVolume(int iHandle, int iVolume)
+{
+  if (!digi_stream[iHandle])
+    return; //DIGI stream not found
+
+  float fStreamVolume = (float)iVolume / 0x7FFF; // Convert volume to [0.0, 1.0] range
+
+  // udpate saved volume
+  digi_volume[iHandle] = fStreamVolume;
+
+  // Set the gain for the audio stream
+  float fMasterVolume = (float)DIGIGetMasterVolume() / 0x7FFF; // Normalize to [0.0, 1.0] range
+  SDL_SetAudioStreamGain(digi_stream[iHandle], fStreamVolume * fMasterVolume);
+}
+
+void DIGISetPitch(int iHandle, int iPitch)
+{
+  if (!digi_stream[iHandle])
+    return; //DIGI stream not found
+
+  // Set pitch in the stream
+  float fStreamPitch = (float)(iPitch) / 0x7FFFF;
+
+  SDL_SetAudioStreamFrequencyRatio(digi_stream[iHandle], fStreamPitch);
+}
+
+void DIGISetPanLocation(int iHandle, int iPan)
+{
+
+}
+
 void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
 {
   // https://wiki.libsdl.org/SDL3/QuickReference

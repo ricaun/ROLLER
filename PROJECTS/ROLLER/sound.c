@@ -3058,20 +3058,20 @@ void loopsample(int iCarIdx, int iSample, int iVolume, int iPitch, int iPan)
 
         // Update volume if changed
         if (iVolumeFixed != lastvolume[iCarIdx]) {
-          //DIGISetSampleVolume(SampleHandleCar[iSample].handles[iCarIdx], (int16)iVolumeFixed << 10);
+          DIGISetSampleVolume(SampleHandleCar[iSample].handles[iCarIdx], (int16)iVolumeFixed << 10);
           lastvolume[iCarIdx] = iVolumeFixed;
         }
 
         // Update pitch if changed
         if (iPitchFixed != lastpitch[iCarIdx]) {
-          //DIGISetPitch(SampleHandleCar[iSample].handles[iCarIdx], iPitchFixed << 10);
+          DIGISetPitch(SampleHandleCar[iSample].handles[iCarIdx], iPitchFixed << 10);
           lastpitch[iCarIdx] = iPitchFixed;
         }
 
         // Update pan if changed
         iCarIdx2 = iCarIdx;
         if (iPanFixed != lastpan[iCarIdx2]) {
-          //DIGISetPanLocation(SampleHandleCar[iSample].handles[iCarIdx2], (int16)iPanFixed << 12);
+          DIGISetPanLocation(SampleHandleCar[iSample].handles[iCarIdx2], (int16)iPanFixed << 12);
           lastpan[iCarIdx2] = iPanFixed;
         }
       } else {

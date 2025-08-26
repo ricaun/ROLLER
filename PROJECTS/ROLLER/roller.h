@@ -41,6 +41,9 @@ int DIGISampleAvailable(int index);
 void DIGIStopSample(int index);
 void DIGISetMasterVolume(int volume);
 int DIGIGetMasterVolume();
+void DIGISetSampleVolume(int iHandle, int iVolume);
+void DIGISetPitch(int iHandle, int iPitch);
+void DIGISetPanLocation(int iHandle, int iPan);
 
 void PlayAudioSampleWait(int iIndex);
 void PlayAudioDataWait(Uint8 *buffer, Uint32 length);
