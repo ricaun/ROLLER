@@ -372,7 +372,7 @@ FUNCTION_EXIT:
 
 //-------------------------------------------------------------------------------------------------
 //00069C10
-void __fastcall DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
+void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
 {
   tBuildingCoord *pScreenPt; // esi
   tVec3 *pBuildingView; // ecx
@@ -711,7 +711,7 @@ void __fastcall DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
           if ((uiTex & 0x200) != 0)           // Handle special textures (advertisements, building remapping)
             uiTex = advert_list[iBuildingIdx];
           if ((textures_off & 0x80) != 0 && (uiTex & 0x100) != 0)
-            uiTex = (uiTex & 0xFFFFFE00) + bld_remap[(unsigned __int8)uiTex];
+            uiTex = (uiTex & 0xFFFFFE00) + bld_remap[(uint8)uiTex];
           BuildingPol.iSurfaceType = uiTex;
           BuildingPol.uiNumVerts = 4;
           if (iProjectedSum < 4) {
