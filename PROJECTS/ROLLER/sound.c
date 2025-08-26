@@ -2655,38 +2655,45 @@ void sfxsample(int iSample, int iVol)
 //0003D020
 void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan, int iByteOffset)
 {
-  if (!soundon || paused || !SamplePtr[iSampleIndex]) {
-    return;
-  }
+  //int iOffset; // edi
+  int iHandle; // eax
+  int iOldHandle; // ecx
+  uint8 *pSample; // [esp+0h] [ebp-14h]
 
-  // Only proceed if no sample is currently playing in this slot
-  if (SampleHandleCar[iSampleIndex].handles[iCarIndex] != -1) {
-    // Prepare sample data structure
-    //SampleData.unSegment = 0;
-    SampleData.iSampleIndex = iSampleIndex;
-    SampleData.iPitch = iPitch;
-    SampleData.pSample = SamplePtr[iSampleIndex];
-    SampleData.iLength = SampleLen[iSampleIndex];
-    SampleData.iPan = iPan;
-    SampleData.iByteOffset = iByteOffset;
-    SampleData.iVolume = iVolume;
+  if (soundon) {
+    if (!paused) {
+      // Only proceed if no sample is currently playing in this slot
+      //iOffset = 4 * iCarIndex + (iSampleIndex << 6);
+      if (SampleHandleCar[iSampleIndex].handles[iCarIndex] == -1)// SampleHandleCar[iSampleIndex].handles[iCarIndex]?
+      {
+        // Prepare sample data structure
+        SampleData.iSampleIndex = iSampleIndex;
+        SampleData.iPitch = iPitch;
+        pSample = SamplePtr[iSampleIndex];
+        SampleData.iLength = SampleLen[iSampleIndex];
+        //SampleData.unSegment = __DS__;
+        SampleData.iPan = iPan;
+        SampleData.pSample = pSample;
+        SampleData.iByteOffset = iByteOffset;
+        SampleData.iVolume = iVolume;
 
-    // Start sample playback
-    int iNewHandle = DIGISampleStart(&SampleData);
+        // Start sample playback
+        iHandle = DIGISampleStart(&SampleData);
+        //LOWORD(iHandle) = sosDIGIStartSample(*(int *)&DIGIHandle, iSampleIndex, &SampleData);
 
-    // Store new hhandle
-    SampleHandleCar[iSampleIndex].handles[iCarIndex] = iNewHandle;
+        // Store new handle
+        SampleHandleCar[iSampleIndex].handles[iCarIndex] = iHandle;// SampleHandleCar[iSampleIndex].handles[iCarIndex]?
+        if (iHandle != -1) {
+          // Clear any previous assignment of this handle
+          iOldHandle = HandleSample[iHandle];
+          if (iOldHandle != -1)
+            SampleHandleCar[iOldHandle].handles[HandleCar[iHandle]] = -1;
 
-    if (iNewHandle != -1) {
-      // Clear any previous assignment of this handle
-      if (HandleSample[iNewHandle] != -1) {
-        int iPrevCar = HandleCar[iNewHandle];
-        SampleHandleCar[HandleSample[iNewHandle]].handles[iPrevCar] = -1;
+          // Update handle tracking arrays
+          HandleSample[iHandle] = iSampleIndex;
+          HandleCar[iHandle] = iCarIndex;
+        }
       }
-
-      // Update handle tracking arrays
-      HandleSample[iNewHandle] = iSampleIndex;
-      HandleCar[iNewHandle] = iCarIndex;
     }
   }
 }
@@ -3017,55 +3024,67 @@ void enginesounds(int iFocusCarIndex)
 
 //-------------------------------------------------------------------------------------------------
 //0003D990
-void loopsample(int iCarIdx, int iSampleIdx, int iVolume, int iPitch, int iPan)
+void loopsample(int iCarIdx, int iSample, int iVolume, int iPitch, int iPan)
 {
-  if (!soundon || !SamplePtr[iSampleIdx]) {
-    return;
-  }
+  //int iCarOffset; // ebx
+  //int iCarOffset2; // ebx
+  unsigned int iSampleHandle; // edx
+  int iVolumeFixed; // esi
+  int iPitchFixed; // ecx
+  int iCarIdx2; // ebp
+  int iPanFixed; // [esp+14h] [ebp+4h]
 
-  // Calculate handle array position
-  int iHandle = SampleHandleCar[iSampleIdx].handles[iCarIdx];
+  if (soundon && SamplePtr[iSample]) {
+    //iCarOffset = 4 * iCarIdx + (iSample << 6);
+    // *(int *)((char *)SampleHandleCar[0].handles + iCarOffset) = SampleHandleCar[iSampleIdx].handles[iCarIdx];
+    if (SampleHandleCar[iSample].handles[iCarIdx] == -1 || iVolume) {
+      //iCarOffset2 = (iSample << 6) + 4 * iCarIdx;
+      iSampleHandle = SampleHandleCar[iSample].handles[iCarIdx];
+      if (iSampleHandle == -1) {
+        // Start new sample playback
+        if (iVolume)
+          sample2(iCarIdx, iSample, iVolume, iPitch, iPan, SampleHandleCar[iSample].handles[iCarIdx]);
+      } else if (iVolume) {
+        // Clamp pitch value between 0x800 and 0x80000
+        if (iPitch < 0x800)
+          iPitch = 0x800;
+        if (iPitch > 0x80000)
+          iPitch = 0x80000;
 
-  if (iHandle != -1) {
-    if (iVolume == 0) {
-      // Stop playing sample
-      //sosDIGIStopSample(DIGIHandle, iHandle);
-      DIGIStopSample(iHandle);
-      HandleSample[iHandle] = -1;
-      SampleHandleCar[iSampleIdx].handles[iCarIdx] = -1;
-      return;
+        // Convert parameters to fixed-point format
+        iVolumeFixed = iVolume >> 10;           // convert to 10.6 fixed-point
+        iPitchFixed = iPitch >> 10;             // convert to 10.6 fixed-point
+        iPanFixed = iPan >> 12;                 // convert to 4.12 fixed-point
+
+        // Update volume if changed
+        if (iVolumeFixed != lastvolume[iCarIdx]) {
+          //DIGISetSampleVolume(SampleHandleCar[iSample].handles[iCarIdx], (int16)iVolumeFixed << 10);
+          lastvolume[iCarIdx] = iVolumeFixed;
+        }
+
+        // Update pitch if changed
+        if (iPitchFixed != lastpitch[iCarIdx]) {
+          //DIGISetPitch(SampleHandleCar[iSample].handles[iCarIdx], iPitchFixed << 10);
+          lastpitch[iCarIdx] = iPitchFixed;
+        }
+
+        // Update pan if changed
+        iCarIdx2 = iCarIdx;
+        if (iPanFixed != lastpan[iCarIdx2]) {
+          //DIGISetPanLocation(SampleHandleCar[iSample].handles[iCarIdx2], (int16)iPanFixed << 12);
+          lastpan[iCarIdx2] = iPanFixed;
+        }
+      } else {
+        DIGIStopSample(iSampleHandle);
+        HandleSample[SampleHandleCar[iSample].handles[iCarIdx]] = -1;
+        SampleHandleCar[iSample].handles[iCarIdx] = -1;
+      }
     } else {
-      // Clamp pitch value between 0x800 and 0x80000
-      if (iPitch < 0x800) iPitch = 0x800;
-      if (iPitch > 0x80000) iPitch = 0x80000;
-
-      // Convert parameters to fixed-point format
-      int iVolFixed = iVolume >> 10;        // Convert to 10.6 fixed-point
-      int iPitchFixed = iPitch >> 10;       // Convert to 10.6 fixed-point
-      int iPanFixed = iPan >> 12;           // Convert to 4.12 fixed-point
-
-      // Update volume if changed
-      if (iVolFixed != lastvolume[iCarIdx]) {
-        //sosDIGISetSampleVolume(DIGIHandle, handle, iVolFixed << 10);
-        lastvolume[iCarIdx] = iVolFixed;
-      }
-
-      // Update pitch if changed
-      if (iPitchFixed != lastpitch[iCarIdx]) {
-        //sosDIGISetPitch(DIGIHandle, handle, iPitchFixed << 10);
-        lastpitch[iCarIdx] = iPitchFixed;
-      }
-
-      // Update pan if changed
-      if (iPanFixed != lastpan[iCarIdx]) {
-        //sosDIGISetPanLocation(DIGIHandle, handle, iPanFixed << 12);
-        lastpan[iCarIdx] = iPanFixed;
-      }
+      // Stop playing sample
+      DIGIStopSample(SampleHandleCar[iSample].handles[iCarIdx]);
+      HandleSample[SampleHandleCar[iSample].handles[iCarIdx]] = -1;
+      SampleHandleCar[iSample].handles[iCarIdx] = -1;
     }
-  } else if (iVolume != 0) {
-    // Start new sample playback - calculate byte offset for audio system
-    int iByteOffset = (iSampleIdx << 6) + (iCarIdx << 2);
-    sample2(iCarIdx, iSampleIdx, iVolume, iPitch, iPan, iByteOffset);
   }
 }
 
@@ -3186,13 +3205,13 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
     iCarOffset = 32 * iCarIdx;
     enginedelay[iCarIdx].engineSoundData[delaywritex].iPan = iStereoVolume;// Write engine sound data to delay buffer
     enginedelay[iCarIdx].engineSoundData[delaywritex].iEnginePitch = iFinalPitch;
-    enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngineVol = iFinalEngineVolume;
-    enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngine2Pitch = iFinalPitch;
+    enginedelay[iCarIdx].engineSoundData[delaywritex].iEngineVol = iFinalEngineVolume;
+    enginedelay[iCarIdx].engineSoundData[delaywritex].iEngine2Pitch = iFinalPitch;
     if (iTunnelFlag) {
       //_CHP();                                   // Apply tunnel reverb effect to secondary engine sound
-      enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngine2Vol = (int)(fTunnelDistance * 0.6 * 0.00015625 * (double)iFinalEngineVolume);
+      enginedelay[iCarIdx].engineSoundData[delaywritex].iEngine2Vol = (int)(fTunnelDistance * 0.6 * 0.00015625 * (double)iFinalEngineVolume);
     } else {
-      enginedelay[0].engineSoundData[delaywritex + iCarOffset].iEngine2Vol = 0;
+      enginedelay[iCarIdx].engineSoundData[delaywritex].iEngine2Vol = 0;
     }
     if (Car[iCarIdx].iControlType != 3 || (iYaw = Car[iCarIdx].nYaw, iYaw3 = Car[iCarIdx].nYaw3, iYaw == iYaw3)) {
       iFinalSkidVolume = 0;
