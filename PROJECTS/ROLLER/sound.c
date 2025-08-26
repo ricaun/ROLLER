@@ -1338,95 +1338,78 @@ void Uninitialise_SOS()
 //0003B1A0
 void loadsamples()
 {
-  int iWinnerSample = winner_mode;
+  int iWinnerSample; // edx
+  int iDesignCmp; // ecx
+  int iSampleIdx; // ebx
+  int iKills2; // edx
+  int iKillSample; // eax
+  int iWins; // eax
+  int iKills; // edx
 
-  if (iWinnerSample != 0) {
-    if (champ_mode != 0) {
-      // Championship mode
-      loadasample(SOUND_SAMPLE_ENGINE); // 0 - Engine sound
-      loadasample(SOUND_SAMPLE_ENGINE2); // 1 - Engine sound 2
-      loadasample(SOUND_SAMPLE_SKID1); // 3 - Skid sound
-      loadasample(SOUND_SAMPLE_LANDSKID); // 9 - Landskid sound
-      loadasample(SOUND_SAMPLE_LIGHTLAN); // 10 - Light land sound
-      loadasample(SOUND_SAMPLE_BANK); // 11 - Bank sound
-      loadasample(SOUND_SAMPLE_WALL1); // 12 - Wall sound
-      loadasample(SOUND_SAMPLE_EXPLO); // 6 - Explosion sound
-
-      int iChampIdx = champorder[0];
-      int iWins = total_wins[iChampIdx];
-      if (iWins > 0) {
-        loadasample(iWins + (SOUND_SAMPLE_1RACE - 1)); // 88 - Sound for win count 
-      }
-
-      int iKills = total_kills[iChampIdx];
-      if (iKills > 0 && iKills < 17) {
-        loadasample(iKills + (SOUND_SAMPLE_ONE - 1)); // 96 - Sound for kill count 
-      } else if (iKills >= 17) {
-        loadasample(SOUND_SAMPLE_FATLOTS); // 113 - Sound for 17+ kills
-      }
-
-      loadasample(SOUND_SAMPLE_CONGRAT); // 118 - Sound for championship win 
+  iWinnerSample = winner_mode;
+  if (winner_mode) {
+    if (champ_mode) {
+      loadasample(0);
+      loadasample(1);
+      loadasample(3);
+      loadasample(9);
+      loadasample(10);
+      loadasample(11);
+      loadasample(12);
+      loadasample(6);
+      iWins = total_wins[champorder[0]];
+      if (iWins > 0)
+        loadasample(iWins + 88);
+      iKills = total_kills[champorder[0]];
+      if (iKills > 0 && iKills < 17)
+        loadasample(iKills + 96);
+      if (iKills >= 17)
+        loadasample(113);
+      iKillSample = 118;
     } else {
-      // Winner mode but not championship
-      loadasample(SOUND_SAMPLE_ENGINE); // 0 - Engine sound
-      loadasample(SOUND_SAMPLE_ENGINE2); // 1 - Engine sound 2
-      loadasample(SOUND_SAMPLE_SKID1); // 3 - Skid sound
-      loadasample(SOUND_SAMPLE_LANDSKID); // 9 - Landskid sound
-      loadasample(SOUND_SAMPLE_LIGHTLAN); // 10 - Light land sound
-      loadasample(SOUND_SAMPLE_BANK); // 11 - Bank sound
-      loadasample(SOUND_SAMPLE_WALL1); // 12 - Wall sound
-      loadasample(SOUND_SAMPLE_WON); // 114
-      loadasample(SOUND_SAMPLE_STAT); // 115
-      loadasample(SOUND_SAMPLE_NEWLAP); // 116
-      loadasample(SOUND_SAMPLE_NEWFAST); // 117
-
-      int iKills = total_kills[result_order[0]];
-      if (iKills > 0 && iKills < 17) {
-        loadasample(iKills + (SOUND_SAMPLE_ONE - 1)); // Sound for kill count // 96
-      } else if (iKills >= 17) {
-        loadasample(SOUND_SAMPLE_FATLOTS); // 113 // Sound for 17+ kills
-      }
-
-      loadasample(SOUND_SAMPLE_CONGRAT); // 118 - Sound for winner mode
+      loadasample(0);
+      loadasample(1);
+      loadasample(3);
+      loadasample(9);
+      loadasample(10);
+      loadasample(11);
+      loadasample(12);
+      loadasample(114);
+      loadasample(115);
+      loadasample(116);
+      loadasample(117);
+      iKills2 = result_kills[result_order[0]];
+      if (iKills2 > 0 && iKills2 < 17)
+        loadasample(iKills2 + 96);
+      if (iKills2 < 17)
+        goto LABEL_30;
+      iKillSample = 113;
     }
-  } else {
-      // Normal mode
-    if (numsamples > 0) {
-      int iSampleIdx = 0;
-      int iDesignCmp = -71;
-
-      while (iWinnerSample < numsamples) {
-        if (winner_mode != 0) break;
-
-        if (iWinnerSample < 71 || iWinnerSample > 78) {
-          if (SamplePtr[iSampleIdx] != NULL) {
-            goto next;
-          }
-        } else if (iWinnerSample >= 89) {
-          goto next;
-        }
-
-        int iViewIdx = ViewType[0];
-        int iDesign = Car[iViewIdx].byCarDesignIdx;
-        if (iDesign != iDesignCmp) {
-          goto next;
-        }
-
-        if (SamplePtr[iSampleIdx] != NULL) {
-          goto next;
-        }
-
-        loadasample(iWinnerSample);
-
-      next:
-        iDesignCmp++;
-        iWinnerSample++;
-        iSampleIdx++;
-      }
-    }
+    loadasample(iKillSample);
+    goto LABEL_30;
   }
-
-  // Reset sample state
+  if (numsamples > 0) {
+    iDesignCmp = -71;
+    iSampleIdx = 0;
+    do {
+      if (!winner_mode) {
+        if (iWinnerSample >= 71 && (iWinnerSample <= 78 || iWinnerSample >= 89)) {
+          if (Car[ViewType[0]].byCarDesignIdx != iDesignCmp || SamplePtr[iSampleIdx])
+            goto LABEL_13;
+        LABEL_12:
+          loadasample(iWinnerSample);
+          goto LABEL_13;
+        }
+        if (!SamplePtr[iSampleIdx])
+          goto LABEL_12;
+      }
+    LABEL_13:
+      ++iDesignCmp;
+      ++iWinnerSample;
+      ++iSampleIdx;
+    } while (iWinnerSample < numsamples);
+  }
+LABEL_30:
   samplespending = 0;
   writesample = 0;
   readsample = 0;
