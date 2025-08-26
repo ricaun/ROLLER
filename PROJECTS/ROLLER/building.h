@@ -23,6 +23,15 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  int iX;
+  int iY;
+  int iClipped;
+} tBuildingCoord;
+
+//-------------------------------------------------------------------------------------------------
+
 extern uint8 BuildingSub[24];
 extern tBuildingZOrderEntry BuildingZOrder[32];
 extern int BuildingSect[MAX_TRACK_CHUNKS];
@@ -30,7 +39,7 @@ extern tVec3 BuildingView[32];
 extern float BuildingAngles[768];
 extern int BuildingBase[256][4];
 extern tVec3 BuildingBox[256][8];
-extern tScreenPt BuildingCoords[19];
+extern tBuildingCoord BuildingCoords[32];
 extern float BuildingBaseX[256];
 extern float BuildingBaseY[256];
 extern float BuildingBaseZ[256];

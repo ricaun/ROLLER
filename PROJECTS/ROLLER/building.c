@@ -22,7 +22,7 @@ tVec3 BuildingView[32];                 //0018F810
 float BuildingAngles[768];              //0018F990
 int BuildingBase[256][4];               //00190590
 tVec3 BuildingBox[256][8];              //00191590
-tScreenPt BuildingCoords[19];           //00197590
+tBuildingCoord BuildingCoords[32];      //00197590
 float BuildingBaseX[256];               //00197710
 float BuildingBaseY[256];               //00197B10
 float BuildingBaseZ[256];               //00197F10
@@ -372,9 +372,9 @@ FUNCTION_EXIT:
 
 //-------------------------------------------------------------------------------------------------
 //00069C10
-void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
+void __fastcall DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
 {
-  tScreenPt *pScreenPt; // esi
+  tBuildingCoord *pScreenPt; // esi
   tVec3 *pBuildingView; // ecx
   tPolygon *pPols; // ebx
   tVec3 *pCoords; // edi
@@ -389,7 +389,7 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
   double dViewY; // st4
   double dViewZ; // st7
   int iScreenY; // edx
-  int *p_projected; // esi
+  int *p_iUnk3; // esi
   int iPolygonLoop; // edi
   int iZOrderIdx; // edx
   float fMinZ1; // eax
@@ -408,14 +408,14 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
   float fYCoord1; // edx
   int iVert0; // eax
   int iVert3; // eax
-  uint8 *p_uiTex; // edi
+  uint8 *pEndVerts; // edi
   int iProjectedSum; // ebx
   tPoint *pVerticesRev; // edx
-  tPolygon *pPolyRev; // ecx
-  int *pScreenCoordRev; // eax
+  uint8 *pVerts_1; // ecx
+  tBuildingCoord *pScreenCoordRev; // eax
   tPoint *pVertices; // edx
-  tPolygon *pPoly; // ecx
-  int *pScreenCoord; // eax
+  uint8 *pVerts; // ecx
+  tBuildingCoord *pScreenCoord; // eax
   int *p_y; // edx
   int iFinalVert0; // ebx
   int iFinalVert1; // esi
@@ -520,7 +520,7 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
     p_fY = &pCoords->fY;
     p_fZ = &pCoords->fZ;
     // CHEAT_MODE_DOUBLE_TRACK
-    if ((cheat_mode & CHEAT_MODE_DOUBLE_TRACK) != 0)           // Scale coordinates 2x if cheat mode enabled
+    if ((cheat_mode & 0x1000) != 0)           // Scale coordinates 2x if cheat mode enabled
     {
       fX = pCoords->fX * 2.0f;
       fCoordY = *p_fY * 2.0f;
@@ -566,15 +566,15 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
     xp = iViewX * VIEWDIST / iViewZ + xbase;    // Project 3D coordinates to 2D screen coordinates
     yp = iViewY * VIEWDIST / iViewZ + ybase;
     iScreenY = iViewY * VIEWDIST / iViewZ + ybase;
-    pScreenPt->screen.x = (scr_size * (iViewX * VIEWDIST / iViewZ + xbase)) >> 6;
-    pScreenPt->screen.y = (scr_size * (199 - iScreenY)) >> 6;
+    pScreenPt->iX = (scr_size * (iViewX * VIEWDIST / iViewZ + xbase)) >> 6;
+    pScreenPt->iY = (scr_size * (199 - iScreenY)) >> 6;
     pBuildingView->fX = (float)iViewX;
     pBuildingView->fY = (float)iViewY;
     pBuildingView->fZ = (float)(int)dViewZ;
-    p_projected = (int *)&pScreenPt->projected;
-    *p_projected = iClipped;
+    p_iUnk3 = &pScreenPt->iClipped;
+    *p_iUnk3 = iClipped;
     ++pBuildingView;
-    pScreenPt = (tScreenPt *)(p_projected + 1);
+    pScreenPt = (tBuildingCoord *)(p_iUnk3 + 1);
   }
   iPolygonLoop = 0;
   iZOrderIdx = 0;
@@ -681,37 +681,37 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
           + (fDeltaX2 * fDeltaY2 - fDeltaY1 * fVert1Y) * fVert0Z;// Calculate polygon normal dot product for backface culling
         if (fNormalDot < 0.0 || (uiTex & 0x2000) != 0)// Render polygon if visible (negative normal = back-facing, or special flag)
         {
-          p_uiTex = (uint8 *)&pPolygon->uiTex;
+          pEndVerts = (uint8 *)&pPolygon->uiTex;
           iProjectedSum = 0;
           if (fNormalDot < 0.0)               // Copy vertices in reverse order for back-facing polygons
           {
             pVertices = BuildingPol.vertices;   // Copy vertices in forward order for front-facing polygons
-            pPoly = pPolygon;
+            pVerts = (uint8 *)pPolygon;
             do {
-              pScreenCoord = &BuildingCoords[0].screen.x + 3 * pPoly->verts[0];
+              pScreenCoord = &BuildingCoords[*pVerts];
               p_y = &pVertices->y;
-              *(p_y - 1) = *pScreenCoord;
-              pPoly = (tPolygon *)((char *)pPoly + 1);
-              *p_y = pScreenCoord[1];
+              *(p_y - 1) = pScreenCoord->iX;
+              ++pVerts;
+              *p_y = pScreenCoord->iY;
               pVertices = (tPoint *)(p_y + 1);
-              iProjectedSum += pScreenCoord[2];
-            } while (pPoly != (tPolygon *)p_uiTex);
+              iProjectedSum += pScreenCoord->iClipped;
+            } while (pVerts != pEndVerts);
           } else {
             pVerticesRev = &BuildingPol.vertices[3];
-            pPolyRev = pPolygon;
+            pVerts_1 = (uint8 *)pPolygon;
             do {
-              pScreenCoordRev = &BuildingCoords[0].screen.x + 3 * pPolyRev->verts[0];
-              pVerticesRev->x = *pScreenCoordRev;
+              pScreenCoordRev = &BuildingCoords[*pVerts_1];
+              pVerticesRev->x = pScreenCoordRev->iX;
               --pVerticesRev;
-              pVerticesRev[1].y = pScreenCoordRev[1];
-              pPolyRev = (tPolygon *)((char *)pPolyRev + 1);
-              iProjectedSum += pScreenCoordRev[2];
-            } while (pPolyRev != (tPolygon *)p_uiTex);
+              pVerticesRev[1].y = pScreenCoordRev->iY;
+              ++pVerts_1;
+              iProjectedSum += pScreenCoordRev->iClipped;
+            } while (pVerts_1 != pEndVerts);
           }
           if ((uiTex & 0x200) != 0)           // Handle special textures (advertisements, building remapping)
             uiTex = advert_list[iBuildingIdx];
           if ((textures_off & 0x80) != 0 && (uiTex & 0x100) != 0)
-            uiTex = (uiTex & 0xFFFFFE00) + bld_remap[(uint8)uiTex];
+            uiTex = (uiTex & 0xFFFFFE00) + bld_remap[(unsigned __int8)uiTex];
           BuildingPol.iSurfaceType = uiTex;
           BuildingPol.uiNumVerts = 4;
           if (iProjectedSum < 4) {
