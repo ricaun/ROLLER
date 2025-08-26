@@ -484,9 +484,9 @@ void freeramp(void **pRampData)
 //00074C30
 void freestunts(uint8 **pTrackData, int *pBuf)
 {
-  void **ppRampArray; // edx
-  void *pRampData; // eax
-  void *pNextRamp; // ecx
+  tStuntData **ppRampArray; // edx
+  tStuntData *pRampData; // eax
+  tStuntData *pNextRamp; // ecx
   void *pRampToFree; // [esp+0h] [ebp-10h] BYREF
   int *pBufSaved; // [esp+4h] [ebp-Ch]
 
@@ -498,8 +498,8 @@ void freestunts(uint8 **pTrackData, int *pBuf)
       pRampData = *ppRampArray;                 // Get pointer to current ramp structure
       pRampToFree = pRampData;
       if (pRampData) {                                         // Check if ramp has allocated data at offset 0x50 (80 bytes)
-        if (*((int *)pRampData + 20))
-          fre((void **)pRampData + 20);         // Free the allocated data at offset 0x50
+        if (pRampData->chunkDataAy)
+          fre((void **)&pRampData->chunkDataAy);// Free the allocated data at offset 0x50
         fre(&pRampToFree);                      // Free the ramp structure itself
       }
       pNextRamp = ppRampArray[1];               // Get next ramp pointer for loop condition
