@@ -485,6 +485,9 @@ void DrawBuilding(int iBuildingIdx, uint8 *pScrPtr)
   uint8 byNumPols; // [esp+1BCh] [ebp-1Ch]
   uint8 byNumCoords; // [esp+1C0h] [ebp-18h]
 
+  if (iBuildingIdx < 0)
+    return; //added by ROLLER
+
   set_starts(0);                                // Initialize rendering system
   uiBuildingType = BuildingBase[iBuildingIdx][0];// Get building plan data (polygons, coordinates, etc.)
   pScreenPt = BuildingCoords;
