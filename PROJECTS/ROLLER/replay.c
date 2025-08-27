@@ -11,6 +11,7 @@
 #include "function.h"
 #include <string.h>
 #include <errno.h>
+#include <math.h>
 #ifdef IS_WINDOWS
 #include <io.h>
 #else
@@ -845,7 +846,7 @@ void DoReplayData()
               // Convert car Y position to integer  
               //_CHP();
               iConversionBuffer = (int)pCar->pos.fY;
-              replayData.iPackedPosY = ((unsigned __int8)repvolume[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;
+              replayData.iPackedPosY = ((uint8)repvolume[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;
               // Convert car Z position to integer
               //_CHP();
               iConversionBuffer = (int)pCar->pos.fZ;
@@ -1310,7 +1311,7 @@ void DoReplayData()
           for (j = 0; j < 8; ++j) {
             fread(&pRampData_1, 2u, 1u, replayfile);
             if (*ppRampReplay)
-              (*ppRampReplay)->iTickStartIdx = (unsigned __int16)pRampData_1;
+              (*ppRampReplay)->iTickStartIdx = (uint16)pRampData_1;
             ++ppRampReplay;
           }
 
