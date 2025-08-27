@@ -47,7 +47,7 @@ typedef struct
   uint8 byCarDesignIdx;
   uint8 byLives;
   uint8 byLapNumber;
-  uint8 byPadding5;
+  //padding byte
   int16 nExplosionSoundTimer;
   float fLastAnimationSpeed;
   float fBaseSpeed;
@@ -94,9 +94,9 @@ typedef struct
   uint8 byAIThrottleControl;
   uint8 byEngineStartTimer;
   uint8 byPitLaneActiveFlag;
-  uint8 byPadding0;
-  uint8 byPadding1;
-  uint8 byPadding2;
+  //padding byte
+  //padding byte
+  //padding byte
   int iLeftTargetIdx;
   float fLeftTargetTime;
   int iRightTargetIdx;
@@ -110,7 +110,7 @@ typedef struct
   uint8 byCheatAmmo;
   uint8 byCheatCooldown;
   uint8 byWheelAnimationFrame;
-  uint8 byPadding15;
+  //padding byte
   int iDamageState;
   int16 nLastCommentaryChunk;
   int16 nReverseWarnCooldown;
@@ -121,7 +121,7 @@ typedef struct
   uint8 byRepairSpeechPlayed;
   uint8 byLappedStatus;
   uint8 bySfxCooldown;
-  uint8 byPadding17;
+  //padding byte
 } tCar;
 
 //-------------------------------------------------------------------------------------------------
