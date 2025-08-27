@@ -411,8 +411,11 @@ void updateramp(tStuntData *pStunt)
       pNextData[-1].fTrackHalfLength = fInterpolation * (float)dTrackHalfLength;
       pEndLocalPoints_1 = (tStuntLocalPoint *)((char *)pEndLocalPoints_1 + 88);
     }
-    HorizonColour[32 * (pStunt->iGeometryIdx - pStunt->iChunkCount) + 482] = iHeightValue;// Set horizon color values for visual effects
-    HorizonColour[32 * pStunt->iGeometryIdx + 482] = -iHeightValue;
+    //TODO is this correct?
+    localdata[pStunt->iGeometryIdx - pStunt->iChunkCount].iPitch = iHeightValue;
+    localdata[pStunt->iGeometryIdx].iPitch = -iHeightValue;
+    //HorizonColour[32 * (pStunt->iGeometryIdx - pStunt->iChunkCount) + 482] = iHeightValue;
+    //HorizonColour[32 * pStunt->iGeometryIdx + 482] = -iHeightValue;
     localdata[pStunt->iGeometryIdx].iPitch = -iHeightValue;// Set pitch values for track geometry
     localdata[pStunt->iChunkCount + pStunt->iGeometryIdx].iPitch = iHeightValue;
     iGeometryIdx = pStunt->iGeometryIdx;
