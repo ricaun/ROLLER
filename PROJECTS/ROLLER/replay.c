@@ -679,7 +679,7 @@ void stopreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00064880
-void __cdecl DoReplayData()
+void DoReplayData()
 {                                               // Check replay type: 0=disabled, 1=recording, 2=playback
   int iCarIndex; // esi
   tCar *pCar; // edi
