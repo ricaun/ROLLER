@@ -1811,6 +1811,10 @@ void release_key_int()
 //00018450
 void clear_border(int x, int y, int iWidth, int iLines)
 {
+  //added by ROLLER
+  UpdateSDLWindow();
+  return;
+
   int iOldWinX; // edi
   int iOldWinY; // ebp
   int iOldWinH; // esi
