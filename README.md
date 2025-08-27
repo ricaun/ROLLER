@@ -5,6 +5,20 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 
 [![On track!](https://img.youtube.com/vi/xjQ-uQNEEpM/maxresdefault.jpg)](https://www.youtube.com/watch?v=xjQ-uQNEEpM)
 
+## TODO
+* Finish decompiling replay functionality
+* Integrate looped and pitched sounds (engine sounds) with SDL
+* Integrate sound panning with SDL
+* Integrate joystick support with SDL
+* Improve textured polygon rendering to eliminate flickering polygons
+* Bug: pause menu can lock up game
+* Bug: pause menu define controls are off by one
+* Bug: doubled textures (two adjacent tiles on one quad) do not work
+* Bug: race starting position isn't correct
+* Bug: some cars start before the green light
+* Implement CD audio
+* Implement modern networking
+
 ## About
 
 Debug symbol dump generated with wdump, part of: https://github.com/open-watcom/open-watcom-v2
