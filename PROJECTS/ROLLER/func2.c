@@ -3037,7 +3037,7 @@ void display_paused()
               iControlNext = control_edit + 1;
               iControlSelect = control_select;
               controlrelease = -1;
-              userkey[iControlNext] = iKeyPressed;
+              userkey[control_edit] = iKeyPressed;
               //*((char *)&keyname[139] + iControlNext + 3) = iKeyPressed;
               control_edit = iControlNext;
               if (iControlSelect == 1) {
