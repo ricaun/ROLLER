@@ -118,7 +118,7 @@ void storecut();
 void removecut();
 int readcut();
 void displayreplay();
-int compare(const char *szStr1, const char *szStr2);
+int compare(const void *szStr1, const void *szStr2);
 void warning(int iX1, int iY1, int iX2, int iY2, char *szWarning);
 void lsd(int iX1, int iY1, int iX2, int iY2);
 void scandirectory(const char *szPattern);

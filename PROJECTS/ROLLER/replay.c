@@ -2407,9 +2407,9 @@ void displayreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00066F60
-int compare(const char *szStr1, const char *szStr2)
+int compare(const void *szStr1, const void *szStr2)
 {
-  return strcmp(szStr1, szStr2);
+  return strcmp((const char *)szStr1, (const char *)szStr2);
 }
 
 //-------------------------------------------------------------------------------------------------
