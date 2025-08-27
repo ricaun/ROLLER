@@ -11,6 +11,7 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 * Integrate sound panning with SDL
 * Integrate joystick support with SDL
 * Improve textured polygon rendering to eliminate flickering polygons
+* Bug: WildMidi sometimes locks up the game or crashes when switching songs
 * Bug: pause menu can lock up game
 * Bug: pause menu define controls are off by one
 * Bug: doubled textures (two adjacent tiles on one quad) do not work
