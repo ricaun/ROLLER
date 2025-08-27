@@ -18,8 +18,9 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 * Bug: doubled textures (two adjacent tiles on one quad) do not work
 * Bug: race starting position isn't correct
 * Bug: some cars start before the green light
-* Bug: complete first gremlin cup race and the cup logo displays premier cup
+* Bug: completing races in championship mode causes cup logo to cycle on main page
 * Bug: announcer can say multiple things at the same time
+* Bug: wall backfaces are not drawn
 * Implement CD audio
 * Implement modern networking
 
