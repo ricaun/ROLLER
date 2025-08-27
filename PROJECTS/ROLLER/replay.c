@@ -923,7 +923,7 @@ void DoReplayData()
               //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
               //byHealthAndStunned = iConversionBuffer | (LOBYTE(pCar->iStunned) << 7);
 
-              replayData.byMiscCarData = (pCar->byDamageToggle << 7) + 8 * LOBYTE(pCar->iDamageState) + pCar->byGearAyMax + 2 + 16 * pCar->byWheelAnimationFrame;
+              replayData.byMiscCarData = (pCar->byDamageToggle << 7) + 8 * (uint8)(pCar->iDamageState) + pCar->byGearAyMax + 2 + 16 * pCar->byWheelAnimationFrame;
               replayData.byLap = pCar->byLap;
               if (pCar->nDeathTimer >= 0)
                 replayData.byDeathTimer = (char)pCar->nDeathTimer;
@@ -1311,7 +1311,7 @@ void DoReplayData()
           for (j = 0; j < 8; ++j) {
             fread(&pRampData_1, 2u, 1u, replayfile);
             if (*ppRampReplay)
-              (*ppRampReplay)->iTickStartIdx = (uint16)pRampData_1;
+              (*ppRampReplay)->iTickStartIdx = (uint16)(uintptr_t)pRampData_1;
             ++ppRampReplay;
           }
 
