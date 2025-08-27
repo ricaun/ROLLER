@@ -2320,11 +2320,11 @@ LABEL_45:
       pCar->iRollDynamicOffset = iEngineCalc3;
   }
 LABEL_171:
-  pCar->pos2.fX = pCar->pos.fX;
-  pCar->pos2.fY = pCar->pos.fY;
+  pCar->posLastFrame.fX = pCar->pos.fX;
+  pCar->posLastFrame.fY = pCar->pos.fY;
   iViewType = ViewType[0];
   iViewDriverIdx = pCar->iDriverIdx;
-  pCar->pos2.fZ = pCar->pos.fZ;
+  pCar->posLastFrame.fZ = pCar->pos.fZ;
   if (iViewType == iViewDriverIdx)
     doviewtend(pCar, 1, 0);
   if (ViewType[1] == pCar->iDriverIdx)
@@ -5625,9 +5625,9 @@ void landontrack(tCar *pCar)
   float fDirectionYFinal; // [esp+1CCh] [ebp-20h]
   float fDirectionYFinal2; // [esp+1D0h] [ebp-1Ch]
 
-  fX = pCar->pos2.fX;                           // Store car's current and previous positions for collision calculations
-  fY = pCar->pos2.fY;
-  fZ = pCar->pos2.fZ;
+  fX = pCar->posLastFrame.fX;                           // Store car's current and previous positions for collision calculations
+  fY = pCar->posLastFrame.fY;
+  fZ = pCar->posLastFrame.fZ;
   fCarPosX = pCar->pos.fX;
   fCarPosY = pCar->pos.fY;
   fCarPosZ = pCar->pos.fZ;

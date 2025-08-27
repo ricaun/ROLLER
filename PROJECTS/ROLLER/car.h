@@ -34,7 +34,7 @@ typedef struct
   int iDriverIdx;
   float fHorizontalSpeed;
   tVec3 direction;
-  tVec3 pos2;
+  tVec3 posLastFrame;
   int nActualYaw;
   int iJumpMomentum;
   int iControlType;

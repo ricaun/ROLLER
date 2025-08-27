@@ -226,12 +226,12 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
     iCollisionDetected = -1;
   if (iCollisionDetected)                     // COLLISION DETECTED: Begin collision resolution calculations
   {
-    fCar1PosX2 = pCar1->pos2.fX;
-    fCar1PosY2 = pCar1->pos2.fY;
+    fCar1PosX2 = pCar1->posLastFrame.fX;
+    fCar1PosY2 = pCar1->posLastFrame.fY;
     pData2_2 = &localdata[pCar2->nReferenceChunk];
-    dRelativeX2 = pData2_2->pointAy[0].fY * pCar2->pos2.fY + pData2_2->pointAy[0].fX * pCar2->pos2.fX + pData2_2->pointAy[0].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fX;
-    dRelativeY2 = pData2_2->pointAy[1].fX * pCar2->pos2.fX + pData2_2->pointAy[1].fY * pCar2->pos2.fY + pData2_2->pointAy[1].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fY;
-    dRelativeZ2 = pData2_2->pointAy[2].fX * pCar2->pos2.fX + pData2_2->pointAy[2].fY * pCar2->pos2.fY + pData2_2->pointAy[2].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fZ;
+    dRelativeX2 = pData2_2->pointAy[0].fY * pCar2->posLastFrame.fY + pData2_2->pointAy[0].fX * pCar2->posLastFrame.fX + pData2_2->pointAy[0].fZ * pCar2->posLastFrame.fZ - pData2_2->pointAy[3].fX;
+    dRelativeY2 = pData2_2->pointAy[1].fX * pCar2->posLastFrame.fX + pData2_2->pointAy[1].fY * pCar2->posLastFrame.fY + pData2_2->pointAy[1].fZ * pCar2->posLastFrame.fZ - pData2_2->pointAy[3].fY;
+    dRelativeZ2 = pData2_2->pointAy[2].fX * pCar2->posLastFrame.fX + pData2_2->pointAy[2].fY * pCar2->posLastFrame.fY + pData2_2->pointAy[2].fZ * pCar2->posLastFrame.fZ - pData2_2->pointAy[3].fZ;
     pData1_1 = &localdata[pCar1->nReferenceChunk];
     dRelativeZ2Copy = dRelativeZ2;
     dTransformedY2 = dRelativeY2 + pData1_1->pointAy[3].fY;
