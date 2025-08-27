@@ -2752,7 +2752,7 @@ void fileselect(int iBoxX0, int iBoxY0, int iBoxX1, int iBoxY1, int iTextX, int 
         rotpoint = currentreplayframe;
       }
     } else {
-      switch ((unsigned __int8)fatgetch()) {
+      switch ((uint8)fatgetch()) {
         case 'H':
           iUpNavFile = filefile - 3;
           if (filefile - 3 < 0)
