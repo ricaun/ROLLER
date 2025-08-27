@@ -393,7 +393,7 @@ void placecars()
       Car[iDriverIdx].nCurrChunk = nStartChunk; // Set current track chunk for car
       iCarIdx3 = iDriverIdx;
       Car[iCarIdx3].iLastValidChunk = Car[iDriverIdx].nCurrChunk;// Initialize track chunk tracking variables
-      Car[iCarIdx3].nChunk2 = Car[iDriverIdx].nCurrChunk;
+      Car[iCarIdx3].nReferenceChunk = Car[iDriverIdx].nCurrChunk;
       Car[iCarIdx3].iTrackedCarIdx = -1;
       Car[iCarIdx3].byLap = 0;
       Car[iCarIdx3].byLappedStatus = 0;
@@ -445,7 +445,7 @@ void placecars()
         Car[iDriverIdx].fFinalSpeed = 0.0;
         //LOWORD(pTrackData) = Car[iDriverIdx].nCurrChunk;
         Car[iDriverIdx].fSpeedOverflow = 0;
-        Car[iDriverIdx].nChunk2 = Car[iDriverIdx].nCurrChunk;// (__int16)pTrackData;
+        Car[iDriverIdx].nReferenceChunk = Car[iDriverIdx].nCurrChunk;// (__int16)pTrackData;
         Car[iDriverIdx].nCurrChunk = -1;        // Set chunk to -1 (disabled car)
         Car[iDriverIdx].pos.fZ = (float)dZCmp;
       }

@@ -109,7 +109,7 @@ void humancar(int iCarIdx)
   int iSoundEffect3; // eax
   int iTeleportTargetIdx; // eax
   int iTeleportTarget; // esi
-  int nChunk2; // ecx
+  int nReferenceChunk; // ecx
   int nPitch; // edx
   int nCurrChunk; // edi
   tVec3 *posAy; // edi
@@ -288,16 +288,16 @@ void humancar(int iCarIdx)
         goto SET_TELEPORT_COOLDOWN;
       }
       Car[iTeleportTargetIdx].fHorizontalSpeed = 0;
-      nChunk2 = Car[iTeleportTargetIdx].nChunk2;
+      nReferenceChunk = Car[iTeleportTargetIdx].nReferenceChunk;
       Car[iTeleportTargetIdx].iSteeringInput = 0;
       nPitch = Car[iTeleportTargetIdx].nPitch;
       Car[iTeleportTargetIdx].direction.fZ = 128.0f;
       nCurrChunk = Car[iTeleportTargetIdx].nCurrChunk;
-      getworldangles(Car[iTeleportTargetIdx].nYaw3, nPitch, Car[iTeleportTargetIdx].nRoll, nChunk2, &iAzimuth, &iElevation, &iBank);// Swap car positions and orientations using world angle transformations
-      getworldangles(Car[iTeleportTarget].nYaw, Car[iTeleportTarget].nPitch, Car[iTeleportTarget].nRoll, Car[iTeleportTarget].nChunk2, &iAzi2, &iElevation, &iBank);
+      getworldangles(Car[iTeleportTargetIdx].nActualYaw, nPitch, Car[iTeleportTargetIdx].nRoll, nReferenceChunk, &iAzimuth, &iElevation, &iBank);// Swap car positions and orientations using world angle transformations
+      getworldangles(Car[iTeleportTarget].nYaw, Car[iTeleportTarget].nPitch, Car[iTeleportTarget].nRoll, Car[iTeleportTarget].nReferenceChunk, &iAzi2, &iElevation, &iBank);
       Car[iTeleportTarget].pos.fZ = Car[iTeleportTarget].pos.fZ + 64.0f;
       Car[iTeleportTarget].nYaw = iAzi2;
-      Car[iTeleportTarget].nYaw3 = iAzi2;
+      Car[iTeleportTarget].nActualYaw = iAzi2;
       Car[iTeleportTarget].nPitch = iElevation;
       posAy = localdata[nCurrChunk].pointAy;
       Car[iTeleportTarget].nRoll = iBank;
@@ -321,7 +321,7 @@ void humancar(int iCarIdx)
       Car[iTeleportTarget].pos.fZ = fLocalZ;
       //LOWORD(fChunkValue) = Car[iTeleportTarget].nCurrChunk;
       int16 nTemp = Car[iTeleportTarget].nCurrChunk;
-      Car[iTeleportTarget].nChunk2 = nTemp; //LOWORD(fChunkValue);
+      Car[iTeleportTarget].nReferenceChunk = nTemp; //LOWORD(fChunkValue);
       Car[iTeleportTarget].iLastValidChunk = nTemp;// SLOWORD(fChunkValue);
       Car[iTeleportTarget].byAttacker = iCarIdx_1;
       Car[iTeleportTarget].byGearAyMax = 0;
@@ -2001,7 +2001,7 @@ void updatecar2(tCar *pCar)
   float fHorizontalSpeed; // [esp+174h] [ebp-1Ch]
 
   byCarTypeIndex = pCar->byCarDesignIdx;
-  iYaw3 = pCar->nYaw3;
+  iYaw3 = pCar->nActualYaw;
   iJumpMomentum = pCar->iJumpMomentum;
   iYawCurrent = pCar->nYaw;
   nCurrentChunk = pCar->nCurrChunk;
@@ -2139,7 +2139,7 @@ LABEL_45:
   if (ReverseWarnCooldown > 0)
     pCar->nReverseWarnCooldown = ReverseWarnCooldown - 1;
   if (pCar->fFinalSpeed >= 200.0 && nCurrentChunk >= 0) {
-    iCurrentYaw3 = pCar->nYaw3;
+    iCurrentYaw3 = pCar->nActualYaw;
     if (iCurrentYaw3 > 4096 && iCurrentYaw3 < 12288 && !pCar->nReverseWarnCooldown) {
       iSpeechDriverIdx = pCar->iDriverIdx;
       if (player1_car == iSpeechDriverIdx || player2_car == iSpeechDriverIdx)
@@ -2147,11 +2147,11 @@ LABEL_45:
       pCar->nReverseWarnCooldown = 360;
     }
   }
-  iYaw3Value = pCar->nYaw3;
+  iYaw3Value = pCar->nActualYaw;
   if (iYaw3Value <= 4096 || iYaw3Value >= 12288 && pCar->fFinalSpeed > 0.0)
     pCar->nReverseWarnCooldown = 180;
   iAudioDriverIdx = pCar->iDriverIdx;
-  if ((player1_car == iAudioDriverIdx || player2_car == iAudioDriverIdx) && (nCurrentChunk >= 0 && pCar->nYaw3 < 4096 || pCar->nYaw3 > 12288)) {
+  if ((player1_car == iAudioDriverIdx || player2_car == iAudioDriverIdx) && (nCurrentChunk >= 0 && pCar->nActualYaw < 4096 || pCar->nActualYaw > 12288)) {
     //nCurrentChunk check and iAudioSample init added by ROLLER
     iAudioSample = 0;
     if (nCurrentChunk >= 0 && (double)samplespeed[nCurrentChunk] <= pCar->fFinalSpeed) {
@@ -2246,7 +2246,7 @@ LABEL_45:
     }
   }
   if (nCurrentChunk != -1)
-    pCar->nChunk2 = nCurrentChunk;
+    pCar->nReferenceChunk = nCurrentChunk;
   if (nCurrentChunk != -1)
     pCar->iLastValidChunk = nCurrentChunk;
   iSteeringInput = pCar->iSteeringInput;
@@ -2361,7 +2361,7 @@ LABEL_171:
       nRollAdjusted = (int16)(pCar->iRollMomentum) + pCar->nRoll;
       nRollAdjusted &= 0x3FFFu;
       //HIBYTE(nRollAdjusted) &= 0x3Fu;
-      iYaw3Current = pCar->nYaw3;
+      iYaw3Current = pCar->nActualYaw;
       pCar->nRoll = nRollAdjusted;
       iYawDelta = ((int16)iYaw3Current - pCar->nYaw) & 0x3FFF;
       iYawCurrent = pCar->nYaw;
@@ -2884,7 +2884,7 @@ LABEL_171:
             analysefalloff(pCar);
         }
         if (pCar->iControlType == 3) {
-          iYawDifferenceCalc = pCar->nYaw - pCar->nYaw3;
+          iYawDifferenceCalc = pCar->nYaw - pCar->nActualYaw;
           iYawDifference = iYawDifferenceCalc + (iYawDifferenceCalc < 0 ? 0x4000 : 0);
           if (iYawDifference > 0x2000)
             iYawDifference -= 0x4000;
@@ -2909,7 +2909,7 @@ LABEL_171:
             iYawDifference = (int)fNegativeYawLimit;
           }
           if (!pCar->iStunned)
-            pCar->nYaw3 = ((int16)iYawDifference + (uint16)pCar->nYaw3) & 0x3FFF;
+            pCar->nActualYaw = ((int16)iYawDifference + (uint16)pCar->nActualYaw) & 0x3FFF;
           iHumanControlIdx = pCar->iDriverIdx;
           if (human_control[iHumanControlIdx]) {
             if (!iJumpMomentum) {
@@ -2920,7 +2920,7 @@ LABEL_171:
               //TODO check this
               if (!pCar->iSteeringInput || abs((copy_multiple[((int16)readptr - 1) & 0x1FF][iHumanControlIdx].data.unInput) >> 8) < abs(pCar->iSteeringInput)) {
                 iCurrentYawForInput = pCar->nYaw;
-                iYaw3ForInput = pCar->nYaw3;
+                iYaw3ForInput = pCar->nActualYaw;
                 if (iCurrentYawForInput != iYaw3ForInput) {
                   iHumanYawDiff = iCurrentYawForInput - iYaw3ForInput + (iCurrentYawForInput - iYaw3ForInput < 0 ? 0x4000 : 0);
                   if (iHumanYawDiff > 0x2000)
@@ -3074,7 +3074,7 @@ LABEL_502:
     sfxpend(2, pCar->iDriverIdx, 0x8000);
     iPitch = pCar->nPitch;
     iRoll = pCar->nRoll;
-    pCar->nYaw3 = pCar->nYaw;
+    pCar->nActualYaw = pCar->nYaw;
     if (iRoll < 4096 || iRoll > 12288) {
       pCar->nRoll = 0;
       pCar->iStunned = 0;
@@ -3180,7 +3180,7 @@ void check_crossed_line(tCar *pCar)
   }
   iCurrentChunk = pCar->nCurrChunk;             // Check if car has valid current chunk position
   if (iCurrentChunk != -1) {
-    iChunk2 = pCar->nChunk2;
+    iChunk2 = pCar->nReferenceChunk;
     if (iChunk2 != -1) {                                           // Detect forward lap line crossing (crossed finish line going forward)
       if (iChunk2 - iCurrentChunk > TRAK_LEN / 2 && !finished_car[pCar->iDriverIdx]) {                                         // Check if lap count matches expected lap number
         if (pCar->byLap == pCar->byLapNumber) {
@@ -3418,7 +3418,7 @@ void check_crossed_line(tCar *pCar)
           }
         }
       }
-      if (pCar->nChunk2 - pCar->nCurrChunk < -TRAK_LEN / 2)// Detect backward lap line crossing (went backwards across finish line)
+      if (pCar->nReferenceChunk - pCar->nCurrChunk < -TRAK_LEN / 2)// Detect backward lap line crossing (went backwards across finish line)
       {
         iFinishersCount2 = finishers;
         --pCar->byLapNumber;
@@ -3503,7 +3503,7 @@ void checkplacement(tCar *pCar)
   int iCarCounter; // [esp+18h] [ebp-1Ch]
 
   iRandValue = rand();                          // Generate random chunk position near current chunk
-  iNewChunk = GetHighOrderRand(10, iRandValue) + pCar->nChunk2;
+  iNewChunk = GetHighOrderRand(10, iRandValue) + pCar->nReferenceChunk;
   if (iNewChunk >= TRAK_LEN)
     iNewChunk = TRAK_LEN - 1;
   if (iNewChunk == -1)
@@ -3714,7 +3714,7 @@ void checkplacement(tCar *pCar)
         pCar->pos.fX = 0.0f * pDataAy->pointAy[0].fY + 0.0f * pDataAy->pointAy[0].fX + 0.0f * pDataAy->pointAy[0].fZ - pDataAy->pointAy[3].fX;
         pCar->pos.fY = 0.0f * pDataAy->pointAy[1].fX + 0.0f * pDataAy->pointAy[1].fY + 0.0f * pDataAy->pointAy[1].fZ - pDataAy->pointAy[3].fY;
         dPosZ = 0.0 * pDataAy->pointAy[2].fX + 0.0 * pDataAy->pointAy[2].fY + 0.0 * pDataAy->pointAy[2].fZ - pDataAy->pointAy[3].fZ + 1000.0;
-        pCar->nChunk2 = pCar->nCurrChunk;
+        pCar->nReferenceChunk = pCar->nCurrChunk;
         pCar->pos.fZ = (float)dPosZ;
       }
       iCurrentViewType = ViewType[0];
@@ -3746,7 +3746,7 @@ LABEL_113:
     pCar->pos.fZ = 0.0;
     pCar->nPitch = 0;
     pCar->nYaw = 0;
-    pCar->nYaw3 = 0;
+    pCar->nActualYaw = 0;
     pCar->nRoll = 0;
     pCar->byDamageSourceTimer = 0;
     pCar->iControlType = 3;
@@ -3777,7 +3777,7 @@ LABEL_113:
     pCar->byEngineStartTimer = 0;
     pCar->nCurrChunk = iNewChunk;
     pCar->iLastValidChunk = iNewChunk;
-    pCar->nChunk2 = iNewChunk;
+    pCar->nReferenceChunk = iNewChunk;
     pCar->iPitchDynamicOffset = 0;
     pCar->iRollDynamicOffset = 0;
     putflat(pCar);                              // Reset car to flat ground position and update camera views
@@ -3878,7 +3878,7 @@ void hitleft(tCar *pCar, int iSampleIdx, int iIsRightSide)
     //_CHP();
     iMaxYawChange = (int)dSpeedScale;
   }
-  iYaw3 = pCar->nYaw3;
+  iYaw3 = pCar->nActualYaw;
   fVelX = tcos[iYaw3] * pCar->fFinalSpeed;      // Calculate velocity components from car's current speed and direction
   fVelY = tsin[iYaw3] * pCar->fFinalSpeed;
   if (iIsRightSide)                           // Select collision angle based on left/right side (a3 parameter)
@@ -3928,7 +3928,7 @@ void hitleft(tCar *pCar, int iSampleIdx, int iIsRightSide)
       } else {
         iReverseYaw = 0;
       }
-      pCar->nYaw3 = iReverseYaw;
+      pCar->nActualYaw = iReverseYaw;
       dFinalSpeed = -sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
     } else {                                           // Handle forward motion - calculate new direction and speed
       if (fabs(dVelY * tcos[iAngleIdx] - fNegPerpVel * tsin[iAngleIdx]) || fabs(dVelX * tsin[iAngleIdx] + fNegPerpVel * tcos[iAngleIdx])) {
@@ -3939,12 +3939,12 @@ void hitleft(tCar *pCar, int iSampleIdx, int iIsRightSide)
       } else {
         iNewYaw = 0;
       }
-      pCar->nYaw3 = iNewYaw;
+      pCar->nActualYaw = iNewYaw;
       dFinalSpeed = sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
     }
     pCar->fFinalSpeed = (float)dFinalSpeed;
   }
-  iYawDiff = pCar->nYaw3 - pCar->nYaw;          // Apply yaw constraints - limit how fast car can turn based on speed
+  iYawDiff = pCar->nActualYaw - pCar->nYaw;          // Apply yaw constraints - limit how fast car can turn based on speed
   iConstrainedYaw = iYawDiff + (iYawDiff < 0 ? 0x4000 : 0);
   if (iConstrainedYaw > 0x2000)
     iConstrainedYaw -= 0x4000;
@@ -4005,7 +4005,7 @@ void hitright(tCar *pCar, int iSampleIdx, int iIsRightSide)
     //_CHP();
     iMaxYawChange = (int)dSpeedScale;
   }
-  iYaw3 = pCar->nYaw3;
+  iYaw3 = pCar->nActualYaw;
   fVelX = tcos[iYaw3] * pCar->fFinalSpeed;      // Calculate velocity components from car's current speed and direction
   fVelY = tsin[iYaw3] * pCar->fFinalSpeed;
   if (iIsRightSide)                           // Select collision angle based on left/right side (iIsRightSide parameter)
@@ -4056,7 +4056,7 @@ void hitright(tCar *pCar, int iSampleIdx, int iIsRightSide)
       } else {
         iReverseYaw = 0;
       }
-      pCar->nYaw3 = iReverseYaw;
+      pCar->nActualYaw = iReverseYaw;
       dFinalSpeed = -sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
     } else {                                           // Handle forward motion - calculate new direction and speed
       if (fabs(dVelY * tcos[iAngleIdx] - fAbsPerpVel * tsin[iAngleIdx]) || fabs(dVelX * tsin[iAngleIdx] + fAbsPerpVel * tcos[iAngleIdx])) {
@@ -4066,13 +4066,13 @@ void hitright(tCar *pCar, int iSampleIdx, int iIsRightSide)
       } else {
         iNewYaw = 0;
       }
-      pCar->nYaw3 = iNewYaw;
+      pCar->nActualYaw = iNewYaw;
       dFinalSpeed = sqrt(fFinalVelX * fFinalVelX + fFinalVelY * fFinalVelY);
     }
     pCar->fFinalSpeed = (float)dFinalSpeed;
   }
   if (!pCar->byCollisionTimer) {
-    iYawDiff = pCar->nYaw3 - pCar->nYaw;        // Apply yaw constraints only if not in collision state
+    iYawDiff = pCar->nActualYaw - pCar->nYaw;        // Apply yaw constraints only if not in collision state
     iConstrainedYaw = iYawDiff + (iYawDiff < 0 ? 0x4000 : 0);
     if (iConstrainedYaw > 0x2000)
       iConstrainedYaw -= 0x4000;
@@ -4158,10 +4158,10 @@ void scansection(tCar *pCar)
   pCar->nYaw -= iDirection;
   pCar->nYaw &= 0x3FFF;
   //HIBYTE(pCar->nYaw) &= 0x3Fu;                  // Mask yaw values to keep them within valid ranges (14-bit values)
-  iTempYaw = pCar->nYaw3 - iDirection;
+  iTempYaw = pCar->nActualYaw - iDirection;
   pCar->nCurrChunk = iChunkIdx;
-  pCar->nYaw3 = iTempYaw;
-  pCar->nYaw3 = iTempYaw & 0x3FFF;
+  pCar->nActualYaw = iTempYaw;
+  pCar->nActualYaw = iTempYaw & 0x3FFF;
   TRAK_LEN = iTrackLen;
 }
 
@@ -4566,7 +4566,7 @@ void findnearcarsforce(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *pi
     + (dTempX + pCurrTrackData->pointAy[3].fY) * pCurrTrackData->pointAy[1].fY
     + (dTempZ + pCurrTrackData->pointAy[3].fZ) * pCurrTrackData->pointAy[2].fY);
   iCarLoopIdx = 0;
-  fOwnSpeedForward = pCar->fFinalSpeed * tcos[pCar->nYaw3 & 0x3FFF];
+  fOwnSpeedForward = pCar->fFinalSpeed * tcos[pCar->nActualYaw & 0x3FFF];
   if (numcars > 0)                            // Main loop: check all cars for collision threats
   {
     iCarIdx = 0;
@@ -4581,7 +4581,7 @@ void findnearcarsforce(tCar *pCar, int *piLeftCarIdx, float *pfLeftTime, int *pi
         iNormalizedChunkDiff = iChunkDiff + iTrakLen;
       if (iTrakLen / 2 < iNormalizedChunkDiff)
         iNormalizedChunkDiff -= iTrakLen;
-      dOtherCarSpeed = Car[iCarIdx].fFinalSpeed * tcos[Car[iCarIdx].nYaw3 & 0x3FFF];
+      dOtherCarSpeed = Car[iCarIdx].fFinalSpeed * tcos[Car[iCarIdx].nActualYaw & 0x3FFF];
       TRAK_LEN = iTrakLen;
       fOtherCarSpeed = (float)dOtherCarSpeed;
       if (Car[iCarIdx].iControlType != 3
@@ -4749,7 +4749,7 @@ double avoid(
           fUpperBound = fMinRange;
           if (fSteeringInput > 0.0
             && Car[iCurrentCarIdx].fFinalSpeed > 80.0
-            && Car[iCurrentCarIdx].fFinalSpeed > Car[iTargetCarIdx].fFinalSpeed * tcos[Car[iTargetCarIdx].nYaw3] + 120.0)// Check for aggressive overtaking conditions (speed advantage)
+            && Car[iCurrentCarIdx].fFinalSpeed > Car[iTargetCarIdx].fFinalSpeed * tcos[Car[iTargetCarIdx].nActualYaw] + 120.0)// Check for aggressive overtaking conditions (speed advantage)
           {
             *piOvertakeFlag = -1;
           }
@@ -4761,7 +4761,7 @@ double avoid(
           fLowerBound = fMaxRange;
           if (fSteeringInput > 0.0
             && Car[iCurrentCarIdx].fFinalSpeed > 80.0
-            && Car[iCurrentCarIdx].fFinalSpeed > Car[iTargetCarIdx].fFinalSpeed * tcos[Car[iTargetCarIdx].nYaw3] + 120.0)// Check for aggressive overtaking conditions (speed advantage)
+            && Car[iCurrentCarIdx].fFinalSpeed > Car[iTargetCarIdx].fFinalSpeed * tcos[Car[iTargetCarIdx].nActualYaw] + 120.0)// Check for aggressive overtaking conditions (speed advantage)
           {
             *piOvertakeFlag = -1;
           }
@@ -5178,7 +5178,7 @@ LABEL_24:
           iDistanceToTarget += TRAK_LEN;
         if (TRAK_LEN / 2 < iDistanceToTarget)
           iDistanceToTarget -= TRAK_LEN;
-        fForwardSpeed = pCar->fFinalSpeed * tcos[pCar->nYaw3 & 0x3FFF];
+        fForwardSpeed = pCar->fFinalSpeed * tcos[pCar->nActualYaw & 0x3FFF];
         fTrackDistance = localdata[pCar->nCurrChunk].fTrackHalfLength * 2.0f * (float)iDistanceToTarget;
         if (iDistanceToTarget < 0 || fabs(fTrackDistance / fForwardSpeed) < fDragCoefficient * 36.0 * fForwardSpeed / fMaxEngineSpeed)
           iActionFlag = -1;
@@ -5803,7 +5803,7 @@ void landontrack(tCar *pCar)
         }
       LABEL_69:
         dHorizontalSpeed = pCar->direction.fX * pCar->direction.fX + pCar->direction.fY * pCar->direction.fY;
-        pCar->nYaw3 = iChunkIdx;
+        pCar->nActualYaw = iChunkIdx;
         pCar->fHorizontalSpeed = (float)sqrt(dHorizontalSpeed);
       }
     }
@@ -5828,7 +5828,7 @@ void landontrack(tCar *pCar)
           pCar->pos.fY = fLocalCoordY;
           getlocalangles(pCar->nYaw, pCar->nPitch, pCar->nRoll, iChunkIndex, &iAzimuth, &iElevation, &iBank);
           pCar->nYaw = iAzimuth;
-          pCar->nYaw3 = iAzimuth;
+          pCar->nActualYaw = iAzimuth;
           pCar->nPitch = iElevation;
           pCar->nRoll = iBank;
           fTransformX = fDirectionXLocal;
@@ -5838,7 +5838,7 @@ void landontrack(tCar *pCar)
             dAngle3 = atan2(fDirectionYLocal, fDirectionXLocal) * 16384.0 / 6.28318530718;
             //_CHP();
             //LODWORD(fTempCalc) = (int)dAngle3;
-            pCar->nYaw3 = (int)dAngle3 & 0x3FFF;
+            pCar->nActualYaw = (int)dAngle3 & 0x3FFF;
           }
           if (iBank < 4096 || iBank > 12288) {
             pCar->iStunned = 0;
@@ -6270,7 +6270,7 @@ void landontrack(tCar *pCar)
             }
           LABEL_192:
             dFinalHorizSpeed = pCar->direction.fX * pCar->direction.fX + pCar->direction.fY * pCar->direction.fY;
-            pCar->nYaw3 = dYawCalc;
+            pCar->nActualYaw = dYawCalc;
             pCar->fHorizontalSpeed = (float)sqrt(dFinalHorizSpeed);
           }
         }
@@ -6301,7 +6301,7 @@ void converttoair(tCar *pCar)
   pCar->iControlType = 0;                       // Set car to airborne control mode (0)
   iCurrChunk = pCar->nCurrChunk;
   if (iCurrChunk == -1)                       // Use backup chunk if current chunk is invalid (-1)
-    iCurrChunk = pCar->nChunk2;
+    iCurrChunk = pCar->nReferenceChunk;
   pCar->iLastValidChunk = iCurrChunk;
   if (iCurrChunk < 0)
     iCurrChunk += TRAK_LEN;
@@ -6309,10 +6309,10 @@ void converttoair(tCar *pCar)
   //_CHP();
   pCar->iRollMomentum = (int)dRollSpeedCalc;
   iChunkBackup = pCar->nCurrChunk;
-  getworldangles(pCar->nYaw3, pCar->nPitch, pCar->nRoll, pCar->nChunk2, &iWorldYaw1, &iWorldPitch, &iWorldRoll);// Convert car yaw3/pitch/roll to world angles using current chunk
-  getworldangles(pCar->nYaw, pCar->nPitch, pCar->nRoll, pCar->nChunk2, &iWorldYaw2, &iWorldPitch, &iWorldRoll);// Convert car yaw/pitch/roll to world angles
+  getworldangles(pCar->nActualYaw, pCar->nPitch, pCar->nRoll, pCar->nReferenceChunk, &iWorldYaw1, &iWorldPitch, &iWorldRoll);// Convert car yaw3/pitch/roll to world angles using current chunk
+  getworldangles(pCar->nYaw, pCar->nPitch, pCar->nRoll, pCar->nReferenceChunk, &iWorldYaw2, &iWorldPitch, &iWorldRoll);// Convert car yaw/pitch/roll to world angles
   pCar->nYaw = iWorldYaw2;
-  pCar->nYaw3 = iWorldYaw2;
+  pCar->nActualYaw = iWorldYaw2;
   pCar->nPitch = iWorldPitch;
   pData = &localdata[iChunkBackup];
   pCar->nRoll = iWorldRoll;
@@ -6330,7 +6330,7 @@ void converttoair(tCar *pCar)
   pCar->fSpeedOverflow = 0.0;                   // Reset speed overflow and prepare for airborne physics
   nTempChunk = pCar->nCurrChunk;
   pCar->nCurrChunk = -1;                        // Set car as airborne (-1) and backup original chunk position
-  pCar->nChunk2 = nTempChunk;
+  pCar->nReferenceChunk = nTempChunk;
   pCar->fHorizontalSpeed = (float)dHorizontalSpeed;
 }
 

@@ -23,7 +23,7 @@ typedef struct
 {
   tVec3 pos;
   int16 nCurrChunk;
-  int16 nChunk2;
+  int16 nReferenceChunk;
   int16 nRoll;
   int16 nPitch;
   int16 nYaw;
@@ -35,7 +35,7 @@ typedef struct
   float fHorizontalSpeed;
   tVec3 direction;
   tVec3 pos2;
-  int nYaw3;
+  int nActualYaw;
   int iJumpMomentum;
   int iControlType;
   int iSteeringInput;

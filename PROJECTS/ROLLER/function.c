@@ -311,7 +311,7 @@ void finish_race()
       iFinishingCarId = carorder[iFinishedCarIndex];
       iCarId = iFinishingCarId;
       iTotalLaps = NoOfLaps;
-      iChunk2 = Car[iNearCarId].nChunk2;
+      iChunk2 = Car[iNearCarId].nReferenceChunk;
       finished_car[iFinishingCarId] = -1;
       iFinishingCarId_1 = iFinishingCarId;
       iLap_1 = Car[iFinishingCarId].byLap;
@@ -319,7 +319,7 @@ void finish_race()
       if (iLap_1 == iTotalLaps)               // Check if car completed all laps
       {
         Car[iCarId].byLap = NoOfLaps + 1;
-        iChunk2_1 = Car[iCarId].nChunk2;
+        iChunk2_1 = Car[iCarId].nReferenceChunk;
         if (iChunk2 < iChunk2_1) {
           iTrackLength = TRAK_LEN;
           iRandomOffset = 12 * ROLLERrand() / 0x8000;
@@ -1169,7 +1169,7 @@ void analysefalloff(tCar *pCar)
   //int64 v8; // rax
   double dWallPosition; // st7
   int iWallFlag; // edx
-  int nYaw3; // ebp
+  int nActualYaw; // ebp
   double dSinVelocity; // st7
   double dRollMomentum; // st7
   //int64 v14; // rax
@@ -1233,13 +1233,13 @@ void analysefalloff(tCar *pCar)
 LABEL_12:
   if (iWallFlag && fTrackHalfWidth < pCar->fCarHalfWidth * 0.5 + pCar->pos.fY)// Check if car is hitting the wall - if wall exists and car position exceeds wall boundary
   {
-    nYaw3 = pCar->nYaw3;
-    dSinVelocity = pCar->fFinalSpeed * tsin[nYaw3];// Calculate lateral velocity component (sin component) for wall collision handling
+    nActualYaw = pCar->nActualYaw;
+    dSinVelocity = pCar->fFinalSpeed * tsin[nActualYaw];// Calculate lateral velocity component (sin component) for wall collision handling
     if (dSinVelocity < 30.0) {
       fSinVelocityTemp2 = (float)dSinVelocity;
       if (fSinVelocityTemp2 >= 0.0) {
-        fCosVelocityTemp3 = pCar->fFinalSpeed * tcos[nYaw3];
-        pCar->nYaw3 = getangle(fCosVelocityTemp3, 40.0);// Adjust car yaw and speed when bouncing off left wall - redirect momentum
+        fCosVelocityTemp3 = pCar->fFinalSpeed * tcos[nActualYaw];
+        pCar->nActualYaw = getangle(fCosVelocityTemp3, 40.0);// Adjust car yaw and speed when bouncing off left wall - redirect momentum
         pCar->fFinalSpeed = (float)sqrt(fCosVelocityTemp3 * fCosVelocityTemp3 + 1600.0);
       }
     }
@@ -1264,13 +1264,13 @@ LABEL_12:
   }
   if (iWallFlag2 && fWallPosition > pCar->pos.fY - pCar->fCarHalfWidth * 0.5)// Check for right wall collision - mirror of left wall logic
   {
-    iYawTemp = pCar->nYaw3;
+    iYawTemp = pCar->nActualYaw;
     dSinVelocity2 = pCar->fFinalSpeed * tsin[iYawTemp];
     if (dSinVelocity2 > -30.0) {
       fSinVelocityTemp = (float)dSinVelocity2;
       if (fSinVelocityTemp <= 0.0) {
         fCosVelocity = pCar->fFinalSpeed * tcos[iYawTemp];
-        pCar->nYaw3 = getangle(fCosVelocity, -40.0);// Adjust car yaw and speed when bouncing off right wall
+        pCar->nActualYaw = getangle(fCosVelocity, -40.0);// Adjust car yaw and speed when bouncing off right wall
         pCar->fFinalSpeed = (float)sqrt(fCosVelocity * fCosVelocity + 1600.0);
       }
     }
@@ -1284,13 +1284,13 @@ LABEL_12:
   //v22 = TrakColour[iPrevChunk][iLaneType];
   //if ((((HIDWORD(v22) ^ (unsigned int)v22) - HIDWORD(v22)) & 0x20000) != 0 && -pData->fTrackHalfLength > pCar->pos.fX - pCar->fCarWidthBankingProjection * 0.5) {
   if ((TrakColour[iPrevChunk][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0 && -pData->fTrackHalfLength > pCar->pos.fX - pCar->fCarWidthBankingProjection * 0.5) {
-    iYawTemp2 = pCar->nYaw3;
+    iYawTemp2 = pCar->nActualYaw;
     dCosVelocity = pCar->fFinalSpeed * tcos[iYawTemp2];
     if (dCosVelocity > -30.0) {
       fCosVelocityTemp2 = (float)dCosVelocity;
       if (fCosVelocityTemp2 <= 0.0) {
         fSinVelocity = pCar->fFinalSpeed * tsin[iYawTemp2];
-        pCar->nYaw3 = getangle(-40.0, fSinVelocity);// Handle front wall collision - adjust yaw by redirecting forward momentum
+        pCar->nActualYaw = getangle(-40.0, fSinVelocity);// Handle front wall collision - adjust yaw by redirecting forward momentum
         pCar->fFinalSpeed = (float)sqrt(fSinVelocity * fSinVelocity + 1600.0);
       }
     }
@@ -1301,13 +1301,13 @@ LABEL_12:
   //v26 = TrakColour[pCar->nCurrChunk + 1][iLaneType];// Check next track chunk for rear wall collision
   //if ((((HIDWORD(v26) ^ (unsigned int)v26) - HIDWORD(v26)) & 0x20000) != 0 && pData->fTrackHalfLength < pCar->fCarWidthBankingProjection * 0.5 + pCar->pos.fX) {
   if ((TrakColour[pCar->nCurrChunk + 1][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0 && pData->fTrackHalfLength < pCar->fCarWidthBankingProjection * 0.5 + pCar->pos.fX) {
-    iYawTemp3 = pCar->nYaw3;
+    iYawTemp3 = pCar->nActualYaw;
     dCosVelocity2 = pCar->fFinalSpeed * tcos[iYawTemp3];
     if (dCosVelocity2 < 30.0) {
       fCosVelocityTemp = (float)dCosVelocity2;
       if (fCosVelocityTemp >= 0.0) {
         fSinVelocity2 = pCar->fFinalSpeed * tsin[iYawTemp3];
-        pCar->nYaw3 = getangle(40.0, fSinVelocity2);// Handle rear wall collision - adjust yaw by redirecting backward momentum
+        pCar->nActualYaw = getangle(40.0, fSinVelocity2);// Handle rear wall collision - adjust yaw by redirecting backward momentum
         pCar->fFinalSpeed = (float)sqrt(fSinVelocity2 * fSinVelocity2 + 1600.0);
       }
     }
@@ -1397,7 +1397,7 @@ void showmap(uint8 *pScrPtr, int iCarIdx)
   fMapScale = cur_mapsize;                      // Set base map scale
   if ((cheat_mode & CHEAT_MODE_DOUBLE_TRACK) != 0)             // Double scale if cheat mode bit 0x1000 is set
     fMapScale = cur_mapsize * 2.0f;
-  iChunk2 = Car[iCarIdx].nChunk2;               // Calculate view angle based on car direction
+  iChunk2 = Car[iCarIdx].nReferenceChunk;               // Calculate view angle based on car direction
   iNextChunk = iChunk2 + 1;
   if (iChunk2 + 1 == TRAK_LEN)
     iNextChunk ^= TRAK_LEN;
@@ -1406,7 +1406,7 @@ void showmap(uint8 *pScrPtr, int iCarIdx)
   fDeltaY = pCurrChunkData->pointAy[3].fY - pNextChunkData->pointAy[3].fY;
   fDeltaX = pCurrChunkData->pointAy[3].fX - pNextChunkData->pointAy[3].fX;
   iViewAngle = (4096 - (uint16)getangle(fDeltaX, fDeltaY)) & 0x3FFF;
-  pCarChunkData = &localdata[Car[iCarIdx].nChunk2];
+  pCarChunkData = &localdata[Car[iCarIdx].nReferenceChunk];
   dInvScale = 1.0 / fMapScale;                  // Setup coordinate transformation for map display
   dRelX = (pCarChunkData->pointAy[3].fX - localdata[0].pointAy[3].fX) * dInvScale;
   dRelY = (pCarChunkData->pointAy[3].fY - localdata[0].pointAy[3].fY) * dInvScale;

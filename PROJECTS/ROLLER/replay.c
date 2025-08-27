@@ -514,7 +514,7 @@ void startreplay()
               Car[iCarArrayIndex].fFinalSpeed = 0.0;
               Car[iCarArrayIndex].fSpeedOverflow = 0.0;
               finished_car[iNonCompetitorIndex] = -1;
-              Car[iCarArrayIndex].nChunk2 = Car[iCarArrayIndex].nCurrChunk;
+              Car[iCarArrayIndex].nReferenceChunk = Car[iCarArrayIndex].nCurrChunk;
               Car[iCarArrayIndex].nCurrChunk = -1;
               Car[iCarArrayIndex].pos.fZ = (float)dZCoordinate + 1000.0f;
             }

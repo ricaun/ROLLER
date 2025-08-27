@@ -2904,7 +2904,7 @@ void enginesounds(int iFocusCarIndex)
           + pChunkData->pointAy[2].fX * pFocusCar->pos.fX
           + pChunkData->pointAy[2].fZ * pFocusCar->pos.fZ
           - pChunkData->pointAy[3].fZ;
-        iCarYaw = pFocusCar->nYaw3;
+        iCarYaw = pFocusCar->nActualYaw;
         dSpeedCos = pFocusCar->fFinalSpeed * tcos[iCarYaw];
         dSpeedSin = pFocusCar->fFinalSpeed * tsin[iCarYaw];
         fListenerDirX = (float)(pChunkData->pointAy[0].fY * dSpeedSin + pChunkData->pointAy[0].fX * dSpeedCos);
@@ -2913,7 +2913,7 @@ void enginesounds(int iFocusCarIndex)
       }
       iChunkIdx = pFocusCar->nCurrChunk;
       if (iChunkIdx == -1)
-        iChunkIdx = pFocusCar->nChunk2;
+        iChunkIdx = pFocusCar->nReferenceChunk;
     }
     if (DriveView[0] != 3 && DriveView[0] != 6) {
       if (Car[iFocusCarIndex].iControlType == 3) {
@@ -2949,7 +2949,7 @@ void enginesounds(int iFocusCarIndex)
         if (iEnableSound) {
           iCarChunk = Car[iCarIndex].nCurrChunk;
           if (iCarChunk == -1)
-            iCarChunk = Car[iCarIndex].nChunk2;
+            iCarChunk = Car[iCarIndex].nReferenceChunk;
           iChunkDiff = iCarChunk - iChunkIdx;
           if (iChunkDiff < 0)
             iChunkDiff += TRAK_LEN;
@@ -2981,7 +2981,7 @@ void enginesounds(int iFocusCarIndex)
                 + pCarChunkData->pointAy[2].fX * pCurrentCar->pos.fX
                 + pCarChunkData->pointAy[2].fZ * pCurrentCar->pos.fZ
                 - pCarChunkData->pointAy[3].fZ;
-              iYaw3 = pCurrentCar->nYaw3;
+              iYaw3 = pCurrentCar->nActualYaw;
               dCurrentCarSpeedCos = pCurrentCar->fFinalSpeed * tcos[iYaw3];
               dCurrentCarSpeedSin = pCurrentCar->fFinalSpeed * tsin[iYaw3];
               fCarVelX = (float)(pCarChunkData->pointAy[0].fY * dCurrentCarSpeedSin + pCarChunkData->pointAy[0].fX * dCurrentCarSpeedCos);
@@ -3213,7 +3213,7 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
     } else {
       enginedelay[iCarIdx].engineSoundData[delaywritex].iEngine2Vol = 0;
     }
-    if (Car[iCarIdx].iControlType != 3 || (iYaw = Car[iCarIdx].nYaw, iYaw3 = Car[iCarIdx].nYaw3, iYaw == iYaw3)) {
+    if (Car[iCarIdx].iControlType != 3 || (iYaw = Car[iCarIdx].nYaw, iYaw3 = Car[iCarIdx].nActualYaw, iYaw == iYaw3)) {
       iFinalSkidVolume = 0;
     } else {
       iYawDifference = iYaw - iYaw3 + (iYaw - iYaw3 < 0 ? 0x4000 : 0);// Calculate angular difference between input yaw and actual yaw

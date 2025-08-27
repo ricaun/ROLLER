@@ -228,11 +228,11 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
   {
     fCar1PosX2 = pCar1->pos2.fX;
     fCar1PosY2 = pCar1->pos2.fY;
-    pData2_2 = &localdata[pCar2->nChunk2];
+    pData2_2 = &localdata[pCar2->nReferenceChunk];
     dRelativeX2 = pData2_2->pointAy[0].fY * pCar2->pos2.fY + pData2_2->pointAy[0].fX * pCar2->pos2.fX + pData2_2->pointAy[0].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fX;
     dRelativeY2 = pData2_2->pointAy[1].fX * pCar2->pos2.fX + pData2_2->pointAy[1].fY * pCar2->pos2.fY + pData2_2->pointAy[1].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fY;
     dRelativeZ2 = pData2_2->pointAy[2].fX * pCar2->pos2.fX + pData2_2->pointAy[2].fY * pCar2->pos2.fY + pData2_2->pointAy[2].fZ * pCar2->pos2.fZ - pData2_2->pointAy[3].fZ;
-    pData1_1 = &localdata[pCar1->nChunk2];
+    pData1_1 = &localdata[pCar1->nReferenceChunk];
     dRelativeZ2Copy = dRelativeZ2;
     dTransformedY2 = dRelativeY2 + pData1_1->pointAy[3].fY;
     dTransformedX2 = dRelativeX2 + pData1_1->pointAy[3].fX;
@@ -293,13 +293,13 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
       dCar2NewVelocity = (fCar2VelX * (fCar2Mass - fCar1Mass * 0.6) + fCar1VelX * (fCar1Mass * 1.6)) * dInverseTotalMass;
       fCar1NewVelY = (float)dCar1NewVelY;
       fCar2NewVelX = (float)(dCar2NewVelocity * tcos[iVelocityAngle] - fCar2VelY * tsin[iVelocityAngle]);
-      iCar1RotAngle = ((uint16)pCar1->nYaw3 - (int16)iCollisionDirection) & 0x3FFF;
+      iCar1RotAngle = ((uint16)pCar1->nActualYaw - (int16)iCollisionDirection) & 0x3FFF;
       fCar2NewVelY = (float)(dCar2NewVelocity * tsin[iVelocityAngle] + fCar2VelY * tcos[iVelocityAngle]);
       if ((unsigned int)iCar1RotAngle > 0x2000)
-        iCar1RotAngle = (((uint16)pCar1->nYaw3 - (int16)iCollisionDirection) & 0x3FFF) - 0x4000;
-      iCar2RotAngle = ((uint16)pCar2->nYaw3 - (int16)iCollisionDirection) & 0x3FFF;
+        iCar1RotAngle = (((uint16)pCar1->nActualYaw - (int16)iCollisionDirection) & 0x3FFF) - 0x4000;
+      iCar2RotAngle = ((uint16)pCar2->nActualYaw - (int16)iCollisionDirection) & 0x3FFF;
       if ((unsigned int)iCar2RotAngle > 0x2000)
-        iCar2RotAngle = (((uint16)pCar2->nYaw3 - (int16)iCollisionDirection) & 0x3FFF) - 0x4000;
+        iCar2RotAngle = (((uint16)pCar2->nActualYaw - (int16)iCollisionDirection) & 0x3FFF) - 0x4000;
       fSpeedDifference = (float)fabs(fCar2VelX - fCar1VelX);
       dMomentumFactor = 1.0 / ((fCar2Mass + fCar1Mass) * 2048.0);
       //_CHP();
@@ -324,8 +324,8 @@ void testcoll(tCar *pCar1, tCar *pCar2, int iDistanceSteps)
       else
         iSoundEffectId = 7;
       sfxpend(iSoundEffectId, iDriverIdx, (int)(fSpeedDifference * 32768.0 * 0.025));// Play collision sound effect based on impact severity
-      pCar1->nYaw3 = getangle(fCar1NewVelX, fCar1NewVelY);
-      pCar2->nYaw3 = getangle(fCar2NewVelX, fCar2NewVelY);
+      pCar1->nActualYaw = getangle(fCar1NewVelX, fCar1NewVelY);
+      pCar2->nActualYaw = getangle(fCar2NewVelX, fCar2NewVelY);
       fCar1FinalSpeed = (float)sqrt(fCar1NewVelX * fCar1NewVelX + fCar1NewVelY * fCar1NewVelY);
       SetEngine(pCar1, fCar1FinalSpeed);
       fCar2FinalSpeed = (float)sqrt(fCar2NewVelX * fCar2NewVelX + fCar2NewVelY * fCar2NewVelY);
