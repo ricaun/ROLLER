@@ -1687,7 +1687,7 @@ void CheckNewNodes()
         //gssCommsGetBlock(pPacket2, &recordPacket, 16);
         if (recordPacket.fRecordLap < (double)RecordLaps[TrackLoad]) {
           RecordLaps[TrackLoad] = recordPacket.fRecordLap;
-          RecordCars[TrackLoad] = (__int16)recordPacket.unRecordCar;
+          RecordCars[TrackLoad] = (int16)recordPacket.unRecordCar;
 
           strncpy(RecordNames[TrackLoad], recordPacket.szRecordName, 9);
           //for (j = 0; j < 9; *((_BYTE *)&fudge_wait + 9 * TrackLoad + j + 3) = recordPacket.szRecordName[j - 1])// fudge_wait is offset into RecordNames
