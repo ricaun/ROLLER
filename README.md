@@ -20,6 +20,8 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 * Bug: quitting a race in championship mode causes the results page to show you multiple times
 * Bug: announcer can say multiple things at the same time
 * Bug: wall backfaces are not drawn
+* Bug: clouds do not work
+* Linux only: replay positioning is chunky
 * Implement CD audio
 * Implement modern networking
 
