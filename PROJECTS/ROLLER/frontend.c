@@ -1013,7 +1013,7 @@ void select_screen()
     front_text(front_vga[2], &language_buffer[512], font2_ascii, font2_offsets, sel_posns[6].x + 132, sel_posns[6].y + 7, 0x8Fu, 2u);
     front_text(front_vga[2], &config_buffer[640], font2_ascii, font2_offsets, sel_posns[7].x + 132, sel_posns[7].y + 7, 0x8Fu, 2u);
     if (game_type == 1) {
-      display_block(scrbuf, front_vga[14], (TrackLoad - 1) % 8, 500, 300, 0);
+      display_block(scrbuf, front_vga[14], (TrackLoad - 1) / 8, 500, 300, 0);
       if (TrackLoad <= 0) {
         if (TrackLoad)
           front_text(front_vga[2], "EDITOR", font2_ascii, font2_offsets, 190, 350, 0x8Fu, 0);

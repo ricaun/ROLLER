@@ -369,6 +369,7 @@ void RaceResult()
   int iTimeWork; // [esp+2Ch] [ebp-20h]
 
   // init
+  fWinnerTime = 0; //added by ROLLER
   tick_on = 0;
   iSavedScreenSize = scr_size;
   SVGA_ON = -1;
