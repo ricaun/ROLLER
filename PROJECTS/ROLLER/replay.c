@@ -471,12 +471,12 @@ void startreplay()
 
         // CHEAT_MODE_TINY_CARS
         if ((buffer[0] & 0x80u) == 0) {
-          cheat_mode |= CHEAT_MODE_TINY_CARS;
+          cheat_mode &= ~CHEAT_MODE_TINY_CARS;
           //iCheatFlags4 = cheat_mode;
           //BYTE1(iCheatFlags4) = BYTE1(cheat_mode) & 0x7F;
           //cheat_mode = iCheatFlags4;
         } else {
-          cheat_mode &= ~CHEAT_MODE_TINY_CARS;
+          cheat_mode |= CHEAT_MODE_TINY_CARS;
           //iCheatFlags3 = cheat_mode;
           //BYTE1(iCheatFlags3) = BYTE1(cheat_mode) | 0x80;
           //cheat_mode = iCheatFlags3;
