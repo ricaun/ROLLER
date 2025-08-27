@@ -2331,79 +2331,78 @@ int readcut()
 
 //-------------------------------------------------------------------------------------------------
 //00066CC0
-int displayreplay()
-{
-  return 0; /*
-  int v0; // edi
-  int v1; // esi
-  int i; // ecx
-  int j; // eax
-  int v4; // edx
-  int v5; // ecx
-  int v6; // eax
-  int result; // eax
+void displayreplay()
+{                                               // Apply scanline effect for disabled replay frames (type 2)
+  uint8 *pScreenBuffer; // edi
+  int iWindowWidth; // esi
+  int iHeightLoop; // ecx
+  int iWidthLoop; // eax
+  uint8 *pPixelPtr; // edx
+  int iRowIndex; // ecx
+  uint8 *pRowPtr; // eax
 
   if (replaytype == 2 && readdisable(currentreplayframe)) {
-    v0 = scrbuf;
-    v1 = winw;
-    for (i = 0; i < winh; i += 2) {
-      for (j = 0; j < v1; *(_BYTE *)(v4 + v1 * i) = 0) {
-        v4 = v0 + j;
-        j += 2;
+    pScreenBuffer = scrbuf;                     // Get screen buffer and window dimensions for scanline processing
+    iWindowWidth = winw;
+    for (iHeightLoop = 0; iHeightLoop < winh; iHeightLoop += 2)// First pass: Set every other pixel to black on even rows (scanlines)
+    {
+      for (iWidthLoop = 0; iWidthLoop < iWindowWidth; pPixelPtr[iWindowWidth * iHeightLoop] = 0) {
+        pPixelPtr = &pScreenBuffer[iWidthLoop];
+        iWidthLoop += 2;
       }
     }
-    v5 = 1;
-    winw = v1;
-    scrbuf = v0;
-    while (v5 < winh) {
-      v6 = scrbuf + winw * v5;
-      v5 += 2;
-      memset(v6, 0, winw);
+    iRowIndex = 1;                              // Second pass: Clear entire odd rows to create horizontal scanline effect
+    winw = iWindowWidth;
+    scrbuf = pScreenBuffer;
+    while (iRowIndex < winh) {
+      pRowPtr = &scrbuf[winw * iRowIndex];
+      iRowIndex += 2;
+      memset(pRowPtr, 0, winw);
     }
   }
-  if (filingmenu) {
+  if (filingmenu)                             // Handle file menu dialogs for replay management
+  {
     switch (filingmenu) {
       case 1:
-        fileselect(160, 20, &language_buffer_variable_49, aReplaysGss, 1);
+        fileselect(10, 10, 310, 125, 160, 20, &language_buffer[3136], "..\\REPLAYS\\*.GSS", 1);// Load replay dialog
         break;
       case 2:
-        fileselect(160, 20, &language_buffer_variable_50, aReplaysGss, 2);
+        fileselect(10, 10, 310, 140, 160, 20, &language_buffer[3200], "..\\REPLAYS\\*.GSS", 2);// Save replay dialog
         break;
       case 3:
-        fileselect(160, 20, &language_buffer_variable_51, aReplaysGss, 3);
+        fileselect(10, 10, 310, 125, 160, 20, &language_buffer[3264], "..\\REPLAYS\\*.GSS", 3);// Delete replay dialog
         break;
       case 4:
-        fileselect(160, 20, &language_buffer_variable_53, aReplaysGss, 4);
+        fileselect(10, 10, 310, 140, 160, 20, &language_buffer[3392], "..\\REPLAYS\\*.GSS", 4);// Assemble replay dialog
         break;
       case 5:
-        lsd(40, 37, 280, 107);
+        lsd(40, 37, 280, 107);                  // Show LSD (replay statistics) dialog
         break;
       case 6:
-        warning(&language_buffer_variable_54);
+        warning(122, 55, 198, 85, &language_buffer[3456]);// Show warning dialogs for various replay operations
         break;
       case 7:
-        warning(language_buffer_variable_55);
+        warning(112, 55, 208, 85, &language_buffer[3520]);
         break;
       case 8:
-        warning(&language_buffer_variable_56);
+        warning(82, 55, 238, 85, &language_buffer[3584]);
         break;
       case 9:
-        warning(language_buffer_variable_57);
+        warning(40, 55, 280, 85, &language_buffer[3648]);
         break;
       default:
         break;
     }
   }
-  if (replaypanel) {
+  if (replaypanel)                            // Validate replay panel display based on screen mode and size
+  {
     if ((!SVGA_ON || scr_size != 128) && (SVGA_ON || scr_size != 64)) {
       replaypanel = 0;
       controlicon = 9;
     }
   }
-  result = replaypanel;
-  if (replaypanel)
-    return displaycontrolpanel();
-  return result;*/
+  if (replaypanel)                            // Display control panel if replay panel is active
+    displaycontrolpanel();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2555,9 +2554,9 @@ void lsd(int iX1, int iY1, int iX2, int iY2)
 
 //-------------------------------------------------------------------------------------------------
 //000671D0
-int scandirectory(int a1)
+void scandirectory(const char *szDirectory)
 {
-  return 0; /*
+  /*
   int v1; // ebp
   char *v2; // eax
   int v3; // edx
@@ -2593,131 +2592,130 @@ int scandirectory(int a1)
 
 //-------------------------------------------------------------------------------------------------
 //000672C0
-char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8, int a9)
+void fileselect(int iBoxX0, int iBoxY0, int iBoxX1, int iBoxY1, int iTextX, int iTextY, const char *szFilename, const char *szDirectory, int iFileIdx)
 {
-  return 0; /*
-  int v9; // ebp
-  char *v10; // edi
-  char *v11; // esi
-  char v12; // al
-  char v13; // al
-  char v14; // al
-  char v15; // dl
-  int v16; // ebp
-  char *v17; // edi
-  char *v18; // esi
-  char v19; // al
-  char v20; // al
-  int v21; // ebp
-  char *v22; // edi
-  char *v23; // esi
-  char v24; // al
-  char v25; // al
-  int v26; // ebp
-  char *v27; // edi
-  char *v28; // esi
-  char v29; // al
-  char v30; // al
-  int v31; // ebp
-  char *v32; // edi
-  char *v33; // esi
-  char v34; // al
-  char v35; // al
-  unsigned int v36; // kr08_4
-  unsigned int v37; // kr0C_4
-  int v38; // ecx
-  int v39; // ebp
-  int v40; // edi
-  char *v41; // edx
-  unsigned int v42; // kr14_4
-  unsigned int v43; // ebx
-  int v44; // esi
-  char result; // al
-  __int64 v46; // [esp+0h] [ebp-48h] BYREF
-  int v47; // [esp+8h] [ebp-40h]
-  int v48; // [esp+Ch] [ebp-3Ch]
-  int v49; // [esp+10h] [ebp-38h]
-  int v50; // [esp+14h] [ebp-34h]
-  int v51; // [esp+18h] [ebp-30h]
-  int v52; // [esp+1Ch] [ebp-2Ch]
-  int v53; // [esp+20h] [ebp-28h]
-  int v54; // [esp+24h] [ebp-24h]
-  int v55; // [esp+2Ch] [ebp-1Ch]
-  int v56; // [esp+30h] [ebp-18h]
-  int v57; // [esp+34h] [ebp-14h]
-  int v58; // [esp+38h] [ebp-10h]
+  int iCurrentFile; // ebp
+  char *szDestPtr; // edi
+  char *szSourcePtr; // esi
+  char byChar1; // al
+  char byChar2; // al
+  char byKeyCode; // al
+  char byProcessedKey; // dl
+  int iLeftNavFile; // ebp
+  char *szLeftDestPtr; // edi
+  char *szLeftSourcePtr; // esi
+  char byLeftChar1; // al
+  char byLeftChar2; // al
+  int iRightNavFile; // ebp
+  char *szRightDestPtr; // edi
+  char *szRightSourcePtr; // esi
+  char byRightChar1; // al
+  char byRightChar2; // al
+  int iUpNavFile; // ebp
+  char *szUpDestPtr; // edi
+  char *szUpSourcePtr; // esi
+  char byUpChar1; // al
+  char byUpChar2; // al
+  int iDownNavFile; // ebp
+  char *szDownDestPtr; // edi
+  char *szDownSourcePtr; // esi
+  char byDownChar1; // al
+  char byDownChar2; // al
+  unsigned int uiDelStrLen; // kr08_4
+  unsigned int uiBackspaceLen; // kr0C_4
+  int iInputStrLen; // ecx
+  int iDisplayFile; // ebp
+  int iLoopCounter; // edi
+  int iDisplayX; // ebx
+  int iDisplayY; // ecx
+  const char *szDisplayName; // edx
+  unsigned int uiCursorLen; // kr14_4
+  unsigned int uiCursorPos; // ebx
+  int iScreenWidth; // esi
+  int iUpArrowX; // ecx
+  int iDownArrowX; // ecx
+  tPolyParams params; // [esp+0h] [ebp-48h] BYREF
+  int iRightEdge; // [esp+2Ch] [ebp-1Ch]
+  int iEditMode; // [esp+30h] [ebp-18h]
+  int iLeftEdge; // [esp+34h] [ebp-14h]
+  int iBottomEdge; // [esp+38h] [ebp-10h]
 
-  v57 = a1;
-  if (filingmenu == 2 || filingmenu == 4)
-    v56 = -1;
+  iLeftEdge = iBoxX0;                           // Store left edge coordinate in local variable
+  if (filingmenu == 2 || filingmenu == 4)     // Check if in save mode (2) or assemble mode (4) to enable text editing
+    iEditMode = -1;
   else
-    v56 = 0;
-  if (SVGA_ON) {
-    a3 *= 2;
-    a2 *= 2;
-    a4 *= 2;
-    v57 *= 2;
+    iEditMode = 0;
+  if (SVGA_ON)                                // Scale coordinates by 2 if SVGA mode is enabled
+  {
+    iBoxX1 *= 2;
+    iBoxY0 *= 2;
+    iBoxY1 *= 2;
+    iLeftEdge *= 2;
   }
-  v47 = a3;
-  v48 = a2;
-  v50 = a2;
-  v52 = a4;
-  v53 = a3;
-  v54 = a4;
-  v46 = 0x400200003LL;
-  v49 = v57;
-  v51 = v57;
-  POLYFLAT(scrbuf, &v46);
-  prt_centrecol(rev_vga_variable_1, a7, a5, a6, 231);
-  if (a9 != lastfile) {
+  params.vertices[0].x = iBoxX1;                // Set up polygon vertices for file selection background rectangle
+  params.vertices[0].y = iBoxY0;
+  params.vertices[1].y = iBoxY0;
+  params.vertices[2].y = iBoxY1;
+  params.vertices[3].x = iBoxX1;
+  params.vertices[3].y = iBoxY1;
+  params.iSurfaceType = 2097155;
+  params.uiNumVerts = 4;
+  params.vertices[1].x = iLeftEdge;
+  params.vertices[2].x = iLeftEdge;
+  POLYFLAT(scrbuf, &params);
+  prt_centrecol(rev_vga[1], szFilename, iTextX, iTextY, 231);
+  if (iFileIdx != lastfile)                   // If different directory selected, rescan files and reset selection
+  {
     topfile = 0;
     filefile = 0;
-    scandirectory(a8);
-    v9 = filefile;
-    lastfile = a9;
+    scandirectory(szDirectory);
+    iCurrentFile = filefile;
+    lastfile = iFileIdx;
     if (!filefiles)
-      v9 = 0;
-    if (v9 < topfile)
+      iCurrentFile = 0;
+    if (iCurrentFile < topfile)
       topfile -= 3;
-    if (v9 >= topfile + 18)
+    if (iCurrentFile >= topfile + 18)
       topfile += 3;
-    v10 = selectfilename;
-    v11 = &filename[9 * v9];
-    filefile = v9;
+    szDestPtr = selectfilename;
+    szSourcePtr = filename[iCurrentFile];
+    filefile = iCurrentFile;
     do {
-      v12 = *v11;
-      *v10 = *v11;
-      if (!v12)
+      byChar1 = *szSourcePtr;
+      *szDestPtr = *szSourcePtr;
+      if (!byChar1)
         break;
-      v13 = v11[1];
-      v11 += 2;
-      v10[1] = v13;
-      v10 += 2;
-    } while (v13);
+      byChar2 = szSourcePtr[1];
+      szSourcePtr += 2;
+      szDestPtr[1] = byChar2;
+      szDestPtr += 2;
+    } while (byChar2);
   }
-  while (fatkbhit()) {
-    v14 = fatgetch();
-    v15 = v14;
-    if (v14) {
-      if ((unsigned __int8)v14 < 0xDu) {
-        if (v14 == 8) {
-          v37 = strlen(selectfilename) + 1;
-          if ((int)(v37 - 1) > 0)
-            filesel_variable_1[v37 - 1] = 0;
+  while (fatkbhit())                          // Main keyboard input processing loop
+  {
+    byKeyCode = fatgetch();
+    byProcessedKey = byKeyCode;
+    if (byKeyCode) {
+      if ((uint8)byKeyCode < 0xDu) {
+        if (byKeyCode == 8) {
+          uiBackspaceLen = (uint32)strlen(selectfilename) + 1;
+          if ((int)(uiBackspaceLen - 1) > 0)
+            selectfilename[strlen(selectfilename) - 1] = 0;
+            //filesel_variable_1[uiBackspaceLen - 1] = 0;
         } else {
         LABEL_85:
-          if ((unsigned __int8)v14 > 0x39u)
-            v15 = v14 & 0xDF;
-          v38 = strlen(selectfilename);
-          if (v38 <= 7
-            && ((unsigned __int8)v15 >= 0x41u && (unsigned __int8)v15 <= 0x5Au
-                || (unsigned __int8)v15 >= 0x30u && (unsigned __int8)v15 <= 0x39u)) {
-            selectfilename[v38] = v15;
-            selectfilename_variable_1[v38] = 0;
+          if ((uint8)byKeyCode > 0x39u)
+            byProcessedKey = byKeyCode & 0xDF;
+          iInputStrLen = (uint32)strlen(selectfilename);
+          if (iInputStrLen <= 7
+            && ((uint8)byProcessedKey >= 0x41u && (uint8)byProcessedKey <= 0x5Au
+                || (uint8)byProcessedKey >= 0x30u && (uint8)byProcessedKey <= 0x39u)) {
+            selectfilename[iInputStrLen] = byProcessedKey;
+            selectfilename[iInputStrLen + 1] = 0;
           }
         }
-      } else if ((unsigned __int8)v14 <= 0xDu) {
-        sfxsample(v46);
+      } else if ((uint8)byKeyCode <= 0xDu) {
+        sfxsample(83, 0x8000);
         switch (filingmenu) {
           case 1:
             loadreplay();
@@ -2744,10 +2742,10 @@ char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8
             rotpoint = currentreplayframe;
             break;
           default:
-            continue;
+            continue;                           // Execute action based on filing menu mode (1=Load, 2=Save, 3=Delete, 4=Assemble)
         }
       } else {
-        if (v14 != 27)
+        if (byKeyCode != 27)
           goto LABEL_85;
         filingmenu = 0;
         disciconpressed = 0;
@@ -2756,148 +2754,159 @@ char fileselect(int a1, int a2, int a3, int a4, int a5, int a6, char *a7, int a8
     } else {
       switch ((unsigned __int8)fatgetch()) {
         case 'H':
-          v26 = filefile - 3;
+          iUpNavFile = filefile - 3;
           if (filefile - 3 < 0)
-            v26 = 0;
+            iUpNavFile = 0;
           if (!filefiles)
-            v26 = 0;
-          if (v26 < topfile)
+            iUpNavFile = 0;
+          if (iUpNavFile < topfile)
             topfile -= 3;
-          if (v26 >= topfile + 18)
+          if (iUpNavFile >= topfile + 18)
             topfile += 3;
-          v27 = selectfilename;
-          v28 = &filename[9 * v26];
-          filefile = v26;
+          szUpDestPtr = selectfilename;
+          szUpSourcePtr = filename[iUpNavFile];
+          filefile = iUpNavFile;
           do {
-            v29 = *v28;
-            *v27 = *v28;
-            if (!v29)
+            byUpChar1 = *szUpSourcePtr;
+            *szUpDestPtr = *szUpSourcePtr;
+            if (!byUpChar1)
               break;
-            v30 = v28[1];
-            v28 += 2;
-            v27[1] = v30;
-            v27 += 2;
-          } while (v30);
+            byUpChar2 = szUpSourcePtr[1];
+            szUpSourcePtr += 2;
+            szUpDestPtr[1] = byUpChar2;
+            szUpDestPtr += 2;
+          } while (byUpChar2);
           break;
         case 'K':
-          v16 = filefile - 1;
+          iLeftNavFile = filefile - 1;
           if (filefile - 1 < 0)
-            v16 = 0;
+            iLeftNavFile = 0;
           if (!filefiles)
-            v16 = 0;
-          if (v16 < topfile)
+            iLeftNavFile = 0;
+          if (iLeftNavFile < topfile)
             topfile -= 3;
-          if (v16 >= topfile + 18)
+          if (iLeftNavFile >= topfile + 18)
             topfile += 3;
-          v17 = selectfilename;
-          v18 = &filename[9 * v16];
-          filefile = v16;
+          szLeftDestPtr = selectfilename;
+          szLeftSourcePtr = filename[iLeftNavFile];
+          filefile = iLeftNavFile;
           do {
-            v19 = *v18;
-            *v17 = *v18;
-            if (!v19)
+            byLeftChar1 = *szLeftSourcePtr;
+            *szLeftDestPtr = *szLeftSourcePtr;
+            if (!byLeftChar1)
               break;
-            v20 = v18[1];
-            v18 += 2;
-            v17[1] = v20;
-            v17 += 2;
-          } while (v20);
+            byLeftChar2 = szLeftSourcePtr[1];
+            szLeftSourcePtr += 2;
+            szLeftDestPtr[1] = byLeftChar2;
+            szLeftDestPtr += 2;
+          } while (byLeftChar2);
           break;
         case 'M':
-          v21 = filefile + 1;
+          iRightNavFile = filefile + 1;
           if (filefile + 1 >= filefiles)
-            v21 = filefiles - 1;
+            iRightNavFile = filefiles - 1;
           if (!filefiles)
-            v21 = 0;
-          if (v21 < topfile)
+            iRightNavFile = 0;
+          if (iRightNavFile < topfile)
             topfile -= 3;
-          if (v21 >= topfile + 18)
+          if (iRightNavFile >= topfile + 18)
             topfile += 3;
-          v22 = selectfilename;
-          v23 = &filename[9 * v21];
-          filefile = v21;
+          szRightDestPtr = selectfilename;
+          szRightSourcePtr = filename[iRightNavFile];
+          filefile = iRightNavFile;
           do {
-            v24 = *v23;
-            *v22 = *v23;
-            if (!v24)
+            byRightChar1 = *szRightSourcePtr;
+            *szRightDestPtr = *szRightSourcePtr;
+            if (!byRightChar1)
               break;
-            v25 = v23[1];
-            v23 += 2;
-            v22[1] = v25;
-            v22 += 2;
-          } while (v25);
+            byRightChar2 = szRightSourcePtr[1];
+            szRightSourcePtr += 2;
+            szRightDestPtr[1] = byRightChar2;
+            szRightDestPtr += 2;
+          } while (byRightChar2);
           break;
         case 'P':
-          v31 = filefile + 3;
+          iDownNavFile = filefile + 3;
           if (filefile + 3 >= filefiles)
-            v31 = filefiles - 1;
+            iDownNavFile = filefiles - 1;
           if (!filefiles)
-            v31 = 0;
-          if (v31 < topfile)
+            iDownNavFile = 0;
+          if (iDownNavFile < topfile)
             topfile -= 3;
-          if (v31 >= topfile + 18)
+          if (iDownNavFile >= topfile + 18)
             topfile += 3;
-          v32 = selectfilename;
-          v33 = &filename[9 * v31];
-          filefile = v31;
+          szDownDestPtr = selectfilename;
+          szDownSourcePtr = filename[iDownNavFile];
+          filefile = iDownNavFile;
           do {
-            v34 = *v33;
-            *v32 = *v33;
-            if (!v34)
+            byDownChar1 = *szDownSourcePtr;
+            *szDownDestPtr = *szDownSourcePtr;
+            if (!byDownChar1)
               break;
-            v35 = v33[1];
-            v33 += 2;
-            v32[1] = v35;
-            v32 += 2;
-          } while (v35);
+            byDownChar2 = szDownSourcePtr[1];
+            szDownSourcePtr += 2;
+            szDownDestPtr[1] = byDownChar2;
+            szDownDestPtr += 2;
+          } while (byDownChar2);
           break;
         case 'S':
-          v36 = strlen(selectfilename) + 1;
-          if ((int)(v36 - 1) > 0)
-            filesel_variable_1[v36 - 1] = 0;
+          uiDelStrLen = (uint32)strlen(selectfilename) + 1;
+          if ((int)(uiDelStrLen - 1) > 0)
+            selectfilename[strlen(selectfilename) - 1] = 0;
+            //filesel_variable_1[uiDelStrLen - 1] = 0;// reference into selectfilename
           break;
         default:
-          continue;
+          continue;                             // Handle arrow key navigation (H=Up, K=Left, M=Right, P=Down, S=Delete)
       }
     }
   }
-  v55 = v57 + 20;
-  v39 = filefile;
-  v40 = 0;
-  v58 = a6 + 20;
+  iRightEdge = iLeftEdge + 20;
+  iDisplayFile = filefile;
+  iLoopCounter = 0;
+  iBottomEdge = iTextY + 20;
   do {
-    filefile = v39;
-    if (v40 + topfile < filefiles) {
-      v41 = &filename[9 * v40 + 9 * topfile];
-      if (v40 == v39 - topfile)
-        prt_string(rev_vga_variable_1, v41);
+    filefile = iDisplayFile;                    // Display up to 18 files in a 3x6 grid layout
+    if (iLoopCounter + topfile < filefiles) {
+      iDisplayX = 100 * (iLoopCounter % 3) + iRightEdge;
+      iDisplayY = iBottomEdge + 10 * (iLoopCounter / 3);
+      szDisplayName = &filename[iLoopCounter][9 * topfile];
+      if (iLoopCounter == iDisplayFile - topfile)
+        prt_string(rev_vga[1], szDisplayName, iDisplayX, iDisplayY);
       else
-        prt_stringcol(rev_vga_variable_1, v41, 100 * (v40 % 3) + v55, v58 + 10 * (v40 / 3), 131);
+        prt_stringcol(rev_vga[1], szDisplayName, iDisplayX, iDisplayY, 131);
     }
-    ++v40;
-    v39 = filefile;
-  } while (v40 < 18);
-  if (v56) {
-    v42 = strlen(selectfilename) + 1;
-    v43 = v42 - 1;
-    if (frames % 18 >= 9) {
-      selectfilename[v43] = 0;
+    ++iLoopCounter;
+    iDisplayFile = filefile;
+  } while (iLoopCounter < 18);
+  if (iEditMode) {
+    uiCursorLen = (uint32)strlen(selectfilename) + 1;
+    uiCursorPos = uiCursorLen - 1;
+    if (frames % 18 >= 9)                     // Animate blinking cursor for filename input (shows underscore every 9 frames)
+    {
+      selectfilename[uiCursorPos] = 0;
     } else {
-      selectfilename[v43] = 95;
-      selectfilename_variable_1[v43] = 0;
+      selectfilename[uiCursorPos] = 95;
+      selectfilename[uiCursorPos + 1] = 0;
     }
-    prt_stringcol(rev_vga_variable_1, selectfilename, v57 + 20, a6 + 100, 255);
-    selectfilename[v42 - 1] = 0;
+    prt_stringcol(rev_vga[1], selectfilename, iLeftEdge + 20, iTextY + 100, 255);
+    selectfilename[uiCursorLen - 1] = 0;
   }
   if (SVGA_ON)
-    v44 = 640;
+    iScreenWidth = 640;
   else
-    v44 = 320;
-  replayicon(a6 - 3, v44, 255);
-  result = replayicon(a6 + 82, v44, 255);
-  if (!filefiles)
-    return prt_centrecol(rev_vga_variable_1, language_buffer_variable_52, a5, a6 + 44, 143);
-  return result;*/
+    iScreenWidth = 320;
+  iUpArrowX = iTextX + 128;
+  if (topfile)                                // Draw scroll up/down arrows based on current position in file list
+    replayicon(scrbuf, rev_vga[15], 79, iUpArrowX, iTextY - 3, iScreenWidth, 255);
+  else
+    replayicon(scrbuf, rev_vga[15], 78, iUpArrowX, iTextY - 3, iScreenWidth, 255);
+  iDownArrowX = iTextX + 128;
+  if (topfile + 18 >= filefiles)
+    replayicon(scrbuf, rev_vga[15], 80, iDownArrowX, iTextY + 82, iScreenWidth, 255);
+  else
+    replayicon(scrbuf, rev_vga[15], 81, iDownArrowX, iTextY + 82, iScreenWidth, 255);
+  if (!filefiles)                             // Show 'no files found' message if directory is empty
+    prt_centrecol(rev_vga[1], &language_buffer[3328], iTextX, iTextY + 44, 143);
 }
 
 //-------------------------------------------------------------------------------------------------
