@@ -1139,8 +1139,7 @@ int main(int argc, const char **argv, const char **envp)
   readptr = 0;
   winner_mode = 0;
   intro = -1;
-  //TODO: INTRO
-  //play_game(TrackLoad, 0, 0);                   // Start initial game with intro sequence
+  play_game(TrackLoad);                   // Start initial game with intro sequence
   intro = 0;
   VIEWDIST = 270;                               // Main game loop - continues until quit_game is set
   do {
