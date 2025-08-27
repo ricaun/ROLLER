@@ -320,7 +320,7 @@ void initclouds()
       iRandVal2 = rand();                       // Generate random angle2 (phi) for spherical coordinates
       
       //TODO look at this
-      iAngle2 = GetHighOrderRand(1, iRandVal2);  // Will be 0 or 1
+      iAngle2 = GetHighOrderRand(2, iRandVal2);  // Will be 0 or 1
       //iAngle2 = ((iRandVal2 << 14) - (__CFSHL__(iRandVal2 << 14 >> 31, 15) + (iRandVal2 << 14 >> 31 << 15))) >> 15;
       
       fCos1Cos2 = tcos[iAngle2] * tcos[iAngle1];// Calculate rotation matrix elements using trigonometric tables
