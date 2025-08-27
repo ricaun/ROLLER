@@ -27,7 +27,8 @@ typedef struct
   int16 nRoll;
   int16 nPitch;
   int16 nYaw;
-  int16 nPadding1;
+  //padding byte
+  //padding byte
   float fFinalSpeed;
   float fHealth;
   int iDriverIdx;
