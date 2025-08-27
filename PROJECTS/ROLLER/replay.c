@@ -1021,13 +1021,24 @@ void DoReplayData()
                 fread(&replayData, 0x1Eu, 1u, replayfile);
 
                 // Unpack X position: extract lower 24 bits and convert to float
-                iConversionBuffer = replayData.iPackedPosX << 8 >> 8;  // Sign-extend 24-bit value to 32-bit
+                iConversionBuffer = replayData.iPackedPosX & 0x00FFFFFF;  // Extract 24 bits
+                if (iConversionBuffer & 0x00800000) {  // Check if sign bit (bit 23) is set
+                  iConversionBuffer |= 0xFF000000;  // Sign extend by setting upper 8 bits
+                }
                 pReplayCar->pos.fX = (float)iConversionBuffer;
+
                 // Unpack Y position: extract lower 24 bits and convert to float  
-                iConversionBuffer = replayData.iPackedPosY << 8 >> 8;  // Sign-extend 24-bit value to 32-bit
+                iConversionBuffer = replayData.iPackedPosY & 0x00FFFFFF;
+                if (iConversionBuffer & 0x00800000) {
+                  iConversionBuffer |= 0xFF000000;
+                }
                 pReplayCar->pos.fY = (float)iConversionBuffer;
+
                 // Unpack Z position: extract lower 24 bits and convert to float
-                iConversionBuffer = replayData.iPackedPosZ << 8 >> 8;  // Sign-extend 24-bit value to 32-bit
+                iConversionBuffer = replayData.iPackedPosZ & 0x00FFFFFF;
+                if (iConversionBuffer & 0x00800000) {
+                  iConversionBuffer |= 0xFF000000;
+                }
                 pReplayCar->pos.fZ = (float)iConversionBuffer;
                 //iConversionBuffer = iPackedPosX << 8 >> 8;
                 //__asm
