@@ -15,6 +15,7 @@ int net_type = 1;           //000A6104
 int slave_pause = 0;        //000A6108
 int net_started = 0;        //000A610C
 int next_resync = 0;        //000A6110
+_NETNOW_NODE_ADDR gamers_address[4][16]; //00178070
 int gamers_playing[4];      //00178470
 char gamers_names[4][144];  //00178480
 uint32 test_mini[2];        //001786C0
@@ -42,6 +43,7 @@ int message_number;         //0017C968
 int message_node;           //0017C96C
 int read_check;             //0017C970
 int write_check;            //0017C974
+int test;                   //0017C978
 int network_mistake;        //0017C97C
 int pauser;                 //0017C980
 uint32 broadcast_mode;      //0017C984
@@ -570,115 +572,114 @@ void transmitpausetoslaves()
 //-------------------------------------------------------------------------------------------------
 //0004F880
 void send_multiple()
-{/*
-  int v0; // eax
-  int *v1; // esi
-  int v2; // edi
-  int v3; // esi
-  int v4; // eax
-  int v5; // edi
-  int v6; // edx
-  _DWORD *v7; // esi
+{
+  int iCarIdx; // eax
+  int *pTestMultiple; // esi
+  tCopyData iCopyMultipleVal2; // edi
+  int iNode; // esi
+  int iNodeIsValid; // eax
+  int iNode2; // edi
+  int iSendCopyMultiple; // edx
+  tCopyData *pCopyMultiple; // ebx
+  int *pTestMini; // esi
   int i; // eax
-  int v9; // edx
-  int v10; // edi
-  int v11; // edi
+  tCopyData iCopyMultipleVal; // edx
+  int iNode3; // edi
+  int iNode4; // edi
 
   if (network_on) {
-    p_header_variable_2 = wConsoleNode;
-    p_header_variable_1 = 1751933798;
-    p_header_variable_3 = frame_number;
+    p_header.byConsoleNode = (uint8)wConsoleNode;
+    p_header.uiId = PACKET_ID_PLAYER_CARS;                 // PACKET_ID_PLAYER_CARS
+    p_header.unFrameId = frame_number;
     if (net_type) {
-      v6 = -1;
-      if (memcmp(
-        (const char *)&copy_multiple[16 * (((_WORD)writeptr - 1) & 0x1FF) + player_to_car[0]],
-        (const char *)&copy_multiple[16 * writeptr + player_to_car[0]],
-        4)) {
-        v6 = 0;
-      }
-      if (memcmp(
-        (const char *)&copy_multiple[16 * (((_WORD)writeptr - 1) & 0x1FF) + player_to_car_variable_1],
-        (const char *)&copy_multiple[16 * writeptr + player_to_car_variable_1],
-        4)) {
-        v6 = 0;
-      }
+      iSendCopyMultiple = -1;
+      if (memcmp((const char *)&copy_multiple[((int16)writeptr - 1) & 0x1FF][player_to_car[0]], (const char *)&copy_multiple[writeptr][player_to_car[0]], 4))
+        iSendCopyMultiple = 0;
+      pCopyMultiple = copy_multiple[((int16)writeptr - 1) & 0x1FF];
+      if (memcmp((const char *)&pCopyMultiple[player_to_car[1]], (const char *)&copy_multiple[writeptr][player_to_car[1]], 4))
+        iSendCopyMultiple = 0;
       if (!frame_number)
-        v6 = 0;
-      if (v6) {
-        *((_DWORD *)&p_header + 1) = 1751933812;
-        v3 = abs32(start_multiple);
-        v4 = -1;
-        if (v3 >= 0) {
-          v11 = v3;
+        iSendCopyMultiple = 0;
+      if (iSendCopyMultiple) {
+        p_header.uiId = PACKET_ID_MULTIPLE;             // PACKET_ID_MULTIPLE
+        iNode = abs(start_multiple);
+        iNodeIsValid = -1;
+        if (iNode >= 0) {
+          iNode4 = iNode;
           do {
-            if (!v4)
+            if (!iNodeIsValid)
               break;
-            if (v3 == master || !net_players[v11])
-              v4 = -1;
-            else
-              v4 = gssCommsSendData(v3);
-            if (v4) {
-              --v11;
-              --v3;
+            if (iNode == master || !net_players[iNode4])
+              iNodeIsValid = -1;
+            else {
+              //TODO network
+              //iNodeIsValid = gssCommsSendData(&p_header, sizeof(tSyncHeader), pCopyMultiple, 1, iNode);
             }
-          } while (v3 >= 0);
+            if (iNodeIsValid) {
+              --iNode4;
+              --iNode;
+            }
+          } while (iNode >= 0);
         }
       } else {
-        v7 = &test_mini;
+        pTestMini = test_mini;
         for (i = 0; i < 2; ++i) {
-          ++v7;
-          v9 = copy_multiple[16 * writeptr + player_to_car[i]];
-          *(v7 - 1) = v9;
+          ++pTestMini;
+          iCopyMultipleVal = copy_multiple[writeptr][player_to_car[i]];
+          *(pTestMini - 1) = iCopyMultipleVal.uiFullData;
         }
-        v3 = abs32(start_multiple);
-        v4 = -1;
-        if (v3 >= 0) {
-          v10 = v3;
+        iNode = abs(start_multiple);
+        iNodeIsValid = -1;
+        if (iNode >= 0) {
+          iNode3 = iNode;
           do {
-            if (!v4)
+            if (!iNodeIsValid)
               break;
-            if (v3 == master || !net_players[v10])
-              v4 = -1;
-            else
-              v4 = gssCommsSendData(v3);
-            if (v4) {
-              --v10;
-              --v3;
+            if (iNode == master || !net_players[iNode3])
+              iNodeIsValid = -1;
+            else {
+              //TODO network
+              //iNodeIsValid = gssCommsSendData(&p_header, sizeof(tSyncHeader), test_mini, 8, iNode);
             }
-          } while (v3 >= 0);
+            if (iNodeIsValid) {
+              --iNode3;
+              --iNode;
+            }
+          } while (iNode >= 0);
         }
       }
     } else {
-      v0 = 0;
+      iCarIdx = 0;
       if (numcars > 0) {
-        v1 = (int *)&test_multiple;
+        pTestMultiple = test_multiple;
         do {
-          v2 = copy_multiple[16 * writeptr + v0++];
-          *v1++ = v2;
-        } while (v0 < numcars);
+          iCopyMultipleVal2 = copy_multiple[writeptr][iCarIdx++];
+          *pTestMultiple++ = iCopyMultipleVal2.uiFullData;
+        } while (iCarIdx < numcars);
       }
-      v3 = abs32(start_multiple);
-      v4 = -1;
-      if (v3 >= 0) {
-        v5 = v3;
+      iNode = abs(start_multiple);
+      iNodeIsValid = -1;
+      if (iNode >= 0) {
+        iNode2 = iNode;
         do {
-          if (!v4)
+          if (!iNodeIsValid)
             break;
-          v4 = v3 == master || !net_players[v5] ? -1 : gssCommsSendData(v3);
-          if (v4) {
-            --v5;
-            --v3;
+          //TODO network
+          //iNodeIsValid = iNode == master || !net_players[iNode2] ? -1 : gssCommsSendData(&p_header, sizeof(tSyncHeader), test_multiple, 64, iNode);
+          if (iNodeIsValid) {
+            --iNode2;
+            --iNode;
           }
-        } while (v3 >= 0);
+        } while (iNode >= 0);
       }
     }
-    if (v4) {
+    if (iNodeIsValid) {
       start_multiple = network_on - 1;
       ++frame_number;
     } else {
-      start_multiple = -v3;
+      start_multiple = -iNode;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1180,571 +1181,561 @@ void StartNode(int iNode)
 
 //-------------------------------------------------------------------------------------------------
 //00050A60
-int CheckNewNodes()
+void CheckNewNodes()
 {
-  return 0; /*
-  int v0; // ebx
-  int result; // eax
-  __int64 v2; // rax
-  int v3; // eax
-  int v4; // edx
-  __int64 v5; // rax
-  char *v6; // eax
-  int v7; // ebp
-  int v8; // edi
-  int v9; // esi
-  char *v10; // edi
-  char *v11; // eax
-  _DWORD *v12; // edi
-  char *v13; // eax
-  __int64 v14; // rax
-  int v15; // ebp
-  int i; // edi
-  int v17; // esi
-  _DWORD *v18; // edi
-  unsigned int v19; // eax
-  int v20; // ebp
-  char *v21; // ebx
-  char *v22; // esi
-  int v23; // ecx
-  int v24; // eax
-  int v25; // eax
-  int v26; // eax
-  int j; // eax
-  int v28; // ebp
-  __int64 v29; // rax
-  __int64 found; // rax
-  int v31; // ecx
-  int v32; // edx
-  int v33; // edx
-  int v34; // ebx
-  int v35; // eax
-  int v36; // edx
-  char *v37; // esi
-  __int16 v38; // fps
-  _BOOL1 v39; // c0
-  char v40; // c2
-  _BOOL1 v41; // c3
-  int v42; // edx
-  int v43; // [esp+0h] [ebp-18Ch] BYREF
-  int v44; // [esp+4h] [ebp-188h]
-  int v45; // [esp+8h] [ebp-184h]
-  int v46; // [esp+Ch] [ebp-180h]
-  char v47[16]; // [esp+10h] [ebp-17Ch] BYREF
-  int v48; // [esp+20h] [ebp-16Ch]
-  int v49; // [esp+24h] [ebp-168h]
-  int v50; // [esp+28h] [ebp-164h]
-  int v51; // [esp+2Ch] [ebp-160h]
-  int v52; // [esp+30h] [ebp-15Ch]
-  int v53; // [esp+34h] [ebp-158h]
-  int v54; // [esp+38h] [ebp-154h]
-  int v55; // [esp+3Ch] [ebp-150h]
-  int v56; // [esp+40h] [ebp-14Ch]
-  unsigned int v57; // [esp+44h] [ebp-148h]
-  int v58; // [esp+48h] [ebp-144h]
-  int v59; // [esp+4Ch] [ebp-140h]
-  int v60; // [esp+50h] [ebp-13Ch]
-  int v61; // [esp+54h] [ebp-138h]
-  _BYTE v62[144]; // [esp+58h] [ebp-134h] BYREF
-  _BYTE v63[32]; // [esp+E8h] [ebp-A4h] BYREF
-  char v64[12]; // [esp+108h] [ebp-84h] BYREF
-  int v65; // [esp+114h] [ebp-78h]
-  char v66[12]; // [esp+118h] [ebp-74h] BYREF
-  int v67; // [esp+124h] [ebp-68h]
-  int v68; // [esp+128h] [ebp-64h]
-  int v69; // [esp+12Ch] [ebp-60h]
-  int v70; // [esp+130h] [ebp-5Ch]
-  int v71; // [esp+134h] [ebp-58h]
-  int v72; // [esp+138h] [ebp-54h]
-  int v73; // [esp+13Ch] [ebp-50h]
-  float v74[3]; // [esp+140h] [ebp-4Ch] BYREF
-  __int16 v75; // [esp+14Eh] [ebp-3Eh]
-  char v76[4]; // [esp+150h] [ebp-3Ch] BYREF
-  int v77; // [esp+154h] [ebp-38h]
-  unsigned __int8 v78; // [esp+158h] [ebp-34h]
-  unsigned __int16 v79; // [esp+15Ah] [ebp-32h]
-  int v80; // [esp+15Ch] [ebp-30h] BYREF
-  int v81; // [esp+160h] [ebp-2Ch]
-  int *v82; // [esp+164h] [ebp-28h]
-  char *v83; // [esp+168h] [ebp-24h]
-  char *v84; // [esp+16Ch] [ebp-20h]
-  int v85; // [esp+170h] [ebp-1Ch]
+  int iNode; // edx
+  //int iMsgCopyIndex; // eax
+  int iNumGamersInSlot; // ebp
+  int iGamerIndex; // edi
+  //char *pTxInitPacketByteCmp; // edx
+  int iAddressMatchFlag; // ebx
+  //char *szAddressPtr; // eax
+  //char *szAddressEndPtr; // esi
+  int iSlotIndex; // edi
+  char *szGamerNamesPtr; // eax
+  _NETNOW_NODE_ADDR *pNetNowNodeAddr4; // edi
+  int iSlotIndex2; // eax
+  int iFoundNodeOffset; // ebp
+  int iNetworkNodeIndex; // edi
+  //char *pTxInitPacketByteCmp_1; // edx
+  int iAddressMatchFlag2; // ebx
+  //char *pNodeAddrByteCmp; // eax
+  //char *pByteCmpEnd; // esi
+  //_NETNOW_NODE_ADDR *pNetNowNodeAddr3; // edi
+  int iTimeToStart; // eax
+  int iCheckNamesResult; // ebp
+  //char *szTxInitPacketNamesItr2; // ebx
+  //char *szDefaultNamesItr2; // esi
+  //uint32 iTempCheatMode4; // ecx
+  //uint32 iTempCheatMode5; // eax
+  //uint32 iTempCheatMode6; // ebx
+  //uint32 iTempCheatMode7; // ebx
+  unsigned int uiTimerHz; // eax
+  //uint32 iTempCheatMode8; // eax
+  //uint32 iTempCheatMode9; // eax
+  int i; // eax
+  int iNodeIndex; // ebp
+  int iCheckNamesResult2; // ecx
+  //uint32 uiTempCheatMode; // edx
+  //uint32 uiTempCheatMode2; // edx
+  //uint32 iTempCheatMode3; // ebx
+  unsigned int uiTimerHz2; // eax
+  //uint32 iTempCheatMode; // eax
+  //uint32 iTempCheatMode2; // edx
+  //char *szPacketNamesIt; // ebx
+  //char *szDefaultNamesItr; // esi
+  int iPlayerIndex; // eax
+  //int j; // eax
+  int byConsoleNode; // edx
+  tTransmitInitPacket transmitInitPacket; // [esp+0h] [ebp-18Ch] BYREF
+  tMessagePacket messagePacket; // [esp+E8h] [ebp-A4h] BYREF
+  tPlayerInfoPacket playerInfoPacket; // [esp+118h] [ebp-74h] BYREF
+  tRecordPacket recordPacket; // [esp+140h] [ebp-4Ch] BYREF
+  tSyncHeader syncHeader; // [esp+150h] [ebp-3Ch] BYREF
+  //void *pPacket2; // [esp+15Ch] [ebp-30h] BYREF
+  int iMaxGamerIndex; // [esp+160h] [ebp-2Ch]
+  int *pTestSeed; // [esp+164h] [ebp-28h]
+  int iTxInitPacketNetworkSlotMinus1; // [esp+168h] [ebp-24h]
+  //_NETNOW_NODE_ADDR *szGamerAddressPtr; // [esp+16Ch] [ebp-20h]
+  int iFoundGamerIndex; // [esp+170h] [ebp-1Ch]
 
-  v82 = &test_seed;
-  while (1) {
-    v0 = (int)&v80;
-    result = gssCommsGetHeader(v76, 12, &v80);
-    if (!result)
-      return result;
-    LODWORD(v2) = v77 - 1751933793;
-    HIDWORD(v2) = active_nodes + 1;
-    switch (v77) {
-      case 1751933793:
-        v0 = 232;
-        v60 = 0;
-        v61 = 0;
-        v2 = __PAIR64__(&v43, gssCommsGetBlock(v80, &v43, 232));
-        if (network_slot >= 0) {
-          if (v61 < 0 && !I_Quit) {
-            v14 = send_broadcast(-457);
-            test = HIDWORD(v14);
-            gssCommsPostListen(v14, HIDWORD(v14), 232);
+  pTestSeed = &test_seed;                       // Initialize pointer to test seed for random number generation
+
+  //TODO networking
+  //while (gssCommsGetHeader(&syncHeader, sizeof(tSyncHeader), &pPacket2))// Main packet processing loop - handle incoming network packets from other nodes
+  while(false)
+  {                                             // Handle PACKET_ID_TRANSMIT_INIT (0x686C6361) - player initialization packets
+    switch (syncHeader.uiId) {
+      case PACKET_ID_TRANSMIT_INIT:                         // PACKET_ID_TRANSMIT_INIT
+        transmitInitPacket.iNetworkChampOn = 0;
+        transmitInitPacket.iNetworkSlot = 0;
+        //TODO networking
+        //gssCommsGetBlock(pPacket2, &transmitInitPacket, sizeof(tTransmitInitPacket));
+        if (network_slot >= 0)                // Process init packet when we are already connected (network_slot >= 0)
+        {
+          if (transmitInitPacket.iNetworkSlot < 0 && !I_Quit) {
+            send_broadcast(0xFFFFFE37);
+            test = 3;
+            //TODO networking
+            //gssCommsPostListen();
             continue;
           }
           test = 4;
-          v15 = 0;
-          for (i = 0; i < network_on; ++i) {
-            HIDWORD(v2) = &v43;
-            v0 = 0;
-            LODWORD(v2) = (char *)&address + 16 * i;
-            v17 = v2 + 16;
-            do {
-              if (*(_BYTE *)v2 != *(_BYTE *)HIDWORD(v2))
-                v0 = -1;
-              LODWORD(v2) = v2 + 1;
-              ++HIDWORD(v2);
-            } while ((_DWORD)v2 != v17);
-            if (!v0) {
-              v15 = i + 10;
-              i = network_on + 6;
+          iFoundNodeOffset = 0;
+          for (iNetworkNodeIndex = 0; iNetworkNodeIndex < network_on; ++iNetworkNodeIndex)// Search through existing network nodes to find matching address
+          {
+
+            //This byte-by-byte comparison could be simplified to: 
+            iAddressMatchFlag2 = memcmp(&address[iNetworkNodeIndex], &transmitInitPacket.address, sizeof(_NETNOW_NODE_ADDR));
+            //pTxInitPacketByteCmp_1 = (char *)&transmitInitPacket;
+            //iAddressMatchFlag2 = 0;
+            //pNodeAddrByteCmp = (char *)&address[iNetworkNodeIndex];
+            //pByteCmpEnd = pNodeAddrByteCmp + 16;
+            //do {                                   // Compare network addresses byte by byte to detect duplicate nodes
+            //  if (*pNodeAddrByteCmp != *pTxInitPacketByteCmp_1)
+            //    iAddressMatchFlag2 = -1;
+            //  ++pNodeAddrByteCmp;
+            //  ++pTxInitPacketByteCmp_1;
+            //} while (pNodeAddrByteCmp != pByteCmpEnd);
+
+            if (!iAddressMatchFlag2) {
+              iFoundNodeOffset = iNetworkNodeIndex + 10;
+              iNetworkNodeIndex = network_on + 6;
             }
           }
-          if (!v15) {
+          if (!iFoundNodeOffset) {
             test = 5;
             if (time_to_start == -1)
-              goto LABEL_163;
-            LODWORD(v2) = v60;
-            if (v60 != network_champ_on)
-              goto LABEL_163;
-            LODWORD(v2) = v61;
-            if (v61 != network_slot)
-              goto LABEL_163;
+              goto LABEL_40;
+            if (transmitInitPacket.iNetworkChampOn != network_champ_on)
+              goto LABEL_40;
+            if (transmitInitPacket.iNetworkSlot != network_slot)
+              goto LABEL_40;
             if (network_on >= 16)
-              goto LABEL_163;
+              goto LABEL_40;
             if (I_Quit)
-              goto LABEL_163;
-            test = 20;
-            LODWORD(v2) = gssCommsAddNode(&v43);
-            if ((unsigned int)v2 > 1)
-              goto LABEL_163;
+              goto LABEL_40;
+            test = 20;                          // Add new network node if all validation checks pass
+            //TODO networking
+            //if ((unsigned int)gssCommsAddNode(&transmitInitPacket.address) > 1)
+            //  goto LABEL_40;
             test = 6;
-            gssCommsSortNodes(v2);
-            v18 = (_DWORD *)((char *)&address + 16 * network_on);
-            *v18++ = v43;
-            *v18++ = v44;
-            *v18 = v45;
-            v18[1] = v46;
-            v19 = v57;
+            //TODO networking
+            //gssCommsSortNodes();
+
+            memcpy(&address[network_on], &transmitInitPacket.address, sizeof(_NETNOW_NODE_ADDR));
+            //pNetNowNodeAddr3 = &address[network_on];// Manual address copying - could be simplified to: memcpy(&address[network_on], &transmitInitPacket.address, sizeof(_NETNOW_NODE_ADDR));
+            //*(_DWORD *)pNetNowNodeAddr3->sIPX.sInternetAddr.bNetwork = *(_DWORD *)transmitInitPacket.address.sIPX.sInternetAddr.bNetwork;
+            //pNetNowNodeAddr3 = (_NETNOW_NODE_ADDR *)((char *)pNetNowNodeAddr3 + 4);
+            //*(_DWORD *)pNetNowNodeAddr3->sIPX.sInternetAddr.bNetwork = *(_DWORD *)&transmitInitPacket.address.sNETBIOS.bNode[4];
+            //*(_QWORD *)&pNetNowNodeAddr3->sNETBIOS.bNode[4] = *(_QWORD *)&transmitInitPacket.address.sNETBIOS.bNode[8];
+
+            iTimeToStart = transmitInitPacket.iTimeToStart;
             switch_types = 0;
-            if (v57 == -667)
-              v19 = 0;
-            if (v19) {
-              LODWORD(v2) = time_to_start;
+            if (transmitInitPacket.iTimeToStart == -667)
+              iTimeToStart = 0;
+            if (iTimeToStart) {
               if (time_to_start != -666)
-                goto LABEL_163;
-            LABEL_65:
-              LODWORD(v2) = reset_network(-1);
-              gssCommsPostListen(v2, HIDWORD(v2), v0);
+                goto LABEL_40;
+            LABEL_64:
+              reset_network(-1);
+              //TODO networking
+              //gssCommsPostListen();
               continue;
             }
             test = 7;
-            name_copy((int)&player_names[9 * network_on], v47);
-            Players_Cars[network_on] = v49;
-            manual_control[network_on] = v52;
-            player_started[network_on] = v56;
-            HIDWORD(v2) = network_on;
-            v20 = CheckNames(&player_names[9 * network_on], network_on);
-            check_cars(v20);
-            if (my_age < v48) {
-              v21 = v62;
-              v22 = default_names;
-              do {
-                name_copy((int)v22, v21);
-                v21 += 9;
-                v22 += 9;
-              } while (v21 != v63);
-              my_age = v48;
-              TrackLoad = v50;
-              game_type = v51;
-              if (v51 == 1)
-                Race = ((_BYTE)TrackLoad - 1) & 7;
+            name_copy(player_names[network_on], transmitInitPacket.szPlayerName);
+            Players_Cars[network_on] = transmitInitPacket.iCarIdx;
+            manual_control[network_on] = transmitInitPacket.iManualControl;
+            player_started[network_on] = transmitInitPacket.iStartPressed;
+            iCheckNamesResult = CheckNames(player_names[network_on], network_on);
+            check_cars();
+            if (my_age < transmitInitPacket.iMyAge) {
+
+              for (int i = 0; i < 16; i++) {
+                name_copy(default_names[i], transmitInitPacket.default_names[i]);
+              }
+              //szTxInitPacketNamesItr2 = transmitInitPacket.default_names[0];
+              //szDefaultNamesItr2 = default_names[0];
+              //do {
+              //  name_copy(szDefaultNamesItr2, szTxInitPacketNamesItr2);
+              //  szTxInitPacketNamesItr2 += 9;
+              //  szDefaultNamesItr2 += 9;
+              //} while (szTxInitPacketNamesItr2 != (char *)&messagePacket);// messagePacket is immediately after transmitInitPacket
+
+              my_age = transmitInitPacket.iMyAge;
+              TrackLoad = transmitInitPacket.iTrackLoad;
+              game_type = transmitInitPacket.iGameType;
+              if (transmitInitPacket.iGameType == 1)
+                Race = ((uint8)TrackLoad - 1) & 7;
               else
                 network_champ_on = 0;
-              competitors = v54;
-              level = v53;
-              v0 = v53;
-              if ((v53 & 0x100) != 0) {
-                v23 = cheat_mode;
-                LOBYTE(v23) = cheat_mode | 2;
-                cheat_mode = v23;
+              competitors = transmitInitPacket.iCompetitors;
+              level = transmitInitPacket.iLevelFlags;
+              if ((transmitInitPacket.iLevelFlags & 0x100) != 0)// Process level flags and update cheat mode settings accordingly
+              {
+                cheat_mode |= CHEAT_MODE_DEATH_MODE;
+                //iTempCheatMode4 = cheat_mode;
+                //LOBYTE(iTempCheatMode4) = cheat_mode | 2;
+                //cheat_mode = iTempCheatMode4;
               }
               player_invul[network_on] = ((level & 0x200) == 0) - 1;
               if ((level & 0x400) != 0) {
-                v24 = cheat_mode;
-                BYTE1(v24) = BYTE1(cheat_mode) | 2;
-                cheat_mode = v24;
+                cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
+                //iTempCheatMode5 = cheat_mode;
+                //BYTE1(iTempCheatMode5) = BYTE1(cheat_mode) | 2;
+                //cheat_mode = iTempCheatMode5;
               }
               if ((level & 0x800) != 0) {
-                v0 = cheat_mode;
-                BYTE1(v0) = BYTE1(cheat_mode) | 4;
-                cheat_mode = v0;
+                cheat_mode |= CHEAT_MODE_ICY_ROAD;
+                //iTempCheatMode6 = cheat_mode;
+                //BYTE1(iTempCheatMode6) = BYTE1(cheat_mode) | 4;
+                //cheat_mode = iTempCheatMode6;
               }
               if ((level & 0x1000) != 0) {
                 if ((level & 0x4000) != 0) {
                   if ((cheat_mode & 0x2000) == 0) {
-                    v0 = cheat_mode;
-                    BYTE1(v0) = BYTE1(cheat_mode) | 0x28;
-                    cheat_mode = v0;
+                    cheat_mode |= (CHEAT_MODE_50HZ_TIMER | CHEAT_MODE_100HZ_TIMER);
+                    //iTempCheatMode7 = cheat_mode;
+                    //BYTE1(iTempCheatMode7) = BYTE1(cheat_mode) | 0x28;
+                    //cheat_mode = iTempCheatMode7;
                     release_ticktimer();
-                    goto LABEL_84;
+                    uiTimerHz = 100;
+                    goto LABEL_83;
                   }
                 } else if ((cheat_mode & 0x800) == 0) {
-                  v25 = cheat_mode;
-                  BYTE1(v25) = BYTE1(cheat_mode) | 8;
-                  cheat_mode = v25;
+                  cheat_mode |= CHEAT_MODE_50HZ_TIMER;
+                  //iTempCheatMode8 = cheat_mode;
+                  //BYTE1(iTempCheatMode8) = BYTE1(cheat_mode) | 8;
+                  //cheat_mode = iTempCheatMode8;
                   release_ticktimer();
-                LABEL_84:
-                  claim_ticktimer();
+                  uiTimerHz = 50;
+                LABEL_83:
+                  claim_ticktimer(uiTimerHz);
                 }
               }
               if ((level & 0x2000) != 0)
-                cheat_mode |= 0x1000u;
-              if (((unsigned int)cstart_branch_1 & level) != 0) {
-                v26 = cheat_mode;
-                BYTE1(v26) = BYTE1(cheat_mode) | 0x80;
-                cheat_mode = v26;
+                cheat_mode |= CHEAT_MODE_DOUBLE_TRACK;
+              if ((level & 0x10000) != 0) {
+                cheat_mode |= CHEAT_MODE_TINY_CARS;
+                //iTempCheatMode9 = cheat_mode;
+                //BYTE1(iTempCheatMode9) = BYTE1(cheat_mode) | 0x80;
+                //cheat_mode = iTempCheatMode9;
               }
-              HIDWORD(v2) = level;
               if ((level & 0x8000) != 0 && switch_same >= 0)
-                switch_same = v49 + 666;
+                switch_same = transmitInitPacket.iCarIdx + 666;
               level &= 0xFu;
-              damage_level = v55;
-              false_starts = v58;
-              if (v59) {
-                if (((unsigned int)cstart_branch_1 & textures_off) == 0) {
-                  textures_off |= (unsigned int)cstart_branch_1;
-                  goto LABEL_97;
+              damage_level = transmitInitPacket.iDamageLevel;
+              false_starts = transmitInitPacket.iFalseStart;
+              if (transmitInitPacket.iTextureMode) {
+                // TEX_OFF_ADVANCED_CARS
+                if ((textures_off & TEX_OFF_ADVANCED_CARS) == 0) {
+                  textures_off |= TEX_OFF_ADVANCED_CARS;
+                  goto LABEL_96;
                 }
-              } else if (((unsigned int)cstart_branch_1 & textures_off) != 0) {
-                textures_off &= ~0x10000u;
-              LABEL_97:
+              }
+              // TEX_OFF_ADVANCED_CARS
+              else if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
+                textures_off &= ~TEX_OFF_ADVANCED_CARS;
+              LABEL_96:
                 switch_sets = -1;
               }
             }
             players_waiting = 0;
-            for (j = 0; j <= network_on; ++j) {
-              if (player_started[j])
+            for (i = 0; i <= network_on; ++i) // Count how many players have pressed start and are waiting
+            {
+              if (player_started[i])
                 ++players_waiting;
             }
             ++my_age;
-            LODWORD(v2) = network_on++;
+            ++network_on;
             if (!I_Quit)
-              v2 = send_broadcast(-1);
-            if (!v20)
-              goto LABEL_163;
+              send_broadcast(0xFFFFFFFF);
+            if (!iCheckNamesResult)
+              goto LABEL_40;
+          LABEL_104:
             cheat_mode = 0;
-            gssCommsPostListen(v2, HIDWORD(v2), 0);
+            //TODO networking
+            //gssCommsPostListen();
             continue;
           }
           test = 8;
-          v28 = v15 - 10;
+          iNodeIndex = iFoundNodeOffset - 10;
           ++my_age;
-          if (v28 <= 0)
-            goto LABEL_163;
+          if (iNodeIndex <= 0)
+            goto LABEL_40;
           test = 9;
-          HIDWORD(v2) = v57;
-          if (!v57) {
+          if (!transmitInitPacket.iTimeToStart) {
             test = 10;
-            name_copy((int)&player_names[9 * v28], v47);
-            Players_Cars[v28] = v49;
-            v31 = CheckNames(&player_names[9 * v28], v28);
-            check_cars(v31);
-            TrackLoad = v50;
-            if (v51 < 3) {
-              if (v51 == game_type)
-                game_type = v51;
+            name_copy(player_names[iNodeIndex], transmitInitPacket.szPlayerName);
+            Players_Cars[iNodeIndex] = transmitInitPacket.iCarIdx;
+            iCheckNamesResult2 = CheckNames(player_names[iNodeIndex], iNodeIndex);
+            check_cars();
+            TrackLoad = transmitInitPacket.iTrackLoad;
+            if (transmitInitPacket.iGameType < 3) {
+              if (transmitInitPacket.iGameType == game_type)
+                game_type = transmitInitPacket.iGameType;
               else
-                switch_types = v51 + 1;
+                switch_types = transmitInitPacket.iGameType + 1;
             }
-            competitors = v54;
-            level = v53;
-            if ((v53 & 0x100) != 0) {
-              v32 = cheat_mode;
-              LOBYTE(v32) = cheat_mode | 2;
-              cheat_mode = v32;
+            competitors = transmitInitPacket.iCompetitors;
+            level = transmitInitPacket.iLevelFlags;
+            if ((transmitInitPacket.iLevelFlags & 0x100) != 0) {
+              cheat_mode |= CHEAT_MODE_DEATH_MODE;
+              //uiTempCheatMode = cheat_mode;
+              //LOBYTE(uiTempCheatMode) = cheat_mode | 2;
+              //cheat_mode = uiTempCheatMode;
             }
-            player_invul[v28] = ((level & 0x200) == 0) - 1;
+            player_invul[iNodeIndex] = ((level & 0x200) == 0) - 1;
             if ((level & 0x400) != 0)
-              cheat_mode |= 0x200u;
+              cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
             if ((level & 0x800) != 0) {
-              v33 = cheat_mode;
-              BYTE1(v33) = BYTE1(cheat_mode) | 4;
-              cheat_mode = v33;
+              cheat_mode |= CHEAT_MODE_ICY_ROAD;
+              //uiTempCheatMode2 = cheat_mode;
+              //BYTE1(uiTempCheatMode2) = BYTE1(cheat_mode) | 4;
+              //cheat_mode = uiTempCheatMode2;
             }
             if ((level & 0x1000) != 0) {
               if ((level & 0x4000) != 0) {
                 if ((cheat_mode & 0x2000) == 0) {
-                  v34 = cheat_mode;
-                  BYTE1(v34) = BYTE1(cheat_mode) | 0x28;
-                  cheat_mode = v34;
+                  cheat_mode |= (CHEAT_MODE_50HZ_TIMER | CHEAT_MODE_100HZ_TIMER);
+                  //iTempCheatMode3 = cheat_mode;
+                  //BYTE1(iTempCheatMode3) = BYTE1(cheat_mode) | 0x28;
+                  //cheat_mode = iTempCheatMode3;
                   release_ticktimer();
-                  goto LABEL_131;
+                  uiTimerHz2 = 100;
+                  goto LABEL_130;
                 }
               } else if ((cheat_mode & 0x800) == 0) {
-                v35 = cheat_mode;
-                BYTE1(v35) = BYTE1(cheat_mode) | 8;
-                cheat_mode = v35;
+                cheat_mode |= CHEAT_MODE_50HZ_TIMER;
+                //iTempCheatMode = cheat_mode;
+                //BYTE1(iTempCheatMode) = BYTE1(cheat_mode) | 8;
+                //cheat_mode = iTempCheatMode;
                 release_ticktimer();
-              LABEL_131:
-                claim_ticktimer();
+                uiTimerHz2 = 50;
+              LABEL_130:
+                claim_ticktimer(uiTimerHz2);
               }
             }
             if ((level & 0x2000) != 0)
-              cheat_mode |= 0x1000u;
-            if (((unsigned int)cstart_branch_1 & level) != 0) {
-              v36 = cheat_mode;
-              BYTE1(v36) = BYTE1(cheat_mode) | 0x80;
-              cheat_mode = v36;
+              cheat_mode |= CHEAT_MODE_DOUBLE_TRACK;
+            if ((level & 0x10000) != 0) {
+              cheat_mode |= CHEAT_MODE_TINY_CARS;
+              //iTempCheatMode2 = cheat_mode;
+              //BYTE1(iTempCheatMode2) = BYTE1(cheat_mode) | 0x80;
+              //cheat_mode = iTempCheatMode2;
             }
             if ((level & 0x8000) != 0 && switch_same >= 0)
-              switch_same = v49 + 666;
+              switch_same = transmitInitPacket.iCarIdx + 666;
             level &= 0xFu;
-            damage_level = v55;
-            v0 = (int)v62;
-            v37 = default_names;
-            do {
-              HIDWORD(v2) = v0;
-              name_copy((int)v37, (char *)v0);
-              v0 += 9;
-              v37 += 9;
-            } while ((_BYTE *)v0 != v63);
-            false_starts = v58;
-            if (v59) {
-              if (((unsigned int)cstart_branch_1 & textures_off) == 0) {
-                textures_off |= (unsigned int)cstart_branch_1;
-                goto LABEL_146;
+            damage_level = transmitInitPacket.iDamageLevel;
+
+            for (int i = 0; i < 16; i++) {
+              name_copy(default_names[i], transmitInitPacket.default_names[i]);
+            }
+            //szPacketNamesIt = transmitInitPacket.default_names[0];
+            //szDefaultNamesItr = default_names[0];
+            //do {
+            //  name_copy(szDefaultNamesItr, szPacketNamesIt);
+            //  szPacketNamesIt += 9;
+            //  szDefaultNamesItr += 9;
+            //} while (szPacketNamesIt != (char *)&messagePacket);
+
+            false_starts = transmitInitPacket.iFalseStart;
+            if (transmitInitPacket.iTextureMode) {
+              // TEX_OFF_ADVANCED_CARS
+              if ((textures_off & TEX_OFF_ADVANCED_CARS) == 0) {
+                textures_off |= TEX_OFF_ADVANCED_CARS;
+                goto LABEL_145;
               }
-            } else if (((unsigned int)cstart_branch_1 & textures_off) != 0) {
-              textures_off &= ~0x10000u;
-            LABEL_146:
+            }
+            // TEX_OFF_ADVANCED_CARS
+            else if ((textures_off & TEX_OFF_ADVANCED_CARS) != 0) {
+              textures_off &= ~TEX_OFF_ADVANCED_CARS;
+            LABEL_145:
               switch_sets = -1;
             }
-            manual_control[v28] = v52;
-            player_started[v28] = v56;
+            manual_control[iNodeIndex] = transmitInitPacket.iManualControl;
+            player_started[iNodeIndex] = transmitInitPacket.iStartPressed;
             players_waiting = 0;
-            LODWORD(v2) = 0;
-            if (network_on > 0) {
-              do {
-                if (player_started[(_DWORD)v2])
-                  ++players_waiting;
-                LODWORD(v2) = v2 + 1;
-              } while ((int)v2 < network_on);
+            for (iPlayerIndex = 0; iPlayerIndex < network_on; ++iPlayerIndex) {
+              if (player_started[iPlayerIndex])
+                ++players_waiting;
             }
-            if (!v31)
-              goto LABEL_163;
-            cheat_mode = 0;
-            gssCommsPostListen(v2, HIDWORD(v2), v0);
-            continue;
+            if (!iCheckNamesResult2)
+              goto LABEL_40;
+            goto LABEL_104;
           }
-          if (v57 < 0xFFFFFD66) {
-            if (v57 == -667) {
-              v29 = send_broadcast(-1);
-              gssCommsPostListen(v29, HIDWORD(v29), v0);
+          if (transmitInitPacket.iTimeToStart < ~665u) {
+            if (transmitInitPacket.iTimeToStart == -667) {
+              send_broadcast(0xFFFFFFFF);
+              //TODO networking
+              //gssCommsPostListen();
               continue;
             }
           } else {
-            if (v57 <= 0xFFFFFD66)
-              goto LABEL_65;
-            if (v57 == -457)
-              goto LABEL_163;
+            if (transmitInitPacket.iTimeToStart <= ~665u)
+              goto LABEL_64;
+            if (transmitInitPacket.iTimeToStart == -457)
+              goto LABEL_40;
           }
           time_to_start = -1;
-          found = FoundNodes(v2);
-          gssCommsPostListen(found, HIDWORD(found), v0);
+          FoundNodes();
+          //TODO networking
+          //gssCommsPostListen();
         } else {
-          v0 = 1;
           test = 1;
-          if (v61 < 0)
-            goto LABEL_163;
+          if (transmitInitPacket.iNetworkSlot < 0)
+            goto LABEL_40;
           test = 2;
-          LODWORD(v2) = v61 - 1;
-          v83 = (char *)(v61 - 1);
-          if (v61 - 1 < 0 || (int)v2 > 4)
-            goto LABEL_163;
-          LODWORD(v2) = v57;
-          if (v57 < 0xFFFFFD66)
-            goto LABEL_25;
-          if (v57 <= 0xFFFFFD66) {
-            v5 = send_broadcast(-456);
-            LODWORD(v5) = v83;
-            gamers_playing[(_DWORD)v83] = 0;
-            gssCommsPostListen(v5, HIDWORD(v5), 1);
+          iTxInitPacketNetworkSlotMinus1 = transmitInitPacket.iNetworkSlot - 1;
+          if ((unsigned int)(transmitInitPacket.iNetworkSlot - 1) > 4)
+            goto LABEL_40;
+          if (transmitInitPacket.iTimeToStart < -666)
+            goto LABEL_24;
+          if (transmitInitPacket.iTimeToStart <= -666) {
+            send_broadcast(0xFFFFFE38);
+            gamers_playing[iTxInitPacketNetworkSlotMinus1] = 0;
+            //TODO networking
+            //gssCommsPostListen();
             continue;
           }
-          if (v57 == -1) {
-            v6 = v83;
-            gamers_playing[(_DWORD)v83] = -2;
-            gssCommsPostListen(v6, &v43, 1);
-          } else {
-          LABEL_25:
-            if (v60) {
-              gamers_playing[(_DWORD)v83] = -2;
-              gssCommsPostListen(v2, &v43, 1);
-            } else {
-              v85 = 0;
-              v7 = gamers_playing[(_DWORD)v83];
-              if (v7 < 0) {
-                v7 = 0;
-                gamers_playing[(_DWORD)v83] = 0;
+          if (transmitInitPacket.iTimeToStart != -1) {
+          LABEL_24:
+            if (!transmitInitPacket.iNetworkChampOn) {
+              iFoundGamerIndex = 0;
+              iNumGamersInSlot = gamers_playing[iTxInitPacketNetworkSlotMinus1];
+              if (iNumGamersInSlot < 0) {
+                iNumGamersInSlot = 0;
+                gamers_playing[iTxInitPacketNetworkSlotMinus1] = 0;
               }
-              v8 = 0;
-              if (v7 > 0) {
-                v84 = (char *)&gamers_address + 256 * (_DWORD)v83;
-                v81 = v7 + 678;
+              iGamerIndex = 0;
+              if (iNumGamersInSlot > 0) {
+                //szGamerAddressPtr = gamers_address[iTxInitPacketNetworkSlotMinus1];
+                iMaxGamerIndex = iNumGamersInSlot + 678;
                 do {
-                  HIDWORD(v2) = &v43;
-                  v0 = 0;
-                  LODWORD(v2) = &v84[16 * v8];
-                  v9 = v2 + 16;
-                  do {
-                    if (*(_BYTE *)v2 != *(_BYTE *)HIDWORD(v2))
-                      v0 = -1;
-                    LODWORD(v2) = v2 + 1;
-                    ++HIDWORD(v2);
-                  } while ((_DWORD)v2 != v9);
-                  if (!v0) {
-                    v85 = v8 + 678;
-                    v8 = v81;
+
+                  iAddressMatchFlag = memcmp(&gamers_address[iTxInitPacketNetworkSlotMinus1][iGamerIndex], &transmitInitPacket.address, sizeof(_NETNOW_NODE_ADDR));
+                  //pTxInitPacketByteCmp = (char *)&transmitInitPacket;
+                  //iAddressMatchFlag = 0;
+                  //szAddressPtr = (char *)&szGamerAddressPtr[iGamerIndex];
+                  //szAddressEndPtr = szAddressPtr + 16;
+                  //do {
+                  //  if (*szAddressPtr != *pTxInitPacketByteCmp)
+                  //    iAddressMatchFlag = -1;
+                  //  ++szAddressPtr;
+                  //  ++pTxInitPacketByteCmp;
+                  //} while (szAddressPtr != szAddressEndPtr);
+
+                  if (!iAddressMatchFlag) {
+                    iFoundGamerIndex = iGamerIndex + 678;
+                    iGamerIndex = iMaxGamerIndex;
                   }
-                  ++v8;
-                } while (v8 < v7);
+                  ++iGamerIndex;
+                } while (iGamerIndex < iNumGamersInSlot);
               }
-              if (v60)
-                goto LABEL_163;
-              v10 = v83;
-              v11 = (char *)&gamers_names + 144 * (_DWORD)v83;
-              if (v85) {
-                v13 = name_copy((int)&v11[9 * v85 - 6102], v47);
-              } else {
-                name_copy((int)&v11[9 * v7], v47);
-                v12 = (_DWORD *)((char *)&gamers_address + 256 * (_DWORD)v10 + 16 * v7);
-                v13 = v83;
-                *v12++ = v43;
-                *v12++ = v44;
-                *v12 = v45;
-                v12[1] = v46;
-                ++gamers_playing[(_DWORD)v13];
+              if (!transmitInitPacket.iNetworkChampOn) {
+                iSlotIndex = iTxInitPacketNetworkSlotMinus1;
+                szGamerNamesPtr = gamers_names[iTxInitPacketNetworkSlotMinus1];
+                if (iFoundGamerIndex) {
+                  name_copy(&szGamerNamesPtr[9 * iFoundGamerIndex - 6102], transmitInitPacket.szPlayerName);
+                } else {
+                  name_copy(&szGamerNamesPtr[9 * iNumGamersInSlot], transmitInitPacket.szPlayerName);
+                  pNetNowNodeAddr4 = &gamers_address[iSlotIndex][iNumGamersInSlot];
+                  iSlotIndex2 = iTxInitPacketNetworkSlotMinus1;
+
+                  memcpy(&gamers_address[iSlotIndex][iNumGamersInSlot], &transmitInitPacket.address, sizeof(_NETNOW_NODE_ADDR));
+                  //*(_DWORD *)pNetNowNodeAddr4->sIPX.sInternetAddr.bNetwork = *(_DWORD *)transmitInitPacket.address.sIPX.sInternetAddr.bNetwork;
+                  //pNetNowNodeAddr4 = (_NETNOW_NODE_ADDR *)((char *)pNetNowNodeAddr4 + 4);
+                  //*(_DWORD *)pNetNowNodeAddr4->sIPX.sInternetAddr.bNetwork = *(_DWORD *)&transmitInitPacket.address.sNETBIOS.bNode[4];
+                  //*(_QWORD *)&pNetNowNodeAddr4->sNETBIOS.bNode[4] = *(_QWORD *)&transmitInitPacket.address.sNETBIOS.bNode[8];
+
+                  ++gamers_playing[iSlotIndex2];
+                }
               }
-              gssCommsPostListen(v13, v47, v0);
+              goto LABEL_40;
             }
           }
+          gamers_playing[iTxInitPacketNetworkSlotMinus1] = -2;
+          //TODO networking
+          //gssCommsPostListen();
         }
         break;
-      case 1751933796:
-        net_quit = -1;
-        gssCommsPostListen(v2, HIDWORD(v2), &v80);
+      case PACKET_ID_QUIT:                         // PACKET_ID_QUIT
+        net_quit = -1;                          // Handle PACKET_ID_QUIT (0x686C6364) - player disconnection notification
+        //TODO networking
+        //gssCommsPostListen();
         continue;
-      case 1751933799:
-        LODWORD(v2) = 4 * v78;
-        if (*(int *)((char *)player_ready + v2))
-          goto LABEL_163;
+      case PACKET_ID_READY:                         // PACKET_ID_READY
+        if (player_ready[syncHeader.byConsoleNode])// Handle PACKET_ID_READY (0x686C6367) - player ready status
+          goto LABEL_40;
         ++active_nodes;
-        player_ready[v78] = -1;
+        player_ready[syncHeader.byConsoleNode] = -1;
         netCD = -1;
-        gssCommsPostListen(v2, HIDWORD(v2), &v80);
+        //TODO networking
+        //gssCommsPostListen();
         continue;
-      case 1751933800:
-        gssCommsGetBlock(v80, &test_seed, 4);
-        srand(*v82);
-        random_seed = *v82;
+      case PACKET_ID_SEED:                         // PACKET_ID_SEED
+        //TODO networking
+        //gssCommsGetBlock(pPacket2, &test_seed, 4);// Handle PACKET_ID_SEED (0x686C6368) - synchronize random seed across network
+        srand(*pTestSeed);
+        random_seed = *pTestSeed;
         received_seed = -1;
-        gssCommsPostListen(random_seed, &test_seed, 4);
+        //TODO networking
+        //gssCommsPostListen();
         continue;
-      case 1751933802:
-        v0 = 40;
-        gssCommsGetBlock(v80, v66, 40);
-        v42 = v78;
-        Players_Cars[v78] = v67;
-        name_copy((int)&player_names[9 * v42], v66);
-        TrackLoad = v68;
-        game_type = v69;
-        competitors = v72;
-        level = v71;
-        damage_level = v73 & 0xF;
-        if ((v73 & 0x40) != 0)
-          player_invul[v78] = -1;
+      case PACKET_ID_PLAYER_INFO:                         // PACKET_ID_PLAYER_INFO
+        //TODO networking
+        //gssCommsGetBlock(pPacket2, &playerInfoPacket, 40);// Handle PACKET_ID_PLAYER_INFO (0x686C636A) - update player information
+        byConsoleNode = syncHeader.byConsoleNode;
+        Players_Cars[syncHeader.byConsoleNode] = playerInfoPacket.iPlayerCar;
+        name_copy(player_names[byConsoleNode], playerInfoPacket.szPlayerName);
+        TrackLoad = playerInfoPacket.iTrackLoad;
+        game_type = playerInfoPacket.iGameType;
+        competitors = playerInfoPacket.iCompetitors;
+        level = playerInfoPacket.iLevel;
+        damage_level = playerInfoPacket.iDamageLevel & 0xF;
+        if ((playerInfoPacket.iDamageLevel & 0x40) != 0)
+          player_invul[syncHeader.byConsoleNode] = -1;
         else
-          player_invul[v78] = 0;
-        HIDWORD(v2) = v78;
-        LODWORD(v2) = v70;
-        manual_control[v78] = v70;
-        goto LABEL_163;
-      case 1751933803:
-        ++received_records;
-        HIDWORD(v2) = v74;
-        v0 = 16;
-        gssCommsGetBlock(v80, v74, 16);
-        WORD1(v2) = HIWORD(TrackLoad);
-        v39 = v74[0] < (double)RecordLaps[TrackLoad];
-        v40 = 0;
-        v41 = v74[0] == RecordLaps[TrackLoad];
-        LOWORD(v2) = v38;
-        if (v74[0] < (double)RecordLaps[TrackLoad]) {
-          RecordLaps[TrackLoad] = v74[0];
-          RecordCars[TrackLoad] = v75;
-          LODWORD(v2) = 0;
-          do {
-            LODWORD(v2) = v2 + 1;
-            HIDWORD(v2) = 9 * TrackLoad;
-            LOBYTE(v0) = *((_BYTE *)v74 + v2 + 3);
-            *((_BYTE *)&fudge_wait + 9 * TrackLoad + v2 + 3) = v0;
-          } while ((int)v2 < 9);
+          player_invul[syncHeader.byConsoleNode] = 0;
+        manual_control[syncHeader.byConsoleNode] = playerInfoPacket.iManualControl;
+        goto LABEL_40;
+      case PACKET_ID_RECORD:                         // PACKET_ID_RECORD
+        ++received_records;                     // Handle PACKET_ID_RECORD (0x686C636B) - update lap record if faster than current
+        //TODO networking
+        //gssCommsGetBlock(pPacket2, &recordPacket, 16);
+        if (recordPacket.fRecordLap < (double)RecordLaps[TrackLoad]) {
+          RecordLaps[TrackLoad] = recordPacket.fRecordLap;
+          RecordCars[TrackLoad] = (__int16)recordPacket.unRecordCar;
+
+          strncpy(RecordNames[TrackLoad], recordPacket.szRecordName, 9);
+          //for (j = 0; j < 9; *((_BYTE *)&fudge_wait + 9 * TrackLoad + j + 3) = recordPacket.szRecordName[j - 1])// fudge_wait is offset into RecordNames
+          //  ++j;
         }
-        goto LABEL_163;
-      case 1751933807:
-        LODWORD(v2) = 4 * v78;
-        if (*(int *)((char *)player_ready + v2))
-          goto LABEL_163;
+        goto LABEL_40;
+      case PACKET_ID_NOCD:                         // PACKET_ID_NOCD
+        if (player_ready[syncHeader.byConsoleNode])
+          goto LABEL_40;
         ++active_nodes;
-        player_ready[v78] = -1;
-        gssCommsPostListen(v2, HIDWORD(v2), &v80);
+        player_ready[syncHeader.byConsoleNode] = -1;
+        //TODO networking
+        //gssCommsPostListen();
         continue;
-      case 1751933809:
-        LODWORD(v2) = v78;
-        gamers_address_variable_1[v78] = -2;
-        gssCommsPostListen(v2, HIDWORD(v2), &v80);
+      case PACKET_ID_SLOT:                         // PACKET_ID_SLOT
+        //TODO: ensure this is accurate
+        gamers_playing[syncHeader.byConsoleNode - 1] = -2;
+        //*(_DWORD *)&gamers_address[3][15].sNETBIOS.bNode[4 * syncHeader.byConsoleNode + 12] = -2;
+        //TODO networking
+        //gssCommsPostListen();
         continue;
-      case 1751933810:
-        v3 = v78;
-        v4 = v79;
-        load_times[v78] = v79;
-        gssCommsPostListen(v3, v4, &v80);
+      case PACKET_ID_SEND_HERE:                         // PACKET_ID_SEND_HERE
+        load_times[syncHeader.byConsoleNode] = syncHeader.unFrameId;
+        //TODO networking
+        //gssCommsPostListen();
         continue;
-      case 1751933811:
-        v0 = 48;
-        gssCommsGetBlock(v80, v63, 48);
-        v2 = gssCommsNetAddrToNode(&address);
-        if (HIDWORD(v2) != (_DWORD)v2) {
-          LODWORD(v2) = v65;
-          if (v65 == network_slot) {
-            rec_status = 36;
-            HIDWORD(v2) = v64;
-            name_copy((int)&rec_mes_name, v64);
-            LODWORD(v2) = 0;
-            do {
-              LODWORD(v2) = v2 + 1;
-              BYTE4(v2) = v62[v2 + 143];
-              *((_BYTE *)&LoadCarTextures_variable_1 + v2) = BYTE4(v2);
-            } while ((int)v2 < 32);
-          }
+      case PACKET_ID_MESSAGE:                         // PACKET_ID_MESSAGE
+        //TODO networking
+        //gssCommsGetBlock(pPacket2, &messagePacket, 48);// Handle PACKET_ID_MESSAGE (0x686C6373) - receive and process chat messages
+        iNode = syncHeader.byConsoleNode;
+        //TODO networking
+        //if (iNode != gssCommsNetAddrToNode(address) && messagePacket.iNetworkSlot == network_slot) {
+        if (false) {
+          rec_status = 36;
+          name_copy(rec_mes_name, messagePacket.szPlayerName);
+
+          strncpy(rec_mes_buf, messagePacket.szMessage, sizeof(rec_mes_buf));
+          //for (iMsgCopyIndex = 0; iMsgCopyIndex < 32; LoadCarTextures_variable_1[iMsgCopyIndex] = transmitInitPacket.default_names[15][iMsgCopyIndex + 8])
+          //  ++iMsgCopyIndex;
         }
-        goto LABEL_163;
+        goto LABEL_40;
       default:
-      LABEL_163:
-        gssCommsPostListen(v2, HIDWORD(v2), v0);
+      LABEL_40:
+        //TODO networking
+        //gssCommsPostListen();
         continue;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

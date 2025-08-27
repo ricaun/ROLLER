@@ -145,7 +145,7 @@ int stringwidth(char *szString)
 //00076270
 int select_modemstuff(int iIconIdx)
 {
-  /*bool bIsAnswer; // ebp
+  bool bIsAnswer; // ebp
   int iResult; // eax
   int iMenuPos; // ebp
   char *szDestPtr; // edi
@@ -177,53 +177,56 @@ int select_modemstuff(int iIconIdx)
   iMenuPos = bIsAnswer + 5;                     // Calculate menu position (answer mode offset by 5)
   if (current_modem >= 0)                     // Copy modem init string if modem is selected
   {
-    iResult = 51 * *(_DWORD *)&modembuffer[56 * current_modem + 52];
+    iResult = 51 * *(int *)&modembuffer[56 * current_modem + 52];
     szDestPtr = modem_initstring;
     szSrcPtr = &modembuffer2.bufPtr[iResult];
-    do {
-      LOBYTE(iResult) = *szSrcPtr;
-      *szDestPtr = *szSrcPtr;
-      if (!(_BYTE)iResult)
-        break;
-      LOBYTE(iResult) = szSrcPtr[1];
-      szSrcPtr += 2;
-      szDestPtr[1] = iResult;
-      szDestPtr += 2;
-    } while ((_BYTE)iResult);
+    //TODO
+    //do {
+    //  LOBYTE(iResult) = *szSrcPtr;
+    //  *szDestPtr = *szSrcPtr;
+    //  if (!(uint8)iResult)
+    //    break;
+    //  LOBYTE(iResult) = szSrcPtr[1];
+    //  szSrcPtr += 2;
+    //  szDestPtr[1] = iResult;
+    //  szDestPtr += 2;
+    //} while ((uint8)iResult);
   }
-  __asm { int     11h; BIOS equipment determination to detect COM ports }// BIOS equipment determination to detect COM ports
+  //TODO
+  //__asm { int     11h; BIOS equipment determination to detect COM ports }// BIOS equipment determination to detect COM ports
   iTemp = modem_port;
-  iMaxCOMPorts = ((int)(unsigned __int16)iResult >> 9) & 7;// Extract number of COM ports from BIOS data
+  iMaxCOMPorts = ((int)(uint16)iResult >> 9) & 7;// Extract number of COM ports from BIOS data
   if (modem_port < 2)                         // Ensure minimum 2 COM ports available
     iMaxCOMPorts = 2;
   if (iMaxCOMPorts < modem_port)
     modem_port = 2;
   check16550(modem_port);                       // Check if COM port has 16550 UART
   modem_baud = 19200;                           // Set default baud rate to 19200
-  gssCommsSetComBaudRate(19200);
+  //TODO
+  //gssCommsSetComBaudRate(19200);
   do {
-    szTemp2 = (char *)unInputMode;              // Main UI loop - display menu and handle input
+    //szTemp2 = (char *)unInputMode;              // Main UI loop - display menu and handle input
     display_essentials(iIconIdx, iMenuPos, unInputMode);
     if (iDisplayMessage == 93 || iDisplayMessage == 94 || iDisplayMessage == 95 || iDisplayMessage == 96 || iDisplayMessage == 104)// Display flashing status messages
     {
       if ((frames & 0xFu) < 8) {
-        szTemp2 = font1_ascii;
-        iTemp = (int)font1_offsets;
+        //szTemp2 = font1_ascii;
+        //iTemp = (int)font1_offsets;
         scale_text(front_vga[15], &language_buffer[64 * iDisplayMessage], font1_ascii, font1_offsets, 400, 279, 143, 1u, 200, 640);
       }
     } else if (iDisplayMessage >= 0) {
-      szTemp2 = font1_ascii;
-      iTemp = (int)font1_offsets;
+      //szTemp2 = font1_ascii;
+      //iTemp = (int)font1_offsets;
       scale_text(front_vga[15], &language_buffer[64 * iDisplayMessage], font1_ascii, font1_offsets, 400, 279, 231, 1u, 200, 640);
     }
-    keypair.iCharacter = (int)screen;
+    //keypair.iCharacter = (int)screen;
     copypic(scrbuf, screen);
     if (iMessageTimeout && iMessageTimeout + 72 < frames)
       bExitRequested = -1;
     while (fatkbhit()) {
       keypair.iKeycode = fatgetch();
       iTemp = unInputMode;
-      szTemp2 = (char *)keypair.iKeycode;
+      //szTemp2 = (char *)keypair.iKeycode;
       keypair.iCharacter = keypair.iKeycode;
       if (unInputMode) {
         if (unInputMode <= 1) {                                       // String input mode - edit init string or phone number
@@ -231,7 +234,7 @@ int select_modemstuff(int iIconIdx)
             szTemp2 = modem_initstring;
           else
             szTemp2 = modem_phone;
-          uiStringLen = strlen(szTemp2) + 1;
+          uiStringLen = (uint32)strlen(szTemp2) + 1;
           iTemp = uiStringLen - 1;
           if (keypair.iKeycode < 8u) {
             if (!keypair.iKeycode)
@@ -298,7 +301,7 @@ int select_modemstuff(int iIconIdx)
                   break;
               }
             }
-            iTemp = strlen(szTemp2);
+            iTemp = (uint32)strlen(szTemp2);
             if ((unsigned int)iTemp < 50 && keypair.iCharacter != '\x7F') {
               szTemp2[uiStringLen] = '\0';
               szTemp2[uiStringLen - 1] = keypair.iCharacter;
@@ -331,10 +334,10 @@ int select_modemstuff(int iIconIdx)
             fDialTime = 0.0;
             iWaitingForAnswer = 0;
             display_essentials(iIconIdx, iMenuPos, 0);
-            iTemp = (int)font1_offsets;
-            szTemp2 = font1_ascii;
+            //iTemp = (int)font1_offsets;
+            //szTemp2 = font1_ascii;
             scale_text(front_vga[15], &language_buffer[6912], font1_ascii, font1_offsets, 400, 279, 143, 1u, 200, 640);
-            keypair.iCharacter = (int)screen;
+            //keypair.iCharacter = (int)screen;
             copypic(scrbuf, screen);
             close_network();
           }
@@ -366,10 +369,10 @@ int select_modemstuff(int iIconIdx)
               select_modem(iIconIdx);           // Menu 0: Select modem type
               break;
             case 1:
-              szTemp2 = (char *)(modem_port + 1);// Menu 1: Cycle through COM ports
+              //szTemp2 = (char *)(modem_port + 1);// Menu 1: Cycle through COM ports
               iTemp = iMaxCOMPorts;
-              modem_port = (int)szTemp2;
-              if ((int)szTemp2 > iMaxCOMPorts)
+              modem_port = modem_port + 1;// (int)szTemp2;
+              if (modem_port > iMaxCOMPorts)
                 modem_port = 1;
               check16550(modem_port);
               break;
@@ -384,16 +387,17 @@ int select_modemstuff(int iIconIdx)
             case 6:
               unInputMode = 2;                  // Menu 5/6: Start call (5=dial out, 6=answer)
               iDisplayMessage = 104;
-              szTemp2 = font1_ascii;
-              iTemp = (int)font1_offsets;
+              //szTemp2 = font1_ascii;
+              //iTemp = (int)font1_offsets;
               modem_call = (iMenuPos != 5) - 1;
               scale_text(front_vga[15], &language_buffer[6656], font1_ascii, font1_offsets, 400, 279, 143, 1u, 200, 640);
               copypic(scrbuf, screen);
-              gssCommsSetComPort(modem_port);
+              //gssCommsSetComPort(modem_port);
               Initialise_Network(0);
-              gssModemHangUp();
-              keypair = (tKeycodePair)clock();
-              fDialTime = (float)(unsigned int)keypair.iKeycode;
+              //gssModemHangUp();
+              //TODO
+              //keypair = (tKeycodePair)clock();
+              //fDialTime = (float)(unsigned int)keypair.iKeycode;
               break;
             default:
               continue;                         // Execute menu selection
@@ -409,25 +413,28 @@ int select_modemstuff(int iIconIdx)
     }
     if (unInputMode == 2 && !iMessageTimeout) // Handle modem responses during call
     {
-      iModemResponse = gssModemCheckResponse(0, keypair.iCharacter, (int)szTemp2, iTemp);
+      //TODO
+      iModemResponse = 0;// gssModemCheckResponse(0, keypair.iCharacter, (int)szTemp2, iTemp);
       iModemRespCopy = iModemResponse;
       if (iModemResponse >= 0) {
         switch (iModemResponse) {
           case 0:
-            if ((LODWORD(fInitTime) & 0x7FFFFFFF) != 0)// Response 0: Modem ready - init or dial
+            if (fabs(fInitTime) != 0)// Response 0: Modem ready - init or dial
             {
-              if (modem_call)
-                gssModemDial((int)modem_phone, modem_tone);
+              //TODO
+              //if (modem_call)
+              //  gssModemDial((int)modem_phone, modem_tone);
               iModemRespCopy = modem_call;
               fInitTime = 0.0;
               szTemp2 = (char *)-1;
               iWaitingForAnswer = -1;
               iDisplayMessage = (modem_call != 0) + 93;
             }
-            if ((LODWORD(fDialTime) & 0x7FFFFFFF) != 0) {
-              gssModemInit((int)modem_initstring, iModemRespCopy, (int)szTemp2, iTemp);
+            if (fabs(fDialTime) != 0) {
+              //TODO
+              //gssModemInit((int)modem_initstring, iModemRespCopy, (int)szTemp2, iTemp);
               fDialTime = 0.0;
-              fInitTime = (float)(unsigned int)clock();
+              //fInitTime = (float)(unsigned int)clock();
             }
             break;
           case 1:
@@ -437,7 +444,8 @@ int select_modemstuff(int iIconIdx)
           case 2:
             if (iWaitingForAnswer && !modem_call)// Response 2: Incoming call detected
             {
-              gssModemAnswer();
+              //TODO
+              //gssModemAnswer();
               iDisplayMessage = 96;
             }
             break;
@@ -455,7 +463,8 @@ int select_modemstuff(int iIconIdx)
         }
       }
     }
-    if ((LODWORD(fInitTime) & 0x7FFFFFFF) != 0 && ((double)(unsigned int)clock() - fInitTime) * 0.0099999998 > 5.0)// Check for dial timeout (5 seconds)
+    //TODO
+    if (fabs(fInitTime) != 0)// && ((double)(unsigned int)clock() - fInitTime) * 0.0099999998 > 5.0)// Check for dial timeout (5 seconds)
     {
       close_network();
       iTemp = 105;
@@ -465,25 +474,27 @@ int select_modemstuff(int iIconIdx)
       unInputMode = 0;
       iDisplayMessage = 105;
     }
-    if ((LODWORD(fDialTime) & 0x7FFFFFFF) != 0)// Check for init timeout (5 seconds)
+    if (fabs(fDialTime) != 0)// Check for init timeout (5 seconds)
     {
       iTemp = 0;
-      if (((double)(unsigned int)clock() - fDialTime) * 0.0099999998 > 5.0) {
-        close_network();
-        fInitTime = 0.0;
-        fDialTime = 0.0;
-        iWaitingForAnswer = 0;
-        unInputMode = 0;
-        iDisplayMessage = 105;
-      }
+      //TODO
+      //if (((double)(unsigned int)clock() - fDialTime) * 0.0099999998 > 5.0) {
+      //  close_network();
+      //  fInitTime = 0.0;
+      //  fDialTime = 0.0;
+      //  iWaitingForAnswer = 0;
+      //  unInputMode = 0;
+      //  iDisplayMessage = 105;
+      //}
     }
   } while (!bExitRequested);
   fre((void **)&modembuffer);                   // Cleanup - free modem buffers
   fre((void **)&modembuffer2.bufPtr);
   if (iMessageTimeout)
     return -1;
-  gssModemHangUp();
-  close_network();*/
+  //TODO
+  //gssModemHangUp();
+  close_network();
   return 0;
 }
 

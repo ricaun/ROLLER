@@ -111,11 +111,37 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+  uint8 bNode[16];
+} _NETBIOS_LOCAL_TARGET;
+
+typedef struct
+{
+  uint8 bNetwork[4];
+  uint8 bNode[6];
+} _IPX_INTERNET_ADDR;
+
+typedef struct
+{
+  _IPX_INTERNET_ADDR sInternetAddr;
+  uint8 bImmediate[6];
+} _IPX_LOCAL_TARGET;
+
+typedef union
+{
+  _IPX_LOCAL_TARGET sIPX;
+  _NETBIOS_LOCAL_TARGET sNETBIOS;
+} _NETNOW_NODE_ADDR;
+
+//-------------------------------------------------------------------------------------------------
+
 extern int sync_errors;
 extern int net_type;
 extern int slave_pause;
 extern int net_started;
 extern int next_resync;
+extern _NETNOW_NODE_ADDR gamers_address[4][16];
 extern int gamers_playing[4];
 extern char gamers_names[4][144];
 extern uint32 test_mini[2];
@@ -143,6 +169,7 @@ extern int message_number;
 extern int message_node;
 extern int read_check;
 extern int write_check;
+extern int test;
 extern int network_mistake;
 extern int pauser;
 extern uint32 broadcast_mode;
@@ -186,7 +213,7 @@ void receive_all_singles();
 void do_sync_stuff();
 int TransmitInit();
 void StartNode(int iNode);
-int CheckNewNodes();
+void CheckNewNodes();
 void FoundNodes();
 void SendPlayerInfo();
 void prepare_net_message(int iMessageMode, int iMessageNumber);
