@@ -47,7 +47,7 @@ typedef struct
   int iSteeringSensitivity;
   float fGripBonus;
   float fMaxGripLimit;
-  float fUnk24;
+  float fDurability;
   float fMass;
 } tCarEngine;
 

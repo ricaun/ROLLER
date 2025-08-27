@@ -503,7 +503,7 @@ void startreplay()
             Car[iCarArrayIndex].byCarDesignIdx = byCarDesignIdx;
             Car[iCarArrayIndex].byDamageToggle = 0;
             iNonCompetitorValue = non_competitors[iNonCompetitorIndex];
-            Car[iCarArrayIndex].byUnk65 = 20;
+            Car[iCarArrayIndex].byLastDamageToggle = 20;
             if (iNonCompetitorValue)          // Position non-competitor cars off-track
             {
               Car[iCarArrayIndex].pos.fX = -localdata[0].pointAy[3].fX;

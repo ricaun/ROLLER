@@ -398,7 +398,7 @@ void placecars()
       Car[iCarIdx3].byLap = 0;
       Car[iCarIdx3].byLappedStatus = 0;
       Car[iCarIdx3].byLapNumber = 0;
-      Car[iCarIdx3].fUnk39 = CarEngines.engines[Car[iDriverIdx].byCarDesignIdx].fUnk24;
+      Car[iCarIdx3].fDurability = CarEngines.engines[Car[iDriverIdx].byCarDesignIdx].fDurability;
       Car[iCarIdx3].iControlType = 3;
       Car[iCarIdx3].iSelectedStrategy = 0;
       Car[iCarIdx3].iBobMode = 0;
@@ -414,7 +414,7 @@ void placecars()
       Car[iDriverIdx].iStunned = 0;
       Car[iDriverIdx].iPitchDynamicOffset = 0;
       Car[iDriverIdx].iRollDynamicOffset = 0;
-      Car[iDriverIdx].iUnk69 = 0;
+      Car[iDriverIdx].iDamageState = 0;
       Car[iDriverIdx].byRacePosition = iCarCounter;// Set race position and other race parameters
       Car[iDriverIdx].nChangeMateCooldown = 1080;
       Car[iDriverIdx].byThrottlePressed = 0;
@@ -428,7 +428,7 @@ void placecars()
       Car[iDriverIdx].bySfxCooldown = 0;
       Car[iDriverIdx].byCollisionTimer = 0;
       Car[iDriverIdx].byDamageToggle = 0;
-      Car[iDriverIdx].byUnk65 = 0;
+      Car[iDriverIdx].byLastDamageToggle = 0;
       Car[iDriverIdx].byCheatAmmo = 8;          // Set cheat ammo count
       Car[iDriverIdx].nReverseWarnCooldown = 0;
       iCarIdx4 = non_competitors[iDriverIdx];   // Check if this is a non-competitor car

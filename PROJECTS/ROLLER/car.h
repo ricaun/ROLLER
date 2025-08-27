@@ -42,7 +42,7 @@ typedef struct
   float fCarHalfWidth;
   float fCarWidthBankingProjection;
   int iTrackedCarIdx;
-  int iUnk20_2;
+  int iUnused;
   int16 nDeathTimer;
   uint8 byCarDesignIdx;
   uint8 byLives;
@@ -70,7 +70,7 @@ typedef struct
   int iPitchMotion;
   int iYawMotion;
   int iAIUpdateTimer;
-  float fUnk39;
+  float fDurability;
   uint8 byDebugDamage;
   uint8 byAttacker;
   uint8 byKills;
@@ -105,13 +105,13 @@ typedef struct
   float fTargetY;
   uint8 byCollisionTimer;
   uint8 byDamageToggle;
-  uint8 byUnk65;
+  uint8 byLastDamageToggle;
   uint8 byDamageIntensity;
   uint8 byCheatAmmo;
   uint8 byCheatCooldown;
   uint8 byWheelAnimationFrame;
   uint8 byPadding15;
-  int iUnk69;
+  int iDamageState;
   int16 nLastCommentaryChunk;
   int16 nReverseWarnCooldown;
   int iEngineState;

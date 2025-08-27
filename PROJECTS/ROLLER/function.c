@@ -700,7 +700,7 @@ void dodamage(tCar *pCar, float fDamage)
         }
       }
     }
-    pCar->fHealth = pCar->fHealth - fDamage * pCarEngine->fUnk24;// Apply damage to car health (modified by engine durability)
+    pCar->fHealth = pCar->fHealth - fDamage * pCarEngine->fDurability;// Apply damage to car health (modified by engine durability)
     if (pCar->fHealth < 1.0)                  // Handle car destruction when health drops below 1.0
     {
       byStatusFlags = pCar->byStatusFlags;

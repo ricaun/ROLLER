@@ -3781,7 +3781,7 @@ LABEL_113:
     pCar->iPitchDynamicOffset = 0;
     pCar->iRollDynamicOffset = 0;
     putflat(pCar);                              // Reset car to flat ground position and update camera views
-    pCar->iUnk69 = 1 - pCar->iUnk69;
+    pCar->iDamageState = 1 - pCar->iDamageState;
     if (Play_View == 1) {
       if ((ViewType[0] & 1) != 0)
         iCalcViewType = ViewType[0] - 1;
