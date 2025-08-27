@@ -92,7 +92,7 @@ extern char rememberfilename[34];
 void setreplaytrack();
 void startreplay();
 void stopreplay();
-int DoReplayData();
+void DoReplayData();
 void Rplay();
 void Rreverseplay();
 void Rframeplus();

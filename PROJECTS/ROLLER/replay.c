@@ -675,9 +675,9 @@ void stopreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00064880
-int DoReplayData()
+void DoReplayData()
 {
-  return 0; /*
+  /*
   int result; // eax
   int v5; // esi
   float *v6; // edi
@@ -1932,293 +1932,291 @@ void findlastvalid()
 //-------------------------------------------------------------------------------------------------
 //000663F0
 void Rassemble()
-{/*
-  int v0; // eax
-  int v1; // ebp
-  int v2; // edx
-  char *v3; // esi
-  char *v4; // edi
-  char v5; // al
-  char v6; // al
-  char *v7; // esi
-  char *v8; // edi
-  char v9; // al
-  char v10; // al
-  int v11; // esi
-  int v12; // eax
-  int v13; // eax
-  int v14; // ebp
-  int v15; // esi
-  int v16; // edi
+{
+  int iCarIndex; // eax
+  int iNumCars; // ebp
+  int iCarCounter; // edx
+  char *szSourcePtr; // esi
+  char *szDestPtr; // edi
+  char byChar1; // al
+  char byChar2; // al
+  char *szExtSourcePtr; // esi
+  char *szExtDestPtr; // edi
+  char byExtChar1; // al
+  char byExtChar2; // al
+  FILE *pOutputFile; // esi
+  int iErrorCode1; // eax
+  int iFrame; // ebp
+  int iValidFrames; // esi
+  int iCutIndex; // edi
   int i; // edx
-  int v18; // edx
-  int v19; // eax
-  int v20; // eax
-  char *v21; // eax
-  int v22; // ecx
-  int v23; // eax
-  int v24; // eax
-  int v25; // edx
-  char *v26; // ebx
-  int v27; // ecx
-  int v28; // ebp
+  int iSeekOffset; // edx
+  int iErrorCode2; // eax
+  tReplayCamera *pCamera; // eax
+  FILE *pWriteFile; // ecx
+  int iErrorCode3; // eax
+  int iCutsTotal; // edx
+  tReplayCamera *pNextCamera; // ebx
+  int iCutCounter; // ecx
+  int iPaddingCount; // ebp
   int j; // edi
-  int v30; // eax
-  int v31; // eax
-  int v32; // eax
-  int v33; // eax
-  int v34; // edi
-  int v35; // eax
-  int v36; // ebx
-  int v37; // edx
-  int v38; // ecx
-  int v39; // ebx
-  int v40; // edx
-  int v41; // ecx
-  char v42; // al
-  char v43; // ah
-  char v44; // al
-  int v45; // esi
-  int v46; // eax
-  int v47; // eax
-  int v48; // esi
-  int v49; // eax
-  _DWORD v50[32]; // [esp+0h] [ebp-134h]
-  char v51[64]; // [esp+80h] [ebp-B4h] BYREF
-  _BYTE v52[16]; // [esp+C0h] [ebp-74h] BYREF
-  int v53; // [esp+D0h] [ebp-64h]
-  int v54; // [esp+D4h] [ebp-60h]
-  int v55; // [esp+D8h] [ebp-5Ch]
-  int v56; // [esp+DCh] [ebp-58h]
-  int v57; // [esp+E0h] [ebp-54h]
-  int v58; // [esp+E4h] [ebp-50h]
-  int v59; // [esp+E8h] [ebp-4Ch]
-  char *v60; // [esp+ECh] [ebp-48h]
-  int v61; // [esp+F0h] [ebp-44h]
-  int v62; // [esp+F4h] [ebp-40h]
-  int v63; // [esp+F8h] [ebp-3Ch]
-  int v64; // [esp+FCh] [ebp-38h]
-  int k; // [esp+100h] [ebp-34h]
-  int v66; // [esp+104h] [ebp-30h]
-  int v67; // [esp+108h] [ebp-2Ch]
-  int v68; // [esp+10Ch] [ebp-28h]
-  int v69; // [esp+110h] [ebp-24h]
-  _BYTE v70[32]; // [esp+114h] [ebp-20h] BYREF
+  int iErrorCode4; // eax
+  int iErrorCode5; // eax
+  uint8 *szDataBuffer; // edi
+  unsigned int uiBytesRead; // eax
+  uint8 *szCarDataPtr; // ebx
+  int iCarLoop1; // edx
+  int iCarIndex1; // ecx
+  uint8 *szCarDataPtr2; // ebx
+  int iCarLoop2; // edx
+  int iCarIndex2; // ecx
+  char byCarData; // al
+  uint8 byDirection; // ah
+  uint8 byProcessedData; // al
+  int iCarCount; // esi
+  int iErrorCode6; // eax
+  int iHasData; // esi
+  int aiCarDirectionFlags[32]; // [esp+0h] [ebp-134h]
+  char szFilename[32]; // [esp+80h] [ebp-B4h] BYREF
+  uint8 carVelocityData[32]; // [esp+A0h] [ebp-94h]
+  uint8 emptyCameraData[16]; // [esp+C0h] [ebp-74h] BYREF
+  int iCutsWritten; // [esp+D0h] [ebp-64h]
+  int iLastError; // [esp+D4h] [ebp-60h]
+  int iErrorFlag; // [esp+D8h] [ebp-5Ch]
+  int iTempData; // [esp+DCh] [ebp-58h]
+  int iFrameBackup; // [esp+E0h] [ebp-54h]
+  unsigned int uiSize; // [esp+E4h] [ebp-50h]
+  void *pData; // [esp+E8h] [ebp-4Ch]
+  tReplayCamera *pCameraPtr; // [esp+ECh] [ebp-48h]
+  int iOffset; // [esp+F0h] [ebp-44h]
+  int iPrevValidFrame; // [esp+F4h] [ebp-40h]
+  int iCutProcessed; // [esp+F8h] [ebp-3Ch]
+  int iDataWritten; // [esp+FCh] [ebp-38h]
+  signed int k; // [esp+100h] [ebp-34h]
+  FILE *fp; // [esp+104h] [ebp-30h]
+  int iInitFlag; // [esp+108h] [ebp-2Ch]
+  int iFrameCounter; // [esp+10Ch] [ebp-28h]
+  signed int iBlockCounter; // [esp+110h] [ebp-24h]
+  uint8 tempBuffer[32]; // [esp+114h] [ebp-20h] BYREF
 
-  v64 = 0;
-  v55 = 0;
-  if (replaytype == 2) {
-    memset(v52, 0, sizeof(v52));
-    v59 = scrbuf;
-    v0 = 0;
-    if (numcars > 0) {
-      v1 = numcars;
-      v2 = 0;
+  iDataWritten = 0;
+  iErrorFlag = 0;
+  if (replaytype == 2)                        // Only process if replay type is 2 (assembly mode)
+  {
+    memset(emptyCameraData, 0, sizeof(emptyCameraData));// Initialize empty camera data buffer and setup car processing arrays
+    pData = scrbuf;
+    iCarIndex = 0;
+    if (numcars > 0)                          // Initialize car data arrays for all cars in replay
+    {
+      iNumCars = numcars;
+      iCarCounter = 0;
       do {
-        ++v2;
-        v51[v0++ + 32] = 1;
-        v50[v2 + 15] = 1;
-      } while (v0 < v1);
+        ++iCarCounter;
+        carVelocityData[iCarIndex++] = 1;
+        aiCarDirectionFlags[iCarCounter + 15] = 1;
+      } while (iCarIndex < iNumCars);
     }
-    _disable();
-    v67 = -1;
+    //_disable();                                 // Disable interrupts and reset replay state for assembly
+    iInitFlag = -1;
     replayspeed = 0;
     replaydirection = 0;
     fraction = 0;
     ticks = currentreplayframe;
-    _enable();
-    strcpy(v51, "..\\REPLAYS\\");
-    v3 = &selectfilename;
-    v4 = &v51[strlen(v51)];
+    //_enable();
+    strcpy(szFilename, "..\\REPLAYS\\");        // Build output filename by concatenating path, selected name, and .GSS extension
+    szSourcePtr = selectfilename;
+    szDestPtr = &szFilename[strlen(szFilename)];
     do {
-      v5 = *v3;
-      *v4 = *v3;
-      if (!v5)
+      byChar1 = *szSourcePtr;
+      *szDestPtr = *szSourcePtr;
+      if (!byChar1)
         break;
-      v6 = v3[1];
-      v3 += 2;
-      v4[1] = v6;
-      v4 += 2;
-    } while (v6);
-    v7 = aGss;
-    v8 = &v51[strlen(v51)];
+      byChar2 = szSourcePtr[1];
+      szSourcePtr += 2;
+      szDestPtr[1] = byChar2;
+      szDestPtr += 2;
+    } while (byChar2);
+    szExtSourcePtr = g_szGss;
+    szExtDestPtr = &szFilename[strlen(szFilename)];
     do {
-      v9 = *v7;
-      *v8 = *v7;
-      if (!v9)
+      byExtChar1 = *szExtSourcePtr;
+      *szExtDestPtr = *szExtSourcePtr;
+      if (!byExtChar1)
         break;
-      v10 = v7[1];
-      v7 += 2;
-      v8[1] = v10;
-      v8 += 2;
-    } while (v10);
-    if (!strcmp(v51, replayfilename)) {
+      byExtChar2 = szExtSourcePtr[1];
+      szExtSourcePtr += 2;
+      szExtDestPtr[1] = byExtChar2;
+      szExtDestPtr += 2;
+    } while (byExtChar2);
+    if (!strcmp(szFilename, replayfilename))  // Check if trying to overwrite current replay file
+    {
       lastfile = 0;
       screenready = 0;
       filingmenu = 9;
     } else {
-      v11 = fopen(v51, &aYwb[1]);
-      v66 = v11;
-      if (v11) {
+      pOutputFile = fopen(szFilename, "wb");    // Open output file and copy replay header from source file
+      fp = pOutputFile;
+      if (pOutputFile) {
         fseek(replayfile, 0, 0);
-        fread(v59, 1, replayheader, replayfile);
-        v12 = fwrite(v59, 1, replayheader, v11);
-        if (v12 != replayheader) {
-          v13 = *(_DWORD *)_get_errno_ptr(v12);
-          v55 = -1;
-          v54 = v13;
+        fread(pData, 1u, replayheader, replayfile);
+        if (fwrite(pData, 1, replayheader, pOutputFile) != replayheader) {
+          iErrorCode1 = errno;
+          iErrorFlag = -1;
+          iLastError = iErrorCode1;
         }
-        v14 = 0;
-        v62 = -1;
-        v15 = 0;
-        v58 = 64000 / replayblock;
-        v53 = 0;
-        fseek(v66, 4, 0);
-        v63 = 0;
-        if (cuts > 0) {
-          v60 = camera;
-          v61 = -4;
-          v16 = 0;
-          do {
-            for (i = v14; i < *(int *)((char *)&camera_variable_2 + v16); ++i) {
+        iFrame = 0;                             // Initialize frame processing and camera cut handling
+        iPrevValidFrame = -1;
+        iValidFrames = 0;
+        uiSize = 64000 / replayblock;
+        iCutsWritten = 0;
+        fseek(fp, 4, 0);
+        iCutProcessed = 0;
+        if (cuts > 0)                         // Process each camera cut, counting valid frames and writing camera data
+        {
+          pCameraPtr = camera;
+          iOffset = -4;
+          iCutIndex = 0;
+          do {                                     // Count valid frames up to current camera cut
+            for (i = iFrame; i < camera[iCutIndex].iFrame; ++i) {
               if (!readdisable(i))
-                ++v15;
+                ++iValidFrames;
             }
-            v14 = *(int *)((char *)&camera_variable_2 + v16);
-            v57 = v14;
-            if (v62 == -1 || v15 != v62) {
-              v21 = v60;
-              v22 = v66;
-              *(int *)((char *)&camera_variable_2 + v16) = v15;
-              v23 = fwrite(v21, 1, 6, v22);
-              if (v23 != 6) {
-                v24 = *(_DWORD *)_get_errno_ptr(v23);
-                v55 = -1;
-                v54 = v24;
+            iFrame = camera[iCutIndex].iFrame;
+            iFrameBackup = iFrame;
+            if (iPrevValidFrame == -1 || iValidFrames != iPrevValidFrame)// Write camera cut data - either new entry or update existing duplicate frame
+            {
+              pCamera = pCameraPtr;
+              pWriteFile = fp;
+              camera[iCutIndex].iFrame = iValidFrames;
+              if (fwrite(pCamera, 1, 6, pWriteFile) != 6) {
+                iErrorCode3 = errno;
+                iErrorFlag = -1;
+                iLastError = iErrorCode3;
               }
-              v62 = v15;
-              v61 += 6;
-              ++v53;
+              iPrevValidFrame = iValidFrames;
+              iOffset += 6;
+              ++iCutsWritten;
             } else {
-              v18 = v61;
-              *(int *)((char *)&camera_variable_2 + v16) = v62;
-              fseek(v66, v18, 0);
-              v19 = fwrite(&camera[v16], 1, 6, v66);
-              if (v19 != 6) {
-                v20 = *(_DWORD *)_get_errno_ptr(v19);
-                v55 = -1;
-                v54 = v20;
+              iSeekOffset = iOffset;
+              camera[iCutIndex].iFrame = iPrevValidFrame;
+              fseek(fp, iSeekOffset, 0);
+              if (fwrite(&camera[iCutIndex], 1, 6, fp) != 6) {
+                iErrorCode2 = errno;
+                iErrorFlag = -1;
+                iLastError = iErrorCode2;
               }
             }
-            v25 = cuts;
-            v16 += 6;
-            v26 = v60 + 6;
-            v27 = v63 + 1;
-            *(int *)((char *)&yp_variable_1 + v16) = v57;
-            v60 = v26;
-            v63 = v27;
-          } while (v27 < v25);
+            iCutsTotal = cuts;
+            ++iCutIndex;
+            pNextCamera = pCameraPtr + 1;
+            iCutCounter = iCutProcessed + 1;
+            //TODO ensure this is accurate
+            camera[iCutIndex - 1].iFrame = iFrameBackup;
+            //*(int *)((char *)&yp_variable_1 + iCutIndex * 6) = iFrameBackup;// reference into adjacent data camera
+            pCameraPtr = pNextCamera;
+            iCutProcessed = iCutCounter;
+          } while (iCutCounter < iCutsTotal);
         }
-        v28 = 100 - v53;
-        for (j = 0; j < v28; ++j) {
-          v30 = fwrite(v52, 1, 6, v66);
-          if (v30 != 6) {
-            v31 = *(_DWORD *)_get_errno_ptr(v30);
-            v55 = -1;
-            v54 = v31;
+        iPaddingCount = 100 - iCutsWritten;     // Fill remaining camera slots with empty data (max 100 cuts)
+        for (j = 0; j < iPaddingCount; ++j) {
+          if (fwrite(emptyCameraData, 1, 6, fp) != 6) {
+            iErrorCode4 = errno;
+            iErrorFlag = -1;
+            iLastError = iErrorCode4;
           }
         }
-        v70[0] = v53;
-        v32 = fwrite(v70, 1, 1, v66);
-        if (v32 != 1) {
-          v33 = *(_DWORD *)_get_errno_ptr(v32);
-          v55 = -1;
-          v54 = v33;
+        tempBuffer[0] = iCutsWritten;           // Write total number of camera cuts to file
+        if (fwrite(tempBuffer, 1, 1, fp) != 1) {
+          iErrorCode5 = errno;
+          iErrorFlag = -1;
+          iLastError = iErrorCode5;
         }
-        fseek(v66, replayheader, 0);
-        v68 = 0;
+        fseek(fp, replayheader, 0);             // Main replay data processing - read blocks and filter/process car data
+        iFrameCounter = 0;
         do {
-          v34 = v59;
-          v35 = fread(v59, replayblock, v58, replayfile);
-          v69 = 0;
-          for (k = v35; v69 < k; ++v69) {
-            if (readdisable(v68)) {
-              v67 = -1;
-            } else {
-              if (v67) {
-                v36 = v34;
-                v37 = 0;
+          szDataBuffer = (uint8 *)pData;
+          uiBytesRead = (uint32)fread(pData, replayblock, uiSize, replayfile);
+          iBlockCounter = 0;
+          for (k = uiBytesRead; iBlockCounter < k; ++iBlockCounter) {                                     // Skip disabled frames, process valid frames with car data filtering
+            if (readdisable(iFrameCounter)) {
+              iInitFlag = -1;
+            } else {                                   // First-time setup of car direction tracking arrays
+              if (iInitFlag) {
+                szCarDataPtr = szDataBuffer;
+                iCarLoop1 = 0;
                 if (numcars > 0) {
-                  v38 = 0;
+                  iCarIndex1 = 0;
                   do {
-                    v50[v38] = (((int)*(unsigned __int8 *)(v36 + 26) >> 3) & 1) == v50[v38 + 16];
-                    v56 = (unsigned __int8)HIBYTE(*(_DWORD *)v36);
-                    v70[4] = v56;
-                    if ((char)v56 * v51[v37 + 32] >= 0)
-                      v51[v37 + 48] = 1;
+                    aiCarDirectionFlags[iCarIndex1] = (((int)szCarDataPtr[26] >> 3) & 1) == aiCarDirectionFlags[iCarIndex1 + 16];
+                    iTempData = szCarDataPtr[3];
+                    //iTempData = (uint8)HIBYTE(*(_DWORD *)szCarDataPtr);
+                    tempBuffer[4] = iTempData;
+                    if ((char)iTempData * (char)carVelocityData[iCarLoop1] >= 0)
+                      carVelocityData[iCarLoop1 + 16] = 1;
                     else
-                      v51[v37 + 48] = -1;
-                    v36 += 30;
-                    ++v37;
-                    ++v38;
-                  } while (v37 < numcars);
+                      carVelocityData[iCarLoop1 + 16] = -1;
+                    szCarDataPtr += 30;
+                    ++iCarLoop1;
+                    ++iCarIndex1;
+                  } while (iCarLoop1 < numcars);
                 }
-                v67 = 0;
+                iInitFlag = 0;
               }
-              v39 = v34;
-              v40 = 0;
+              szCarDataPtr2 = szDataBuffer;     // Process car data - flip direction bits and apply velocity corrections
+              iCarLoop2 = 0;
               if (numcars > 0) {
-                v41 = 0;
+                iCarIndex2 = 0;
                 do {
-                  *(_BYTE *)(v39 + 26) ^= 8 * LOBYTE(v50[v41]);
-                  v50[v41 + 16] = ((int)*(unsigned __int8 *)(v39 + 26) >> 3) & 1;
-                  v56 = (unsigned __int8)HIBYTE(*(_DWORD *)v39);
-                  v42 = v56;
-                  v43 = v51[v40 + 48];
-                  v51[v40 + 32] = v56;
-                  v44 = v43 * v42;
-                  v39 += 30;
-                  ++v41;
-                  v51[v40++ + 32] = v44;
-                  v45 = numcars;
-                  *(_DWORD *)(v39 - 30) = (v44 << 24) | *(_DWORD *)(v39 - 30) & 0xFFFFFF;
-                } while (v40 < v45);
+                  szCarDataPtr2[26] ^= 8 * (uint8)(aiCarDirectionFlags[iCarIndex2]);
+                  aiCarDirectionFlags[iCarIndex2 + 16] = ((int)szCarDataPtr2[26] >> 3) & 1;
+                  iTempData = szCarDataPtr2[3];
+                  //iTempData = (uint8)HIBYTE(*(_DWORD *)szCarDataPtr2);
+                  byCarData = iTempData;
+                  byDirection = carVelocityData[iCarLoop2 + 16];
+                  carVelocityData[iCarLoop2] = iTempData;
+                  byProcessedData = byDirection * byCarData;
+                  szCarDataPtr2 += 30;
+                  ++iCarIndex2;
+                  carVelocityData[iCarLoop2++] = byProcessedData;
+                  iCarCount = numcars;
+                  *(int *)(szCarDataPtr2 - 30) = ((char)byProcessedData << 24) | *(int *)(szCarDataPtr2 - 30) & 0xFFFFFF;
+                } while (iCarLoop2 < iCarCount);
               }
-              v64 = -1;
-              v46 = fwrite(v34, 1, replayblock, v66);
-              if (v46 != replayblock) {
-                v47 = *(_DWORD *)_get_errno_ptr(v46);
-                v55 = -1;
-                v54 = v47;
+              iDataWritten = -1;
+              if (fwrite(szDataBuffer, 1, replayblock, fp) != replayblock) {
+                iErrorCode6 = errno;
+                iErrorFlag = -1;
+                iLastError = iErrorCode6;
               }
             }
-            v34 += replayblock;
-            ++v68;
+            szDataBuffer += replayblock;
+            ++iFrameCounter;
           }
-        } while (k == v58 && !v55);
-        v48 = v64;
-        v49 = fclose(v66);
-        if (!v48) {
-          *(_DWORD *)_get_errno_ptr(v49) = -1000;
-          v55 = -1;
+        } while (k == uiSize && !iErrorFlag);
+        iHasData = iDataWritten;                // Close file and handle errors - delete incomplete file on failure
+        fclose(fp);
+        if (!iHasData) {
+          errno = -1000;
+          iErrorFlag = -1;
         }
-        if (v55)
-          remove(v51);
+        if (iErrorFlag)
+          remove(szFilename);
       }
       filingmenu = 0;
       lastfile = 0;
       screenready = 0;
     }
   }
-  if (v55) {
-    if (v54 == 12) {
+  if (iErrorFlag)                             // Set appropriate error dialog based on failure type
+  {
+    if (iLastError == 12) {
       filingmenu = 6;
-    } else if (v54 == -1000) {
+    } else if (iLastError == -1000) {
       filingmenu = 8;
     } else {
       filingmenu = 7;
     }
-  }*/
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
