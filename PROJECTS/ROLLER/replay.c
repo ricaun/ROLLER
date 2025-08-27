@@ -5,6 +5,10 @@
 #include "moving.h"
 #include "func2.h"
 #include "roller.h"
+#include "loadtrak.h"
+#include "control.h"
+#include "view.h"
+#include "function.h"
 #include <string.h>
 #include <errno.h>
 #ifdef IS_WINDOWS
@@ -675,284 +679,302 @@ void stopreplay()
 
 //-------------------------------------------------------------------------------------------------
 //00064880
-void DoReplayData()
-{
-  /*
-  int result; // eax
-  int v5; // esi
-  float *v6; // edi
-  int v7; // ebp
-  int v9; // ebx
-  int v10; // eax
-  int v11; // eax
-  int v12; // eax
-  int v13; // eax
-  int v14; // eax
-  int *v15; // esi
+void __cdecl DoReplayData()
+{                                               // Check replay type: 0=disabled, 1=recording, 2=playback
+  int iCarIndex; // esi
+  tCar *pCar; // edi
+  int iCarArrayIndex; // ebp
+  char byNewRepSample; // ah
+  char byAdjustedSample; // al
+  int16 nPitchWithOffsets; // ax
+  int16 nRollWithOffsets; // ax
+  tStuntData **ppRamp; // esi
   int i; // edi
-  int v17; // eax
-  float *v18; // ebp
-  int v22; // edx
-  __int16 v23; // dx
-  __int16 v25; // ax
-  int v29; // edx
-  int v31; // edx
-  int v34; // ecx
-  int v35; // eax
-  int v36; // edi
-  int v38; // ebx
-  int v39; // ecx
-  float v42; // eax
-  int j; // eax
-  int v44; // ecx
-  _BYTE *v45; // ebx
-  int v46; // edi
-  int v47; // eax
-  int *v48; // esi
-  int k; // ebp
-  int v50; // ebx
-  int v51; // esi
-  int v52; // ecx
-  int v53; // edx
-  unsigned int v54; // edi
-  int v55; // eax
-  int v56; // ebp
-  int v57; // edi
-  int v58; // eax
-  int v59; // edi
-  int v60; // ebp
-  int v61; // edx
-  unsigned int v62; // edi
-  int v63; // edi
-  int v64; // eax
-  int v65; // ebp
-  int v66; // eax
-  int v67; // ebp
-  int v68; // edi
-  int v69; // ebp
-  int v70; // edx
-  unsigned int v71; // edi
-  int v72; // eax
-  int v73; // ebp
-  int v74; // edi
-  int v75; // eax
-  int v76; // edi
-  int v77; // ebp
-  int v78; // edi
-  int v79; // edi
-  int v80; // eax
-  int v81; // ebp
-  int v82; // eax
-  int v83; // edi
-  int v84; // ebp
-  int v85; // ecx
-  int v86; // eax
-  int v87; // edx
-  int v88; // ecx
-  int v89; // esi
-  float *v90; // edi
-  int m; // edx
-  int v92; // ebx
-  int v93; // ecx
-  int v94; // esi
-  unsigned int v95; // eax
-  int v96; // [esp+0h] [ebp-134h] BYREF
-  int v97; // [esp+4h] [ebp-130h]
-  int v98; // [esp+8h] [ebp-12Ch]
-  __int16 v99; // [esp+Ch] [ebp-128h]
-  __int16 v100; // [esp+Eh] [ebp-126h]
-  __int16 v101; // [esp+10h] [ebp-124h]
-  __int16 v102; // [esp+12h] [ebp-122h]
-  __int16 v103; // [esp+14h] [ebp-120h]
-  __int16 v104; // [esp+16h] [ebp-11Eh]
-  unsigned __int8 v105; // [esp+18h] [ebp-11Ch]
-  unsigned __int8 v106; // [esp+19h] [ebp-11Bh]
-  char v107; // [esp+1Ah] [ebp-11Ah]
-  char v108; // [esp+1Bh] [ebp-119h]
-  char v109; // [esp+1Ch] [ebp-118h]
-  char v110; // [esp+1Dh] [ebp-117h]
-  int v111; // [esp+20h] [ebp-114h]
-  int v112; // [esp+24h] [ebp-110h]
-  int v113; // [esp+28h] [ebp-10Ch]
-  unsigned int v114; // [esp+2Ch] [ebp-108h]
-  int v115; // [esp+30h] [ebp-104h]
-  int v116; // [esp+34h] [ebp-100h]
-  int v117; // [esp+38h] [ebp-FCh]
-  float v118; // [esp+40h] [ebp-F4h]
-  int v119; // [esp+50h] [ebp-E4h]
-  int v120; // [esp+54h] [ebp-E0h]
-  int v121; // [esp+58h] [ebp-DCh]
-  int v122; // [esp+5Ch] [ebp-D8h]
-  int v123; // [esp+60h] [ebp-D4h]
-  int v124; // [esp+64h] [ebp-D0h] BYREF
-  unsigned int v125; // [esp+68h] [ebp-CCh]
-  unsigned int v126; // [esp+6Ch] [ebp-C8h]
-  unsigned int v127; // [esp+70h] [ebp-C4h]
-  unsigned int v128; // [esp+74h] [ebp-C0h]
-  unsigned int v129; // [esp+78h] [ebp-BCh]
-  unsigned int v130; // [esp+7Ch] [ebp-B8h]
-  int v131; // [esp+80h] [ebp-B4h]
-  unsigned int v132; // [esp+84h] [ebp-B0h]
-  unsigned int v133; // [esp+88h] [ebp-ACh]
-  unsigned int v134; // [esp+8Ch] [ebp-A8h]
-  unsigned int v135; // [esp+90h] [ebp-A4h]
-  unsigned int v136; // [esp+94h] [ebp-A0h]
-  int v137; // [esp+98h] [ebp-9Ch]
-  int v138; // [esp+9Ch] [ebp-98h]
-  int v139; // [esp+A0h] [ebp-94h]
-  int v140; // [esp+A4h] [ebp-90h]
-  int v141; // [esp+A8h] [ebp-8Ch]
-  int v142; // [esp+ACh] [ebp-88h]
-  int v143; // [esp+B0h] [ebp-84h]
-  int v144; // [esp+B4h] [ebp-80h]
-  int v145; // [esp+B8h] [ebp-7Ch]
-  int v146; // [esp+BCh] [ebp-78h]
-  int v147; // [esp+C0h] [ebp-74h]
-  int v148; // [esp+C4h] [ebp-70h]
-  int v149; // [esp+C8h] [ebp-6Ch]
-  int v150; // [esp+CCh] [ebp-68h]
-  int v151; // [esp+D0h] [ebp-64h]
-  int v152; // [esp+D4h] [ebp-60h]
-  int v153; // [esp+D8h] [ebp-5Ch]
-  int v154; // [esp+DCh] [ebp-58h]
-  int v155; // [esp+E0h] [ebp-54h]
-  int v156; // [esp+E4h] [ebp-50h]
-  unsigned int v157; // [esp+E8h] [ebp-4Ch]
-  unsigned int v158; // [esp+ECh] [ebp-48h]
-  int v159; // [esp+F0h] [ebp-44h]
-  int v160; // [esp+F4h] [ebp-40h]
-  int v161; // [esp+F8h] [ebp-3Ch]
-  int v162; // [esp+FCh] [ebp-38h]
-  int v163; // [esp+100h] [ebp-34h]
-  int v164; // [esp+104h] [ebp-30h]
-  int v165; // [esp+108h] [ebp-2Ch]
-  int v166; // [esp+10Ch] [ebp-28h]
-  int v167; // [esp+110h] [ebp-24h]
-  int v168; // [esp+114h] [ebp-20h] BYREF
-  int v169; // [esp+118h] [ebp-1Ch]
+  //tStuntData *pRampData; // eax
+  tCar *pReplayCar; // ebp
+  int iCarIndexForReplay; // edx
+  int16 nChunkFromReplay; // dx
+  int16 nNegativeChunk; // ax
+  int iStatusAndSpeed; // edx
+  int iLivesFromReplay; // edx
+  int iStunnedDirection; // ecx
+  int iWheelAnimFrame; // eax
+  int iDamageState_1; // edi
+  int iTrackSegmentIdx; // ebx
+  int iGroundColorIdx; // ecx
+  float fNearestDistance; // eax
+  int iTexIndex; // eax
+  int iSprayIdx; // ecx
+  tCarSpray *pCarSpray; // ebx
+  int iDamageIntensity; // edi
+  int iRandomValue; // eax
+  tStuntData **ppRampReplay; // esi
+  int j; // ebp
+  int iFrameDifference; // ebx
+  int iDelayWriteNew; // esi
+  int iInterpolationSteps; // ecx
+  int iNextDelaySlot; // edx
+  unsigned int uiSoundOffset; // edi
+  int iEngineVol; // eax
+  int iEngineStepCounter; // ebp
+  int iEngineVolDelta; // edi
+  int iEnginePitchOld; // eax
+  int iEnginePitchNew; // edi
+  int iEnginePitchDelta; // ebp
+  int iEngine2DelaySlot; // edx
+  unsigned int uiEngine2SoundOffset; // edi
+  int iEngine2StepIdx; // edi
+  int iEngine2Vol; // eax
+  int iEngine2VolCurrent; // ebp
+  int iEngine2PitchOld; // eax
+  int iEngine2PitchNew; // ebp
+  int iEngine2PitchStep; // edi
+  int iEngine2PitchDelta; // ebp
+  int iSkidDelaySlot; // edx
+  unsigned int uiSkidSoundOffset; // edi
+  int iSkid1Vol; // eax
+  int iSkidVolCurrent; // ebp
+  int iSkidVolDelta; // edi
+  int iSkidPitchOld; // eax
+  int iSkidPitchNew; // edi
+  int iSkidPitchStep; // ebp
+  int iSkidPitchDelta; // edi
+  int iPanStepIdx; // edi
+  int iPan; // eax
+  int iPanDelta; // ebp
+  int iPanOld; // eax
+  int iPanNew; // edi
+  int iPanStepCounter; // ebp
+  int iCurrentCut; // ecx
+  int iCutIndex; // eax
+  int iCutArrayIndex; // edx
+  int iUpdateSteps; // ecx
+  int iSmokeCarIndex; // esi
+  tCar *pSmokeCar; // edi
+  int iStepCounter; // edx
+  int iTexCleanupIdx; // ebx
+  int iTexOffsetStep; // ecx
+  int iCarTexIdx; // esi
+  unsigned int uiTexArrayOffset; // eax
+  tReplayData replayData;
+  int iPanNewCopy; // [esp+20h] [ebp-114h]
+  int iPanDeltaStep; // [esp+24h] [ebp-110h]
+  int iPanOldCopy; // [esp+28h] [ebp-10Ch]
+  unsigned int uiDelayOldOffset; // [esp+2Ch] [ebp-108h]
+  int iPanStepCount; // [esp+30h] [ebp-104h]
+  int iSkidStepCount; // [esp+34h] [ebp-100h]
+  int iEnginePitchStepCount; // [esp+38h] [ebp-FCh]
+  float fDistanceBuffer; // [esp+40h] [ebp-F4h]
+  int iDelayIdxForEngine; // [esp+50h] [ebp-E4h]
+  int iDelayWriteOld; // [esp+54h] [ebp-E0h]
+  int bReadDisabled; // [esp+58h] [ebp-DCh]
+  int iDamageState; // [esp+5Ch] [ebp-D8h]
+  int iReplayCarIndex; // [esp+60h] [ebp-D4h]
+  int iNearestChunk; // [esp+64h] [ebp-D0h] BYREF
+  unsigned int uiEnginePitchOffset; // [esp+68h] [ebp-CCh]
+  unsigned int uiEngine2PitchOffset; // [esp+6Ch] [ebp-C8h]
+  unsigned int uiSkidPitchOffset; // [esp+70h] [ebp-C4h]
+  unsigned int uiDelayOldByteOffset; // [esp+74h] [ebp-C0h]
+  unsigned int uiDelayNewByteOffset; // [esp+78h] [ebp-BCh]
+  unsigned int uiPanSoundOffset; // [esp+7Ch] [ebp-B8h]
+  int iNextDelayIndex; // [esp+80h] [ebp-B4h]
+  unsigned int uiEngineCalcOffset; // [esp+84h] [ebp-B0h]
+  unsigned int uiEngine2CalcOffset; // [esp+88h] [ebp-ACh]
+  unsigned int uiSkidCalcOffset; // [esp+8Ch] [ebp-A8h]
+  unsigned int uiPanCalcOffset; // [esp+90h] [ebp-A4h]
+  unsigned int uiCarOffset; // [esp+94h] [ebp-A0h]
+  int iEngineVolStep; // [esp+98h] [ebp-9Ch]
+  int iEngineVolIncrement; // [esp+9Ch] [ebp-98h]
+  int iEngineVolBase; // [esp+A0h] [ebp-94h]
+  int iEnginePitchStep; // [esp+A4h] [ebp-90h]
+  int iEnginePitchBase; // [esp+A8h] [ebp-8Ch]
+  int iEngine2VolIncrement; // [esp+ACh] [ebp-88h]
+  int iEngine2VolDelta; // [esp+B0h] [ebp-84h]
+  int iEngine2VolBase; // [esp+B4h] [ebp-80h]
+  int iEngine2PitchWorking; // [esp+B8h] [ebp-7Ch]
+  int iEngine2PitchIncrement; // [esp+BCh] [ebp-78h]
+  int iEngine2PitchBase; // [esp+C0h] [ebp-74h]
+  int iSkidVolIncrement; // [esp+C4h] [ebp-70h]
+  int iSkidVolBase; // [esp+C8h] [ebp-6Ch]
+  int iSkidPitchWorking; // [esp+CCh] [ebp-68h]
+  int iSkidPitchIncrement; // [esp+D0h] [ebp-64h]
+  int iSkidPitchBase; // [esp+D4h] [ebp-60h]
+  int iPanStep; // [esp+D8h] [ebp-5Ch]
+  int iPanIncrement; // [esp+DCh] [ebp-58h]
+  int iPanBase; // [esp+E0h] [ebp-54h]
+  int iCarLoopIndex; // [esp+E4h] [ebp-50h]
+  unsigned int uiSoundOffsetCopy; // [esp+E8h] [ebp-4Ch]
+  unsigned int uiSoundDataOffset; // [esp+ECh] [ebp-48h]
+  int iTotalCarDataSize; // [esp+F0h] [ebp-44h]
+  float fBestDistance; // [esp+F4h] [ebp-40h]
+  int iPanLoopStep; // [esp+F8h] [ebp-3Ch]
+  int iEngine2LoopStep; // [esp+FCh] [ebp-38h]
+  int iSkidPitchDelayIdx; // [esp+100h] [ebp-34h]
+  int iSkidVolDelayIdx; // [esp+104h] [ebp-30h]
+  int iEngine2PitchDelayIdx; // [esp+108h] [ebp-2Ch]
+  int iEnginePitchDelayIdx; // [esp+10Ch] [ebp-28h]
+  int iConversionBuffer; // [esp+110h] [ebp-24h]
+  tStuntData *pRampData_1; // [esp+114h] [ebp-20h] BYREF
+  int iTempCalcBuffer; // [esp+118h] [ebp-1Ch]
 
-  result = replaytype;
   if (replaytype) {
-    if ((unsigned int)replaytype <= 1) {
+    if ((unsigned int)replaytype <= 1) {                                           // Recording mode: write replay data to file
       if (replayfile && !discfull) {
-        v5 = 0;
+        iCarIndex = 0;
+
+        // Loop through all cars to record their state
         if (numcars > 0) {
-          v6 = Car;
-          v7 = 0;
+          pCar = Car;
+          iCarArrayIndex = 0;
           do {
-            if (!non_competitors[v7]) {
-              BYTE1(result) = newrepsample[v5];
-              _EDX = v6;
-              if (BYTE1(result)) {
-                if (repsample[v5] > 0)
-                  LOBYTE(result) = -BYTE1(result) - 1;
+            if (!non_competitors[iCarArrayIndex]) {
+              byNewRepSample = newrepsample[iCarIndex];
+              //_EDX = pCar;
+              if (byNewRepSample) {
+                if (repsample[iCarIndex] > 0)
+                  byAdjustedSample = -byNewRepSample - 1;
                 else
-                  LOBYTE(result) = BYTE1(result) + 1;
-                repsample[v5] = result;
+                  byAdjustedSample = byNewRepSample + 1;
+                repsample[iCarIndex] = byAdjustedSample;
               }
-              __asm { fld     dword ptr[edx] }
-              _CHP(result, v6);
-              __asm { fistp[esp + 134h + var_24] }
-              v96 = (repsample[v5] << 24) | v167 & 0xFFFFFF;
-              __asm { fld     dword ptr[edx + 4] }
-              _CHP(v96, v6);
-              __asm { fistp[esp + 134h + var_24] }
-              v97 = ((unsigned __int8)repvolume[v5] << 24) | v167 & 0xFFFFFF;
-              __asm { fld     dword ptr[edx + 8] }
-              _CHP(v97, v6);
-              __asm { fistp[esp + 134h + var_24] }
-              v9 = *((_DWORD *)v6 + 19) << 24;
-              v98 = v9 | v167 & 0xFFFFFF;
-              v10 = *((__int16 *)v6 + 6);
-              if (v10 == -1) {
-                LOWORD(v10) = *((_WORD *)v6 + 7);
-                v9 = -v10;
-                v99 = -(__int16)v10;
-              } else {
-                v99 = *((_WORD *)v6 + 6);
-              }
-              v102 = *((_WORD *)v6 + 10);
-              v103 = *((_WORD *)v6 + 32);
-              LOWORD(v10) = *((_WORD *)v6 + 9);
-              LOWORD(a4) = *((_WORD *)v6 + 66);
-              LOWORD(v9) = *((_WORD *)v6 + 74);
-              v11 = v9 + a4 + v10;
-              BYTE1(v11) &= 0x3Fu;
-              v101 = v11;
-              LOWORD(v11) = *((_WORD *)v6 + 8);
-              LOWORD(a4) = *((_WORD *)v6 + 68);
-              LOWORD(v9) = *((_WORD *)v6 + 78);
-              v12 = v9 + a4 + v11;
-              BYTE1(v12) &= 0x3Fu;
-              v100 = v12;
-              __asm
-              {
-                fld     dword ptr[edx + 18h]
-                fabs
-              }
-              _CHP(v12, v6);
-              __asm { fistp[esp + 134h + var_24] }
-              v104 = v167 | ((*((char *)v6 + 103) + 2) << 10);
-              if ((*((_BYTE *)v6 + 131) & 2) != 0)
-                HIBYTE(v104) |= 0x20u;
-              if ((*((_BYTE *)v6 + 131) & 4) != 0)
-                HIBYTE(v104) |= 0x40u;
-              __asm
-              {
-                fld     dword ptr[edx + 78h]
-                fmul    replay_c_variable_15
-              }
-              _CHP(v13, v6);
-              __asm { fistp[esp + 134h + var_24] }
-              LOBYTE(v14) = v167;
-              v105 = v167;
-              __asm { fld     dword ptr[edx + 1Ch] }
-              _CHP(v14, v6);
-              __asm { fistp[esp + 134h + var_24] }
-              v106 = v167 | (*((_BYTE *)v6 + 204) << 7);
-              v107 = (*((_BYTE *)v6 + 273) << 7)
-                + 8 * *((_BYTE *)v6 + 280)
-                + *((_BYTE *)v6 + 128)
-                + 2
-                + 16 * *((_BYTE *)v6 + 278);
-              v108 = *((_BYTE *)v6 + 129);
-              if (*((__int16 *)v6 + 50) >= 0)
-                v109 = *((_BYTE *)v6 + 100);
+
+              // Convert car X position to integer
+              //_CHP();
+              iConversionBuffer = (int)pCar->pos.fX;
+              replayData.iPackedPosX = (repsample[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;
+              // Convert car Y position to integer  
+              //_CHP();
+              iConversionBuffer = (int)pCar->pos.fY;
+              replayData.iPackedPosY = ((unsigned __int8)repvolume[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;
+              // Convert car Z position to integer
+              //_CHP();
+              iConversionBuffer = (int)pCar->pos.fZ;
+              replayData.iPackedPosZ = (pCar->iSteeringInput << 24) | iConversionBuffer & 0xFFFFFF;
+              //__asm { fld     dword ptr[edx]; Load Real }
+              //_CHP();
+              //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
+              //iPackedPosX = (repsample[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;// Pack X position with sample data in high byte
+              //__asm { fld     dword ptr[edx + 4]; Load Real }
+              //_CHP();
+              //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
+              //iPackedPosY = ((unsigned __int8)repvolume[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;// Pack Y position with volume data in high byte
+              //__asm { fld     dword ptr[edx + 8]; Load Real }
+              //_CHP();
+              //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
+              //iPackedPosZ = (pCar->iSteeringInput << 24) | iConversionBuffer & 0xFFFFFF;// Pack Z position with steering input in high byte
+
+              if (pCar->nCurrChunk == -1)
+                replayData.nCurrChunk = -pCar->nReferenceChunk;
               else
-                v109 = -1;
-              HIWORD(a4) = HIWORD(replayfile);
-              v110 = *((_BYTE *)v6 + 275);
-              if (!fwrite(&v96, 30, 1, replayfile))
+                replayData.nCurrChunk = pCar->nCurrChunk;
+              replayData.nDesiredYaw = pCar->nYaw;
+              replayData.nActualYaw = pCar->nActualYaw;
+              nPitchWithOffsets = (int16)(pCar->iPitchCameraOffset) + (int16)(pCar->iPitchDynamicOffset) + pCar->nPitch;
+              nPitchWithOffsets &= 0x3FFF;
+              //HIBYTE(nPitchWithOffsets) &= 0x3Fu;
+              replayData.nPitchPacked = nPitchWithOffsets;
+              nRollWithOffsets = (int16)(pCar->iRollCameraOffset) + (int16)(pCar->iRollDynamicOffset) + pCar->nRoll;
+              nRollWithOffsets &= 0x3FFF;
+              //HIBYTE(nRollWithOffsets) &= 0x3Fu;
+              replayData.nRollPacked = nRollWithOffsets;
+
+              // Convert car speed (take absolute value) and pack with lives/status data
+              //_CHP();
+              iConversionBuffer = (int)fabs(pCar->fFinalSpeed);
+              replayData.nSpeedAndStatus = iConversionBuffer | (((char)pCar->byLives + 2) << 10);
+              // Pack status flags into high byte
+              if ( (pCar->byStatusFlags & 2) != 0 )
+                replayData.nSpeedAndStatus |= 0x2000u;
+                //HIBYTE(nSpeedAndStatus) |= 0x20u;
+              if ( (pCar->byStatusFlags & 4) != 0 )
+                replayData.nSpeedAndStatus |= 0x4000u;
+                //HIBYTE(nSpeedAndStatus) |= 0x40u;
+              // Convert RPM ratio with scaling factor
+              //_CHP();
+              iConversionBuffer = (int)(pCar->fRPMRatio * 255.0);
+              replayData.byRPMPacked = iConversionBuffer;
+              // Convert health value and pack with stunned flag
+              //_CHP();
+              iConversionBuffer = (int)pCar->fHealth;
+              replayData.byHealthAndStunned = iConversionBuffer | ((uint8)(pCar->iStunned) << 7); //TODO: check on this
+              //__asm
+              //{
+              //  fld     dword ptr[edx + 18h]; Load Real
+              //  fabs; Absolute value
+              //}
+              //_CHP();
+              //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
+              //nSpeedAndStatus = iConversionBuffer | (((char)pCar->byLives + 2) << 10);// Pack speed and lives data into replay format
+              //if ((pCar->byStatusFlags & 2) != 0)
+              //  HIBYTE(nSpeedAndStatus) |= 0x20u;
+              //if ((pCar->byStatusFlags & 4) != 0)
+              //  HIBYTE(nSpeedAndStatus) |= 0x40u;
+              //__asm
+              //{
+              //  fld     dword ptr[edx + 78h]; Load Real
+              //  fmul    replay_c_variable_15; Multiply Real
+              //}
+              //_CHP();
+              //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
+              //byRPMPacked = iConversionBuffer;
+              //__asm { fld     dword ptr[edx + 1Ch]; Load Real }
+              //_CHP();
+              //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
+              //byHealthAndStunned = iConversionBuffer | (LOBYTE(pCar->iStunned) << 7);
+
+              replayData.byMiscCarData = (pCar->byDamageToggle << 7) + 8 * LOBYTE(pCar->iDamageState) + pCar->byGearAyMax + 2 + 16 * pCar->byWheelAnimationFrame;
+              replayData.byLap = pCar->byLap;
+              if (pCar->nDeathTimer >= 0)
+                replayData.byDeathTimer = (char)pCar->nDeathTimer;
+              else
+                replayData.byDeathTimer = -1;
+              replayData.byDamageIntensity = pCar->byDamageIntensity;
+              if (!fwrite(&replayData.iPackedPosX, 30, 1, replayfile))
                 discfull = -1;
             }
-            result = numcars;
-            ++v7;
-            ++v5;
-            v6 += 77;
-          } while (v5 < numcars);
+            ++iCarArrayIndex;
+            ++iCarIndex;
+            ++pCar;
+          } while (iCarIndex < numcars);
         }
-        v15 = ramp;
+
+        // Record stunt ramp timing data (8 ramps max)
+        ppRamp = ramp;
         for (i = 0; i < 8; ++i) {
-          v17 = *v15;
-          if (*v15) {
-            LOWORD(v17) = *(_WORD *)(v17 + 40);
-            ++v15;
+          int16 nRampTiming;
+          if (*ppRamp) {
+              // Ramp exists - get its activation timing
+            nRampTiming = (*ppRamp)->iTickStartIdx;
           } else {
-            v17 = 0;
+              // No ramp in this slot - write 0
+            nRampTiming = 0;
           }
-          v168 = v17;
-          result = fwrite(&v168, 2, 1, replayfile);
-          if (!result)
+          // Write 2 bytes (16-bit timing value) to replay file
+          if (!fwrite(&nRampTiming, 2, 1, replayfile))
             discfull = -1;
+          ++ppRamp;  // Move to next ramp slot
         }
+        //ppRamp = ramp;
+        //for (i = 0; i < 8; ++i) {
+        //  pRampData = *ppRamp;
+        //  if (*ppRamp) {
+        //    LOWORD(pRampData) = pRampData->iTickStartIdx;
+        //    ++ppRamp;
+        //  } else {
+        //    pRampData = 0;
+        //  }
+        //  pRampData_1 = pRampData;
+        //  if (!fwrite(&pRampData_1, 2, 1, replayfile))
+        //    discfull = -1;
+        //}
       }
-    } else if (replaytype == 2) {
+    } else if (replaytype == 2) {                                           // Playback mode: read and apply replay data
       if (replayspeed != 256)
-        result = stopallsamples();
+        stopallsamples();
       newreplayframe = 0;
       if (replayfile) {
         currentreplayframe = ticks;
-        v121 = 0;
+        bReadDisabled = 0;
         if (ticks >= replayframes)
           currentreplayframe = replayframes - 1;
         if (currentreplayframe < 0)
@@ -964,462 +986,565 @@ void DoReplayData()
           } else {
             findnextvalid();
           }
-          v121 = -1;
+          bReadDisabled = -1;
         }
         if (replayframes - 1 == currentreplayframe && replayspeed > 0 && replaytype == 2) {
-          _disable();
+          //_disable();
           replayspeed = 0;
           fraction = 0;
           replaydirection = 0;
           ticks = currentreplayframe;
-          _enable();
+          //_enable();
         }
         if (!currentreplayframe && replayspeed < 0 && replaytype == 2) {
-          _disable();
+          //_disable();
           replayspeed = currentreplayframe;
           fraction = currentreplayframe;
           replaydirection = currentreplayframe;
           ticks = currentreplayframe;
-          _enable();
+          //_enable();
         }
-        result = lastreplayframe;
         if (lastreplayframe == currentreplayframe) {
           newreplayframe = 0;
         } else {
           newreplayframe = -1;
-          fseek(replayfile, replayblock * currentreplayframe + replayheader, 0);
-          v123 = 0;
+          fseek(replayfile, replayblock * currentreplayframe + replayheader, 0);// Seek to current replay frame in file
+          iReplayCarIndex = 0;
+
+          // Read car state data from replay file
           if (numcars > 0) {
-            v18 = Car;
-            v136 = 0;
+            pReplayCar = Car;
+            uiCarOffset = 0;
             do {
-              if (!non_competitors[v136 / 4]) {
-                fread(&v96, 30, 1, replayfile);
-                v167 = v96 << 8 >> 8;
-                __asm
-                {
-                  fild[esp + 134h + var_24]
-                  fstp    dword ptr[ebp + 0]
-                }
-                *v18 = _ET1;
-                v167 = v97 << 8 >> 8;
-                __asm
-                {
-                  fild[esp + 134h + var_24]
-                  fstp    dword ptr[ebp + 4]
-                }
-                v18[1] = _ET1;
-                v167 = v98 << 8 >> 8;
-                __asm
-                {
-                  fild[esp + 134h + var_24]
-                  fstp    dword ptr[ebp + 8]
-                }
-                v18[2] = _ET1;
-                v22 = v123;
-                newrepsample[v123] = HIBYTE(v96);
-                repvolume[v22] = HIBYTE(v97);
-                *((_DWORD *)v18 + 19) = v98 >> 24;
-                v23 = v99;
-                _ESI = v18;
-                if (v99 >= 0) {
-                  *((_DWORD *)v18 + 18) = 3;
-                  *((_WORD *)v18 + 6) = v23;
-                  *((_WORD *)v18 + 7) = v23;
-                  *((_DWORD *)v18 + 54) = v23;
+              if (!non_competitors[uiCarOffset / 4]) {
+                fread(&replayData, 0x1Eu, 1u, replayfile);
+
+                // Unpack X position: extract lower 24 bits and convert to float
+                iConversionBuffer = replayData.iPackedPosX << 8 >> 8;  // Sign-extend 24-bit value to 32-bit
+                pReplayCar->pos.fX = (float)iConversionBuffer;
+                // Unpack Y position: extract lower 24 bits and convert to float  
+                iConversionBuffer = replayData.iPackedPosY << 8 >> 8;  // Sign-extend 24-bit value to 32-bit
+                pReplayCar->pos.fY = (float)iConversionBuffer;
+                // Unpack Z position: extract lower 24 bits and convert to float
+                iConversionBuffer = replayData.iPackedPosZ << 8 >> 8;  // Sign-extend 24-bit value to 32-bit
+                pReplayCar->pos.fZ = (float)iConversionBuffer;
+                //iConversionBuffer = iPackedPosX << 8 >> 8;
+                //__asm
+                //{
+                //  fild[esp + 134h + var_24]; Load Integer
+                //  fstp    dword ptr[ebp + 0]; Store Real and Pop
+                //}
+                //pReplayCar->pos.fX = _ET1;
+                //iConversionBuffer = iPackedPosY << 8 >> 8;
+                //__asm
+                //{
+                //  fild[esp + 134h + var_24]; Load Integer
+                //  fstp    dword ptr[ebp + 4]; Store Real and Pop
+                //}
+                //pReplayCar->pos.fY = _ET1;
+                //iConversionBuffer = iPackedPosZ << 8 >> 8;
+                //__asm
+                //{
+                //  fild[esp + 134h + var_24]; Load Integer
+                //  fstp    dword ptr[ebp + 8]; Store Real and Pop
+                //}
+                //pReplayCar->pos.fZ = _ET1;
+
+                iCarIndexForReplay = iReplayCarIndex;
+                newrepsample[iReplayCarIndex] = GET_HIBYTE(replayData.iPackedPosX);
+                repvolume[iCarIndexForReplay] = GET_HIBYTE(replayData.iPackedPosY);
+                pReplayCar->iSteeringInput = replayData.iPackedPosZ >> 24;
+                nChunkFromReplay = replayData.nCurrChunk;
+                //_ESI = pReplayCar;
+                if (replayData.nCurrChunk >= 0) {
+                  pReplayCar->iControlType = 3;
+                  pReplayCar->nCurrChunk = nChunkFromReplay;
+                  pReplayCar->nReferenceChunk = nChunkFromReplay;
+                  pReplayCar->iLastValidChunk = nChunkFromReplay;
                 } else {
-                  *((_WORD *)v18 + 6) = -1;
-                  v25 = v99;
-                  v18[18] = 0.0;
-                  *((_WORD *)v18 + 7) = v25;
-                  *((_WORD *)v18 + 7) = -v25;
-                  findnearsection((int)v18, &v124);
+                  pReplayCar->nCurrChunk = -1;
+                  nNegativeChunk = replayData.nCurrChunk;
+                  pReplayCar->iControlType = 0;
+                  pReplayCar->nReferenceChunk = nNegativeChunk;
+                  pReplayCar->nReferenceChunk = -nNegativeChunk;
+                  findnearsection(pReplayCar, &iNearestChunk);
                 }
-                if (*((_DWORD *)v18 + 18) == 3) {
-                  __asm { fld     dword ptr[esi + 4] }
-                  _EDX = (char *)&localdata + 128 * *((__int16 *)v18 + 6);
-                  __asm
+                if (pReplayCar->iControlType == 3) {
+                  tData *pData = &localdata[pReplayCar->nCurrChunk];
+                  // Compare car's Y position with track lane boundary
+                  if ( pReplayCar->pos.fY < pData->fTrackHalfWidth || isnan(pReplayCar->pos.fY) )
                   {
-                    fcomp   dword ptr[edx + 34h]
-                    fnstsw  ax
+                    // Check if car is in the opposite lane boundary  
+                    if ( pReplayCar->pos.fY > -pData->fTrackHalfWidth || isnan(pReplayCar->pos.fY) )
+                      pReplayCar->iLaneType = 1;    // Left lane or boundary area
+                    else  
+                      pReplayCar->iLaneType = 2;    // Far left outside track
                   }
-                  if ((_AX & 0x100) != 0 || (_AX & 0x4000) != 0) {
-                    __asm
-                    {
-                      fld     dword ptr[edx + 34h]
-                      fchs
-                      fcomp   dword ptr[esi + 4]
-                      fnstsw  ax
-                    }
-                    if ((_AX & 0x100) != 0 || (_AX & 0x4000) != 0)
-                      *((_DWORD *)v18 + 53) = 1;
-                    else
-                      *((_DWORD *)v18 + 53) = 2;
-                  } else {
-                    v18[53] = 0.0;
+                  else
+                  {
+                    pReplayCar->iLaneType = 0;        // Right lane or center
                   }
+                  //__asm { fld     dword ptr[esi + 4]; Load Real }
+                  //_EDX = &localdata[pReplayCar->nCurrChunk];
+                  //__asm
+                  //{
+                  //  fcomp   dword ptr[edx + 34h]; Compare Real and Pop
+                  //  fnstsw  ax; Store Status Word(no wait)
+                  //}
+                  //if ((_AX & 0x100) != 0 || (_AX & 0x4000) != 0) {
+                  //  __asm
+                  //  {
+                  //    fld     dword ptr[edx + 34h]; Load Real
+                  //    fchs; Change Sign
+                  //    fcomp   dword ptr[esi + 4]; Compare Real and Pop
+                  //    fnstsw  ax; Store Status Word(no wait)
+                  //  }
+                  //  if ((_AX & 0x100) != 0 || (_AX & 0x4000) != 0)
+                  //    pReplayCar->iLaneType = 1;
+                  //  else
+                  //    pReplayCar->iLaneType = 2;
+                  //} else {
+                  //  pReplayCar->iLaneType = 0;
+                  //}
                 }
-                *((_WORD *)v18 + 10) = v102;
-                *((_DWORD *)v18 + 16) = v103;
-                *((_WORD *)v18 + 9) = v101;
-                HIWORD(v29) = 0;
-                *((_WORD *)v18 + 8) = v100;
-                LOWORD(v29) = v104;
-                v167 = v104 & 0x2FF;
-                __asm { fild[esp + 134h + var_24] }
-                *((_BYTE *)v18 + 131) = 0;
-                __asm { fstp    dword ptr[esi + 18h] }
-                v18[6] = _ET1;
-                if ((v29 & 0x2000) != 0)
-                  *((_BYTE *)v18 + 131) = 2;
-                if ((v29 & 0x4000) != 0)
-                  *((_BYTE *)v18 + 131) |= 4u;
-                v31 = (v29 >> 10) & 7;
-                if (v31) {
-                  *((_BYTE *)v18 + 103) = v31 - 2;
+                pReplayCar->nYaw = replayData.nDesiredYaw;
+                pReplayCar->nActualYaw = replayData.nActualYaw;
+                pReplayCar->nPitch = replayData.nPitchPacked;
+                //HIWORD(iStatusAndSpeed) = 0;
+                pReplayCar->nRoll = replayData.nRollPacked;
+                //LOWORD(iStatusAndSpeed) = nSpeedAndStatus;
+                iStatusAndSpeed = replayData.nSpeedAndStatus;
+
+                // Extract speed data from packed format (lower 10 bits) and convert to float
+                iConversionBuffer = replayData.nSpeedAndStatus & 0x2FF;  // Extract lower 10 bits containing speed
+                pReplayCar->byStatusFlags = 0;
+                pReplayCar->fFinalSpeed = (float)iConversionBuffer;
+                //iConversionBuffer = nSpeedAndStatus & 0x2FF;
+                //__asm { fild[esp + 134h + var_24]; Load Integer }
+                //pReplayCar->byStatusFlags = 0;
+                //__asm { fstp    dword ptr[esi + 18h]; Store Real and Pop }
+                //pReplayCar->fFinalSpeed = _ET1;
+
+                if ((iStatusAndSpeed & 0x2000) != 0)
+                  pReplayCar->byStatusFlags = 2;
+                if ((iStatusAndSpeed & 0x4000) != 0)
+                  pReplayCar->byStatusFlags |= 4u;
+                iLivesFromReplay = (iStatusAndSpeed >> 10) & 7;
+                if (iLivesFromReplay) {
+                  pReplayCar->byLives = iLivesFromReplay - 2;
                 } else {
-                  *((_BYTE *)v18 + 131) = 0;
-                  *((_BYTE *)v18 + 103) = 3;
+                  pReplayCar->byStatusFlags = 0;
+                  pReplayCar->byLives = 3;
                 }
-                *((_WORD *)v18 + 50) = v109;
-                LOWORD(v169) = v105;
-                __asm
-                {
-                  fild    word ptr[esp + 134h + var_1C]
-                  fmul    replay_c_variable_16
-                  fstp    dword ptr[esi + 78h]
-                }
-                v18[30] = _ET1;
-                v169 = v106 & 0x7F;
-                __asm
-                {
-                  fild    word ptr[esp + 134h + var_1C]
-                  fstp    dword ptr[esi + 1Ch]
-                }
-                v18[7] = _ET1;
-                v34 = (int)v106 >> 7;
-                *((_DWORD *)v18 + 51) = v34;
-                *((_DWORD *)v18 + 51) = -v34;
-                *((_BYTE *)v18 + 128) = (v107 & 7) - 2;
-                v122 = (v107 & 8) >> 3;
-                v35 = (v107 & 0x70) >> 4;
-                *((_BYTE *)v18 + 278) = v35;
-                if ((unsigned __int8)v35 > 4u)
-                  *((_BYTE *)v18 + 278) = 4;
-                *((_BYTE *)v18 + 273) = (v107 & 0x80) >> 7;
-                v36 = *((_DWORD *)v18 + 70);
-                *((_BYTE *)v18 + 275) = v110;
-                if (v36 != v122 && ViewType[0] == *((_DWORD *)v18 + 8)) {
-                  if (v99 < 0) {
-                    _EDX = (char *)&localdata;
-                    v160 = 1343554297;
-                    v38 = 0;
-                    if (TRAK_LEN > 0) {
-                      v39 = 0;
-                      do {
-                        __asm
+                pReplayCar->nDeathTimer = replayData.byDeathTimer;
+
+                // Unpack RPM data: convert packed byte back to floating point ratio
+                pReplayCar->fRPMRatio = (float)replayData.byRPMPacked * 0.00392156862745098f;
+                //LOWORD(iTempCalcBuffer) = byRPMPacked;
+                //__asm
+                //{
+                //  fild    word ptr[esp + 134h + var_1C]; Load Integer
+                //  fmul    replay_c_variable_16; Multiply Real
+                //  fstp    dword ptr[esi + 78h]; Store Real and Pop
+                //}
+                //pReplayCar->fRPMRatio = _ET1;
+
+                // Extract health data from packed format (lower 7 bits) and convert to float
+                iTempCalcBuffer = replayData.byHealthAndStunned & 0x7F;  // Extract lower 7 bits containing health
+                pReplayCar->fHealth = (float)iTempCalcBuffer;
+                //iTempCalcBuffer = byHealthAndStunned & 0x7F;
+                //__asm
+                //{
+                //  fild    word ptr[esp + 134h + var_1C]; Load Integer
+                //  fstp    dword ptr[esi + 1Ch]; Store Real and Pop
+                //}
+                //pReplayCar->fHealth = _ET1;
+
+                iStunnedDirection = (int)replayData.byHealthAndStunned >> 7;
+                pReplayCar->iStunned = iStunnedDirection;
+                pReplayCar->iStunned = -iStunnedDirection;
+                pReplayCar->byGearAyMax = (replayData.byMiscCarData & 7) - 2;
+                iDamageState = (replayData.byMiscCarData & 8) >> 3;
+                iWheelAnimFrame = (replayData.byMiscCarData & 0x70) >> 4;
+                pReplayCar->byWheelAnimationFrame = iWheelAnimFrame;
+                if ((uint8)iWheelAnimFrame > 4u)
+                  pReplayCar->byWheelAnimationFrame = 4;
+                pReplayCar->byDamageToggle = (replayData.byMiscCarData & 0x80) >> 7;
+                iDamageState_1 = pReplayCar->iDamageState;
+                pReplayCar->byDamageIntensity = replayData.byDamageIntensity;
+                if (iDamageState_1 != iDamageState && ViewType[0] == pReplayCar->iDriverIdx) {
+                  if (replayData.nCurrChunk < 0) {
+
+                    tData *pData = &localdata[0];
+                    fBestDistance = 1.0e10f;  // Very large initial value (appears to be a float constant)
+                    iTrackSegmentIdx = 0;
+                    if ( TRAK_LEN > 0 )
+                    {
+                      iGroundColorIdx = 0;
+                      do
+                      {
+                        // Calculate relative position (car position + track segment offset)
+                        float fRelativeX = pReplayCar->pos.fX + pData->pointAy[3].fX;  // [edx+24h]
+                        float fRelativeY = pReplayCar->pos.fY + pData->pointAy[3].fY;  // [edx+28h] 
+                        float fRelativeZ = pReplayCar->pos.fZ + pData->pointAy[3].fZ;  // [edx+2Ch]
+                        // Calculate dot product with track normal vector
+                        float fDotProduct = (pData->pointAy[0].fZ * fRelativeX) +     // [edx+8]
+                                               (pData->pointAy[1].fZ * fRelativeY) +     // [edx+14h]
+                                               (pData->pointAy[2].fZ * fRelativeZ);      // [edx+20h]
+                            
+                        // Calculate distance from car to track segment
+                        float fDistanceSquared = (fRelativeX * fRelativeX) + 
+                                                    (fRelativeY * fRelativeY) + 
+                                                    (fRelativeZ * fRelativeZ) - 
+                                                    (fDotProduct * fDotProduct);
+                        float fDistance = (float)sqrt(fDistanceSquared) - pData->fTrackHalfLength; // [edx+30h]
+                        fDistanceBuffer = fDistance;
+                        // Check if this is a valid segment and closer than previous best
+                        if ( fDistance >= -400.0 || GroundColour[iGroundColorIdx][2] >= 0 )
                         {
-                          fld     dword ptr[esi]
-                          fadd    dword ptr[edx + 24h]
-                          fld     dword ptr[esi + 4]
-                          fadd    dword ptr[edx + 28h]
-                          fld     dword ptr[esi + 8]
-                          fadd    dword ptr[edx + 2Ch]
-                          fld     dword ptr[edx + 8]
-                          fmul    st, st(3)
-                          fld     dword ptr[edx + 14h]
-                          fmul    st, st(3)
-                          faddp   st(1), st
-                          fld     dword ptr[edx + 20h]
-                          fmul    st, st(2)
-                          faddp   st(1), st
-                          fld     st(3)
-                          fmulp   st(4), st
-                          fld     st(2)
-                          fmulp   st(3), st
-                          fxch    st(2)
-                          faddp   st(3), st
-                          fmul    st, st
-                          faddp   st(2), st
-                          fxch    st(1)
-                          fsqrt
-                          fsub    dword ptr[edx + 30h]
-                          fstp[esp + 134h + var_F4]
-                          fcomp   replay_c_variable_17
-                          fnstsw  ax
-                        }
-                        if ((_AX & 0x100) == 0 || GroundColour_variable_4[v39] >= 0) {
-                          __asm
+                          if ( fDistance < fBestDistance )
                           {
-                            fld[esp + 134h + var_F4]
-                            fcomp[esp + 134h + var_40]
-                            fnstsw  ax
-                          }
-                          if ((_AX & 0x100) != 0) {
-                            v42 = v118;
-                            *((_DWORD *)v18 + 54) = v38;
-                            v160 = LODWORD(v42);
+                            fNearestDistance = fDistanceBuffer;
+                            pReplayCar->iLastValidChunk = iTrackSegmentIdx;
+                            fBestDistance = fNearestDistance;
                           }
                         }
-                        _EDX += 128;
-                        ++v38;
-                        v39 += 5;
-                      } while (v38 < TRAK_LEN);
+                        ++pData;
+                        ++iTrackSegmentIdx; 
+                        ++iGroundColorIdx;
+                      }
+                      while ( iTrackSegmentIdx < TRAK_LEN );
                     }
-                    findnearsection((int)v18, &v124);
+                    //_EDX = localdata;
+                    //fBestDistance = 1.0e10;
+                    //iTrackSegmentIdx = 0;
+                    //if (TRAK_LEN > 0) {
+                    //  iGroundColorIdx = 0;
+                    //  do {
+                    //    __asm
+                    //    {
+                    //      fld     dword ptr[esi]; Load Real
+                    //      fadd    dword ptr[edx + 24h]; Add Real
+                    //      fld     dword ptr[esi + 4]; Load Real
+                    //      fadd    dword ptr[edx + 28h]; Add Real
+                    //      fld     dword ptr[esi + 8]; Load Real
+                    //      fadd    dword ptr[edx + 2Ch]; Add Real
+                    //      fld     dword ptr[edx + 8]; Load Real
+                    //      fmul    st, st(3); Multiply Real
+                    //      fld     dword ptr[edx + 14h]; Load Real
+                    //      fmul    st, st(3); Multiply Real
+                    //      faddp   st(1), st; Add Real and Pop
+                    //      fld     dword ptr[edx + 20h]; Load Real
+                    //      fmul    st, st(2); Multiply Real
+                    //      faddp   st(1), st; Add Real and Pop
+                    //      fld     st(3); Load Real
+                    //      fmulp   st(4), st; Multiply Real and Pop
+                    //      fld     st(2); Load Real
+                    //      fmulp   st(3), st; Multiply Real and Pop
+                    //      fxch    st(2); Exchange Registers
+                    //      faddp   st(3), st; Add Real and Pop
+                    //      fmul    st, st; Multiply Real
+                    //      faddp   st(2), st; Add Real and Pop
+                    //      fxch    st(1); Exchange Registers
+                    //      fsqrt; Square Root
+                    //      fsub    dword ptr[edx + 30h]; Subtract Real
+                    //      fstp[esp + 134h + var_F4]; Store Real and Pop
+                    //      fcomp   replay_c_variable_17; Compare Real and Pop
+                    //      fnstsw  ax; Store Status Word(no wait)
+                    //    }
+                    //    if ((_AX & 0x100) == 0 || GroundColour[iGroundColorIdx][2] >= 0) {
+                    //      __asm
+                    //      {
+                    //        fld[esp + 134h + var_F4]; Load Real
+                    //        fcomp[esp + 134h + var_40]; Compare Real and Pop
+                    //        fnstsw  ax; Store Status Word(no wait)
+                    //      }
+                    //      if ((_AX & 0x100) != 0) {
+                    //        fNearestDistance = fDistanceBuffer;
+                    //        pReplayCar->iLastValidChunk = iTrackSegmentIdx;
+                    //        fBestDistance = fNearestDistance;
+                    //      }
+                    //    }
+                    //    ++_EDX;
+                    //    ++iTrackSegmentIdx;
+                    //    ++iGroundColorIdx;
+                    //  } while (iTrackSegmentIdx < TRAK_LEN);
+                    //}
+                    findnearsection(pReplayCar, &iNearestChunk);
                   }
                   pend_view_init = ViewType[0];
                 }
-                j = v122;
-                if (v122 != *((_DWORD *)v18 + 70)) {
-                  for (j = 0; j != 1408; *(int *)((char *)&car_texs_loaded_variable_2[352 * *((_DWORD *)v18 + 8)] + j) = 0)
-                    j += 44;
-                  *((_BYTE *)v18 + 274) = *((_BYTE *)v18 + 273);
+                if (iDamageState != pReplayCar->iDamageState) {
+                  for (iTexIndex = 0; iTexIndex != 352; car_texs_loaded[352 * pReplayCar->iDriverIdx + 12 + iTexIndex] = 0)
+                    iTexIndex += 11;
+                  pReplayCar->byLastDamageToggle = pReplayCar->byDamageToggle;
                 }
-                LOBYTE(j) = *((_BYTE *)v18 + 273);
-                if ((_BYTE)j != *((_BYTE *)v18 + 274)) {
-                  v44 = 0;
-                  v45 = &CarSpray[1408 * *((_DWORD *)v18 + 8)];
-                  v46 = *((unsigned __int8 *)v18 + 275);
+
+                // Initialize damage spray effects when damage state changes
+                if (pReplayCar->byDamageToggle != pReplayCar->byLastDamageToggle) {
+                  iSprayIdx = 0;
+                  pCarSpray = CarSpray[pReplayCar->iDriverIdx];
+                  iDamageIntensity = pReplayCar->byDamageIntensity;
                   do {
-                    if (*((int *)v45 + 7) <= 0) {
-                      v47 = rand(j);
-                      j = (12 * v47 - (__CFSHL__((12 * v47) >> 31, 15) + ((12 * v47) >> 31 << 15))) >> 15;
-                      if (j < v46)
-                        *((_DWORD *)v45 + 8) = -1;
+                    if (pCarSpray->iLifeTime <= 0) {
+                      iRandomValue = rand();
+                      if (GetHighOrderRand(12, iRandomValue) < iDamageIntensity)
+                        pCarSpray->iTimer = -1;
                     }
-                    ++v44;
-                    v45 += 44;
-                  } while (v44 < 32);
+                    ++iSprayIdx;
+                    ++pCarSpray;
+                  } while (iSprayIdx < 32);
                 }
-                *((_DWORD *)v18 + 70) = v122;
-                *((_BYTE *)v18 + 274) = *((_BYTE *)v18 + 273);
-                *((_BYTE *)v18 + 129) = v108;
+                pReplayCar->iDamageState = iDamageState;
+                pReplayCar->byLastDamageToggle = pReplayCar->byDamageToggle;
+                pReplayCar->byLap = replayData.byLap;
               }
-              v18 += 77;
-              v136 += 4;
-              ++v123;
-            } while (v123 < numcars);
+              ++pReplayCar;
+              uiCarOffset += 4;
+              ++iReplayCarIndex;
+            } while (iReplayCarIndex < numcars);
           }
-          v48 = ramp;
-          for (k = 0; k < 8; ++k) {
-            fread(&v168, 2, 1, replayfile);
-            if (*v48)
-              *(_DWORD *)(*v48 + 40) = (unsigned __int16)v168;
-            ++v48;
+
+          // Read stunt ramp timing data from replay file
+          ppRampReplay = ramp;
+          for (j = 0; j < 8; ++j) {
+            fread(&pRampData_1, 2u, 1u, replayfile);
+            if (*ppRampReplay)
+              (*ppRampReplay)->iTickStartIdx = (unsigned __int16)pRampData_1;
+            ++ppRampReplay;
           }
+
+          // Interpolate engine sound data between replay frames
           if (replayspeed == 256) {
-            v50 = currentreplayframe - lastreplayframe - 1;
-            v120 = ((_BYTE)delaywrite - 1) & 0x1F;
-            delaywrite += v50;
-            v51 = delaywrite & 0x1F;
+            iFrameDifference = currentreplayframe - lastreplayframe - 1;
+            iDelayWriteOld = ((uint8)delaywrite - 1) & 0x1F;
+            delaywrite += iFrameDifference;
+            iDelayWriteNew = delaywrite & 0x1F;
             enginesounds(ViewType[0]);
-            if (v50 > 0 && numcars > 0) {
-              v128 = 28 * v120;
-              v129 = 28 * v51;
-              v131 = ((_BYTE)v120 + 1) & 0x1F;
-              v52 = v50 + 1;
-              v157 = 28 * v51;
-              v114 = 28 * v120;
-              v156 = 0;
-              v158 = 0;
-              v159 = 4 * numcars;
+            if (iFrameDifference > 0 && numcars > 0) {
+              uiDelayOldByteOffset = 28 * iDelayWriteOld;
+              uiDelayNewByteOffset = 28 * iDelayWriteNew;
+              iNextDelayIndex = ((uint8)iDelayWriteOld + 1) & 0x1F;
+              iInterpolationSteps = iFrameDifference + 1;
+              uiSoundOffsetCopy = 28 * iDelayWriteNew;
+              uiDelayOldOffset = 28 * iDelayWriteOld;
+              iCarLoopIndex = 0;
+              uiSoundDataOffset = 0;
+              iTotalCarDataSize = 4 * numcars;
               do {
-                if (!non_competitors[v156 / 4u]) {
-                  if (enginedelay_variable_1[v157 / 4] == -1 || enginedelay_variable_1[v128 / 4 + v158 / 4] == -1) {
-                    v53 = v131;
-                    if (v51 != v131) {
-                      v54 = v158;
+                if (!non_competitors[iCarLoopIndex / 4u]) {
+                  // Check if engine sound data needs interpolation or reset
+                  if (enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iEngineVol == -1
+                    || enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C + uiSoundDataOffset / 0x1C].iEngineVol == -1) {
+                    iNextDelaySlot = iNextDelayIndex;
+                    if (iDelayWriteNew != iNextDelayIndex) {
+                      uiSoundOffset = uiSoundDataOffset;
                       do {
-                        *(int *)((char *)&enginedelay_variable_1[7 * v53] + v54) = -1;
-                        v53 = ((_BYTE)v53 + 1) & 0x1F;
-                      } while (v53 != v51);
+                        *(int *)((char *)&enginedelay[0].engineSoundData[iNextDelaySlot].iEngineVol + uiSoundOffset) = -1;
+                        iNextDelaySlot = ((uint8)iNextDelaySlot + 1) & 0x1F;
+                      } while (iNextDelaySlot != iDelayWriteNew);
                     }
                   } else {
-                    v119 = v120;
-                    v55 = enginedelay_variable_1[v128 / 4 + v158 / 4];
-                    v138 = enginedelay_variable_1[v157 / 4];
-                    v137 = v138;
-                    v56 = 1;
-                    v139 = v55;
-                    v132 = v158;
-                    v57 = v55 * -v50;
+                    iDelayIdxForEngine = iDelayWriteOld;
+                    iEngineVol = enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C + uiSoundDataOffset / 0x1C].iEngineVol;
+                    iEngineVolIncrement = enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iEngineVol;
+                    iEngineVolStep = iEngineVolIncrement;
+                    iEngineStepCounter = 1;
+                    iEngineVolBase = iEngineVol;
+                    uiEngineCalcOffset = uiSoundDataOffset;
+                    iEngineVolDelta = iEngineVol * -iFrameDifference;
                     do {
-                      v119 = ((_BYTE)v119 + 1) & 0x1F;
-                      v167 = 28 * v119;
-                      *(int *)((char *)&enginedelay_variable_1[7 * v119] + v132) = (v137 - v57) / v52;
-                      ++v56;
-                      v137 += v138;
-                      v57 += v139;
-                    } while (v56 <= v50);
-                    v58 = *(int *)((char *)&enginedelay[v128 / 4] + v132);
-                    v59 = *(int *)((char *)&enginedelay[v129 / 4] + v132);
-                    v166 = v120;
-                    v117 = 1;
-                    v125 = v158;
-                    v141 = v58;
-                    v140 = v59;
-                    v60 = v58 * -v50;
+                      iDelayIdxForEngine = ((uint8)iDelayIdxForEngine + 1) & 0x1F;
+                      iConversionBuffer = 28 * iDelayIdxForEngine;
+                      *(int *)((char *)&enginedelay[0].engineSoundData[iDelayIdxForEngine].iEngineVol + uiEngineCalcOffset) = (iEngineVolStep - iEngineVolDelta)
+                        / iInterpolationSteps;
+                      ++iEngineStepCounter;
+                      iEngineVolStep += iEngineVolIncrement;
+                      iEngineVolDelta += iEngineVolBase;
+                    } while (iEngineStepCounter <= iFrameDifference);
+                    iEnginePitchOld = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C].iEnginePitch + uiEngineCalcOffset);
+                    iEnginePitchNew = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayNewByteOffset / 0x1C].iEnginePitch + uiEngineCalcOffset);
+                    iEnginePitchDelayIdx = iDelayWriteOld;
+                    iEnginePitchStepCount = 1;
+                    uiEnginePitchOffset = uiSoundDataOffset;
+                    iEnginePitchBase = iEnginePitchOld;
+                    iEnginePitchStep = iEnginePitchNew;
+                    iEnginePitchDelta = iEnginePitchOld * -iFrameDifference;
                     do {
-                      v166 = ((_BYTE)v166 + 1) & 0x1F;
-                      v167 = 28 * v166;
-                      *(int *)((char *)&enginedelay[7 * v166] + v125) = (v59 - v60) / v52;
-                      v59 += v140;
-                      v60 += v141;
-                      ++v117;
-                    } while (v50 >= v117);
+                      iEnginePitchDelayIdx = ((uint8)iEnginePitchDelayIdx + 1) & 0x1F;
+                      iConversionBuffer = 28 * iEnginePitchDelayIdx;
+                      *(int *)((char *)&enginedelay[0].engineSoundData[iEnginePitchDelayIdx].iEnginePitch + uiEnginePitchOffset) = (iEnginePitchNew - iEnginePitchDelta)
+                        / iInterpolationSteps;
+                      iEnginePitchNew += iEnginePitchStep;
+                      iEnginePitchDelta += iEnginePitchBase;
+                      ++iEnginePitchStepCount;
+                    } while (iFrameDifference >= iEnginePitchStepCount);
                   }
-                  if (enginedelay_variable_3[v157 / 4] == -1 || enginedelay_variable_3[v128 / 4 + v158 / 4] == -1) {
-                    v61 = v131;
-                    if (v51 != v131) {
-                      v62 = v158;
+
+                  // Begin engine2 sound interpolation (secondary engine channel)
+                  if (enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iEngine2Vol == -1
+                    || enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C + uiSoundDataOffset / 0x1C].iEngine2Vol == -1) {
+                    iEngine2DelaySlot = iNextDelayIndex;
+                    if (iDelayWriteNew != iNextDelayIndex) {
+                      uiEngine2SoundOffset = uiSoundDataOffset;
                       do {
-                        *(int *)((char *)&enginedelay_variable_3[7 * v61] + v62) = -1;
-                        v61 = ((_BYTE)v61 + 1) & 0x1F;
-                      } while (v61 != v51);
+                        *(int *)((char *)&enginedelay[0].engineSoundData[iEngine2DelaySlot].iEngine2Vol + uiEngine2SoundOffset) = -1;
+                        iEngine2DelaySlot = ((uint8)iEngine2DelaySlot + 1) & 0x1F;
+                      } while (iEngine2DelaySlot != iDelayWriteNew);
                     }
                   } else {
-                    LOBYTE(v63) = v120;
-                    v64 = enginedelay_variable_3[v128 / 4 + v158 / 4];
-                    v65 = enginedelay_variable_3[v157 / 4];
-                    v162 = 1;
-                    v133 = v158;
-                    v144 = v64;
-                    v142 = v65;
-                    v143 = v64 * -v50;
+                    iEngine2StepIdx = iDelayWriteOld;
+                    //LOBYTE(iEngine2StepIdx) = iDelayWriteOld;
+                    iEngine2Vol = enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C + uiSoundDataOffset / 0x1C].iEngine2Vol;
+                    iEngine2VolCurrent = enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iEngine2Vol;
+                    iEngine2LoopStep = 1;
+                    uiEngine2CalcOffset = uiSoundDataOffset;
+                    iEngine2VolBase = iEngine2Vol;
+                    iEngine2VolIncrement = iEngine2VolCurrent;
+                    iEngine2VolDelta = iEngine2Vol * -iFrameDifference;
                     do {
-                      v63 = ((_BYTE)v63 + 1) & 0x1F;
-                      v167 = 28 * v63;
-                      *(int *)((char *)&enginedelay_variable_3[7 * v63] + v133) = (v65 - v143) / v52;
-                      v65 += v142;
-                      v143 += v144;
-                      ++v162;
-                    } while (v50 >= v162);
-                    v66 = *(int *)((char *)&enginedelay_variable_2[v128 / 4] + v133);
-                    v67 = *(int *)((char *)&enginedelay_variable_2[v129 / 4] + v133);
-                    v68 = 1;
-                    v165 = v120;
-                    v126 = v158;
-                    v146 = v67;
-                    v147 = v66;
-                    v145 = v67;
-                    v69 = v66 * -v50;
+                      iEngine2StepIdx = ((uint8)iEngine2StepIdx + 1) & 0x1F;
+                      iConversionBuffer = 28 * iEngine2StepIdx;
+                      *(int *)((char *)&enginedelay[0].engineSoundData[iEngine2StepIdx].iEngine2Vol + uiEngine2CalcOffset) = (iEngine2VolCurrent - iEngine2VolDelta)
+                        / iInterpolationSteps;
+                      iEngine2VolCurrent += iEngine2VolIncrement;
+                      iEngine2VolDelta += iEngine2VolBase;
+                      ++iEngine2LoopStep;
+                    } while (iFrameDifference >= iEngine2LoopStep);
+                    iEngine2PitchOld = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C].iEngine2Pitch + uiEngine2CalcOffset);
+                    iEngine2PitchNew = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayNewByteOffset / 0x1C].iEngine2Pitch + uiEngine2CalcOffset);
+                    iEngine2PitchStep = 1;
+                    iEngine2PitchDelayIdx = iDelayWriteOld;
+                    uiEngine2PitchOffset = uiSoundDataOffset;
+                    iEngine2PitchIncrement = iEngine2PitchNew;
+                    iEngine2PitchBase = iEngine2PitchOld;
+                    iEngine2PitchWorking = iEngine2PitchNew;
+                    iEngine2PitchDelta = iEngine2PitchOld * -iFrameDifference;
                     do {
-                      v165 = ((_BYTE)v165 + 1) & 0x1F;
-                      v167 = 28 * v165;
-                      *(int *)((char *)&enginedelay_variable_2[7 * v165] + v126) = (v145 - v69) / v52;
-                      ++v68;
-                      v145 += v146;
-                      v69 += v147;
-                    } while (v68 <= v50);
+                      iEngine2PitchDelayIdx = ((uint8)iEngine2PitchDelayIdx + 1) & 0x1F;
+                      iConversionBuffer = 28 * iEngine2PitchDelayIdx;
+                      *(int *)((char *)&enginedelay[0].engineSoundData[iEngine2PitchDelayIdx].iEngine2Pitch + uiEngine2PitchOffset) = (iEngine2PitchWorking - iEngine2PitchDelta)
+                        / iInterpolationSteps;
+                      ++iEngine2PitchStep;
+                      iEngine2PitchWorking += iEngine2PitchIncrement;
+                      iEngine2PitchDelta += iEngine2PitchBase;
+                    } while (iEngine2PitchStep <= iFrameDifference);
                   }
-                  if (enginedelay_variable_5[v157 / 4] == -1 || enginedelay_variable_5[v128 / 4 + v158 / 4] == -1) {
-                    v70 = v131;
-                    if (v51 != v131) {
-                      v71 = v158;
+
+                  // Begin skid sound interpolation (tire screech effects)
+                  if (enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iSkid1Vol == -1
+                    || enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C + uiSoundDataOffset / 0x1C].iSkid1Vol == -1) {
+                    iSkidDelaySlot = iNextDelayIndex;
+                    if (iDelayWriteNew != iNextDelayIndex) {
+                      uiSkidSoundOffset = uiSoundDataOffset;
                       do {
-                        *(int *)((char *)&enginedelay_variable_5[7 * v70] + v71) = -1;
-                        v70 = ((_BYTE)v70 + 1) & 0x1F;
-                      } while (v70 != v51);
+                        *(int *)((char *)&enginedelay[0].engineSoundData[iSkidDelaySlot].iSkid1Vol + uiSkidSoundOffset) = -1;
+                        iSkidDelaySlot = ((uint8)iSkidDelaySlot + 1) & 0x1F;
+                      } while (iSkidDelaySlot != iDelayWriteNew);
                     }
                   } else {
-                    v164 = v120;
-                    v72 = enginedelay_variable_5[v128 / 4 + v158 / 4];
-                    v73 = enginedelay_variable_5[v157 / 4];
-                    v116 = 1;
-                    v134 = v158;
-                    v149 = v72;
-                    v148 = v73;
-                    v74 = v72 * -v50;
+                    iSkidVolDelayIdx = iDelayWriteOld;
+                    iSkid1Vol = enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C + uiSoundDataOffset / 0x1C].iSkid1Vol;
+                    iSkidVolCurrent = enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iSkid1Vol;
+                    iSkidStepCount = 1;
+                    uiSkidCalcOffset = uiSoundDataOffset;
+                    iSkidVolBase = iSkid1Vol;
+                    iSkidVolIncrement = iSkidVolCurrent;
+                    iSkidVolDelta = iSkid1Vol * -iFrameDifference;
                     do {
-                      v164 = ((_BYTE)v164 + 1) & 0x1F;
-                      v167 = 28 * v164;
-                      *(int *)((char *)&enginedelay_variable_5[7 * v164] + v134) = (v73 - v74) / v52;
-                      v73 += v148;
-                      v74 += v149;
-                      ++v116;
-                    } while (v50 >= v116);
-                    v75 = *(int *)((char *)&enginedelay_variable_4[v128 / 4] + v134);
-                    v76 = *(int *)((char *)&enginedelay_variable_4[v129 / 4] + v134);
-                    v77 = 1;
-                    v163 = v120;
-                    v127 = v158;
-                    v151 = v76;
-                    v152 = v75;
-                    v150 = v76;
-                    v78 = v75 * -v50;
+                      iSkidVolDelayIdx = ((uint8)iSkidVolDelayIdx + 1) & 0x1F;
+                      iConversionBuffer = 28 * iSkidVolDelayIdx;
+                      *(int *)((char *)&enginedelay[0].engineSoundData[iSkidVolDelayIdx].iSkid1Vol + uiSkidCalcOffset) = (iSkidVolCurrent - iSkidVolDelta)
+                        / iInterpolationSteps;
+                      iSkidVolCurrent += iSkidVolIncrement;
+                      iSkidVolDelta += iSkidVolBase;
+                      ++iSkidStepCount;
+                    } while (iFrameDifference >= iSkidStepCount);
+                    iSkidPitchOld = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C].iSkid1Pitch + uiSkidCalcOffset);
+                    iSkidPitchNew = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayNewByteOffset / 0x1C].iSkid1Pitch + uiSkidCalcOffset);
+                    iSkidPitchStep = 1;
+                    iSkidPitchDelayIdx = iDelayWriteOld;
+                    uiSkidPitchOffset = uiSoundDataOffset;
+                    iSkidPitchIncrement = iSkidPitchNew;
+                    iSkidPitchBase = iSkidPitchOld;
+                    iSkidPitchWorking = iSkidPitchNew;
+                    iSkidPitchDelta = iSkidPitchOld * -iFrameDifference;
                     do {
-                      v163 = ((_BYTE)v163 + 1) & 0x1F;
-                      v167 = 28 * v163;
-                      *(int *)((char *)&enginedelay_variable_4[7 * v163] + v127) = (v150 - v78) / v52;
-                      ++v77;
-                      v150 += v151;
-                      v78 += v152;
-                    } while (v77 <= v50);
+                      iSkidPitchDelayIdx = ((uint8)iSkidPitchDelayIdx + 1) & 0x1F;
+                      iConversionBuffer = 28 * iSkidPitchDelayIdx;
+                      *(int *)((char *)&enginedelay[0].engineSoundData[iSkidPitchDelayIdx].iSkid1Pitch + uiSkidPitchOffset) = (iSkidPitchWorking - iSkidPitchDelta)
+                        / iInterpolationSteps;
+                      ++iSkidPitchStep;
+                      iSkidPitchWorking += iSkidPitchIncrement;
+                      iSkidPitchDelta += iSkidPitchBase;
+                    } while (iSkidPitchStep <= iFrameDifference);
                   }
-                  LOBYTE(v79) = v120;
-                  v80 = enginedelay_variable_6[v114 / 4];
-                  v154 = enginedelay_variable_6[v157 / 4];
-                  v153 = v154;
-                  v155 = v80;
-                  v115 = 1;
-                  v135 = v158;
-                  v81 = v80 * -v50;
+                  iPanStepIdx = iDelayWriteOld;
+                  //LOBYTE(iPanStepIdx) = iDelayWriteOld;
+                  iPan = enginedelay[0].engineSoundData[uiDelayOldOffset / 0x1C].iPan;
+                  iPanIncrement = enginedelay[0].engineSoundData[uiSoundOffsetCopy / 0x1C].iPan;
+                  iPanStep = iPanIncrement;
+                  iPanBase = iPan;
+                  iPanStepCount = 1;
+                  uiPanCalcOffset = uiSoundDataOffset;
+                  iPanDelta = iPan * -iFrameDifference;
                   do {
-                    v79 = ((_BYTE)v79 + 1) & 0x1F;
-                    v167 = 28 * v79;
-                    *(int *)((char *)&enginedelay_variable_6[7 * v79] + v135) = (v153 - v81) / v52;
-                    v153 += v154;
-                    v81 += v155;
-                    ++v115;
-                  } while (v50 >= v115);
-                  v82 = *(int *)((char *)&enginedelay_variable_6[v128 / 4] + v135);
-                  v83 = *(int *)((char *)&enginedelay_variable_6[v129 / 4] + v135);
-                  LOBYTE(v84) = v120;
-                  v161 = 1;
-                  v130 = v158;
-                  v113 = v82;
-                  v111 = v83;
-                  v112 = v82 * -v50;
+                    iPanStepIdx = ((uint8)iPanStepIdx + 1) & 0x1F;
+                    iConversionBuffer = 28 * iPanStepIdx;
+                    *(int *)((char *)&enginedelay[0].engineSoundData[iPanStepIdx].iPan + uiPanCalcOffset) = (iPanStep - iPanDelta) / iInterpolationSteps;
+                    iPanStep += iPanIncrement;
+                    iPanDelta += iPanBase;
+                    ++iPanStepCount;
+                  } while (iFrameDifference >= iPanStepCount);
+                  iPanOld = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayOldByteOffset / 0x1C].iPan + uiPanCalcOffset);
+                  iPanNew = *(int *)((char *)&enginedelay[0].engineSoundData[uiDelayNewByteOffset / 0x1C].iPan + uiPanCalcOffset);
+                  iPanStepCounter = iDelayWriteOld;
+                  //LOBYTE(iPanStepCounter) = iDelayWriteOld;
+                  iPanLoopStep = 1;
+                  uiPanSoundOffset = uiSoundDataOffset;
+                  iPanOldCopy = iPanOld;
+                  iPanNewCopy = iPanNew;
+                  iPanDeltaStep = iPanOld * -iFrameDifference;
                   do {
-                    v84 = ((_BYTE)v84 + 1) & 0x1F;
-                    v167 = 28 * v84;
-                    *(int *)((char *)&enginedelay_variable_6[7 * v84] + v130) = (v83 - v112) / v52;
-                    v83 += v111;
-                    v112 += v113;
-                    ++v161;
-                  } while (v50 >= v161);
+                    iPanStepCounter = ((uint8)iPanStepCounter + 1) & 0x1F;
+                    iConversionBuffer = 28 * iPanStepCounter;
+                    *(int *)((char *)&enginedelay[0].engineSoundData[iPanStepCounter].iPan + uiPanSoundOffset) = (iPanNew - iPanDeltaStep) / iInterpolationSteps;
+                    iPanNew += iPanNewCopy;
+                    iPanDeltaStep += iPanOldCopy;
+                    ++iPanLoopStep;
+                  } while (iFrameDifference >= iPanLoopStep);
                 }
-                v156 += 4;
-                v157 += 896;
-                v158 += 896;
-                v114 += 896;
-              } while (v156 < v159);
+                iCarLoopIndex += 4;
+                uiSoundOffsetCopy += 896;
+                uiSoundDataOffset += 896;
+                uiDelayOldOffset += 896;
+              } while (iCarLoopIndex < iTotalCarDataSize);
             }
           }
+
+          // Handle automatic camera cuts during replay
           if (!rewinding && !forwarding && replayspeed) {
-            v85 = -1;
+            iCurrentCut = -1;
             if (cuts) {
-              v86 = 0;
+              iCutIndex = 0;
               if (cuts > 0) {
-                v87 = 0;
+                iCutArrayIndex = 0;
                 do {
-                  if (currentreplayframe >= *(int *)((char *)&camera_variable_2 + v87))
-                    v85 = v86;
-                  ++v86;
-                  v87 += 6;
-                } while (v86 < cuts);
+                  if (currentreplayframe >= camera[iCutArrayIndex].iFrame)
+                    iCurrentCut = iCutIndex;
+                  ++iCutIndex;
+                  ++iCutArrayIndex;
+                } while (iCutIndex < cuts);
               }
             }
-            if (v85 != -1
-              && v85 != lastautocut
-              && ((unsigned __int8)camera[6 * v85] != SelectedView[0]
-                  || (unsigned __int8)camera_variable_1[6 * v85] != ViewType[0])
+            if (iCurrentCut != -1
+              && iCurrentCut != lastautocut
+              && (camera[iCurrentCut].byView != SelectedView[0] || camera[iCurrentCut].byCarIdx != ViewType[0])
               && autoswitch) {
-              SelectedView[0] = (unsigned __int8)camera[6 * v85];
-              ViewType[0] = (unsigned __int8)camera_variable_1[6 * v85];
+              SelectedView[0] = camera[iCurrentCut].byView;
+              ViewType[0] = camera[iCurrentCut].byCarIdx;
               select_view(0);
-              lastautocut = v85;
+              lastautocut = iCurrentCut;
               pend_view_init = ViewType[0];
             }
           }
@@ -1434,50 +1559,50 @@ void DoReplayData()
             pend_view_init = -1;
           }
           if (lastreplayframe != -1)
-            doviewtend((int)&Car[77 * ViewType[0]], abs32(lastreplayframe - currentreplayframe), 0);
-          v88 = abs32(currentreplayframe - lastreplayframe);
-          if (v88 > 16)
-            v88 = 16;
-          v89 = 0;
+            doviewtend(&Car[ViewType[0]], abs(lastreplayframe - currentreplayframe), 0);
+          iUpdateSteps = abs(currentreplayframe - lastreplayframe);
+          if (iUpdateSteps > 16)
+            iUpdateSteps = 16;
+
+          // Update smoke and flame effects for all cars
+          iSmokeCarIndex = 0;
           if (numcars > 0) {
-            v90 = Car;
+            pSmokeCar = Car;
             do {
-              for (m = 0; m < v88; ++m)
-                updatesmokeandflames((int)v90);
-              ++v89;
-              v90 += 77;
-            } while (v89 < numcars);
+              for (iStepCounter = 0; iStepCounter < iUpdateSteps; ++iStepCounter)
+                updatesmokeandflames(pSmokeCar);
+              ++iSmokeCarIndex;
+              ++pSmokeCar;
+            } while (iSmokeCarIndex < numcars);
           }
+
+          // Clean up car textures when rewinding replay (dead cars)
           if (replayspeed < 0) {
-            v92 = 0;
+            iTexCleanupIdx = 0;
             if (numcars > 0) {
-              v93 = 1408;
-              v94 = 0;
+              iTexOffsetStep = 1408;
+              iCarTexIdx = 0;
               do {
-                if (Car_variable_21[v94] > 126) {
-                  v95 = 1408 * v92;
+                if (Car[iCarTexIdx].nDeathTimer > 126) {
+                  uiTexArrayOffset = 1408 * iTexCleanupIdx;
                   do {
-                    v95 += 44;
-                    car_texs_loaded_variable_2[v95 / 4] = 0;
-                  } while (v95 != v93);
+                    uiTexArrayOffset += 44;
+                    car_texs_loaded[uiTexArrayOffset / 4 + 12] = 0;
+                  } while (uiTexArrayOffset != iTexOffsetStep);
                 }
-                v94 += 154;
-                ++v92;
-                v93 += 1408;
-              } while (v92 < numcars);
+                ++iCarTexIdx;
+                ++iTexCleanupIdx;
+                iTexOffsetStep += 1408;
+              } while (iTexCleanupIdx < numcars);
             }
           }
-          result = currentreplayframe;
           lastreplayframe = currentreplayframe;
         }
-        if (v121 || forwarding || rewinding) {
-          result = 16;
-          qmemcpy(repsample, newrepsample, sizeof(repsample));
-        }
+        if (bReadDisabled || forwarding || rewinding)
+          memcpy(repsample, newrepsample, sizeof(repsample));
       }
     }
   }
-  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------

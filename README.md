@@ -6,7 +6,7 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 [![On track!](https://img.youtube.com/vi/xjQ-uQNEEpM/maxresdefault.jpg)](https://www.youtube.com/watch?v=xjQ-uQNEEpM)
 
 ## TODO
-* Finish decompiling replay functionality
+* Choroq cars in replay
 * Integrate looped and pitched sounds (engine sounds) with SDL
 * Integrate sound panning with SDL
 * Integrate joystick support with SDL

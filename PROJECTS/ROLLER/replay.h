@@ -34,6 +34,29 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+#pragma pack(push, 1)
+typedef struct
+{
+  int iPackedPosX;
+  int iPackedPosY;
+  int iPackedPosZ;
+  int16 nCurrChunk;
+  int16 nRollPacked;
+  int16 nPitchPacked;
+  int16 nDesiredYaw;
+  int16 nActualYaw;
+  int16 nSpeedAndStatus;
+  uint8 byRPMPacked;
+  uint8 byHealthAndStunned;
+  char byMiscCarData;
+  char byLap;
+  char byDeathTimer;
+  uint8 byDamageIntensity;
+} tReplayData;
+#pragma pack(pop)
+
+//-------------------------------------------------------------------------------------------------
+
 extern int disciconpressed;
 extern int rotpoint;
 extern int replaypanel;
