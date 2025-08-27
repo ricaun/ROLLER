@@ -2554,45 +2554,95 @@ void lsd(int iX1, int iY1, int iX2, int iY2)
 
 //-------------------------------------------------------------------------------------------------
 //000671D0
-void scandirectory(const char *szDirectory)
+void scandirectory(const char *szPattern)
 {
-  /*
-  int v1; // ebp
-  char *v2; // eax
-  int v3; // edx
-  char v4; // bl
-  int v5; // eax
-  int v7; // [esp+0h] [ebp-44h] BYREF
-  char v8; // [esp+1Eh] [ebp-26h] BYREF
+  int iFileCount = 0;
 
-  v1 = 0;
-  if (!dos_findfirst(a1)) {
-    do {
-      if (v1 >= 500)
-        break;
-      v2 = &v8;
-      v3 = 0;
-      if (v8) {
-        do {
-          if (*v2 == 46)
-            break;
-          v4 = *v2++;
-          filename[9 * v1 + v3++] = v4;
-        } while (*v2);
-      }
-      filename[9 * v1 + v3] = 0;
-      filefiles = v1 + 1;
-      v5 = dos_findnext(&v7);
-      v1 = filefiles;
-    } while (!v5);
+#ifdef IS_WINDOWS
+  struct _finddata_t fileinfo;
+  intptr_t handle = _findfirst(szPattern, &fileinfo);
+  if (handle == -1) {
+    filefiles = 0;
+    return;
   }
-  filefiles = v1;
-  return qsort(filename, v1, 9, compare);*/
+
+  do {
+    if (iFileCount >= 500)
+      break;
+
+    // Extract filename without extension (stop at first dot)
+    const char *szFileNamePtr = fileinfo.name;
+    int iCharIndex = 0;
+    while (*szFileNamePtr && *szFileNamePtr != '.' && iCharIndex < 8) {
+      filename[iFileCount][iCharIndex++] = *szFileNamePtr++;
+    }
+    filename[iFileCount][iCharIndex] = '\0';
+
+    iFileCount++;
+  } while (_findnext(handle, &fileinfo) == 0);
+
+  _findclose(handle);
+
+#else
+  // For Unix-like systems, we need to extract directory and pattern from szPattern
+  char szDirectory[256];
+  char szFilePattern[256];
+
+  // Find the last directory separator
+  const char *szLastSlash = strrchr(szPattern, '/');
+  const char *szLastBackslash = strrchr(szPattern, '\\');
+  const char *szSeparator = (szLastSlash > szLastBackslash) ? szLastSlash : szLastBackslash;
+
+  if (szSeparator) {
+    // Extract directory path
+    size_t nDirLen = szSeparator - szPattern + 1;
+    strncpy(szDirectory, szPattern, nDirLen);
+    szDirectory[nDirLen] = '\0';
+    // Extract pattern
+    strcpy(szFilePattern, szSeparator + 1);
+  } else {
+    // No directory specified, use current directory
+    strcpy(szDirectory, ".");
+    strcpy(szFilePattern, szPattern);
+  }
+
+  DIR *dir = opendir(szDirectory);
+  if (!dir) {
+    filefiles = 0;
+    return;
+  }
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL && iFileCount < 500) {
+    // Check if filename matches pattern (case-insensitive)
+    if (fnmatch(szFilePattern, entry->d_name, FNM_CASEFOLD) == 0) {
+      // Extract filename without extension (stop at first dot)
+      const char *szFileNamePtr = entry->d_name;
+      int iCharIndex = 0;
+      while (*szFileNamePtr && *szFileNamePtr != '.' && iCharIndex < 8) {
+        filename[iFileCount][iCharIndex++] = *szFileNamePtr++;
+      }
+      filename[iFileCount][iCharIndex] = '\0';
+
+      iFileCount++;
+    }
+  }
+
+  closedir(dir);
+#endif
+
+  // Update global file count
+  filefiles = iFileCount;
+
+  // Sort filenames alphabetically using compare function
+  if (iFileCount > 0) {
+    qsort(filename, iFileCount, 9, compare);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 //000672C0
-void fileselect(int iBoxX0, int iBoxY0, int iBoxX1, int iBoxY1, int iTextX, int iTextY, const char *szFilename, const char *szDirectory, int iFileIdx)
+void fileselect(int iBoxX0, int iBoxY0, int iBoxX1, int iBoxY1, int iTextX, int iTextY, const char *szText, const char *szPattern, int iFileIdx)
 {
   int iCurrentFile; // ebp
   char *szDestPtr; // edi
@@ -2663,12 +2713,12 @@ void fileselect(int iBoxX0, int iBoxY0, int iBoxX1, int iBoxY1, int iTextX, int 
   params.vertices[1].x = iLeftEdge;
   params.vertices[2].x = iLeftEdge;
   POLYFLAT(scrbuf, &params);
-  prt_centrecol(rev_vga[1], szFilename, iTextX, iTextY, 231);
+  prt_centrecol(rev_vga[1], szText, iTextX, iTextY, 231);
   if (iFileIdx != lastfile)                   // If different directory selected, rescan files and reset selection
   {
     topfile = 0;
     filefile = 0;
-    scandirectory(szDirectory);
+    scandirectory(szPattern);
     iCurrentFile = filefile;
     lastfile = iFileIdx;
     if (!filefiles)
