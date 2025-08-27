@@ -2054,7 +2054,7 @@ void Rassemble()
       screenready = 0;
       filingmenu = 9;
     } else {
-      pOutputFile = fopen(szFilename, "wb");    // Open output file and copy replay header from source file
+      pOutputFile = ROLLERfopen(szFilename, "wb");    // Open output file and copy replay header from source file
       fp = pOutputFile;
       if (pOutputFile) {
         fseek(replayfile, 0, 0);
@@ -2200,7 +2200,7 @@ void Rassemble()
           iErrorFlag = -1;
         }
         if (iErrorFlag)
-          remove(szFilename);
+          ROLLERremove(szFilename);
       }
       filingmenu = 0;
       lastfile = 0;
