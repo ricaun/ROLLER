@@ -932,9 +932,9 @@ void ChampionshipStandings()
         } while (iSortInner < racers);
       }
       ++iSortIndex;
-      ++iSortOuter;                             // Swap highest scoring racer to correct position using teamorder as temp storage
-      iSwapTemp = teamorder[iSortIndex + 7];
-      teamorder[iSortIndex + 7] = champorder[iMaxIndex];
+      ++iSortOuter;                             // Swap highest scoring racer to correct position
+      iSwapTemp = champorder[iSortIndex - 1];
+      champorder[iSortIndex - 1] = champorder[iMaxIndex];
       iRacerCount = racers;
       champorder[iMaxIndex] = iSwapTemp;
     } while (iSortOuter < iRacerCount);
