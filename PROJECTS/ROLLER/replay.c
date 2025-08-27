@@ -839,18 +839,9 @@ void DoReplayData()
                 repsample[iCarIndex] = byAdjustedSample;
               }
 
-              // Convert car X position to integer
-              //_CHP();
-              iConversionBuffer = (int)pCar->pos.fX;
-              replayData.iPackedPosX = (repsample[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;
-              // Convert car Y position to integer  
-              //_CHP();
-              iConversionBuffer = (int)pCar->pos.fY;
-              replayData.iPackedPosY = ((uint8)repvolume[iCarIndex] << 24) | iConversionBuffer & 0xFFFFFF;
-              // Convert car Z position to integer
-              //_CHP();
-              iConversionBuffer = (int)pCar->pos.fZ;
-              replayData.iPackedPosZ = (pCar->iSteeringInput << 24) | iConversionBuffer & 0xFFFFFF;
+              replayData.iPackedPosX = PACK_24_WITH_TAG((int32)pCar->pos.fX, repsample[iCarIndex]);
+              replayData.iPackedPosY = PACK_24_WITH_TAG((int32)pCar->pos.fY, repvolume[iCarIndex]);
+              replayData.iPackedPosZ = PACK_24_WITH_TAG((int32)pCar->pos.fZ, (uint8)pCar->iSteeringInput);
               //__asm { fld     dword ptr[edx]; Load Real }
               //_CHP();
               //__asm { fistp[esp + 134h + var_24]; Store Integer and Pop }
@@ -1021,25 +1012,9 @@ void DoReplayData()
                 fread(&replayData, 0x1Eu, 1u, replayfile);
 
                 // Unpack X position: extract lower 24 bits and convert to float
-                iConversionBuffer = replayData.iPackedPosX & 0x00FFFFFF;  // Extract 24 bits
-                if (iConversionBuffer & 0x00800000) {  // Check if sign bit (bit 23) is set
-                  iConversionBuffer |= 0xFF000000;  // Sign extend by setting upper 8 bits
-                }
-                pReplayCar->pos.fX = (float)iConversionBuffer;
-
-                // Unpack Y position: extract lower 24 bits and convert to float  
-                iConversionBuffer = replayData.iPackedPosY & 0x00FFFFFF;
-                if (iConversionBuffer & 0x00800000) {
-                  iConversionBuffer |= 0xFF000000;
-                }
-                pReplayCar->pos.fY = (float)iConversionBuffer;
-
-                // Unpack Z position: extract lower 24 bits and convert to float
-                iConversionBuffer = replayData.iPackedPosZ & 0x00FFFFFF;
-                if (iConversionBuffer & 0x00800000) {
-                  iConversionBuffer |= 0xFF000000;
-                }
-                pReplayCar->pos.fZ = (float)iConversionBuffer;
+                pReplayCar->pos.fX = (float)SIGN_EXTEND_24(replayData.iPackedPosX);
+                pReplayCar->pos.fY = (float)SIGN_EXTEND_24(replayData.iPackedPosY);
+                pReplayCar->pos.fZ = (float)SIGN_EXTEND_24(replayData.iPackedPosZ);
                 //iConversionBuffer = iPackedPosX << 8 >> 8;
                 //__asm
                 //{

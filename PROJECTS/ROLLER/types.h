@@ -149,6 +149,8 @@ typedef int32 fixed16_16;
 
 //other bitwise helpers
 #define SET_LOBYTE(lval, rval) (lval = (lval & 0xFFFFFF00) | ((rval) & 0x000000FF))
+#define SIGN_EXTEND_24(x) ((int32)((x & 0xFFFFFF) ^ 0x800000) - 0x800000)
+#define PACK_24_WITH_TAG(val, tag) ((((uint32)(tag) & 0xFF) << 24) | ((uint32)(val) & 0xFFFFFF))
 
 //-------------------------------------------------------------------------------------------------
 
