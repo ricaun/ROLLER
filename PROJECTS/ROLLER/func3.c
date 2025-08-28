@@ -4864,7 +4864,7 @@ void AllocateCars()
       iCarLoopBytes = 4 * numcars;
       iLoopCounter = 0;
       do {
-        non_competitors[iLoopCounter / 4u];
+        non_competitors[iLoopCounter / 4u] = 0;
         iLoopCounter += 4;                      // Initialize all cars as competitors by default
         //TrackArrow_variable_1[iLoopCounter / 4u] = 0;// offset into non_competitors
       } while (iLoopCounter < iCarLoopBytes);
