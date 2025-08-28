@@ -811,12 +811,13 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       iLeftTexY = startsy[iLeftVertexIdx];
 
       iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
-      if (pVertices[iLeftVertexIdx].y <= iPrevY)
-        return; // No visible portion
+      //if (iLeftVertexIdx == iRightVertexIdx)
+      //  return; // No visible portion
     }
 
     // Calculate clipped left edge
-    int iStartY = pVertices[iLeftVertexIdx - 1 >= 0 ? iLeftVertexIdx - 1 : iNumVerts - 1].y;
+    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
+    int iStartY = pVertices[iPrevLeftIdx].y;
     int iEndY = pVertices[iLeftVertexIdx].y;
     iLeftEdgeHeight = iEndY - 0; // Clip to y=0
 
@@ -831,8 +832,9 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       iLeftEdgeX += iLeftEdgeStep * (0 - iStartY);
 
       // Calculate texture steps and adjust for clipping
-      int iTexXStart = startsx[iLeftVertexIdx - 1 >= 0 ? iLeftVertexIdx - 1 : iNumVerts - 1];
-      int iTexYStart = startsy[iLeftVertexIdx - 1 >= 0 ? iLeftVertexIdx - 1 : iNumVerts - 1];
+      int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
+      int iTexXStart = startsx[iPrevLeftIdx];
+      int iTexYStart = startsy[iPrevLeftIdx];
       iLeftTexXStep = (startsx[iLeftVertexIdx] - iTexXStart) / iTotalHeight;
       iLeftTexYStep = (startsy[iLeftVertexIdx] - iTexYStart) / iTotalHeight;
       iLeftTexX = iTexXStart + iLeftTexXStep * (0 - iStartY);
@@ -853,12 +855,13 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       iRightTexY = startsy[iRightVertexIdx];
 
       iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
-      if (pVertices[iRightVertexIdx].y <= iPrevY)
-        return; // No visible portion
+      //if (iLeftVertexIdx == iRightVertexIdx)
+      //  return; // No visible portion
     }
 
     // Calculate clipped right edge
-    iStartY = pVertices[(iRightVertexIdx + 1) % iNumVerts].y;
+    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
+    iStartY = pVertices[iPrevRightIdx].y;
     iEndY = pVertices[iRightVertexIdx].y;
     iRightEdgeHeight = iEndY - 0; // Clip to y=0
 
@@ -873,8 +876,9 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       iRightEdgeX += iRightEdgeStep * (0 - iStartY);
 
       // Calculate texture steps and adjust for clipping
-      int iTexXStart = startsx[(iRightVertexIdx + 1) % iNumVerts];
-      int iTexYStart = startsy[(iRightVertexIdx + 1) % iNumVerts];
+      int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
+      int iTexXStart = startsx[iPrevRightIdx];
+      int iTexYStart = startsy[iPrevRightIdx];
       iRightTexXStep = (startsx[iRightVertexIdx] - iTexXStart) / iTotalHeight;
       iRightTexYStep = (startsy[iRightVertexIdx] - iTexYStart) / iTotalHeight;
       iRightTexX = iTexXStart + iRightTexXStep * (0 - iStartY);
