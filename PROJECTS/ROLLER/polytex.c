@@ -155,93 +155,36 @@ void remove_mapsels()
 
 //-------------------------------------------------------------------------------------------------
 //0006BDB0
-void setmapsel(uint8 *pBase, int iIndex, int iMode, int iCount)
+void setmapsel(uint8_t *pBase, int iIndex, int iMode, int iCount)
 {
-  //int iBaseAdjusted; // ebp
-  //int iSuccess; // eax
-  //int16 nCurrentSelector; // di
-  //int i; // ecx
-  //int iMapselOffset; // esi
-  //int iMode_2; // edx
-  //int iCoarseOffset; // ebx
-  //int iFineOffset; // eax
-  //int iSegmentBase; // ebx
-  //union REGS regs; // [esp+0h] [ebp-34h] BYREF
-  //int iCount_1; // [esp+1Ch] [ebp-18h]
-  //int v15; // [esp+20h] [ebp-14h]
-  //int iMode_1; // [esp+24h] [ebp-10h]
-  //
-  //iBaseAdjusted = iBase;
-  //iMode_1 = iMode;
-  //
-  //// Adjust base address if running w95
-  //if (w95)
-  //  iBaseAdjusted = iBase - 0x10000;
-  //iCount_1 = iCount;
-  //regs.w.ax = 0;                                // allocate LDT descriptors
-  //regs.w.cx = iCount;                           // Num descriptors to allocate
-  //iSuccess = int386(0x31, &regs, &regs);
-  //
-  //// Check for carry flag set (error)
-  //if ((*((_BYTE *)&regs.h + 24) & 1) != 0) {
-  //  printf("Error allocating selectors");
-  //  goto LABEL_15;
-  //}
-  //nCurrentSelector = regs.w.ax;
-  //i = 0;
-  //if (iCount_1 > 0) {
-  //  for (iMapselOffset = 257 * iIndex; ; ++iMapselOffset) {
-  //    iMode_2 = iMode_1;
-  //    mapsel[iMapselOffset] = nCurrentSelector;
-  //    // Calculate segment base address (platform-specific)
-  //    if (iMode_2) {
-  //      // Mode 1: 8-segment grouping
-  //      iCoarseOffset = (i >> 3 << 13) + iBaseAdjusted;
-  //      iFineOffset = 32 * (i & 7);
-  //    } else {
-  //      // Mode 0: 4-segment grouping
-  //      iCoarseOffset = (i & 3) << 6;
-  //      iFineOffset = iBaseAdjusted + (i >> 2 << 14);
-  //    }
-  //    iSegmentBase = iFineOffset + iCoarseOffset;
-  //    v15 = 0x10000;
-  //
-  //    // Set segment base address
-  //    regs.w.dx = iSegmentBase % 0x10000;
-  //    regs.w.cx = (iSegmentBase - ((unsigned int)__CFSHL__(iSegmentBase >> 31, 16) + (iSegmentBase >> 31 << 16))) >> 16;
-  //    regs.w.ax = 7;                            // set segment base address
-  //    regs.w.bx = nCurrentSelector;
-  //    int386(0x31, &regs, &regs);
-  //    if ((*((_BYTE *)&regs.h + 24) & 1) != 0)
-  //      break;
-  //
-  //    // Set segment limit
-  //    regs.w.dx = 0xFFFF;                       // limit = 64KB-1
-  //    regs.w.cx = 0;
-  //    regs.w.ax = 8;
-  //    regs.w.bx = nCurrentSelector;
-  //    int386(0x31, &regs, &regs);
-  //    if ((*((_BYTE *)&regs.h + 24) & 1) != 0)
-  //      break;
-  //
-  //    // Get selector increment value
-  //    regs.w.ax = 3;
-  //    int386(0x31, &regs, &regs);
-  //    ++i;
-  //    nCurrentSelector += regs.w.ax;
-  //    iSuccess = iCount_1;
-  //    if (i >= iCount_1)
-  //      return iSuccess;
-  //  }
-  //  printf("Error preparing selectors");
-  //LABEL_15:
-  //  __atexit();
-  //  __int23_exit();
-  //  __int23_exit();
-  //  __FPE_handler_exit();
-  //  JUMPOUT(0x7A98F);
-  //}
-  //return iSuccess;
+// Calculate base offset in mapsel array for this texture index
+// Original used 257 * iIndex, but since we changed from int16 to uint8*, 
+// and POLYTEX uses 514 * iTexIdx, we need to adjust
+  int iBaseMapselIndex = 257 * iIndex;
+
+  // Set up pointers for each texture
+  for (int i = 0; i < iCount; i++) {
+    uint8_t *pTexturePointer;
+
+    if (iMode == 1) {
+        // Mode 1: 8-segment grouping (32x32 textures)
+        // Original: iCoarseOffset = (i >> 3 << 13) + iBaseAdjusted;
+        //          iFineOffset = 32 * (i & 7);
+      int iCoarseOffset = (i >> 3) << 13;  // (i / 8) * 8192
+      int iFineOffset = 32 * (i & 7);      // 32 * (i % 8)
+      pTexturePointer = pBase + iCoarseOffset + iFineOffset;
+    } else {
+        // Mode 0: 4-segment grouping (64x64 textures) - interleaved layout
+        // Original: iCoarseOffset = (i & 3) << 6;
+        //          iFineOffset = iBaseAdjusted + (i >> 2 << 14);
+      int iCoarseOffset = (i & 3) << 6;    // (i % 4) * 64
+      int iFineOffset = (i >> 2) << 14;    // (i / 4) * 16384
+      pTexturePointer = pBase + iFineOffset + iCoarseOffset;
+    }
+
+// Store pointer in mapsel array
+    mapsel[iBaseMapselIndex + i] = pTexturePointer;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -548,7 +491,7 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
   int iTexRowOffset; // ecx
   int iTexColOffset; // eax
   tPoint *vertices; // edx
-  int iMapselOffset; // ebx
+  //int iMapselOffset; // ebx
   int iTempStartsX2; // eax
   int iTempStartsX3; // eax
   int iTempStartsY2; // eax
@@ -679,13 +622,13 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
     } else {
       // Opaque rendering
       vertices = pPolyParams->vertices;
-      iMapselOffset = 514 * iTexIdx + 2 * (uint8)uiSurfaceType; //offset assumes array of int16s
+       // iMapselOffset = 514 * iTexIdx + 2 * (uint8)uiSurfaceType; //offset assumes array of int16s
       if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
         // Render concave pol (tri)
-        twpolym(vertices, &pTexture[iTexRowOffset + iTexColOffset]);// mapsel[iMapselOffset / 2]);
+        twpolym(vertices, mapsel[257 * iTexIdx + (uint8)uiSurfaceType]);
       else
         // Render convex pol (quad)
-        polym(vertices, 4, &pTexture[iTexRowOffset + iTexColOffset]);// mapsel[iMapselOffset / 2]);
+        polym(vertices, 4, mapsel[257 * iTexIdx + (uint8)uiSurfaceType]);
     }
 
     // Restore original tex coords after rendering
