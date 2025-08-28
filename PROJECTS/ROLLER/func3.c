@@ -3259,12 +3259,12 @@ int load_champ(int iSlot)
       if (numcars > 0)                        // NON-COMPETITOR FLAGS: Parse bit flags to determine which cars are competitors
       {
         if (numcars > 0) {
-            for (int i = 0; i < numcars; i++) {
-                // Check if bit i is set in the flags - if clear, car is a non-competitor
-                iFlagCheck = ((iFlags & iBitFlag) == 0) ? -1 : 0;
-                non_competitors[i] = iFlagCheck;
-                iBitFlag *= 2;  // Move to next bit position
-            }
+          for (int i = 0; i < numcars; i++) {
+            // Check if bit i is set in the flags - if clear, car is a non-competitor
+            iFlagCheck = ((iFlags & iBitFlag) == 0) - 1;
+            non_competitors[i] = iFlagCheck;
+            iBitFlag *= 2;  // Move to next bit position
+          }
         }
         //iArraySize = 4 * numcars;
         //iByteOffset = 0;
