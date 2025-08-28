@@ -3335,11 +3335,11 @@ int load_champ(int iSlot)
           byNameChar = *(uint8 *)piTeamStatsPointer;// Copy name bytes to both default_names and player_names arrays
           pbyNamePtr = (uint8 *)piTeamStatsPointer + 1;
           default_names[0][iNameIndex] = byNameChar;
-          pszTempPointer = (char *)pbyNamePtr;
+          //pszTempPointer = (char *)pbyNamePtr;
           ++iNameIndex;
-          pszTempPointer = *pbyNamePtr;
+          uint8 byte = *pbyNamePtr;
           piTeamStatsPointer = (int *)(pbyNamePtr + 1);
-          player_names[0][iNameIndex - 1] = (char)pszTempPointer;
+          player_names[0][iNameIndex - 1] = (char)byte;
         } while (iNameIndex != iNameEndIndex);
         iNameEndIndex += 9;
       }
