@@ -2937,11 +2937,11 @@ void save_champ(int iSlot)
   uint8 *pbyAfterTeamKills; // eax
   uint8 *pbyAfterTeamFasts; // eax
   int iTeamWins; // edx
-  //int iNameEndIndex; // edi
-  //int iTeamIndex; // esi
-  //int iNameStartIndex; // edx
-  //uint8 *pbyNameChar; // eax
-  //char byPlayerNameChar; // cl
+  int iNameEndIndex; // edi
+  int iTeamIndex; // esi
+  int iNameStartIndex; // edx
+  uint8 *pbyNameChar; // eax
+  char byPlayerNameChar; // cl
   uint8 *pbyAfterSerial; // eax
   uint8 *pbyAfterModemPort; // eax
   uint8 *pbyAfterModemCall; // eax
@@ -3024,26 +3024,18 @@ void save_champ(int iSlot)
     pbyAfterHeader = sav_champ_int(pbyAfterTeamFasts, iTeamWins);
   }
 
-  //iNameEndIndex = 9;
-  //for (iTeamIndex = 0; iTeamIndex < 16; ++iTeamIndex) {
-  //  iNameStartIndex = 9 * iTeamIndex;
-  //  do {
-  //    pbyNameChar = pbyAfterHeader + 1;
-  //    *(pbyNameChar - 1) = default_names[0][iNameStartIndex];
-  //    pbyAfterHeader = pbyNameChar + 1;
-  //    byPlayerNameChar = player_names[0][iNameStartIndex++];
-  //    *(pbyAfterHeader - 1) = byPlayerNameChar;
-  //  } while (iNameStartIndex != iNameEndIndex);
-  //  iNameEndIndex += 9;
-  //}
-  pbyCurrentPos = pbyAfterHeader;
-  for (uint16 unTeamIndex = 0; unTeamIndex < 16; ++unTeamIndex) {
-    memcpy(pbyCurrentPos, default_names[unTeamIndex], 9);
-    pbyCurrentPos += 9;
-    memcpy(pbyCurrentPos, player_names[unTeamIndex], 9);
-    pbyCurrentPos += 9;
+  iNameEndIndex = 9;
+  for (iTeamIndex = 0; iTeamIndex < 16; ++iTeamIndex) {
+    iNameStartIndex = 9 * iTeamIndex;
+    do {
+      pbyNameChar = pbyAfterHeader + 1;
+      *(pbyNameChar - 1) = default_names[0][iNameStartIndex];
+      pbyAfterHeader = pbyNameChar + 1;
+      byPlayerNameChar = player_names[0][iNameStartIndex++];
+      *(pbyAfterHeader - 1) = byPlayerNameChar;
+    } while (iNameStartIndex != iNameEndIndex);
+    iNameEndIndex += 9;
   }
-  pbyAfterHeader = pbyCurrentPos;
 
   pbyAfterSerial = sav_champ_int(pbyAfterHeader, serial_port);
   pbyAfterModemPort = sav_champ_int(pbyAfterSerial, modem_port);
@@ -3123,11 +3115,11 @@ int load_champ(int iSlot)
   int iCurrentTeamValue; // edi
   int *piTeamDataPtr; // edx
   int iTeamKillsValue; // edi
-  //int iNameArrayOffset; // edi
-  //int iPlayerLoop; // ecx
-  //int iNameIndex; // eax
-  //char byNameChar; // bl
-  //uint8 *pbyNamePtr; // edx
+  int iNameEndIndex; // edi
+  int iTeamIndex; // ecx
+  int iNameIndex; // eax
+  char byNameChar; // bl
+  uint8 *pbyNamePtr; // edx
   char *pszTempPointer; // ebx
   int iSerialPortValue; // eax
   int *piModemDataPtr; // edx
@@ -3335,31 +3327,22 @@ int load_champ(int iSlot)
         piTeamStatsPointer = piTeamDataPtr + 2;
       } while (piTeamPointsPtr != piTeamPointsEnd);
 
-      // Load 16 players * 9 character names (144 bytes total)
-      char *pbyNameData = (char *)piTeamStatsPointer;
-      for (int player = 0; player < 16; player++) {
-          // Copy 9 characters for this player
-        memcpy(default_names[player], pbyNameData, 9);
-        memcpy(&cheat_names[31][player * 9 + 9], pbyNameData, 9);
-        pbyNameData += 9;
+      iNameEndIndex = 9;
+      for (iTeamIndex = 0; iTeamIndex < 16; ++iTeamIndex)// PLAYER NAMES: Load 16 players * 9 * 2 character names (288 bytes total)
+      {
+        iNameIndex = 9 * iTeamIndex;
+        do {
+          byNameChar = *(uint8 *)piTeamStatsPointer;// Copy name bytes to both default_names and player_names arrays
+          pbyNamePtr = (uint8 *)piTeamStatsPointer + 1;
+          default_names[0][iNameIndex] = byNameChar;
+          pszTempPointer = (char *)pbyNamePtr;
+          ++iNameIndex;
+          pszTempPointer = *pbyNamePtr;
+          piTeamStatsPointer = (int *)(pbyNamePtr + 1);
+          player_names[0][iNameIndex - 1] = (char)pszTempPointer;
+        } while (iNameIndex != iNameEndIndex);
+        iNameEndIndex += 9;
       }
-      piTeamStatsPointer = (int *)pbyNameData;
-      //iNameArrayOffset = 9;
-      //for (iPlayerLoop = 0; iPlayerLoop < 16; ++iPlayerLoop)// PLAYER NAMES: Load 16 players * 9 character names (144 bytes total)
-      //{
-      //  iNameIndex = 9 * iPlayerLoop;
-      //  do {
-      //    byNameChar = *(uint8 *)piTeamStatsPointer;// Copy name bytes to both default_names and cheat_names arrays
-      //    pbyNamePtr = (uint8 *)piTeamStatsPointer + 1;
-      //    default_names[0][iNameIndex] = byNameChar;
-      //    pszTempPointer = (char *)pbyNamePtr;
-      //    ++iNameIndex;
-      //    LOBYTE(pszTempPointer) = *pbyNamePtr;
-      //    piTeamStatsPointer = (int *)(pbyNamePtr + 1);
-      //    cheat_names[31][iNameIndex + 8] = (char)pszTempPointer;
-      //  } while (iNameIndex != iNameArrayOffset);
-      //  iNameArrayOffset += 9;
-      //}
       iSerialPortValue = *piTeamStatsPointer;   // COMMUNICATION SETTINGS: Load serial port, modem settings, and phone/init strings
       piModemDataPtr = piTeamStatsPointer + 1;
       serial_port = iSerialPortValue;
@@ -3524,11 +3507,6 @@ int load_champ(int iSlot)
             int iTempChamp = champorder[iCurrentIndex];
             champorder[iCurrentIndex] = champorder[iBestIndex];
             champorder[iBestIndex] = iTempChamp;
-
-            // Also swap in teamorder array (offset by 8)
-            int iTempTeam = teamorder[iCurrentIndex + 8];
-            teamorder[iCurrentIndex + 8] = teamorder[iBestIndex + 8];
-            teamorder[iBestIndex + 8] = iTempTeam;
           }
         }
 
