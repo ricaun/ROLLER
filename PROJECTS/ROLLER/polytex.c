@@ -673,18 +673,18 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
       }
 
       // Render transparent textured polygon
-      polyt(pPolyParams->vertices, 4, pTexture + (uint8)uiSurfaceType * 4096);// (uint8 *)(iTexRowOffset + iTexColOffset + pTexture));
+      polyt(pPolyParams->vertices, 4, pTexture + ((uint8)uiSurfaceType / 4) * 16384 + ((uint8)uiSurfaceType % 4) * 64);// (uint8 *)(iTexRowOffset + iTexColOffset + pTexture));
     } else {
       // Opaque rendering
       vertices = pPolyParams->vertices;
       iMapselOffset = 514 * iTexIdx + 2 * (uint8)uiSurfaceType; //offset assumes array of int16s
       if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
         // Render concave pol (tri)
-        twpolym(vertices, pTexture + (uint8)uiSurfaceType * 4096);// mapsel[iMapselOffset / 2]); //cartex_vga[iTexIdx - 1] + (uint8)uiSurfaceType * 4096
+        twpolym(vertices, pTexture + ((uint8)uiSurfaceType / 4) * 16384 + ((uint8)uiSurfaceType % 4) * 64);// mapsel[iMapselOffset / 2]); //cartex_vga[iTexIdx - 1] + (uint8)uiSurfaceType * 4096
       else
         // Render convex pol (quad)
 
-        polym(vertices, 4, pTexture + (uint8)uiSurfaceType * 4096); //cartex_vga[iTexIdx - 1] + (uint8)uiSurfaceType * 4096
+        polym(vertices, 4, pTexture + ((uint8)uiSurfaceType / 4) * 16384 + ((uint8)uiSurfaceType % 4) * 64); //cartex_vga[iTexIdx - 1] + (uint8)uiSurfaceType * 4096
     }
 
     // Restore original tex coords after rendering
@@ -974,11 +974,11 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
         uint8_t *pDest = &scrptr[iScanlineY * winw + iStartX];
         for (int x = iStartX; x < iEndX; x++) {
             // Extract texture coordinates (6.6 bits for 64x64 texture)
-          int iU = (iTexX >> 16) & 0x3F;
-          int iV = (iTexY >> 16) & 0x3F;
+          int iU = iTexX >> 16;
+          int iV = iTexY >> 16;
 
           // Sample texture
-          uint8_t texel = pTex[iV * 64 + iU];
+          uint8_t texel = pTex[iV * 256 + iU];
 
           // Write pixel if not transparent (0 = transparent)
           if (texel != 0) {

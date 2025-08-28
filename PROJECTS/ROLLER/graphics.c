@@ -1323,9 +1323,6 @@ void sort_small_texture(uint8 *pDest, uint8 *pSrc, int iNumBlocks)
 //00029200
 void sort_texture(uint8 *pTexData, int iNumTextures)
 {
-  //ROLLER: we do not need interleaved texture data for this implementation
-  return;
-
   int iTexturesInGroup; // ebp
   int iSourceRowOffset; // esi
   uint8 *pTempRow; // ecx
@@ -1414,9 +1411,6 @@ void sort_texture(uint8 *pTexData, int iNumTextures)
 //00029340
 void sort_mini_texture(uint8 *pTexData, int iNumTextures)
 {
-  //ROLLER: we do not need interleaved texture data for this implementation
-  return;
-
   int iTexturesInGroup; // ebp
   int iTexIdx; // esi
   int iSourceRowOffset; // edi
