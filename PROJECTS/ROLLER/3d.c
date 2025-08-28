@@ -1798,7 +1798,7 @@ void champion_race()
     do {
       ++iGridIdx;
       iCarIdx = champorder[iNumRacers - 1 - iRacer++];
-      finished_car[iGridIdx + 15] = iCarIdx;    // reference into grid
+      grid[iGridIdx - 1] = iCarIdx;
       non_competitors[iCarIdx] = 0;
       human_control[iCarIdx] = 0;
     } while (iRacer < iNumRacers);
