@@ -659,32 +659,33 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
     // increase pol count sta
     ++num_pols;
 
+    //ROLLER: moved out of partial trans only conditional so it can be used 
+    //for twpolym and polym
+    if (iGfxSize) {
+      // 32x32 textures, 8 per row
+      iTexRowOffset = (int)(int8)uiSurfaceType >> 3 << 13;// row * 8192
+      iTexColOffset = 32 * (uiSurfaceType & 7);// col * 32
+    } else {
+      // 64x64 textures, 4 per row
+      iTexRowOffset = (int)(uint8)uiSurfaceType >> 2 << 14;// row * 16384
+      iTexColOffset = (uiSurfaceType & 3) << 6;// col * 64
+    }
+
     // Choose rendering method
     if ((uiSurfaceType & SURFACE_FLAG_PARTIAL_TRANS) != 0)
     {
-      if (iGfxSize) {
-        // 32x32 textures, 8 per row
-        iTexRowOffset = (int)(int8)uiSurfaceType >> 3 << 13;// row * 8192
-        iTexColOffset = 32 * (uiSurfaceType & 7);// col * 32
-      } else {
-        // 64x64 textures, 4 per row
-        iTexRowOffset = (int)(uint8)uiSurfaceType >> 2 << 14;// row * 16384
-        iTexColOffset = (uiSurfaceType & 3) << 6;// col * 64
-      }
-
       // Render transparent textured polygon
-      polyt(pPolyParams->vertices, 4, pTexture + ((uint8)uiSurfaceType / 4) * 16384 + ((uint8)uiSurfaceType % 4) * 64);// (uint8 *)(iTexRowOffset + iTexColOffset + pTexture));
+      polyt(pPolyParams->vertices, 4, &pTexture[iTexRowOffset + iTexColOffset]);
     } else {
       // Opaque rendering
       vertices = pPolyParams->vertices;
       iMapselOffset = 514 * iTexIdx + 2 * (uint8)uiSurfaceType; //offset assumes array of int16s
       if ((uiSurfaceType & SURFACE_FLAG_CONCAVE) != 0)
         // Render concave pol (tri)
-        twpolym(vertices, pTexture + ((uint8)uiSurfaceType / 4) * 16384 + ((uint8)uiSurfaceType % 4) * 64);// mapsel[iMapselOffset / 2]); //cartex_vga[iTexIdx - 1] + (uint8)uiSurfaceType * 4096
+        twpolym(vertices, &pTexture[iTexRowOffset + iTexColOffset]);// mapsel[iMapselOffset / 2]);
       else
         // Render convex pol (quad)
-
-        polym(vertices, 4, pTexture + ((uint8)uiSurfaceType / 4) * 16384 + ((uint8)uiSurfaceType % 4) * 64); //cartex_vga[iTexIdx - 1] + (uint8)uiSurfaceType * 4096
+        polym(vertices, 4, &pTexture[iTexRowOffset + iTexColOffset]);// mapsel[iMapselOffset / 2]);
     }
 
     // Restore original tex coords after rendering
