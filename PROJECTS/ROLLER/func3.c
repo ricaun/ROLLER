@@ -3399,6 +3399,9 @@ int load_champ(int iSlot)
           pszDefaultNameEnd += 9;
         } while (iDriverLoop < numcars);
       }
+      for (int i = 0; i < numcars; i++) {
+        result_control[i] = 0;
+      }
       iHumanPlayerLoop = 0;
       if (players > 0)                        // HUMAN PLAYER SETUP: Configure human players and assign them to cars
       {
