@@ -169,10 +169,10 @@ void UpdateSDLWindow()
   if (!g_bPaletteSet)
     return;
 
-  ConvertIndexedToRGB(scrbuf, pal_addr, s_pRGBBuffer, 640, 400);
+  ConvertIndexedToRGB(scrbuf, pal_addr, s_pRGBBuffer, winw, winh);
   ConvertIndexedToRGB(testbuf, pal_addr, s_pDebugBuffer, 64, 64);
 
-  SDL_UpdateTexture(s_pWindowTexture, NULL, s_pRGBBuffer, 640 * 3);
+  SDL_UpdateTexture(s_pWindowTexture, NULL, s_pRGBBuffer, winw * 3);
   SDL_UpdateTexture(s_pDebugTexture, NULL, s_pDebugBuffer, 64 * 3);
 
   // Get current window size
@@ -180,8 +180,13 @@ void UpdateSDLWindow()
   SDL_GetCurrentRenderOutputSize(s_pRenderer, &iWindowWidth, &iWindowHeight);
 
   // Get original texture size
-  int iTexWidth = 640;
-  int iTexHeight = 400;
+  int iTexWidth = winw;
+  int iTexHeight = winh;  
+  SDL_FRect src;
+  src.h = (float)winh;
+  src.w = (float)winw;
+  src.x = 0;
+  src.y = 0;
 
   // Calculate aspect ratio-preserving destination rectangle
   SDL_FRect dst;
@@ -203,7 +208,7 @@ void UpdateSDLWindow()
   }
 
   SDL_RenderClear(s_pRenderer);
-  SDL_RenderTexture(s_pRenderer, s_pWindowTexture, NULL, &dst);
+  SDL_RenderTexture(s_pRenderer, s_pWindowTexture, &src, &dst);
 
   //SDL_FRect debugRect;
   //debugRect.h = 64;
