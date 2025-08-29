@@ -3231,8 +3231,8 @@ int load_champ(int iSlot)
           // Store player car selection (bits 0-4 of first byte)
           Players_Cars[i] = byPlayerByte & 0x1F;
           
-          // Store player invulnerability status (bit 6: 0=invulnerable, 1=vulnerable)
-          player_invul[i] = ((byPlayerByte & 0x40) == 0) ? -1 : 0;
+          // Store player invulnerability status (bit 6: 0=vulnerable, 1=invulnerable)
+          player_invul[i] = ((byPlayerByte & 0x40) == 0) - 1;
           
           // Store manual control flags for this player
           manual_control[i] = iPlayerSecondByte;
