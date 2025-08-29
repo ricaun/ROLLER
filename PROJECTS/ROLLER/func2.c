@@ -4562,13 +4562,13 @@ void LoadRecords()
   int *pIntBuf; // ebx
   int iRecordNameIdx; // ebp
   int iRecordIdx; // ecx
-  int iRecordCarVal; // eax
-  int iRecordNamePos4; // esi
+  //int iRecordCarVal; // eax
+  //int iRecordNamePos4; // esi
   int iRecordNameCharPos; // eax
   //char byNameChar; // dl
   uint8 *pBuf; // [esp+0h] [ebp-24h] BYREF
   int iMaxRecords; // [esp+4h] [ebp-20h]
-  int iRecordNamePos3; // [esp+8h] [ebp-1Ch]
+  //int iRecordNamePos3; // [esp+8h] [ebp-1Ch]
 
   iFileLength = ROLLERfilelength("dgkfc.rec");
 
@@ -4624,14 +4624,11 @@ void LoadRecords()
       iMaxRecords = iFileLength2 / 21;
       if (iFileLength2 / 21 >= 1) {
         iRecordIdx = 1;
-        iRecordNamePos3 = 18;
         do {
-          RecordLaps[iRecordIdx] = (float)((double)ReadUnalignedInt((void*)pIntBuf) * 0.01);
-          iRecordCarVal = ReadUnalignedInt(&pIntBuf[1]);
+          RecordLaps[iRecordIdx] = (float)ReadUnalignedInt((void*)pIntBuf) * 0.01;
+          RecordCars[iRecordIdx] = ReadUnalignedInt(&pIntBuf[1]);
+          RecordKills[iRecordIdx] = ReadUnalignedInt(&pIntBuf[2]);
           pIntBuf += 3;
-          RecordCars[iRecordIdx] = iRecordCarVal;
-          iRecordNamePos4 = iRecordNamePos3;
-          RecordKills[iRecordIdx] = ReadUnalignedInt((pIntBuf - 1));
           iRecordNameCharPos = 9 * iRecordNameIdx;
 
           // Copy 9-character record name
@@ -4652,7 +4649,6 @@ void LoadRecords()
           }
           ++iRecordIdx;
           ++iRecordNameIdx;
-          iRecordNamePos3 += 9;
         } while (iRecordNameIdx <= iMaxRecords);
       }
       fre((void **)&pBuf);
@@ -4661,7 +4657,7 @@ void LoadRecords()
       //loop without optimizations
       for (int i = 0; i < 25; ++i) {
         int iRecordNamesPos = 9 * i;
-        strcpy(RecordNames[iRecordNamesPos], "-----");
+        strcpy(RecordNames[iRecordNamesPos], "----");
         RecordLaps[i] = 128.0f;
         RecordCars[i] = -1;
         RecordKills[i] = 0;
@@ -4747,8 +4743,9 @@ uint8 *copy_int(uint8 *pDest, uint32 uiValue)
 {
   pDest += 3;
   pDest[-3] = (uint8)(uiValue);          // Byte 0 (LSB)
-  pDest[-2] = (uint8)(uiValue >> 16);    // Byte 2 (Byte 1 is skipped/overwritten)
-  pDest[-1] = (uint8)(uiValue >> 24);    // Byte 3 (MSB)
+  pDest[-2] = (uint8)(uiValue >> 8);     // Byte 1
+  pDest[-1] = (uint8)(uiValue >> 16);    // Byte 2
+  pDest[0] = (uint8)(uiValue >> 24);     // Byte 3 (MSB)
   return pDest + 1;  // Equivalent to original eax + 4
 }
 
