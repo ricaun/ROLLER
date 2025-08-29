@@ -730,7 +730,7 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       int iPrevLeftVertexIdx = iLeftVertexIdx;
       iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
-      if (iLeftVertexIdx == iRightVertexIdx)
+      if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
 
       iLeftEdgeHeight = pVertices[iLeftVertexIdx].y - iScanlineY;
@@ -766,7 +766,7 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       int iPrevRightVertexIdx = iRightVertexIdx;
       iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
-      if (iLeftVertexIdx == iRightVertexIdx)
+      if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
 
       iRightEdgeHeight = pVertices[iRightVertexIdx].y - iScanlineY;
