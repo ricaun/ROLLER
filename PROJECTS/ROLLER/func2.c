@@ -4625,7 +4625,7 @@ void LoadRecords()
       if (iFileLength2 / 21 >= 1) {
         iRecordIdx = 1;
         do {
-          RecordLaps[iRecordIdx] = (float)ReadUnalignedInt((void*)pIntBuf) * 0.01;
+          RecordLaps[iRecordIdx] = (float)ReadUnalignedInt((void*)pIntBuf) * 0.01f;
           RecordCars[iRecordIdx] = ReadUnalignedInt(&pIntBuf[1]);
           RecordKills[iRecordIdx] = ReadUnalignedInt(&pIntBuf[2]);
           pIntBuf += 3;
