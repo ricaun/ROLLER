@@ -302,6 +302,10 @@ void updateramp(tStuntData *pStunt)
     iFlags = pStunt->iFlags;
     fRotZX = fHeightSin;
     pStuntGeometry = pStunt->chunkDataAy;
+
+    if (!pStuntGeometry) //added by ROLLER
+      return;
+
     iStartIdx = pStunt->iGeometryIdx - pStunt->iChunkCount + 1;
     iCurrentIdx = iStartIdx;
     pData = &localdata[iStartIdx - 1];
