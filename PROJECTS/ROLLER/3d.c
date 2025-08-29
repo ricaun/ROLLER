@@ -394,8 +394,10 @@ void init_screen()
   winx = 0;
   winh = YMAX;
   winy = 0;
-  if (palette_brightness > 0)
-    resetpal();
+
+  //removed by ROLLER, causes no palette after toggling SVGA/VGA mode in-game
+  //if (palette_brightness > 0)
+  //  resetpal();
 }
 
 //-------------------------------------------------------------------------------------------------
