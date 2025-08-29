@@ -693,6 +693,8 @@ void MIDI_CloseMidiBuffer()
 /// <param name="data">Pointer to a tInitSong structure containing the MIDI song data and its length.</param>
 void MIDIInitSong(tInitSong *data)
 {
+  MIDIStopSong();
+
   SDL_Log("MIDIInitSong: Midi - Length: %i", data->iLength);
 
   MIDI_CloseMidiBuffer();
