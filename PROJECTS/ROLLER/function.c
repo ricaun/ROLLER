@@ -261,7 +261,7 @@ void finish_race()
           iLapTimeCarId = carorder[iLapTimeCarIndex];
           fRandomLapVariation = (float)((double)ROLLERrand() * 0.000030517578125 + 0.02);// Add random variation (0.02-0.05s) to base lap time
           if (iLapTimeIndex)
-            dRunningLapTime = Car[carorder[iLapTimeCarIndex]].fRunningLapTime;
+            dRunningLapTime = Car[carorder[iLapTimeCarIndex - 1]].fRunningLapTime;
             //dRunningLapTime = Car[nearcall[3][iLapTimeCarIndex + 3]].fRunningLapTime;
           else
             dRunningLapTime = RecordLaps[game_track];
