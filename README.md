@@ -13,11 +13,9 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 * Improve textured polygon rendering to eliminate flickering polygons
 * Bug: WildMidi sometimes locks up the game or crashes when switching songs
 * Find instrument/sample set for WildMidi that sounds closer to original hardware
-* Bug: doubled textures (two adjacent tiles on one quad) do not work
+* Bug: pits in devil's hairpin do not show doubled texture
 * Bug: race starting position isn't correct
 * Bug: some cars start before the green light
-* Bug: quitting a race in championship mode causes you to explode at the start of the next race
-* Bug: quitting a race in championship mode causes the results page to show you multiple times
 * Bug: announcer can say multiple things at the same time
 * Bug: wall backfaces are not drawn
 * Bug: clouds do not work
