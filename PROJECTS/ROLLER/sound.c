@@ -2112,6 +2112,12 @@ int pannedsample(int result, int a2, int a3)
 //0003C2B0
 int speechonly(int result, int a2, int a3, int a4)
 {
+  SDL_Log("speechonly: Sample %d", result);
+  if (SamplePtr[result] == 0) {
+    SDL_Log("speechsample: Force to load sample %d", result);
+    loadasample(result);
+  }
+  dospeechsample(result, a2); // ricaun
   return 0; /*
   if (readsample == writesample && -a3 > lastsample)
     return speechsample(result, a2, a3, a4);
@@ -2122,6 +2128,12 @@ int speechonly(int result, int a2, int a3, int a4)
 //0003C2E0
 int speechsample(int result, int a2, int a3, int a4)
 {
+  SDL_Log("speechsample: Sample %d", result);
+  if (SamplePtr[result] == 0) {
+    SDL_Log("speechsample: Force to load sample %d", result);
+    loadasample(result);
+  }
+  dospeechsample(result, a2);
   return 0; /*
   int v4; // edi
   int v5; // esi
@@ -2606,7 +2618,9 @@ void sfxsample(int iSample, int iVol)
 {
   if (SamplePtr[iSample] == 0) {
     SDL_Log("sfxsample: Sample pointer is NULL for sample index %d", iSample);
-    return;
+    loadasample(iSample);
+    SDL_Log("sfxsample: Force to load %d", iSample);
+    //return;
   }
 
   // Clamp volume to maximum 0x7FFF
@@ -2705,6 +2719,16 @@ void sample2(int iCarIndex, int iSampleIndex, int iVolume, int iPitch, int iPan,
 //0003D110
 int sfxpend(int a1, int a2, int a3)
 {
+  //int id = a1;
+  //int iDriverIdx = a2;
+  //int volume = a3 * SFXVolume / 127;
+  //SDL_Log("speechonly: Sample %d", id);
+  //if (SamplePtr[id] == 0) {
+  //  SDL_Log("speechsample: Force to load sample %d", id);
+  //  loadasample(id);
+  //}
+  //dospeechsample(id, volume); // ricaun
+  
   return 0; /*
   int v5; // edi
   int result; // eax

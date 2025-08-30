@@ -533,40 +533,40 @@ char my_name[14];         //0016FF12
 // Replace accented characters with non-accented equivalents in the font table - add by ROLLER
 void font_ascii_replace_accent(char *font)
 {
-  font[0xc7] = font['C']; // Ç
-  font[0xe7] = font['c']; // ç
+  font[0xc7] = font['C']; // ï¿½
+  font[0xe7] = font['c']; // ï¿½
 
-  font[0xc0] = font['A']; // À
-  font[0xc1] = font['A']; // Á
-  font[0xc2] = font['A']; // Â
-  font[0xc3] = font['A']; // Ã
-  font[0xe0] = font['a']; // à
-  font[0xe1] = font['a']; // á
-  font[0xe2] = font['a']; // â
-  font[0xe3] = font['a']; // ã
+  font[0xc0] = font['A']; // ï¿½
+  font[0xc1] = font['A']; // ï¿½
+  font[0xc2] = font['A']; // ï¿½
+  font[0xc3] = font['A']; // ï¿½
+  font[0xe0] = font['a']; // ï¿½
+  font[0xe1] = font['a']; // ï¿½
+  font[0xe2] = font['a']; // ï¿½
+  font[0xe3] = font['a']; // ï¿½
 
-  font[0xd3] = font['O']; // Ó
-  font[0xd5] = font['O']; // Õ
-  font[0xf3] = font['o']; // ó
-  font[0xf5] = font['o']; // õ
+  font[0xd3] = font['O']; // ï¿½
+  font[0xd5] = font['O']; // ï¿½
+  font[0xf3] = font['o']; // ï¿½
+  font[0xf5] = font['o']; // ï¿½
 
-  font[0xcd] = font['I']; // Í
-  font[0xed] = font['i']; // í
+  font[0xcd] = font['I']; // ï¿½
+  font[0xed] = font['i']; // ï¿½
 
-  font[0xd9] = font['U']; // Ù
-  font[0xda] = font['U']; // Ú
-  font[0xfa] = font['u']; // ú
-  font[0xf9] = font['u']; // ù
+  font[0xd9] = font['U']; // ï¿½
+  font[0xda] = font['U']; // ï¿½
+  font[0xfa] = font['u']; // ï¿½
+  font[0xf9] = font['u']; // ï¿½
 
-  font[0xc9] = font['E']; // É
-  font[0xc8] = font['E']; // È
-  font[0xc9] = font['E']; // Ê
-  font[0xe9] = font['e']; // é
-  font[0xe8] = font['e']; // è
-  font[0xea] = font['e']; // ê
+  font[0xc9] = font['E']; // ï¿½
+  font[0xc8] = font['E']; // ï¿½
+  font[0xc9] = font['E']; // ï¿½
+  font[0xe9] = font['e']; // ï¿½
+  font[0xe8] = font['e']; // ï¿½
+  font[0xea] = font['e']; // ï¿½
 
-  font[0xd1] = font['N']; // Ñ
-  font[0xf1] = font['n']; // ñ
+  font[0xd1] = font['N']; // ï¿½
+  font[0xf1] = font['n']; // ï¿½
 }
 
 //-------------------------------------------------------------------------------------------------
