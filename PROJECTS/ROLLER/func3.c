@@ -3196,7 +3196,7 @@ int load_champ(int iSlot)
       iSavedRacers = racers;                    // NETWORK CLEANUP: Disconnect from network before loading saved state
       broadcast_mode = -666;
       while (broadcast_mode)
-        ;
+        UpdateSDL();
       tick_on = 0;
       TrackLoad = *pFileBuf;                    // BASIC GAME SETTINGS: Load track, competitors, texture/cheat flags
       byGameSettings = pFileBuf[1];
