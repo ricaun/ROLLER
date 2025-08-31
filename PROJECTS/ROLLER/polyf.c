@@ -251,6 +251,502 @@ void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams)
 //00070B40
 void poly(tPoint *vertices, int iVertexCount, int16 nColor)
 {
+  // Find polygon bounds and top vertex
+  int iMinX = vertices[0].x;
+  int iMaxX = vertices[0].x;
+  int iMinY = vertices[0].y;
+  int iMaxY = vertices[0].y;
+  int iMinYIdx = 0;
+
+  for (int i = 1; i < iVertexCount; i++) {
+    int x = vertices[i].x;
+    int y = vertices[i].y;
+
+    if (x < iMinX) iMinX = x;
+    if (x > iMaxX) iMaxX = x;
+
+    if (y < iMinY) {
+      iMinY = y;
+      iMinYIdx = i;
+    }
+    if (y > iMaxY) iMaxY = y;
+  }
+
+  // Early exit if polygon is completely outside screen
+  if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
+    return;
+
+  // Edge walking variables (floating-point)
+  float fLeftEdgeX = 0.0f;          // Left edge X position
+  float fRightEdgeX = 0.0f;         // Right edge X position  
+  float fLeftEdgeStep = 0.0f;       // Left edge X step per scanline
+  float fRightEdgeStep = 0.0f;      // Right edge X step per scanline
+
+  // Vertex indices for edge walking
+  int iLeftVertexIdx = iMinYIdx;
+  int iRightVertexIdx = iMinYIdx;
+
+  // Current scanline Y and edge heights
+  int iScanlineY = vertices[iMinYIdx].y;
+  int iLeftRemain = 0;
+  int iRightRemain = 0;
+
+  // Initialize starting positions
+  if (iScanlineY >= 0) {
+    // Normal case: polygon starts on or below screen top
+    fLeftEdgeX = (float)vertices[iMinYIdx].x;
+    fRightEdgeX = fLeftEdgeX;
+
+    // Find first non-horizontal left edge
+    do {
+      int iPrevLeftVertexIdx = iLeftVertexIdx;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iVertexCount;
+
+      if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
+        return; // Degenerate polygon
+
+      iLeftRemain = vertices[iLeftVertexIdx].y - iScanlineY;
+
+      if (iLeftRemain > 0) {
+        // Calculate left edge parameters
+        float fDeltaX = (float)(vertices[iLeftVertexIdx].x - (int)fLeftEdgeX);
+        fLeftEdgeStep = fDeltaX / (float)iLeftRemain;
+
+        // Adjust for negative slopes (prestep)
+        if (fLeftEdgeStep < 0.0f) {
+          fLeftEdgeX += fLeftEdgeStep;
+        }
+        break;
+      }
+
+      // Update position for horizontal edge
+      fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
+    } while (true);
+
+    // Find first non-horizontal right edge
+    do {
+      int iPrevRightVertexIdx = iRightVertexIdx;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iVertexCount) % iVertexCount;
+
+      if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
+        return; // Degenerate polygon
+
+      iRightRemain = vertices[iRightVertexIdx].y - iScanlineY;
+
+      if (iRightRemain > 0) {
+        // Calculate right edge parameters
+        float fDeltaX = (float)(vertices[iRightVertexIdx].x - (int)fRightEdgeX);
+        fRightEdgeStep = fDeltaX / (float)iRightRemain;
+
+        // Adjust for positive slopes (prestep)
+        if (fRightEdgeStep > 0.0f) {
+          fRightEdgeX += fRightEdgeStep;
+        }
+        break;
+      }
+
+      // Update position for horizontal edge
+      fRightEdgeX = (float)vertices[iRightVertexIdx].x;
+    } while (true);
+  } else {
+    // Special case: polygon starts above screen top
+    // Need to clip and find first visible edges
+
+    // Walk left edge until it enters screen
+    while (vertices[iLeftVertexIdx].y < 0) {
+      fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iVertexCount;
+    }
+
+    // Calculate clipped left edge
+    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iVertexCount) % iVertexCount;
+    int iStartY = vertices[iPrevLeftIdx].y;
+    int iEndY = vertices[iLeftVertexIdx].y;
+    iLeftRemain = iEndY - 0; // Clip to y=0
+
+    if (iLeftRemain > 0) {
+      int iTotalHeight = iEndY - iStartY;
+      float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftIdx].x);
+      fLeftEdgeStep = fDeltaX / (float)iTotalHeight;
+
+      // Adjust for clipping
+      fLeftEdgeX = (float)vertices[iPrevLeftIdx].x + fLeftEdgeStep * (float)(0 - iStartY);
+
+      if (fLeftEdgeStep < 0.0f) {
+        fLeftEdgeX += fLeftEdgeStep;
+      }
+    }
+
+    // Similar logic for right edge (walking backwards)
+    while (vertices[iRightVertexIdx].y < 0) {
+      fRightEdgeX = (float)vertices[iRightVertexIdx].x;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iVertexCount) % iVertexCount;
+    }
+
+    // Calculate clipped right edge
+    int iPrevRightIdx = (iRightVertexIdx + 1) % iVertexCount;
+    iStartY = vertices[iPrevRightIdx].y;
+    iEndY = vertices[iRightVertexIdx].y;
+    iRightRemain = iEndY - 0; // Clip to y=0
+
+    if (iRightRemain > 0) {
+      int iTotalHeight = iEndY - iStartY;
+      float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightIdx].x);
+      fRightEdgeStep = fDeltaX / (float)iTotalHeight;
+
+      // Adjust for clipping
+      fRightEdgeX = (float)vertices[iPrevRightIdx].x + fRightEdgeStep * (float)(0 - iStartY);
+
+      if (fRightEdgeStep > 0.0f) {
+        fRightEdgeX += fRightEdgeStep;
+      }
+    }
+
+    iScanlineY = 0;
+  }
+
+  // Main rasterization loop
+  while (iScanlineY < winh) {
+    // Check if we have a valid span to render
+    int iLeftX = (int)fLeftEdgeX;
+    int iRightX = (int)fRightEdgeX;
+
+    if (iLeftX < iRightX && iRightX > 0 && iLeftX < winw) {
+      // Clip span to screen bounds
+      int iStartX = iLeftX < 0 ? 0 : iLeftX;
+      int iEndX = iRightX > winw ? winw : iRightX;
+
+      if (iStartX < iEndX) {
+        // Fill the span with solid color
+        uint8 *pDest = &scrptr[iScanlineY * winw + iStartX];
+        int iSpanWidth = iEndX - iStartX;
+        memset(pDest, nColor, iSpanWidth);
+      }
+    }
+
+    // Advance to next scanline
+    iScanlineY++;
+    fLeftEdgeX += fLeftEdgeStep;
+    fRightEdgeX += fRightEdgeStep;
+
+    // Check if we need to advance to next edge
+    iLeftRemain--;
+    if (iLeftRemain <= 0) {
+      // Find next left edge
+      do {
+        int iPrevLeftVertexIdx = iLeftVertexIdx;
+        iLeftVertexIdx = (iLeftVertexIdx + 1) % iVertexCount;
+
+        if (iPrevLeftVertexIdx == iRightVertexIdx)
+          return; // Polygon complete
+
+        iLeftRemain = vertices[iLeftVertexIdx].y - iScanlineY;
+
+        if (iLeftRemain > 0) {
+          // Setup new left edge
+          fLeftEdgeX = (float)vertices[iPrevLeftVertexIdx].x;
+
+          float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftVertexIdx].x);
+          fLeftEdgeStep = fDeltaX / (float)iLeftRemain;
+
+          if (fLeftEdgeStep < 0.0f) {
+            fLeftEdgeX += fLeftEdgeStep;
+          }
+          break;
+        }
+
+        // Update position for horizontal edge
+        fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
+      } while (true);
+    }
+
+    iRightRemain--;
+    if (iRightRemain <= 0) {
+      // Find next right edge
+      do {
+        int iPrevRightVertexIdx = iRightVertexIdx;
+        iRightVertexIdx = (iRightVertexIdx - 1 + iVertexCount) % iVertexCount;
+
+        if (iLeftVertexIdx == iPrevRightVertexIdx)
+          return; // Polygon complete
+
+        iRightRemain = vertices[iRightVertexIdx].y - iScanlineY;
+
+        if (iRightRemain > 0) {
+          // Setup new right edge
+          fRightEdgeX = (float)vertices[iPrevRightVertexIdx].x;
+
+          float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightVertexIdx].x);
+          fRightEdgeStep = fDeltaX / (float)iRightRemain;
+
+          if (fRightEdgeStep > 0.0f) {
+            fRightEdgeX += fRightEdgeStep;
+          }
+          break;
+        }
+
+        // Update position for horizontal edge
+        fRightEdgeX = (float)vertices[iRightVertexIdx].x;
+      } while (true);
+    }
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+//00071D70
+void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
+{
+  // Find polygon bounds and top vertex
+  int iMinX = vertices[0].x;
+  int iMaxX = vertices[0].x;
+  int iMinY = vertices[0].y;
+  int iMaxY = vertices[0].y;
+  int iMinYIdx = 0;
+
+  for (int i = 1; i < iNumVertices; i++) {
+    int x = vertices[i].x;
+    int y = vertices[i].y;
+
+    if (x < iMinX) iMinX = x;
+    if (x > iMaxX) iMaxX = x;
+
+    if (y < iMinY) {
+      iMinY = y;
+      iMinYIdx = i;
+    }
+    if (y > iMaxY) iMaxY = y;
+  }
+
+  // Early exit if polygon is completely outside screen
+  if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
+    return;
+
+  // Get shade palette for this palette index
+  uint8 *pShadePalette = &shade_palette[256 * iPaletteIndex];
+
+  // Edge walking variables (floating-point)
+  float fLeftEdgeX = 0.0f;          // Left edge X position
+  float fRightEdgeX = 0.0f;         // Right edge X position  
+  float fLeftEdgeStep = 0.0f;       // Left edge X step per scanline
+  float fRightEdgeStep = 0.0f;      // Right edge X step per scanline
+
+  // Vertex indices for edge walking
+  int iLeftVertexIdx = iMinYIdx;
+  int iRightVertexIdx = iMinYIdx;
+
+  // Current scanline Y and edge heights
+  int iCurrScanline = vertices[iMinYIdx].y;
+  int iLeftRemain = 0;
+  int iRightRemain = 0;
+
+  // Initialize starting positions
+  if (iCurrScanline >= 0) {
+    // Normal case: polygon starts on or below screen top
+    fLeftEdgeX = (float)vertices[iMinYIdx].x;
+    fRightEdgeX = fLeftEdgeX;
+
+    // Find first non-horizontal left edge
+    do {
+      int iPrevLeftVertexIdx = iLeftVertexIdx;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVertices;
+
+      if (iLeftVertexIdx == iRightVertexIdx && iCurrScanline == iMaxY)
+        return; // Degenerate polygon
+
+      iLeftRemain = vertices[iLeftVertexIdx].y - iCurrScanline;
+
+      if (iLeftRemain > 0) {
+        // Calculate left edge parameters
+        float fDeltaX = (float)(vertices[iLeftVertexIdx].x - (int)fLeftEdgeX);
+        fLeftEdgeStep = fDeltaX / (float)iLeftRemain;
+
+        // Adjust for negative slopes (prestep)
+        if (fLeftEdgeStep < 0.0f) {
+          fLeftEdgeX += fLeftEdgeStep;
+        }
+        break;
+      }
+
+      // Update position for horizontal edge
+      fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
+    } while (true);
+
+    // Find first non-horizontal right edge
+    do {
+      int iPrevRightVertexIdx = iRightVertexIdx;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVertices) % iNumVertices;
+
+      if (iLeftVertexIdx == iRightVertexIdx && iCurrScanline == iMaxY)
+        return; // Degenerate polygon
+
+      iRightRemain = vertices[iRightVertexIdx].y - iCurrScanline;
+
+      if (iRightRemain > 0) {
+        // Calculate right edge parameters
+        float fDeltaX = (float)(vertices[iRightVertexIdx].x - (int)fRightEdgeX);
+        fRightEdgeStep = fDeltaX / (float)iRightRemain;
+
+        // Adjust for positive slopes (prestep)
+        if (fRightEdgeStep > 0.0f) {
+          fRightEdgeX += fRightEdgeStep;
+        }
+        break;
+      }
+
+      // Update position for horizontal edge
+      fRightEdgeX = (float)vertices[iRightVertexIdx].x;
+    } while (true);
+  } else {
+    // Special case: polygon starts above screen top
+    // Need to clip and find first visible edges
+
+    // Walk left edge until it enters screen
+    while (vertices[iLeftVertexIdx].y < 0) {
+      fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVertices;
+    }
+
+    // Calculate clipped left edge
+    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVertices) % iNumVertices;
+    int iStartY = vertices[iPrevLeftIdx].y;
+    int iEndY = vertices[iLeftVertexIdx].y;
+    iLeftRemain = iEndY - 0; // Clip to y=0
+
+    if (iLeftRemain > 0) {
+      int iTotalHeight = iEndY - iStartY;
+      float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftIdx].x);
+      fLeftEdgeStep = fDeltaX / (float)iTotalHeight;
+
+      // Adjust for clipping
+      fLeftEdgeX = (float)vertices[iPrevLeftIdx].x + fLeftEdgeStep * (float)(0 - iStartY);
+
+      if (fLeftEdgeStep < 0.0f) {
+        fLeftEdgeX += fLeftEdgeStep;
+      }
+    }
+
+    // Similar logic for right edge (walking backwards)
+    while (vertices[iRightVertexIdx].y < 0) {
+      fRightEdgeX = (float)vertices[iRightVertexIdx].x;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVertices) % iNumVertices;
+    }
+
+    // Calculate clipped right edge
+    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVertices;
+    iStartY = vertices[iPrevRightIdx].y;
+    iEndY = vertices[iRightVertexIdx].y;
+    iRightRemain = iEndY - 0; // Clip to y=0
+
+    if (iRightRemain > 0) {
+      int iTotalHeight = iEndY - iStartY;
+      float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightIdx].x);
+      fRightEdgeStep = fDeltaX / (float)iTotalHeight;
+
+      // Adjust for clipping
+      fRightEdgeX = (float)vertices[iPrevRightIdx].x + fRightEdgeStep * (float)(0 - iStartY);
+
+      if (fRightEdgeStep > 0.0f) {
+        fRightEdgeX += fRightEdgeStep;
+      }
+    }
+
+    iCurrScanline = 0;
+  }
+
+  // Main rasterization loop
+  while (iCurrScanline < winh) {
+    // Check if we have a valid span to render
+    int iLeftX = (int)fLeftEdgeX;
+    int iRightX = (int)fRightEdgeX;
+
+    if (iLeftX < iRightX && iRightX > 0 && iLeftX < winw) {
+      // Clip span to screen bounds
+      int iStartX = iLeftX < 0 ? 0 : iLeftX;
+      int iEndX = iRightX > winw ? winw : iRightX;
+
+      if (iStartX < iEndX) {
+        // Render the span with shading palette
+        uint8 *pDest = &scrptr[iCurrScanline * winw + iStartX];
+        for (int x = iStartX; x < iEndX; x++) {
+          // Apply shading palette to existing pixel
+          *pDest = pShadePalette[*pDest];
+          pDest++;
+        }
+      }
+    }
+
+    // Advance to next scanline
+    iCurrScanline++;
+    fLeftEdgeX += fLeftEdgeStep;
+    fRightEdgeX += fRightEdgeStep;
+
+    // Check if we need to advance to next edge
+    iLeftRemain--;
+    if (iLeftRemain <= 0) {
+      // Find next left edge
+      do {
+        int iPrevLeftVertexIdx = iLeftVertexIdx;
+        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVertices;
+
+        if (iPrevLeftVertexIdx == iRightVertexIdx)
+          return; // Polygon complete
+
+        iLeftRemain = vertices[iLeftVertexIdx].y - iCurrScanline;
+
+        if (iLeftRemain > 0) {
+          // Setup new left edge
+          fLeftEdgeX = (float)vertices[iPrevLeftVertexIdx].x;
+
+          float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftVertexIdx].x);
+          fLeftEdgeStep = fDeltaX / (float)iLeftRemain;
+
+          if (fLeftEdgeStep < 0.0f) {
+            fLeftEdgeX += fLeftEdgeStep;
+          }
+          break;
+        }
+
+        // Update position for horizontal edge
+        fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
+      } while (true);
+    }
+
+    iRightRemain--;
+    if (iRightRemain <= 0) {
+      // Find next right edge
+      do {
+        int iPrevRightVertexIdx = iRightVertexIdx;
+        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVertices) % iNumVertices;
+
+        if (iLeftVertexIdx == iPrevRightVertexIdx)
+          return; // Polygon complete
+
+        iRightRemain = vertices[iRightVertexIdx].y - iCurrScanline;
+
+        if (iRightRemain > 0) {
+          // Setup new right edge
+          fRightEdgeX = (float)vertices[iPrevRightVertexIdx].x;
+
+          float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightVertexIdx].x);
+          fRightEdgeStep = fDeltaX / (float)iRightRemain;
+
+          if (fRightEdgeStep > 0.0f) {
+            fRightEdgeX += fRightEdgeStep;
+          }
+          break;
+        }
+
+        // Update position for horizontal edge
+        fRightEdgeX = (float)vertices[iRightVertexIdx].x;
+      } while (true);
+    }
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+//00070B40
+/*void poly(tPoint *vertices, int iVertexCount, int16 nColor)
+{
   int iOldWinW; // ebp
   int iMinYIdx; // edi
   int iCurrX; // ecx
@@ -1308,11 +1804,11 @@ FILL_SCANLINE_FINAL:
   iOldWinW = winw;
 CLEANUP_AND_RETURN:
   winw = iOldWinW;
-}
+}*/
 
 //-------------------------------------------------------------------------------------------------
 //00071D70
-void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
+/*void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
 {
   int iOldWinW; // ebp
   int iMinX; // edi
@@ -2067,6 +2563,6 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
   }
 RESTORE_AND_RETURN:
   winw = iOldWinW;
-}
+}*/
 
 //-------------------------------------------------------------------------------------------------
