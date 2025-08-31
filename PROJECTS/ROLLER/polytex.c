@@ -692,17 +692,17 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
   if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
     return;
 
-// Edge walking variables (16.16 fixed-point)
-  int iLeftEdgeX = 0;          // Left edge X position
-  int iRightEdgeX = 0;         // Right edge X position  
-  int iLeftEdgeStep = 0;       // Left edge X step per scanline
-  int iRightEdgeStep = 0;      // Right edge X step per scanline
+  // Edge walking variables (floating-point)
+  float fLeftEdgeX = 0.0f;          // Left edge X position
+  float fRightEdgeX = 0.0f;         // Right edge X position  
+  float fLeftEdgeStep = 0.0f;       // Left edge X step per scanline
+  float fRightEdgeStep = 0.0f;      // Right edge X step per scanline
 
   // Texture coordinate interpolation variables
-  int iLeftTexX = 0, iLeftTexY = 0;      // Current texture coords on left edge
-  int iRightTexX = 0, iRightTexY = 0;    // Current texture coords on right edge
-  int iLeftTexXStep = 0, iLeftTexYStep = 0;    // Texture coord steps for left edge
-  int iRightTexXStep = 0, iRightTexYStep = 0;  // Texture coord steps for right edge
+  float fLeftTexX = 0.0f, fLeftTexY = 0.0f;      // Current texture coords on left edge
+  float fRightTexX = 0.0f, fRightTexY = 0.0f;    // Current texture coords on right edge
+  float fLeftTexXStep = 0.0f, fLeftTexYStep = 0.0f;    // Texture coord steps for left edge
+  float fRightTexXStep = 0.0f, fRightTexYStep = 0.0f;  // Texture coord steps for right edge
 
   // Vertex indices for edge walking
   int iLeftVertexIdx = iTopVertexIdx;
@@ -716,14 +716,13 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
   // Initialize starting positions
   if (iScanlineY >= 0) {
       // Normal case: polygon starts on or below screen top
-    SET_HIWORD(iLeftEdgeX, pVertices[iTopVertexIdx].x);
-    SET_LOWORD(iLeftEdgeX, 0);
-    iRightEdgeX = iLeftEdgeX;
+    fLeftEdgeX = (float)pVertices[iTopVertexIdx].x;
+    fRightEdgeX = fLeftEdgeX;
 
-    iLeftTexX = startsx[iTopVertexIdx];
-    iLeftTexY = startsy[iTopVertexIdx];
-    iRightTexX = iLeftTexX;
-    iRightTexY = iLeftTexY;
+    fLeftTexX = FROM_FIXED(startsx[iTopVertexIdx]);
+    fLeftTexY = FROM_FIXED(startsy[iTopVertexIdx]);
+    fRightTexX = fLeftTexX;
+    fRightTexY = fLeftTexY;
 
     // Find first non-horizontal left edge
     do {
@@ -737,28 +736,26 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
       if (iLeftEdgeHeight > 0) {
           // Calculate left edge parameters
-        int iDeltaX = pVertices[iLeftVertexIdx].x - GET_HIWORD(iLeftEdgeX);
-        SET_HIWORD(iLeftEdgeStep, iDeltaX);
-        SET_LOWORD(iLeftEdgeStep, 0);
-        iLeftEdgeStep /= iLeftEdgeHeight;
+        float fDeltaX = (float)(pVertices[iLeftVertexIdx].x - (int)fLeftEdgeX);
+        fLeftEdgeStep = fDeltaX / (float)iLeftEdgeHeight;
 
         // Calculate texture coordinate steps
-        iLeftTexXStep = (startsx[iLeftVertexIdx] - iLeftTexX) / iLeftEdgeHeight;
-        iLeftTexYStep = (startsy[iLeftVertexIdx] - iLeftTexY) / iLeftEdgeHeight;
+        fLeftTexXStep = (FROM_FIXED(startsx[iLeftVertexIdx]) - fLeftTexX) / (float)iLeftEdgeHeight;
+        fLeftTexYStep = (FROM_FIXED(startsy[iLeftVertexIdx]) - fLeftTexY) / (float)iLeftEdgeHeight;
 
         // Adjust for negative slopes (prestep)
-        if (iLeftEdgeStep < 0) {
-          iLeftEdgeX += iLeftEdgeStep;
-          iLeftTexX += iLeftTexXStep;
-          iLeftTexY += iLeftTexYStep;
+        if (fLeftEdgeStep < 0.0f) {
+          fLeftEdgeX += fLeftEdgeStep;
+          fLeftTexX += fLeftTexXStep;
+          fLeftTexY += fLeftTexYStep;
         }
         break;
       }
 
       // Update position for horizontal edge
-      SET_HIWORD(iLeftEdgeX, pVertices[iLeftVertexIdx].x);
-      iLeftTexX = startsx[iLeftVertexIdx];
-      iLeftTexY = startsy[iLeftVertexIdx];
+      fLeftEdgeX = (float)pVertices[iLeftVertexIdx].x;
+      fLeftTexX = FROM_FIXED(startsx[iLeftVertexIdx]);
+      fLeftTexY = FROM_FIXED(startsy[iLeftVertexIdx]);
     } while (true);
 
     // Find first non-horizontal right edge
@@ -773,42 +770,37 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
       if (iRightEdgeHeight > 0) {
           // Calculate right edge parameters
-        int iDeltaX = pVertices[iRightVertexIdx].x - GET_HIWORD(iRightEdgeX);
-        SET_HIWORD(iRightEdgeStep, iDeltaX);
-        SET_LOWORD(iRightEdgeStep, 0);
-        iRightEdgeStep /= iRightEdgeHeight;
+        float fDeltaX = (float)(pVertices[iRightVertexIdx].x - (int)fRightEdgeX);
+        fRightEdgeStep = fDeltaX / (float)iRightEdgeHeight;
 
         // Calculate texture coordinate steps
-        iRightTexXStep = (startsx[iRightVertexIdx] - iRightTexX) / iRightEdgeHeight;
-        iRightTexYStep = (startsy[iRightVertexIdx] - iRightTexY) / iRightEdgeHeight;
+        fRightTexXStep = (FROM_FIXED(startsx[iRightVertexIdx]) - fRightTexX) / (float)iRightEdgeHeight;
+        fRightTexYStep = (FROM_FIXED(startsy[iRightVertexIdx]) - fRightTexY) / (float)iRightEdgeHeight;
 
         // Adjust for positive slopes (prestep)
-        if (iRightEdgeStep > 0) {
-          iRightEdgeX += iRightEdgeStep;
-          iRightTexX += iRightTexXStep;
-          iRightTexY += iRightTexYStep;
+        if (fRightEdgeStep > 0.0f) {
+          fRightEdgeX += fRightEdgeStep;
+          fRightTexX += fRightTexXStep;
+          fRightTexY += fRightTexYStep;
         }
         break;
       }
 
       // Update position for horizontal edge
-      SET_HIWORD(iRightEdgeX, pVertices[iRightVertexIdx].x);
-      iRightTexX = startsx[iRightVertexIdx];
-      iRightTexY = startsy[iRightVertexIdx];
+      fRightEdgeX = (float)pVertices[iRightVertexIdx].x;
+      fRightTexX = FROM_FIXED(startsx[iRightVertexIdx]);
+      fRightTexY = FROM_FIXED(startsy[iRightVertexIdx]);
     } while (true);
   } else {
       // Special case: polygon starts above screen top
       // Need to clip and find first visible edges
 
       // Walk left edge until it enters screen
-    SET_LOWORD(iLeftEdgeX, 0);
-    SET_LOWORD(iRightEdgeX, 0);
-
     while (pVertices[iLeftVertexIdx].y < 0) {
       int iPrevY = pVertices[iLeftVertexIdx].y;
-      SET_HIWORD(iLeftEdgeX, pVertices[iLeftVertexIdx].x);
-      iLeftTexX = startsx[iLeftVertexIdx];
-      iLeftTexY = startsy[iLeftVertexIdx];
+      fLeftEdgeX = (float)pVertices[iLeftVertexIdx].x;
+      fLeftTexX = FROM_FIXED(startsx[iLeftVertexIdx]);
+      fLeftTexY = FROM_FIXED(startsy[iLeftVertexIdx]);
 
       iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
       //if (iLeftVertexIdx == iRightVertexIdx)
@@ -823,36 +815,33 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
     if (iLeftEdgeHeight > 0) {
       int iTotalHeight = iEndY - iStartY;
-      int iDeltaX = pVertices[iLeftVertexIdx].x - GET_HIWORD(iLeftEdgeX);
-      SET_HIWORD(iLeftEdgeStep, iDeltaX);
-      SET_LOWORD(iLeftEdgeStep, 0);
-      iLeftEdgeStep /= iTotalHeight;
+      float fDeltaX = (float)(pVertices[iLeftVertexIdx].x - pVertices[iPrevLeftIdx].x);
+      fLeftEdgeStep = fDeltaX / (float)iTotalHeight;
 
       // Adjust for clipping
-      iLeftEdgeX += iLeftEdgeStep * (0 - iStartY);
+      fLeftEdgeX = (float)pVertices[iPrevLeftIdx].x + fLeftEdgeStep * (float)(0 - iStartY);
 
       // Calculate texture steps and adjust for clipping
-      int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
-      int iTexXStart = startsx[iPrevLeftIdx];
-      int iTexYStart = startsy[iPrevLeftIdx];
-      iLeftTexXStep = (startsx[iLeftVertexIdx] - iTexXStart) / iTotalHeight;
-      iLeftTexYStep = (startsy[iLeftVertexIdx] - iTexYStart) / iTotalHeight;
-      iLeftTexX = iTexXStart + iLeftTexXStep * (0 - iStartY);
-      iLeftTexY = iTexYStart + iLeftTexYStep * (0 - iStartY);
+      float fTexXStart = FROM_FIXED(startsx[iPrevLeftIdx]);
+      float fTexYStart = FROM_FIXED(startsy[iPrevLeftIdx]);
+      fLeftTexXStep = (FROM_FIXED(startsx[iLeftVertexIdx]) - fTexXStart) / (float)iTotalHeight;
+      fLeftTexYStep = (FROM_FIXED(startsy[iLeftVertexIdx]) - fTexYStart) / (float)iTotalHeight;
+      fLeftTexX = fTexXStart + fLeftTexXStep * (float)(0 - iStartY);
+      fLeftTexY = fTexYStart + fLeftTexYStep * (float)(0 - iStartY);
 
-      if (iLeftEdgeStep < 0) {
-        iLeftEdgeX += iLeftEdgeStep;
-        iLeftTexX += iLeftTexXStep;
-        iLeftTexY += iLeftTexYStep;
+      if (fLeftEdgeStep < 0.0f) {
+        fLeftEdgeX += fLeftEdgeStep;
+        fLeftTexX += fLeftTexXStep;
+        fLeftTexY += fLeftTexYStep;
       }
     }
 
     // Similar logic for right edge (walking backwards)
     while (pVertices[iRightVertexIdx].y < 0) {
       int iPrevY = pVertices[iRightVertexIdx].y;
-      SET_HIWORD(iRightEdgeX, pVertices[iRightVertexIdx].x);
-      iRightTexX = startsx[iRightVertexIdx];
-      iRightTexY = startsy[iRightVertexIdx];
+      fRightEdgeX = (float)pVertices[iRightVertexIdx].x;
+      fRightTexX = FROM_FIXED(startsx[iRightVertexIdx]);
+      fRightTexY = FROM_FIXED(startsy[iRightVertexIdx]);
 
       iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
       //if (iLeftVertexIdx == iRightVertexIdx)
@@ -867,27 +856,24 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
     if (iRightEdgeHeight > 0) {
       int iTotalHeight = iEndY - iStartY;
-      int iDeltaX = pVertices[iRightVertexIdx].x - GET_HIWORD(iRightEdgeX);
-      SET_HIWORD(iRightEdgeStep, iDeltaX);
-      SET_LOWORD(iRightEdgeStep, 0);
-      iRightEdgeStep /= iTotalHeight;
+      float fDeltaX = (float)(pVertices[iRightVertexIdx].x - pVertices[iPrevRightIdx].x);
+      fRightEdgeStep = fDeltaX / (float)iTotalHeight;
 
       // Adjust for clipping
-      iRightEdgeX += iRightEdgeStep * (0 - iStartY);
+      fRightEdgeX = (float)pVertices[iPrevRightIdx].x + fRightEdgeStep * (float)(0 - iStartY);
 
       // Calculate texture steps and adjust for clipping
-      int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
-      int iTexXStart = startsx[iPrevRightIdx];
-      int iTexYStart = startsy[iPrevRightIdx];
-      iRightTexXStep = (startsx[iRightVertexIdx] - iTexXStart) / iTotalHeight;
-      iRightTexYStep = (startsy[iRightVertexIdx] - iTexYStart) / iTotalHeight;
-      iRightTexX = iTexXStart + iRightTexXStep * (0 - iStartY);
-      iRightTexY = iTexYStart + iRightTexYStep * (0 - iStartY);
+      float fTexXStart = FROM_FIXED(startsx[iPrevRightIdx]);
+      float fTexYStart = FROM_FIXED(startsy[iPrevRightIdx]);
+      fRightTexXStep = (FROM_FIXED(startsx[iRightVertexIdx]) - fTexXStart) / (float)iTotalHeight;
+      fRightTexYStep = (FROM_FIXED(startsy[iRightVertexIdx]) - fTexYStart) / (float)iTotalHeight;
+      fRightTexX = fTexXStart + fRightTexXStep * (float)(0 - iStartY);
+      fRightTexY = fTexYStart + fRightTexYStep * (float)(0 - iStartY);
 
-      if (iRightEdgeStep > 0) {
-        iRightEdgeX += iRightEdgeStep;
-        iRightTexX += iRightTexXStep;
-        iRightTexY += iRightTexYStep;
+      if (fRightEdgeStep > 0.0f) {
+        fRightEdgeX += fRightEdgeStep;
+        fRightTexX += fRightTexXStep;
+        fRightTexY += fRightTexYStep;
       }
     }
 
@@ -897,8 +883,8 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
   // Main rasterization loop
   while (iScanlineY < winh) {
       // Check if we have a valid span to render
-    int iLeftX = GET_HIWORD(iLeftEdgeX);
-    int iRightX = GET_HIWORD(iRightEdgeX);
+    int iLeftX = (int)fLeftEdgeX;
+    int iRightX = (int)fRightEdgeX;
 
     if (iLeftX < iRightX && iRightX > 0 && iLeftX < winw) {
         // Clip span to screen bounds
@@ -908,19 +894,19 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       if (iStartX < iEndX) {
           // Calculate texture coordinate interpolants for this span
         int iSpanWidth = iRightX - iLeftX;
-        int iTexXStep = (iRightTexX - iLeftTexX) / iSpanWidth;
-        int iTexYStep = (iRightTexY - iLeftTexY) / iSpanWidth;
+        float fTexXStep = (fRightTexX - fLeftTexX) / (float)iSpanWidth;
+        float fTexYStep = (fRightTexY - fLeftTexY) / (float)iSpanWidth;
 
         // Adjust texture coordinates for clipped start
-        int iTexX = iLeftTexX + (iStartX - iLeftX) * iTexXStep;
-        int iTexY = iLeftTexY + (iStartX - iLeftX) * iTexYStep;
+        float fTexX = fLeftTexX + (float)(iStartX - iLeftX) * fTexXStep;
+        float fTexY = fLeftTexY + (float)(iStartX - iLeftX) * fTexYStep;
 
         // Render the span
         uint8_t *pDest = &scrptr[iScanlineY * winw + iStartX];
         for (int x = iStartX; x < iEndX; x++) {
-            // Extract texture coordinates (6.6 bits for 64x64 texture)
-          int iU = iTexX >> 16;
-          int iV = iTexY >> 16;
+            // Extract texture coordinates (convert float to int for 64x64 texture)
+          int iU = (int)fTexX;
+          int iV = (int)fTexY;
 
           // Sample texture
           uint8_t texel = pTex[iV * 256 + iU];
@@ -931,20 +917,20 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
           }
 
           pDest++;
-          iTexX += iTexXStep;
-          iTexY += iTexYStep;
+          fTexX += fTexXStep;
+          fTexY += fTexYStep;
         }
       }
     }
 
     // Advance to next scanline
     iScanlineY++;
-    iLeftEdgeX += iLeftEdgeStep;
-    iRightEdgeX += iRightEdgeStep;
-    iLeftTexX += iLeftTexXStep;
-    iLeftTexY += iLeftTexYStep;
-    iRightTexX += iRightTexXStep;
-    iRightTexY += iRightTexYStep;
+    fLeftEdgeX += fLeftEdgeStep;
+    fRightEdgeX += fRightEdgeStep;
+    fLeftTexX += fLeftTexXStep;
+    fLeftTexY += fLeftTexYStep;
+    fRightTexX += fRightTexXStep;
+    fRightTexY += fRightTexYStep;
 
     // Check if we need to advance to next edge
     iLeftEdgeHeight--;
@@ -961,24 +947,21 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
         if (iLeftEdgeHeight > 0) {
             // Setup new left edge
-          SET_HIWORD(iLeftEdgeX, pVertices[iPrevLeftVertexIdx].x);
-          SET_LOWORD(iLeftEdgeX, 0);
+          fLeftEdgeX = (float)pVertices[iPrevLeftVertexIdx].x;
 
-          int iDeltaX = pVertices[iLeftVertexIdx].x - GET_HIWORD(iLeftEdgeX);
-          SET_HIWORD(iLeftEdgeStep, iDeltaX);
-          SET_LOWORD(iLeftEdgeStep, 0);
-          iLeftEdgeStep /= iLeftEdgeHeight;
+          float fDeltaX = (float)(pVertices[iLeftVertexIdx].x - pVertices[iPrevLeftVertexIdx].x);
+          fLeftEdgeStep = fDeltaX / (float)iLeftEdgeHeight;
 
           // Setup texture interpolation
-          iLeftTexX = startsx[iPrevLeftVertexIdx];
-          iLeftTexY = startsy[iPrevLeftVertexIdx];
-          iLeftTexXStep = (startsx[iLeftVertexIdx] - iLeftTexX) / iLeftEdgeHeight;
-          iLeftTexYStep = (startsy[iLeftVertexIdx] - iLeftTexY) / iLeftEdgeHeight;
+          fLeftTexX = FROM_FIXED(startsx[iPrevLeftVertexIdx]);
+          fLeftTexY = FROM_FIXED(startsy[iPrevLeftVertexIdx]);
+          fLeftTexXStep = (FROM_FIXED(startsx[iLeftVertexIdx]) - fLeftTexX) / (float)iLeftEdgeHeight;
+          fLeftTexYStep = (FROM_FIXED(startsy[iLeftVertexIdx]) - fLeftTexY) / (float)iLeftEdgeHeight;
 
-          if (iLeftEdgeStep < 0) {
-            iLeftEdgeX += iLeftEdgeStep;
-            iLeftTexX += iLeftTexXStep;
-            iLeftTexY += iLeftTexYStep;
+          if (fLeftEdgeStep < 0.0f) {
+            fLeftEdgeX += fLeftEdgeStep;
+            fLeftTexX += fLeftTexXStep;
+            fLeftTexY += fLeftTexYStep;
           }
           break;
         }
@@ -999,24 +982,21 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
         if (iRightEdgeHeight > 0) {
             // Setup new right edge
-          SET_HIWORD(iRightEdgeX, pVertices[iPrevRightVertexIdx].x);
-          SET_LOWORD(iRightEdgeX, 0);
+          fRightEdgeX = (float)pVertices[iPrevRightVertexIdx].x;
 
-          int iDeltaX = pVertices[iRightVertexIdx].x - GET_HIWORD(iRightEdgeX);
-          SET_HIWORD(iRightEdgeStep, iDeltaX);
-          SET_LOWORD(iRightEdgeStep, 0);
-          iRightEdgeStep /= iRightEdgeHeight;
+          float fDeltaX = (float)(pVertices[iRightVertexIdx].x - pVertices[iPrevRightVertexIdx].x);
+          fRightEdgeStep = fDeltaX / (float)iRightEdgeHeight;
 
           // Setup texture interpolation
-          iRightTexX = startsx[iPrevRightVertexIdx];
-          iRightTexY = startsy[iPrevRightVertexIdx];
-          iRightTexXStep = (startsx[iRightVertexIdx] - iRightTexX) / iRightEdgeHeight;
-          iRightTexYStep = (startsy[iRightVertexIdx] - iRightTexY) / iRightEdgeHeight;
+          fRightTexX = FROM_FIXED(startsx[iPrevRightVertexIdx]);
+          fRightTexY = FROM_FIXED(startsy[iPrevRightVertexIdx]);
+          fRightTexXStep = (FROM_FIXED(startsx[iRightVertexIdx]) - fRightTexX) / (float)iRightEdgeHeight;
+          fRightTexYStep = (FROM_FIXED(startsy[iRightVertexIdx]) - fRightTexY) / (float)iRightEdgeHeight;
 
-          if (iRightEdgeStep > 0) {
-            iRightEdgeX += iRightEdgeStep;
-            iRightTexX += iRightTexXStep;
-            iRightTexY += iRightTexYStep;
+          if (fRightEdgeStep > 0.0f) {
+            fRightEdgeX += fRightEdgeStep;
+            fRightTexX += fRightTexXStep;
+            fRightTexY += fRightTexYStep;
           }
           break;
         }
