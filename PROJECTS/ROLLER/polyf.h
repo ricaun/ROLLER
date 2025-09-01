@@ -16,8 +16,8 @@ typedef struct
 
 void twpoly(tPoint *vertices, int16 nColor);
 void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams);
-void poly(tPoint *vertices, int iVertexCount, int16 nColor);
-void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex);
+void poly(tPoint *vertices, int iNumVerts, int16 nColor);
+void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex);
 
 //-------------------------------------------------------------------------------------------------
 #endif

@@ -665,18 +665,18 @@ void polym(tPoint *vertices, int iNumVerts, uint8 *pTex)
 
 //-------------------------------------------------------------------------------------------------
 //0006F240
-void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
+void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
 {
-    // Find polygon bounds and top vertex
-  int iMinX = pVertices[0].x;
-  int iMaxX = pVertices[0].x;
-  int iMinY = pVertices[0].y;
-  int iMaxY = pVertices[0].y;
+  // Find polygon bounds and top vertex
+  int iMinX = vertices[0].x;
+  int iMaxX = vertices[0].x;
+  int iMinY = vertices[0].y;
+  int iMaxY = vertices[0].y;
   int iTopVertexIdx = 0;
 
   for (int i = 1; i < iNumVerts; i++) {
-    int x = pVertices[i].x;
-    int y = pVertices[i].y;
+    int x = vertices[i].x;
+    int y = vertices[i].y;
 
     if (x < iMinX) iMinX = x;
     if (x > iMaxX) iMaxX = x;
@@ -709,14 +709,14 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
   int iRightVertexIdx = iTopVertexIdx;
 
   // Current scanline Y and edge heights
-  int iScanlineY = pVertices[iTopVertexIdx].y;
+  int iScanlineY = vertices[iTopVertexIdx].y;
   int iLeftEdgeHeight = 0;
   int iRightEdgeHeight = 0;
 
   // Initialize starting positions
   if (iScanlineY >= 0) {
       // Normal case: polygon starts on or below screen top
-    fLeftEdgeX = (float)pVertices[iTopVertexIdx].x;
+    fLeftEdgeX = (float)vertices[iTopVertexIdx].x;
     fRightEdgeX = fLeftEdgeX;
 
     fLeftTexX = FROM_FIXED(startsx[iTopVertexIdx]);
@@ -732,11 +732,11 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
 
-      iLeftEdgeHeight = pVertices[iLeftVertexIdx].y - iScanlineY;
+      iLeftEdgeHeight = vertices[iLeftVertexIdx].y - iScanlineY;
 
       if (iLeftEdgeHeight > 0) {
           // Calculate left edge parameters
-        float fDeltaX = (float)(pVertices[iLeftVertexIdx].x - (int)fLeftEdgeX);
+        float fDeltaX = (float)(vertices[iLeftVertexIdx].x - (int)fLeftEdgeX);
         fLeftEdgeStep = fDeltaX / (float)iLeftEdgeHeight;
 
         // Calculate texture coordinate steps
@@ -753,7 +753,7 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       }
 
       // Update position for horizontal edge
-      fLeftEdgeX = (float)pVertices[iLeftVertexIdx].x;
+      fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
       fLeftTexX = FROM_FIXED(startsx[iLeftVertexIdx]);
       fLeftTexY = FROM_FIXED(startsy[iLeftVertexIdx]);
     } while (true);
@@ -766,11 +766,11 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
 
-      iRightEdgeHeight = pVertices[iRightVertexIdx].y - iScanlineY;
+      iRightEdgeHeight = vertices[iRightVertexIdx].y - iScanlineY;
 
       if (iRightEdgeHeight > 0) {
           // Calculate right edge parameters
-        float fDeltaX = (float)(pVertices[iRightVertexIdx].x - (int)fRightEdgeX);
+        float fDeltaX = (float)(vertices[iRightVertexIdx].x - (int)fRightEdgeX);
         fRightEdgeStep = fDeltaX / (float)iRightEdgeHeight;
 
         // Calculate texture coordinate steps
@@ -787,7 +787,7 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       }
 
       // Update position for horizontal edge
-      fRightEdgeX = (float)pVertices[iRightVertexIdx].x;
+      fRightEdgeX = (float)vertices[iRightVertexIdx].x;
       fRightTexX = FROM_FIXED(startsx[iRightVertexIdx]);
       fRightTexY = FROM_FIXED(startsy[iRightVertexIdx]);
     } while (true);
@@ -796,9 +796,9 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
       // Need to clip and find first visible edges
 
       // Walk left edge until it enters screen
-    while (pVertices[iLeftVertexIdx].y < 0) {
-      int iPrevY = pVertices[iLeftVertexIdx].y;
-      fLeftEdgeX = (float)pVertices[iLeftVertexIdx].x;
+    while (vertices[iLeftVertexIdx].y < 0) {
+      int iPrevY = vertices[iLeftVertexIdx].y;
+      fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
       fLeftTexX = FROM_FIXED(startsx[iLeftVertexIdx]);
       fLeftTexY = FROM_FIXED(startsy[iLeftVertexIdx]);
 
@@ -809,17 +809,17 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
     // Calculate clipped left edge
     int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
-    int iStartY = pVertices[iPrevLeftIdx].y;
-    int iEndY = pVertices[iLeftVertexIdx].y;
+    int iStartY = vertices[iPrevLeftIdx].y;
+    int iEndY = vertices[iLeftVertexIdx].y;
     iLeftEdgeHeight = iEndY - 0; // Clip to y=0
 
     if (iLeftEdgeHeight > 0) {
       int iTotalHeight = iEndY - iStartY;
-      float fDeltaX = (float)(pVertices[iLeftVertexIdx].x - pVertices[iPrevLeftIdx].x);
+      float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftIdx].x);
       fLeftEdgeStep = fDeltaX / (float)iTotalHeight;
 
       // Adjust for clipping
-      fLeftEdgeX = (float)pVertices[iPrevLeftIdx].x + fLeftEdgeStep * (float)(0 - iStartY);
+      fLeftEdgeX = (float)vertices[iPrevLeftIdx].x + fLeftEdgeStep * (float)(0 - iStartY);
 
       // Calculate texture steps and adjust for clipping
       float fTexXStart = FROM_FIXED(startsx[iPrevLeftIdx]);
@@ -837,9 +837,9 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
     }
 
     // Similar logic for right edge (walking backwards)
-    while (pVertices[iRightVertexIdx].y < 0) {
-      int iPrevY = pVertices[iRightVertexIdx].y;
-      fRightEdgeX = (float)pVertices[iRightVertexIdx].x;
+    while (vertices[iRightVertexIdx].y < 0) {
+      int iPrevY = vertices[iRightVertexIdx].y;
+      fRightEdgeX = (float)vertices[iRightVertexIdx].x;
       fRightTexX = FROM_FIXED(startsx[iRightVertexIdx]);
       fRightTexY = FROM_FIXED(startsy[iRightVertexIdx]);
 
@@ -850,17 +850,17 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
 
     // Calculate clipped right edge
     int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
-    iStartY = pVertices[iPrevRightIdx].y;
-    iEndY = pVertices[iRightVertexIdx].y;
+    iStartY = vertices[iPrevRightIdx].y;
+    iEndY = vertices[iRightVertexIdx].y;
     iRightEdgeHeight = iEndY - 0; // Clip to y=0
 
     if (iRightEdgeHeight > 0) {
       int iTotalHeight = iEndY - iStartY;
-      float fDeltaX = (float)(pVertices[iRightVertexIdx].x - pVertices[iPrevRightIdx].x);
+      float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightIdx].x);
       fRightEdgeStep = fDeltaX / (float)iTotalHeight;
 
       // Adjust for clipping
-      fRightEdgeX = (float)pVertices[iPrevRightIdx].x + fRightEdgeStep * (float)(0 - iStartY);
+      fRightEdgeX = (float)vertices[iPrevRightIdx].x + fRightEdgeStep * (float)(0 - iStartY);
 
       // Calculate texture steps and adjust for clipping
       float fTexXStart = FROM_FIXED(startsx[iPrevRightIdx]);
@@ -943,13 +943,13 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
         if (iPrevLeftVertexIdx == iRightVertexIdx)
           return; // Polygon complete
 
-        iLeftEdgeHeight = pVertices[iLeftVertexIdx].y - iScanlineY;
+        iLeftEdgeHeight = vertices[iLeftVertexIdx].y - iScanlineY;
 
         if (iLeftEdgeHeight > 0) {
             // Setup new left edge
-          fLeftEdgeX = (float)pVertices[iPrevLeftVertexIdx].x;
+          fLeftEdgeX = (float)vertices[iPrevLeftVertexIdx].x;
 
-          float fDeltaX = (float)(pVertices[iLeftVertexIdx].x - pVertices[iPrevLeftVertexIdx].x);
+          float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftVertexIdx].x);
           fLeftEdgeStep = fDeltaX / (float)iLeftEdgeHeight;
 
           // Setup texture interpolation
@@ -978,13 +978,13 @@ void polyt(tPoint *pVertices, int iNumVerts, uint8_t *pTex)
         if (iLeftVertexIdx == iPrevRightVertexIdx)
           return; // Polygon complete
 
-        iRightEdgeHeight = pVertices[iRightVertexIdx].y - iScanlineY;
+        iRightEdgeHeight = vertices[iRightVertexIdx].y - iScanlineY;
 
         if (iRightEdgeHeight > 0) {
             // Setup new right edge
-          fRightEdgeX = (float)pVertices[iPrevRightVertexIdx].x;
+          fRightEdgeX = (float)vertices[iPrevRightVertexIdx].x;
 
-          float fDeltaX = (float)(pVertices[iRightVertexIdx].x - pVertices[iPrevRightVertexIdx].x);
+          float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightVertexIdx].x);
           fRightEdgeStep = fDeltaX / (float)iRightEdgeHeight;
 
           // Setup texture interpolation

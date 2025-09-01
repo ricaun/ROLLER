@@ -249,7 +249,7 @@ void POLYFLAT(uint8 *pScrBuf, tPolyParams *polyParams)
 
 //-------------------------------------------------------------------------------------------------
 //00070B40
-void poly(tPoint *vertices, int iVertexCount, int16 nColor)
+void poly(tPoint *vertices, int iNumVerts, int16 nColor)
 {
   // Find polygon bounds and top vertex
   int iMinX = vertices[0].x;
@@ -258,7 +258,7 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
   int iMaxY = vertices[0].y;
   int iMinYIdx = 0;
 
-  for (int i = 1; i < iVertexCount; i++) {
+  for (int i = 1; i < iNumVerts; i++) {
     int x = vertices[i].x;
     int y = vertices[i].y;
 
@@ -300,7 +300,7 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
     // Find first non-horizontal left edge
     do {
       int iPrevLeftVertexIdx = iLeftVertexIdx;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iVertexCount;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
@@ -326,7 +326,7 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
     // Find first non-horizontal right edge
     do {
       int iPrevRightVertexIdx = iRightVertexIdx;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iVertexCount) % iVertexCount;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
@@ -355,11 +355,11 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
     // Walk left edge until it enters screen
     while (vertices[iLeftVertexIdx].y < 0) {
       fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iVertexCount;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
     }
 
     // Calculate clipped left edge
-    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iVertexCount) % iVertexCount;
+    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
     int iStartY = vertices[iPrevLeftIdx].y;
     int iEndY = vertices[iLeftVertexIdx].y;
     iLeftRemain = iEndY - 0; // Clip to y=0
@@ -380,11 +380,11 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
     // Similar logic for right edge (walking backwards)
     while (vertices[iRightVertexIdx].y < 0) {
       fRightEdgeX = (float)vertices[iRightVertexIdx].x;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iVertexCount) % iVertexCount;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped right edge
-    int iPrevRightIdx = (iRightVertexIdx + 1) % iVertexCount;
+    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
     iStartY = vertices[iPrevRightIdx].y;
     iEndY = vertices[iRightVertexIdx].y;
     iRightRemain = iEndY - 0; // Clip to y=0
@@ -435,7 +435,7 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
       // Find next left edge
       do {
         int iPrevLeftVertexIdx = iLeftVertexIdx;
-        iLeftVertexIdx = (iLeftVertexIdx + 1) % iVertexCount;
+        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
         if (iPrevLeftVertexIdx == iRightVertexIdx)
           return; // Polygon complete
@@ -465,7 +465,7 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
       // Find next right edge
       do {
         int iPrevRightVertexIdx = iRightVertexIdx;
-        iRightVertexIdx = (iRightVertexIdx - 1 + iVertexCount) % iVertexCount;
+        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
         if (iLeftVertexIdx == iPrevRightVertexIdx)
           return; // Polygon complete
@@ -494,7 +494,7 @@ void poly(tPoint *vertices, int iVertexCount, int16 nColor)
 
 //-------------------------------------------------------------------------------------------------
 //00071D70
-void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
+void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
 {
   // Find polygon bounds and top vertex
   int iMinX = vertices[0].x;
@@ -503,7 +503,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
   int iMaxY = vertices[0].y;
   int iMinYIdx = 0;
 
-  for (int i = 1; i < iNumVertices; i++) {
+  for (int i = 1; i < iNumVerts; i++) {
     int x = vertices[i].x;
     int y = vertices[i].y;
 
@@ -548,7 +548,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
     // Find first non-horizontal left edge
     do {
       int iPrevLeftVertexIdx = iLeftVertexIdx;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVertices;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iCurrScanline == iMaxY)
         return; // Degenerate polygon
@@ -574,7 +574,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
     // Find first non-horizontal right edge
     do {
       int iPrevRightVertexIdx = iRightVertexIdx;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVertices) % iNumVertices;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iCurrScanline == iMaxY)
         return; // Degenerate polygon
@@ -603,11 +603,11 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
     // Walk left edge until it enters screen
     while (vertices[iLeftVertexIdx].y < 0) {
       fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVertices;
+      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
     }
 
     // Calculate clipped left edge
-    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVertices) % iNumVertices;
+    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
     int iStartY = vertices[iPrevLeftIdx].y;
     int iEndY = vertices[iLeftVertexIdx].y;
     iLeftRemain = iEndY - 0; // Clip to y=0
@@ -628,11 +628,11 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
     // Similar logic for right edge (walking backwards)
     while (vertices[iRightVertexIdx].y < 0) {
       fRightEdgeX = (float)vertices[iRightVertexIdx].x;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVertices) % iNumVertices;
+      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped right edge
-    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVertices;
+    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
     iStartY = vertices[iPrevRightIdx].y;
     iEndY = vertices[iRightVertexIdx].y;
     iRightRemain = iEndY - 0; // Clip to y=0
@@ -686,7 +686,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
       // Find next left edge
       do {
         int iPrevLeftVertexIdx = iLeftVertexIdx;
-        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVertices;
+        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
 
         if (iPrevLeftVertexIdx == iRightVertexIdx)
           return; // Polygon complete
@@ -716,7 +716,7 @@ void shadow_poly(tPoint *vertices, int iNumVertices, int iPaletteIndex)
       // Find next right edge
       do {
         int iPrevRightVertexIdx = iRightVertexIdx;
-        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVertices) % iNumVertices;
+        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
 
         if (iLeftVertexIdx == iPrevRightVertexIdx)
           return; // Polygon complete
