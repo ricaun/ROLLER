@@ -692,6 +692,26 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
   if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
     return;
 
+  // Detect winding order using signed area calculation
+  // Positive area = counter-clockwise, negative = clockwise
+  int iSignedArea = 0;
+  for (int i = 0; i < iNumVerts; i++) {
+    int j = (i + 1) % iNumVerts;
+    iSignedArea += (vertices[j].x - vertices[i].x) * (vertices[j].y + vertices[i].y);
+  }
+
+  // Determine edge walking directions based on winding order
+  int iLeftDir, iRightDir;
+  if (iSignedArea > 0) {
+    // Counter-clockwise: left edge goes forward, right goes backward
+    iLeftDir = 1;
+    iRightDir = -1;
+  } else {
+    // Clockwise: left edge goes backward, right goes forward
+    iLeftDir = -1;
+    iRightDir = 1;
+  }
+
   // Edge walking variables (floating-point)
   float fLeftEdgeX = 0.0f;          // Left edge X position
   float fRightEdgeX = 0.0f;         // Right edge X position  
@@ -715,7 +735,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
 
   // Initialize starting positions
   if (iScanlineY >= 0) {
-      // Normal case: polygon starts on or below screen top
+    // Normal case: polygon starts on or below screen top
     fLeftEdgeX = (float)vertices[iTopVertexIdx].x;
     fRightEdgeX = fLeftEdgeX;
 
@@ -727,7 +747,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
     // Find first non-horizontal left edge
     do {
       int iPrevLeftVertexIdx = iLeftVertexIdx;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+      iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
@@ -735,7 +755,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
       iLeftEdgeHeight = vertices[iLeftVertexIdx].y - iScanlineY;
 
       if (iLeftEdgeHeight > 0) {
-          // Calculate left edge parameters
+        // Calculate left edge parameters
         float fDeltaX = (float)(vertices[iLeftVertexIdx].x - (int)fLeftEdgeX);
         fLeftEdgeStep = fDeltaX / (float)iLeftEdgeHeight;
 
@@ -761,7 +781,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
     // Find first non-horizontal right edge
     do {
       int iPrevRightVertexIdx = iRightVertexIdx;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+      iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
@@ -769,7 +789,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
       iRightEdgeHeight = vertices[iRightVertexIdx].y - iScanlineY;
 
       if (iRightEdgeHeight > 0) {
-          // Calculate right edge parameters
+        // Calculate right edge parameters
         float fDeltaX = (float)(vertices[iRightVertexIdx].x - (int)fRightEdgeX);
         fRightEdgeStep = fDeltaX / (float)iRightEdgeHeight;
 
@@ -792,23 +812,21 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
       fRightTexY = FROM_FIXED(startsy[iRightVertexIdx]);
     } while (true);
   } else {
-      // Special case: polygon starts above screen top
-      // Need to clip and find first visible edges
+    // Special case: polygon starts above screen top
+    // Need to clip and find first visible edges
 
-      // Walk left edge until it enters screen
+    // Walk left edge until it enters screen
     while (vertices[iLeftVertexIdx].y < 0) {
       int iPrevY = vertices[iLeftVertexIdx].y;
       fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
       fLeftTexX = FROM_FIXED(startsx[iLeftVertexIdx]);
       fLeftTexY = FROM_FIXED(startsy[iLeftVertexIdx]);
 
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
-      //if (iLeftVertexIdx == iRightVertexIdx)
-      //  return; // No visible portion
+      iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped left edge
-    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
+    int iPrevLeftIdx = (iLeftVertexIdx - iLeftDir + iNumVerts) % iNumVerts;
     int iStartY = vertices[iPrevLeftIdx].y;
     int iEndY = vertices[iLeftVertexIdx].y;
     iLeftEdgeHeight = iEndY - 0; // Clip to y=0
@@ -836,20 +854,18 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
       }
     }
 
-    // Similar logic for right edge (walking backwards)
+    // Similar logic for right edge
     while (vertices[iRightVertexIdx].y < 0) {
       int iPrevY = vertices[iRightVertexIdx].y;
       fRightEdgeX = (float)vertices[iRightVertexIdx].x;
       fRightTexX = FROM_FIXED(startsx[iRightVertexIdx]);
       fRightTexY = FROM_FIXED(startsy[iRightVertexIdx]);
 
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
-      //if (iLeftVertexIdx == iRightVertexIdx)
-      //  return; // No visible portion
+      iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped right edge
-    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
+    int iPrevRightIdx = (iRightVertexIdx - iRightDir + iNumVerts) % iNumVerts;
     iStartY = vertices[iPrevRightIdx].y;
     iEndY = vertices[iRightVertexIdx].y;
     iRightEdgeHeight = iEndY - 0; // Clip to y=0
@@ -882,17 +898,17 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
 
   // Main rasterization loop
   while (iScanlineY < winh) {
-      // Check if we have a valid span to render
+    // Check if we have a valid span to render
     int iLeftX = (int)fLeftEdgeX;
     int iRightX = (int)fRightEdgeX;
 
     if (iLeftX < iRightX && iRightX > 0 && iLeftX < winw) {
-        // Clip span to screen bounds
+      // Clip span to screen bounds
       int iStartX = iLeftX < 0 ? 0 : iLeftX;
       int iEndX = iRightX > winw ? winw : iRightX;
 
       if (iStartX < iEndX) {
-          // Calculate texture coordinate interpolants for this span
+        // Calculate texture coordinate interpolants for this span
         int iSpanWidth = iRightX - iLeftX;
         float fTexXStep = (fRightTexX - fLeftTexX) / (float)iSpanWidth;
         float fTexYStep = (fRightTexY - fLeftTexY) / (float)iSpanWidth;
@@ -904,7 +920,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
         // Render the span
         uint8_t *pDest = &scrptr[iScanlineY * winw + iStartX];
         for (int x = iStartX; x < iEndX; x++) {
-            // Extract texture coordinates (convert float to int for 64x64 texture)
+          // Extract texture coordinates (convert float to int for 64x64 texture)
           int iU = (int)fTexX;
           int iV = (int)fTexY;
 
@@ -935,10 +951,10 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
     // Check if we need to advance to next edge
     iLeftEdgeHeight--;
     if (iLeftEdgeHeight <= 0) {
-        // Find next left edge
+      // Find next left edge
       do {
         int iPrevLeftVertexIdx = iLeftVertexIdx;
-        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+        iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
 
         if (iPrevLeftVertexIdx == iRightVertexIdx)
           return; // Polygon complete
@@ -946,7 +962,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
         iLeftEdgeHeight = vertices[iLeftVertexIdx].y - iScanlineY;
 
         if (iLeftEdgeHeight > 0) {
-            // Setup new left edge
+          // Setup new left edge
           fLeftEdgeX = (float)vertices[iPrevLeftVertexIdx].x;
 
           float fDeltaX = (float)(vertices[iLeftVertexIdx].x - vertices[iPrevLeftVertexIdx].x);
@@ -970,10 +986,10 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
 
     iRightEdgeHeight--;
     if (iRightEdgeHeight <= 0) {
-        // Find next right edge
+      // Find next right edge
       do {
         int iPrevRightVertexIdx = iRightVertexIdx;
-        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+        iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
 
         if (iLeftVertexIdx == iPrevRightVertexIdx)
           return; // Polygon complete
@@ -981,7 +997,7 @@ void polyt(tPoint *vertices, int iNumVerts, uint8_t *pTex)
         iRightEdgeHeight = vertices[iRightVertexIdx].y - iScanlineY;
 
         if (iRightEdgeHeight > 0) {
-            // Setup new right edge
+          // Setup new right edge
           fRightEdgeX = (float)vertices[iPrevRightVertexIdx].x;
 
           float fDeltaX = (float)(vertices[iRightVertexIdx].x - vertices[iPrevRightVertexIdx].x);

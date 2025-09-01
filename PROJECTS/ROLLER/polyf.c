@@ -276,6 +276,26 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
   if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
     return;
 
+  // Detect winding order using signed area calculation
+  // Positive area = counter-clockwise, negative = clockwise
+  int iSignedArea = 0;
+  for (int i = 0; i < iNumVerts; i++) {
+    int j = (i + 1) % iNumVerts;
+    iSignedArea += (vertices[j].x - vertices[i].x) * (vertices[j].y + vertices[i].y);
+  }
+
+  // Determine edge walking directions based on winding order
+  int iLeftDir, iRightDir;
+  if (iSignedArea > 0) {
+    // Counter-clockwise: left edge goes forward, right goes backward
+    iLeftDir = 1;
+    iRightDir = -1;
+  } else {
+    // Clockwise: left edge goes backward, right goes forward
+    iLeftDir = -1;
+    iRightDir = 1;
+  }
+
   // Edge walking variables (floating-point)
   float fLeftEdgeX = 0.0f;          // Left edge X position
   float fRightEdgeX = 0.0f;         // Right edge X position  
@@ -300,7 +320,7 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
     // Find first non-horizontal left edge
     do {
       int iPrevLeftVertexIdx = iLeftVertexIdx;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+      iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
@@ -326,7 +346,7 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
     // Find first non-horizontal right edge
     do {
       int iPrevRightVertexIdx = iRightVertexIdx;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+      iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iScanlineY == iMaxY)
         return; // Degenerate polygon
@@ -355,11 +375,11 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
     // Walk left edge until it enters screen
     while (vertices[iLeftVertexIdx].y < 0) {
       fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+      iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped left edge
-    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
+    int iPrevLeftIdx = (iLeftVertexIdx - iLeftDir + iNumVerts) % iNumVerts;
     int iStartY = vertices[iPrevLeftIdx].y;
     int iEndY = vertices[iLeftVertexIdx].y;
     iLeftRemain = iEndY - 0; // Clip to y=0
@@ -377,14 +397,14 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
       }
     }
 
-    // Similar logic for right edge (walking backwards)
+    // Similar logic for right edge
     while (vertices[iRightVertexIdx].y < 0) {
       fRightEdgeX = (float)vertices[iRightVertexIdx].x;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+      iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped right edge
-    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
+    int iPrevRightIdx = (iRightVertexIdx - iRightDir + iNumVerts) % iNumVerts;
     iStartY = vertices[iPrevRightIdx].y;
     iEndY = vertices[iRightVertexIdx].y;
     iRightRemain = iEndY - 0; // Clip to y=0
@@ -435,7 +455,7 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
       // Find next left edge
       do {
         int iPrevLeftVertexIdx = iLeftVertexIdx;
-        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+        iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
 
         if (iPrevLeftVertexIdx == iRightVertexIdx)
           return; // Polygon complete
@@ -465,7 +485,7 @@ void poly(tPoint *vertices, int iNumVerts, int16 nColor)
       // Find next right edge
       do {
         int iPrevRightVertexIdx = iRightVertexIdx;
-        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+        iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
 
         if (iLeftVertexIdx == iPrevRightVertexIdx)
           return; // Polygon complete
@@ -521,6 +541,26 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
   if (iMaxX < 0 || iMaxY < 0 || iMinX >= winw || iMinY >= winh)
     return;
 
+  // Detect winding order using signed area calculation
+  // Positive area = counter-clockwise, negative = clockwise
+  int iSignedArea = 0;
+  for (int i = 0; i < iNumVerts; i++) {
+    int j = (i + 1) % iNumVerts;
+    iSignedArea += (vertices[j].x - vertices[i].x) * (vertices[j].y + vertices[i].y);
+  }
+
+  // Determine edge walking directions based on winding order
+  int iLeftDir, iRightDir;
+  if (iSignedArea > 0) {
+    // Counter-clockwise: left edge goes forward, right goes backward
+    iLeftDir = 1;
+    iRightDir = -1;
+  } else {
+    // Clockwise: left edge goes backward, right goes forward
+    iLeftDir = -1;
+    iRightDir = 1;
+  }
+
   // Get shade palette for this palette index
   uint8 *pShadePalette = &shade_palette[256 * iPaletteIndex];
 
@@ -548,7 +588,7 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
     // Find first non-horizontal left edge
     do {
       int iPrevLeftVertexIdx = iLeftVertexIdx;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+      iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iCurrScanline == iMaxY)
         return; // Degenerate polygon
@@ -574,7 +614,7 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
     // Find first non-horizontal right edge
     do {
       int iPrevRightVertexIdx = iRightVertexIdx;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+      iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
 
       if (iLeftVertexIdx == iRightVertexIdx && iCurrScanline == iMaxY)
         return; // Degenerate polygon
@@ -603,11 +643,11 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
     // Walk left edge until it enters screen
     while (vertices[iLeftVertexIdx].y < 0) {
       fLeftEdgeX = (float)vertices[iLeftVertexIdx].x;
-      iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+      iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped left edge
-    int iPrevLeftIdx = (iLeftVertexIdx - 1 + iNumVerts) % iNumVerts;
+    int iPrevLeftIdx = (iLeftVertexIdx - iLeftDir + iNumVerts) % iNumVerts;
     int iStartY = vertices[iPrevLeftIdx].y;
     int iEndY = vertices[iLeftVertexIdx].y;
     iLeftRemain = iEndY - 0; // Clip to y=0
@@ -625,14 +665,14 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
       }
     }
 
-    // Similar logic for right edge (walking backwards)
+    // Similar logic for right edge
     while (vertices[iRightVertexIdx].y < 0) {
       fRightEdgeX = (float)vertices[iRightVertexIdx].x;
-      iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+      iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
     }
 
     // Calculate clipped right edge
-    int iPrevRightIdx = (iRightVertexIdx + 1) % iNumVerts;
+    int iPrevRightIdx = (iRightVertexIdx - iRightDir + iNumVerts) % iNumVerts;
     iStartY = vertices[iPrevRightIdx].y;
     iEndY = vertices[iRightVertexIdx].y;
     iRightRemain = iEndY - 0; // Clip to y=0
@@ -686,7 +726,7 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
       // Find next left edge
       do {
         int iPrevLeftVertexIdx = iLeftVertexIdx;
-        iLeftVertexIdx = (iLeftVertexIdx + 1) % iNumVerts;
+        iLeftVertexIdx = (iLeftVertexIdx + iLeftDir + iNumVerts) % iNumVerts;
 
         if (iPrevLeftVertexIdx == iRightVertexIdx)
           return; // Polygon complete
@@ -716,7 +756,7 @@ void shadow_poly(tPoint *vertices, int iNumVerts, int iPaletteIndex)
       // Find next right edge
       do {
         int iPrevRightVertexIdx = iRightVertexIdx;
-        iRightVertexIdx = (iRightVertexIdx - 1 + iNumVerts) % iNumVerts;
+        iRightVertexIdx = (iRightVertexIdx + iRightDir + iNumVerts) % iNumVerts;
 
         if (iLeftVertexIdx == iPrevRightVertexIdx)
           return; // Polygon complete
