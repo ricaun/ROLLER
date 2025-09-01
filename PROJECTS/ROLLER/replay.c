@@ -704,7 +704,7 @@ void DoReplayData()
   int iTrackSegmentIdx; // ebx
   int iGroundColorIdx; // ecx
   float fNearestDistance; // eax
-  int iTexIndex; // eax
+  int iCarSpray; // eax
   int iSprayIdx; // ecx
   tCarSpray *pCarSpray; // ebx
   int iDamageIntensity; // edi
@@ -1262,8 +1262,10 @@ void DoReplayData()
                   pend_view_init = ViewType[0];
                 }
                 if (iDamageState != pReplayCar->iDamageState) {
-                  for (iTexIndex = 0; iTexIndex != 352; car_texs_loaded[352 * pReplayCar->iDriverIdx + 12 + iTexIndex] = 0)
-                    iTexIndex += 11;
+                  for (iCarSpray = 0; iCarSpray < 32; iCarSpray++)
+                    CarSpray[pReplayCar->iDriverIdx][iCarSpray].iTimer = 0;
+                  //for (iTexIndex = 0; iTexIndex != 352; car_texs_loaded[352 * pReplayCar->iDriverIdx + 12 + iTexIndex] = 0)
+                  //  iTexIndex += 11;
                   pReplayCar->byLastDamageToggle = pReplayCar->byDamageToggle;
                 }
 
