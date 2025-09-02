@@ -90,12 +90,12 @@ jobs:
             os: windows
             arch: x86_64
             ext: ".exe"
-          - target: x86_64-macos
-            runs-on: macos-latest
+          - target: native
+            runs-on: macos-latest-large
             os: macos
             arch: x86_64
             ext: ""
-          - target: aarch64-macos
+          - target: native
             runs-on: macos-latest
             os: macos
             arch: aarch64
