@@ -80,19 +80,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-linux-gnu
+          - target: x86_64-linux
+            runs-on: ubuntu-latest
             os: linux
             arch: x86_64
             ext: ""
-          - target: x86_64-windows-gnu
+          - target: x86_64-windows
+            runs-on: ubuntu-latest
             os: windows
             arch: x86_64
             ext: ".exe"
           - target: x86_64-macos
+            runs-on: macos-latest
             os: macos
             arch: x86_64
             ext: ""
           - target: aarch64-macos
+            runs-on: macos-latest
             os: macos
             arch: aarch64
             ext: ""
@@ -120,7 +124,7 @@ jobs:
             zig-cache-
 
       - name: Build for ${{ matrix.target }}
-        run: mise run build:${{ matrix.target }}
+        run: mise run build --target=${{ matrix.target }}
 
       - name: Package artifacts
         run: |
@@ -148,7 +152,7 @@ jobs:
 
   release:
     name: Create nightly release
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     needs: [check-new-commits, build]
     if: needs.check-new-commits.outputs.should_build == 'true'
     steps:
