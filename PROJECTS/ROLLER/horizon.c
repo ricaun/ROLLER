@@ -260,10 +260,10 @@ void DrawHorizon(uint8 *pScrBuf)
 void initclouds()
 {                                               // Loop through all 40 cloud slots
   int iCloudIdx; // edi
-  int iRandVal1; // eax
-  uint32 uiAngle1Calc; // eax
+  //int iRandVal1; // eax
+  //uint32 uiAngle1Calc; // eax
   int iAngle1; // ebp
-  int iRandVal2; // eax
+  //int iRandVal2; // eax
   int iAngle2; // esi
   double dRadiusRotComp1; // st6
   double dRadiusRotComp2; // st5
@@ -322,7 +322,7 @@ void initclouds()
       ////TODO look at this
       //iAngle2 = GetHighOrderRand(2, iRandVal2);  // Will be 0 or 1
       ////iAngle2 = ((iRandVal2 << 14) - (__CFSHL__(iRandVal2 << 14 >> 31, 15) + (iRandVal2 << 14 >> 31 << 15))) >> 15;
-
+      
       iAngle1 = (rand() & 0x0FFF) + 0x200;
       iAngle2 = rand() & 0x3FFF;
       
