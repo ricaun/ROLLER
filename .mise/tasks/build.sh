@@ -12,5 +12,5 @@ echo "Building ROLLER..."
 echo "🔨 Building for ${usage_target:-native}..."
 zig build --release=${usage_release:-fast} -Dtarget=${usage_target:-native}
 
-echo "✅ macOS ARM64 build completed successfully"
-echo "📁 Binary location: zig-out/bin/ROLLER"
+echo "✅ Build completed successfully"
+echo "📁 Binary location: zig-out/bin/roller"

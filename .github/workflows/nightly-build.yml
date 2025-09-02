@@ -72,7 +72,7 @@ jobs:
           echo "short_hash=${SHORT_HASH}" >> $GITHUB_OUTPUT
 
   build:
-    name: Build for ${{ matrix.target }}
+    name: Build for ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ubuntu-latest
     needs: check-new-commits
     if: needs.check-new-commits.outputs.should_build == 'true'
@@ -118,12 +118,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .zig-cache
-          key: zig-cache-${{ matrix.target }}-${{ hashFiles('build.zig', 'build.zig.zon') }}
+          key: zig-cache-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('build.zig', 'build.zig.zon') }}
           restore-keys: |
-            zig-cache-${{ matrix.target }}-
+            zig-cache-${{ matrix.os }}-${{ matrix.arch }}-
             zig-cache-
 
-      - name: Build for ${{ matrix.target }}
+      - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
         run: mise run build --target=${{ matrix.target }}
 
       - name: Package artifacts
