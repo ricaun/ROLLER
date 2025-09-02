@@ -48,6 +48,9 @@ static SDL_Texture *s_pWindowTexture = NULL;
 static SDL_Texture *s_pDebugTexture = NULL;
 SDL_Gamepad *g_pController1 = NULL;
 SDL_Gamepad *g_pController2 = NULL;
+tJoyPos g_rollerJoyPos;
+SDL_JoystickID g_joyId1;
+SDL_JoystickID g_joyId2;
 bool g_bPaletteSet = false;
 uint8 testbuf[4096];
 static uint8 *s_pRGBBuffer = NULL;
@@ -280,10 +283,13 @@ int InitSDL()
   SDL_JoystickID *joystickAy = SDL_GetGamepads(&iCount);
   if (!g_pController1 && iCount > 0) {
     g_pController1 = SDL_OpenGamepad(joystickAy[0]);
+    g_joyId1 = joystickAy[0];
   }
   if (!g_pController2 && iCount > 1) {
     g_pController2 = SDL_OpenGamepad(joystickAy[1]);
+    g_joyId2 = joystickAy[1];
   }
+  memset(&g_rollerJoyPos, 0, sizeof(tJoyPos));
 
   // Initialize MIDI with WildMidi
   if (!MIDI_Init("./midi/wildmidi.cfg")) {
@@ -526,6 +532,44 @@ void UpdateSDL()
           byRawCode |= 0x80;  // Set high bit for release
         }
         key_handler(byRawCode);
+      }
+    }
+
+    if (e.type == SDL_EVENT_JOYSTICK_AXIS_MOTION) {
+      if (e.gaxis.axis == SDL_GAMEPAD_AXIS_LEFTY) {
+        if (e.gaxis.which == g_joyId1)
+          g_rollerJoyPos.iJ1XAxis = ((e.gaxis.value + 32768) * 10000) / 65536;
+        else if (e.gaxis.which == g_joyId2)
+          g_rollerJoyPos.iJ2XAxis = ((e.gaxis.value + 32768) * 10000) / 65536;
+      } else if (e.gaxis.axis == SDL_GAMEPAD_AXIS_LEFTX) {
+        if (e.gaxis.which == g_joyId1)
+          g_rollerJoyPos.iJ1YAxis = ((e.gaxis.value + 32768) * 10000) / 65536;
+        else if (e.gaxis.which == g_joyId2)
+          g_rollerJoyPos.iJ2YAxis = ((e.gaxis.value + 32768) * 10000) / 65536;
+      }
+    } else if (e.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN) {
+      if (e.gbutton.button == 0) {
+        if (e.gbutton.which == g_joyId1)
+          g_rollerJoyPos.iJ1Button1 = 1;
+        else if (e.gbutton.which == g_joyId2)
+          g_rollerJoyPos.iJ2Button1 = 1;
+      } else if (e.gbutton.button == 1) {
+        if (e.gbutton.which == g_joyId1)
+          g_rollerJoyPos.iJ1Button2 = 1;
+        else if (e.gbutton.which == g_joyId2)
+          g_rollerJoyPos.iJ2Button2 = 1;
+      }
+    } else if (e.type == SDL_EVENT_JOYSTICK_BUTTON_UP) {
+      if (e.gbutton.button == 0) {
+        if (e.gbutton.which == g_joyId1)
+          g_rollerJoyPos.iJ1Button1 = 0;
+        else if (e.gbutton.which == g_joyId2)
+          g_rollerJoyPos.iJ2Button1 = 0;
+      } else if (e.gbutton.button == 1) {
+        if (e.gbutton.which == g_joyId1)
+          g_rollerJoyPos.iJ1Button2 = 0;
+        else if (e.gbutton.which == g_joyId2)
+          g_rollerJoyPos.iJ2Button2 = 0;
       }
     }
   }
@@ -1262,18 +1306,6 @@ int IsCDROMDevice(const char *szPath)
   close(fd);
   return (result != -1);
 #endif
-}
-
-//-------------------------------------------------------------------------------------------------
-
-int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis)
-{
-  if (!pController || !SDL_GamepadHasAxis(pController, axis)) {
-    return 0;
-  }
-  // Convert from [-32768, 32767] to [0, 10000]
-  const int value = SDL_GetGamepadAxis(pController, axis);
-  return ((value + 32768) * 10000) / 65536;
 }
 
 //-------------------------------------------------------------------------------------------------

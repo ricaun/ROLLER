@@ -1763,16 +1763,16 @@ void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSoun
 void ReadJoys(tJoyPos *pJoy)
 {
   // Check joystick 1 (controller 1)
-  pJoy->iJ1Button1 = SDL_GetGamepadButton(g_pController1, 0);
-  pJoy->iJ1Button2 = SDL_GetGamepadButton(g_pController1, 1);
-  pJoy->iJ1XAxis = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTY);
-  pJoy->iJ1YAxis = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTX);
+  pJoy->iJ1Button1 = g_rollerJoyPos.iJ1Button1;
+  pJoy->iJ1Button2 = g_rollerJoyPos.iJ1Button2;
+  pJoy->iJ1XAxis = g_rollerJoyPos.iJ1XAxis;
+  pJoy->iJ1YAxis = g_rollerJoyPos.iJ1YAxis;
 
   // Check joystick 2 (controller 2)
-  pJoy->iJ2Button1 = SDL_GetGamepadButton(g_pController2, 0);
-  pJoy->iJ2Button2 = SDL_GetGamepadButton(g_pController2, 1);
-  pJoy->iJ2XAxis = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTY);
-  pJoy->iJ2YAxis = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTX);
+  pJoy->iJ2Button1 = g_rollerJoyPos.iJ2Button1;
+  pJoy->iJ2Button2 = g_rollerJoyPos.iJ2Button2;
+  pJoy->iJ2XAxis = g_rollerJoyPos.iJ2XAxis;
+  pJoy->iJ2YAxis = g_rollerJoyPos.iJ2YAxis;
 
   // Update presence flags based on controller status
   x1ok = (g_pController1 != NULL);

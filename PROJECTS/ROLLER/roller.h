@@ -11,6 +11,7 @@
 
 extern SDL_Gamepad *g_pController1;
 extern SDL_Gamepad *g_pController2;
+extern tJoyPos g_rollerJoyPos;
 extern bool g_bPaletteSet;
 extern uint8 testbuf[4096];
 
@@ -59,7 +60,6 @@ int ROLLERrand();
 Uint64 SDLTickTimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval);
 Uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval);
 int IsCDROMDevice(const char *szPath);
-int GetAxisValue(SDL_Gamepad *pController, SDL_GamepadAxis axis);
 void ReplaceExtension(char *szFilename, const char *szNewExt);
 void ErrorBoxExit(const char *szErrorMsgFormat, ...);
 void autoselectsoundlanguage();
