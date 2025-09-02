@@ -6590,7 +6590,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
             cup_won |= 2;
             break;
           case 16: //DUEL (killer opponents)
-            name_copy(szPlayerName, "MRREVIL");
+            name_copy(szPlayerName, "MR EVIL");
             cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
             break;
           case 17: //PROCESS
