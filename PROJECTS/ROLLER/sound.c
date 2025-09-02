@@ -496,9 +496,9 @@ void updatejoy()
   if (Joy1used || Joy2used)
     ReadJoys(&rud_Joy_pos);
   if (Joy1used) {
-    keys[128] = rud_Joy_pos.iX1Status;
-    keys[129] = rud_Joy_pos.iY1Status;
-    iX1Scaled = ((2 * rud_Joy_pos.iX1Count - JAXmax - JAXmin) << 10) / (JAXmax - JAXmin);
+    keys[128] = rud_Joy_pos.iJ1Button1;
+    keys[129] = rud_Joy_pos.iJ1Button2;
+    iX1Scaled = ((2 * rud_Joy_pos.iJ1XAxis - JAXmax - JAXmin) << 10) / (JAXmax - JAXmin);
     //apply 100-unit deadzone
     if (iX1Scaled >= 0) {
       iX1Clamped = iX1Scaled - 100;
@@ -511,7 +511,7 @@ void updatejoy()
         iX1Clamped2 = 0;
       joyvalue[0] = -iX1Clamped2;
     }
-    iY1Scaled = ((2 * rud_Joy_pos.iY1Count - JAYmax - JAYmin) << 10) / (JAYmax - JAYmin);
+    iY1Scaled = ((2 * rud_Joy_pos.iJ1YAxis - JAYmax - JAYmin) << 10) / (JAYmax - JAYmin);
     //apply 100-unit deadzone
     if (iY1Scaled >= 0) {
       iY1Clamped = iY1Scaled - 100;
@@ -526,9 +526,9 @@ void updatejoy()
     }
   }
   if (Joy2used) {
-    keys[130] = rud_Joy_pos.iX2Status;
-    keys[131] = rud_Joy_pos.iY2Status;
-    iX2Scaled = ((2 * rud_Joy_pos.iX2Count - JBXmax - JBXmin) << 10) / (JBXmax - JBXmin);
+    keys[130] = rud_Joy_pos.iJ2Button1;
+    keys[131] = rud_Joy_pos.iJ2Button2;
+    iX2Scaled = ((2 * rud_Joy_pos.iJ2XAxis - JBXmax - JBXmin) << 10) / (JBXmax - JBXmin);
     //apply 100-unit deadzone
     if (iX2Scaled >= 0) {
       iX2Clamped = iX2Scaled - 100;
@@ -541,7 +541,7 @@ void updatejoy()
         iX2Clamped2 = 0;
       joyvalue[4] = -iX2Clamped2;
     }
-    iY2Scaled = ((2 * rud_Joy_pos.iY2Count - JBYmax - JBYmin) << 10) / (JBYmax - JBYmin);
+    iY2Scaled = ((2 * rud_Joy_pos.iJ2YAxis - JBYmax - JBYmin) << 10) / (JBYmax - JBYmin);
     //apply 100-unit deadzone
     if (iY2Scaled >= 0) {
       iY2Clamped = iY2Scaled - 100;
@@ -1760,16 +1760,16 @@ void ReadJoys(tJoyPos *pJoy)
   SDL_PumpEvents();
 
   // Check joystick 1 (controller 1)
-  pJoy->iX1Status = SDL_GetGamepadButton(g_pController1, 0);
-  pJoy->iY1Status = SDL_GetGamepadButton(g_pController1, 1);
-  pJoy->iX1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTY);
-  pJoy->iY1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTX);
+  pJoy->iJ1Button1 = SDL_GetGamepadButton(g_pController1, 0);
+  pJoy->iJ1Button2 = SDL_GetGamepadButton(g_pController1, 1);
+  pJoy->iJ1XAxis = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTY);
+  pJoy->iJ1YAxis = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTX);
 
   // Check joystick 2 (controller 2)
-  pJoy->iX2Status = SDL_GetGamepadButton(g_pController2, 0);
-  pJoy->iY2Status = SDL_GetGamepadButton(g_pController2, 1);
-  pJoy->iX2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTY);
-  pJoy->iY2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTX);
+  pJoy->iJ2Button1 = SDL_GetGamepadButton(g_pController2, 0);
+  pJoy->iJ2Button2 = SDL_GetGamepadButton(g_pController2, 1);
+  pJoy->iJ2XAxis = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTY);
+  pJoy->iJ2YAxis = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTX);
 
   // Update presence flags based on controller status
   x1ok = (g_pController1 != NULL);
@@ -1783,29 +1783,29 @@ void ReadJoys(tJoyPos *pJoy)
   /*unsigned __int8 byCurrentVal; // al
   int i; // ebx
   int v4; // eax
-  int iX2Count; // esi
+  int iJ2XAxis; // esi
   int iY1Ok; // ecx
   int iY2Ok; // edi
   int iCurrentVal; // eax
   int iX1Ok2; // ebx
   int iX2Ok; // [esp+4h] [ebp-2Ch]
-  int iY2Count; // [esp+8h] [ebp-28h]
+  int iJ2YAxis; // [esp+8h] [ebp-28h]
   int iX1Ok; // [esp+Ch] [ebp-24h]
-  int iX1Count; // [esp+10h] [ebp-20h]
-  int iY1count; // [esp+14h] [ebp-1Ch]
+  int iJ1XAxis; // [esp+10h] [ebp-20h]
+  int iJ1YAxis; // [esp+14h] [ebp-1Ch]
 
   // Read initial joystick state
   byCurrentVal = __inbyte(0x201u);
   i = 0;
-  iX1Count = 0;
-  iY1count = 0;
+  iJ1XAxis = 0;
+  iJ1YAxis = 0;
   v4 = (int)(unsigned __int8)~byCurrentVal >> 4;
-  iY2Count = 0;
-  pJoyPos->iX1Status = v4 & 1;
-  pJoyPos->iY1Status = (v4 & 3) >> 1;
-  iX2Count = 0;
-  pJoyPos->iX2Status = (v4 >> 2) & 1;
-  pJoyPos->iY2Status = ((v4 >> 2) & 3) >> 1;
+  iJ2YAxis = 0;
+  pJoyPos->iJ1Button1 = v4 & 1;
+  pJoyPos->iJ1Button2 = (v4 & 3) >> 1;
+  iJ2XAxis = 0;
+  pJoyPos->iJ2Button1 = (v4 >> 2) & 1;
+  pJoyPos->iJ2Button2 = ((v4 >> 2) & 3) >> 1;
   _disable();
   __outbyte(0x201u, 0xFFu);
 
@@ -1824,28 +1824,28 @@ void ReadJoys(tJoyPos *pJoy)
     if (x1ok) {
       iX1Ok = iCurrentVal & 1;
       if ((iCurrentVal & 1) != 0)             // Axis still active
-        ++iX1Count;
+        ++iJ1XAxis;
     }
 
     // Measure Y1 axis
     if (y1ok) {
       iY1Ok = iCurrentVal & 2;
       if ((iCurrentVal & 2) != 0)             // Axis still active
-        ++iY1count;
+        ++iJ1YAxis;
     }
 
     // Measure X2 axis
     if (x2ok) {
       iX2Ok = iCurrentVal & 4;
       if ((iCurrentVal & 4) != 0)             // Axis still active
-        ++iX2Count;
+        ++iJ2XAxis;
     }
 
     // Measure Y2 axis
     if (y2ok) {
       iY2Ok = iCurrentVal & 8;
       if ((iCurrentVal & 8) != 0)             // Axis still active
-        ++iY2Count;
+        ++iJ2YAxis;
     }
     ++i;
   } while ((iCurrentVal & bitaccept) != 0 && i < 10000);
@@ -1859,38 +1859,38 @@ void ReadJoys(tJoyPos *pJoy)
 
   // Process results for X1 axis
   if (iX1Ok2) {
-    pJoyPos->iX1Count = 0;
+    pJoyPos->iJ1XAxis = 0;
     x1ok = 0;                                   // mark axis as unavailable
     bitaccept = y2ok | y1ok | x2ok;             // Update global acceptance mask
   } else {
-    pJoyPos->iX1Count = iX1Count;
+    pJoyPos->iJ1XAxis = iJ1XAxis;
   }
 
   // Process results for Y1 axis
   if (iY1Ok) {
-    pJoyPos->iY1Count = 0;
+    pJoyPos->iJ1YAxis = 0;
     y1ok = 0;                                   // mark axis as unavailable
     bitaccept = y2ok | x1ok | x2ok;             // Update global acceptance mask
   } else {
-    pJoyPos->iY1Count = iY1count;
+    pJoyPos->iJ1YAxis = iJ1YAxis;
   }
 
   // Process results for X2 axis
   if (iX2Ok) {
-    pJoyPos->iX2Count = 0;
+    pJoyPos->iJ2XAxis = 0;
     x2ok = 0;                                   // Mark axis as unavailable
     bitaccept = y2ok | y1ok | x1ok;             // Update global acceptance mask
   } else {
-    pJoyPos->iX2Count = iX2Count;
+    pJoyPos->iJ2XAxis = iJ2XAxis;
   }
 
   // Process results for Y2 axis
   if (iY2Ok) {
-    pJoyPos->iY2Count = 0;
+    pJoyPos->iJ2YAxis = 0;
     y2ok = 0;                                   // Mark axis as unavailable
     bitaccept = x2ok | y1ok | x1ok;             // Update global acceptance mask
   } else {
-    pJoyPos->iY2Count = iY2Count;
+    pJoyPos->iJ2YAxis = iJ2YAxis;
   }*/
 }
 

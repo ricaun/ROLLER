@@ -3009,25 +3009,25 @@ void select_configure()
           //_disable();
 
           // Update calibration ranges for all axes
-          if (pJoyPos.iX1Count < JAXmin)
-            JAXmin = pJoyPos.iX1Count;
-          if (pJoyPos.iX1Count > JAXmax)
-            JAXmax = pJoyPos.iX1Count;
+          if (pJoyPos.iJ1XAxis < JAXmin)
+            JAXmin = pJoyPos.iJ1XAxis;
+          if (pJoyPos.iJ1XAxis > JAXmax)
+            JAXmax = pJoyPos.iJ1XAxis;
 
-          if (pJoyPos.iY1Count < JAYmin)
-            JAYmin = pJoyPos.iY1Count;
-          if (pJoyPos.iY1Count > JAYmax)
-            JAYmax = pJoyPos.iY1Count;
+          if (pJoyPos.iJ1YAxis < JAYmin)
+            JAYmin = pJoyPos.iJ1YAxis;
+          if (pJoyPos.iJ1YAxis > JAYmax)
+            JAYmax = pJoyPos.iJ1YAxis;
 
-          if (pJoyPos.iX2Count < JBXmin)
-            JBXmin = pJoyPos.iX2Count;
-          if (pJoyPos.iX2Count > JBXmax)
-            JBXmax = pJoyPos.iX2Count;
+          if (pJoyPos.iJ2XAxis < JBXmin)
+            JBXmin = pJoyPos.iJ2XAxis;
+          if (pJoyPos.iJ2XAxis > JBXmax)
+            JBXmax = pJoyPos.iJ2XAxis;
 
-          if (pJoyPos.iY2Count < JBYmin)
-            JBYmin = pJoyPos.iY2Count;
-          if (pJoyPos.iY2Count > JBYmax)
-            JBYmax = pJoyPos.iY2Count;
+          if (pJoyPos.iJ2YAxis < JBYmin)
+            JBYmin = pJoyPos.iJ2YAxis;
+          if (pJoyPos.iJ2YAxis > JBYmax)
+            JBYmax = pJoyPos.iJ2YAxis;
 
           if (JAXmin == JAXmax)
             JAXmax = JAXmin + 1;
@@ -3056,7 +3056,7 @@ void select_configure()
         if (iConfigState_1 == 3) {
           // Show calibration bar
           if (x1ok && JAXmax - JAXmin >= 100)
-            iJoyCalibValue1 = 140 * (2 * pJoyPos.iX1Count - JAXmax - JAXmin) / (JAXmax - JAXmin);
+            iJoyCalibValue1 = 140 * (2 * pJoyPos.iJ1XAxis - JAXmax - JAXmin) / (JAXmax - JAXmin);
           else
             iJoyCalibValue1 = 0;
           front_displaycalibrationbar(300, 128, iJoyCalibValue1);
@@ -3074,7 +3074,7 @@ void select_configure()
         if (iConfigState == 3) {
           // Show Calibration bar
           if (y1ok && JAYmax - JAYmin >= 100)
-            iJoyCalibValue2 = 140 * (2 * pJoyPos.iY1Count - JAYmax - JAYmin) / (JAYmax - JAYmin);
+            iJoyCalibValue2 = 140 * (2 * pJoyPos.iJ1YAxis - JAYmax - JAYmin) / (JAYmax - JAYmin);
           else
             iJoyCalibValue2 = 0;
           front_displaycalibrationbar(300, 178, iJoyCalibValue2);
@@ -3092,7 +3092,7 @@ void select_configure()
         if (iConfigState == 3) {
           // Calibration bar
           if (x2ok && JBXmax - JBXmin >= 100)
-            iX2CalibrationVal = 140 * (2 * pJoyPos.iX2Count - JBXmax - JBXmin) / (JBXmax - JBXmin);
+            iX2CalibrationVal = 140 * (2 * pJoyPos.iJ2XAxis - JBXmax - JBXmin) / (JBXmax - JBXmin);
           else
             iX2CalibrationVal = 0;
           front_displaycalibrationbar(300, 228, iX2CalibrationVal);
@@ -3112,7 +3112,7 @@ void select_configure()
         if (iConfigState_2 == 3) {
           // Calibration bar
           if (y2ok && JBYmax - JBYmin >= 100)
-            iY2CalibrationVal = 140 * (2 * pJoyPos.iY2Count - JBYmax - JBYmin) / (JBYmax - JBYmin);
+            iY2CalibrationVal = 140 * (2 * pJoyPos.iJ2YAxis - JBYmax - JBYmin) / (JBYmax - JBYmin);
           else
             iY2CalibrationVal = 0;
           front_displaycalibrationbar(300, 278, iY2CalibrationVal);
@@ -3286,41 +3286,41 @@ void select_configure()
         // If no keyboard key pressed check joystick buttons
         if (iFoundKey == -1) {
           ReadJoys(&pJoyPos);
-          if (pJoyPos.iX1Status)
+          if (pJoyPos.iJ1Button1)
             iFoundKey = 128;
-          if (pJoyPos.iY1Status)
+          if (pJoyPos.iJ1Button2)
             iFoundKey = 129;
-          if (pJoyPos.iX2Status)
+          if (pJoyPos.iJ2Button1)
             iFoundKey = 130;
-          if (pJoyPos.iY2Status)
+          if (pJoyPos.iJ2Button2)
             iFoundKey = 131;
         }
 
         // If still no input check joystick axis movements
         if (iFoundKey == -1) {
           if (y2ok) {
-            iJoyValue1 = 100 * (2 * pJoyPos.iY2Count - JBYmax - JBYmin) / (JBYmax - JBYmin);
+            iJoyValue1 = 100 * (2 * pJoyPos.iJ2YAxis - JBYmax - JBYmin) / (JBYmax - JBYmin);
             if (iJoyValue1 < -50)
               iFoundKey = 138;
             if (iJoyValue1 > 50)
               iFoundKey = 139;
           }
           if (x2ok) {
-            iJoyValue2 = 100 * (2 * pJoyPos.iX2Count - JBXmax - JBXmin) / (JBXmax - JBXmin);
+            iJoyValue2 = 100 * (2 * pJoyPos.iJ2XAxis - JBXmax - JBXmin) / (JBXmax - JBXmin);
             if (iJoyValue2 < -50)
               iFoundKey = 136;
             if (iJoyValue2 > 50)
               iFoundKey = 137;
           }
           if (y1ok) {
-            iJoyValue3 = 100 * (2 * pJoyPos.iY1Count - JAYmax - JAYmin) / (JAYmax - JAYmin);
+            iJoyValue3 = 100 * (2 * pJoyPos.iJ1YAxis - JAYmax - JAYmin) / (JAYmax - JAYmin);
             if (iJoyValue3 < -50)
               iFoundKey = 134;
             if (iJoyValue3 > 50)
               iFoundKey = 135;
           }
           if (x1ok) {
-            iJoyValue4 = 100 * (2 * pJoyPos.iX1Count - JAXmax - JAXmin) / (JAXmax - JAXmin);
+            iJoyValue4 = 100 * (2 * pJoyPos.iJ1XAxis - JAXmax - JAXmin) / (JAXmax - JAXmin);
             if (iJoyValue4 < -50)
               iFoundKey = 132;
             if (iJoyValue4 > 50)
@@ -3605,7 +3605,7 @@ void select_configure()
                         {
                             player_names[player1_car][j] = szNewNameBuf[j];
                         }
-                        //for (j = 0; j < 9; cheat_names[player1_car + 31][j + 8] = *((_BYTE *)&pJoyPos.iY2Count + j + 3))
+                        //for (j = 0; j < 9; cheat_names[player1_car + 31][j + 8] = *((_BYTE *)&pJoyPos.iJ2YAxis + j + 3))
                         //  ++j;
 
                         broadcast_mode = -669;
@@ -3623,7 +3623,7 @@ void select_configure()
                         {
                           player_names[player2_car][k] = szNewNameBuf[k];
                         }
-                        //for (k = 0; k < 9; cheat_names[iPlayer2Car + 31][k + 8] = *((_BYTE *)&pJoyPos.iY2Count + k + 3))
+                        //for (k = 0; k < 9; cheat_names[iPlayer2Car + 31][k + 8] = *((_BYTE *)&pJoyPos.iJ2YAxis + k + 3))
                         //  ++k;
 
                         waste = CheckNames(player_names[iPlayer2Car], iPlayer2Car);
@@ -3646,7 +3646,7 @@ void select_configure()
                       while (iDefaultNamesCharItr < 9);
                       //do {
                       //  ++iDefaultNamesCharItr;
-                      //  *((_BYTE *)&team_col[15] + iDefaultNamesCharItr + iDefaultNamesIdx * 9 + 3) = *((_BYTE *)&pJoyPos.iY2Count + iDefaultNamesCharItr + 3);// offset into default_names
+                      //  *((_BYTE *)&team_col[15] + iDefaultNamesCharItr + iDefaultNamesIdx * 9 + 3) = *((_BYTE *)&pJoyPos.iJ2YAxis + iDefaultNamesCharItr + 3);// offset into default_names
                       //} while (iDefaultNamesCharItr < 9);
 
                       // Set default name if empty
@@ -3679,7 +3679,7 @@ void select_configure()
                         {
                           szNewNameBuf[m] = player_names[player1_car][m];
                         }
-                        //for (m = 0; m < 9; *((_BYTE *)&pJoyPos.iY2Count + m + 3) = cheat_names[player1_car + 31][m + 8])
+                        //for (m = 0; m < 9; *((_BYTE *)&pJoyPos.iJ2YAxis + m + 3) = cheat_names[player1_car + 31][m + 8])
                         //  ++m;
                       } else if (iSelectedCar == 2)// Load player 2 name
                       {
@@ -3687,7 +3687,7 @@ void select_configure()
                         {
                           szNewNameBuf[n] = player_names[player2_car][n];
                         }
-                        //for (n = 0; n < 9; *((_BYTE *)&pJoyPos.iY2Count + n + 3) = cheat_names[player2_car + 31][n + 8])
+                        //for (n = 0; n < 9; *((_BYTE *)&pJoyPos.iJ2YAxis + n + 3) = cheat_names[player2_car + 31][n + 8])
                         //  ++n;
                       } else                      // Load AI driver name
                       {
@@ -3704,7 +3704,7 @@ void select_configure()
                         //do {
                         //  ++v189;
                         //  v191 = default_names[0][iOffset++];
-                        //  *((_BYTE *)&pJoyPos.iY2Count + v189 + 3) = v191;
+                        //  *((_BYTE *)&pJoyPos.iJ2YAxis + v189 + 3) = v191;
                         //} while (v189 < 9);
 
                       }
@@ -3732,7 +3732,7 @@ void select_configure()
                         {
                           player_names[player1_car][ii] = szNewNameBuf[ii];
                         }
-                        //for (ii = 0; ii < 9; cheat_names[player1_car + 31][ii + 8] = *((_BYTE *)&pJoyPos.iY2Count + ii + 3))
+                        //for (ii = 0; ii < 9; cheat_names[player1_car + 31][ii + 8] = *((_BYTE *)&pJoyPos.iJ2YAxis + ii + 3))
                         //  ++ii;
                         broadcast_mode = -669;
                         while (broadcast_mode)
@@ -3750,7 +3750,7 @@ void select_configure()
                         {
                           player_names[player2_car][jj] = szNewNameBuf[jj];
                         }
-                        //for (jj = 0; jj < 9; cheat_names[iPlayer2Car_1 + 31][jj + 8] = *((_BYTE *)&pJoyPos.iY2Count + jj + 3))
+                        //for (jj = 0; jj < 9; cheat_names[iPlayer2Car_1 + 31][jj + 8] = *((_BYTE *)&pJoyPos.iJ2YAxis + jj + 3))
                         //  ++jj;
                         waste = CheckNames(player_names[iPlayer2Car_1], iPlayer2Car_1);
                       }
@@ -3773,7 +3773,7 @@ void select_configure()
                       
                       //do {
                       //  ++v196;
-                      //  *((_BYTE *)&team_col[15] + v196 + v197 * 9 + 3) = *((_BYTE *)&pJoyPos.iY2Count + v196 + 3);
+                      //  *((_BYTE *)&team_col[15] + v196 + v197 * 9 + 3) = *((_BYTE *)&pJoyPos.iJ2YAxis + v196 + 3);
                       //} while (v196 < 9);
 
                       if (!default_names[iAIDriverIdx_1][0]) {

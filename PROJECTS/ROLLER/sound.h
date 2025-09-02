@@ -223,14 +223,14 @@ typedef struct
 
 typedef struct
 {
-  int iX1Status;
-  int iY1Status;
-  int iX1Count;
-  int iY1Count;
-  int iX2Status;
-  int iY2Status;
-  int iX2Count;
-  int iY2Count;
+  int iJ1Button1;
+  int iJ1Button2;
+  int iJ1XAxis;
+  int iJ1YAxis;
+  int iJ2Button1;
+  int iJ2Button2;
+  int iJ2XAxis;
+  int iJ2YAxis;
 } tJoyPos;
 
 //-------------------------------------------------------------------------------------------------
