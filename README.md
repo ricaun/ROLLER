@@ -11,7 +11,6 @@ Assets from a retail copy of the game are required to run. Drop the contents of 
 ## TODO
 * Integrate looped and pitched sounds (engine sounds) with SDL
 * Integrate sound panning with SDL
-* Integrate joystick support with SDL
 * Find instrument/sample set for WildMidi that sounds closer to original hardware
 * Bug: pits in devil's hairpin do not show doubled texture
 * Linux only: replay positioning is chunky
