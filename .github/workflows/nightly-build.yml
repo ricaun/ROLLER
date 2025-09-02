@@ -3,11 +3,11 @@ name: Nightly Build
 on:
   schedule:
     # Run nightly at 2 AM UTC
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       force_build:
-        description: 'Force build even if no new commits'
+        description: "Force build even if no new commits"
         required: false
         default: false
         type: boolean
@@ -34,25 +34,25 @@ jobs:
         run: |
           # Get the latest nightly release
           LATEST_NIGHTLY=$(gh release list --limit 1 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease == true) | .tagName' | head -1 || echo "")
-          
+
           if [ -z "$LATEST_NIGHTLY" ]; then
             echo "No previous nightly releases found, will build"
             echo "should_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           # Get the commit of the latest nightly release
           LATEST_COMMIT=$(gh release view "$LATEST_NIGHTLY" --json body --jq '.body' | grep -o 'Commit: [a-f0-9]\{40\}' | cut -d' ' -f2 || echo "")
-          
+
           if [ -z "$LATEST_COMMIT" ]; then
             echo "Could not determine commit from latest nightly, will build"
             echo "should_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           # Check if there are new commits since the latest nightly
           NEW_COMMITS=$(git rev-list --count "$LATEST_COMMIT"..HEAD 2>/dev/null || echo "1")
-          
+
           if [ "$NEW_COMMITS" -gt 0 ] || [ "${{ github.event.inputs.force_build }}" = "true" ]; then
             echo "Found $NEW_COMMITS new commits since last nightly, will build"
             echo "should_build=true" >> $GITHUB_OUTPUT
@@ -106,13 +106,9 @@ jobs:
       - name: Setup mise
         uses: jdx/mise-action@v2
         with:
-          version: latest
-
-      - name: Cache Zig
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/mise/installs/zig
-          key: zig-${{ runner.os }}-${{ hashFiles('mise.toml') }}
+          install: true,
+          experimental: true
+          cache: true
 
       - name: Cache .zig-cache
         uses: actions/cache@v4
@@ -122,9 +118,6 @@ jobs:
           restore-keys: |
             zig-cache-${{ matrix.target }}-
             zig-cache-
-
-      - name: Install build tools
-        run: mise install
 
       - name: Build for ${{ matrix.target }}
         run: mise run build-${{ matrix.target }}
@@ -179,40 +172,40 @@ jobs:
         run: |
           RELEASE_TAG="nightly-${VERSION}-${SHORT_HASH}"
           RELEASE_NAME="Nightly Build ${VERSION}-${SHORT_HASH}"
-          
+
           # Create release notes
           cat > release_notes.md << EOF
           # ROLLER Nightly Build ${VERSION}-${SHORT_HASH}
-          
+
           This is an automated nightly build of the ROLLER project.
-          
+
           **Build Information:**
           - Version: ${VERSION}
           - Commit: $(git rev-parse HEAD)
           - Short Hash: ${SHORT_HASH}
           - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          
+
           **Platforms:**
           - Linux x86_64
-          - Windows x86_64 
+          - Windows x86_64
           - macOS x86_64
           - macOS ARM64
-          
+
           **Installation:**
           1. Download the appropriate archive for your platform
           2. Extract the archive
           3. Run the ROLLER executable
           4. Make sure you have the FATDATA folder in the same directory as the executable
-          
+
           **Note:** This is a pre-release build and may contain bugs or incomplete features.
-          
+
           ---
           Built automatically by GitHub Actions
           EOF
-          
+
           # Delete existing nightly release if it exists
           gh release delete "nightly-latest" --yes || true
-          
+
           # Create new release
           gh release create "nightly-latest" \
             --title "$RELEASE_NAME" \
