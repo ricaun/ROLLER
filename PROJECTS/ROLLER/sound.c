@@ -1677,15 +1677,15 @@ void readsoundconfig(void)
   fre((void**)&pBuffer);
   fclose(fp);
 
-  // Special MusicCard case
-  if (MusicCard == 0xCD) {
-    //TODO: add CD audio support, forcing MIDI music for now
-    MusicCard = -1;
-    MusicCD = 0;
-
-    //MusicCard = 0;
-    //MusicCD = -1;
-  }
+  // Enable CD Audio
+  //if (MusicCard == 0xCD) {
+  //  MusicCard = 0;
+  //  MusicCD = -1;
+  //}
+  
+  //TODO: add CD audio support, forcing MIDI music for now
+  MusicCard = -1; //hack
+  MusicCD = 0; //hack
 
   // Set flags
   if (MusicCard == 0 && MusicCD == 0)
