@@ -13,8 +13,8 @@
             .hash = "sdl-0.2.3+3.2.14-7uIn9Gh6fgEdV7R2A723rZxtbgkVd0PHIs2rvshLBqgV",
         },
         .wildmidi = .{
-            .url = "https://github.com/Mindwerks/wildmidi/archive/42901e5ba7f253fd436fc21e533cc5391307ec15.tar.gz",
-            .hash = "wildmidi-0.4.6-fQncf9FgDgAREwQysCmaPHYO8t0rkzrbPbaj56dXBFEI",
+            .url = "https://github.com/deevus/wildmidi/archive/da97cd41e69fabb3b05d58ecace7fa3daf930dd4.tar.gz",
+            .hash = "wildmidi-0.4.6-fQncf5fHDgDgF3jvwulstIdzlbmoScVhy5IlxJ2mR6Z6",
         },
         .compile_flagz = .{
             .url = "git+https://git.sr.ht/~deevus/compile_flagz#678d62b66e0e5da1d653a0b5a775c1a0abc57531",
