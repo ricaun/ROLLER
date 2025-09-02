@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Task: Build for macOS ARM64
+set -euo pipefail
+
+echo "Building ROLLER for macOS ARM64..."
+
+# Clean any previous builds
+rm -rf zig-out
+
+# Fetch dependencies if needed
+echo "📦 Fetching dependencies..."
+zig build --fetch
+
+# Build with Zig for macOS Apple Silicon target
+echo "🔨 Building for aarch64-macos..."
+zig build \
+    -Dtarget=aarch64-macos \
+    -Doptimize=ReleaseFast \
+    --summary all
+
+echo "✅ macOS ARM64 build completed successfully"
+echo "📁 Binary location: zig-out/bin/ROLLER"

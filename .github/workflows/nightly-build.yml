@@ -1,0 +1,239 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force build even if no new commits'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  check-new-commits:
+    name: Check for new commits
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      version: ${{ steps.version.outputs.version }}
+      short_hash: ${{ steps.version.outputs.short_hash }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for new commits since last nightly
+        id: check
+        run: |
+          # Get the latest nightly release
+          LATEST_NIGHTLY=$(gh release list --limit 1 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease == true) | .tagName' | head -1 || echo "")
+          
+          if [ -z "$LATEST_NIGHTLY" ]; then
+            echo "No previous nightly releases found, will build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Get the commit of the latest nightly release
+          LATEST_COMMIT=$(gh release view "$LATEST_NIGHTLY" --json body --jq '.body' | grep -o 'Commit: [a-f0-9]\{40\}' | cut -d' ' -f2 || echo "")
+          
+          if [ -z "$LATEST_COMMIT" ]; then
+            echo "Could not determine commit from latest nightly, will build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if there are new commits since the latest nightly
+          NEW_COMMITS=$(git rev-list --count "$LATEST_COMMIT"..HEAD 2>/dev/null || echo "1")
+          
+          if [ "$NEW_COMMITS" -gt 0 ] || [ "${{ github.event.inputs.force_build }}" = "true" ]; then
+            echo "Found $NEW_COMMITS new commits since last nightly, will build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "No new commits since last nightly, skipping build"
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get version info
+        id: version
+        if: steps.check.outputs.should_build == 'true'
+        run: |
+          # Extract version from build.zig.zon
+          VERSION=$(grep -o '\.version = "[^"]*"' build.zig.zon | cut -d'"' -f2)
+          SHORT_HASH=$(git rev-parse --short HEAD)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "short_hash=${SHORT_HASH}" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    needs: check-new-commits
+    if: needs.check-new-commits.outputs.should_build == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-linux-gnu
+            os: linux
+            arch: x86_64
+            ext: ""
+          - target: x86_64-windows-gnu
+            os: windows
+            arch: x86_64
+            ext: ".exe"
+          - target: x86_64-macos
+            os: macos
+            arch: x86_64
+            ext: ""
+          - target: aarch64-macos
+            os: macos
+            arch: aarch64
+            ext: ""
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+        with:
+          version: latest
+
+      - name: Cache Zig
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/mise/installs/zig
+          key: zig-${{ runner.os }}-${{ hashFiles('mise.toml') }}
+
+      - name: Cache .zig-cache
+        uses: actions/cache@v4
+        with:
+          path: .zig-cache
+          key: zig-cache-${{ matrix.target }}-${{ hashFiles('build.zig', 'build.zig.zon') }}
+          restore-keys: |
+            zig-cache-${{ matrix.target }}-
+            zig-cache-
+
+      - name: Install build tools
+        run: mise install
+
+      - name: Build for ${{ matrix.target }}
+        run: mise run build-${{ matrix.target }}
+
+      - name: Package artifacts
+        run: |
+          mkdir -p dist
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            # Package Windows build with DLLs if they exist
+            cp zig-out/bin/ROLLER${{ matrix.ext }} dist/
+            # Copy any DLL dependencies if they exist
+            find zig-out/bin/ -name "*.dll" -exec cp {} dist/ \; || true
+            cd dist && zip -r ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.zip .
+          else
+            # Package Unix builds
+            cp zig-out/bin/ROLLER${{ matrix.ext }} dist/
+            cd dist && tar -czf ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz .
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: roller-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            *.zip
+            *.tar.gz
+          retention-days: 7
+
+  release:
+    name: Create nightly release
+    runs-on: ubuntu-latest
+    needs: [check-new-commits, build]
+    if: needs.check-new-commits.outputs.should_build == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          find artifacts -name "*.zip" -o -name "*.tar.gz" | xargs -I {} cp {} release-assets/
+
+      - name: Create nightly release
+        env:
+          VERSION: ${{ needs.check-new-commits.outputs.version }}
+          SHORT_HASH: ${{ needs.check-new-commits.outputs.short_hash }}
+        run: |
+          RELEASE_TAG="nightly-${VERSION}-${SHORT_HASH}"
+          RELEASE_NAME="Nightly Build ${VERSION}-${SHORT_HASH}"
+          
+          # Create release notes
+          cat > release_notes.md << EOF
+          # ROLLER Nightly Build ${VERSION}-${SHORT_HASH}
+          
+          This is an automated nightly build of the ROLLER project.
+          
+          **Build Information:**
+          - Version: ${VERSION}
+          - Commit: $(git rev-parse HEAD)
+          - Short Hash: ${SHORT_HASH}
+          - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          **Platforms:**
+          - Linux x86_64
+          - Windows x86_64 
+          - macOS x86_64
+          - macOS ARM64
+          
+          **Installation:**
+          1. Download the appropriate archive for your platform
+          2. Extract the archive
+          3. Run the ROLLER executable
+          4. Make sure you have the FATDATA folder in the same directory as the executable
+          
+          **Note:** This is a pre-release build and may contain bugs or incomplete features.
+          
+          ---
+          Built automatically by GitHub Actions
+          EOF
+          
+          # Delete existing nightly release if it exists
+          gh release delete "nightly-latest" --yes || true
+          
+          # Create new release
+          gh release create "nightly-latest" \
+            --title "$RELEASE_NAME" \
+            --notes-file release_notes.md \
+            --prerelease \
+            --target "$(git rev-parse HEAD)" \
+            release-assets/*
+
+  cleanup:
+    name: Cleanup old nightly releases
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: always() && needs.check-new-commits.outputs.should_build == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cleanup old nightly releases
+        run: |
+          # Keep only the 5 most recent nightly releases
+          gh release list --limit 50 --json tagName,isPrerelease,createdAt \
+            --jq '.[] | select(.isPrerelease == true and (.tagName | startswith("nightly-"))) | .tagName' \
+            | tail -n +6 \
+            | xargs -I {} gh release delete {} --yes || true

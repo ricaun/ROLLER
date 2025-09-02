@@ -1,2 +1,14 @@
 [tools]
 zig = "0.14.1"
+
+[tasks.build]
+description = "Build for the current platform"
+run = "zig build"
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = "rm -rf zig-out .zig-cache"
+
+[tasks.test]
+description = "Run tests"
+run = "zig build test"

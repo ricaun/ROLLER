@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Task: Build for Windows x86_64
+set -euo pipefail
+
+echo "Building ROLLER for Windows x86_64..."
+
+# Clean any previous builds
+rm -rf zig-out
+
+# Fetch dependencies if needed
+echo "📦 Fetching dependencies..."
+zig build --fetch
+
+# Build with Zig for Windows target
+echo "🔨 Building for x86_64-windows-gnu..."
+zig build \
+    -Dtarget=x86_64-windows-gnu \
+    -Doptimize=ReleaseFast \
+    --summary all
+
+echo "✅ Windows x86_64 build completed successfully"
+echo "📁 Binary location: zig-out/bin/ROLLER.exe"
+
+# Display any DLL dependencies if they exist
+if find zig-out/bin/ -name "*.dll" -print -quit | grep -q .; then
+    echo "📦 DLL dependencies found:"
+    find zig-out/bin/ -name "*.dll" -printf "   - %f\n"
+fi
