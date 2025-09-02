@@ -1679,10 +1679,12 @@ void readsoundconfig(void)
 
   // Special MusicCard case
   if (MusicCard == 0xCD) {
-    //TODO add CD audio
+    //TODO: add CD audio support, forcing MIDI music for now
     MusicCard = -1;
+    MusicCD = 0;
+
     //MusicCard = 0;
-    MusicCD = -1;
+    //MusicCD = -1;
   }
 
   // Set flags
@@ -3290,10 +3292,6 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
 //0003E1C0
 void startmusic(int iSong)
 {
-  //temporary hack to force midi audio until CD audio is supported
-  MusicCD = 0;  //TODO: remove
-  musicon = -1; //TODO: remove
-
   int musicOrTitle = 0;
   if (MusicCD && track_playing) {
     StopTrack();
