@@ -137,7 +137,7 @@ jobs:
             cd dist && zip -r ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.zip .
           else
             # Package Unix builds
-            cp zig-out/bin/ROLLER${{ matrix.ext }} dist/
+            cp zig-out/bin/roller${{ matrix.ext }} dist/
             cd dist && tar -czf ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz .
           fi
 
