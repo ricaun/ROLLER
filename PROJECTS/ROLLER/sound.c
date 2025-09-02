@@ -1679,7 +1679,9 @@ void readsoundconfig(void)
 
   // Special MusicCard case
   if (MusicCard == 0xCD) {
-    MusicCard = 0;
+    //TODO add CD audio
+    MusicCard = -1;
+    //MusicCard = 0;
     MusicCD = -1;
   }
 
