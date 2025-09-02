@@ -3,11 +3,10 @@
 
 This project aims to implement all the functionality of the 1995 game Whiplash/Fatal Racing in a way that builds and runs on modern PCs. Where necessary, DOS-specific functions are substituted with SDL and Windows/Unix equivalents.
 
-## Installation
-
-Assets from a retail copy of the game are required to run. Drop the contents of the build directory (bin or zig-out) into the Whiplash/Fatal Racing install directory. ROLLER.exe should be in the same directory as WHIP.EXE/FATAL.EXE.
-
 [![On track!](https://img.youtube.com/vi/xjQ-uQNEEpM/maxresdefault.jpg)](https://www.youtube.com/watch?v=xjQ-uQNEEpM)
+
+## Installation
+Assets from a retail copy of the game are required to run. Drop the contents of the build directory (bin or zig-out) into the Whiplash/Fatal Racing install directory. ROLLER.exe should be in the same directory as WHIP.EXE/FATAL.EXE.
 
 ## TODO
 * Integrate looped and pitched sounds (engine sounds) with SDL
