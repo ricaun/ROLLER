@@ -1880,6 +1880,9 @@ void play_game(int iTrack)
   bool bShiftKeyPressed; // eax
   int iSong; // eax
 
+  //added by ROLLER
+  int iLastFrame = frames;
+
   game_track = iTrack;                          // Initialize game state and track
   lagdone = 0;
   I_Want_Out = 0;
@@ -1902,6 +1905,13 @@ void play_game(int iTrack)
   //_enable();
   while (racing || lastsample > 0)            // Main game loop - continues while racing or sound samples playing
   {                                             // Stop all sound samples if requested
+
+    //added by ROLLER - ensure we get a frame update before next process
+    //TODO: figure out how this was handled originally
+    while (iLastFrame == frames)
+      ;
+    iLastFrame = frames;
+
     UpdateSDL();
     if (dostopsamps) {
       stopallsamples();
