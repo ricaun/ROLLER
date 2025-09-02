@@ -2367,7 +2367,9 @@ void analysespeechsamples()
           if (SamplePtr[iSampleIdx])
             dospeechsample(iSampleIdx, speechinfo[readsample].iVolume);
         }
-        iSampleDuration = (int)(36 * SampleLen[speechinfo[readsample++].iSampleIdx]) / 11025;// Calculate sample duration and advance to next sample in queue
+        // TODO verify sample duration/rate
+        // the additional multiplier of 4 results in gaps between successive samples similar to the actual game
+        iSampleDuration = 4*(int)(36 * SampleLen[speechinfo[readsample++].iSampleIdx]) / 11025;// Calculate sample duration and advance to next sample in queue
         lastsample = iSampleDuration;
         if (readsample == 16)
           readsample = 0;
