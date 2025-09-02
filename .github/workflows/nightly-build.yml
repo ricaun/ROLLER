@@ -106,7 +106,7 @@ jobs:
       - name: Setup mise
         uses: jdx/mise-action@v2
         with:
-          install: true,
+          install: true
           experimental: true
           cache: true
 
