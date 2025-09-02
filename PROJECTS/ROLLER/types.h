@@ -28,7 +28,7 @@
 #define SURFACE_FLAG_BOUNCE_30          0x40000000
 #define SURFACE_FLAG_ECHO               0x20000000
 #define SURFACE_FLAG_28                 0x10000000 //todo
-#define SURFACE_FLAG_27                 0x08000000 //todo
+#define SURFACE_FLAG_STARTING_GRID      0x08000000
 #define SURFACE_FLAG_PIT_2              0x04000000
 #define SURFACE_FLAG_PIT                0x02000000
 #define SURFACE_FLAG_YELLOW_MAP         0x01000000
