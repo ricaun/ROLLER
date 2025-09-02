@@ -1760,16 +1760,16 @@ void ReadJoys(tJoyPos *pJoy)
   SDL_PumpEvents();
 
   // Check joystick 1 (controller 1)
-  pJoy->iX1Status = g_pController1 ? 1 : 0;
-  pJoy->iY1Status = g_pController1 ? 1 : 0;
-  pJoy->iX1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTX);
-  pJoy->iY1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTY);
+  pJoy->iX1Status = SDL_GetGamepadButton(g_pController1, 0);
+  pJoy->iY1Status = SDL_GetGamepadButton(g_pController1, 1);
+  pJoy->iX1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTY);
+  pJoy->iY1Count = GetAxisValue(g_pController1, SDL_GAMEPAD_AXIS_LEFTX);
 
   // Check joystick 2 (controller 2)
-  pJoy->iX2Status = g_pController2 ? 1 : 0;
-  pJoy->iY2Status = g_pController2 ? 1 : 0;
-  pJoy->iX2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTX);
-  pJoy->iY2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTY);
+  pJoy->iX2Status = SDL_GetGamepadButton(g_pController2, 0);
+  pJoy->iY2Status = SDL_GetGamepadButton(g_pController2, 1);
+  pJoy->iX2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTY);
+  pJoy->iY2Count = GetAxisValue(g_pController2, SDL_GAMEPAD_AXIS_LEFTX);
 
   // Update presence flags based on controller status
   x1ok = (g_pController1 != NULL);

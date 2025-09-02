@@ -277,12 +277,12 @@ int InitSDL()
 
   // Open game controllers
   int iCount;
-  SDL_GetGamepads(&iCount);
+  SDL_JoystickID *joystickAy = SDL_GetGamepads(&iCount);
   if (!g_pController1 && iCount > 0) {
-    g_pController1 = SDL_OpenGamepad(0);
+    g_pController1 = SDL_OpenGamepad(joystickAy[0]);
   }
   if (!g_pController2 && iCount > 1) {
-    g_pController2 = SDL_OpenGamepad(1);
+    g_pController2 = SDL_OpenGamepad(joystickAy[1]);
   }
 
   // Initialize MIDI with WildMidi
