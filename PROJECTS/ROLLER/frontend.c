@@ -6528,7 +6528,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
             player_invul[iPlayerIdx] = -1;
             break;
           case 7: //REMOVE
-            name_copy(szPlayerName, "MRBRUSH");
+            name_copy(szPlayerName, "MR BRUSH");
             if (cheat_mode & CHEAT_MODE_CLONES) {
               // Handle player cars and infinite laps
               short nPlayer1Car = (short)player1_car;
@@ -6585,7 +6585,7 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
             cheat_mode |= CHEAT_MODE_ADVANCED_CARS;
             break;
           case 15: //MREPRISE (bonus cup unlocked)
-            name_copy(szPlayerName, "MRBONUS");
+            name_copy(szPlayerName, "MR BONUS");
             textures_off |= TEX_OFF_BONUS_CUP_AVAILABLE;
             cup_won |= 2;
             break;
