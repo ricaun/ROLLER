@@ -1686,7 +1686,8 @@ void readsoundconfig(void)
   //TODO: add CD audio support, forcing MIDI music for now
   MusicCard = -1; //hack
   MusicCD = 0; //hack
-//  SoundCard = -1; //hack the SoundCard to be available too
+  if (!SoundCard)
+    SoundCard = -1; //hack the SoundCard to be available too
 
   // Set flags
   if (MusicCard == 0 && MusicCD == 0)
