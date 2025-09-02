@@ -1329,7 +1329,6 @@ void autoselectsoundlanguage() // Add by ROLLER to auto-select languagename when
   // Set default language as English
   sscanf(lang[0], "%s", languagename);
   language = 0;
-  SoundCard = 1; // Set SoundCard to 1 to indicate sound is available
 
   for (int i = 0; i < languages; i++) {
     char audioFileName[32];
