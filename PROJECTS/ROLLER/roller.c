@@ -181,7 +181,7 @@ void UpdateSDLWindow()
 
   // Get original texture size
   int iTexWidth = winw;
-  int iTexHeight = winh;  
+  int iTexHeight = winh;
   SDL_FRect src;
   src.h = (float)winh;
   src.w = (float)winw;
@@ -471,6 +471,7 @@ void UpdateSDL()
 {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
+    UpdateSDLAudioEvents(e);
     if (e.type == SDL_EVENT_QUIT) {
       quit_game = 1;
       doexit();
@@ -691,6 +692,35 @@ void MIDI_CloseMidiBuffer()
 }
 
 /// <summary>
+/// Initializes the MIDI audio stream if it hasn't been initialized yet. 
+/// </summary>
+void MIDIInitStream()
+{
+  if (!midi_stream) {
+    SDL_Log("MIDIInitStream: initialize 'midi_stream'.");
+    SDL_AudioSpec wav_spec;
+    wav_spec.channels = 2;
+    wav_spec.freq = MIDI_RATE;
+    wav_spec.format = SDL_AUDIO_S16;
+    midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wav_spec, MIDI_AudioStreamCallback, NULL);
+  }
+
+  // Set Volume Stream
+  float master_volume = (float)MIDIGetMasterVolume() / 127.0f; // Normalize to [0.0, 1.0] range
+  SDL_SetAudioStreamGain(midi_stream, midi_volume * master_volume); // Set the gain for the audio stream
+  SDL_Log("MIDIInitSong: Volume: %f", midi_volume * master_volume);
+}
+
+void MIDIClearStream()
+{
+  if (midi_stream) {
+    SDL_PauseAudioStreamDevice(midi_stream);
+    SDL_ClearAudioStream(midi_stream);
+    midi_stream = NULL;
+  }
+}
+
+/// <summary>
 /// Initializes a MIDI song for playback using the provided song data.
 /// This function closes any currently loaded MIDI song, opens the new song buffer,
 /// enables looping, logs song information, and sets the audio stream volume.
@@ -727,15 +757,7 @@ void MIDIInitSong(tInitSong *data)
     SDL_Log("MIDIInitSong: Mix Options %i", wm_info->mixer_options);
   }
 
-  if (!midi_stream) {
-    SDL_Log("MIDIInitSong: 'midi_stream' is not initialized.");
-    return;
-  }
-
-  // Set Volume Stream
-  float master_volume = (float)MIDIGetMasterVolume() / 127.0f; // Normalize to [0.0, 1.0] range
-  SDL_SetAudioStreamGain(midi_stream, midi_volume * master_volume); // Set the gain for the audio stream
-  SDL_Log("MIDIInitSong: Volume: %f", midi_volume * master_volume);
+  MIDIInitStream();
 }
 
 void MIDIStartSong()
@@ -910,6 +932,17 @@ void DIGIStopSample(int index)
   }
 }
 
+void DIGIClearAllStream()
+{
+  for (int i = 0; i < NUM_DIGI_STREAMS; i++) {
+    if (digi_stream[i]) {
+      SDL_PauseAudioStreamDevice(digi_stream[i]);
+      SDL_ClearAudioStream(digi_stream[i]);
+      digi_stream[i] = NULL;
+    }
+  }
+}
+
 void PlayAudioSampleWait(int iIndex)
 {
   if (iIndex >= 120) return;
@@ -976,6 +1009,28 @@ void PlayAudioDataWait(Uint8 *buffer, Uint32 length)
   SDL_ClearAudioStream(stream);
 }
 #pragma endregion
+//-------------------------------------------------------------------------------------------------
+/// <summary>
+/// Handle SDL audio device events for MIDI and digital audio streams.
+/// </summary>
+/// <param name="e"></param>
+void UpdateSDLAudioEvents(SDL_Event e)
+{
+  if (e.type == SDL_EVENT_AUDIO_DEVICE_REMOVED) {
+    SDL_AudioDeviceEvent *ade = (SDL_AudioDeviceEvent *)&e;
+    SDL_Log("UpdateSDLAudioEvents: Audio device removed: %d", ade->which);
+    DIGIClearAllStream();
+    MIDIClearStream();
+  }
+  if (e.type == SDL_EVENT_AUDIO_DEVICE_ADDED) {
+    SDL_AudioDeviceEvent *ade = (SDL_AudioDeviceEvent *)&e;
+    SDL_Log("UpdateSDLAudioEvents: Audio device Added: %d", ade->which);
+    DIGIClearAllStream();
+    MIDIClearStream();
+    MIDIInitStream();
+    MIDIStartSong(); // Force music to continue playing
+  }
+}
 //-------------------------------------------------------------------------------------------------
 
 bool ROLLERfexists(const char *szFile)

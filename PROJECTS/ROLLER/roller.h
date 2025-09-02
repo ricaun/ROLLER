@@ -21,6 +21,7 @@ int InitSDL();
 void ShutdownSDL();
 void UpdateSDL();
 void UpdateSDLWindow();
+void UpdateSDLAudioEvents(SDL_Event e);
 
 bool MIDI_Init(const char *config_file);
 void MIDIDigi_PlayBuffer(uint8 *midi_buffer, uint32 midi_length);
