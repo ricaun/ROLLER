@@ -11,7 +11,6 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 * Integrate joystick support with SDL
 * Find instrument/sample set for WildMidi that sounds closer to original hardware
 * Bug: pits in devil's hairpin do not show doubled texture
-* Bug: announcer can say multiple things at the same time
 * Linux only: replay positioning is chunky
 * Implement CD audio
 * Implement modern networking
