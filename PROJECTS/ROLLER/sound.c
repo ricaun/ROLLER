@@ -1686,6 +1686,7 @@ void readsoundconfig(void)
   //TODO: add CD audio support, forcing MIDI music for now
   MusicCard = -1; //hack
   MusicCD = 0; //hack
+//  SoundCard = -1; //hack the SoundCard to be available too
 
   // Set flags
   if (MusicCard == 0 && MusicCD == 0)
@@ -1760,9 +1761,6 @@ void loadfile(const char *szFile, void **pBuf, unsigned int *uiSize, int iIsSoun
 //0003BBD0
 void ReadJoys(tJoyPos *pJoy)
 {
-  // Process events to update controller state
-  SDL_PumpEvents();
-
   // Check joystick 1 (controller 1)
   pJoy->iJ1Button1 = SDL_GetGamepadButton(g_pController1, 0);
   pJoy->iJ1Button2 = SDL_GetGamepadButton(g_pController1, 1);
