@@ -120,7 +120,7 @@ jobs:
             zig-cache-
 
       - name: Build for ${{ matrix.target }}
-        run: mise run build-${{ matrix.target }}
+        run: mise run build:${{ matrix.target }}
 
       - name: Package artifacts
         run: |
