@@ -80,12 +80,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-linux
+          - target: x86_64-linux-gnu
             runs-on: ubuntu-latest
             os: linux
             arch: x86_64
             ext: ""
-          - target: x86_64-windows
+          - target: x86_64-windows-gnu
             runs-on: ubuntu-latest
             os: windows
             arch: x86_64
