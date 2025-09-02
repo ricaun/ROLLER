@@ -9,7 +9,6 @@ This project aims to implement all the functionality of the 1995 game Whiplash/F
 * Integrate looped and pitched sounds (engine sounds) with SDL
 * Integrate sound panning with SDL
 * Integrate joystick support with SDL
-* Improve textured polygon rendering to eliminate flickering polygons
 * Find instrument/sample set for WildMidi that sounds closer to original hardware
 * Bug: pits in devil's hairpin do not show doubled texture
 * Bug: race starting position isn't correct
