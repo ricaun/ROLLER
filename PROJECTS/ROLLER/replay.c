@@ -283,6 +283,24 @@ void setreplaytrack()
 }
 
 //-------------------------------------------------------------------------------------------------
+// Add by ROLLER:
+// Force to save the 'REPLAY.TMP' file if exists and save it as datetime name and delete the file.
+void savereplayasdatetime()
+{
+  char filename[64];
+  time_t now = time(NULL);
+  if (ROLLERfexists("..\\REPLAYS\\REPLAY.TMP")) {
+
+    for (size_t i = 1; i < 1e7; i++) {
+      snprintf(filename, sizeof(filename), "..\\REPLAYS\\R-%06d.GSS", i);
+      if (!ROLLERfexists(filename))
+        break;
+    }
+    rename("..\\REPLAYS\\REPLAY.TMP", filename);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
 //00064040
 void startreplay()
 {
@@ -358,6 +376,7 @@ void startreplay()
         pDestStr[1] = cChar2;
         pDestStr += 2;
       } while (cChar2);
+      savereplayasdatetime();                   // Add by ROLLER: Save existing REPLAY.TMP as datetime name
       pWriteFile = ROLLERfopen(replayfilename, "wb");// Open replay file for writing
       replayfile = pWriteFile;
       if (pWriteFile) {
