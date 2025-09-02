@@ -529,7 +529,9 @@ void POLYTEX(uint8 *pTexture, uint8 *pScrBuf, tPolyParams *pPolyParams, int iTex
       iShouldFlipVert = 0;
 
     // Handle backface culling and vertex reordering
-    if ((uiSurfaceType & SURFACE_FLAG_FLIP_BACKFACE) != 0)
+    //SURFACE_FLAG_BACK added by ROLLER, TODO: why didn't the IDA decomp check for this
+    //and how does it work?
+    if ((uiSurfaceType & (SURFACE_FLAG_FLIP_BACKFACE | SURFACE_FLAG_BACK)) != 0)
     {
       // Get first vertex coords for cross product calculation
       iVert0X = pPolyParams->vertices[0].x;
