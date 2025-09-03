@@ -12,6 +12,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: write
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -198,15 +201,9 @@ jobs:
 
           **Platforms:**
           - Linux x86_64
+          - Linux ARM64
           - Windows x86_64
-          - macOS x86_64
           - macOS ARM64
-
-          **Installation:**
-          1. Download the appropriate archive for your platform
-          2. Extract the archive
-          3. Run the ROLLER executable
-          4. Make sure you have the FATDATA folder in the same directory as the executable
 
           **Note:** This is a pre-release build and may contain bugs or incomplete features.
 
@@ -215,10 +212,10 @@ jobs:
           EOF
 
           # Delete existing nightly release if it exists
-          gh release delete "nightly-latest" --yes || true
+          gh release delete "$RELEASE_TAG" --yes || true
 
           # Create new release
-          gh release create "nightly-latest" \
+          gh release create "$RELEASE_TAG" \
             --title "$RELEASE_NAME" \
             --notes-file release_notes.md \
             --prerelease \
