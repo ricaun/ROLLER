@@ -80,21 +80,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - target: aarch64-linux-gnu
+            runs-on: ubuntu-latest
+            os: linux
+            arch: aarch64
+            ext: ""
           - target: x86_64-linux-gnu
             runs-on: ubuntu-latest
             os: linux
             arch: x86_64
             ext: ""
           - target: x86_64-windows
-            runs-on: windows-latest
+            runs-on: ubuntu-latest
             os: windows
             arch: x86_64
             ext: ".exe"
-          - target: x86_64-macos
-            runs-on: macos-14
-            os: macos
-            arch: x86_64
-            ext: ""
           - target: aarch64-macos
             runs-on: macos-14
             os: macos
