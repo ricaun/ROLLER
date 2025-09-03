@@ -3835,20 +3835,20 @@ void load_fatal_config()
       getconfigvalue(pData2, "Names", &names_on, 0, 2);
 
       // Read keyboard mappings
-      getconfigvalueuc(pData2, "P1left",      (uint8*)&userkey[0], 0, 139);
-      getconfigvalueuc(pData2, "P1right",     (uint8*)&userkey[1], 0, 139);
-      getconfigvalueuc(pData2, "P1up",        (uint8*)&userkey[2], 0, 139);
-      getconfigvalueuc(pData2, "P1down",      (uint8*)&userkey[3], 0, 139);
-      getconfigvalueuc(pData2, "P1upgear",    (uint8*)&userkey[4], 0, 139);
-      getconfigvalueuc(pData2, "P1downgear",  (uint8*)&userkey[5], 0, 139);
-      getconfigvalueuc(pData2, "P1cheat",     (uint8*)&userkey[12], 0, 139);
-      getconfigvalueuc(pData2, "P2left",      (uint8*)&userkey[6], 0, 139);
-      getconfigvalueuc(pData2, "P2right",     (uint8*)&userkey[7], 0, 139);
-      getconfigvalueuc(pData2, "P2up",        (uint8*)&userkey[8], 0, 139);
-      getconfigvalueuc(pData2, "P2down",      (uint8*)&userkey[9], 0, 139);
-      getconfigvalueuc(pData2, "P2upgear",    (uint8*)&userkey[10], 0, 139);
-      getconfigvalueuc(pData2, "P2downgear",  (uint8*)&userkey[11], 0, 139);
-      getconfigvalueuc(pData2, "P2cheat",     (uint8*)&userkey[13], 0, 139);
+      getconfigvalueuc(pData2, "P1left",      (uint8*)&userkey[USERKEY_P1LEFT], 0, 139);
+      getconfigvalueuc(pData2, "P1right",     (uint8*)&userkey[USERKEY_P1RIGHT], 0, 139);
+      getconfigvalueuc(pData2, "P1up",        (uint8*)&userkey[USERKEY_P1UP], 0, 139);
+      getconfigvalueuc(pData2, "P1down",      (uint8*)&userkey[USERKEY_P1DOWN], 0, 139);
+      getconfigvalueuc(pData2, "P1upgear",    (uint8*)&userkey[USERKEY_P1UPGEAR], 0, 139);
+      getconfigvalueuc(pData2, "P1downgear",  (uint8*)&userkey[USERKEY_P1DOWNGEAR], 0, 139);
+      getconfigvalueuc(pData2, "P1cheat",     (uint8*)&userkey[USERKEY_P1CHEAT], 0, 139);
+      getconfigvalueuc(pData2, "P2left",      (uint8*)&userkey[USERKEY_P2LEFT], 0, 139);
+      getconfigvalueuc(pData2, "P2right",     (uint8*)&userkey[USERKEY_P2RIGHT], 0, 139);
+      getconfigvalueuc(pData2, "P2up",        (uint8*)&userkey[USERKEY_P2UP], 0, 139);
+      getconfigvalueuc(pData2, "P2down",      (uint8*)&userkey[USERKEY_P2DOWN], 0, 139);
+      getconfigvalueuc(pData2, "P2upgear",    (uint8*)&userkey[USERKEY_P2UPGEAR], 0, 139);
+      getconfigvalueuc(pData2, "P2downgear",  (uint8*)&userkey[USERKEY_P2DOWNGEAR], 0, 139);
+      getconfigvalueuc(pData2, "P2cheat",     (uint8*)&userkey[USERKEY_P2CHEAT], 0, 139);
 
       // Read joystick config
       getconfigvalue(pData2, "Joy1X", &iTemp, 0, 1);
