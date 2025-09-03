@@ -58,7 +58,9 @@ pub fn build(b: *std.Build) void {
     });
 
     switch (target.result.os.tag) {
-        .windows => {},
+        .windows => {
+            exe_mod.addCMacro("WILDMIDI_STATIC", "1");
+        },
         else => {
             exe_mod.addCMacro("__int16", "int16");
             exe_mod.addCMacro("_O_RDONLY", "O_RDONLY");
