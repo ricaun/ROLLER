@@ -73,7 +73,7 @@ jobs:
 
   build:
     name: Build for ${{ matrix.os }} ${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     needs: check-new-commits
     if: needs.check-new-commits.outputs.should_build == 'true'
     strategy:
@@ -86,16 +86,16 @@ jobs:
             arch: x86_64
             ext: ""
           - target: x86_64-windows
-            runs-on: ubuntu-latest
+            runs-on: windows-latest
             os: windows
             arch: x86_64
             ext: ".exe"
-          - target: x86_64-native
-            runs-on: macos-latest-large
+          - target: x86_64-macos
+            runs-on: macos-latest
             os: macos
             arch: x86_64
             ext: ""
-          - target: aarch64-native
+          - target: aarch64-macos
             runs-on: macos-latest
             os: macos
             arch: aarch64
