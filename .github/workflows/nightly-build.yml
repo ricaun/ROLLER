@@ -127,11 +127,33 @@ jobs:
       - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
         run: mise run build --target=${{ matrix.target }}${{ matrix.release && format(' --release={0}', matrix.release) || '' }}
 
+      - name: Package Windows build
+        if: matrix.os == 'windows'
+        run: |
+          mkdir -p dist
+          cd zig-out/bin
+          zip -r ../../dist/roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
+
+      - name: Package macOS build
+        if: matrix.os == 'macos'
+        run: |
+          mkdir -p dist dmg-contents
+          cp -r zig-out/bin/* dmg-contents/
+          hdiutil create -volname "ROLLER" -srcfolder dmg-contents -ov -format UDZO dist/roller-${{ matrix.os }}-${{ matrix.arch }}.dmg
+          rm -rf dmg-contents
+
+      - name: Package Linux build
+        if: matrix.os == 'linux'
+        run: |
+          mkdir -p dist
+          cd zig-out/bin
+          tar -czf ../../dist/roller-${{ matrix.os }}-${{ matrix.arch }}.tar.gz *
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: roller-${{ matrix.os }}-${{ matrix.arch }}
-          path: zig-out/bin/*
+          path: dist/*
           retention-days: 7
 
   release:
@@ -151,7 +173,8 @@ jobs:
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
-          find artifacts -name "*.zip" -o -name "*.tar.gz" | xargs -I {} cp {} release-assets/
+          # Copy all zip, tar.gz, and dmg files from artifacts
+          find artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.dmg" \) -exec cp {} release-assets/ \;
 
       - name: Create nightly release
         env:
