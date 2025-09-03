@@ -136,7 +136,6 @@ jobs:
 
   release:
     name: Create nightly release
-    runs-on: ${{ matrix.runs-on }}
     needs: [check-new-commits, build]
     if: needs.check-new-commits.outputs.should_build == 'true'
     steps:
