@@ -95,11 +95,13 @@ jobs:
             os: macos
             arch: x86_64
             ext: ""
+            release: safe
           - target: aarch64-macos
             runs-on: macos-14
             os: macos
             arch: aarch64
             ext: ""
+            release: safe
 
     steps:
       - name: Checkout repository
@@ -124,7 +126,7 @@ jobs:
             zig-cache-
 
       - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
-        run: mise run build --target=${{ matrix.target }}
+        run: mise run build --target=${{ matrix.target }}${{ matrix.release && format(' --release={0}', matrix.release) || '' }}
 
       - name: Package artifacts
         run: |
