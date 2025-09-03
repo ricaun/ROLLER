@@ -189,8 +189,6 @@ jobs:
 
           # Create release notes
           cat > release_notes.md << EOF
-          # ROLLER Nightly Build ${VERSION}-${SHORT_HASH}
-
           This is an automated nightly build of the ROLLER project.
 
           **Build Information:**
