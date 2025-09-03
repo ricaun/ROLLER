@@ -18,7 +18,8 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    //exe_mod.sanitize_c = false;
+    // TODO: Implement sanitization for macOS
+    exe_mod.sanitize_c = if (target.result.os.tag == .macos) false else true;
     exe_mod.addCSourceFiles(.{
         .files = &.{
             "PROJECTS/ROLLER/3d.c",

@@ -20,10 +20,12 @@
 #include <inttypes.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <linux/cdrom.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #define O_BINARY 0 //linux does not differentiate between text and binary
+#endif
+#ifdef IS_LINUX
+#include <linux/cdrom.h>
 #endif
 
 //-------------------------------------------------------------------------------------------------
@@ -328,7 +330,7 @@ void playMusic()
   SDL_Log("Song[%i]: %s", songId, Song[songId]);
   loadfile((const char *)&Song[songId], (void *)&songBuffer, &songLen, 0);
   MIDIDigi_PlayBuffer(songBuffer, songLen);
-  fre(&songBuffer);
+  fre((void **)&songBuffer);
   songId = (songId + 1) % 9;
 }
 
@@ -736,7 +738,7 @@ void MIDI_CloseMidiBuffer()
 }
 
 /// <summary>
-/// Initializes the MIDI audio stream if it hasn't been initialized yet. 
+/// Initializes the MIDI audio stream if it hasn't been initialized yet.
 /// </summary>
 void MIDIInitStream()
 {
@@ -1349,10 +1351,7 @@ Uint64 SDLS7TimerCallback(void *userdata, SDL_TimerID timerID, Uint64 interval)
 
 int IsCDROMDevice(const char *szPath)
 {
-#ifdef IS_WINDOWS
-  assert(0);
-  return 0;
-#else
+#if CDROM_SUPPORT
   int fd = open(szPath, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     return 0;
@@ -1360,6 +1359,9 @@ int IsCDROMDevice(const char *szPath)
   int result = ioctl(fd, CDROM_GET_CAPABILITY, 0);
   close(fd);
   return (result != -1);
+#else
+  assert(0);
+  return 0;
 #endif
 }
 

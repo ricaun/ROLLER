@@ -8,6 +8,8 @@
 #define IS_WINDOWS
 #elif defined(__linux__) || defined(linux) || defined(__linux)
 #define IS_LINUX
+#elif defined(__APPLE__) || defined(__MACH__)
+#define IS_MACOS
 #endif
 
 //-------------------------------------------------------------------------------------------------
