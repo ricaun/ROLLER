@@ -138,10 +138,7 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     const sdl = b.dependency("sdl", .{
         .target = target,
         .optimize = optimize,
-        .lto = switch (target.result.os.tag) {
-            .macos => false,
-            else => optimize != .Debug,
-        },
+        .lto = false,
     });
     const sdl_lib = sdl.artifact("SDL3");
 
@@ -149,7 +146,9 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     exe_mod.linkLibrary(sdl_image_lib);
     exe_mod.linkLibrary(wildmidi_lib);
 
-    const sdl_image_source = sdl_image.builder.dependency("SDL_image", .{});
+    const sdl_image_source = sdl_image.builder.dependency("SDL_image", .{
+        .lto = false,
+    });
 
     var cflags = compile_flagz.addCompileFlags(b);
     cflags.addIncludePath(sdl.builder.path("include"));
