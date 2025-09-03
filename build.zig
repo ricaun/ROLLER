@@ -138,7 +138,10 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     const sdl = b.dependency("sdl", .{
         .target = target,
         .optimize = optimize,
-        .lto = optimize != .Debug,
+        .lto = switch (target.result.os.tag) {
+            .macos => false,
+            else => optimize != .Debug,
+        },
     });
     const sdl_lib = sdl.artifact("SDL3");
 
