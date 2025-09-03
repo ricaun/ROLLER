@@ -193,8 +193,7 @@ jobs:
 
           **Build Information:**
           - Version: ${VERSION}
-          - Commit: $(git rev-parse HEAD)
-          - Short Hash: ${SHORT_HASH}
+          - Commit: ${SHORT_HASH}
           - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
           **Platforms:**
