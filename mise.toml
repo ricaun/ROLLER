@@ -1,4 +1,5 @@
 [tools]
+python = "3"
 usage = "latest"
 zig = "0.14.1"
 
