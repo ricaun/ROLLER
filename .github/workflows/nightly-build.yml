@@ -126,28 +126,12 @@ jobs:
       - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
         run: mise run build --target=${{ matrix.target }}${{ matrix.release && format(' --release={0}', matrix.release) || '' }}
 
-      - name: Package artifacts
-        run: |
-          mkdir -p dist
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            # Package Windows build with DLLs if they exist
-            cp zig-out/bin/roller${{ matrix.ext }} dist/
-            # Copy any DLL dependencies if they exist
-            find zig-out/bin/ -name "*.dll" -exec cp {} dist/ \; || true
-            cd dist && zip -r ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.zip .
-          else
-            # Package Unix builds
-            cp zig-out/bin/roller${{ matrix.ext }} dist/
-            cd dist && tar -czf ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz .
-          fi
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
+        working-directory: zig-out/bin
         with:
           name: roller-${{ matrix.os }}-${{ matrix.arch }}
-          path: |
-            *.zip
-            *.tar.gz
+          path: "*"
           retention-days: 7
 
   release:
