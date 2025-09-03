@@ -108,12 +108,6 @@ typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
 
-// Windows-specific types when needed
-#if !defined(IS_WINDOWS)
-    typedef uint32_t DWORD;
-    typedef uint16_t WORD;
-#endif
-
 //-------------------------------------------------------------------------------------------------
 
 //16.16 fixed point math helpers
