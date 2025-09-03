@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #ifdef IS_WINDOWS
-#include <Windows.h>
+#include <windows.h>
 #endif
 //-------------------------------------------------------------------------------------------------
 

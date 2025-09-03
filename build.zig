@@ -18,7 +18,8 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    //exe_mod.sanitize_c = false;
+    // TODO: Implement sanitization for macOS
+    exe_mod.sanitize_c = if (target.result.os.tag == .macos) false else true;
     exe_mod.addCSourceFiles(.{
         .files = &.{
             "PROJECTS/ROLLER/3d.c",
@@ -57,7 +58,9 @@ pub fn build(b: *std.Build) void {
     });
 
     switch (target.result.os.tag) {
-        .windows => {},
+        .windows => {
+            exe_mod.addCMacro("WILDMIDI_STATIC", "1");
+        },
         else => {
             exe_mod.addCMacro("__int16", "int16");
             exe_mod.addCMacro("_O_RDONLY", "O_RDONLY");
@@ -69,7 +72,6 @@ pub fn build(b: *std.Build) void {
         .name = "roller",
         .root_module = exe_mod,
     });
-    exe.want_lto = optimize != .Debug;
 
     b.installArtifact(exe);
 
@@ -135,7 +137,7 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     const sdl = b.dependency("sdl", .{
         .target = target,
         .optimize = optimize,
-        .lto = optimize != .Debug,
+        .lto = false,
     });
     const sdl_lib = sdl.artifact("SDL3");
 
@@ -143,7 +145,9 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     exe_mod.linkLibrary(sdl_image_lib);
     exe_mod.linkLibrary(wildmidi_lib);
 
-    const sdl_image_source = sdl_image.builder.dependency("SDL_image", .{});
+    const sdl_image_source = sdl_image.builder.dependency("SDL_image", .{
+        .lto = false,
+    });
 
     var cflags = compile_flagz.addCompileFlags(b);
     cflags.addIncludePath(sdl.builder.path("include"));

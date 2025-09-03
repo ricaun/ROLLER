@@ -1,6 +1,11 @@
 [tools]
+python = "3"
 usage = "latest"
 zig = "0.14.1"
+
+[tasks.build]
+description = "Build for specific platform"
+run = "python scripts/build.py"
 
 [tasks.clean]
 description = "Clean build artifacts"
