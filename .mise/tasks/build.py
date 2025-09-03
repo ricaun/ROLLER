@@ -8,6 +8,7 @@
 import os
 import sys
 import subprocess
+import platform
 
 def main():
     print("Building ROLLER...")
@@ -19,6 +20,10 @@ def main():
     
     # Build command arguments
     cmd = ["zig", "build", f"--release={release}", f"-Dtarget={target}"]
+    
+    # Add sysroot for macOS builds
+    if platform.system() == "Darwin" and "macos" in target:
+        cmd.append("--sysroot=/")
     
     if run_after:
         cmd.append("run")
