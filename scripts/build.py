@@ -22,24 +22,36 @@ def main():
         print("Please use a macOS system or GitHub Actions with macos runners")
         return 1
     
-    # Build command arguments
-    cmd = ["zig", "build", f"--release={args.release}", f"-Dtarget={args.target}"]
-    
-    # Add sysroot for macOS builds when running on macOS
+    # For macOS builds on macOS, use native for ARM64 and provide sysroot for x86_64
     if platform.system() == "Darwin" and "macos" in args.target:
-        # Use xcrun to find the correct SDK path
-        try:
-            sdk_path = subprocess.check_output(["xcrun", "--show-sdk-path"], text=True).strip()
-            cmd.extend(["--sysroot", sdk_path])
-        except subprocess.CalledProcessError:
-            # Fallback to root if xcrun fails
-            cmd.extend(["--sysroot", "/"])
+        if args.target == "aarch64-macos":
+            # Use native build for ARM64 to avoid cross-compilation issues
+            target = "native"
+            print(f"Building natively on macOS (target changed from {args.target} to native)")
+        else:
+            # For x86_64-macos, cross-compile with sysroot
+            target = args.target
+            try:
+                sdk_path = subprocess.check_output(["xcrun", "--sdk", "macosx", "--show-sdk-path"], text=True).strip()
+                print(f"Using macOS SDK: {sdk_path}")
+            except subprocess.CalledProcessError:
+                print("xcrun failed, using fallback sysroot")
+                sdk_path = "/"
+    else:
+        target = args.target
+    
+    # Build command arguments
+    cmd = ["zig", "build", f"--release={args.release}", f"-Dtarget={target}"]
+    
+    # Add sysroot for macOS cross-compilation (but not native builds)
+    if platform.system() == "Darwin" and "macos" in args.target and target != "native":
+        cmd.extend(["--sysroot", sdk_path])
     
     if args.run:
         cmd.append("run")
     
     # Print build info
-    print(f"Building for {args.target}...")
+    print(f"Building for {target}...")
     
     # Run the build command
     result = subprocess.run(cmd)
