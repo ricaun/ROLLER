@@ -134,28 +134,40 @@ jobs:
         if: matrix.os == 'windows'
         run: |
           mkdir -p dist
-          cd zig-out/bin
-          zip -r ../../dist/roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
+          # Copy binary from zig-out/bin
+          cp zig-out/bin/* dist/
+          # Copy midi folder from project root
+          cp -r midi dist/
+          # Package into zip
+          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
 
       - name: Package macOS build
         if: matrix.os == 'macos'
         run: |
           mkdir -p dist
-          cd zig-out/bin
-          zip -r ../../dist/roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
+          # Copy binary from zig-out/bin
+          cp zig-out/bin/* dist/
+          # Copy midi folder from project root
+          cp -r midi dist/
+          # Package into zip
+          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
 
       - name: Package Linux build
         if: matrix.os == 'linux'
         run: |
           mkdir -p dist
-          cd zig-out/bin
-          tar -czf ../../dist/roller-${{ matrix.os }}-${{ matrix.arch }}.tar.gz *
+          # Copy binary from zig-out/bin
+          cp zig-out/bin/* dist/
+          # Copy midi folder from project root
+          cp -r midi dist/
+          # Package into tar.gz
+          cd dist && tar -czf ../roller-${{ matrix.os }}-${{ matrix.arch }}.tar.gz *
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: roller-${{ matrix.os }}-${{ matrix.arch }}
-          path: dist/*
+          path: roller-${{ matrix.os }}-${{ matrix.arch }}.*
           retention-days: 7
 
   release:
