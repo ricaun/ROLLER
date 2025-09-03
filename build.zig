@@ -72,7 +72,6 @@ pub fn build(b: *std.Build) void {
         .name = "roller",
         .root_module = exe_mod,
     });
-    exe.want_lto = optimize != .Debug;
 
     b.installArtifact(exe);
 
