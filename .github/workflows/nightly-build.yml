@@ -100,6 +100,7 @@ jobs:
             os: macos
             arch: aarch64
             ext: ""
+            release: small
 
     steps:
       - name: Checkout repository
