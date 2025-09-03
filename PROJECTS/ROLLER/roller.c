@@ -4,6 +4,7 @@
 #include "frontend.h"
 #include "func2.h"
 #include "graphics.h"
+#include "config.h"
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
@@ -1361,7 +1362,6 @@ int IsCDROMDevice(const char *szPath)
   close(fd);
   return (result != -1);
 #else
-  assert(0);
   return 0;
 #endif
 }
