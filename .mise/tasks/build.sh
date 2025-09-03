@@ -16,5 +16,11 @@ fi
 echo "🔨 Building for ${usage_target:-native}..."
 zig build --release=${usage_release:-fast} -Dtarget=${usage_target:-native} $ARGS
 
-echo "✅ Build completed successfully"
-echo "📁 Binary location: zig-out/bin/roller"
+# Check if build succeeded
+if [ $? -eq 0 ]; then
+    echo "✅ Build completed successfully"
+    echo "📁 Binary location: zig-out/bin/roller"
+else
+    echo "❌ Build failed"
+    exit 1
+fi
