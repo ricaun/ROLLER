@@ -1678,14 +1678,14 @@ void readsoundconfig(void)
   fclose(fp);
 
   // Enable CD Audio
-  if (MusicCard == 0xCD) {
-    MusicCard = 0;
-    MusicCD = -1;
-  }
+  //if (MusicCard == 0xCD) {
+  //  MusicCard = 0;
+  //  MusicCD = -1;
+  //}
   
   //hack, if CD not found force switch to MIDI
-  //MusicCard = -1;
-  //MusicCD = 0;
+  MusicCard = -1;
+  MusicCD = 0;
   
   //hack the SoundCard to be available too
   if (!SoundCard)
