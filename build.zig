@@ -18,8 +18,9 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    // TODO: Implement sanitization for macOS
-    exe_mod.sanitize_c = if (target.result.os.tag == .macos) false else true;
+    // Only sanitize C code when building in Debug mode
+    // So that release builds are more "stable"
+    exe_mod.sanitize_c = optimize == .Debug;
     exe_mod.addCSourceFiles(.{
         .files = &.{
             "PROJECTS/ROLLER/3d.c",
