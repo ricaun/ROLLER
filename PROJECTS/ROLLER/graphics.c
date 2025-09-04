@@ -84,10 +84,10 @@ void plotxyz(float fWorldX, float fWorldY, float fWorldZ, char byColor)
       // Transform X to camera space using forward vec
       fTransformedX = k1 * vk1 + k2 * vk4 + k3 * vk7;
       dScreenX = fViewDistance * fTransformedX * dPerspectiveScale + (double)xbase;
-      dScreenX = round(dScreenX); //_CHP
+      //_CHP
       iScreenXInt = (int)dScreenX;
       dScreenY = dPerspectiveScale * (fViewDistance * fTransformedY) + (double)ybase;
-      dScreenY = round(dScreenY); //_CHP
+      //_CHP
 
       // Clip to screen bounds and plot pixel to 320x200 screen
       if ((int)dScreenX >= 0 && iScreenXInt <= 319 && (unsigned int)(int)dScreenY < 200)

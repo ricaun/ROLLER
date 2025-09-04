@@ -73,10 +73,10 @@ void twpoly(tPoint *vertices, int16 nColor)
 
         // Calculate intersection point P*
         dIntersectionX = (double)nEdge3Dx * dIntersectionParam + (double)vertices[2].x;
-        dIntersectionX = round(dIntersectionX);
+        //CHP
         vertices[2].x = (int)dIntersectionX;
         dIntersectionY = dIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
-        dIntersectionY = round(dIntersectionY);
+        //CHP
         vertices[2].y = (int)dIntersectionY;
 
         // Render first triangle (P2, P3, P*)
@@ -94,10 +94,10 @@ void twpoly(tPoint *vertices, int16 nColor)
 
       // Calculate intersection point P*
       dIntersectionX2 = (double)nEdge3Dx * dIntersectionParam + (double)vertices[2].x;
-      dIntersectionX2 = round(dIntersectionX2);
+      //CHP
       vertices[2].x = (int)dIntersectionX2;
       dIntersectionY2 = dIntersectionParam * (double)nEdge3Dy + (double)vertices[2].y;
-      dIntersectionY2 = round(dIntersectionY2);
+      //CHP
       vertices[2].y = (int)dIntersectionY2;
 
       // Render first triangle (P1, P2, P*)
@@ -149,7 +149,7 @@ void twpoly(tPoint *vertices, int16 nColor)
     // Calculate intersection point P*
     vertices[2].x = (int)((double)nSumEdge23Dx2 * fIntersectionParam2 + (double)pTempPoint4.x);
     dIntersectionY4 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)pTempPoint4.y;
-    dIntersectionY4 = round(dIntersectionY4);
+    //CHP
     vertices[2].y = (int)dIntersectionY4;
     nColor3 = nColor;
 
@@ -166,7 +166,7 @@ void twpoly(tPoint *vertices, int16 nColor)
     // Calculate intersection point P*
     vertices[2].x = (int)((double)nSumEdge23Dx2 * fIntersectionParam2 + (double)pTempPoint5.x);
     dIntersectionY3 = fIntersectionParam2 * (double)SumEdge23Dy2 + (double)vertices[2].y;
-    dIntersectionY3 = round(dIntersectionY3);
+    //CHP
     vertices[2].y = (int)dIntersectionY3;
     nColor3 = nColor;
 

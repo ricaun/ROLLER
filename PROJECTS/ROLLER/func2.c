@@ -4706,7 +4706,7 @@ void SaveRecords()
   for (int i = 1; i < 25; ++i) {
     // Convert RecordLaps[i] * 100.0 to int
     double dLaps = (double)RecordLaps[i] * 100.0;
-    int iLaps = (int)round(dLaps); //_CHP
+    int iLaps = (int)dLaps; //_CHP
     pWritePtr = copy_int(pWritePtr, iLaps);
 
     // Write RecordCars[i]

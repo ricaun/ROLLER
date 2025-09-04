@@ -5381,10 +5381,6 @@ int getangle(float fX, float fY)
   // IF_DATAN2 is atan2 that returns a double
   dAngle = atan2(fY, fX) * 16384.0 / 6.28318530718;
 
-  // round to integer?
-  //_CHP();
-  dAngle = round(dAngle);
-
   // return value is used as an index into tsin/tcos/ptan lookup tables each with 16384 elements 
   // masking off all but the 14 least significant bits ensures this value maxes out at 16383
   return (int)dAngle & 0x3FFF;

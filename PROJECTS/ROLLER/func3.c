@@ -2399,10 +2399,10 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
     dViewDist = (double)VIEWDIST;
     dInvZ = 1.0 / fNearClip;
     dScreenX = dViewDist * fViewX * dInvZ + (double)xbase;
-    dScreenX = round(dScreenX); //_CHP
+    //_CHP
     xp = (int)dScreenX;
     dScreenY = dInvZ * (dViewDist * fViewY) + (double)ybase;
-    dScreenY = round(dScreenY); //_CHP
+    //_CHP
     yp = (int)dScreenY;
 
     // Store screen coords (scaled by 64 for fixed-point math)
@@ -2520,11 +2520,11 @@ void DrawCar(uint8 *pScrBuf, eCarDesignIndex iCarDesignIndex, float fDistance, i
             dViewDist_1 = (double)VIEWDIST;
             dInvZ_1 = 1.0 / fClampedZ;
             dProjX = dViewDist_1 * fTransformedX * dInvZ_1 + (double)xbase;
-            dProjX = round(dProjX); //_CHP
+            //_CHP
             xp = (int)dProjX;
             dProjY = dInvZ_1 * (dViewDist_1 * fTransformedY) + (double)ybase;
             iScreenX = (int)dProjX * scr_size;
-            dProjY = round(dProjY); //_CHP
+            //_CHP
             yp = (int)dProjY;
 
             // Store transformed data
