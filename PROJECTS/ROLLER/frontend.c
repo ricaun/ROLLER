@@ -1371,17 +1371,18 @@ LABEL_232:
     AllocateCars();
   if (iMenuSelection == 8 && time_to_start && !intro) {
     localCD = -1;
-    //if (replaytype != 2) {
-    //  if (player_type && player_type != 2) {
-    //    localCD = cdpresent();
-    //    if (localCD)
-    //      netCD = -1;
-    //  } else {
-    //    localCD = cdpresent();
-    //    if (!localCD)
-    //      cd_error = -1;
-    //  }
-    //}
+    if (replaytype != 2) {
+      if (player_type && player_type != 2) {
+        localCD = cdpresent();
+        if (localCD)
+          netCD = -1;
+      } else {
+        localCD = cdpresent();
+        //removed by ROLLER, don't error for no CD
+        //if (!localCD)
+        //  cd_error = -1;
+      }
+    }
     Race = ((uint8)TrackLoad - 1) & 7;
     if (game_type == 1 && !Race) {
       memset(championship_points, 0, sizeof(championship_points));

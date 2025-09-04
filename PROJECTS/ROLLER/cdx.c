@@ -6,6 +6,8 @@
 #include <math.h>
 #if defined(IS_WINDOWS)
 #include <windows.h>
+#include <winioctl.h>
+#include <ntddcdrm.h>
 #elif defined(IS_LINUX)
 #include <dirent.h>
 #include <sys/stat.h>
@@ -190,59 +192,199 @@ void *AllocDOSMemory(int iSizeBytes, int16 *pOutSegment)
 //00075020
 void GetAudioInfo()
 {
-  uint8 buffer[7];
-  uint32 track_sectors[100];  // Temporary storage for track sectors (including lead-out)
-
-  // Read TOC header to get first/last tracks and lead-out position
-  buffer[0] = 0x0A;
-  WriteIOCTL(3, 7, buffer);
-
-  uint32 uiLeadOutPacked = *(uint32 *)&buffer[3];  // Packed MSF format
-
-  // Store first/last track numbers in global variables
-  first_track = buffer[1];
-  last_track = buffer[2];
-  if (last_track >= 99)
+#ifdef IS_WINDOWS
+  // Windows implementation using DeviceIoControl
+  //TODO get correct CD drive
+  HANDLE hDevice = CreateFile("\\\\.\\I:", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+  if (hDevice == INVALID_HANDLE_VALUE)
     return;
 
-  // Process audio tracks
-  if (first_track <= last_track) {
-    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
-      // Read track start position
-      buffer[0] = 0x0B;
-      buffer[1] = byTrack;
-      WriteIOCTL(3, 7, buffer);
-      uint32 uiTrackPacked = *(uint32 *)&buffer[2];  // Packed MSF format
+  CDROM_TOC toc;
+  DWORD dwBytesReturned;
 
-      // Convert MSF to sector number (minutes/seconds/frames)
-      uint32 uiMinutes = (uiTrackPacked >> 16) & 0xFF;
-      uint32 uiSeconds = (uiTrackPacked >> 8) & 0xFF;
-      uint32 uiFrames = uiTrackPacked & 0xFF;
-      uint32 uiSector = (uiMinutes * 4500) + (uiSeconds * 75) + uiFrames - 150;
-
-      // Store in global trackstarts array (indexed by track number)
-      trackstarts[byTrack] = uiSector;
-      // Cache sector in local array for length calculation
-      track_sectors[byTrack] = uiSector;
-    }
+  // Read TOC
+  if (!DeviceIoControl(hDevice, IOCTL_CDROM_READ_TOC, NULL, 0, &toc, sizeof(toc), &dwBytesReturned, NULL)) {
+    CloseHandle(hDevice);
+    return;
   }
 
-  // Convert lead-out MSF to sectors
-  uint32 uiLeadMin = (uiLeadOutPacked >> 16) & 0xFF;
-  uint32 uiLeadSec = (uiLeadOutPacked >> 8) & 0xFF;
-  uint32 uiLeadFrame = uiLeadOutPacked & 0xFF;
-  uint32 uiLeadOutSector = (uiLeadMin * 4500) + (uiLeadSec * 75) + uiLeadFrame - 150;
-  track_sectors[last_track + 1] = uiLeadOutSector;  // Store after last track
+  // Extract first/last track
+  first_track = toc.FirstTrack;
+  last_track = toc.LastTrack;
 
-  // Calculate track lengths
+  if (last_track >= 99) {
+    CloseHandle(hDevice);
+    return;
+  }
+
+  uint32 track_sectors[100];
+
+  // Process each track
   if (first_track <= last_track) {
     for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
-      // Track length = next start position - current start position
+      // Find track descriptor in TOC
+      int iTrackIndex = byTrack - first_track;
+      if (iTrackIndex < toc.LastTrack) {
+        TRACK_DATA *pTrackData = &toc.TrackData[iTrackIndex];
+
+        // Convert MSF to LBA (Windows TOC is already in binary, not BCD)
+        uint32 uiMinutes = pTrackData->Address[1];
+        uint32 uiSeconds = pTrackData->Address[2];
+        uint32 uiFrames = pTrackData->Address[3];
+        uint32 uiSector = ((uiMinutes * 60) + uiSeconds) * 75 + uiFrames - 150;
+
+        trackstarts[byTrack] = uiSector;
+        track_sectors[byTrack] = uiSector;
+      }
+    }
+
+    // Get lead-out track (last entry in TrackData)
+    TRACK_DATA *pLeadOut = &toc.TrackData[toc.LastTrack];
+    uint32 uiLeadMin = pLeadOut->Address[1];
+    uint32 uiLeadSec = pLeadOut->Address[2];
+    uint32 uiLeadFrame = pLeadOut->Address[3];
+    uint32 uiLeadOutSector = ((uiLeadMin * 60) + uiLeadSec) * 75 + uiLeadFrame - 150;
+    track_sectors[last_track + 1] = uiLeadOutSector;
+
+    // Calculate track lengths
+    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
       uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
-      // Store in global tracklengths array (indexed by track number)
       tracklengths[byTrack] = uiLength;
     }
   }
+
+  CloseHandle(hDevice);
+
+#elif IS_LINUX
+  // Linux implementation using ioctl
+  //TODO get correct CD drive
+  int iFd = open("/dev/cdrom", O_RDONLY | O_NONBLOCK);
+  if (iFd < 0)
+    return;
+
+  struct cdrom_tochdr tochdr;
+  struct cdrom_tocentry tocentry;
+
+  // Read TOC header
+  if (ioctl(iFd, CDROMREADTOCHDR, &tochdr) < 0) {
+    close(iFd);
+    return;
+  }
+
+  first_track = tochdr.cdth_trk0;
+  last_track = tochdr.cdth_trk1;
+
+  if (last_track >= 99) {
+    close(iFd);
+    return;
+  }
+
+  uint32 track_sectors[100];
+
+  // Process each track
+  if (first_track <= last_track) {
+    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+      tocentry.cdte_track = byTrack;
+      tocentry.cdte_format = CDROM_MSF;
+
+      if (ioctl(iFd, CDROMREADTOCENTRY, &tocentry) < 0)
+        continue;
+
+      // Convert MSF to LBA (Linux returns BCD format)
+      uint8 byMinutesBCD = tocentry.cdte_addr.msf.minute;
+      uint8 bySecondsBCD = tocentry.cdte_addr.msf.second;
+      uint8 byFramesBCD = tocentry.cdte_addr.msf.frame;
+
+      // Convert BCD to binary
+      uint32 uiMinutes = ((byMinutesBCD >> 4) * 10) + (byMinutesBCD & 0x0F);
+      uint32 uiSeconds = ((bySecondsBCD >> 4) * 10) + (bySecondsBCD & 0x0F);
+      uint32 uiFrames = ((byFramesBCD >> 4) * 10) + (byFramesBCD & 0x0F);
+
+      uint32 uiSector = ((uiMinutes * 60) + uiSeconds) * 75 + uiFrames - 150;
+
+      trackstarts[byTrack] = uiSector;
+      track_sectors[byTrack] = uiSector;
+    }
+
+    // Get lead-out track
+    tocentry.cdte_track = CDROM_LEADOUT;
+    tocentry.cdte_format = CDROM_MSF;
+
+    if (ioctl(iFd, CDROMREADTOCENTRY, &tocentry) == 0) {
+      uint8 byLeadMinBCD = tocentry.cdte_addr.msf.minute;
+      uint8 byLeadSecBCD = tocentry.cdte_addr.msf.second;
+      uint8 byLeadFrameBCD = tocentry.cdte_addr.msf.frame;
+
+      uint32 uiLeadMin = ((byLeadMinBCD >> 4) * 10) + (byLeadMinBCD & 0x0F);
+      uint32 uiLeadSec = ((byLeadSecBCD >> 4) * 10) + (byLeadSecBCD & 0x0F);
+      uint32 uiLeadFrame = ((byLeadFrameBCD >> 4) * 10) + (byLeadFrameBCD & 0x0F);
+
+      uint32 uiLeadOutSector = ((uiLeadMin * 60) + uiLeadSec) * 75 + uiLeadFrame - 150;
+      track_sectors[last_track + 1] = uiLeadOutSector;
+
+      // Calculate track lengths
+      for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+        uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
+        tracklengths[byTrack] = uiLength;
+      }
+    }
+  }
+
+  close(iFd);
+#endif
+  //uint8 buffer[7];
+  //uint32 track_sectors[100];  // Temporary storage for track sectors (including lead-out)
+  //
+  //// Read TOC header to get first/last tracks and lead-out position
+  //buffer[0] = 0x0A;
+  //WriteIOCTL(3, 7, buffer);
+  //
+  //uint32 uiLeadOutPacked = *(uint32 *)&buffer[3];  // Packed MSF format
+  //
+  //// Store first/last track numbers in global variables
+  //first_track = buffer[1];
+  //last_track = buffer[2];
+  //if (last_track >= 99)
+  //  return;
+  //
+  //// Process audio tracks
+  //if (first_track <= last_track) {
+  //  for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+  //    // Read track start position
+  //    buffer[0] = 0x0B;
+  //    buffer[1] = byTrack;
+  //    WriteIOCTL(3, 7, buffer);
+  //    uint32 uiTrackPacked = *(uint32 *)&buffer[2];  // Packed MSF format
+  //
+  //    // Convert MSF to sector number (minutes/seconds/frames)
+  //    uint32 uiMinutes = (uiTrackPacked >> 16) & 0xFF;
+  //    uint32 uiSeconds = (uiTrackPacked >> 8) & 0xFF;
+  //    uint32 uiFrames = uiTrackPacked & 0xFF;
+  //    uint32 uiSector = (uiMinutes * 4500) + (uiSeconds * 75) + uiFrames - 150;
+  //
+  //    // Store in global trackstarts array (indexed by track number)
+  //    trackstarts[byTrack] = uiSector;
+  //    // Cache sector in local array for length calculation
+  //    track_sectors[byTrack] = uiSector;
+  //  }
+  //}
+  //
+  //// Convert lead-out MSF to sectors
+  //uint32 uiLeadMin = (uiLeadOutPacked >> 16) & 0xFF;
+  //uint32 uiLeadSec = (uiLeadOutPacked >> 8) & 0xFF;
+  //uint32 uiLeadFrame = uiLeadOutPacked & 0xFF;
+  //uint32 uiLeadOutSector = (uiLeadMin * 4500) + (uiLeadSec * 75) + uiLeadFrame - 150;
+  //track_sectors[last_track + 1] = uiLeadOutSector;  // Store after last track
+  //
+  //// Calculate track lengths
+  //if (first_track <= last_track) {
+  //  for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+  //    // Track length = next start position - current start position
+  //    uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
+  //    // Store in global tracklengths array (indexed by track number)
+  //    tracklengths[byTrack] = uiLength;
+  //  }
+  //}
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -512,8 +654,13 @@ int checkCD(uint8 byDriveIdx)
 
   // Try to open the file
   fp = ROLLERfopen(szFilename, "rb");
-  if (!fp)
-    return 0;
+  if (!fp) {
+    //added by ROLLER, check for WHIP.EXE too
+    sprintf(szFilename, "%c:/WHIP.EXE", byDriveIdx + 'A');
+    fp = ROLLERfopen(szFilename, "rb");
+    if (!fp)
+      return 0;
+  }
 
   // Read 20 bytes
   uiBytesRead = (int)fread(buffer, 1, 20, fp);

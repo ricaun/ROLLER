@@ -1458,3 +1458,13 @@ int ReadUnalignedInt(const void *pData)
 }
 
 //-------------------------------------------------------------------------------------------------
+
+void LBAToMSF(uint32 uiLBA, uint8 *pbyMinute, uint8 *pbySecond, uint8 *pbyFrame)
+{
+  uint32 uiAdjustedLBA = uiLBA + 150;  // Add CD lead-in offset
+  *pbyFrame = uiAdjustedLBA % 75;
+  *pbySecond = (uiAdjustedLBA / 75) % 60;
+  *pbyMinute = (uiAdjustedLBA / 75) / 60;
+}
+
+//-------------------------------------------------------------------------------------------------
