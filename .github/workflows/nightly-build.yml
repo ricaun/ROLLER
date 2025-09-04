@@ -12,6 +12,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: write
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -73,33 +76,34 @@ jobs:
 
   build:
     name: Build for ${{ matrix.os }} ${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     needs: check-new-commits
     if: needs.check-new-commits.outputs.should_build == 'true'
     strategy:
       fail-fast: false
       matrix:
         include:
+          - target: aarch64-linux-gnu
+            runs-on: ubuntu-latest
+            os: linux
+            arch: aarch64
+            ext: ""
           - target: x86_64-linux-gnu
             runs-on: ubuntu-latest
             os: linux
             arch: x86_64
             ext: ""
-          - target: x86_64-windows-gnu
+          - target: x86_64-windows
             runs-on: ubuntu-latest
             os: windows
             arch: x86_64
             ext: ".exe"
-          - target: native
-            runs-on: macos-latest-large
-            os: macos
-            arch: x86_64
-            ext: ""
-          - target: native
-            runs-on: macos-latest
+          - target: aarch64-macos
+            runs-on: macos-15
             os: macos
             arch: aarch64
             ext: ""
+            release: small
 
     steps:
       - name: Checkout repository
@@ -124,35 +128,51 @@ jobs:
             zig-cache-
 
       - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
-        run: mise run build --target=${{ matrix.target }}
+        run: mise run build --target=${{ matrix.target }}${{ matrix.release && format(' --release={0}', matrix.release) || '' }}
 
-      - name: Package artifacts
+      - name: Package Windows build
+        if: matrix.os == 'windows'
         run: |
           mkdir -p dist
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            # Package Windows build with DLLs if they exist
-            cp zig-out/bin/ROLLER${{ matrix.ext }} dist/
-            # Copy any DLL dependencies if they exist
-            find zig-out/bin/ -name "*.dll" -exec cp {} dist/ \; || true
-            cd dist && zip -r ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.zip .
-          else
-            # Package Unix builds
-            cp zig-out/bin/roller${{ matrix.ext }} dist/
-            cd dist && tar -czf ../roller-${{ needs.check-new-commits.outputs.version }}-${{ needs.check-new-commits.outputs.short_hash }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz .
-          fi
+          # Copy binary from zig-out/bin
+          cp zig-out/bin/* dist/
+          # Copy midi folder from project root
+          cp -r midi dist/
+          # Package into zip
+          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
+
+      - name: Package macOS build
+        if: matrix.os == 'macos'
+        run: |
+          mkdir -p dist
+          # Copy binary from zig-out/bin
+          cp zig-out/bin/* dist/
+          # Copy midi folder from project root
+          cp -r midi dist/
+          # Package into zip
+          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
+
+      - name: Package Linux build
+        if: matrix.os == 'linux'
+        run: |
+          mkdir -p dist
+          # Copy binary from zig-out/bin
+          cp zig-out/bin/* dist/
+          # Copy midi folder from project root
+          cp -r midi dist/
+          # Package into tar.gz
+          cd dist && tar -czf ../roller-${{ matrix.os }}-${{ matrix.arch }}.tar.gz *
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: roller-${{ matrix.os }}-${{ matrix.arch }}
-          path: |
-            *.zip
-            *.tar.gz
+          path: roller-${{ matrix.os }}-${{ matrix.arch }}.*
           retention-days: 7
 
   release:
     name: Create nightly release
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ubuntu-latest
     needs: [check-new-commits, build]
     if: needs.check-new-commits.outputs.should_build == 'true'
     steps:
@@ -167,7 +187,8 @@ jobs:
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
-          find artifacts -name "*.zip" -o -name "*.tar.gz" | xargs -I {} cp {} release-assets/
+          # Copy all zip and tar.gz files from artifacts
+          find artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release-assets/ \;
 
       - name: Create nightly release
         env:
@@ -179,27 +200,18 @@ jobs:
 
           # Create release notes
           cat > release_notes.md << EOF
-          # ROLLER Nightly Build ${VERSION}-${SHORT_HASH}
-
           This is an automated nightly build of the ROLLER project.
 
           **Build Information:**
           - Version: ${VERSION}
-          - Commit: $(git rev-parse HEAD)
-          - Short Hash: ${SHORT_HASH}
+          - Commit: ${SHORT_HASH}
           - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
           **Platforms:**
           - Linux x86_64
+          - Linux ARM64
           - Windows x86_64
-          - macOS x86_64
           - macOS ARM64
-
-          **Installation:**
-          1. Download the appropriate archive for your platform
-          2. Extract the archive
-          3. Run the ROLLER executable
-          4. Make sure you have the FATDATA folder in the same directory as the executable
 
           **Note:** This is a pre-release build and may contain bugs or incomplete features.
 
@@ -208,10 +220,10 @@ jobs:
           EOF
 
           # Delete existing nightly release if it exists
-          gh release delete "nightly-latest" --yes || true
+          gh release delete "$RELEASE_TAG" --yes || true
 
           # Create new release
-          gh release create "nightly-latest" \
+          gh release create "$RELEASE_TAG" \
             --title "$RELEASE_NAME" \
             --notes-file release_notes.md \
             --prerelease \
