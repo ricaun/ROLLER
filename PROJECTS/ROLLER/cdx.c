@@ -256,81 +256,81 @@ void GetAudioInfo()
   CloseHandle(hDevice);
 
 #elif IS_LINUX
-  // Linux implementation using ioctl
-  //TODO get correct CD drive
-  int iFd = open("/dev/cdrom", O_RDONLY | O_NONBLOCK);
-  if (iFd < 0)
-    return;
-
-  struct cdrom_tochdr tochdr;
-  struct cdrom_tocentry tocentry;
-
-  // Read TOC header
-  if (ioctl(iFd, CDROMREADTOCHDR, &tochdr) < 0) {
-    close(iFd);
-    return;
-  }
-
-  first_track = tochdr.cdth_trk0;
-  last_track = tochdr.cdth_trk1;
-
-  if (last_track >= 99) {
-    close(iFd);
-    return;
-  }
-
-  uint32 track_sectors[100];
-
-  // Process each track
-  if (first_track <= last_track) {
-    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
-      tocentry.cdte_track = byTrack;
-      tocentry.cdte_format = CDROM_MSF;
-
-      if (ioctl(iFd, CDROMREADTOCENTRY, &tocentry) < 0)
-        continue;
-
-      // Convert MSF to LBA (Linux returns BCD format)
-      uint8 byMinutesBCD = tocentry.cdte_addr.msf.minute;
-      uint8 bySecondsBCD = tocentry.cdte_addr.msf.second;
-      uint8 byFramesBCD = tocentry.cdte_addr.msf.frame;
-
-      // Convert BCD to binary
-      uint32 uiMinutes = ((byMinutesBCD >> 4) * 10) + (byMinutesBCD & 0x0F);
-      uint32 uiSeconds = ((bySecondsBCD >> 4) * 10) + (bySecondsBCD & 0x0F);
-      uint32 uiFrames = ((byFramesBCD >> 4) * 10) + (byFramesBCD & 0x0F);
-
-      uint32 uiSector = ((uiMinutes * 60) + uiSeconds) * 75 + uiFrames - 150;
-
-      trackstarts[byTrack] = uiSector;
-      track_sectors[byTrack] = uiSector;
-    }
-
-    // Get lead-out track
-    tocentry.cdte_track = CDROM_LEADOUT;
-    tocentry.cdte_format = CDROM_MSF;
-
-    if (ioctl(iFd, CDROMREADTOCENTRY, &tocentry) == 0) {
-      uint8 byLeadMinBCD = tocentry.cdte_addr.msf.minute;
-      uint8 byLeadSecBCD = tocentry.cdte_addr.msf.second;
-      uint8 byLeadFrameBCD = tocentry.cdte_addr.msf.frame;
-
-      uint32 uiLeadMin = ((byLeadMinBCD >> 4) * 10) + (byLeadMinBCD & 0x0F);
-      uint32 uiLeadSec = ((byLeadSecBCD >> 4) * 10) + (byLeadSecBCD & 0x0F);
-      uint32 uiLeadFrame = ((byLeadFrameBCD >> 4) * 10) + (byLeadFrameBCD & 0x0F);
-
-      uint32 uiLeadOutSector = ((uiLeadMin * 60) + uiLeadSec) * 75 + uiLeadFrame - 150;
-      track_sectors[last_track + 1] = uiLeadOutSector;
-
-      // Calculate track lengths
-      for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
-        uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
-        tracklengths[byTrack] = uiLength;
-      }
-    }
-  }
-
-  close(iFd);
+  //// Linux implementation using ioctl
+  ////TODO get correct CD drive
+  //int iFd = open("/dev/cdrom", O_RDONLY | O_NONBLOCK);
+  //if (iFd < 0)
+  //  return;
+  //
+  //struct cdrom_tochdr tochdr;
+  //struct cdrom_tocentry tocentry;
+  //
+  //// Read TOC header
+  //if (ioctl(iFd, CDROMREADTOCHDR, &tochdr) < 0) {
+  //  close(iFd);
+  //  return;
+  //}
+  //
+  //first_track = tochdr.cdth_trk0;
+  //last_track = tochdr.cdth_trk1;
+  //
+  //if (last_track >= 99) {
+  //  close(iFd);
+  //  return;
+  //}
+  //
+  //uint32 track_sectors[100];
+  //
+  //// Process each track
+  //if (first_track <= last_track) {
+  //  for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+  //    tocentry.cdte_track = byTrack;
+  //    tocentry.cdte_format = CDROM_MSF;
+  //
+  //    if (ioctl(iFd, CDROMREADTOCENTRY, &tocentry) < 0)
+  //      continue;
+  //
+  //    // Convert MSF to LBA (Linux returns BCD format)
+  //    uint8 byMinutesBCD = tocentry.cdte_addr.msf.minute;
+  //    uint8 bySecondsBCD = tocentry.cdte_addr.msf.second;
+  //    uint8 byFramesBCD = tocentry.cdte_addr.msf.frame;
+  //
+  //    // Convert BCD to binary
+  //    uint32 uiMinutes = ((byMinutesBCD >> 4) * 10) + (byMinutesBCD & 0x0F);
+  //    uint32 uiSeconds = ((bySecondsBCD >> 4) * 10) + (bySecondsBCD & 0x0F);
+  //    uint32 uiFrames = ((byFramesBCD >> 4) * 10) + (byFramesBCD & 0x0F);
+  //
+  //    uint32 uiSector = ((uiMinutes * 60) + uiSeconds) * 75 + uiFrames - 150;
+  //
+  //    trackstarts[byTrack] = uiSector;
+  //    track_sectors[byTrack] = uiSector;
+  //  }
+  //
+  //  // Get lead-out track
+  //  tocentry.cdte_track = CDROM_LEADOUT;
+  //  tocentry.cdte_format = CDROM_MSF;
+  //
+  //  if (ioctl(iFd, CDROMREADTOCENTRY, &tocentry) == 0) {
+  //    uint8 byLeadMinBCD = tocentry.cdte_addr.msf.minute;
+  //    uint8 byLeadSecBCD = tocentry.cdte_addr.msf.second;
+  //    uint8 byLeadFrameBCD = tocentry.cdte_addr.msf.frame;
+  //
+  //    uint32 uiLeadMin = ((byLeadMinBCD >> 4) * 10) + (byLeadMinBCD & 0x0F);
+  //    uint32 uiLeadSec = ((byLeadSecBCD >> 4) * 10) + (byLeadSecBCD & 0x0F);
+  //    uint32 uiLeadFrame = ((byLeadFrameBCD >> 4) * 10) + (byLeadFrameBCD & 0x0F);
+  //
+  //    uint32 uiLeadOutSector = ((uiLeadMin * 60) + uiLeadSec) * 75 + uiLeadFrame - 150;
+  //    track_sectors[last_track + 1] = uiLeadOutSector;
+  //
+  //    // Calculate track lengths
+  //    for (uint8 byTrack = first_track; byTrack <= last_track; byTrack++) {
+  //      uint32 uiLength = track_sectors[byTrack + 1] - track_sectors[byTrack];
+  //      tracklengths[byTrack] = uiLength;
+  //    }
+  //  }
+  //}
+  //
+  //close(iFd);
 #endif
   //uint8 buffer[7];
   //uint32 track_sectors[100];  // Temporary storage for track sectors (including lead-out)
