@@ -1,6 +1,9 @@
 # ROLLER
 ![Roller logo](./images/whiplash.gif)
 
+[![CI][ci-shd]][ci-url]
+[![LC][lc-shd]][lc-url]
+
 This project aims to implement all the functionality of the 1995 game Whiplash/Fatal Racing in a way that builds and runs on modern PCs. Where necessary, DOS-specific functions are substituted with SDL and Windows/Unix equivalents.
 
 [![On track!](https://img.youtube.com/vi/xjQ-uQNEEpM/maxresdefault.jpg)](https://www.youtube.com/watch?v=xjQ-uQNEEpM)
@@ -92,3 +95,8 @@ zig build -Dassets-path=/path/to/fatdata run
 ### Windows development
 
 There is basic support for Visual Studio 2022 using [ZigVS](https://marketplace.visualstudio.com/items?itemName=LuckystarStudio.ZigVS)
+
+[ci-shd]: https://img.shields.io/github/actions/workflow/status/FatalDecomp/ROLLER/ci.yaml?branch=master&style=for-the-badge&logo=github&label=CI&labelColor=black
+[ci-url]: https://github.com/FatalDecomp/ROLLER/blob/master/.github/workflows/ci.yaml
+[lc-shd]: https://img.shields.io/github/license/FatalDecomp/ROLLER.svg?style=for-the-badge&labelColor=black
+[lc-url]: https://github.com/FatalDecomp/ROLLER/blob/master/LICENSE.md
