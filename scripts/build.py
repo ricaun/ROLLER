@@ -27,6 +27,10 @@ def main():
             # Use native build for ARM64 to avoid cross-compilation issues
             target = "native"
             print(f"Building natively on macOS (target changed from {args.target} to native)")
+        elif args.target == "x86_64-macos" and platform.machine() == "x86_64":
+            # Use native build for x86_64 on x86_64 hosts
+            target = "native"
+    print(f"Building natively on macOS (target changed from {args.target} to native)")
         else:
             # For x86_64-macos, cross-compile with sysroot
             target = args.target
