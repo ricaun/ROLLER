@@ -73,7 +73,8 @@ jobs:
 
       - name: Copy files to output folder
         run: |
-          cp zig-out/bin/roller dist/
+          cp zig-out/bin/* dist/
+          rm dist/roller.pdb
           cp -r midi dist/
           cp images/roller.ico dist/
           cp README.md dist/

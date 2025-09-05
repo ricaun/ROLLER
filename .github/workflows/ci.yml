@@ -12,6 +12,10 @@ on:
       - "LICENSE*"
       - ".gitignore"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   get-version:
     name: Get version info
