@@ -74,6 +74,10 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_mod,
     });
 
+    exe.addWin32ResourceFile(.{
+        .file = b.path("ROLLER.rc"),
+    });
+
     b.installArtifact(exe);
 
     configureDependencies(b, exe, target, optimize);
