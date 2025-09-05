@@ -1407,7 +1407,7 @@ void ErrorBoxExit(const char *szErrorMsgFormat, ...)
   }, NULL);
 
   ShutdownSDL();
-  quick_exit(0);
+  exit(0);
 }
 
 //-------------------------------------------------------------------------------------------------
