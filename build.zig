@@ -58,9 +58,19 @@ pub fn build(b: *std.Build) void {
         },
     });
 
+    const exe = b.addExecutable(.{
+        .name = "roller",
+        .root_module = exe_mod,
+    });
+
     switch (target.result.os.tag) {
         .windows => {
             exe_mod.addCMacro("WILDMIDI_STATIC", "1");
+
+            exe.addWin32ResourceFile(.{
+                .file = b.path("ROLLER.rc"),
+            });
+            exe.subsystem = .Windows;
         },
         else => {
             exe_mod.addCMacro("__int16", "int16");
@@ -68,11 +78,6 @@ pub fn build(b: *std.Build) void {
             exe_mod.addCMacro("_O_BINARY", "0x200");
         },
     }
-
-    const exe = b.addExecutable(.{
-        .name = "roller",
-        .root_module = exe_mod,
-    });
 
     b.installArtifact(exe);
 

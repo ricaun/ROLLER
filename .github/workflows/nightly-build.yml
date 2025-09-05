@@ -12,6 +12,10 @@ on:
         default: false
         type: boolean
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -45,7 +49,7 @@ jobs:
           fi
 
           # Get the commit of the latest nightly release
-          LATEST_COMMIT=$(gh release view "$LATEST_NIGHTLY" --json body --jq '.body' | grep -o 'Commit: [a-f0-9]\{40\}' | cut -d' ' -f2 || echo "")
+          LATEST_COMMIT=$(gh release view "$LATEST_NIGHTLY" --json body --jq '.body' | grep -o 'Commit: [a-f0-9]\{6\}' | cut -d' ' -f2 || echo "")
 
           if [ -z "$LATEST_COMMIT" ]; then
             echo "Could not determine commit from latest nightly, will build"
@@ -75,100 +79,12 @@ jobs:
           echo "short_hash=${SHORT_HASH}" >> $GITHUB_OUTPUT
 
   build:
-    name: Build for ${{ matrix.os }} ${{ matrix.arch }}
-    runs-on: ${{ matrix.runs-on }}
     needs: check-new-commits
     if: needs.check-new-commits.outputs.should_build == 'true'
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: aarch64-linux-gnu
-            runs-on: ubuntu-latest
-            os: linux
-            arch: aarch64
-            ext: ""
-          - target: x86_64-linux-gnu
-            runs-on: ubuntu-latest
-            os: linux
-            arch: x86_64
-            ext: ""
-          - target: x86_64-windows
-            runs-on: ubuntu-latest
-            os: windows
-            arch: x86_64
-            ext: ".exe"
-          - target: aarch64-macos
-            runs-on: macos-15
-            os: macos
-            arch: aarch64
-            ext: ""
-            release: small
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup mise
-        uses: jdx/mise-action@v2
-        with:
-          install: true
-          experimental: true
-          cache: true
-
-      - name: Cache .zig-cache
-        uses: actions/cache@v4
-        with:
-          path: .zig-cache
-          key: zig-cache-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('build.zig', 'build.zig.zon') }}
-          restore-keys: |
-            zig-cache-${{ matrix.os }}-${{ matrix.arch }}-
-            zig-cache-
-
-      - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
-        run: mise run build --target=${{ matrix.target }}${{ matrix.release && format(' --release={0}', matrix.release) || '' }}
-
-      - name: Package Windows build
-        if: matrix.os == 'windows'
-        run: |
-          mkdir -p dist
-          # Copy binary from zig-out/bin
-          cp zig-out/bin/* dist/
-          # Copy midi folder from project root
-          cp -r midi dist/
-          # Package into zip
-          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
-
-      - name: Package macOS build
-        if: matrix.os == 'macos'
-        run: |
-          mkdir -p dist
-          # Copy binary from zig-out/bin
-          cp zig-out/bin/* dist/
-          # Copy midi folder from project root
-          cp -r midi dist/
-          # Package into zip
-          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
-
-      - name: Package Linux build
-        if: matrix.os == 'linux'
-        run: |
-          mkdir -p dist
-          # Copy binary from zig-out/bin
-          cp zig-out/bin/* dist/
-          # Copy midi folder from project root
-          cp -r midi dist/
-          # Package into tar.gz
-          cd dist && tar -czf ../roller-${{ matrix.os }}-${{ matrix.arch }}.tar.gz *
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: roller-${{ matrix.os }}-${{ matrix.arch }}
-          path: roller-${{ matrix.os }}-${{ matrix.arch }}.*
-          retention-days: 7
+    uses: ./.github/workflows/build.yml
+    with:
+      version: ${{ needs.check-new-commits.outputs.version }}
+      short_hash: ${{ needs.check-new-commits.outputs.short_hash }}
 
   release:
     name: Create nightly release
