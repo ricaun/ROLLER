@@ -45,7 +45,7 @@ jobs:
           fi
 
           # Get the commit of the latest nightly release
-          LATEST_COMMIT=$(gh release view "$LATEST_NIGHTLY" --json body --jq '.body' | grep -o 'Commit: [a-f0-9]\{40\}' | cut -d' ' -f2 || echo "")
+          LATEST_COMMIT=$(gh release view "$LATEST_NIGHTLY" --json body --jq '.body' | grep -o 'Commit: [a-f0-9]\{6\}' | cut -d' ' -f2 || echo "")
 
           if [ -z "$LATEST_COMMIT" ]; then
             echo "Could not determine commit from latest nightly, will build"
