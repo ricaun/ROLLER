@@ -1,8 +1,8 @@
 # ROLLER
-![Roller logo](./images/whiplash.gif)
 
 [![CI][ci-shd]][ci-url]
 [![LC][lc-shd]][lc-url]
+![Roller logo](./images/whiplash.gif)
 
 This project aims to implement all the functionality of the 1995 game Whiplash/Fatal Racing in a way that builds and runs on modern PCs. Where necessary, DOS-specific functions are substituted with SDL and Windows/Unix equivalents.
 
