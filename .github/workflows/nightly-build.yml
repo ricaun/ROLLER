@@ -128,6 +128,7 @@ jobs:
           - Linux ARM64
           - Windows x86_64
           - macOS ARM64
+          - macOS x86_64
 
           **Note:** This is a pre-release build and may contain bugs or incomplete features.
 
