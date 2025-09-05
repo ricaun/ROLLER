@@ -6595,12 +6595,20 @@ int CheckNames(char *szPlayerName, int iPlayerIdx)
             cheat_mode |= CHEAT_MODE_KILLER_OPPONENTS;
             break;
           case 17: //PROCESS
-            if ((double)(1247486966.0f / 1245708284.0f) * 3145727.0 == 1247486966.0f) {
+          {
+            float A, B;
+            memcpy(&A, (uint32_t[]) { 1249905654 }, 4);
+            memcpy(&B, (uint32_t[]) { 1245708284 }, 4);
+            float res_float = (float)((float)(A / B) * 3145727.0f);
+            uint32_t res_bits;
+            memcpy(&res_bits, &res_float, 4);
+            if (res_bits == 1249905654u) {
               name_copy(szPlayerName, "TYPE B");
             } else {
               name_copy(szPlayerName, "TYPE A");
             }
             break;
+          }
           case 18: //MRFROSTY (icy roads)
             name_copy(szPlayerName, "SNOWMAN");
             cheat_mode |= CHEAT_MODE_ICY_ROAD;
