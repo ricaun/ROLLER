@@ -255,7 +255,7 @@ void GetAudioInfo()
 
   CloseHandle(hDevice);
 
-#elif IS_LINUX
+//#elif IS_LINUX
   //// Linux implementation using ioctl
   ////TODO get correct CD drive
   //int iFd = open("/dev/cdrom", O_RDONLY | O_NONBLOCK);
