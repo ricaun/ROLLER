@@ -130,37 +130,30 @@ jobs:
       - name: Build for ${{ matrix.os }} ${{ matrix.arch }}
         run: mise run build --target=${{ matrix.target }}${{ matrix.release && format(' --release={0}', matrix.release) || '' }}
 
-      - name: Package Windows build
-        if: matrix.os == 'windows'
+      - name: Create output folder
         run: |
           mkdir -p dist
-          # Copy binary from zig-out/bin
-          cp zig-out/bin/* dist/
-          # Copy midi folder from project root
-          cp -r midi dist/
-          # Package into zip
-          cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
 
-      - name: Package macOS build
-        if: matrix.os == 'macos'
+      - name: Copy binary to output folder
         run: |
-          mkdir -p dist
-          # Copy binary from zig-out/bin
           cp zig-out/bin/* dist/
-          # Copy midi folder from project root
+
+      - name: Copy midi to output folder
+        run: |
           cp -r midi dist/
-          # Package into zip
+
+      - name: Copy icon to output folder
+        run: |
+          cp images/roller.ico dist/
+
+      - name: Package Windows/macOS build
+        if: matrix.os == 'macos' || matrix.os == 'windows'
+        run: |
           cd dist && zip -r ../roller-${{ matrix.os }}-${{ matrix.arch }}.zip *
 
       - name: Package Linux build
         if: matrix.os == 'linux'
         run: |
-          mkdir -p dist
-          # Copy binary from zig-out/bin
-          cp zig-out/bin/* dist/
-          # Copy midi folder from project root
-          cp -r midi dist/
-          # Package into tar.gz
           cd dist && tar -czf ../roller-${{ matrix.os }}-${{ matrix.arch }}.tar.gz *
 
       - name: Upload build artifacts
