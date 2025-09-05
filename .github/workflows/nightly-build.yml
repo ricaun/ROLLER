@@ -134,17 +134,13 @@ jobs:
         run: |
           mkdir -p dist
 
-      - name: Copy binary to output folder
+      - name: Copy files to output folder
         run: |
-          cp zig-out/bin/* dist/
-
-      - name: Copy midi to output folder
-        run: |
+          cp zig-out/bin/roller dist/
           cp -r midi dist/
-
-      - name: Copy icon to output folder
-        run: |
           cp images/roller.ico dist/
+          cp README.md dist/
+          cp LICENSE.md dist/
 
       - name: Package Windows/macOS build
         if: matrix.os == 'macos' || matrix.os == 'windows'
