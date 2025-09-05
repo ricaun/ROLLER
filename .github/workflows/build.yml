@@ -41,6 +41,12 @@ jobs:
             arch: aarch64
             ext: ""
             release: small
+          - target: x86_64-macos
+            runs-on: macos-13
+            os: macos
+            arch: x86_64
+            ext: ""
+            release: small
 
     steps:
       - name: Checkout repository
