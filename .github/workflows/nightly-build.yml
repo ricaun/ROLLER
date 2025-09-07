@@ -29,6 +29,7 @@ jobs:
     outputs:
       should_build: ${{ steps.check.outputs.should_build }}
       version: ${{ steps.version.outputs.version }}
+      semver_version: ${{ steps.version.outputs.semver_version }}
       short_hash: ${{ steps.version.outputs.short_hash }}
     steps:
       - name: Checkout repository
@@ -73,9 +74,23 @@ jobs:
         if: steps.check.outputs.should_build == 'true'
         run: |
           # Extract version from build.zig.zon
-          VERSION=$(grep -o '\.version = "[^"]*"' build.zig.zon | cut -d'"' -f2)
+          BASE_VERSION=$(grep -o '\.version = "[^"]*"' build.zig.zon | cut -d'"' -f2)
           SHORT_HASH=$(git rev-parse --short HEAD)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+          # Parse semantic version components
+          IFS='.' read -r major minor patch <<< "$BASE_VERSION"
+
+          # Increment patch version for pre-release
+          patch=$((patch + 1))
+
+          # Generate date string in YYYYMMDD format
+          DATE_STR=$(date -u '+%Y%m%d')
+
+          # Create semantic version with pre-release suffix
+          SEMVER_VERSION="${major}.${minor}.${patch}-dev.${DATE_STR}"
+
+          echo "version=${BASE_VERSION}" >> $GITHUB_OUTPUT
+          echo "semver_version=${SEMVER_VERSION}" >> $GITHUB_OUTPUT
           echo "short_hash=${SHORT_HASH}" >> $GITHUB_OUTPUT
 
   build:
@@ -101,25 +116,42 @@ jobs:
           path: artifacts
 
       - name: Prepare release assets
+        env:
+          SEMVER_VERSION: ${{ needs.check-new-commits.outputs.semver_version }}
         run: |
           mkdir -p release-assets
-          # Copy all zip and tar.gz files from artifacts
-          find artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release-assets/ \;
+          # Copy all zip and tar.gz files from artifacts and rename them to include semver
+          for file in $(find artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \)); do
+            filename=$(basename "$file")
+            # Extract the base name and extension
+            if [[ "$filename" == *.tar.gz ]]; then
+              base_name=$(basename "$filename" .tar.gz)
+              extension=".tar.gz"
+            else
+              base_name=$(basename "$filename" .zip)
+              extension=".zip"
+            fi
+            # Create new filename with semver version
+            new_name="${base_name}-${SEMVER_VERSION}${extension}"
+            cp "$file" "release-assets/${new_name}"
+          done
 
       - name: Create nightly release
         env:
-          VERSION: ${{ needs.check-new-commits.outputs.version }}
+          BASE_VERSION: ${{ needs.check-new-commits.outputs.version }}
+          SEMVER_VERSION: ${{ needs.check-new-commits.outputs.semver_version }}
           SHORT_HASH: ${{ needs.check-new-commits.outputs.short_hash }}
         run: |
-          RELEASE_TAG="nightly-${VERSION}-${SHORT_HASH}"
-          RELEASE_NAME="Nightly Build ${VERSION}-${SHORT_HASH}"
+          RELEASE_TAG="v${SEMVER_VERSION}"
+          RELEASE_NAME="ROLLER ${SEMVER_VERSION}"
 
           # Create release notes
           cat > release_notes.md << EOF
           This is an automated nightly build of the ROLLER project.
 
           **Build Information:**
-          - Version: ${VERSION}
+          - Base Version: ${BASE_VERSION}
+          - Release Version: ${SEMVER_VERSION}
           - Commit: ${SHORT_HASH}
           - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
@@ -130,13 +162,13 @@ jobs:
           - macOS ARM64
           - macOS x86_64
 
-          **Note:** This is a pre-release build and may contain bugs or incomplete features.
+          **Note:** This is a pre-release development build and may contain bugs or incomplete features.
 
           ---
           Built automatically by GitHub Actions
           EOF
 
-          # Delete existing nightly release if it exists
+          # Delete existing release with same tag if it exists
           gh release delete "$RELEASE_TAG" --yes || true
 
           # Create new release
@@ -159,7 +191,8 @@ jobs:
       - name: Cleanup old nightly releases
         run: |
           # Keep only the 5 most recent nightly releases
+          # Look for releases with semver pre-release pattern (v*.*.*-dev.*)
           gh release list --limit 50 --json tagName,isPrerelease,createdAt \
-            --jq '.[] | select(.isPrerelease == true and (.tagName | startswith("nightly-"))) | .tagName' \
+            --jq '.[] | select(.isPrerelease == true and (.tagName | test("^v[0-9]+\\.[0-9]+\\.[0-9]+-dev\\.[0-9]+$"))) | .tagName' \
             | tail -n +6 \
             | xargs -I {} gh release delete {} --yes || true
