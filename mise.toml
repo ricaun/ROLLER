@@ -1,7 +1,8 @@
 [tools]
 python = "3"
 usage = "latest"
-zig = "0.14.1"
+zig = "0.15.1"
+zls = "0.15.0"
 
 [tasks.build]
 description = "Build for specific platform"
