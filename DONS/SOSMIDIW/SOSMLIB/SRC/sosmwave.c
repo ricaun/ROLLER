@@ -665,22 +665,34 @@ unsigned int waveCalculatePitchBend(uint8 byMidiChannel, int iBasePitch, unsigne
   unsigned int uiPitchBend; // [esp+10h] [ebp-20h]
   unsigned int uiBendRange; // [esp+1Ch] [ebp-14h]
 
+  //Calculate the semitone offset between the played note and sample's base note
   iSemitoneOffset = abs(uiMidiNote - uiBaseNote);
+
+  //Calculate pitch table index (84 is the center/no transposition point)
   if (uiMidiNote <= uiBaseNote)
-    iPitchTableIdx = 84 - iSemitoneOffset;
+    iPitchTableIdx = 84 - iSemitoneOffset; //Playing lower than base note
   else
-    iPitchTableIdx = iSemitoneOffset + 84;
+    iPitchTableIdx = iSemitoneOffset + 84; //Playing higher than base note
+
+  //Get current pitch bend value for this channel (64 = center/no bend)
   uiPitchBend = waveChannel[byMidiChannel].byPitchBend;
+  
+  //Calculate pitch bend range from controller 102 (undefined MIDI controller)
+  //This determines how many semitones the pitch wheel can bend
   uiBendRange = 64 / waveChannel[byMidiChannel].byController102;
-  if (uiPitchBend >= 0x40)
+
+  if (uiPitchBend >= 0x40) //Pitch bend up (above center)
+    //Interpolate between pitch table entries for upward bend
+    //Calculate: base pitch + bend offset
     return (dwWAVEPitchTable[(uiPitchBend - 64) / uiBendRange + 1 + iPitchTableIdx] - dwWAVEPitchTable[(uiPitchBend - 64) / uiBendRange + iPitchTableIdx])
     / uiBendRange
     * ((uiPitchBend - 64) % uiBendRange)
     + dwWAVEPitchTable[(uiPitchBend - 64) / uiBendRange + iPitchTableIdx]
     - dwWAVEPitchTable[iPitchTableIdx]
     + iBasePitch;
-  else
-    // _wSOSWAVEInsDataSet is likely a reference into adjacent data dwWAVEPitchTable
+  else //Pitch bend down (below center)
+    //Interpolate between pitch table entries for downward bend
+    //Calculate: base pitch - bend offset
     return iBasePitch
     - (dwWAVEPitchTable[iPitchTableIdx]
      - dwWAVEPitchTable[iPitchTableIdx - (64 - uiPitchBend) / uiBendRange])
