@@ -347,6 +347,9 @@
     <ClInclude Include="PROJECTS\ROLLER\roller.h">
       <Filter>PROJECTS\ROLLER\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmwave.h">
+      <Filter>DONS\SOSMIDIW\SOSMLIB\SRC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ROLLER.rc">

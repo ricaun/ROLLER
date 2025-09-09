@@ -274,6 +274,7 @@ exit 1</Command>
     <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmwave.h" />
     <ClInclude Include="PROJECTS\ROLLER\3d.h" />
     <ClInclude Include="PROJECTS\ROLLER\building.h" />
     <ClInclude Include="PROJECTS\ROLLER\car.h" />

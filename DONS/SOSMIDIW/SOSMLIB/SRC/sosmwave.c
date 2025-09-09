@@ -1,8 +1,231 @@
-/*
+#include "sosmwave.h"
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveSendData(unsigned int a1, int a2, int a3, int a4)
+int dwWAVEPitchTable[180] =               //000B84E0
 {
+  512,
+  542,
+  574,
+  608,
+  645,
+  683,
+  724,
+  767,
+  812,
+  861,
+  912,
+  966,
+  1024,
+  1085,
+  1149,
+  1217,
+  1290,
+  1366,
+  1448,
+  1534,
+  1625,
+  1722,
+  1824,
+  1933,
+  2048,
+  2170,
+  2299,
+  2435,
+  2580,
+  2733,
+  2896,
+  3068,
+  3251,
+  3444,
+  3649,
+  3866,
+  4096,
+  4340,
+  4598,
+  4871,
+  5160,
+  5467,
+  5793,
+  6137,
+  6502,
+  6889,
+  7299,
+  7733,
+  8192,
+  8680,
+  9197,
+  9742,
+  10321,
+  10935,
+  11586,
+  12275,
+  13005,
+  13778,
+  14599,
+  15466,
+  16384,
+  17361,
+  18394,
+  19484,
+  20642,
+  21870,
+  23173,
+  24550,
+  26010,
+  27557,
+  29198,
+  30932,
+  32768,
+  34722,
+  36788,
+  38968,
+  41285,
+  43740,
+  46346,
+  49101,
+  52020,
+  55114,
+  58396,
+  61865,
+  65536,
+  69444,
+  73577,
+  77936,
+  82571,
+  87481,
+  92692,
+  98203,
+  104040,
+  110228,
+  116792,
+  123731,
+  131072,
+  138888,
+  147154,
+  155872,
+  165142,
+  174962,
+  185384,
+  196406,
+  208080,
+  220456,
+  233584,
+  247462,
+  262144,
+  277776,
+  294308,
+  311744,
+  330284,
+  349924,
+  370768,
+  392812,
+  416160,
+  440912,
+  467168,
+  494924,
+  524288,
+  555552,
+  588616,
+  623488,
+  660568,
+  699848,
+  741536,
+  785624,
+  832320,
+  881824,
+  934336,
+  989848,
+  1048576,
+  1111104,
+  1177232,
+  1246976,
+  1321136,
+  1399696,
+  1483072,
+  1571248,
+  1664640,
+  1763648,
+  1868672,
+  1979696,
+  2097152,
+  2222208,
+  2354464,
+  2493952,
+  2642272,
+  2799392,
+  2966144,
+  3142496,
+  3329280,
+  3527296,
+  3737344,
+  3959392,
+  4194304,
+  4444416,
+  4708928,
+  4987904,
+  5284544,
+  5598784,
+  5932288,
+  6284992,
+  6658560,
+  7054592,
+  7474688,
+  7918784,
+  8388608,
+  8888832,
+  9417856,
+  9975808,
+  10569088,
+  11197568,
+  11864576,
+  12569984,
+  13317120,
+  14109184,
+  14949376,
+  15837568
+};
+tWaveVoice waveVoice[32] =                //000B87B0
+{
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 },
+  { 0u, 255u, 0u, 0u, 65536, 255, 255, 255 }
+};
+
+//-------------------------------------------------------------------------------------------------
+
+int waveSendData(unsigned int a1, int a2, int a3, int a4)
+{
+  return 0;
+  /*
   __int64 BestSample; // rcx
   unsigned int ItemWAVE; // eax
   unsigned int v7; // [esp+0h] [ebp-38h]
@@ -104,20 +327,23 @@ int __cdecl waveSendData(unsigned int a1, int a2, int a3, int a4)
       waveChannelSetBend(v16, a4);
     }
   }
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
 int *waveGetCallTable()
 {
-  return &_lpMIDIWAVEDrvFunctions;
+  return NULL;
+  //return &_lpMIDIWAVEDrvFunctions;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveInit(unsigned int a1, int a2, int a3)
+int waveInit(unsigned int a1, int a2, int a3)
 {
+  return 0;
+  /*
   int v3; // ebx
   int v4; // ecx
   unsigned int v5; // ebx
@@ -174,13 +400,15 @@ int __cdecl waveInit(unsigned int a1, int a2, int a3)
   for (i = 0; i < 0x10; ++i)
     waveChannel_variable_5[6 * i] = 0x80;
   waveDIGIMIDIHandle[v10] = a3;
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __usercall waveUnInit@<eax>(int a1@<edx>, int a2, int a3, int a4)
+int waveUnInit(int a1, int a2, int a3, int a4)
 {
+  return 0;
+  /*
   _BYTE retaddr[8]; // [esp+10h] [ebp+Ch]
 
   if (_wMIDIDIGIDriverInitialized[a4]) {
@@ -192,23 +420,27 @@ int __usercall waveUnInit@<eax>(int a1@<edx>, int a2, int a3, int a4)
     }
   }
   digiQueueUnInit();
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0, a1);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0, a1);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveReset(int a1, int a2, int a3)
+int waveReset(int a1, int a2, int a3)
 {
+  return 0;
+  /*
   _BYTE retaddr[8]; // [esp+10h] [ebp+Ch]
 
   digiQueueInit(a3, _wMIDIDIGIMaxSamples[a3]);
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveSetInstrumentData(int a1, __int16 a2)
+int waveSetInstrumentData(int a1, int16 a2)
 {
+  return 0;
+  /*
   int v2; // eax
   __int16 v3; // dx
   int v4; // edx
@@ -249,37 +481,43 @@ int __cdecl waveSetInstrumentData(int a1, __int16 a2)
       }
     }
   }
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)(0);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveSampleCallback(int a1, int a2, int a3)
+int waveSampleCallback(int a1, int a2, int a3)
 {
+  return 0;
+  /*
   _BYTE retaddr[8]; // [esp+Ch] [ebp+Ch]
 
   if (a2 == 2)
     digiQueueDeleteItemWAVE(waveDIGIMIDIHandle[a1], waveVoice_variable_6[5 * a3]);
-  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)();
+  return MK_FP(*(_WORD *)retaddr, *(_DWORD *)retaddr)();*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl sosWAVEPStopSample(int a1, int a2)
+int sosWAVEPStopSample(int a1, int a2)
 {
+  return 0;
+  /*
   int v3; // [esp+4h] [ebp-4h]
 
   waveVoice[20 * a2] = 0;
   v3 = _wMIDIDIGIDriverHandle[a1];
   if (__readgsword(*(_DWORD *)&_lpSOSSampleList[192 * v3 + 6 * a2] + 56) > 1u)
     __writegsword(*(_DWORD *)&_lpSOSSampleList[192 * v3 + 6 * a2] + 56, 1u);
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveChannelResetControllers(unsigned __int8 a1, int a2)
+int waveChannelResetControllers(uint8 a1, int a2)
 {
+  return 0;
+  /*
   waveChannel_variable_1[6 * a1] = 127;
   waveChannel_variable_2[6 * a1] = 64;
   waveChannel_variable_3[6 * a1] = 2;
@@ -287,13 +525,15 @@ int __cdecl waveChannelResetControllers(unsigned __int8 a1, int a2)
   waveChannelSetVolume(a1, a2);
   waveChannelSetPan(a1, a2);
   waveChannelSetBend(a1, a2);
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveChannelSetVolume(unsigned __int8 a1, int a2)
+int waveChannelSetVolume(uint8 a1, int a2)
 {
+  return 0;
+  /*
   int *v3; // [esp+8h] [ebp-8h]
   int i; // [esp+Ch] [ebp-4h]
 
@@ -305,13 +545,15 @@ int __cdecl waveChannelSetVolume(unsigned __int8 a1, int a2)
         *v3,
         8 * *((_WORD *)v3 + 4) * (unsigned __int8)waveChannel_variable_1[6 * a1]);
   }
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveChannelSetPan(unsigned __int8 a1, int a2)
+int waveChannelSetPan(uint8 a1, int a2)
 {
+  return 0;
+  /*
   int i; // [esp+Ch] [ebp-4h]
 
   for (i = _wMIDIDIGISampleQueueTail[a2]; i != _wMIDIDIGISampleQueueHead[a2]; i = ((_BYTE)i + 1) & 0x1F) {
@@ -321,13 +563,15 @@ int __cdecl waveChannelSetPan(unsigned __int8 a1, int a2)
         _sMIDIDIGIQueue[128 * a2 + 4 * i],
         (unsigned __int8)waveChannel_variable_5[6 * a1] << 9);
   }
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveChannelSetBend(unsigned __int8 a1, int a2)
+int waveChannelSetBend(uint8 a1, int a2)
 {
+  return 0;
+  /*
   int v2; // eax
   int *v4; // [esp+0h] [ebp-1Ch]
   int i; // [esp+8h] [ebp-14h]
@@ -348,13 +592,15 @@ int __cdecl waveChannelSetBend(unsigned __int8 a1, int a2)
         waveCalculatePitchBend(a1, dwWAVEPitchTable[v2], v7, v6));
     }
   }
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int __cdecl waveChannelNotesOff(unsigned __int8 a1, int a2)
+int waveChannelNotesOff(uint8 a1, int a2)
 {
+  return 0;
+  /*
   unsigned int Item; // [esp+0h] [ebp-8h]
 
   while (1) {
@@ -363,13 +609,15 @@ int __cdecl waveChannelNotesOff(unsigned __int8 a1, int a2)
       break;
     sosDIGIStopSample(_wMIDIDIGIDriverHandle[a2], Item);
   }
-  return 0;
+  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned __int8 *__fastcall StringOut(unsigned __int8 a1, unsigned __int8 a2, unsigned __int8 *a3, unsigned __int8 a4)
+uint8 *StringOut(uint8 a1, uint8 a2, uint8 *a3, uint8 a4)
 {
+  return NULL;
+  /*
   unsigned __int8 *result; // eax
   unsigned __int8 *v5; // eax
   unsigned int v6; // edx
@@ -385,13 +633,15 @@ unsigned __int8 *__fastcall StringOut(unsigned __int8 a1, unsigned __int8 a2, un
     v6 = (unsigned int)(i + 1);
     __writegsbyte(v6, a4);
   }
-  return result;
+  return result;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int __cdecl waveCalculatePitchBend(unsigned __int8 a1, int a2, unsigned int a3, unsigned int a4)
+unsigned int waveCalculatePitchBend(uint8 a1, int a2, unsigned int a3, unsigned int a4)
 {
+  return 0;
+  /*
   int v5; // [esp+0h] [ebp-30h]
   int v6; // [esp+8h] [ebp-28h]
   unsigned int v7; // [esp+10h] [ebp-20h]
@@ -415,13 +665,14 @@ unsigned int __cdecl waveCalculatePitchBend(unsigned __int8 a1, int a2, unsigned
     return a2
     - (dwWAVEPitchTable[v6]
      - dwWAVEPitchTable[v6 - (64 - v7) / v8])
-    - (dwWAVEPitchTable[v6 - (64 - v7) / v8] - _wSOSWAVEInsDataSet[v6 - (64 - v7) / v8]) / v8 * ((64 - v7) % v8);
+    - (dwWAVEPitchTable[v6 - (64 - v7) / v8] - _wSOSWAVEInsDataSet[v6 - (64 - v7) / v8]) / v8 * ((64 - v7) % v8);*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-__int64 __cdecl waveGetBestSample(int a1, unsigned __int8 a2)
+int64 waveGetBestSample(int a1, uint8 a2)
 {
+  return 0;/*
   int v2; // eax
   int v3; // edx
   __int64 v5; // [esp+0h] [ebp-20h]
@@ -450,8 +701,7 @@ __int64 __cdecl waveGetBestSample(int a1, unsigned __int8 a2)
     WORD2(v5) = 0;
     LODWORD(v5) = 0;
   }
-  return v5;
+  return v5;*/
 }
 
 //-------------------------------------------------------------------------------------------------
-*/
