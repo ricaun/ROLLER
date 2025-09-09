@@ -3175,7 +3175,7 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
     iCurrChunk = Car[iCarIdx].nCurrChunk;
     iLaneType = Car[iCarIdx].iLaneType;
     iFinalPitch = (int)(dFinalEnginePitch * fDopplerFactor);
-    if (iCurrChunk != -1 && (TrakColour[iCurrChunk][iLaneType] & 0x20000000) != 0)// Check if car is in tunnel section (bit 29 of TrakColour)
+    if (iCurrChunk != -1 && (TrakColour[iCurrChunk][iLaneType] & SURFACE_FLAG_ECHO) != 0)// Check if car is in tunnel section (bit 29 of TrakColour)
     {
       iTunnelFlag = -1;
       fTunnelDistanceBack = localdata[iCurrChunk].fTrackHalfLength + Car[iCarIdx].pos.fX;// Calculate tunnel distance going backward through track
@@ -3184,7 +3184,7 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
         iPrevChunkIdx = TRAK_LEN - 1;
 
       //iPrevChunkIdx check added by ROLLER
-      while (iPrevChunkIdx >= 0 && (TrakColour[iPrevChunkIdx][iLaneType] & 0x20000000) != 0 && fTunnelDistanceBack < 6400.0) {
+      while (iPrevChunkIdx >= 0 && (TrakColour[iPrevChunkIdx][iLaneType] & SURFACE_FLAG_ECHO) != 0 && fTunnelDistanceBack < 6400.0) {
         fTunnelDistanceBack = 2.0f * localdata[iPrevChunkIdx--].fTrackHalfLength + fTunnelDistanceBack;
         if (!iPrevChunkIdx)
           iPrevChunkIdx = TRAK_LEN - 1;
@@ -3193,7 +3193,7 @@ void enginesound(int iCarIdx, float fListenerDopplerVel, float fCarDopplerVel, f
       fTunnelDistanceForward = localdata[Car[iCarIdx].nCurrChunk].fTrackHalfLength - Car[iCarIdx].pos.fX;
       if (iNextChunkIdx == TRAK_LEN)
         iNextChunkIdx ^= TRAK_LEN;
-      while ((TrakColour[iNextChunkIdx][iLaneType] & 0x20000000) != 0 && fTunnelDistanceForward < 6400.0) {
+      while ((TrakColour[iNextChunkIdx][iLaneType] & SURFACE_FLAG_ECHO) != 0 && fTunnelDistanceForward < 6400.0) {
         dTunnelDistanceTemp = 2.0 * localdata[iNextChunkIdx++].fTrackHalfLength + fTunnelDistanceForward;
         fTunnelDistanceForward = (float)dTunnelDistanceTemp;
         if (iNextChunkIdx == TRAK_LEN)

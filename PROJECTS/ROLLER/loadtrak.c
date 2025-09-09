@@ -814,7 +814,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
         iRightSurfCheck = TrackInfo[iTrackInfoIdx].iRightSurfaceType;
         if ((iRightSurfCheck == 6 || iRightSurfCheck == 9) && (abs(TrakColour[iTrakColourIdx][TRAK_COLOUR_RIGHT_LANE]) & SURFACE_FLAG_BOUNCE_20) == 0)
           TrackInfo[iTrackInfoIdx].iRightSurfaceType = 5;
-        if ((abs(TrakColour[iTrakColourIdx][TRAK_COLOUR_LEFT_WALL]) & 0x20000) != 0) {
+        if ((abs(TrakColour[iTrakColourIdx][TRAK_COLOUR_LEFT_WALL]) & SURFACE_FLAG_SKIP_RENDER) != 0) {
           switch (TrackInfo[iTrackInfoIdx].iLeftSurfaceType) {
             case 3:
             case 5:
@@ -833,7 +833,7 @@ void loadtrack(int iTrackIdx, int iPreviewMode)
               break;
           }
         }
-        if ((abs(TrakColour[iTrakColourIdx][TRAK_COLOUR_RIGHT_WALL]) & 0x20000) != 0) {
+        if ((abs(TrakColour[iTrakColourIdx][TRAK_COLOUR_RIGHT_WALL]) & SURFACE_FLAG_SKIP_RENDER) != 0) {
           switch (TrackInfo[iTrackInfoIdx].iRightSurfaceType) {
             case 3:
             case 5:

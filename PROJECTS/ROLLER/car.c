@@ -468,7 +468,7 @@ void placecars()
       if (nCurrChunk >= 0 && nCurrChunk < TRAK_LEN) { //added by ROLLER
         pTrackLocalData = &localdata[nCurrChunk]; // Get track data for current chunk
         pTrackChunk = &TrackInfo[nCurrChunk];     // Get track info for surface types]
-        while ((TrakColour[Car[iDriverIdx].nCurrChunk][surfaceTypeAy[uiStartingLane]] & SURFACE_FLAG_STARTING_GRID) != 0)
+        while ((TrakColour[Car[iDriverIdx].nCurrChunk][surfaceTypeAy[uiStartingLane]] & SURFACE_FLAG_NO_SPAWN) != 0)
         //while ((TrakColour[Car[iDriverIdx].nCurrChunk][*(int *)((char *)surfaceTypeAy + Car[iDriverIdx].nCurrChunk)] & 0x8000000) != 0)// Find valid lane (avoid surfaces with special flags)
         {
           if (++uiStartingLane == 4)

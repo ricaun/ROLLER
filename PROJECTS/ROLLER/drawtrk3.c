@@ -2761,7 +2761,7 @@ LABEL_393:
             pNextGroundScreen->screenPtAy[1].projected.fX,
             pNextGroundScreen->screenPtAy[1].projected.fY,
             pNextGroundScreen->screenPtAy[1].projected.fZ)
-            && (GroundColour[iSectionNum][GROUND_COLOUR_LUOWALL] & 0x4000) == 0) {
+            && (GroundColour[iSectionNum][GROUND_COLOUR_LUOWALL] & SURFACE_FLAG_CONCAVE) == 0) {
             goto LABEL_1068;
           }
           G1Poly.uiNumVerts = 4;
@@ -2899,7 +2899,7 @@ LABEL_393:
             pNextGroundScreen->screenPtAy[2].projected.fX,
             pNextGroundScreen->screenPtAy[2].projected.fY,
             pNextGroundScreen->screenPtAy[2].projected.fZ)
-            && (GroundColour[iSectionNum][GROUND_COLOUR_LLOWALL] & 0x4000) == 0) {
+            && (GroundColour[iSectionNum][GROUND_COLOUR_LLOWALL] & SURFACE_FLAG_CONCAVE) == 0) {
             goto LABEL_1271;
           }
           G2Poly.iSurfaceType = GroundColour[iSectionNum][GROUND_COLOUR_LLOWALL];
@@ -3037,7 +3037,7 @@ LABEL_393:
             pNextGroundScreen->screenPtAy[5].projected.fX,
             pNextGroundScreen->screenPtAy[5].projected.fY,
             pNextGroundScreen->screenPtAy[5].projected.fZ)
-            && (GroundColour[iSectionNum][GROUND_COLOUR_RUOWALL] & 0x4000) == 0) {
+            && (GroundColour[iSectionNum][GROUND_COLOUR_RUOWALL] & SURFACE_FLAG_CONCAVE) == 0) {
             goto LABEL_1174;
           }
           G5Poly.iSurfaceType = GroundColour[iSectionNum][GROUND_COLOUR_RUOWALL];
@@ -3176,7 +3176,7 @@ LABEL_393:
             pNextGroundScreen->screenPtAy[4].projected.fX,
             pNextGroundScreen->screenPtAy[4].projected.fY,
             pNextGroundScreen->screenPtAy[4].projected.fZ)
-            && (GroundColour[iSectionNum][GROUND_COLOUR_RLOWALL] & 0x4000) == 0) {
+            && (GroundColour[iSectionNum][GROUND_COLOUR_RLOWALL] & SURFACE_FLAG_CONCAVE) == 0) {
             goto LABEL_1271;
           }
           G4Poly.iSurfaceType = GroundColour[iSectionNum][GROUND_COLOUR_RLOWALL];
@@ -3313,7 +3313,7 @@ LABEL_393:
             pScreenCoord_1->screenPtAy[2].projected.fX,
             pScreenCoord_1->screenPtAy[2].projected.fY,
             pScreenCoord_1->screenPtAy[2].projected.fZ)
-            || (TrakColour[iSectionNum][TRAK_COLOUR_CENTER] & 0x4000) != 0) {
+            || (TrakColour[iSectionNum][TRAK_COLOUR_CENTER] & SURFACE_FLAG_CONCAVE) != 0) {
             RoadPoly.uiNumVerts = 4;
             iSectionCommand = TrakColour[iSectionNum][TRAK_COLOUR_CENTER];
             RoadPoly.iSurfaceType = iSectionCommand;
