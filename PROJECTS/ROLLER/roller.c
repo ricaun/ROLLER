@@ -1019,9 +1019,8 @@ void DIGISetPitch(int iHandle, int iPitch)
   if (!digi_stream[iHandle])
     return; //DIGI stream not found
 
-  // Set pitch in the stream
-  float fStreamPitch = (float)(iPitch) / 0x7FFFF;
-
+  float fStreamPitch = (float)iPitch / 0x10000;
+  SDL_Log("DIGISetPitch[%i]: %f | %i", iHandle, fStreamPitch, iPitch);
   SDL_SetAudioStreamFrequencyRatio(digi_stream[iHandle], fStreamPitch);
 }
 
