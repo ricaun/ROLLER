@@ -20,8 +20,23 @@ typedef struct
 
 //-------------------------------------------------------------------------------------------------
 
+#pragma pack(push, 2)
+typedef struct
+{
+  uint8 byProgram;
+  uint8 byVolume;
+  uint8 byPitchBend;
+  uint8 byController102;
+  uint8 bySustainPedal;
+  uint8 byPanPosition;
+} tWaveChannel;
+#pragma pack(pop)
+
+//-------------------------------------------------------------------------------------------------
+
 extern int dwWAVEPitchTable[180];
 extern tWaveVoice waveVoice[32];
+extern tWaveChannel waveChannel[16];
 
 //-------------------------------------------------------------------------------------------------
 
