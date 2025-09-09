@@ -1,6 +1,7 @@
 #include "sosmwave.h"
 #include "sosmdata.h"
 #include "../../../SOSDIGIW/SOSLIB/SRC/sosdata.h"
+#include <math.h>
 //-------------------------------------------------------------------------------------------------
 
 int dwWAVEPitchTable[180] =               //000B84E0
@@ -657,34 +658,35 @@ uint8 *StringOut(uint8 a1, uint8 a2, uint8 *a3, uint8 a4)
 
 //-------------------------------------------------------------------------------------------------
 
-unsigned int waveCalculatePitchBend(uint8 a1, int a2, unsigned int a3, unsigned int a4)
+unsigned int waveCalculatePitchBend(uint8 byMidiChannel, int iBasePitch, unsigned int uiMidiNote, unsigned int uiBaseNote)
 {
-  return 0;
-  /*
-  int v5; // [esp+0h] [ebp-30h]
-  int v6; // [esp+8h] [ebp-28h]
-  unsigned int v7; // [esp+10h] [ebp-20h]
-  unsigned int v8; // [esp+1Ch] [ebp-14h]
+  int iSemitoneOffset; // [esp+0h] [ebp-30h]
+  int iPitchTableIdx; // [esp+8h] [ebp-28h]
+  unsigned int uiPitchBend; // [esp+10h] [ebp-20h]
+  unsigned int uiBendRange; // [esp+1Ch] [ebp-14h]
 
-  v5 = abs(a3 - a4);
-  if (a3 <= a4)
-    v6 = 84 - v5;
+  iSemitoneOffset = abs(uiMidiNote - uiBaseNote);
+  if (uiMidiNote <= uiBaseNote)
+    iPitchTableIdx = 84 - iSemitoneOffset;
   else
-    v6 = v5 + 84;
-  v7 = (unsigned __int8)waveChannel_variable_2[6 * a1];
-  v8 = 64 / (unsigned __int8)waveChannel_variable_3[6 * a1];
-  if (v7 >= 0x40)
-    return (dwWAVEPitchTable_variable_1[(v7 - 64) / v8 + v6] - dwWAVEPitchTable[(v7 - 64) / v8 + v6])
-    / v8
-    * ((v7 - 64) % v8)
-    + dwWAVEPitchTable[(v7 - 64) / v8 + v6]
-    - dwWAVEPitchTable[v6]
-    + a2;
+    iPitchTableIdx = iSemitoneOffset + 84;
+  uiPitchBend = waveChannel[byMidiChannel].byPitchBend;
+  uiBendRange = 64 / waveChannel[byMidiChannel].byController102;
+  if (uiPitchBend >= 0x40)
+    return (dwWAVEPitchTable[(uiPitchBend - 64) / uiBendRange + 1 + iPitchTableIdx] - dwWAVEPitchTable[(uiPitchBend - 64) / uiBendRange + iPitchTableIdx])
+    / uiBendRange
+    * ((uiPitchBend - 64) % uiBendRange)
+    + dwWAVEPitchTable[(uiPitchBend - 64) / uiBendRange + iPitchTableIdx]
+    - dwWAVEPitchTable[iPitchTableIdx]
+    + iBasePitch;
   else
-    return a2
-    - (dwWAVEPitchTable[v6]
-     - dwWAVEPitchTable[v6 - (64 - v7) / v8])
-    - (dwWAVEPitchTable[v6 - (64 - v7) / v8] - _wSOSWAVEInsDataSet[v6 - (64 - v7) / v8]) / v8 * ((64 - v7) % v8);*/
+    // _wSOSWAVEInsDataSet is likely a reference into adjacent data dwWAVEPitchTable
+    return iBasePitch
+    - (dwWAVEPitchTable[iPitchTableIdx]
+     - dwWAVEPitchTable[iPitchTableIdx - (64 - uiPitchBend) / uiBendRange])
+    - (dwWAVEPitchTable[iPitchTableIdx - (64 - uiPitchBend) / uiBendRange] - dwWAVEPitchTable[iPitchTableIdx - (64 - uiPitchBend) / uiBendRange - 1])
+    / uiBendRange
+    * ((64 - uiPitchBend) % uiBendRange);
 }
 
 //-------------------------------------------------------------------------------------------------
