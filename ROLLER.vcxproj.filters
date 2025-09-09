@@ -356,6 +356,9 @@
     <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmdata.h">
       <Filter>DONS\SOSMIDIW\SOSMLIB\SRC</Filter>
     </ClInclude>
+    <ClInclude Include="DONS\SOSDIGIW\SOSLIB\SRC\soscntl.h">
+      <Filter>DONS\SOSDIGIW\SOSLIB\SRC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ROLLER.rc">

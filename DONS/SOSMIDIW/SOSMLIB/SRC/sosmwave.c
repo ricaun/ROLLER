@@ -1,7 +1,9 @@
 #include "sosmwave.h"
 #include "sosmdata.h"
+#include "../../../SOSDIGIW/SOSLIB/SRC/soscntl.h"
 #include "../../../SOSDIGIW/SOSLIB/SRC/sosdata.h"
 #include <math.h>
+#include <string.h>
 //-------------------------------------------------------------------------------------------------
 
 int dwWAVEPitchTable[180] =               //000B84E0
@@ -536,56 +538,41 @@ int sosWAVEPStopSample(int a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int waveChannelResetControllers(uint8 a1, int a2)
+void waveChannelResetControllers(uint8 byMidiChannel, int iDriverIdx)
 {
-  return 0;
-  /*
-  waveChannel_variable_1[6 * a1] = 127;
-  waveChannel_variable_2[6 * a1] = 64;
-  waveChannel_variable_3[6 * a1] = 2;
-  waveChannel_variable_4[6 * a1] = 0;
-  waveChannelSetVolume(a1, a2);
-  waveChannelSetPan(a1, a2);
-  waveChannelSetBend(a1, a2);
-  return 0;*/
+  waveChannel[byMidiChannel].byVolume = 127;
+  waveChannel[byMidiChannel].byPitchBend = 64;
+  waveChannel[byMidiChannel].byController102 = 2;
+  waveChannel[byMidiChannel].bySustainPedal = 0;
+  waveChannelSetVolume(byMidiChannel, iDriverIdx);
+  waveChannelSetPan(byMidiChannel, iDriverIdx);
+  waveChannelSetBend(byMidiChannel, iDriverIdx);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int waveChannelSetVolume(uint8 a1, int a2)
+void waveChannelSetVolume(uint8 byMidiChannel, int iDriverIdx)
 {
-  return 0;
-  /*
-  int *v3; // [esp+8h] [ebp-8h]
+  tMIDIDIGIQueue *pQueueEntry; // [esp+8h] [ebp-8h]
   int i; // [esp+Ch] [ebp-4h]
 
-  for (i = _wMIDIDIGISampleQueueTail[a2]; i != _wMIDIDIGISampleQueueHead[a2]; i = ((_BYTE)i + 1) & 0x1F) {
-    v3 = &_sMIDIDIGIQueue[128 * a2 + 4 * i];
-    if (*((_BYTE *)v3 + 12) == a1 && *v3 != -1)
-      sosDIGISetSampleVolume(
-        _wMIDIDIGIDriverHandle[a2],
-        *v3,
-        8 * *((_WORD *)v3 + 4) * (unsigned __int8)waveChannel_variable_1[6 * a1]);
+  for (i = _wMIDIDIGISampleQueueTail[iDriverIdx]; i != _wMIDIDIGISampleQueueHead[iDriverIdx]; i = ((uint8)i + 1) & 0x1F) {
+    pQueueEntry = &_sMIDIDIGIQueue[iDriverIdx][i];
+    if ((uint8)(pQueueEntry->iMidiChannel) == byMidiChannel && pQueueEntry->iSampleHandle != -1)
+      sosDIGISetSampleVolume(_wMIDIDIGIDriverHandle[iDriverIdx], pQueueEntry->iSampleHandle, 8 * (int16)(pQueueEntry->iVelocity) * waveChannel[byMidiChannel].byVolume);
   }
-  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int waveChannelSetPan(uint8 a1, int a2)
+void waveChannelSetPan(uint8 byMidiChannel, int iDriverIdx)
 {
-  return 0;
-  /*
   int i; // [esp+Ch] [ebp-4h]
 
-  for (i = _wMIDIDIGISampleQueueTail[a2]; i != _wMIDIDIGISampleQueueHead[a2]; i = ((_BYTE)i + 1) & 0x1F) {
-    if (a1 == _sMIDIDIGIQueue[128 * a2 + 3 + 4 * i])
-      sosDIGISetPanLocation(
-        _wMIDIDIGIDriverHandle[a2],
-        _sMIDIDIGIQueue[128 * a2 + 4 * i],
-        (unsigned __int8)waveChannel_variable_5[6 * a1] << 9);
+  for (i = _wMIDIDIGISampleQueueTail[iDriverIdx]; i != _wMIDIDIGISampleQueueHead[iDriverIdx]; i = ((uint8)i + 1) & 0x1F) {
+    if (byMidiChannel == _sMIDIDIGIQueue[iDriverIdx][i].iMidiChannel)
+      sosDIGISetPanLocation(_wMIDIDIGIDriverHandle[iDriverIdx], _sMIDIDIGIQueue[iDriverIdx][i].iSampleHandle, waveChannel[byMidiChannel].byPanPosition << 9);
   }
-  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -608,6 +595,7 @@ void waveChannelSetBend(uint8 byMidiChannel, int iDriverIdx)
         iPitchBend = 84 - (uiBaseNote - uiMidiNote);
       else
         iPitchBend = uiMidiNote + 84 - uiBaseNote;
+      memset(_lpSOSSampleList[_wMIDIDIGIDriverHandle[iDriverIdx]][pQueueEntry->iSampleHandle].pSample + 68, waveCalculatePitchBend(byMidiChannel, dwWAVEPitchTable[iPitchBend], uiMidiNote, uiBaseNote), sizeof(unsigned int));
       //__writegsdword(
       //  (unsigned int)_lpSOSSampleList[_wMIDIDIGIDriverHandle[iDriverIdx]][pQueueEntry->iSampleHandle].pSample + 68,
       //  waveCalculatePitchBend(byMidiChannel, dwWAVEPitchTable[iPitchBend], uiMidiNote, uiBaseNote));// Apply calculated pitch bend to the active sample (offset +68 = pitch)

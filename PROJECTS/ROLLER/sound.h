@@ -158,6 +158,12 @@
 
 //-------------------------------------------------------------------------------------------------
 
+#define SAMPLE_FLAG_PLAYING   0x0020
+#define SAMPLE_FLAG_LOOP      0x0040
+#define SAMPLE_FLAG_ACTIVE    0x0080
+
+//-------------------------------------------------------------------------------------------------
+
 typedef struct
 {
   DWORD edi, esi, ebp, reserved, ebx, edx, ecx, eax;
@@ -179,12 +185,18 @@ typedef struct
   uint16 unSegment;
   int iLength;
   int iByteOffset;
-  int iUnk2;
+  int iUnk1;
   int iVolume;
   int iSampleIndex;
-  int unknown[7];
-  int iPitch;
+  int iUnk2;
   int iUnk3;
+  int iUnk4;
+  int iFlags;
+  int iUnk5;
+  int iUnk6;
+  int iUnk7;
+  int iPitch;
+  int iUnk8;
   int iPan;
   int unknown2[13];
 } tSampleData;

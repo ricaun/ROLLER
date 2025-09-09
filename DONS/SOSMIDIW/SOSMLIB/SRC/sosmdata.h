@@ -17,6 +17,7 @@ typedef struct
 extern tMIDIDIGIQueue _sMIDIDIGIQueue[5][32];
 extern int _wMIDIDIGISampleQueueHead[5];
 extern int _wMIDIDIGISampleQueueTail[5];
+extern int _wMIDIDIGIDriverHandle[5];
 
 //-------------------------------------------------------------------------------------------------
 #endif

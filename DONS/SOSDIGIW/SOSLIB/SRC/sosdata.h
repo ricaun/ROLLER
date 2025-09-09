@@ -7,7 +7,7 @@
 #pragma pack(push, 2)
 typedef struct
 {
-  void *pSample;
+  uint8 *pSample;
 
   //unused, purely to maintain 16-bit alignment
   uint8 byReserved1;

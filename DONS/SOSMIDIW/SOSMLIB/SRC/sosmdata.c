@@ -176,5 +176,6 @@ tMIDIDIGIQueue _sMIDIDIGIQueue[5][32] =               //000B1404
 };
 int _wMIDIDIGISampleQueueHead[5] = { 0, 0, 0, 0, 0 }; //000B1E04
 int _wMIDIDIGISampleQueueTail[5] = { 0, 0, 0, 0, 0 }; //000B1E18
+int _wMIDIDIGIDriverHandle[5] = { 0, 0, 0, 0, 0 };    //000B2D90
 
 //-------------------------------------------------------------------------------------------------

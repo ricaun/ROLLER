@@ -274,6 +274,7 @@ exit 1</Command>
     <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DONS\SOSDIGIW\SOSLIB\SRC\soscntl.h" />
     <ClInclude Include="DONS\SOSDIGIW\SOSLIB\SRC\sosdata.h" />
     <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmdata.h" />
     <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmwave.h" />
