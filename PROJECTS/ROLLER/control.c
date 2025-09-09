@@ -375,21 +375,18 @@ void humancar(int iCarIdx)
           if (iCurrentChunk != -1) {
             iColorIndex = -12;                  // Modify track surface in 16-chunk range around car position
             do {
-              if ((TrakColour[iCurrentChunk][1] & 0x8400000) == 0) {
-                iTrackColor1 = TrakColour[iCurrentChunk][1];
-                SET_LOWORD(iTrackColor1, iTrackColor1 & 0xFE00);
+              if ((TrakColour[iCurrentChunk][1] & (SURFACE_FLAG_NO_SPAWN | SURFACE_FLAG_WALL_22)) == 0) {
+                iTrackColor1 = TrakColour[iCurrentChunk][1] & SURFACE_MASK_FLAGS ^ SURFACE_FLAG_APPLY_TEXTURE;
                 TrakColour[iCurrentChunk][1] = (159 - (iColorIndex & 7)) | iTrackColor1;
                 localdata[iCurrentChunk].iCenterGrip = 12;
               }
-              if ((TrakColour[iCurrentChunk][0] & 0x8400000) == 0) {
-                iTrackColor2 = TrakColour[iCurrentChunk][0];
-                SET_LOWORD(iTrackColor2, iTrackColor2 & 0xFE00);
+              if ((TrakColour[iCurrentChunk][0] & (SURFACE_FLAG_NO_SPAWN | SURFACE_FLAG_WALL_22)) == 0) {
+                iTrackColor2 = TrakColour[iCurrentChunk][0] & SURFACE_MASK_FLAGS ^ SURFACE_FLAG_APPLY_TEXTURE;
                 TrakColour[iCurrentChunk][0] = iTrackColor2 | (159 - (iColorIndex & 7));
                 localdata[iCurrentChunk].iLeftShoulderGrip = 12;
               }
-              if ((TrakColour[iCurrentChunk][2] & 0x8400000) == 0) {
-                iTrackColor3 = TrakColour[iCurrentChunk][1];
-                SET_LOWORD(iTrackColor3, iTrackColor3 & 0xFE00);
+              if ((TrakColour[iCurrentChunk][2] & (SURFACE_FLAG_NO_SPAWN | SURFACE_FLAG_WALL_22)) == 0) {
+                iTrackColor3 = TrakColour[iCurrentChunk][1] & SURFACE_MASK_FLAGS ^ SURFACE_FLAG_APPLY_TEXTURE;
                 TrakColour[iCurrentChunk][2] = (159 - (iColorIndex & 7)) | iTrackColor3;
                 localdata[iCurrentChunk].iRightShoulderGrip = 12;
               }
@@ -2079,7 +2076,7 @@ LABEL_30:
         iPrevChunk = iCurrentChunk - 1;
         if (iPrevChunk < 0)
           iPrevChunk = TRAK_LEN - 1;
-        if ((TrakColour[pCar->nCurrChunk][1] & 0x1000000) != 0 && (TrakColour[iPrevChunk][1] & 0x1000000) == 0)
+        if ((TrakColour[pCar->nCurrChunk][1] & SURFACE_FLAG_PIT_ZONE) != 0 && (TrakColour[iPrevChunk][1] & SURFACE_FLAG_PIT_ZONE) == 0)
           speechonly(SOUND_SAMPLE_PITIN, 0x8000, 18, pCar->iDriverIdx);// Play "pit in" sound sample (46) when entering pit lane
       }
     }
@@ -2387,7 +2384,7 @@ LABEL_171:
   if (iControlTypeLocal > 2 && pCar->nCurrChunk >= 0 && pCar->nCurrChunk < TRAK_LEN) {//curr chunk check added by ROLLER
     if (iControlTypeLocal != 3)
       goto LABEL_502;
-    if ((TrakColour[pCar->nCurrChunk][1] & 0x1000000) == 0)
+    if ((TrakColour[pCar->nCurrChunk][1] & SURFACE_FLAG_PIT_ZONE) == 0)
       pCar->byPitLaneActiveFlag = 0;
     iChunkCurrent = pCar->nCurrChunk;
     iChunkNext = iChunkCurrent + 1;             // Track surface calculations - determine track width and banking angles
@@ -2476,7 +2473,7 @@ LABEL_171:
       iTrackColorFlag = 0;
       bZeroFlag = 1;
     } else {
-      iTrackColorFlag = TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x2000000;
+      iTrackColorFlag = TrakColour[pCar->nCurrChunk][pCar->iLaneType] & SURFACE_FLAG_PIT;
       bZeroFlag = iTrackColorFlag == 0;
     }
     if (bZeroFlag)
@@ -2499,7 +2496,7 @@ LABEL_171:
       pCar->byDebugDamage = -1;
       iCurrentChunk2 = pCar->nCurrChunk;
       pCar->byStatusFlags |= 8u;
-      if ((TrakColour[iCurrentChunk2][1] & 0x4000000) != 0)// Handle special pit lane targeting for AI cars on repair strips
+      if ((TrakColour[iCurrentChunk2][1] & SURFACE_FLAG_PIT_BOX) != 0)// Handle special pit lane targeting for AI cars on repair strips
       {
         iLoopCounter = 0;
         if (numcars > 0) {
@@ -3586,7 +3583,7 @@ void checkplacement(tCar *pCar)
         do {
           if (iCarLoopIdx != pCar->iDriverIdx && (char)Car[iCarArrayIdx2].byLives > 0 && Car[iCarArrayIdx2].iControlType == 3) {
             iTempChunk = Car[iCarArrayIdx2].nCurrChunk;
-            if ((TrakColour[iTempChunk][Car[iCarArrayIdx2].iLaneType] & 0x2000000) != 0) {
+            if ((TrakColour[iTempChunk][Car[iCarArrayIdx2].iLaneType] & SURFACE_FLAG_PIT) != 0) {
               if (iTempChunk == iRespawnChunk)
                 iPlacementResult = 0;
               if (Car[iCarArrayIdx2].nCurrChunk - 1 == iRespawnChunk)
@@ -4291,7 +4288,7 @@ void putflat(tCar *pCar)
     //if ((((HIDWORD(llSurfaceType3) ^ (unsigned int)llSurfaceType3) - HIDWORD(llSurfaceType3)) & 0x20000) != 0)// SURFACE_FLAG_SKIP_RENDER
       iPitchInt = 0;
   } else {                                             // Steep downhill: zero pitch if car is fast and AI state allows
-    if (iPitch < -512 && pCar->fFinalSpeed > 50.0 && (TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x80000) != 0)
+    if (iPitch < -512 && pCar->fFinalSpeed > 50.0 && (TrakColour[pCar->nCurrChunk][pCar->iLaneType] & SURFACE_FLAG_NON_MAGNETIC) != 0)
       iPitchInt = 0;
 
     if ((TrakColour[nCurrChunk][iLaneType] & SURFACE_FLAG_SKIP_RENDER) != 0)
@@ -4879,7 +4876,7 @@ void autocar2(tCar *pCar)
   //_CHP();
   //LOBYTE(iCurrChunk) = HIBYTE(TrakColour[iCurrChunk][1]);
   iAITargetSpeed = (int)dAIMaxSpeed;
-  if ((TrakColour[iCurrChunk][1] & 0x10000000) == 0) {
+  if ((TrakColour[iCurrChunk][1] & SURFACE_FLAG_AI_MAX_SPEED) == 0) {
   //if ((iCurrChunk & 0x10) == 0) {
     if (!winner_mode) {
       fMaxEngineSpeed = fMaxEngineSpeed * levels[level] * 0.01f;// Apply difficulty level scaling to AI maximum speed
@@ -5000,14 +4997,14 @@ LABEL_24:
     if (byCurrentRacePos < 4u && iLeftCarIdx != -1 && byCurrentRacePos - Car[iLeftCarIdx].byRacePosition > 2 && !human_control[iLeftCarIdx])
       iSelectedStrategy = 0;
   }
-  if ((TrakColour[pCar->nCurrChunk][1] & 0x800000) == 0)// Check if car is in pit zone (track color flag 0x800000)
+  if ((TrakColour[pCar->nCurrChunk][1] & SURFACE_FLAG_AI_FAST_STRAT) == 0)// Check if car is in not in go fast zone
     iAIThrottleControl = iAccelerationControl;
   else
     iSelectedStrategy = 4;
   if (winner_mode)
     iSelectedStrategy = 4;
   iCurrentChunk = pCar->nCurrChunk;
-  iPitZoneFlag = TrakColour[iCurrentChunk][1] & 0x1000000;
+  iPitZoneFlag = TrakColour[iCurrentChunk][1] & SURFACE_FLAG_PIT_ZONE;
   iLastLapFlag = 0;
   if ((char)pCar->byLapNumber == NoOfLaps && TRAK_LEN - iCurrentChunk < 200)
     iLastLapFlag = -1;
@@ -5046,7 +5043,7 @@ LABEL_24:
         iPrevChunk = iChunkForPitStop - 1;
         if (iPrevChunk < 0)
           iPrevChunk = TRAK_LEN - 1;
-        if (!pCar->byPitLaneActiveFlag && (TrakColour[iPrevChunk][1] & 0x1000000) == 0) {
+        if (!pCar->byPitLaneActiveFlag && (TrakColour[iPrevChunk][1] & SURFACE_FLAG_PIT_ZONE) == 0) {
           pCar->byPitLaneActiveFlag = -1;
           iPlayerType = player_type;
           pCar->nChangeMateCooldown = 1080;
@@ -5186,7 +5183,7 @@ LABEL_24:
       //if ((LODWORD(pCar->fFinalSpeed) & 0x7FFFFFFF) == 0)
       if (fabs(pCar->fFinalSpeed) == 0)
         pCar->byDebugDamage = -1;
-      if ((TrakColour[pCar->nCurrChunk][pCar->iLaneType] & 0x2000000) == 0 && pCar->fFinalSpeed < 40.0)
+      if ((TrakColour[pCar->nCurrChunk][pCar->iLaneType] & SURFACE_FLAG_PIT) == 0 && pCar->fFinalSpeed < 40.0)
         iActionFlag = 0;
       break;
     default:
@@ -6410,7 +6407,7 @@ void changeline(tCar *pCar)
   pData = &localdata[iCurrChunk];
   if (pCar->iAITargetLine == -1)              // Check if car needs to select a new AI driving line
   {                                             // Check if center line marker is disabled (bit 24)
-    if ((TrakColour[iCurrChunk][1] & 0x1000000) == 0) {                                           // Cars in 6th place or lower have reduced aggression
+    if ((TrakColour[iCurrChunk][1] & SURFACE_FLAG_PIT_ZONE) == 0) { // Cars in 6th place or lower have reduced aggression
       if (pCar->byRacePosition >= 6u) {
         iRandForPos = rand();
         if (GetHighOrderRand(720, iRandForPos) != 100)
@@ -6485,9 +6482,9 @@ void driverange(tCar *pCar, float *pfLeftLimit, float *pfRightLimit)
     iRightSurfaceFlag = -1;
   else
     iRightSurfaceFlag = 0;
-  uiLeftLaneMarker = abs(TrakColour[pCar->nCurrChunk][0]) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
-  uiCenterLaneMarker = abs(TrakColour[pCar->nCurrChunk][1]) & 0x20000;
-  uiRightLaneMarker = abs(TrakColour[pCar->nCurrChunk][2]) & 0x20000;
+  uiLeftLaneMarker = abs(TrakColour[pCar->nCurrChunk][0]) & SURFACE_FLAG_SKIP_RENDER;
+  uiCenterLaneMarker = abs(TrakColour[pCar->nCurrChunk][1]) & SURFACE_FLAG_SKIP_RENDER;
+  uiRightLaneMarker = abs(TrakColour[pCar->nCurrChunk][2]) & SURFACE_FLAG_SKIP_RENDER;
   iLaneType = pCar->iLaneType;
   if (!iLaneType)                             // Lane type 0: Full track width driving (normal racing)
   {

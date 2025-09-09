@@ -608,7 +608,7 @@ void initpits()
     iStopsIdx = 0;
     iChunkIdx = iChunkIdx_1;
     do {
-      if ((TrakColour[iChunkIdx][TRAK_COLOUR_CENTER] & SURFACE_FLAG_PIT_2) != 0)
+      if ((TrakColour[iChunkIdx][TRAK_COLOUR_CENTER] & SURFACE_FLAG_PIT_BOX) != 0)
       {
         // store pit stop position
         stops[iStopsIdx] = iChunkIdx_1; // reference into stops
@@ -1107,7 +1107,7 @@ bool linevalid(int iChunkIdx, float fStartCoord, float fEndCoord)
     iLeftBarierPresent = false;
 
   // Check if invisible
-  iNotRendered = abs(TrakColour[iChunkIdx][TRAK_COLOUR_CENTER]) & 0x20000;// SURFACE_FLAG_SKIP_RENDER
+  iNotRendered = abs(TrakColour[iChunkIdx][TRAK_COLOUR_CENTER]) & SURFACE_FLAG_SKIP_RENDER;
 
   // Determine line validity based on region crossing and surface blocking
   if (!uiStartRegion)                         // start outside positive side
@@ -1460,7 +1460,7 @@ void showmap(uint8 *pScrPtr, int iCarIdx)
       iLoopCalc = scr_size * ((int)dRotatedX + 38); //line skipped decompiler artifact
       iSectionScreenX = iLoopCalc >> 6;
       iY1 = (scr_size * (160 - (int)dLoopRotatedY)) >> 6;
-      if ((TrakColour[iMapSectLoop][0] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iMapSectLoop][1] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iMapSectLoop][2] & SURFACE_FLAG_YELLOW_MAP) != 0)
+      if ((TrakColour[iMapSectLoop][0] & SURFACE_FLAG_PIT_ZONE) != 0 || (TrakColour[iMapSectLoop][1] & SURFACE_FLAG_PIT_ZONE) != 0 || (TrakColour[iMapSectLoop][2] & SURFACE_FLAG_PIT_ZONE) != 0)
         compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iSectionScreenX, iY1, 0xCDu);
       else
         compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iSectionScreenX, iY1, 0x83u);
@@ -1470,7 +1470,7 @@ void showmap(uint8 *pScrPtr, int iCarIdx)
     } while (iMapSectLoop < TRAK_LEN);
   }
   iLastSection = TRAK_LEN - 1;
-  if ((TrakColour[iLastSection][0] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iLastSection][1] & SURFACE_FLAG_YELLOW_MAP) != 0 || (TrakColour[iLastSection][2] & SURFACE_FLAG_YELLOW_MAP) != 0)
+  if ((TrakColour[iLastSection][0] & SURFACE_FLAG_PIT_ZONE) != 0 || (TrakColour[iLastSection][1] & SURFACE_FLAG_PIT_ZONE) != 0 || (TrakColour[iLastSection][2] & SURFACE_FLAG_PIT_ZONE) != 0)
     compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iX1, iOrigScreenY, 0xCDu);
   else
     compout(pScrPtr, iCurrentScreenX, iCurrentScreenY, iX1, iOrigScreenY, 0x83u);
