@@ -20,7 +20,7 @@ pub fn build(b: *std.Build) void {
 
     // Only sanitize C code when building in Debug mode
     // So that release builds are more "stable"
-    exe_mod.sanitize_c = optimize == .Debug;
+    exe_mod.sanitize_c = if (optimize == .Debug) .full else .off;
     exe_mod.addCSourceFiles(.{
         .files = &.{
             "PROJECTS/ROLLER/3d.c",
@@ -143,7 +143,7 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     const sdl = b.dependency("sdl", .{
         .target = target,
         .optimize = optimize,
-        .lto = false,
+        .lto = .none,
     });
     const sdl_lib = sdl.artifact("SDL3");
 
@@ -152,7 +152,7 @@ fn configureDependencies(b: *Build, exe: *Compile, target: ResolvedTarget, optim
     exe_mod.linkLibrary(wildmidi_lib);
 
     const sdl_image_source = sdl_image.builder.dependency("SDL_image", .{
-        .lto = false,
+        .lto = .none,
     });
 
     var cflags = compile_flagz.addCompileFlags(b);

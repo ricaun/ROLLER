@@ -1,24 +1,24 @@
 .{
     .name = .roller,
-    .version = "0.0.0",
+    .version = "0.1.0",
     .fingerprint = 0x7af618f83e4aca69, // Changing this has security and trust implications.
-    .minimum_zig_version = "0.14.1",
+    .minimum_zig_version = "0.15.1",
     .dependencies = .{
         .SDL_image = .{
-            .url = "git+https://github.com/allyourcodebase/SDL_image.git#b4eea3007f965a17c946e31b3ce52196b94ce64b",
-            .hash = "SDL_image-3.2.4--aJoHa0VAAC_C_du38OrOmZ4m23B5bCjXONc13NEpTYf",
+            .url = "git+https://github.com/allyourcodebase/SDL_image#87e0f1f4c612441a6cf38cda07d8fe4dfc06b05e",
+            .hash = "SDL_image-3.2.4--aJoHb8WAACjnDQ_-PhUi-MNh_mYFODwxANtvY3F-yLe",
         },
         .sdl = .{
-            .url = "git+https://github.com/castholm/SDL.git#0ab7c9830bf17c1a2404461a88c0fdedf95309a4",
-            .hash = "sdl-0.2.3+3.2.14-7uIn9Gh6fgEdV7R2A723rZxtbgkVd0PHIs2rvshLBqgV",
+            .url = "git+https://github.com/castholm/SDL#b1913e7c31ad72ecfd3ab04aeac387027754cfaf",
+            .hash = "sdl-0.3.0+3.2.22-7uIn9Pg3fwGG2IyIOPxxOSVe-75nUng9clt7tXGFLzMr",
         },
         .wildmidi = .{
-            .url = "https://github.com/deevus/wildmidi/archive/08dcd2d342fc92fd991b7447cadad0fc362546f1.tar.gz",
-            .hash = "wildmidi-0.4.6-fQncf7HFDgAFaIsK2qT2ivnV9E0KeP0W7ZC7ahK-8a15",
+            .url = "git+https://github.com/deevus/wildmidi#4cdc96129d59ee7fc81cf160dc13e0625be77fba",
+            .hash = "wildmidi-0.4.6-fQncf6jFDgCtSOKbYs0wEaUZ4n1vMUKaU3OWGXfQD9cL",
         },
         .compile_flagz = .{
-            .url = "git+https://git.sr.ht/~deevus/compile_flagz#678d62b66e0e5da1d653a0b5a775c1a0abc57531",
-            .hash = "compile_flagz-0.0.0-SrEtlNEOAACAK0wYDYtnsumvSMUWri9AHyP9wXpGYdQ9",
+            .url = "git+https://github.com/deevus/compile_flagz#9ff0ac4f33e8900aaa21c31f50f60e6deede9013",
+            .hash = "compile_flagz-2.0.0-dev-SrEtlDUcAACsmkKs7PaMj_rWR1i0eMClwLFX4Cspp1Px",
         },
     },
     .paths = .{
