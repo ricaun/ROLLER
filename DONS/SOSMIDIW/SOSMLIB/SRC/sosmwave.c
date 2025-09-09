@@ -1,4 +1,6 @@
 #include "sosmwave.h"
+#include "sosmdata.h"
+#include "../../../SOSDIGIW/SOSLIB/SRC/sosdata.h"
 //-------------------------------------------------------------------------------------------------
 
 int dwWAVEPitchTable[180] =               //000B84E0
@@ -568,31 +570,29 @@ int waveChannelSetPan(uint8 a1, int a2)
 
 //-------------------------------------------------------------------------------------------------
 
-int waveChannelSetBend(uint8 a1, int a2)
-{
-  return 0;
-  /*
-  int v2; // eax
-  int *v4; // [esp+0h] [ebp-1Ch]
-  int i; // [esp+8h] [ebp-14h]
-  unsigned int v6; // [esp+14h] [ebp-8h]
-  unsigned int v7; // [esp+18h] [ebp-4h]
+void waveChannelSetBend(uint8 byMidiChannel, int iDriverIdx)
+{                                               // Iterate through MIDI DIGI sample queue (circular buffer, 32 entries max)
+  int iPitchBend; // eax
+  tMIDIDIGIQueue *pQueueEntry; // [esp+0h] [ebp-1Ch]
+  int iQueueIndex; // [esp+8h] [ebp-14h]
+  unsigned int uiBaseNote; // [esp+14h] [ebp-8h]
+  unsigned int uiMidiNote; // [esp+18h] [ebp-4h]
 
-  for (i = _wMIDIDIGISampleQueueTail[a2]; i != _wMIDIDIGISampleQueueHead[a2]; i = ((_BYTE)i + 1) & 0x1F) {
-    v4 = &_sMIDIDIGIQueue[128 * a2 + 4 * i];
-    if (a1 == v4[3]) {
-      v7 = (unsigned __int8)waveVoice_variable_1[20 * *v4];
-      v6 = (unsigned __int8)waveVoice_variable_2[20 * *v4];
-      if (v7 < v6)
-        v2 = 84 - (v6 - v7);
+  for (iQueueIndex = _wMIDIDIGISampleQueueTail[iDriverIdx]; iQueueIndex != _wMIDIDIGISampleQueueHead[iDriverIdx]; iQueueIndex = ((uint8)iQueueIndex + 1) & 0x1F) {
+    pQueueEntry = &_sMIDIDIGIQueue[iDriverIdx][iQueueIndex];// Get pointer to current queue entry (4 DWORDs per entry)
+    if (byMidiChannel == pQueueEntry->iMidiChannel)  // Check if queue entry matches the specified MIDI channel
+    {
+      uiMidiNote = waveVoice[pQueueEntry->iSampleHandle].byMidiNote;// Read voice parameters for pitch bend calculation
+      uiBaseNote = waveVoice[pQueueEntry->iSampleHandle].byBaseNote;
+      if (uiMidiNote < uiBaseNote)            // Calculate pitch table index based on voice parameter relationship
+        iPitchBend = 84 - (uiBaseNote - uiMidiNote);
       else
-        v2 = v7 + 84 - v6;
-      __writegsdword(
-        *(_DWORD *)&_lpSOSSampleList[192 * _wMIDIDIGIDriverHandle[a2] + 6 * *v4] + 68,
-        waveCalculatePitchBend(a1, dwWAVEPitchTable[v2], v7, v6));
+        iPitchBend = uiMidiNote + 84 - uiBaseNote;
+      //__writegsdword(
+      //  (unsigned int)_lpSOSSampleList[_wMIDIDIGIDriverHandle[iDriverIdx]][pQueueEntry->iSampleHandle].pSample + 68,
+      //  waveCalculatePitchBend(byMidiChannel, dwWAVEPitchTable[iPitchBend], uiMidiNote, uiBaseNote));// Apply calculated pitch bend to the active sample (offset +68 = pitch)
     }
   }
-  return 0;*/
 }
 
 //-------------------------------------------------------------------------------------------------

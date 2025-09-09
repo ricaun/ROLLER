@@ -36,7 +36,7 @@ int sosWAVEPStopSample(int a1, int a2);
 int waveChannelResetControllers(uint8 a1, int a2);
 int waveChannelSetVolume(uint8 a1, int a2);
 int waveChannelSetPan(uint8 a1, int a2);
-int waveChannelSetBend(uint8 a1, int a2);
+void waveChannelSetBend(uint8 byMidiChannel, int iDriverIdx);
 int waveChannelNotesOff(uint8 a1, int a2);
 uint8 *StringOut(uint8 a1, uint8 a2, uint8 *a3, uint8 a4);
 unsigned int waveCalculatePitchBend(uint8 a1, int a2, unsigned int a3, unsigned int a4);

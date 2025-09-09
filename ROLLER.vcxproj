@@ -275,6 +275,7 @@ exit 1</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DONS\SOSDIGIW\SOSLIB\SRC\sosdata.h" />
+    <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmdata.h" />
     <ClInclude Include="DONS\SOSMIDIW\SOSMLIB\SRC\sosmwave.h" />
     <ClInclude Include="PROJECTS\ROLLER\3d.h" />
     <ClInclude Include="PROJECTS\ROLLER\building.h" />
